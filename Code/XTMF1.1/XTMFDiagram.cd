@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="XTMF.XTMFRuntime" Collapsed="true">
+    <Position X="10.75" Y="8" Width="1.5" />
+    <AssociationLine Name="CopyBuffer" Type="XTMF.CopyBuffer" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.125" Y="8.562" />
+        <Point X="11.125" Y="8.937" />
+        <Point X="8.766" Y="8.937" />
+        <Point X="8.766" Y="10.75" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.052" Y="0.132" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAgBAAABAAAAAAAAAAAAAAgAAAAQAQQAA=</HashCode>
+      <FileName>XTMFRuntime.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Configuration" />
+      <Property Name="CopyBuffer" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="XTMF.Configuration" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10.75" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAABjIYAgqQAAQICEQQBAOAAQBABASJQARAgBAEQgAA=</HashCode>
+      <FileName>Configuration.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="XTMF.ConfigurationProxy" Collapsed="true">
+    <Position X="10.75" Y="11.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAA=</HashCode>
+      <FileName>ConfigurationProxy.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="RealConfiguration" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="XTMF.ModelSystemModel" Collapsed="true">
+    <Position X="7.75" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAgIAAAAAgAGAAAAAAAASAgAAAEgAEAAABAAACAAA=</HashCode>
+      <FileName>ModelSystemModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="LinkedParameters" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="XTMF.ModelSystemStructureModel" Collapsed="true">
+    <Position X="7.5" Y="3" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAABAAEQEQAAAgAAIAAAAAYABAAAAAAA=</HashCode>
+      <FileName>Editing\ModelSystemStructureModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="ModelSystemModel" />
+      <Property Name="Parameters" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="XTMF.ModelSystemEditingSession" Collapsed="true">
+    <Position X="5" Y="8" Width="2.25" />
+    <AssociationLine Name="CopyBuffer" Type="XTMF.CopyBuffer" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="6.938" Y="8.562" />
+        <Point X="6.938" Y="10.375" />
+        <Point X="8.219" Y="10.375" />
+        <Point X="8.219" Y="10.75" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAQAgAhggAGAAAQAABAAAAAgAAKCAAKACAAAA=</HashCode>
+      <FileName>Editing\ModelSystemEditingSession.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="CopyBuffer" />
+      <Field Name="Runtime" />
+      <Field Name="ModelSystem" />
+      <Field Name="ProjectEditingSession" />
+      <Field Name="UndoCommandStack" />
+      <Field Name="RedoCommandStack" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="XTMF.CopyBuffer" Collapsed="true">
+    <Position X="7.75" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Editing\CopyBuffer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="XTMF.ModelSystemStructure" Collapsed="true">
+    <Position X="10.25" Y="1" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAMAgoIACCGipAAEgVAEAIQAAAMMYABUgYAICAQIFRg=</HashCode>
+      <FileName>ModelSystemStructure.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="XTMF.LinkedParameterModel" Collapsed="true">
+    <Position X="10.75" Y="2.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAEA=</HashCode>
+      <FileName>Editing\LinkedParameterModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="RealLinkedParameter" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="ParameterModels" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="XTMF.ParametersModel" Collapsed="true">
+    <Position X="7.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAIABAAAAAAA=</HashCode>
+      <FileName>Editing\ParametersModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Parameters" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="XTMF.ParameterModel" Collapsed="true">
+    <Position X="4.25" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABAAAAAAAAQAgAAAAAAAAAAhAAAAAAA=</HashCode>
+      <FileName>Editing\ParameterModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="XTMF.LinkedParametersModel">
+    <Position X="10.75" Y="4.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Editing\LinkedParametersModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="LinkedParameters" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="XTMF.LinkedParameter" Collapsed="true">
+    <Position X="12.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAIAAAAEAAAAAgAAAACABAQAAAAAAAAAAIAgAAAAAAE=</HashCode>
+      <FileName>LinkedParameter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="XTMF.ProjectEditingSession" Collapsed="true">
+    <Position X="4.75" Y="10.25" Width="1.75" />
+    <NestedTypes>
+      <Struct Name="XTMF.ProjectEditingSession.SessionData" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Editing\ProjectEditingSession.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AACAAAEAKAAAAAAAAAIAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Editing\ProjectEditingSession.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="XTMF.ModelSystem" Collapsed="true">
+    <Position X="2" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEiIAAAgCgAAgMAAEAAAYAAAAAUAAAAAAAAACAAAA=</HashCode>
+      <FileName>ModelSystem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="XTMF.ModelSystemController" Collapsed="true">
+    <Position X="4.5" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAMACAAAAAgAAAAAAAACAEEYAgAAoAAAAAgAAAA=</HashCode>
+      <FileName>Controller\ModelSystemController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="EditingSessions" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="XTMF.ProjectController" Collapsed="true">
+    <Position X="4.75" Y="11.75" Width="1.5" />
+    <AssociationLine Name="EditingSessions" Type="XTMF.ProjectEditingSession" FixedFromPoint="true">
+      <Path>
+        <Point X="5.5" Y="11.75" />
+        <Point X="5.5" Y="10.812" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAIAAAQgAAAAIAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Controller\ProjectController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="EditingSessions" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="XTMF.Editing.XTMFCommand" Collapsed="true">
+    <Position X="8.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAABAAAAAAEAAABCAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Editing\XTMFCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="XTMF.Editing.EditingStack" Collapsed="true">
+    <Position X="1.25" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Editing\EditingStack.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

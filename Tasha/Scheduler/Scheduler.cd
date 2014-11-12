@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Tasha.Scheduler.ActivityEpisode" Collapsed="true">
+    <Position X="4.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEABAAAAAAAAQAAAAAAAACAACAAEA=</HashCode>
+      <FileName>Scheduler\ActivityEpisode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tasha.Scheduler.Episode" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgACAAIACAAAAABAAAAAAICQgAAAAIAACCAgAAUI=</HashCode>
+      <FileName>Scheduler\Episode.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Common.Zone" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAgAABACkEABACMAEBAMAAAEAMBAoAAAjQAEAIAYAg=</HashCode>
+      <FileName>Common\Zone.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Common.Person" Collapsed="true">
+    <Position X="8.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FAAKAAAAAAAAAAAAAUAAAAAAAAAAAAAAAQACAAIACAA=</HashCode>
+      <FileName>Common\Person.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Scheduler.TravelEpisode" Collapsed="true">
+    <Position X="6.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAABAAAAAAAAQIAAAEAAACAAgAAEA=</HashCode>
+      <FileName>Scheduler\TravelEpisode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tasha.Scheduler.PersonalProject" Collapsed="true">
+    <Position X="9.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Scheduler\PersonalProject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tasha.Scheduler.HouseholdProject" Collapsed="true">
+    <Position X="11.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Scheduler\HouseholdProject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tasha.Common.Household" Collapsed="true">
+    <Position X="11.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAABAAAAAAIAAAAAAAAAAAAAACAEAAAEAAAA=</HashCode>
+      <FileName>Common\Household.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Scheduler.Project" Collapsed="true">
+    <Position X="10.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Scheduler\Project.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Schedule" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Tasha.Scheduler.PersonSchedule" Collapsed="true">
+    <Position X="4.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAIABEiAAAEEAAAAAQERAACAIIEQAABAEAIAAEBAQAA=</HashCode>
+      <FileName>Scheduler\PersonSchedule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tasha.Scheduler.Schedule" Collapsed="true">
+    <Position X="7" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIICAEAgCCCAAAEAAQGAgAAECEIAQIlAAAYQAEAAAAA=</HashCode>
+      <FileName>Scheduler\Schedule.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tasha.Scheduler.ProjectSchedule" Collapsed="true">
+    <Position X="7" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIABEgAAAAEAAAAAQEQCACAAIEAAABAAAIAAEBAQAA=</HashCode>
+      <FileName>Scheduler\ProjectSchedule.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Project" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Tasha.Scheduler.VehicalSchedule" Collapsed="true">
+    <Position X="9.25" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAAwEAAAAAAAgAAABAAAIAAEAAAAA=</HashCode>
+      <FileName>Scheduler\VehicalSchedule.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Vehical" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Tasha.Common.Vehicle" Collapsed="true">
+    <Position X="9.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAQAAAAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>Common\Vehicle.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Scheduler.TimeWindow" Collapsed="true">
+    <Position X="2.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Scheduler\TimeWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="Tasha.Scheduler.Activity" Collapsed="true">
+    <Position X="3.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAgAAAAAAAAAACAQAAQAAAAAYAAAIQIAAAAAMAAA=</HashCode>
+      <FileName>Scheduler\Activity.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

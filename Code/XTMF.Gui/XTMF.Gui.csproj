@@ -1,0 +1,653 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1D2B66E0-CDFB-4ABA-A7EC-0FED1E246325}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XTMF.Gui</RootNamespace>
+    <AssemblyName>XTMF.Gui</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>D:\Documents\XTMF\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>XTMF_icon_2.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|x86'">
+    <OutputPath>D:\Documents\XTMF32\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>D:\Documents\XTMF\XTMF.Gui.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|x86'">
+    <OutputPath>D:\Documents\XTMF\</OutputPath>
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|x86'">
+    <OutputPath>..\..\..\..\..\..\..\Documents\XTMF32\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>D:\Documents\XTMF\XTMF.Gui.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\XTMF-Dev\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>XTMF.Gui.App</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Pages\AboutPage.xaml.cs">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SelectModelSystemPage.xaml.cs">
+      <DependentUpon>SelectModelSystemPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BooleanQuestionPage.xaml.cs">
+      <DependentUpon>BooleanQuestionPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\BooleanQuestion.cs" />
+    <Compile Include="Pages\DeleteRunPage.xaml.cs">
+      <DependentUpon>DeleteRunPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DeleteModelSystemPage.xaml.cs">
+      <DependentUpon>DeleteModelSystemPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\CopyFileConflictPage.xaml.cs">
+      <DependentUpon>CopyFileConflictPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\EditModelSystemPage.xaml.cs">
+      <DependentUpon>EditModelSystemPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ImportTypeSelectPage.xaml.cs">
+      <DependentUpon>ImportTypeSelectPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Question.cs" />
+    <Compile Include="Pages\RemoveModelSystemPage.xaml.cs">
+      <DependentUpon>RemoveModelSystemPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DeleteProjectPage.xaml.cs">
+      <DependentUpon>DeleteProjectPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\IXTMFPage.cs" />
+    <Compile Include="Pages\ModelSystemPage.xaml.cs">
+      <DependentUpon>ModelSystemPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\NewProjectPage.xaml.cs">
+      <DependentUpon>NewProjectPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ProjectSettingsPage.xaml.cs">
+      <DependentUpon>ProjectSettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\QuestionPage.xaml.cs">
+      <DependentUpon>QuestionPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\RunModelSystemPage.xaml.cs">
+      <DependentUpon>RunModelSystemPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SaveProjectPage.xaml.cs">
+      <DependentUpon>SaveProjectPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ViewRunPage.xaml.cs">
+      <DependentUpon>ViewRunPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ViewRunsPage.xaml.cs">
+      <DependentUpon>ViewRunsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\BorderIconButton.xaml.cs">
+      <DependentUpon>BorderIconButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\CategorySelectMenu.cs" />
+    <Compile Include="UserControls\CollapsePanel.xaml.cs">
+      <DependentUpon>CollapsePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ColourKey.xaml.cs">
+      <DependentUpon>ColourKey.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ColourSelector.xaml.cs">
+      <DependentUpon>ColourSelector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ErrorWindow.xaml.cs">
+      <DependentUpon>ErrorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\LinkedParameterContextMenu.cs" />
+    <Compile Include="UserControls\LinkedParameterDisplay.xaml.cs">
+      <DependentUpon>LinkedParameterDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\LinkedParameterEditor.xaml.cs">
+      <DependentUpon>LinkedParameterEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ModelSystemContextMenu.cs" />
+    <Compile Include="UserControls\DocumentationWindow.xaml.cs">
+      <DependentUpon>DocumentationWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ModelPropertyControl.xaml.cs">
+      <DependentUpon>ModelPropertyControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ProjectPage.xaml.cs">
+      <DependentUpon>ProjectPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SingleWindowGUI.xaml.cs">
+      <DependentUpon>SingleWindowGUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\StartingPage.xaml.cs">
+      <DependentUpon>StartingPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\HintedTextBox.cs" />
+    <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
+      <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ModelSystemDisplayStructure.cs" />
+    <Compile Include="UserControls\NewCategoryWindow.xaml.cs">
+      <DependentUpon>NewCategoryWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ParameterEditor.xaml.cs">
+      <DependentUpon>ParameterEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\Selector.xaml.cs">
+      <DependentUpon>Selector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\PathLabel.xaml.cs">
+      <DependentUpon>PathLabel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\SearchBox.xaml.cs">
+      <DependentUpon>SearchBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\TitledTextbox.xaml.cs">
+      <DependentUpon>TitledTextbox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\TMGProgressBar.xaml.cs">
+      <DependentUpon>TMGProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\UMSIContextMenu.cs" />
+    <Compile Include="UserControls\UnifiedModelSystemInterface.xaml.cs">
+      <DependentUpon>UnifiedModelSystemInterface.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Win32.cs" />
+    <Compile Include="XTMFHeader.xaml.cs">
+      <DependentUpon>XTMFHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="XTMFLoadingWindow.xaml.cs">
+      <DependentUpon>XTMFLoadingWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Pages\AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SelectModelSystemPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\BooleanQuestionPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\DeleteRunPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\DeleteModelSystemPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\CopyFileConflictPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\EditModelSystemPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ImportTypeSelectPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\RemoveModelSystemPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DeleteProjectPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ModelSystemPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\NewProjectPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ProjectSettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\QuestionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\RunModelSystemPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SaveProjectPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ViewRunPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ViewRunsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\BorderIconButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\CollapsePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ColourKey.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ColourSelector.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\DocumentationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ErrorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\LinkedParameterDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\LinkedParameterEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ModelPropertyControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\ProjectPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SingleWindowGUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\StartingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="UserControls\ModelSystemDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\NewCategoryWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ParameterEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Selector.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\PathLabel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\SearchBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\TitledTextbox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\TMGProgressBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\UnifiedModelSystemInterface.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="XTMFHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="XTMFLoadingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+    <None Include="app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Links.emf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
+      <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>
+      <Name>XTMFInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XTMF\XTMF.csproj">
+      <Project>{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}</Project>
+      <Name>XTMF</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\saveHS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\OpenFile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\XTMFIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Download.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\010_LowPriority_16x16_72.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\GreenArrowUp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\FolderOpen_16x16_72.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\base_cog_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\base_star_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Run.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Home.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\112_ArrowReturnLeft_Blue_24x24_72.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\075b_UpFolder_24x24_72.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FloppyDisk.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FolderOpen_24x24_72.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FolderOpen_32x32_72.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\crest.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\crest.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CopyFolderHSx64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ProjectItems\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CopyHS.png" />
+    <Resource Include="Images\CutHS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PasteHS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Link.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\xtmf_logo_1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="xtmf_logo_1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="license.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\underpassbg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\XTMF_icon.png" />
+    <Resource Include="Resources\XTMF_refresh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\XTMF_corner_splash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\XTMF_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\XTMF_icon_2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\BigLinks.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Links.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Lock.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="XTMF_icon_2.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

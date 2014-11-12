@@ -1,0 +1,49 @@
+<!-- 
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<Window x:Class="XTMF.Gui.SingleWindowGUI"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:XTMF.Gui"
+        WindowStartupLocation="CenterScreen"
+        Title="eXtensible Travel Model Framework" Width="1024" Height="768" MinWidth="640" MinHeight="600"
+        Background="Transparent"
+        ScrollViewer.CanContentScroll="True" Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Foreground="White"
+        Loaded="Window_Loaded">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="/XTMF.Gui;component/Resources/underpassbg.png"
+                            Stretch="UniformToFill"  AlignmentX="Center" AlignmentY="Center" Opacity="0.6" />
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <my:XTMFHeader Grid.Row="0" x:Name="HeaderControl" />
+        <Grid Grid.Row="1" x:Name="CurrentMode" />
+        <Grid Grid.Row="1" x:Name="LoadingPane" Visibility="Hidden">
+            <Border Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    BorderBrush="White" Background="{StaticResource ResourceKey=ControlBackgroundBrush}" BorderThickness="2">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Loading" FontSize="24" Foreground="White" />
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

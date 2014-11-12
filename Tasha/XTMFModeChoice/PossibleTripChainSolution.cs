@@ -1,0 +1,79 @@
+/*
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using Tasha.Common;
+
+namespace Tasha.XTMFModeChoice
+{
+    public sealed class PossibleTripChainSolution
+    {
+        public float U;
+
+        private float TourDependentUtility;
+
+        private ModeChoiceTripData[] BaseData;
+
+        private TourData TourData;
+
+        internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, int[] solution, TourData tourData)
+        {
+            var numberOftrips = solution.Length;
+            BaseData = baseTripData;
+            PickedModes = solution.Clone() as int[];
+            if ( tourData != null )
+            {
+                TourData = tourData;
+                var modifiers = TourData.TourUtilityModifiers;
+                var picked = PickedModes;
+                var localTotal = 0.0f;
+                for ( int i = 0; i < modifiers.Length; i++ )
+                {
+                    localTotal += modifiers[i];
+                }
+                TourDependentUtility = localTotal;
+            }
+            RegenerateU();
+        }
+
+        internal void PickSolution(ITripChain chain)
+        {
+            if ( TourData == null ) return;
+            var onSolution = TourData.OnSolution;
+            var picked = PickedModes;
+            for ( int i = 0; i < onSolution.Length; i++ )
+            {
+                if ( onSolution[i] != null )
+                {
+                    onSolution[i]( chain );
+                }
+            }
+        }
+
+        public int[] PickedModes;
+
+        public void RegenerateU()
+        {
+            float total = 0;
+            for ( int i = 0; i < BaseData.Length; i++ )
+            {
+                total += BaseData[i].V[PickedModes[i]] + BaseData[i].Error[PickedModes[i]];
+            }
+            U = total + TourDependentUtility;
+        }
+    }
+}

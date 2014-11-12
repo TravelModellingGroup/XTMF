@@ -1,0 +1,236 @@
+/*
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using TMG.Emme;
+using XTMF;
+
+namespace TMG.GTAModel.NetworkAnalysis
+{
+    [ModuleInformation( Name = "Legacy Station-to-Station Assignment",
+                        Description = "Executes a station-to-station assignment for commuter rail (GO Transit) using optional fare-based impedances."
+                        + " Similar to Legacy FBTA, this assignment uses functions to apply fare impedances.\r\n"
+                        + " Saves matrix results for in-vehicle times and costs (fares) for feasible trips from station centroids only. Station"
+                        + " centroids are hard-coded to NCS11 definitions." )]
+    public class LegacyStation2StationAssignment : IEmmeTool
+    {
+        [RunParameter( "Cost Matrix Number", 21, "The full matrix number in which to store the assignment costs. Costs will only be reported for feasible trips from station centroids." )]
+        public int CostMatrixNumber;
+
+        [RunParameter( "Demand File Name", "", "Optional file name for saving the demand matrix passed from XTMF to EMME. Leave blank to use a temporary file." )]
+        public string DemandFileName;
+
+        [RunParameter( "Demand Matrix Number", 0, "The matrix number which will store the station OD matrix, if applicable. A value of 0 will assign a"
+                        + " scalar matrix of '0'. If the matrix exists already, it will be overwritten." )]
+        public int DemandMatrixNumber;
+
+        [Parameter( "Fare Perception", 0.0f, "The time-value-of-money for transit, in $/hr. Set to '0' to disable fare-based impedances." )]
+        public float FarePerception;
+
+        [RunParameter( "Times Matrix Number", 20, "The full matrix number in which to store the assignment in-vehicle times. Times will only be reported for feasible trips from station centroids" )]
+        public int InVehicleTimeMatrixNumber;
+
+        [RunParameter( "Rail Base Fare", 3.55f, "A constant base fare ($) which will be added to all feasible station-to-station ODs" )]
+        public float RailBaseFare;
+
+        [RootModule]
+        public ITravelDemandModel Root;
+
+        [RunParameter( "Scenario Number", 1, "The desired Emme network scenario. Must exist inside the databank." )]
+        public int ScenarioNumber;
+
+        [SubModelInformation( Description = "Tallies used to create the demand matrix for EMME.", Required = false )]
+        public List<IModeAggregationTally> Tallies;
+
+        [RunParameter( "Total Travel Time Cutoff", 150.0f, "The total travel time cutoff, in minutes. OD pairs determined feasible will have total in-vehicle times less than this threshold." )]
+        public float TotalTimeCutoff;
+
+        [Parameter( "Additive Demand", false, "Set to 'true' to add the demand of this assignment to that of a previous assignment." )]
+        public bool UseAdditiveDemand;
+
+        [Parameter( "Wait Perception", 2.0f, "Waiting time perception factor." )]
+        public float WaitPerception;
+
+        [Parameter( "Walk Perception", 2.0f, "Walking time perception factor." )]
+        public float WalkPerception;
+
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        public float Progress
+        {
+            get;
+            set;
+        }
+
+        public Tuple<byte, byte, byte> ProgressColour
+        {
+            get { return _ProgressColour; }
+        }
+
+        public bool Execute(Controller controller)
+        {
+            var mc = controller as ModellerController;
+            if ( mc == null )
+                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+
+            if ( this.DemandMatrixNumber != 0 )
+                PassMatrixIntoEmme( mc );
+
+            var sb = new StringBuilder();
+            sb.AppendFormat( "{0} {1} {2} {3} {4} {5} {6} {7} {8}",
+                ScenarioNumber, DemandMatrixNumber, UseAdditiveDemand, RailBaseFare, WalkPerception,
+                WaitPerception, TotalTimeCutoff, CostMatrixNumber, InVehicleTimeMatrixNumber );
+
+            /*
+             * ScenarioNumber, DemandMatrixNumber, UseAdditiveDemand, GOBaseFare, WalkPerception,
+                 WaitPerception, TotalTimeCutoff, CostMatrixNumber,InVehicleTimeMatrixNumber
+             */
+
+            string result = null;
+            return mc.Run( "TMG2.Assignment.TransitAssignment.LegacyStation2Station", sb.ToString(), ( p => this.Progress = p ), ref result );
+        }
+
+        public bool RuntimeValidation(ref string error)
+        {
+            if ( ( this.Tallies == null || this.Tallies.Count == 0 ) && this.DemandMatrixNumber != 0 )
+            {
+                //There are no Tallies, and a scalar is not being assigned
+                error = "No Tallies were found, but a scalar matrix was not selected! Please either add a Tally or change the" +
+                    " Demand Matrix Number to 0";
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
+        {
+            if ( modeIndex == current )
+            {
+                return node.Result;
+            }
+            current++;
+            if ( node.Children != null )
+            {
+                for ( int i = 0; i < node.Children.Length; i++ )
+                {
+                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
+                    if ( temp != null )
+                    {
+                        return temp;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private void PassMatrixIntoEmme(ModellerController mc)
+        {
+            var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var numberOfZones = flatZones.Length;
+            // Load the data from the flows and save it to our temporary file
+            var useTempFile = String.IsNullOrWhiteSpace( this.DemandFileName );
+            string outputFileName = useTempFile ? Path.GetTempFileName() : this.DemandFileName;
+            float[][] tally = new float[numberOfZones][];
+            for ( int i = 0; i < numberOfZones; i++ )
+            {
+                tally[i] = new float[numberOfZones];
+            }
+            for ( int i = Tallies.Count - 1; i >= 0; i-- )
+            {
+                Tallies[i].IncludeTally( tally );
+            }
+            var dir = Path.GetDirectoryName( outputFileName );
+            if ( !String.IsNullOrWhiteSpace( dir ) && !Directory.Exists( dir ) )
+            {
+                Directory.CreateDirectory( dir );
+            }
+            using ( StreamWriter writer = new StreamWriter( outputFileName ) )
+            {
+                writer.WriteLine( "t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", this.DemandMatrixNumber );
+                StringBuilder[] builders = new StringBuilder[numberOfZones];
+                Parallel.For( 0, numberOfZones, delegate(int o)
+                {
+                    var build = builders[o] = new StringBuilder();
+                    var strBuilder = new StringBuilder( 10 );
+                    var convertedO = flatZones[o].ZoneNumber;
+                    for ( int d = 0; d < numberOfZones; d++ )
+                    {
+                        this.ToEmmeFloat( tally[o][d], strBuilder );
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                            convertedO, flatZones[d].ZoneNumber, strBuilder );
+                    }
+                } );
+                for ( int i = 0; i < numberOfZones; i++ )
+                {
+                    writer.Write( builders[i] );
+                }
+            }
+
+            try
+            {
+                mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+            }
+            finally
+            {
+                if ( useTempFile )
+                {
+                    File.Delete( outputFileName );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Process floats to work with emme
+        /// </summary>
+        /// <param name="number">The float you want to send</param>
+        /// <returns>A limited precision non scientific number in a string</returns>
+        private void ToEmmeFloat(float number, StringBuilder builder)
+        {
+            builder.Clear();
+            builder.Append( (int)number );
+            number = number - (int)number;
+            if ( number > 0 )
+            {
+                var integerSize = builder.Length;
+                builder.Append( '.' );
+                for ( int i = integerSize; i < 4; i++ )
+                {
+                    number = number * 10;
+                    builder.Append( (int)number );
+                    number = number - (int)number;
+                    if ( number == 0 )
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}

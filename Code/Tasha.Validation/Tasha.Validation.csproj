@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{46F04E0B-949D-4FE6-9289-02A53D97F411}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tasha.Validation</RootNamespace>
+    <AssemblyName>Tasha.Validation</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>D:\Documents\XTMF32\Modules\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>D:\Documents\XTMF32\Modules\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|AnyCPU'">
+    <OutputPath>D:\Documents\XTMF32\Modules\</OutputPath>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
+    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>D:\Documents\XTMF\Modules\Tasha.Validation.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
+    <OutputPath>D:\Documents\XTMF32\Modules\</OutputPath>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
+    <OutputPath>..\..\..\..\XTMF-Dev\Modules\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\ExportSparseArrayOfFloat.cs" />
+    <Compile Include="DemographicSummery.cs" />
+    <Compile Include="ModeChoice\ConvertZonalModeSplitToPDModeSplit.cs" />
+    <Compile Include="ModeChoice\ConvertZonalModeSplitToRegionModeSplit.cs" />
+    <Compile Include="ModeChoice\PrintFailedModeChoice.cs" />
+    <Compile Include="ModeChoice\StartTimeDistributions.cs" />
+    <Compile Include="ModeChoice\TimePeriodModeSplit.cs" />
+    <Compile Include="ModeChoice\ModeSplit.cs" />
+    <Compile Include="ModeChoice\ZonalModeSplits.cs" />
+    <Compile Include="PopulationSynthesis\ValidateOccupationResidence.cs" />
+    <Compile Include="PoRPoW\ExtractPoRPoWAssignments.cs" />
+    <Compile Include="PoRPoW\LinkageDistanceHistogram.cs" />
+    <Compile Include="PoRPoW\PostSchedulePoRPoWAssignments.cs" />
+    <Compile Include="Scheduler\PrintMissedWorkEpisodes.cs" />
+    <Compile Include="School\ProduceStudentMatrix.cs" />
+    <Compile Include="TashaAccessStation.cs" />
+    <Compile Include="AutoSanityCheck.cs" />
+    <Compile Include="DurationsVsStartTimeVersion2.cs" />
+    <Compile Include="DurationsVsStartTime.cs" />
+    <Compile Include="ComparisonOfFiles.cs" />
+    <Compile Include="ODMatrixBuilder.cs" />
+    <Compile Include="ProjectLevel.cs" />
+    <Compile Include="RandomTashaSeeds.cs" />
+    <Compile Include="TripDistanceVsTripTime.cs" />
+    <Compile Include="Distance.cs" />
+    <Compile Include="PersonScheduleAnalysis.cs" />
+    <Compile Include="ProjectScheduleAnalysis.cs" />
+    <Compile Include="StartTimeIPostScheduler.cs" />
+    <Compile Include="TripStartTime.cs" />
+    <Compile Include="TripChainValidate.cs" />
+    <Compile Include="TripPurposeValidate.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValidateModeChoice\ValidatePass.cs" />
+    <Compile Include="ValidateModeChoice\GetUtilities.cs" />
+    <Compile Include="ValidateModeChoice\HouseholdUtilities.cs" />
+    <Compile Include="ValidateModeChoice\PrintingConflicts.cs" />
+    <Compile Include="ValidateModeChoice\VKT.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
+      <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
+      <Name>Datastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TashaInterfaces\TashaInterfaces.csproj">
+      <Project>{FF44241D-1070-4391-9A3C-B19B8F96A583}</Project>
+      <Name>TashaInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tasha\Tasha.csproj">
+      <Project>{7DD20E37-8F3F-4BF6-953E-47453F611094}</Project>
+      <Name>Tasha</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj">
+      <Project>{4129e4db-412b-493a-bda1-f0c367ee1f6f}</Project>
+      <Name>TMG.Functions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj">
+      <Project>{036AE224-AA65-4C4C-A29F-502DED239A84}</Project>
+      <Name>TMGInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
+      <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>
+      <Name>XTMFInterfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

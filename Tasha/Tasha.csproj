@@ -1,0 +1,400 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7DD20E37-8F3F-4BF6-953E-47453F611094}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tasha</RootNamespace>
+    <AssemblyName>Tasha</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <CodeAnalysisRuleSet>Migrated rules for Tasha.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
+    <DefineConstants>TRACE;Release</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'SchedulerDevelopment|AnyCPU' ">
+    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
+    <DefineConstants>TRACE;Release</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
+    <OutputPath>D:\Documents\XTMF32\Modules\</OutputPath>
+    <DefineConstants>TRACE;Release</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>D:\Documents\XTMF\Modules\Tasha.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
+    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|AnyCPU'">
+    <OutputPath>..\..\..\..\..\..\..\Documents\XTMF32\Modules\</OutputPath>
+    <DefineConstants>TRACE;Release</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>D:\Documents\XTMF\Modules\Tasha.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdvancedModeChoiceEstimationHost.cs" />
+    <Compile Include="Airport\Airport.cs" />
+    <Compile Include="Airport\GTAModelAirportModel.cs" />
+    <Compile Include="Airport\V4AirportIntegration.cs" />
+    <Compile Include="Airport\V4AirportModel2014.cs" />
+    <Compile Include="Analysis\BuildODTable.cs" />
+    <Compile Include="Common\DefaultActivityConverter.cs" />
+    <Compile Include="Common\ArrayFunctions.cs" />
+    <Compile Include="Common\Attachable.cs" />
+    <Compile Include="Common\AuxiliaryTrip.cs" />
+    <Compile Include="Common\AuxiliaryTripChain.cs" />
+    <Compile Include="Common\HouseholdExtender.cs" />
+    <Compile Include="Common\PostIterationMSIntegration.cs" />
+    <Compile Include="Common\Resource.cs" />
+    <Compile Include="Common\ResourceAvailabilityModified.cs" />
+    <Compile Include="Common\ResourceLookup.cs" />
+    <Compile Include="Common\TimeSpan.cs" />
+    <Compile Include="Common\Zone.cs" />
+    <Compile Include="Common\ZoneRetriever.cs" />
+    <Compile Include="DataExtraction\ExtractBaseYearStudentLinkages.cs" />
+    <Compile Include="DataExtraction\GatherEmploymentByAgeByPD.cs" />
+    <Compile Include="DataExtraction\ExecuteWithResources.cs" />
+    <Compile Include="DataExtraction\GatherAgeByPD.cs" />
+    <Compile Include="DataExtraction\GatherOccupationByEmpStatByPD.cs" />
+    <Compile Include="DataExtraction\GatherPopulationByZone.cs" />
+    <Compile Include="DataExtraction\SaveAsCSVMatrix.cs" />
+    <Compile Include="DataExtraction\SqlServerDataSource.cs" />
+    <Compile Include="DataExtraction\ZoneSystemSource.cs" />
+    <Compile Include="Data\AddRates.cs" />
+    <Compile Include="Data\SaveZoneODAsEmmeMatrix.cs" />
+    <Compile Include="Data\SubtractODResources.cs" />
+    <Compile Include="Data\ZonalPopulation.cs" />
+    <Compile Include="Data\IntrazonalDistances.cs" />
+    <Compile Include="Data\DivideRates.cs" />
+    <Compile Include="Data\MultiplyRates.cs" />
+    <Compile Include="Data\MultiplyResourceByConstant.cs" />
+    <Compile Include="Data\RatesAppliedToPopulation.cs" />
+    <Compile Include="Data\ReadOriginDestinationDataFromResource.cs" />
+    <Compile Include="Data\SCurve.cs" />
+    <Compile Include="Data\UnloadResourceIPostIteration.cs" />
+    <Compile Include="Data\ZoneInformation.cs" />
+    <Compile Include="Data\ZoneODInformation.cs" />
+    <Compile Include="EMME\CreateEmmeBinaryMatrix.cs" />
+    <Compile Include="Estimation\AccessStation\AccessStationChoiceEstimationModelSystemTemplate.cs" />
+    <Compile Include="Estimation\AccessStation\AccessTourData.cs" />
+    <Compile Include="Estimation\AccessStation\BlankTashaMode.cs" />
+    <Compile Include="Estimation\AccessStation\TourLoader.cs" />
+    <Compile Include="Estimation\EstimationHouseholdLoader.cs" />
+    <Compile Include="Estimation\HostHouseholdLoader.cs" />
+    <Compile Include="Estimation\IntegrateIntoEstimationFramework.cs" />
+    <Compile Include="Estimation\KFactors.cs" />
+    <Compile Include="Estimation\PoRPoW\PoRPoWMST.cs" />
+    <Compile Include="Estimation\TestParameterSignificance.cs" />
+    <Compile Include="Estimation\TransformTripsToIncludeAccessMode.cs" />
+    <Compile Include="Estimation\V4AirportModel2014\AiportModeSplitFitnessFunction.cs" />
+    <Compile Include="Estimation\V4AirportModel2014\AirportDistributionFitnessFunction.cs" />
+    <Compile Include="External\ExternalTripChainLoader.cs" />
+    <Compile Include="External\RateBasedExternalGenerator.cs" />
+    <Compile Include="Internal\TashaHousehold.cs" />
+    <Compile Include="Internal\TashaPerson.cs" />
+    <Compile Include="Internal\Vehicle.cs" />
+    <Compile Include="ModeChoiceEstimationClient.cs" />
+    <Compile Include="ModeChoiceEstimationHost.cs" />
+    <Compile Include="ModeChoice\ModeChoiceAssignObservedMode.cs" />
+    <Compile Include="ModeChoice\ModeChoiceHousehold.cs" />
+    <Compile Include="ModeChoice\ModeChoicePerson.cs" />
+    <Compile Include="ModeChoice\ModeChoiceTrip.cs" />
+    <Compile Include="ModeChoice\ModeChoiceTripChain.cs" />
+    <Compile Include="ModeChoice\ModeSet.cs" />
+    <Compile Include="ModeChoice\PassengerAlgo.cs" />
+    <Compile Include="Modes\Auto.cs" />
+    <Compile Include="Modes\BasicResultGeneration.cs" />
+    <Compile Include="Modes\Bike.cs" />
+    <Compile Include="Modes\Common.cs" />
+    <Compile Include="Modes\EnumerateTourTypes.cs" />
+    <Compile Include="Modes\GenerateTimePerioidMatrix.cs" />
+    <Compile Include="Modes\GoAccess.cs" />
+    <Compile Include="Modes\GoEgress.cs" />
+    <Compile Include="Modes\GoNonDrive.cs" />
+    <Compile Include="Modes\ModeErrorMatrix.cs" />
+    <Compile Include="Modes\Passenger.cs" />
+    <Compile Include="Modes\RideShare.cs" />
+    <Compile Include="Modes\SchoolBus.cs" />
+    <Compile Include="Modes\Taxi.cs" />
+    <Compile Include="Modes\Transit.cs" />
+    <Compile Include="Modes\TransitAccess.cs" />
+    <Compile Include="Modes\TransitEgress.cs" />
+    <Compile Include="Modes\Walking.cs" />
+    <Compile Include="Network\NetworkDataSource.cs" />
+    <Compile Include="Network\V4AutoNetwork.cs" />
+    <Compile Include="Network\V4TransitData.cs" />
+    <Compile Include="PopulationSynthesis\AggregatePoRPoW.cs" />
+    <Compile Include="PopulationSynthesis\ApplyOccupationRates.cs" />
+    <Compile Include="PopulationSynthesis\AssignSchoolZonesFromResourceProbabilities.cs" />
+    <Compile Include="PopulationSynthesis\AssignWorkZonesFromResource.cs" />
+    <Compile Include="PopulationSynthesis\ExtractHouseholdData.cs" />
+    <Compile Include="PopulationSynthesis\ExtractPersonData.cs" />
+    <Compile Include="PopulationSynthesis\PoRPoS.cs" />
+    <Compile Include="PopulationSynthesis\StartPoRPoW.cs" />
+    <Compile Include="PopulationSynthesis\TTSPopulationReplicationForcast.cs" />
+    <Compile Include="PopulationSynthesis\UpdatePopulationRatesByZone.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Scheduler\ActivityDistribution.cs" />
+    <Compile Include="Scheduler\MakingNumberOfAdultDistributions.cs" />
+    <Compile Include="Scheduler\SchedulerHomeTrip.cs" />
+    <Compile Include="Scheduler\LocationChoiceCacheMaker.cs" />
+    <Compile Include="Scheduler\TashaValidationDataAnalys.cs" />
+    <Compile Include="Scheduler\MakingDistrDuratFreq.cs" />
+    <Compile Include="Scheduler\MakingDistStartTimeFreq.cs" />
+    <Compile Include="Scheduler\MakingDistrFreq.cs" />
+    <Compile Include="Scheduler\Distribution.cs" />
+    <Compile Include="Scheduler\Distribution2.cs" />
+    <Compile Include="Scheduler\DistributionAnalysis.cs" />
+    <Compile Include="Scheduler\DistroMaker.cs" />
+    <Compile Include="Scheduler\Episode.cs" />
+    <Compile Include="Scheduler\LocationChoiceModel.cs" />
+    <Compile Include="Scheduler\PersonSchedule.cs" />
+    <Compile Include="Scheduler\ProjectSchedule.cs" />
+    <Compile Include="Scheduler\Schedule.cs" />
+    <Compile Include="Scheduler\HouseholdProject.cs" />
+    <Compile Include="ModeChoice\ModeChoice.cs" />
+    <Compile Include="ModeChoice\ModeData.cs" />
+    <Compile Include="Scheduler\Project.cs" />
+    <Compile Include="Scheduler\PersonalProject.cs" />
+    <Compile Include="Scheduler\ActivityEpisode.cs" />
+    <Compile Include="Scheduler\Scheduler.cs" />
+    <Compile Include="Scheduler\SchedulerHousehold.cs" />
+    <Compile Include="Scheduler\SchedulerPerson.cs" />
+    <Compile Include="Scheduler\SchedulerTrip.cs" />
+    <Compile Include="Scheduler\SchedulerTripChain.cs" />
+    <Compile Include="Scheduler\TimePeriod.cs" />
+    <Compile Include="Scheduler\TimeTable.cs" />
+    <Compile Include="Scheduler\WorkSchoolProjectStatus.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scheduler\TravelEpisode.cs" />
+    <Compile Include="StationAccess\ComputeStationCapacityFactor.cs" />
+    <Compile Include="StationAccess\StationAccessChoice.cs" />
+    <Compile Include="TashaRuntime.cs" />
+    <Compile Include="V4Modes\AutoDrive.cs" />
+    <Compile Include="V4Modes\Bicycle.cs" />
+    <Compile Include="V4Modes\Carpool.cs" />
+    <Compile Include="V4Modes\DriveAccessTransitLogsumOnly.cs" />
+    <Compile Include="V4Modes\DriveAccessTransit.cs" />
+    <Compile Include="V4Modes\Passenger.cs" />
+    <Compile Include="V4Modes\Rideshare.cs" />
+    <Compile Include="V4Modes\Schoolbus.cs" />
+    <Compile Include="V4Modes\SpatialConstant.cs" />
+    <Compile Include="V4Modes\Walk.cs" />
+    <Compile Include="V4Modes\WalkAccessTransit.cs" />
+    <Compile Include="XTMFModeChoice\HouseholdResourceAllocator.cs" />
+    <Compile Include="XTMFModeChoice\ModeChoice.cs" />
+    <Compile Include="XTMFModeChoice\ModeChoiceHouseholdData.cs" />
+    <Compile Include="XTMFModeChoice\ModeChoicePersonData.cs" />
+    <Compile Include="XTMFModeChoice\ModeChoiceTripChainData.cs" />
+    <Compile Include="XTMFModeChoice\ModeChoiceTripData.cs" />
+    <Compile Include="XTMFModeChoice\ModeErrorMatrix.cs" />
+    <Compile Include="XTMFModeChoice\PassengerMatchingAlgorithm.cs" />
+    <Compile Include="XTMFModeChoice\PossibleTripChainSolution.cs" />
+    <Compile Include="XTMFModeChoice\PurePassengerTrip.cs" />
+    <Compile Include="XTMFModeChoice\PurePassengerTripChain.cs" />
+    <Compile Include="XTMFModeChoice\TourData.cs" />
+    <Compile Include="XTMFScheduler\LocationChoice\V4LocationChoice.cs" />
+    <Compile Include="XTMFScheduler\LocationChoice\V4LocationChoiceCacheMaker.cs" />
+    <Compile Include="XTMFScheduler\Scheduler.cs" />
+    <Compile Include="XTMFScheduler\WorkProject.cs" />
+    <Compile Include="XTMFScheduler\WorkSchoolProject.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common\TashaCommon.cd" />
+    <None Include="Properties\Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Scheduler\Scheduler.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Code\TMG.Emme\TMG.Emme.csproj">
+      <Project>{9423a82c-0120-4d8f-aac0-c9c37966b3a8}</Project>
+      <Name>TMG.Emme</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Code\TMG.Estimation\TMG.Estimation.csproj">
+      <Project>{f2da3dd8-c8e8-420c-b0df-4787ff7c791a}</Project>
+      <Name>TMG.Estimation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Code\TMG.Functions\TMG.Functions.csproj">
+      <Project>{4129e4db-412b-493a-bda1-f0c367ee1f6f}</Project>
+      <Name>TMG.Functions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Code\TMG.GPU\TMG.GPU.vcxproj">
+      <Project>{baaa5756-479d-4499-9fe7-504443c2d471}</Project>
+      <Name>TMG.DirectCompute</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Code\TMGInterfaces\TMGInterfaces.csproj">
+      <Project>{036AE224-AA65-4C4C-A29F-502DED239A84}</Project>
+      <Name>TMGInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Code\XTMFInterfaces\XTMFInterfaces.csproj">
+      <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>
+      <Name>XTMFInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Datastructure\Datastructure.csproj">
+      <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
+      <Name>Datastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FunctionalProgramming\FunctionalProgramming.csproj">
+      <Project>{75EC8DE9-B5A1-493D-8DFB-65E8DC0A6B13}</Project>
+      <Name>FunctionalProgramming</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODCache\ODCache.csproj">
+      <Project>{00444214-238A-408C-B9D0-AF9873AE1F9B}</Project>
+      <Name>ODCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TashaInterfaces\TashaInterfaces.csproj">
+      <Project>{FF44241D-1070-4391-9A3C-B19B8F96A583}</Project>
+      <Name>TashaInterfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

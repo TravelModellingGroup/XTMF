@@ -1,0 +1,46 @@
+/*
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System.Collections.Generic;
+using TMG.Modes;
+using XTMF;
+
+namespace TMG.GTAModel.Modes
+{
+    [ModuleInformation(
+        Description = "This mode extends BasicMode to include the ability to calculate if you are near a subway station and then apply that value into the systematic utility calculation."
+    )]
+    public sealed class LocalTransit : BasicMode, TMG.Modes.IUtilityComponentMode
+    {
+        public List<IUtilityComponent> UtilityComponents
+        {
+            get;
+            set;
+        }
+
+        public override float CalculateV(IZone origin, IZone destination, Time time)
+        {
+            var v = base.CalculateV( origin, destination, time );
+            for ( int i = 0; i < this.UtilityComponents.Count; i++ )
+            {
+                v += this.UtilityComponents[i].CalculateV( origin, destination, time );
+            }
+            return v;
+        }
+    }
+}

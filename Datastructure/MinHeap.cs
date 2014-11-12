@@ -1,0 +1,307 @@
+﻿/*
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Datastructure
+{
+    public class MinHeap<T> : ICollection<T> where T : IComparable<T>
+    {
+        private int Elements;
+        private T[] Data;
+
+        /// <summary>
+        /// Crate a new empty min heap
+        /// </summary>
+        public MinHeap()
+        {
+            this.Elements = 0;
+            this.Data = new T[8];
+        }
+
+        /// <summary>
+        /// Create a new min heap
+        /// </summary>
+        /// <param name="startingData">The initial data to be used</param>
+        public MinHeap(IList<T> startingData)
+        {
+            this.Elements = startingData.Count;
+            var temp = new T[this.Elements];
+            for ( int i = 0; i < temp.Length; i++ )
+            {
+                temp[i] = startingData[i];
+            }
+            this.Data = temp;
+            this.Heapify();
+        }
+
+        /// <summary>
+        /// Add an item to the Min Heap
+        /// </summary>
+        /// <param name="item">The item to add to the </param>
+        public void Add(T item)
+        {
+            if ( item == null )
+            {
+                throw new ArgumentNullException( "item" );
+            }
+            if ( this.Elements >= this.Data.Length )
+            {
+                IncreaseSize();
+            }
+            int index;
+            this.Data[( index = this.Elements++ )] = item;
+            this.Heapify( index );
+        }
+
+        /// <summary>
+        /// Remove the min valued item from the heap
+        /// </summary>
+        /// <returns>A smallest valued object stored in the heap</returns>
+        public T Pop()
+        {
+            return Remove( 0 );
+        }
+
+        /// <summary>
+        /// Remove the given item from the heap
+        /// </summary>
+        /// <param name="item">The item to remove</param>
+        /// <returns>If the item was removed.</returns>
+        public bool Remove(T item)
+        {
+            var data = this.Data;
+            for ( int i = 0; i < data.Length; i++ )
+            {
+                if ( data[i].Equals( item ) )
+                {
+                    this.Remove( i );
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Removes an element from a given position in the internal array
+        /// </summary>
+        /// <param name="elementAt">The position to remove from</param>
+        /// <returns>The value at that position in the array</returns>
+        private T Remove(int elementAt)
+        {
+            var data = this.Data;
+            var ret = data[elementAt];
+            var elements = this.Elements;
+
+            int children;
+            while ( ( children = elementAt * 2 + 1 ) < elements )
+            {
+                if ( children + 1 >= elements )
+                {
+                    data[elementAt] = data[children];
+                    elementAt = children;
+                    break;
+                }
+                else
+                {
+                    if ( data[children].CompareTo( data[children + 1] ) <= 0 )
+                    {
+                        data[elementAt] = data[children];
+                        elementAt = children;
+                    }
+                    else
+                    {
+                        data[elementAt] = data[children + 1];
+                        elementAt = children + 1;
+                    }
+                }
+            }
+            // move the last element to our current
+            var temp = data[elements - 1];
+            data[elements - 1] = default( T );
+            data[elementAt] = temp;
+            // we now have 1 less element
+            this.Elements--;
+            this.Heapify( elementAt );
+            return ret;
+        }
+
+        /// <summary>
+        /// Sort out the entire heap into a proper min heap structure
+        /// </summary>
+        private void Heapify()
+        {
+            var data = this.Data;
+            var start = ( this.Elements - 2 ) / 2;
+            var end = this.Elements - 1;
+            while ( start >= 0 )
+            {
+                SiftDown( data, start, end );
+                start--;
+            }
+        }
+
+        /// <summary>
+        /// Rebuild the heap structure for the given element
+        /// </summary>
+        /// <param name="element">The element position to build the structure for</param>
+        private void Heapify(int element)
+        {
+            var data = this.Data;
+            var end = this.Elements - 1;
+            element = (element - 1) >> 1;
+            while ( element > 0 )
+            {
+                SiftDown( data, element, end );
+                element = ( element - 1 ) >> 1;
+            }
+            if ( element >= 0 )
+            {
+                SiftDown( data, element, end );
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        private static void SiftDown(T[] data, int start, int end)
+        {
+            while ( start * 2 + 1 <= end )
+            {
+                var child = start * 2 + 1;
+                var swap = start;
+                if ( data[swap].CompareTo( data[child] ) > 0 )
+                {
+                    swap = child;
+                }
+                if ( child + 1 <= end && data[swap].CompareTo( data[child + 1] ) > 0 )
+                {
+                    swap = child + 1;
+                }
+                if ( swap != start )
+                {
+                    var temp = data[start];
+                    data[start] = data[swap];
+                    data[swap] = temp;
+                    start = swap;
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Doubles the size of the internal heap representation
+        /// </summary>
+        private void IncreaseSize()
+        {
+            var temp = new T[this.Data.Length * 2];
+            Array.Copy( this.Data, temp, this.Data.Length );
+            this.Data = temp;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Clear()
+        {
+            this.Elements = 0;
+            Array.Clear( this.Data, 0, this.Data.Length );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public bool Contains(T item)
+        {
+            var data = this.Data;
+            for ( int i = 0; i < data.Length; i++ )
+            {
+                if ( data[i].Equals( item ) )
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="arrayIndex"></param>
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            if ( array.Length - arrayIndex < this.Elements )
+            {
+                throw new ArgumentException( "The array has an insufficient length for copying to!", "array" );
+            }
+            Array.Copy( this.Data, 0, array, arrayIndex, this.Data.Length );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Count
+        {
+            get { return this.Elements; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<T> GetEnumerator()
+        {
+            for ( int i = 0; i < this.Elements; i++ )
+            {
+                yield return this.Data[i];
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            for ( int i = 0; i < this.Elements; i++ )
+            {
+                yield return this.Data[i];
+            }
+        }
+    }
+}

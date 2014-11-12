@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Tasha.Common.Household" Collapsed="true">
+    <Position X="6.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAABAAAAAAIAAAAAAAAAAAAAACAEAAAEAAAA=</HashCode>
+      <FileName>Common\Household.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Common.Person" Collapsed="true">
+    <Position X="4" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>FAAKAAAAAAAAQAAAAUAAAAAAAAAAAAAAAQACBAIACAA=</HashCode>
+      <FileName>Common\Person.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="EmploymentStatus" />
+      <Property Name="StudentStatus" />
+      <Property Name="Occupation" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Common.Zone" Collapsed="true">
+    <Position X="15.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAgAAAgAkEAAADIAEBAIAAAEAEBAhAAAjQAEAIAYAg=</HashCode>
+      <FileName>Common\Zone.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Common.Vehicle" Collapsed="true">
+    <Position X="13" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAQAAAAAAAAAAAEAAAAAAAAACAAA=</HashCode>
+      <FileName>Common\Vehicle.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Common.Attachable" Collapsed="true">
+    <Position X="8.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAIAAAAAAAAAAAAAEQAA=</HashCode>
+      <FileName>Common\Attachable.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.Common.Trip" Collapsed="true">
+    <Position X="8.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAIAAAAAAAAAAAAAAIAgAgAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Common\Trip.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Tasha.ModeChoice.TripChain" Collapsed="true">
+    <Position X="10.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QIAAAAAAAACACAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Common\TripChain.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Enum Name="Tasha.Common.EmploymentStatus" Collapsed="true">
+    <Position X="0.75" Y="5" Width="1.75" />
+    <TypeIdentifier />
+  </Enum>
+  <Enum Name="Tasha.Common.StudentStatus" Collapsed="true">
+    <Position X="2" Y="7" Width="1.5" />
+    <TypeIdentifier />
+  </Enum>
+  <Enum Name="Tasha.Common.Occupation" Collapsed="true">
+    <Position X="4" Y="3" Width="1.5" />
+    <TypeIdentifier />
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

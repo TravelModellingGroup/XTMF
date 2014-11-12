@@ -1,0 +1,108 @@
+﻿<!-- 
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<Window x:Class="XTMF.Gui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:XTMF.Gui"
+        xmlns:uc="clr-namespace:XTMF.Gui.UserControls"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        Title="XTMF Version 1.1" Height="768" Width="1024"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="AUTO" />
+        </Grid.RowDefinitions>
+        <!-- The main menu -->
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New">
+                    <MenuItem x:Name="NewProjectButton" Header="_Project" />
+                    <MenuItem x:Name="NewModelSystemButton" Header="_Model System" Click="NewModelSystemButton_Click" />
+                </MenuItem>
+                <MenuItem Header="_Open">
+                    <MenuItem.Icon>
+                        <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                    <MenuItem Header="_Project" Click="OpenProject_Click" />
+                    <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
+                </MenuItem>
+                <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="False" />
+                <Separator />
+                <MenuItem x:Name="SaveMenu" Header="_Save" Click="SaveMenu_Click" IsEnabled="False">
+                    <MenuItem.Icon>
+                        <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem x:Name="SaveAsMenu" Header="Save _As" Click="SaveAsMenu_Click" IsEnabled="False" />
+                <Separator />
+                <MenuItem Header="E_xit" Click="Exit_Click" />
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem x:Name="UndoButton" Header="_Undo" Command="Undo" IsEnabled="False" />
+                <MenuItem x:Name="RedoButton" Header="_Redo" Command="Redo" IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="_Start Window" Click="ShowStart_Click" />
+                <MenuItem Header="_Documentation" Click="ShowDocumentation_Click" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
+                <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/XTMF.Gui;component/Resources/XTMF_refresh.png" Width="20" Height="20" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
+            </MenuItem>
+        </Menu>
+        <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
+        <xcad:DockingManager x:Name="DockManager" Grid.Row="1" AllowMixedOrientation="True">
+            <xcad:DockingManager.DocumentHeaderTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
+                        <TextBlock Text="{Binding Title}" Foreground="Black" />
+                    </StackPanel>
+                </DataTemplate>
+            </xcad:DockingManager.DocumentHeaderTemplate>
+            <xcad:DockingManager.Background>
+                <SolidColorBrush Color="LightGray" />
+            </xcad:DockingManager.Background>
+            <xcad:LayoutRoot x:Name="_layoutRoot">
+                <xcad:LayoutPanel Orientation="Horizontal">
+                    <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
+                        <xcad:LayoutDocumentPane x:Name="DocumentPane" />
+                    </xcad:LayoutDocumentPaneGroup>
+                </xcad:LayoutPanel>
+            </xcad:LayoutRoot>
+        </xcad:DockingManager>
+        <StatusBar HorizontalAlignment="Stretch" Grid.Row="2">
+            <StatusBarItem HorizontalAlignment="Left">
+                <TextBlock x:Name="StatusDisplay" />
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <ProgressBar Width="100" Height="10" Minimum="0" Maximum="10000" />
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

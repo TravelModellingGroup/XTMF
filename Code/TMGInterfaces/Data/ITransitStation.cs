@@ -1,0 +1,73 @@
+/*
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+namespace TMG
+{
+    public interface ITransitStation
+    {
+        /// <summary>
+        /// closest zone to this station
+        /// </summary>
+        int ClosestZone { get; }
+
+        /// <summary>
+        /// Parking Cost
+        /// </summary>
+        float ParkingCost { get; }
+
+        /// <summary>
+        /// Number of Parking spots
+        /// </summary>
+        int ParkingSpots { get; }
+
+        /// <summary>
+        /// This stations code
+        /// </summary>
+        string StationCode { get; }
+
+        /// <summary>
+        /// The Name of the Line its on
+        /// </summary>
+        string StationLineName { get; }
+
+        /// <summary>
+        /// The Station Line its on
+        /// </summary>
+        int StationLineNumber { get; }
+
+        /// <summary>
+        /// This Stations Name
+        /// </summary>
+        string StationName { get; }
+
+        /// <summary>
+        /// The Station Number
+        /// </summary>
+        int StationNumber { get; }
+
+        /// <summary>
+        /// X coordinate
+        /// </summary>
+        int X { get; }
+
+        /// <summary>
+        /// Y coordinate
+        /// </summary>
+        int Y { get; }
+    }
+}

@@ -1,0 +1,31 @@
+﻿<Window x:Class="XTMF.Gui.UserControls.AboutXTMF"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About XTMF" ResizeMode="NoResize" SizeToContent="WidthAndHeight" 
+        WindowStartupLocation="CenterOwner"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico"
+        Background="{StaticResource ControlBackgroundBrush}">
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="AUTO" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="XTMF.GUI" FontSize="24" Foreground="Black" />
+        <Image Grid.Row="1" Source="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Width="128" Height="128"  />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="AUTO" />
+                <ColumnDefinition Width="AUTO" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Version: " Foreground="Black" />
+            <TextBlock Grid.Column="1" x:Name="VersionBlock" Foreground="Black" />
+        </Grid>
+        <TextBlock Grid.Row="3" Foreground="Black" Text="Created by the Travel Modelling Group" />
+        <TextBlock Grid.Row="4" Foreground="Black" Text="This software is Open-Source, copyrighted under the GPLv3 License." />
+        <TextBlock Grid.Row="5" Cursor="Hand" Text="http://tmg.utoronto.ca" MouseUp="TextBlock_MouseUp" Foreground="#FF5555DC" />
+    </Grid>
+</Window>

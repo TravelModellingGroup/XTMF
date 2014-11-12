@@ -1,0 +1,392 @@
+﻿/*
+    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace XTMF.Gui.UserControls
+{
+
+    public class TestData : INotifyPropertyChanged
+    {
+        public string Name { get; set; }
+        public ObservableCollection<TestData> Children { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    /// <summary>
+    /// Interaction logic for ModelSystemDisplay.xaml
+    /// </summary>
+    public partial class ModelSystemDisplay : UserControl
+    {
+        public static readonly DependencyProperty ModelSystemProperty = DependencyProperty.Register("ModelSystem", typeof(ModelSystemModel), typeof(ModelSystemDisplay),
+    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnModelSystemChanged));
+
+        //public static readonly DependencyProperty DisplayRootProperty = DependencyProperty.Register("DisplayRoot", typeof(ObservableCollection<TestData>), typeof(ModelSystemDisplay),
+    //new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty ModelSystemNameProperty = DependencyProperty.Register("ModelSystemName", typeof(string), typeof(ModelSystemDisplay),
+    new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public ModelSystemEditingSession Session { get; set; }
+
+        /// <summary>
+        /// The model system to display
+        /// </summary>
+        public ModelSystemModel ModelSystem
+        {
+            get
+            {
+                return (ModelSystemModel)GetValue(ModelSystemProperty);
+            }
+            set
+            {
+                SetValue(ModelSystemProperty, value);
+            }
+        }
+
+        /*public ObservableCollection<TestData> DisplayRoot
+        {
+            get
+            {
+                return (ObservableCollection<TestData>)GetValue(DisplayRootProperty);
+            }
+            set
+            {
+                SetValue(DisplayRootProperty, value);
+            }
+        }*/
+
+        public string ModelSystemName
+        {
+            get
+            {
+                return (string)GetValue(ModelSystemNameProperty);
+            }
+            private set
+            {
+                SetValue(ModelSystemNameProperty, value);
+            }
+        }
+
+        private bool CheckFilterRec(ModelSystemStructureModel module, string filterText, TreeViewItem previous = null)
+        {
+            var children = module.Children;
+            var show = false;
+            var contianer = (previous == null ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(module) : previous.ItemContainerGenerator.ContainerFromItem(module)) as TreeViewItem;
+            if(children != null)
+            {
+                foreach(var child in children)
+                {
+                    if(CheckFilterRec(child, filterText, contianer))
+                    {
+                        show = true;
+                    }
+                }
+            }
+            if(!show)
+            {
+                show = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            }
+
+            if(contianer != null)
+            {
+                contianer.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
+            return show;
+        }
+
+        public ModelSystemDisplay()
+        {
+            DataContext = this;
+            InitializeComponent();
+            /*FilterBox.Filter = (o, text) =>
+            {
+                var module = o as ModelSystemStructureModel;
+                bool ret = false;
+                ret = CheckFilterRec(module, text);
+                return ret;
+            };*/
+        }
+
+        private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
+        {
+            if(parameters != null)
+            {
+                /*ParameterDisplay.ItemsSource = parameters.GetParameters();
+                ParameterFilterBox.Display = ParameterDisplay;
+                ParameterFilterBox.Filter = FilterParameters;
+                ParameterFilterBox.RefreshFilter();*/
+            }
+            else
+            {
+                //ParameterDisplay.ItemsSource = null;
+            }
+        }
+
+        private bool FilterParameters(object arg1, string arg2)
+        {
+            var parameter = arg1 as ParameterModel;
+            if(parameter != null)
+            {
+                return (String.IsNullOrWhiteSpace(arg2) || parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0);
+            }
+            return false;
+        }
+
+        private void OnTreeExpanded(object sender, RoutedEventArgs e)
+        {
+            var tvi = (TreeViewItem)sender;
+            e.Handled = true;
+            //FilterBox.RefreshFilter();
+        }
+
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            base.OnGotFocus(e);
+            //FilterBox.Focus();
+        }
+
+        private Window GetWindow()
+        {
+            var current = this as DependencyObject;
+            while(current != null && !(current is Window))
+            {
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return current as Window;
+        }
+
+        private void SelectReplacement()
+        {
+            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            if(Session == null)
+            {
+                throw new InvalidOperationException("Session has not been set before operating.");
+            }
+            if(selectedModule != null)
+            {
+                ModuleTypeSelect findReplacement = new ModuleTypeSelect(Session, selectedModule);
+                findReplacement.Owner = GetWindow();
+                if(findReplacement.ShowDialog() == true)
+                {
+                    if((var selectedType = findReplacement.SelectedType) != null)
+                    {
+                        selectedModule.Type = selectedType;
+                    }
+                }
+            }
+        }
+
+        private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        {
+            var us = source as ModelSystemDisplay;
+            var newModelSystem = e.NewValue as ModelSystemModel;
+            if(newModelSystem != null)
+            {
+                var display = new ObservableCollection<TestData>();
+                display.Add(new TestData()
+                {
+                    Name = newModelSystem.Root.Name,
+                    Children = new ObservableCollection<TestData>((from c in newModelSystem.Root.Children
+                               select new TestData()
+                               {
+                                   Name = c.Name,
+                                   Children = null
+                               }).ToList())
+                });
+                us.ModuleDisplay.ItemsSource = display;
+                us.ModelSystemName = newModelSystem.Name;
+                us.ModuleDisplay.Items.MoveCurrentToFirst();
+                //us.FilterBox.Display = us.ModuleDisplay;
+            }
+            else
+            {
+                us.ModuleDisplay.DataContext = null;
+                us.ModelSystemName = "No model loaded";
+                //us.FilterBox.Display = null;
+            }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if(e.Handled == false && Controllers.EditorController.IsControlDown())
+            {
+                switch(e.Key)
+                {
+                    case Key.M:
+                        SelectReplacement();
+                        e.Handled = true;
+                        break;
+                    case Key.P:
+                        //ParameterFilterBox.Focus();
+                        e.Handled = true;
+                        break;
+                    case Key.E:
+                        //FilterBox.Focus();
+                        e.Handled = true;
+                        break;
+                    case Key.W:
+                        Close();
+                        break;
+                }
+            }
+        }
+
+        private void Close()
+        {
+            var e = RequestClose;
+            if(e != null)
+            {
+                if(MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        e(this);
+                    }));
+                }
+            }
+        }
+
+        public event Action<object> RequestClose;
+
+        private void SetFocus(StackPanel border)
+        {
+            if(border.Background.IsFrozen)
+            {
+                border.Background = border.Background.CloneCurrentValue();
+            }
+            ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin ? Color.FromRgb(120, 150, 120) : Color.FromRgb(120, 175, 120),
+                new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+        }
+
+        new private void LostFocus(StackPanel border)
+        {
+            if(border.Background.IsFrozen)
+            {
+                border.Background = border.Background.CloneCurrentValue();
+            }
+            if(!border.IsKeyboardFocusWithin)
+            {
+                var background = (Color)Application.Current.FindResource("ControlBackgroundColour");
+                ColorAnimation setFocus = new ColorAnimation(background, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+                border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+            }
+        }
+
+        private void ParameterBorder_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var border = (sender as StackPanel);
+            if(border == null) return;
+            SetFocus(border);
+        }
+
+        private void ParameterBorder_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var border = (sender as StackPanel);
+            if(border == null) return;
+            LostFocus(border);
+        }
+
+        private void ParameterBorder_MouseEnter(object sender, MouseEventArgs e)
+        {
+            var border = (sender as StackPanel);
+            if(border == null) return;
+            SetFocus(border);
+        }
+
+        private void ParameterBorder_MouseLeave(object sender, MouseEventArgs e)
+        {
+            var border = (sender as StackPanel);
+            if(border == null) return;
+            LostFocus(border);
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+        }
+        private void TextBox_SourceUpdated(object sender, DataTransferEventArgs e)
+        {
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var textbox = (sender as TextBox);
+            if(textbox == null) return;
+            if(textbox.Background.IsFrozen)
+            {
+                textbox.Background = textbox.Background.CloneCurrentValue();
+            }
+            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+        }
+
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var box = sender as TextBox;
+            BindingExpression be = box.GetBindingExpression(TextBox.TextProperty);
+            be.UpdateSource();
+            var textbox = (sender as TextBox);
+            if(textbox == null) return;
+            if(textbox.Background.IsFrozen)
+            {
+                textbox.Background = textbox.Background.CloneCurrentValue();
+            }
+            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+        }
+
+        private void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        public void SaveRequested()
+        {
+
+        }
+
+        public void CloneRequested(string clonedName)
+        {
+
+        }
+
+        private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+
+        }
+    }
+}

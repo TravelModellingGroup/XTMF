@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{230683A3-961B-44C1-B67C-364D8973DAEB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>James.UTDM</RootNamespace>
+    <AssemblyName>4Step</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
+    <OutputPath>D:\Documents\XTMF32\Modules\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>D:\Documents\XTMF\Modules\4Step.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
+    <OutputPath>D:\Documents\XTMF\Modules\</OutputPath>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|AnyCPU'">
+    <OutputPath>..\..\..\..\..\..\..\Documents\XTMF32\Modules\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>D:\Documents\XTMF\Modules\4Step.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\XTMF-Dev\Modules\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="10SecondWait.cs" />
+    <Compile Include="AutoData.cs" />
+    <Compile Include="BasicPurpose.cs" />
+    <Compile Include="BasicTravelDemandModel.cs" />
+    <Compile Include="CalculateDistances.cs" />
+    <Compile Include="ChainExecution.cs" />
+    <Compile Include="ChainMST.cs" />
+    <Compile Include="Fail.cs" />
+    <Compile Include="GenerateHeatMap.cs" />
+    <Compile Include="LineEstimation.cs" />
+    <Compile Include="NewAutoData.cs" />
+    <Compile Include="EmmeOnesZeros.cs" />
+    <Compile Include="ExecuteModellerMST.cs" />
+    <Compile Include="FourStep.cs" />
+    <Compile Include="GeneticDiversityAnalysis.cs" />
+    <Compile Include="NetworkCalculationMST.cs" />
+    <Compile Include="Person.cs" />
+    <Compile Include="SimpleDistribution.cs" />
+    <Compile Include="SimpleGeneration.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TempExtractionModule.cs" />
+    <Compile Include="TestArrays.cs" />
+    <Compile Include="TestGPU.cs" />
+    <Compile Include="TestHighPerformanceAdding.cs" />
+    <Compile Include="TestHost.cs" />
+    <Compile Include="TestModellerPrint.cs" />
+    <Compile Include="TestNewModellerControllerFeatures.cs" />
+    <Compile Include="TestTwinZoneSystemPerformance.cs" />
+    <Compile Include="TimeSparseTwinIndexLookups.cs" />
+    <Compile Include="TransitData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
+      <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
+      <Name>Datastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ODCache\ODCache.csproj">
+      <Project>{00444214-238A-408C-B9D0-AF9873AE1F9B}</Project>
+      <Name>ODCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TashaInterfaces\TashaInterfaces.csproj">
+      <Project>{ff44241d-1070-4391-9a3c-b19b8f96a583}</Project>
+      <Name>TashaInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Emme\TMG.Emme.csproj">
+      <Project>{9423A82C-0120-4D8F-AAC0-C9C37966B3A8}</Project>
+      <Name>TMG.Emme</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Estimation\TMG.Estimation.csproj">
+      <Project>{f2da3dd8-c8e8-420c-b0df-4787ff7c791a}</Project>
+      <Name>TMG.Estimation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj">
+      <Project>{4129E4DB-412B-493A-BDA1-F0C367EE1F6F}</Project>
+      <Name>TMG.Functions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.GPU\TMG.GPU.vcxproj">
+      <Project>{baaa5756-479d-4499-9fe7-504443c2d471}</Project>
+      <Name>TMG.DirectCompute</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj">
+      <Project>{036AE224-AA65-4C4C-A29F-502DED239A84}</Project>
+      <Name>TMGInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
+      <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>
+      <Name>XTMFInterfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="James.UTDM.TestGPU.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

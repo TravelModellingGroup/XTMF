@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Tasha.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ApplicationName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Tasha#</Value>
+    </Setting>
+    <Setting Name="ApplicationVersion" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">v. 1.00.00</Value>
+    </Setting>
+    <Setting Name="ConfigurationFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TashaConfigForDebug.xml</Value>
+    </Setting>
+    <Setting Name="ConfigurationDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Configuration</Value>
+    </Setting>
+    <Setting Name="LogFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TashaLog.txt</Value>
+    </Setting>
+    <Setting Name="LogDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Logs</Value>
+    </Setting>
+    <Setting Name="LogLevel" Type="System.Diagnostics.SourceLevels" Scope="User">
+      <Value Profile="(Default)">Error</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
