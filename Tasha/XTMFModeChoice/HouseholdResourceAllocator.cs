@@ -146,10 +146,6 @@ namespace Tasha.XTMFModeChoice
                     Time earliestEnd = nextTime;
                     int earliestIndex = -1;
                     var length = activeTours.Count;
-                    if(numberOfVehicles - activeTours.Count < 0)
-                    {
-                        throw new XTMFRuntimeException("We have less vehicles then people using them!");
-                    }
                     for(int i = 0; i < length; i++)
                     {
                         if(activeTours[i].EndTime <= earliestEnd)

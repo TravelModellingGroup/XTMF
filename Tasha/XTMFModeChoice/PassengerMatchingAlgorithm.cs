@@ -518,15 +518,15 @@ namespace Tasha.XTMFModeChoice
             int numberOfConflicts;
             var conflicts = ConflictTable(feasible, numberOfDrivers, out numberOfConflicts);
             int[] currentAssignment = new int[bestAssignment.Length];
-            bool[] alreadySolved = SolveSimpleCases(feasible, currentAssignment, bestAssignment, conflicts);
-            int index = currentAssignment.Length;
-            float bestU = float.NegativeInfinity;
-            float currentU = 0;
             // clear out the memory to start with
             for(int i = 0; i < currentAssignment.Length; i++)
             {
                 currentAssignment[i] = -1;
             }
+            bool[] alreadySolved = SolveSimpleCases(feasible, currentAssignment, bestAssignment, conflicts);
+            int index = currentAssignment.Length;
+            float bestU = float.NegativeInfinity;
+            float currentU = 0;
             while(index >= 0)
             {
                 if(index >= currentAssignment.Length)
