@@ -257,16 +257,19 @@ namespace Tasha
 
             for(int i = 0; i < Iterations; i++)
             {
-                CurrentHousehold = 0;
-                CompletedIterationPercentage = i * IterationPercentage;
-                if(LoadAllHouseholds)
+                if(!_ExitRequested)
                 {
-                    if(!SkipLoadingHouseholds)
+                    CurrentHousehold = 0;
+                    CompletedIterationPercentage = i * IterationPercentage;
+                    if(LoadAllHouseholds)
                     {
-                        HouseholdLoader.LoadData();
+                        if(!SkipLoadingHouseholds)
+                        {
+                            HouseholdLoader.LoadData();
+                        }
                     }
+                    RunIteration(i);
                 }
-                RunIteration(i);
             }
             if(PostRun != null)
             {
@@ -549,43 +552,42 @@ namespace Tasha
 
         private void Run(int i, ITashaHousehold hhld)
         {
-            if(_ExitRequested)
+            if(!_ExitRequested)
             {
-                return;
-            }
-            if(Scheduler != null)
-            {
-                Scheduler.Run(hhld);
-                if(PostScheduler != null)
+                if(Scheduler != null)
                 {
-                    foreach(var module in PostScheduler)
+                    Scheduler.Run(hhld);
+                    if(PostScheduler != null)
                     {
-                        module.Execute(hhld);
+                        foreach(var module in PostScheduler)
+                        {
+                            module.Execute(hhld);
+                        }
                     }
                 }
-            }
 
-            if(ModeChoice != null)
-            {
-                if(!ModeChoice.Run(hhld))
+                if(ModeChoice != null)
                 {
-                    Interlocked.Increment(ref FailedModeChoice);
+                    if(!ModeChoice.Run(hhld))
+                    {
+                        Interlocked.Increment(ref FailedModeChoice);
+                    }
                 }
-            }
 
-            if(PostHousehold != null)
-            {
-                foreach(var module in PostHousehold)
+                if(PostHousehold != null)
                 {
-                    module.Execute(hhld, i);
+                    foreach(var module in PostHousehold)
+                    {
+                        module.Execute(hhld, i);
+                    }
                 }
-            }
-            System.Threading.Interlocked.Increment(ref CurrentHousehold);
+                System.Threading.Interlocked.Increment(ref CurrentHousehold);
 
-            if(RecycleHouseholdData)
-            {
-                ReleaseModeData(hhld);
-                hhld.Recycle();
+                if(RecycleHouseholdData)
+                {
+                    ReleaseModeData(hhld);
+                    hhld.Recycle();
+                }
             }
         }
 
