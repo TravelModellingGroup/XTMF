@@ -162,9 +162,12 @@ namespace Tasha
             throw new NotImplementedException();
         }
 
+        private volatile bool _ExitRequested = false;
+
         public bool ExitRequest()
         {
-            return false;
+            _ExitRequested = true;
+            return true;
         }
 
         public int GetIndexOfMode(ITashaMode mode)
@@ -439,7 +442,7 @@ namespace Tasha
         public override string ToString()
         {
             var status = _Status;
-            return status == null ? Initializing : status();
+            return _ExitRequested ? (status == null ? "Exiting" : "Exiting:\r\n" +status()) : (status == null ? Initializing : status());
         }
 
         private static void RecycleTrips(ITripChain tc)
@@ -546,6 +549,10 @@ namespace Tasha
 
         private void Run(int i, ITashaHousehold hhld)
         {
+            if(_ExitRequested)
+            {
+                return;
+            }
             if(Scheduler != null)
             {
                 Scheduler.Run(hhld);
@@ -653,20 +660,29 @@ namespace Tasha
         {
             if(ModeChoice != null)
             {
-                ModeChoice.IterationFinished(i, Iterations);
+                if(!_ExitRequested)
+                {
+                    ModeChoice.IterationFinished(i, Iterations);
+                }
             }
             if(PostScheduler != null)
             {
                 foreach(var module in PostScheduler)
                 {
-                    module.IterationFinished(i);
+                    if(!_ExitRequested)
+                    {
+                        module.IterationFinished(i);
+                    }
                 }
             }
             if(PostHousehold != null)
             {
                 foreach(var module in PostHousehold)
                 {
-                    module.IterationFinished(i);
+                    if(!_ExitRequested)
+                    {
+                        module.IterationFinished(i);
+                    }
                 }
             }
         }
@@ -677,7 +693,10 @@ namespace Tasha
             {
                 foreach(var network in NetworkData)
                 {
-                    network.UnloadData();
+                    if(!_ExitRequested)
+                    {
+                        network.UnloadData();
+                    }
                 }
             }
         }
@@ -686,20 +705,29 @@ namespace Tasha
         {
             if(ModeChoice != null)
             {
-                ModeChoice.IterationStarted(i, Iterations);
+                if(!_ExitRequested)
+                {
+                    ModeChoice.IterationStarted(i, Iterations);
+                }
             }
             if(PostScheduler != null)
             {
                 foreach(var module in PostScheduler)
                 {
-                    module.IterationStarting(i);
+                    if(!_ExitRequested)
+                    {
+                        module.IterationStarting(i);
+                    }
                 }
             }
             if(PostHousehold != null)
             {
                 foreach(var module in PostHousehold)
                 {
-                    module.IterationStarting(i);
+                    if(!_ExitRequested)
+                    {
+                        module.IterationStarting(i);
+                    }
                 }
             }
         }
@@ -710,7 +738,10 @@ namespace Tasha
             {
                 foreach(var module in PreIteration)
                 {
-                    module.Execute(i, Iterations);
+                    if(!_ExitRequested)
+                    {
+                        module.Execute(i, Iterations);
+                    }
                 }
             }
         }
@@ -723,7 +754,10 @@ namespace Tasha
                 System.Threading.Tasks.Parallel.ForEach(NetworkData,
                     delegate (INetworkData network)
                 {
-                    network.LoadData();
+                    if(!_ExitRequested)
+                    {
+                        network.LoadData();
+                    }
                 });
             }
         }
