@@ -247,7 +247,7 @@ namespace Tasha.Estimation.AccessStation
             Interlocked.Increment( ref this.Completed );
             var error = 1.0f - correct;
             // use squared error
-            return error * error * error;
+            return error * error;
         }
 
         public ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime)
