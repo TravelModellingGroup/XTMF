@@ -23,6 +23,7 @@ using System.Text;
 using TMG.Input;
 using XTMF;
 using TMG.DataUtility;
+using System.IO;
 
 namespace TMG.Emme
 {
@@ -34,7 +35,7 @@ namespace TMG.Emme
         [RunParameter("Attributes to Export", "", "A list of extra attribute IDs to include in the NWP file (including the '@' symbol)")]
         public StringList AttributeIdsToExport;
 
-        [SubModelInformation(Description= "Network Package File", Required= true)]
+        [SubModelInformation(Description = "Network Package File", Required = true)]
         public FileLocation ExportFile;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
@@ -43,16 +44,16 @@ namespace TMG.Emme
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if (mc == null)
+            if(mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
             var s = string.Join(",", this.AttributeIdsToExport.ToArray());
 
-            if (string.IsNullOrWhiteSpace(this.AttributeIdsToExport.ToString()))
+            if(string.IsNullOrWhiteSpace(this.AttributeIdsToExport.ToString()))
                 s += "\"\"";
 
             var args = string.Join(" ", this.ScenarioNumber,
-                                        this.ExportFile.GetFilePath(),
+                                        "\"" + Path.GetFullPath(this.ExportFile.GetFilePath()) + "\"",
                                         s);
 
             Console.Write("Export network from scenario " + this.ScenarioNumber.ToString() + " to file " + this.ExportFile.GetFilePath());
