@@ -164,6 +164,7 @@
     <Compile Include="Data\AddRates.cs" />
     <Compile Include="Data\SaveZoneODAsEmmeMatrix.cs" />
     <Compile Include="Data\SubtractODResources.cs" />
+    <Compile Include="Data\ZonalAreaFromInternalTripDistance.cs" />
     <Compile Include="Data\ZonalPopulation.cs" />
     <Compile Include="Data\IntrazonalDistances.cs" />
     <Compile Include="Data\DivideRates.cs" />
