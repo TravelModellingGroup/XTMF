@@ -627,13 +627,28 @@ namespace Tasha.XTMFModeChoice
         }
     }
 
-    public sealed class PotentialPassengerTrip(ITrip driverDestinationTrip, ITrip passengerDestinationTrip, float deltaUtility,
-        internal int DriverIndex, internal int PassengerIndex, internal int PassengerTripChainIndex, internal int PassengerTripIndex)
+    public sealed class PotentialPassengerTrip
     {
-        public float DeltaUtility { get; private set; } = deltaUtility;
+        internal int DriverIndex;
+        internal int PassengerIndex;
+        internal int PassengerTripChainIndex;
+        internal int PassengerTripIndex;
 
-        public ITrip DriverDestinationTrip { get; private set; } = driverDestinationTrip;
+        public PotentialPassengerTrip(ITrip driverDestinationTrip, ITrip passengerDestinationTrip, float deltaUtility,
+         int driverIndex,  int passengerIndex,  int passengerTripChainIndex, int passengerTripIndex)
+        {
+            DriverDestinationTrip = driverDestinationTrip;
+            PassengerDestinationTrip = passengerDestinationTrip;
+            DeltaUtility = deltaUtility;
+            DriverIndex = driverIndex;
+            PassengerIndex = passengerIndex;
+            PassengerTripChainIndex = passengerTripChainIndex;
+            PassengerTripIndex = passengerTripIndex;
+        }
+        public float DeltaUtility { get; private set; }
 
-        public ITrip PassengerDestinationTrip { get; private set; } = passengerDestinationTrip;
+        public ITrip DriverDestinationTrip { get; private set; }
+
+        public ITrip PassengerDestinationTrip { get; private set; }
     }
 }

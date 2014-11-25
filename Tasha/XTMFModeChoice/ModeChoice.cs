@@ -272,12 +272,11 @@ namespace Tasha.XTMFModeChoice
 
         private void FinalAssignment(ModeChoiceHouseholdData householdData, int householdIteration)
         {
-            var numberOfPeople = householdData.PersonData.Length;
-            for ( int i = 0; i < numberOfPeople; i++ )
+            ModeChoicePersonData[] personData = householdData.PersonData;
+            for ( int i = 0; i < personData.Length; i++ )
             {
-                var tripChainData = householdData.PersonData[i].TripChainData;
-                var numberOfTripChains = tripChainData.Length;
-                for ( int j = 0; j < numberOfTripChains; j++ )
+                var tripChainData = personData[i].TripChainData;
+                for ( int j = 0; j < tripChainData.Length; j++ )
                 {
                     tripChainData[j].FinalAssignment( householdIteration );
                 }

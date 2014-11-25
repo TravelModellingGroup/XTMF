@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using Tasha.Common;
+using XTMF;
 
 namespace Tasha.XTMFModeChoice
 {
@@ -108,9 +109,8 @@ namespace Tasha.XTMFModeChoice
         internal void Assign(int useVehicle, List<ITashaMode> modes)
         {
             var trips = TripChain.Trips;
-            var numberOfTrips = TripData.Length;
             BestPossibleAssignmentForVehicleType[useVehicle].PickSolution( TripChain );
-            for ( int i = 0; i < numberOfTrips; i++ )
+            for ( int i = 0; i < TripData.Length; i++ )
             {
                 trips[i].Mode = modes[BestPossibleAssignmentForVehicleType[useVehicle].PickedModes[i]];
             }
@@ -127,6 +127,7 @@ namespace Tasha.XTMFModeChoice
                     trips[i].Mode = otherTripChain[i].Mode;
                     trips[i].ModesChosen[householdIteration] = otherTripChain[i].Mode;
                 }
+
             }
             else
             {
