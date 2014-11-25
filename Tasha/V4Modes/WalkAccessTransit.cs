@@ -226,7 +226,7 @@ namespace Tasha.V4Modes
                     v += ZonalDensityForActivitiesArray[d];
                     break;
             }
-            v += GetRegionConstant(trip.TripStartTime, originalZone.RegionNumber, destinationZone.RegionNumber);
+            v += GetPlanningDistrictConstant(trip.TripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
             return (double)v;
         }
 
@@ -353,13 +353,13 @@ namespace Tasha.V4Modes
             return false;
         }
 
-        public float GetRegionConstant(Time startTime, int regionO, int regionD)
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
         {
             for(int i = 0; i < TimePeriodConstants.Length; i++)
             {
                 if(startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
                 {
-                    return TimePeriodConstants[i].GetConstant(regionO, regionD);
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
                 }
             }
             return 0f;

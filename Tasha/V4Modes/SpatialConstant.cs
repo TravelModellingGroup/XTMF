@@ -58,7 +58,7 @@ namespace Tasha.V4Modes
 
         public SpatialConstant[] SpatialConstants;
 
-        private SparseTwinIndex<float> RegionConstants;
+        private SparseTwinIndex<float> PlanningDistrictConstants;
 
         [RunParameter("Start Time", "6:00AM", typeof(Time), "The start time for this time period, inclusive.")]
         public Time StartTime;
@@ -80,20 +80,20 @@ namespace Tasha.V4Modes
         public void BuildMatrix()
         {
             //build the region constants
-            var regions = TMG.Functions.ZoneSystemHelper.CreateRegionArray<float>(Root.ZoneSystem.ZoneArray);
-            var regionIndexes = regions.ValidIndexArray();
-            RegionConstants = regions.CreateSquareTwinArray<float>();
-            var data = RegionConstants.GetFlatData();
+            var planningDistricts = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
+            var pdIndexes = planningDistricts.ValidIndexArray();
+            PlanningDistrictConstants = planningDistricts.CreateSquareTwinArray<float>();
+            var data = PlanningDistrictConstants.GetFlatData();
             for(int i = 0; i < data.Length; i++)
             {
                 for(int j = 0; j < data[i].Length; j++)
                 {
-                    data[i][j] = GetRegionConstant(regionIndexes[i], regionIndexes[j]);
+                    data[i][j] = GetPDConstant(pdIndexes[i], pdIndexes[j]);
                 }
             }
         }
 
-        private float GetRegionConstant(int originRegion, int destinationRegion)
+        private float GetPDConstant(int originRegion, int destinationRegion)
         {
             for(int i = 0; i < SpatialConstants.Length; i++)
             {
@@ -105,9 +105,9 @@ namespace Tasha.V4Modes
             return 0f;
         }
 
-        public float GetConstant(int regionO, int regionD)
+        public float GetConstant(int pdO, int pdD)
         {
-            return RegionConstants[regionO, regionD];
+            return PlanningDistrictConstants[pdO, pdD];
         }
     }
 }

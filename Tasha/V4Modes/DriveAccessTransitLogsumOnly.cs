@@ -310,7 +310,7 @@ namespace Tasha.V4Modes
                 dependentUtility = float.NaN;
                 return false;
             }
-            dependentUtility = LogsumCorrelation * (float)Math.Log( totalUtil ) + GetRegionConstant(firstStartTime, firstOrigin.RegionNumber, firstDestination.RegionNumber); ;
+            dependentUtility = LogsumCorrelation * (float)Math.Log( totalUtil ) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict); ;
             totalUtil = 1 / totalUtil;
             for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
             {
@@ -369,13 +369,13 @@ namespace Tasha.V4Modes
             return tripCount;
         }
 
-        public float GetRegionConstant(Time startTime, int regionO, int regionD)
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
         {
             for(int i = 0; i < TimePeriodConstants.Length; i++)
             {
                 if(startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
                 {
-                    var value = TimePeriodConstants[i].GetConstant(regionO, regionD);
+                    var value = TimePeriodConstants[i].GetConstant(pdO, pdD);
                     return value;
                 }
             }
