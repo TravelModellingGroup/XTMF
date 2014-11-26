@@ -156,6 +156,10 @@ namespace Tasha.Network
 
             public bool RuntimeValidation(ref string error)
             {
+                if(StartTime >= EndTime)
+                {
+                    error = "In '" + Name + "' the Start Time is greater than or the same to the end time!";
+                }
                 return true;
             }
         }
