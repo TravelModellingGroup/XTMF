@@ -251,12 +251,10 @@ namespace Tasha.XTMFModeChoice
 
         private void AssignBest(ModeChoiceHouseholdData householdData, ITripChain[][] personConflicts, bool[][] bestAssignment)
         {
-            var numberOfPeople = householdData.PersonData.Length;
-            for(int i = 0; i < numberOfPeople; i++)
+            for(int i = 0; i < householdData.PersonData.Length; i++)
             {
                 var person = householdData.PersonData[i];
-                var numberOfTripChains = person.TripChainData.Length;
-                for(int j = 0; j < numberOfTripChains; j++)
+                for(int j = 0; j < person.TripChainData.Length; j++)
                 {
                     var tc = person.TripChainData[j];
                     var bestU = float.NegativeInfinity;
@@ -288,12 +286,10 @@ namespace Tasha.XTMFModeChoice
 
         private void AssignBestToAll(ModeChoiceHouseholdData householdData)
         {
-            var numberOfPeople = householdData.PersonData.Length;
-            for(int i = 0; i < numberOfPeople; i++)
+            for(int i = 0; i < householdData.PersonData.Length; i++)
             {
                 var person = householdData.PersonData[i];
-                var numberOfTripChains = person.TripChainData.Length;
-                for(int j = 0; j < numberOfTripChains; j++)
+                for(int j = 0; j < person.TripChainData.Length; j++)
                 {
                     var tc = person.TripChainData[j];
                     var bestU = float.NegativeInfinity;
@@ -347,12 +343,11 @@ namespace Tasha.XTMFModeChoice
             {
                 Conflicts.Clear();
             }
-            var numberOfPeople = Resolution.Length;
             if(Scan == null)
             {
-                Scan = new CurrentPosition[numberOfPeople];
+                Scan = new CurrentPosition[Resolution.Length];
             }
-            for(int i = 0; i < numberOfPeople; i++)
+            for(int i = 0; i < Scan.Length; i++)
             {
                 Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains, HasBeenProcessed = false };
             }
@@ -362,7 +357,7 @@ namespace Tasha.XTMFModeChoice
             {
                 int nextPerson = -1;
                 Time nextTime = endOfDay;
-                for(int i = 0; i < numberOfPeople; i++)
+                for(int i = 0; i < Scan.Length; i++)
                 {
                     if(Scan[i].Position < Scan[i].TripChains.Count)
                     {

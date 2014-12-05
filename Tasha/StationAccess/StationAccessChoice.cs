@@ -254,6 +254,8 @@ namespace Tasha.StationAccess
                 }
                 catch
                 {
+                    // if we were unable to load it properly make sure that it is unloaded
+                    CapacityFactorSource.UnloadData();
                     CapacityFactor = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
                     var flat = CapacityFactor.GetFlatData();
                     for(int i = 0; i < flat.Length; i++)
