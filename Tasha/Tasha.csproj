@@ -185,6 +185,7 @@
     <Compile Include="Estimation\HostHouseholdLoader.cs" />
     <Compile Include="Estimation\IntegrateIntoEstimationFramework.cs" />
     <Compile Include="Estimation\KFactors.cs" />
+    <Compile Include="Estimation\LocationChoice\EvaluateLocationChoice.cs" />
     <Compile Include="Estimation\PoRPoW\PoRPoWMST.cs" />
     <Compile Include="Estimation\TestParameterSignificance.cs" />
     <Compile Include="Estimation\TransformTripsToIncludeAccessMode.cs" />
