@@ -64,7 +64,7 @@ namespace Tasha.Estimation.LocationChoice
         SpinLock FitnessLock = new SpinLock(false);
         private float Fitness = 0.0f;
 
-        [RunParameter("Random Seed", 4231655424, "The seed to base the random generation from.")]
+        [RunParameter("Random Seed", 423165524, "The seed to base the random generation from.")]
         public int RandomSeed;
 
         public void Execute(ITashaHousehold household, int iteration)
@@ -79,7 +79,7 @@ namespace Tasha.Estimation.LocationChoice
                 {
                     var trips = tripChains[tcIndex].Trips;
                     IEpisode[] episodes = BuildScheduleFromTrips(trips);
-                    for(int tripIndex = 0; tripIndex < episodes.Length; tripIndex++)
+                    for(int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
                     {
                         var activtiyType = episodes[tripIndex].ActivityType;
                         TMG.IZone revieldChoice = trips[tripIndex].DestinationZone;
@@ -116,7 +116,21 @@ namespace Tasha.Estimation.LocationChoice
 
         private IEpisode[] BuildScheduleFromTrips(List<ITrip> trips)
         {
-            throw new NotImplementedException();
+            ITashaPerson owner = trips[0].TripChain.Person;
+            PersonSchedule schedule = new PersonSchedule(owner);
+            // we don't do the last trip since it is always to home.
+            for(int i = 0; i < trips.Count - 1; i++)
+            {
+                Episode ep = CreateEpisode(trips[i], trips[i + 1], owner);
+                ep.Zone = trips[i].DestinationZone;
+                schedule.InsertAt(ep, i);
+            }
+            return schedule.Episodes;
+        }
+
+        private Episode CreateEpisode(ITrip trip, ITrip nextTrip, ITashaPerson owner)
+        {
+            return new ActivityEpisode(0, new TimeWindow(trip.ActivityStartTime, nextTrip.ActivityStartTime), trip.Purpose, owner);
         }
 
         public void IterationFinished(int iteration)

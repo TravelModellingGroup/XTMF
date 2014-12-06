@@ -64,8 +64,11 @@ namespace Tasha.XTMFScheduler.LocationChoice
         [SubModelInformation(Required = true, Description = "")]
         public IResource ManufacturingPartTime;
 
-        [RunParameter("Network Name", "Auto", "The name of the network to use for computing times.")]
-        public string NetworkName;
+        [RunParameter("Auto Network Name", "Auto", "The name of the network to use for computing auto times.")]
+        public string AutoNetworkName;
+
+        [RunParameter("Transit Network Name", "Transit", "The name of the network to use for computing transit times.")]
+        public string TransitNetworkName;
 
         public IZone GetLocation(IEpisode ep, Random random)
         {
@@ -142,7 +145,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public void Load()
             {
                 var times = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-                var network = Parent.Network;
+                var network = Parent.AutoNetwork;
                 var data = times.GetFlatData();
                 Parallel.For(0, data.Length, (int i) =>
                 {
@@ -198,8 +201,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public float ManufacturingPartTime;
             [RunParameter("Population", "0.0", typeof(float), "The weight applied for the log of the population in the zone.")]
             public float Population;
-            [RunParameter("TravelTime", "0.0", typeof(float), "The weight applied for the travel time from origin to zone to final destination.")]
-            public float TravelTime;
+            [RunParameter("Auto TravelTime", "0.0", typeof(float), "The weight applied for the travel time from origin to zone to final destination.")]
+            public float AutoTime;
+            [RunParameter("Transit TravelTime", "0.0", typeof(float), "The weight applied for the travel time from origin to zone to final destination.")]
+            public float TransitTime;
+            [RunParameter("Transit Cost", "0.0", typeof(float), "The weight applied for the transit cost from origin to zone to final destination.")]
+            public float TransitCost;
             [RunParameter("Same PD", 0.0f, "The constant applied if the zone of interest is the same as both the previous and next planning districts.")]
             public float SamePD;
 
@@ -207,6 +214,17 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public ODConstant[] ODConstants;
             private float expSamePD;
             private SparseTriIndex<int> PDCube;
+
+            protected float GetTransitUtility(ITripComponentData network, int i, int j, Time time)
+            {
+                float ivtt = 0.0f, walk = 0.0f, wait = 0.0f, cost = 0.0f, boarding = 0.0f;
+                if(!network.GetAllData(i, j, time, out ivtt, out walk, out wait, out boarding, out cost))
+                {
+                    return 0f;
+                }
+                return (float)Math.Exp(TransitTime * (ivtt + walk + wait)
+                    + TransitCost * cost);
+            }
 
             public sealed class ODConstant : IModule
             {
@@ -416,7 +434,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var from = From.Select(d => d.GetFlatData()).ToArray();
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
                 {
-                    var network = Parent.Network;
+                    var network = Parent.AutoNetwork;
+                    var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
                     var jRegion = zones[j].RegionNumber;
                     var jPD = zones[j].PlanningDistrict;
@@ -445,12 +464,20 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 break;
                             }
                         }
+                        nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for(int time = 0; time < times.Length; time++)
                         {
+
                             // compute to
-                            to[time][i][j] = (float)Math.Exp(nonTimeUtil + TravelTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes());
+                            to[time][i][j] = nonTimeUtil * ((float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
+                                +
+                                // transit utility
+                                GetTransitUtility(transitNetwork, i, j, times[time].StartTime));
+
+
                             // compute from
-                            from[time][i][j] = (float)Math.Exp(TravelTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes());
+                            from[time][i][j] = (float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
+                                + GetTransitUtility(transitNetwork, i, j, times[time].StartTime);
                         }
                     }
                 });
@@ -474,63 +501,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var from = From.Select(d => d.GetFlatData()).ToArray();
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
                 {
-                    var network = Parent.Network;
-                    var times = Parent.TimePeriods;
-                    var jRegion = zones[j].RegionNumber;
-                    var jPD = zones[j].PlanningDistrict;
-                    var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
-                        + Math.Log(1 + pp[j]) * ProfessionalPartTime
-                        + Math.Log(1 + gf[j]) * GeneralFullTime
-                        + Math.Log(1 + gp[j]) * GeneralPartTime
-                        + Math.Log(1 + sf[j]) * RetailFullTime
-                        + Math.Log(1 + sp[j]) * RetailPartTime
-                        + Math.Log(1 + mf[j]) * ManufacturingFullTime
-                        + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                        + Math.Log(1 + zones[j].Population) * Population);
-
-                    for(int i = 0; i < zones.Length; i++)
-                    {
-                        var iRegion = zones[i].RegionNumber;
-                        var iPD = zones[i].PlanningDistrict;
-                        var nonTimeUtil = jUtil;
-                        for(int seg = 0; seg < PDConstant.Length; seg++)
-                        {
-                            if(PDConstant[seg].Range.Contains(jPD))
-                            {
-                                nonTimeUtil += PDConstant[seg].Constant;
-                                break;
-                            }
-                        }
-                        for(int time = 0; time < times.Length; time++)
-                        {
-                            // compute to
-                            to[time][i][j] = (float)Math.Exp(nonTimeUtil + TravelTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes());
-                            // compute from
-                            from[time][i][j] = (float)Math.Exp(TravelTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes());
-                        }
-                    }
-                });
-            }
-        }
-
-        public sealed class WorkBasedBusinessocationChoice : LocationChoiceActivity
-        {
-            protected override void CalculateUtilities()
-            {
-                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                var pf = Parent.ProfessionalFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var pp = Parent.ProfessionalPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var gf = Parent.GeneralFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var gp = Parent.GeneralPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var sf = Parent.RetailFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var sp = Parent.RetailPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var mf = Parent.ManufacturingFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var mp = Parent.ManufacturingPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var to = To.Select(d => d.GetFlatData()).ToArray();
-                var from = From.Select(d => d.GetFlatData()).ToArray();
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
-                {
-                    var network = Parent.Network;
+                    var network = Parent.AutoNetwork;
+                    var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
                     var jRegion = zones[j].RegionNumber;
                     var jPD = zones[j].PlanningDistrict;
@@ -560,8 +532,82 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for(int time = 0; time < times.Length; time++)
                         {
+
                             // compute to
-                            to[time][i][j] = nonTimeUtil;
+                            to[time][i][j] = nonTimeUtil * ((float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
+                                +
+                                // transit utility
+                                GetTransitUtility(transitNetwork, i, j, times[time].StartTime));
+                                
+
+                            // compute from
+                            from[time][i][j] = (float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
+                                + GetTransitUtility(transitNetwork, i, j, times[time].StartTime);
+                        }
+                    }
+                });
+            }
+        }
+
+        public sealed class WorkBasedBusinessocationChoice : LocationChoiceActivity
+        {
+            protected override void CalculateUtilities()
+            {
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                var pf = Parent.ProfessionalFullTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var pp = Parent.ProfessionalPartTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var gf = Parent.GeneralFullTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var gp = Parent.GeneralPartTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var sf = Parent.RetailFullTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var sp = Parent.RetailPartTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var mf = Parent.ManufacturingFullTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var mp = Parent.ManufacturingPartTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var to = To.Select(d => d.GetFlatData()).ToArray();
+                var from = From.Select(d => d.GetFlatData()).ToArray();
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
+                {
+                    var network = Parent.AutoNetwork;
+                    var transitNetwork = Parent.TransitNetwork;
+                    var times = Parent.TimePeriods;
+                    var jRegion = zones[j].RegionNumber;
+                    var jPD = zones[j].PlanningDistrict;
+                    var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
+                        + Math.Log(1 + pp[j]) * ProfessionalPartTime
+                        + Math.Log(1 + gf[j]) * GeneralFullTime
+                        + Math.Log(1 + gp[j]) * GeneralPartTime
+                        + Math.Log(1 + sf[j]) * RetailFullTime
+                        + Math.Log(1 + sp[j]) * RetailPartTime
+                        + Math.Log(1 + mf[j]) * ManufacturingFullTime
+                        + Math.Log(1 + mp[j]) * ManufacturingPartTime
+                        + Math.Log(1 + zones[j].Population) * Population);
+
+                    for(int i = 0; i < zones.Length; i++)
+                    {
+                        var iRegion = zones[i].RegionNumber;
+                        var iPD = zones[i].PlanningDistrict;
+                        var nonTimeUtil = jUtil;
+                        for(int seg = 0; seg < PDConstant.Length; seg++)
+                        {
+                            if(PDConstant[seg].Range.Contains(jPD))
+                            {
+                                nonTimeUtil += PDConstant[seg].Constant;
+                                break;
+                            }
+                        }
+                        nonTimeUtil = (float)Math.Exp(nonTimeUtil);
+                        for(int time = 0; time < times.Length; time++)
+                        {
+
+                            // compute to
+                            to[time][i][j] = nonTimeUtil * ((float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
+                                +
+                                // transit utility
+                                GetTransitUtility(transitNetwork, i, j, times[time].StartTime));
+
+
+                            // compute from
+                            from[time][i][j] = (float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
+                                + GetTransitUtility(transitNetwork, i, j, times[time].StartTime);
                         }
                     }
                 });
@@ -580,7 +626,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
         [SubModelInformation(Description = "The different time periods supported")]
         public TimePeriod[] TimePeriods;
 
-        private INetworkData Network;
+        private INetworkData AutoNetwork;
+        private ITripComponentData TransitNetwork;
 
         private static IZone GetZone(IEpisode otherEpisode, IEpisode inserting)
         {
@@ -662,15 +709,28 @@ namespace Tasha.XTMFScheduler.LocationChoice
             }
             foreach(var network in Root.NetworkData)
             {
-                if(network.NetworkType == NetworkName)
+                if(network.NetworkType == AutoNetworkName)
                 {
-                    Network = network;
+                    AutoNetwork = network;
                     break;
                 }
             }
-            if(Network == null)
+            if(AutoNetwork == null)
             {
-                error = "In '" + Name + "' we were unable to find a network called '" + NetworkName + "'";
+                error = "In '" + Name + "' we were unable to find a network called '" + AutoNetworkName + "'";
+            }
+
+            foreach(var network in Root.NetworkData)
+            {
+                if(network.NetworkType == TransitNetworkName)
+                {
+                    TransitNetwork = network as ITripComponentData;
+                    break;
+                }
+            }
+            if(TransitNetwork == null)
+            {
+                error = "In '" + Name + "' we were unable to find a network called '" + AutoNetworkName + "'";
             }
             return true;
         }
