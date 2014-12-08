@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace Datastructure
 {
-    public class SparseTriIndex<T>
+    public sealed class SparseTriIndex<T>
     {
         private T[][][] Data;
         private SparseIndexing Indexes;

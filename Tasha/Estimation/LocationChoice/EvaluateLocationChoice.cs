@@ -100,7 +100,7 @@ namespace Tasha.Estimation.LocationChoice
                                             correct++;
                                         }
                                     }
-                                    localFitness += (float)Math.Log((correct + 1) / (Tests + 1));
+                                    localFitness += (float)Math.Log((correct + 1.0f) / (Tests + 1.0f));
                                     break;
                                 }
                         }

@@ -115,9 +115,13 @@ namespace Tasha.XTMFScheduler.LocationChoice
             return ep.Zone;
         }
 
+        [RunParameter("Maximum Episode Duration Compression", 0.5f, "The amount that the duration is allowed to be compressed from the original duration time (0 to 1 default is 0.5).")]
+        public float MaximumEpisodeDurationCompression;
+
         private Time ComputeAvailableTime(IEpisode previous, IEpisode next)
         {
-            return (next == null ? Time.EndOfDay : next.StartTime) - (previous == null ? Time.StartOfDay : previous.EndTime);
+            return (next == null ? Time.EndOfDay : (next.StartTime + next.Duration - (MaximumEpisodeDurationCompression * next.OriginalDuration))) 
+                - (previous == null ? Time.StartOfDay : previous.EndTime - previous.Duration - (MaximumEpisodeDurationCompression * previous.OriginalDuration));
         }
 
         public sealed class TimePeriod : IModule
@@ -215,15 +219,21 @@ namespace Tasha.XTMFScheduler.LocationChoice
             private float expSamePD;
             private SparseTriIndex<int> PDCube;
 
-            protected float GetTransitUtility(ITripComponentData network, int i, int j, Time time)
+            private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
             {
                 float ivtt = 0.0f, walk = 0.0f, wait = 0.0f, cost = 0.0f, boarding = 0.0f;
                 if(!network.GetAllData(i, j, time, out ivtt, out walk, out wait, out boarding, out cost))
                 {
                     return 0f;
                 }
-                return (float)Math.Exp(TransitTime * (ivtt + walk + wait)
+                return Math.Exp(TransitTime * (ivtt + walk + wait)
                     + TransitCost * cost);
+            }
+
+            protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, int i, int j, Time time)
+            {
+                return (float)(GetTransitUtility(transitNetwork, i, j, time)
+                    + Math.Exp(autoNetwork.TravelTime(i,j, time).ToMinutes() * AutoTime));
             }
 
             public sealed class ODConstant : IModule
@@ -278,11 +288,17 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 return true;
             }
 
+            private SparseArray<IZone> zoneSystem;
+            private IZone[] zones;
+            int[] FlatZoneToPDLookup;
+
             internal void Load()
             {
                 var timePeriods = Parent.TimePeriods;
                 To = new SparseTwinIndex<float>[timePeriods.Length];
                 From = new SparseTwinIndex<float>[timePeriods.Length];
+                zoneSystem = Root.ZoneSystem.ZoneArray;
+                zones = zoneSystem.GetFlatData();
                 for(int i = 0; i < timePeriods.Length; i++)
                 {
                     To[i] = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
@@ -297,6 +313,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 BuildPDCube();
                 // now that we are done we can calculate our utilities
                 CalculateUtilities();
+                FlatZoneToPDLookup = zones.Select(zone => PDCube.GetFlatIndex(zone.PlanningDistrict)).ToArray();
             }
 
             private void BuildPDCube()
@@ -317,14 +334,10 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
             }
 
-
-
             protected abstract void CalculateUtilities();
 
             internal IZone GetLocation(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace, Random random)
             {
-                var zoneSystem = Root.ZoneSystem.ZoneArray;
-                var zones = zoneSystem.GetFlatData();
                 var p = zoneSystem.GetFlatIndex(previousZone.ZoneNumber);
                 var n = zoneSystem.GetFlatIndex(nextZone.ZoneNumber);
                 int index = GetTimePeriod(startTime);
@@ -333,14 +346,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var available = availableTime.ToMinutes();
                 var timeRow = times[p];
                 var toRow = To[index].GetFlatData()[p];
-                var pIndex = PDCube.GetFlatIndex(previousZone.PlanningDistrict);
-                var nIndex = PDCube.GetFlatIndex(nextZone.PlanningDistrict);
+                var pIndex = FlatZoneToPDLookup[p];
+                var nIndex = FlatZoneToPDLookup[n];
                 var data = PDCube.GetFlatData()[pIndex];
                 for(int i = 0; i < timeRow.Length; i++)
                 {
                     if(timeRow[i] + times[i][n] <= available)
                     {
-                        calculationSpace[i] = toRow[i] * from[i][n] * GetODUtility(data, pIndex, PDCube.GetFlatIndex(zones[i].PlanningDistrict), nIndex);
+                        calculationSpace[i] = toRow[i] * from[i][n] * GetODUtility(data, pIndex, FlatZoneToPDLookup[i], nIndex);
                     }
                     else
                     {
@@ -467,17 +480,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for(int time = 0; time < times.Length; time++)
                         {
-
+                            Time timeOfDay = times[time].StartTime;
+                            var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            to[time][i][j] = nonTimeUtil * ((float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
-                                +
-                                // transit utility
-                                GetTransitUtility(transitNetwork, i, j, times[time].StartTime));
-
-
+                            to[time][i][j] = nonTimeUtil * travelUtility;
                             // compute from
-                            from[time][i][j] = (float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
-                                + GetTransitUtility(transitNetwork, i, j, times[time].StartTime);
+                            from[time][i][j] = travelUtility;
                         }
                     }
                 });
@@ -532,17 +540,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for(int time = 0; time < times.Length; time++)
                         {
-
+                            Time timeOfDay = times[time].StartTime;
+                            var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            to[time][i][j] = nonTimeUtil * ((float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
-                                +
-                                // transit utility
-                                GetTransitUtility(transitNetwork, i, j, times[time].StartTime));
-                                
-
+                            to[time][i][j] = nonTimeUtil * travelUtility;
                             // compute from
-                            from[time][i][j] = (float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
-                                + GetTransitUtility(transitNetwork, i, j, times[time].StartTime);
+                            from[time][i][j] = travelUtility;
                         }
                     }
                 });
@@ -597,17 +600,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for(int time = 0; time < times.Length; time++)
                         {
-
+                            Time timeOfDay = times[time].StartTime;
+                            var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            to[time][i][j] = nonTimeUtil * ((float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
-                                +
-                                // transit utility
-                                GetTransitUtility(transitNetwork, i, j, times[time].StartTime));
-
-
+                            to[time][i][j] = nonTimeUtil * travelUtility;
                             // compute from
-                            from[time][i][j] = (float)Math.Exp(AutoTime * network.TravelTime(i, j, times[time].StartTime).ToMinutes())
-                                + GetTransitUtility(transitNetwork, i, j, times[time].StartTime);
+                            from[time][i][j] = travelUtility;
                         }
                     }
                 });
