@@ -111,7 +111,7 @@ namespace Tasha.Estimation.LocationChoice
             bool taken = false;
             FitnessLock.Enter(ref taken);
             Fitness += localFitness;
-            if(taken) FitnessLock.Exit();
+            if(taken) FitnessLock.Exit(true);
         }
 
         private IEpisode[] BuildScheduleFromTrips(List<ITrip> trips)

@@ -295,14 +295,17 @@ namespace Tasha.XTMFScheduler.LocationChoice
             internal void Load()
             {
                 var timePeriods = Parent.TimePeriods;
-                To = new SparseTwinIndex<float>[timePeriods.Length];
-                From = new SparseTwinIndex<float>[timePeriods.Length];
                 zoneSystem = Root.ZoneSystem.ZoneArray;
                 zones = zoneSystem.GetFlatData();
-                for(int i = 0; i < timePeriods.Length; i++)
+                if(To == null)
                 {
-                    To[i] = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-                    From[i] = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                    To = new SparseTwinIndex<float>[timePeriods.Length];
+                    From = new SparseTwinIndex<float>[timePeriods.Length];
+                    for(int i = 0; i < timePeriods.Length; i++)
+                    {
+                        To[i] = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                        From[i] = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                    }
                 }
                 expSamePD = (float)Math.Exp(SamePD);
                 // raise the constants to e^constant to save CPU time during the main phase
@@ -311,9 +314,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     ODConstants[i].ExpConstant = (float)Math.Exp(ODConstants[i].Constant);
                 }
                 BuildPDCube();
+                FlatZoneToPDLookup = zones.Select(zone => PDCube.GetFlatIndex(zone.PlanningDistrict)).ToArray();
                 // now that we are done we can calculate our utilities
                 CalculateUtilities();
-                FlatZoneToPDLookup = zones.Select(zone => PDCube.GetFlatIndex(zone.PlanningDistrict)).ToArray();
             }
 
             private void BuildPDCube()
@@ -450,7 +453,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var network = Parent.AutoNetwork;
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
-                    var jRegion = zones[j].RegionNumber;
                     var jPD = zones[j].PlanningDistrict;
                     if(!Parent.ValidDestinationZones.Contains(zones[j].ZoneNumber)) return;
                     var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
@@ -466,7 +468,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     for(int i = 0; i < zones.Length; i++)
                     {
                         if(!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
-                        var iRegion = zones[i].RegionNumber;
                         var iPD = zones[i].PlanningDistrict;
                         var nonTimeUtil = jUtil;
                         for(int seg = 0; seg < PDConstant.Length; seg++)
@@ -512,7 +513,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var network = Parent.AutoNetwork;
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
-                    var jRegion = zones[j].RegionNumber;
                     var jPD = zones[j].PlanningDistrict;
                     var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
@@ -572,7 +572,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var network = Parent.AutoNetwork;
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
-                    var jRegion = zones[j].RegionNumber;
                     var jPD = zones[j].PlanningDistrict;
                     var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
@@ -586,7 +585,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
                     for(int i = 0; i < zones.Length; i++)
                     {
-                        var iRegion = zones[i].RegionNumber;
                         var iPD = zones[i].PlanningDistrict;
                         var nonTimeUtil = jUtil;
                         for(int seg = 0; seg < PDConstant.Length; seg++)
