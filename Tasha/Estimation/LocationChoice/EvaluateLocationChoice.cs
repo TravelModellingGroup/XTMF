@@ -26,6 +26,9 @@ using XTMF;
 using TMG.Estimation;
 using Tasha.Scheduler;
 using Tasha.Common;
+using TMG.Input;
+using Datastructure;
+using TMG;
 
 namespace Tasha.Estimation.LocationChoice
 {
@@ -39,6 +42,13 @@ namespace Tasha.Estimation.LocationChoice
 
         [RunParameter("Tests", 300, "How many random pops should we do to simulate the probability?")]
         public int Tests;
+
+        [SubModelInformation(Required = false, Description = "The location to save a confusion matrix for validation.")]
+        public FileLocation ConfusionMatrix;
+
+        SparseTwinIndex<float> Choices;
+
+        SpinLock ChoicesLock = new SpinLock(false);
 
         public string Name
         {
@@ -71,44 +81,96 @@ namespace Tasha.Estimation.LocationChoice
         {
             var localFitness = 0.0f;
             var persons = household.Persons;
-            Random random = new Random(household.HouseholdId * RandomSeed);
-            for(int personIndex = 0; personIndex < persons.Length; personIndex++)
+            bool taken;
+            if(ConfusionMatrix == null)
             {
-                var tripChains = persons[personIndex].TripChains;
-                for(int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
+                Random random = new Random(household.HouseholdId * RandomSeed);
+                for(int personIndex = 0; personIndex < persons.Length; personIndex++)
                 {
-                    var trips = tripChains[tcIndex].Trips;
-                    IEpisode[] episodes = BuildScheduleFromTrips(trips);
-                    for(int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
+                    var tripChains = persons[personIndex].TripChains;
+                    for(int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
                     {
-                        var activtiyType = episodes[tripIndex].ActivityType;
-                        TMG.IZone revieldChoice = trips[tripIndex].DestinationZone;
-                        switch(activtiyType)
+                        var trips = tripChains[tcIndex].Trips;
+                        IEpisode[] episodes = BuildScheduleFromTrips(trips);
+                        for(int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
                         {
-                            case Activity.WorkBasedBusiness:
-                            case Activity.Market:
-                            case Activity.IndividualOther:
-                            case Activity.JointMarket:
-                            case Activity.JointOther:
-                                {
-                                    int correct = 0;
-                                    for(int test = 0; test < Tests; test++)
+                            var activtiyType = episodes[tripIndex].ActivityType;
+                            TMG.IZone revieldChoice = trips[tripIndex].DestinationZone;
+                            switch(activtiyType)
+                            {
+                                case Activity.WorkBasedBusiness:
+                                case Activity.Market:
+                                case Activity.IndividualOther:
+                                case Activity.JointMarket:
+                                case Activity.JointOther:
                                     {
-                                        var choice = LocationChoice.GetLocation(episodes[tripIndex], random);
-                                        if(choice == revieldChoice)
+                                        int correct = 0;
+                                        for(int test = 0; test < Tests; test++)
                                         {
-                                            correct++;
+                                            var choice = LocationChoice.GetLocation(episodes[tripIndex], random);
+                                            if(choice == revieldChoice)
+                                            {
+                                                correct++;
+                                            }
                                         }
+                                        localFitness += (float)Math.Log((correct + 1.0f) / (Tests + 1.0f));
+                                        break;
                                     }
-                                    localFitness += (float)Math.Log((correct + 1.0f) / (Tests + 1.0f));
-                                    break;
-                                }
+                            }
                         }
                     }
                 }
             }
+            else
+            {
+                Random random = new Random(household.HouseholdId * RandomSeed);
+                for(int personIndex = 0; personIndex < persons.Length; personIndex++)
+                {
+                    var tripChains = persons[personIndex].TripChains;
+                    var expansionFactor = persons[personIndex].ExpansionFactor;
+                    for(int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
+                    {
+                        var trips = tripChains[tcIndex].Trips;
+                        IEpisode[] episodes = BuildScheduleFromTrips(trips);
+                        for(int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
+                        {
+                            var activtiyType = episodes[tripIndex].ActivityType;
+                            TMG.IZone revieldChoice = trips[tripIndex].DestinationZone;
+                            var revieldZoneNumber = revieldChoice.ZoneNumber;
+                            switch(activtiyType)
+                            {
+                                case Activity.WorkBasedBusiness:
+                                case Activity.Market:
+                                case Activity.IndividualOther:
+                                case Activity.JointMarket:
+                                case Activity.JointOther:
+                                    {
+                                        int correct = 0;
+                                        for(int test = 0; test < Tests; test++)
+                                        {
+                                            var choice = LocationChoice.GetLocation(episodes[tripIndex], random);
+                                            if(choice == revieldChoice)
+                                            {
+                                                correct++;
+                                            }
+                                            taken = false;
+                                            if(choice != null)
+                                            {
+                                                ChoicesLock.Enter(ref taken);
+                                                Choices[choice.ZoneNumber, revieldZoneNumber] += expansionFactor;
+                                                if(taken) ChoicesLock.Exit(false);
+                                            }
+                                        }
+                                        localFitness += (float)Math.Log((correct + 1.0f) / (Tests + 1.0f));
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                }
+            }
+            taken = false;
             // evaluate the household
-            bool taken = false;
             FitnessLock.Enter(ref taken);
             Fitness += localFitness;
             if(taken) FitnessLock.Exit(true);
@@ -136,11 +198,20 @@ namespace Tasha.Estimation.LocationChoice
         public void IterationFinished(int iteration)
         {
             Root.RetrieveValue = () => Fitness;
+
+            if(ConfusionMatrix != null)
+            {
+                TMG.Functions.SaveData.SaveMatrix(Choices, ConfusionMatrix);
+            }
         }
 
         public void IterationStarting(int iteration)
         {
             Fitness = 0.0f;
+            if(ConfusionMatrix != null)
+            {
+                Choices = (Root.MainClient as ITravelDemandModel).ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            }
             // reload all of the probabilities
             LocationChoice.LoadLocationChoiceCache();
         }

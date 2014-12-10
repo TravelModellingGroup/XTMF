@@ -58,7 +58,7 @@ namespace XTMF.Gui
                         this.PathStack.Children.Add( new Label() { Content = "/", Foreground = Brushes.White } );
                     }
                     Border pl;
-                    this.PathStack.Children.Add( pl = new Border() { Child = new PathLabel( p ) { Text = MainWindow.PageNames[(int)p] }, BorderBrush = Brushes.White, BorderThickness = new Thickness( 1 ), Margin = new Thickness( 2 ) } );
+                    this.PathStack.Children.Add( pl = new Border() { Child = new PathLabel( p ) { Text = MainWindow.PageNames[(int)p] }, BorderBrush = Brushes.White, BorderThickness = new Thickness( 0 ), Margin = new Thickness( 2 ) } );
                     pl.MouseLeftButtonDown += new MouseButtonEventHandler( pl_MouseLeftButtonUp );
                     first = false;
                 }

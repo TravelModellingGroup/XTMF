@@ -49,12 +49,10 @@ namespace Tasha.Common
         [RunParameter("Regenerate", true, "Should we regenerate the cache file every time?")]
         public bool Regenerate;
 
-        private SparseArray<IZone> AllZones;
+        [RunParameter("Load Once", true, "Only load the zone system once.")]
+        public bool LoadOnce;
 
-        /// <summary>
-        /// Provides a Cache for the zone information
-        /// </summary>
-        private ZoneCache<IZone> Cache;
+        private SparseArray<IZone> AllZones;
 
         private Pair<int, int>[] EmploymentDataRange;
         private object LoadingLock = new object();
@@ -74,14 +72,14 @@ namespace Tasha.Common
 
         public int NumberOfInternalZones
         {
-            get { return this.NumberOfZones; }
+            get { return NumberOfZones; }
         }
 
         public int NumberOfZones
         {
             get
             {
-                return this.AllZones.Top + 1;
+                return AllZones.Top + 1;
             }
         }
 
@@ -92,7 +90,7 @@ namespace Tasha.Common
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+            get { return new Tuple<byte, byte, byte>(50, 150, 50); }
         }
 
         [RunParameter("Roaming Zone", -1, "The zone number of people who have a roaming place of work.")]
@@ -104,35 +102,35 @@ namespace Tasha.Common
 
         public SparseArray<IZone> ZoneArray
         {
-            get { return this.AllZones; }
+            get { return AllZones; }
         }
 
         public void Generate()
         {
-            SparseZoneCreator creator = new SparseZoneCreator( this.HighestZoneNumber + 1, 22 );
-            creator.LoadCSV( GetFullPath( this.ZoneFileName ), true );
-            creator.Save( GetFullPath( this.ZoneCacheFile ) );
+            SparseZoneCreator creator = new SparseZoneCreator(HighestZoneNumber + 1, 22);
+            creator.LoadCSV(GetFullPath(ZoneFileName), true);
+            creator.Save(GetFullPath(ZoneCacheFile));
         }
 
         public IZone Get(int ZoneNumber)
         {
-            if ( ZoneNumber == RoamingZoneNumber )
+            if(ZoneNumber == RoamingZoneNumber)
             {
-                if ( this.RoamingZone == null )
+                if(RoamingZone == null)
                 {
                     lock (this)
                     {
                         System.Threading.Thread.MemoryBarrier();
-                        if ( this.RoamingZone == null )
+                        if(RoamingZone == null)
                         {
-                            this.RoamingZone = new Zone( ZoneNumber );
+                            RoamingZone = new Zone(ZoneNumber);
                         }
                         System.Threading.Thread.MemoryBarrier();
                     }
                 }
-                return this.RoamingZone;
+                return RoamingZone;
             }
-            return this.AllZones[ZoneNumber];
+            return AllZones[ZoneNumber];
         }
 
         public IZoneSystem GiveData()
@@ -142,27 +140,33 @@ namespace Tasha.Common
 
         public bool Loaded
         {
-            get { return this.AllZones != null; }
+            get { return AllZones != null; }
         }
 
         public void LoadData()
         {
-            initEmpDataRange();
-            var cacheFileName = this.GetFullPath( this.ZoneCacheFile );
-            if ( CheckIfWeNeedToRegenerateCache( cacheFileName ) )
+            if(!LoadOnce || !Loaded)
             {
-                Generate();
+                initEmpDataRange();
+                var cacheFileName = GetFullPath(ZoneCacheFile);
+                if(CheckIfWeNeedToRegenerateCache(cacheFileName))
+                {
+                    Generate();
+                }
+                using (var cache = new ZoneCache<IZone>(cacheFileName, ConvertToZone))
+                {
+                    AllZones = cache.StoreAll();
+                    cache.Dispose();
+                }
+                ComputeDistances();
+                LoadReagions();
             }
-            Cache = new ZoneCache<IZone>( cacheFileName, ConvertToZone );
-            this.AllZones = Cache.StoreAll();
-            ComputeDistances();
-            LoadReagions();
         }
 
         private bool CheckIfWeNeedToRegenerateCache(string cacheFileName)
         {
-            if ( Regenerate ) return true;
-            return !File.Exists( cacheFileName );
+            if(Regenerate) return true;
+            return !File.Exists(cacheFileName);
         }
 
         [SubModelInformation(Required = false, Description = "A CSV File with Zone,Region.")]
@@ -170,28 +174,28 @@ namespace Tasha.Common
 
         private void LoadReagions()
         {
-            if ( RegionFile != null )
+            if(RegionFile != null)
             {
-                var zoneArray = this.ZoneArray;
+                var zoneArray = ZoneArray;
                 var zones = zoneArray.GetFlatData();
-                using (CsvReader reader = new CsvReader( RegionFile ))
+                using (CsvReader reader = new CsvReader(RegionFile))
                 {
                     // burn header
-                    reader.LoadLine( out int columns );
+                    reader.LoadLine(out int columns);
                     // read the rest
-                    while ( reader.LoadLine( out columns ) )
+                    while(reader.LoadLine(out columns))
                     {
-                        if ( columns < 2 ) continue;
-                        reader.Get( out int zoneNumber, 0 );
-                        reader.Get( out int regionNumber, 1 );
-                        int index = zoneArray.GetFlatIndex( zoneNumber );
-                        if ( index >= 0 )
+                        if(columns < 2) continue;
+                        reader.Get(out int zoneNumber, 0);
+                        reader.Get(out int regionNumber, 1);
+                        int index = zoneArray.GetFlatIndex(zoneNumber);
+                        if(index >= 0)
                         {
                             zones[index].RegionNumber = regionNumber;
                         }
                         else
                         {
-                            throw new XTMFRuntimeException( "In '" + this.Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!" );
+                            throw new XTMFRuntimeException("In '" + Name + "' we found a zone '" + zoneNumber + "' while reading in the regions that does not exist in the zone system!");
                         }
                     }
                 }
@@ -207,11 +211,11 @@ namespace Tasha.Common
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            var zfn = this.GetFullPath( this.ZoneFileName );
-            var zcn = this.GetFullPath( this.ZoneCacheFile );
-            if ( !File.Exists( zfn ) && !File.Exists( zcn ) )
+            var zfn = GetFullPath(ZoneFileName);
+            var zcn = GetFullPath(ZoneCacheFile);
+            if(!File.Exists(zfn) && !File.Exists(zcn))
             {
-                error = String.Format( "Both the zone file \"{0}\" and cache file \"{1}\" do not exist!", zfn, zcn );
+                error = string.Format("Both the zone file \"{0}\" and cache file \"{1}\" do not exist!", zfn, zcn);
                 return false;
             }
             return true;
@@ -219,17 +223,17 @@ namespace Tasha.Common
 
         public void UnloadData()
         {
-            this.Dispose( true );
+            Dispose(true);
         }
 
         public bool ZoneHasEmploymentData(IZone zone)
         {
-            foreach ( var pair in this.EmploymentDataRange )
+            foreach(var pair in EmploymentDataRange)
             {
-                if ( pair.First > zone.ZoneNumber )
+                if(pair.First > zone.ZoneNumber)
                     return false;
 
-                if ( pair.First <= zone.ZoneNumber && pair.Second >= zone.ZoneNumber )
+                if(pair.First <= zone.ZoneNumber && pair.Second >= zone.ZoneNumber)
                     return true;
             }
 
@@ -246,7 +250,7 @@ namespace Tasha.Common
         {
             var deltaX = origin.X - destination.X;
             var deltaY = origin.Y - destination.Y;
-            return (float)Math.Sqrt( ( deltaX * deltaX ) + ( deltaY * deltaY ) );
+            return (float)Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
         }
 
         /// <summary>
@@ -258,32 +262,32 @@ namespace Tasha.Common
         private static IZone ConvertToZone(int ZoneID, float[] data)
         {
             // Create this data from the information in the cache file
-            return new Zone( ZoneID, data );
+            return new Zone(ZoneID, data);
         }
 
         private void ComputeDistances()
         {
-            var distances = this.ZoneArray.CreateSquareTwinArray<float>();
+            var distances = ZoneArray.CreateSquareTwinArray<float>();
             var flatDistnaces = distances.GetFlatData();
-            var zones = this.ZoneArray.GetFlatData();
+            var zones = ZoneArray.GetFlatData();
             var length = zones.Length;
-            Parallel.For( 0, flatDistnaces.Length, delegate (int i)
+            Parallel.For(0, flatDistnaces.Length, delegate (int i)
             {
                 var row = flatDistnaces[i];
-                for ( int j = 0; j < length; j++ )
+                for(int j = 0; j < length; j++)
                 {
-                    row[j] = ( i == j ) ? zones[i].InternalDistance
-                        : CalcDistance( zones[i], zones[j] );
+                    row[j] = (i == j) ? zones[i].InternalDistance
+                        : CalcDistance(zones[i], zones[j]);
                 }
-            } );
-            this.Distances = distances;
+            });
+            Distances = distances;
         }
 
         private string GetFullPath(string localPath)
         {
-            if ( !Path.IsPathRooted( localPath ) )
+            if(!Path.IsPathRooted(localPath))
             {
-                return Path.Combine( this.Root.InputBaseDirectory, localPath );
+                return Path.Combine(Root.InputBaseDirectory, localPath);
             }
             return localPath;
         }
@@ -291,35 +295,33 @@ namespace Tasha.Common
         private void initEmpDataRange()
         {
             List<Pair<int, int>> empDataRange = new List<Pair<int, int>>();
-            string sRange = this.ZonesWithEmploymentData;
-            string[] ranges = sRange.Split( ',' );
-            foreach ( var r in ranges )
+            string sRange = ZonesWithEmploymentData;
+            string[] ranges = sRange.Split(',');
+            foreach(var r in ranges)
             {
-                string[] range = r.Split( '-' );
-                if ( range.Length == 1 )
+                string[] range = r.Split('-');
+                if(range.Length == 1)
                 {
-                    empDataRange.Add( new Pair<int, int>( int.Parse( range[0] ), int.Parse( range[0] ) ) );
+                    empDataRange.Add(new Pair<int, int>(int.Parse(range[0]), int.Parse(range[0])));
                 }
-                else if ( range.Length == 2 )
+                else if(range.Length == 2)
                 {
-                    empDataRange.Add( new Pair<int, int>( int.Parse( range[0] ), int.Parse( range[1] ) ) );
+                    empDataRange.Add(new Pair<int, int>(int.Parse(range[0]), int.Parse(range[1])));
                 }
             }
-            this.EmploymentDataRange = empDataRange.ToArray();
+            EmploymentDataRange = empDataRange.ToArray();
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( this );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool all)
         {
-            if ( Cache != null )
+            if(!LoadOnce)
             {
-                Cache.Dispose();
-                Cache = null;
                 AllZones = null;
             }
         }
