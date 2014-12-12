@@ -25,31 +25,34 @@ namespace TMG.GTAModel.Input.NetworkData
 {
     public class NoCacheSingleTimePeriodNetworkComponentData : ITripComponentData
     {
-        [SubModelInformation( Required = false, Description = "Provides Boarding data." )]
+        [SubModelInformation(Required = false, Description = "Provides Boarding data." )]
         public IReadODData<float> BoardingReader;
 
-        [SubModelInformation( Required = false, Description = "Provides fare data." )]
+        [SubModelInformation(Required = false, Description = "Provides fare data." )]
         public IReadODData<float> FaresReader;
 
-        [SubModelInformation( Required = true, Description = "Provides IVTT data." )]
+        [SubModelInformation(Required = true, Description = "Provides IVTT data." )]
         public IReadODData<float> IvttReader;
 
-        [RunParameter( "No Walktime Infeasible", false, "If there is 0 walk time then the OD Pair is infeasible!" )]
+        [RunParameter("No Walktime Infeasible", false, "If there is 0 walk time then the OD Pair is infeasible!" )]
         public bool NoWalkTimeInfeasible;
 
-        [RunParameter( "Regenerate", true, "Regenerate the data after the first iteration." )]
+        [RunParameter("Regenerate", true, "Regenerate the data after the first iteration." )]
         public bool Regenerate;
 
-        [RunParameter( "No Unload", false, "Don't unload the data between iterations." )]
+        [RunParameter("No Unload", false, "Don't unload the data between iterations." )]
         public bool NoUnload;
+
+        [RunParameter("Apply Time Blending", false, "Apply a blending function to the travel times in ")]
+        public bool ApplyTimeBlending;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation( Required = true, Description = "Provides Wait data." )]
+        [SubModelInformation(Required = true, Description = "Provides Wait data." )]
         public IReadODData<float> WaitReader;
 
-        [SubModelInformation( Required = true, Description = "Provides Walk data." )]
+        [SubModelInformation(Required = true, Description = "Provides Walk data." )]
         public IReadODData<float> WalkReader;
 
         private float[] Data;
@@ -77,7 +80,7 @@ namespace TMG.GTAModel.Input.NetworkData
             set;
         }
 
-        [RunParameter( "Network Name", "Transit", "The name of this network data." )]
+        [RunParameter("Network Name", "Transit", "The name of this network data." )]
         public string NetworkType
         {
             get;
@@ -91,18 +94,18 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 200, 100 ); }
         }
 
         public Time BoardingTime(IZone origin, IZone destination, Time time)
         {
-            return BoardingTime( this.ZoneArray.GetFlatIndex( origin.ZoneNumber ), this.ZoneArray.GetFlatIndex( destination.ZoneNumber ), time );
+            return BoardingTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time BoardingTime(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            return Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.BoardingTime] );
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            return Time.FromMinutes(Data[zoneIndex + (int)DataTypes.BoardingTime]);
         }
 
         public int[] ClosestStations(IZone zone)
@@ -112,18 +115,18 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public bool GetAllData(IZone origin, IZone destination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost)
         {
-            return GetAllData( this.ZoneArray.GetFlatIndex( origin.ZoneNumber ), this.ZoneArray.GetFlatIndex( destination.ZoneNumber ), time,
-                out ivtt, out walk, out wait, out boarding, out cost );
+            return GetAllData(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time,
+                out ivtt, out walk, out wait, out boarding, out cost);
         }
 
         public bool GetAllData(int flatOrigin, int flatDestination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            ivtt = Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.TravelTime] );
-            walk = Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.WalkTime] );
-            wait = Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.WaitTime] );
-            boarding = Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.BoardingTime] );
-            cost = this.Data[zoneIndex + (int)DataTypes.Cost];
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            ivtt = Time.FromMinutes(Data[zoneIndex + (int)DataTypes.TravelTime]);
+            walk = Time.FromMinutes(Data[zoneIndex + (int)DataTypes.WalkTime]);
+            wait = Time.FromMinutes(Data[zoneIndex + (int)DataTypes.WaitTime]);
+            boarding = Time.FromMinutes(Data[zoneIndex + (int)DataTypes.BoardingTime]);
+            cost = Data[zoneIndex + (int)DataTypes.Cost];
             return true;
         }
 
@@ -134,37 +137,37 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public Time InVehicleTravelTime(IZone origin, IZone destination, Time time)
         {
-            return InVehicleTravelTime( this.ZoneArray.GetFlatIndex( origin.ZoneNumber ), this.ZoneArray.GetFlatIndex( destination.ZoneNumber ), time );
+            return InVehicleTravelTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time InVehicleTravelTime(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            return Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.TravelTime] );
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            return Time.FromMinutes(Data[zoneIndex + (int)DataTypes.TravelTime]);
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
             // setup our zones
-            this.ZoneArray = this.Root.ZoneSystem.ZoneArray;
-            this.Zones = this.ZoneArray.GetFlatData();
-            if ( this.Data == null || this.Regenerate )
+            ZoneArray = Root.ZoneSystem.ZoneArray;
+            Zones = ZoneArray.GetFlatData();
+            if(Data == null || Regenerate)
             {
                 // now that we have zones we can build our data
-                var data = new float[this.Zones.Length * this.Zones.Length * (int)DataTypes.NumberOfDataTypes];
+                var data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
                 //now we need to load in each type
-                LoadData( data, this.IvttReader, (int)DataTypes.TravelTime );
-                LoadData( data, this.FaresReader, (int)DataTypes.Cost );
-                LoadData( data, this.WaitReader, (int)DataTypes.WaitTime );
-                LoadData( data, this.WalkReader, (int)DataTypes.WalkTime );
-                LoadData( data, this.BoardingReader, (int)DataTypes.BoardingTime );
+                LoadData(data, IvttReader, (int)DataTypes.TravelTime, Data != null & ApplyTimeBlending);
+                LoadData(data, FaresReader, (int)DataTypes.Cost, false);
+                LoadData(data, WaitReader, (int)DataTypes.WaitTime, Data != null & ApplyTimeBlending);
+                LoadData(data, WalkReader, (int)DataTypes.WalkTime, Data != null & ApplyTimeBlending);
+                LoadData(data, BoardingReader, (int)DataTypes.BoardingTime, Data != null & ApplyTimeBlending);
                 // now store it
-                this.Data = data;
+                Data = data;
             }
         }
 
@@ -176,7 +179,7 @@ namespace TMG.GTAModel.Input.NetworkData
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.IterativeRoot = this.Root as IIterativeModel;
+            IterativeRoot = Root as IIterativeModel;
             return true;
         }
 
@@ -187,42 +190,42 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public float TravelCost(IZone start, IZone end, Time time)
         {
-            return TravelCost( this.ZoneArray.GetFlatIndex( start.ZoneNumber ), this.ZoneArray.GetFlatIndex( end.ZoneNumber ), time );
+            return TravelCost(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time);
         }
 
         public float TravelCost(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            return this.Data[zoneIndex + (int)DataTypes.Cost];
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            return Data[zoneIndex + (int)DataTypes.Cost];
         }
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return TravelTime( this.ZoneArray.GetFlatIndex( origin.ZoneNumber ), this.ZoneArray.GetFlatIndex( destination.ZoneNumber ), time );
+            return TravelTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time TravelTime(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
             return Time.FromMinutes(
-                this.Data[zoneIndex + (int)DataTypes.TravelTime]
-                + this.Data[zoneIndex + (int)DataTypes.WalkTime]
-                + this.Data[zoneIndex + (int)DataTypes.WaitTime] );
+                Data[zoneIndex + (int)DataTypes.TravelTime]
+                + Data[zoneIndex + (int)DataTypes.WalkTime]
+                + Data[zoneIndex + (int)DataTypes.WaitTime]);
         }
 
         public void UnloadData()
         {
-            if ( !this.NoUnload )
+            if (!NoUnload)
             {
-                this.Data = null;
-                this.ZoneArray = null;
-                this.Zones = null;
+                Data = null;
+                ZoneArray = null;
+                Zones = null;
             }
         }
 
         public bool ValidOD(IZone start, IZone end, Time time)
         {
-            if ( !this.NoWalkTimeInfeasible || this.WalkTime( start, end, time ) > Time.Zero )
+            if (!NoWalkTimeInfeasible || WalkTime(start, end, time) > Time.Zero)
             {
                 return true;
             }
@@ -231,46 +234,64 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public bool ValidOD(int flatOrigin, int flatDestination, Time time)
         {
-            return ( !this.NoWalkTimeInfeasible || this.WalkTime( flatOrigin, flatDestination, time ) > Time.Zero );
+            return (!NoWalkTimeInfeasible || WalkTime(flatOrigin, flatDestination, time) > Time.Zero);
         }
 
         public Time WaitTime(IZone origin, IZone destination, Time time)
         {
-            return WaitTime( this.ZoneArray.GetFlatIndex( origin.ZoneNumber ), this.ZoneArray.GetFlatIndex( destination.ZoneNumber ), time );
+            return WaitTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time WaitTime(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            return Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.WaitTime] );
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            return Time.FromMinutes(Data[zoneIndex + (int)DataTypes.WaitTime]);
         }
 
         public Time WalkTime(IZone origin, IZone destination, Time time)
         {
-            return WalkTime( this.ZoneArray.GetFlatIndex( origin.ZoneNumber ), this.ZoneArray.GetFlatIndex( destination.ZoneNumber ), time );
+            return WalkTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time WalkTime(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            return Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.WalkTime] );
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            return Time.FromMinutes(Data[zoneIndex + (int)DataTypes.WalkTime]);
         }
 
-        private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset)
+        private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset, bool applyTimeBlending)
         {
-            if ( readODData == null )
+            if(readODData == null )
             {
                 return;
             }
-            var numberOfZones = this.Zones.Length;
+            var numberOfZones = Zones.Length;
             var dataTypes = (int)DataTypes.NumberOfDataTypes;
-            foreach ( var point in readODData.Read() )
+            if(applyTimeBlending)
             {
-                var o = this.ZoneArray.GetFlatIndex( point.O );
-                var d = this.ZoneArray.GetFlatIndex( point.D );
-                if ( o >= 0 & d >= 0 )
+                var iteration = IterativeRoot.CurrentIteration;
+                var previousFraction = 1.0f / (iteration + 1.0f);
+                var currentFraction = iteration / (1.0f + iteration);
+                foreach(var point in readODData.Read())
                 {
-                    data[( o * numberOfZones + d ) * dataTypes + dataTypeOffset] = point.Data;
+                    var o = ZoneArray.GetFlatIndex(point.O);
+                    var d = ZoneArray.GetFlatIndex(point.D);
+                    if(o >= 0 & d >= 0)
+                    {
+                        data[(o * numberOfZones + d) * dataTypes + dataTypeOffset] = data[(o * numberOfZones + d) * dataTypes + dataTypeOffset] * previousFraction + point.Data * currentFraction;
+                    }
+                }
+            }
+            else
+            {
+                foreach(var point in readODData.Read())
+                {
+                    var o = ZoneArray.GetFlatIndex(point.O);
+                    var d = ZoneArray.GetFlatIndex(point.D);
+                    if(o >= 0 & d >= 0)
+                    {
+                        data[(o * numberOfZones + d) * dataTypes + dataTypeOffset] = point.Data;
+                    }
                 }
             }
         }

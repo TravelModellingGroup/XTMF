@@ -29,8 +29,8 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter( "Scenario Number", 0, "The number of the Emme scenario." )]
         public int ScenarioNumber;
 
-        private const string ToolName = "TMG2.Assignment.CheckFunctions";
-        private const string AlternateToolName = "TMG2.Assignment.PreProcessing.CheckFunctions";
+        private const string ToolName = "tmg.assignment.preprocessing.check_scenario_functions";
+        private const string AlternateToolName = "TMG.Assignment.CheckFunctions";
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
 

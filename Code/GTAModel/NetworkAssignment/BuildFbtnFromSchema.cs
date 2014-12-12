@@ -58,7 +58,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "TMG2.NetworkEditing.FBTA.NetworkFromSchema";
+        private const string _ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
 
         public bool Execute(Controller controller)
         {

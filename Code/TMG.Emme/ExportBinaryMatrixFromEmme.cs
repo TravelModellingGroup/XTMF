@@ -39,17 +39,18 @@ namespace TMG.Emme
         [SubModelInformation(Description = "Binary File Path", Required = true)]
         public FileLocation Filepath;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "TMG2.IO.ExportBinaryMatrix";
+        private const string _ToolName = "tmg.input_output.export_binary_matrix";
+        private const string _OldToolName = "TMG2.IO.ExportBinaryMatrix";
 
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a ModellerController!" );
+            if(mc == null)
+                throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join( " ", this.MatrixType, this.MatrixNumber, "\"" + this.Filepath.GetFilePath() + "\"", this.ScenarioNumber );
+            var args = string.Join(" ", this.MatrixType, this.MatrixNumber, "\"" + this.Filepath.GetFilePath() + "\"", this.ScenarioNumber);
 
             /*
             
@@ -57,7 +58,14 @@ namespace TMG.Emme
             */
 
             var result = "";
-            return mc.Run( _ToolName, args, ( p => this.Progress = p ), ref result );
+            if(mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            }
+            else
+            {
+                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
+            }
         }
 
         public string Name
@@ -79,7 +87,7 @@ namespace TMG.Emme
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.MatrixType > 4 & this.MatrixType < 1 )
+            if(this.MatrixType > 4 & this.MatrixType < 1)
             {
                 error = "Matrix type " + this.MatrixType.ToString() + " is not a valid matrix type." +
                     " Valid types are 1 for SCALAR, 2 for ORIGIN, 3 for DESTINATION, and 4 for FULL matrices.";

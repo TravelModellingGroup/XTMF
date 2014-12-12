@@ -42,7 +42,8 @@ namespace TMG.Emme
         [RunParameter("Description", "From XTMF", "A description of the matrix.")]
         public string Description;
 
-        private const string _ToolName = "TMG2.IO.ImportBinaryMatrix";
+        private const string _ToolName = "tmg.input_output.import_binary_matrix";
+        private const string _OldToolName = "TMG2.IO.ImportBinaryMatrix";
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
 
@@ -66,7 +67,14 @@ namespace TMG.Emme
             Console.WriteLine( "Importing matrix into scenario " + this.ScenarioNumber.ToString() + " from file " + this.MatrixFile.GetFilePath() );
 
             var result = "";
-            return mc.Run( _ToolName, args, ( p => this.Progress = p ), ref result );
+            if(mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            }
+            else
+            {
+                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
+            }
         }
 
         public string Name

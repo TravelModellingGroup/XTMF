@@ -47,8 +47,8 @@ namespace TMG.GTAModel.NetworkAnalysis
         public float WalkCutoff;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string ToolName = "TMG2.Analysis.Transit.Strategies.ExtractFeasibilityMatrix";
-        private const string AlternateToolName = "TMG2.Assignment.TransitAnalysis.ExtractFeasibilityMatrix";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_feasibility_matrix";
+        private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractFeasibilityMatrix";
 
         public string Name
         {

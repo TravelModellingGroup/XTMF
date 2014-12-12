@@ -88,7 +88,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "TMG2.Assignment.TransitAssignment.TransitAssignmentV4";
+        private const string _ToolName = "tmg.assignment.transit.V4_FBTA";
 
         public bool Execute(Controller controller)
         {

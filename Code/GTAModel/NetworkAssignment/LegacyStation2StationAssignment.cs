@@ -33,6 +33,12 @@ namespace TMG.GTAModel.NetworkAnalysis
                         + " centroids are hard-coded to NCS11 definitions." )]
     public class LegacyStation2StationAssignment : IEmmeTool
     {
+        private const string _ToolName = "tmg.assignment.transit.V3_line_haul";
+        private const string _OldToolName = "TMG2.Assignment.TransitAssignment.LegacyStation2Station";
+
+        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+
         [RunParameter( "Cost Matrix Number", 21, "The full matrix number in which to store the assignment costs. Costs will only be reported for feasible trips from station centroids." )]
         public int CostMatrixNumber;
 
@@ -112,7 +118,14 @@ namespace TMG.GTAModel.NetworkAnalysis
              */
 
             string result = null;
-            return mc.Run( "TMG2.Assignment.TransitAssignment.LegacyStation2Station", sb.ToString(), ( p => this.Progress = p ), ref result );
+            if(mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, sb.ToString(), (p => this.Progress = p), ref result);
+            }
+            else
+            {
+                return mc.Run(_OldToolName, sb.ToString(), (p => this.Progress = p), ref result);
+            }
         }
 
         public bool RuntimeValidation(ref string error)
@@ -195,7 +208,14 @@ namespace TMG.GTAModel.NetworkAnalysis
 
             try
             {
-                mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+                if(mc.CheckToolExists(_ImportToolName))
+                {
+                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
+                else
+                {
+                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
             }
             finally
             {

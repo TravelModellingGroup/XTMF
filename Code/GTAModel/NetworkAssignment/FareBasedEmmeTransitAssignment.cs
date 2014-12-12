@@ -27,9 +27,12 @@ using XTMF;
 namespace TMG.GTAModel.NetworkAssignment
 {
     [ModuleInformation( Name = "Fare Based Emme Transit Assignment",
-        Description = "Executes a transit assignment which can accuulate fares. " )]
+        Description = "Executes a transit assignment which can accumulate fares. " )]
     public class FareBasedEmmeTransitAssignment : IEmmeTool
     {
+        private const string _ToolName = "tmg.assignment.road.tolled.toll_attribute_transit_background";
+        private const string _OldToolName = "TMG2.Assignment.RoadAssignment.GTAModelTollBasedRoadAssignment";
+
         [RunParameter( "Boarding Perception", 1.0f, "The perception factor for boarding time." )]
         public float BoardingPerception;
 
@@ -117,8 +120,14 @@ namespace TMG.GTAModel.NetworkAssignment
                 this.TollMatrixNumber, this.Factor, this.GasCost, this.TollUnitCost, this.TollPerceptionFactor,
                 this.MaxIterations, this.RelativeGap, this.BestRelativeGap, this.NormalizedGap);
             */
-
-            return mc.Run( "TMG2.Assignment.RoadAssignment.GTAModelTollBasedRoadAssignment", sb.ToString() );
+            if(mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, sb.ToString());
+            }
+            else
+            {
+                return mc.Run(_OldToolName, sb.ToString());
+            }
         }
 
         public bool RuntimeValidation(ref string error)

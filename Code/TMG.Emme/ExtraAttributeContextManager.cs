@@ -97,7 +97,7 @@ namespace TMG.Emme
         [SubModelInformation(Description="Emme tools to run")]
         public List<IEmmeTool> EmmeToolsToRun;
 
-        private const string _ToolName = "TMG2.XTMF.tempAttManager";
+        private const string _ToolName = "tmg.XTMF_internal.temp_attribute_manager";
         private IEmmeTool _RunningTool;
         private float _progress;
 
@@ -188,3 +188,4 @@ namespace TMG.Emme
         }
     }
 }
+

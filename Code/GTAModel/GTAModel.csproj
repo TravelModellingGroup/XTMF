@@ -175,7 +175,6 @@
     <Compile Include="NetworkAnalysis\ExtractCountpostResults.cs" />
     <Compile Include="NetworkAnalysis\ExtractGoIvttMatrix.cs" />
     <Compile Include="NetworkAnalysis\ExtractLegacyMatrices.cs" />
-    <Compile Include="NetworkAnalysis\ExtractTransitBoardingsByGroup.cs" />
     <Compile Include="NetworkAnalysis\ExtractTransitLineResults.cs" />
     <Compile Include="NetworkAnalysis\ExtractTrueTransitIvttMatrix.cs" />
     <Compile Include="NetworkAnalysis\GetStationAccessFile.cs" />
@@ -235,7 +234,6 @@
     <Compile Include="Purpose\ExternalPurpose.cs" />
     <Compile Include="Purpose\PoRPoWPurpose.cs" />
     <Compile Include="Tally\ExportTalliesIntoEmmeAsMatrix.cs" />
-    <Compile Include="NetworkAssignment\StandardEmmeRoadAssignment.cs" />
     <Compile Include="NetworkAssignment\TollBasedEmmeRoadAssignment.cs" />
     <Compile Include="ParameterDatabase\AdvancedModeParameterDatabase.cs" />
     <Compile Include="ParameterDatabase\ModeParameterAssignment.cs" />

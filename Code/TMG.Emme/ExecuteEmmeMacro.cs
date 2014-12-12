@@ -25,6 +25,9 @@ namespace TMG.Emme
     [ModuleInformation( Name = "Execute Emme Macro", Description = "Executes an Emme macro (usually a .mac file) with user-specified arguments. Included for backwards-compatibility" )]
     public class ExecuteEmmeMacro : IEmmeTool
     {
+        private const string _ToolName = "tmg.XTMF_internal.run_macro";
+        private const string _OldToolName = "TMG2.XTMF.RunMacro";
+
         [RunParameter( "Arguments", "", "A space-separated list of arguments to send to the macro" )]
         public string Arguments;
 
@@ -55,8 +58,14 @@ namespace TMG.Emme
 
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1}", MacroFile, Arguments );
-
-            return mc.Run( "TMG2.XTMF.RunMacro", sb.ToString() );
+            if(mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, sb.ToString());
+            }
+            else
+            {
+                return mc.Run(_OldToolName, sb.ToString());
+            }
         }
 
         public bool RuntimeValidation(ref string error)

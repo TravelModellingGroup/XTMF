@@ -49,7 +49,7 @@ namespace TMG.Emme
         public FileLocation NetworkPackage;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "TMG2.IO.ImportScenario";
+        private const string _ToolName = "tmg.input_output.import_network_package";
 
         public bool Execute(Controller controller)
         {

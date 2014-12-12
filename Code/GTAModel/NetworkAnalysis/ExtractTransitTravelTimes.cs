@@ -47,8 +47,8 @@ namespace TMG.GTAModel.NetworkAnalysis
         public int WalkMatrixNumber;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string ToolName = "TMG2.Analysis.Transit.Strategies.ExtractTravelTimeMatrices";
-        private const string AlternateToolName = "TMG2.Assignment.TransitAnalysis.ExtractTravelTimeMatrices";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_LOS_matrices";
+        private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractTravelTimeMatrices";
 
         public string Name
         {

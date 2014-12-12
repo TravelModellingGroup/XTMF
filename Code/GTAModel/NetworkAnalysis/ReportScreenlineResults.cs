@@ -82,7 +82,7 @@ namespace TMG.GTAModel.NetworkAnalysis
              * */
 
             string result = null;
-            return mc.Run( "TMG2.Assignment.TransitAnalysis.ExtractCostMatrix", sb.ToString(), ( p => this.Progress = p ), ref result );
+            return mc.Run("tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => this.Progress = p ), ref result );
         }
 
         public bool RuntimeValidation(ref string error)

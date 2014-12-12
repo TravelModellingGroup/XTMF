@@ -209,7 +209,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+                mc.Run("tmg.XTMF_internal.import_matrix_batch_file", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
             }
             finally
             {

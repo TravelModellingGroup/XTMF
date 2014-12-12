@@ -31,6 +31,11 @@ namespace TMG.GTAModel.NetworkAssignment
                         <p>Boarding penalties are assigned to transit lines, and are assumed to be <em>already defined in <b>UT3</b></em>." )]
     public class BasicTransitAssignment : IEmmeTool
     {
+
+        private const string ToolName = "tmg.assignment.transit.V2_transit_assignment";
+        private const string OldToolName = "TMG2.Assignment.TransitAssignment.BasicTransitAssignment";
+        private const string NewImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
         [Parameter( "Boarding Time Perception", 1.0f, "The perception factor applied to boarding time." )]
         public float BoardingPerception;
 
@@ -108,7 +113,14 @@ namespace TMG.GTAModel.NetworkAssignment
                 ScenarioNumber, DemandMatrixNumber, ModeString, WaitPerception, WalkPerception,
                 InVehiclePerception, BoardingPerception, UseAdditionalDemand, WaitFactor, UseEM4Options );
             string result = null;
-            return mc.Run( "TMG2.Assignment.TransitAssignment.BasicTransitAssignment", sb.ToString(), ( p => this.Progress = p ), ref result );
+            if(mc.CheckToolExists(ToolName))
+            {
+                return mc.Run(ToolName, sb.ToString(), (p => this.Progress = p), ref result);
+            }
+            else
+            {
+                return mc.Run(OldToolName, sb.ToString(), (p => this.Progress = p), ref result);
+            }
 
             /*
              * ScenarioNumber, DemandMatrixNumber, ModeString, WaitPerception,
@@ -167,7 +179,14 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+                if(mc.CheckToolExists(NewImportToolName))
+                {
+                    mc.Run(NewImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
+                else
+                {
+                    mc.Run(OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
             }
             finally
             {

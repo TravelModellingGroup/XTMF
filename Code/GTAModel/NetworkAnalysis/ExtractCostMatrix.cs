@@ -36,8 +36,8 @@ namespace TMG.GTAModel.NetworkAnalysis
         public int ScenarioNumber;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string ToolName = "TMG2.Analysis.Transit.Strategies.ExtractCostMatrix";
-        private const string AlternateToolName = "TMG2.Assignment.TransitAnalysis.ExtractCostMatrix";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_cost_matrix";
+        private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractCostMatrix";
 
         public string Name
         {

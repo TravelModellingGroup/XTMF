@@ -75,7 +75,7 @@ namespace TMG.GTAModel.NetworkAssignment
         public float HSRBoardingPenalty;
 
 
-        private const string _ToolName = "TMG2.Assignment.PreProcessing.AssignV4BoardingPenalty";
+        private const string _ToolName = "tmg.assignment.preprocessing.assign_v4_boarding_penalty";
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public bool Execute(Controller controller)

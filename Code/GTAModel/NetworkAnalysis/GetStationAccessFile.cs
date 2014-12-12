@@ -52,8 +52,8 @@ namespace TMG.GTAModel.NetworkAnalysis
         public float SearchRadius;
 
         private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string ToolName = "TMG2.Analysis.Transit.GetStationAccessFile";
-        private const string AlternateToolName = "TMG2.Analysis.GetStationAccessFile";
+        private const string ToolName = "tmg.analysis.transit.create_station_access_file";
+        private const string AlternateToolName = "TMG2.Analysis.Transit.GetStationAccessFile";
 
         public string Name
         {
@@ -79,7 +79,7 @@ namespace TMG.GTAModel.NetworkAnalysis
                 throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
 
             var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1} {2} {3}", this.ScenarioNumber, this.SearchRadius, this.GoStationSelectorExpression,
+            sb.AppendFormat( "{0} {1} {2} \"{3}\"", this.ScenarioNumber, this.SearchRadius, this.GoStationSelectorExpression,
                 Path.GetFullPath( this.ExportFile.GetFileName( Root.InputBaseDirectory ) ) );
             string result = null;
 

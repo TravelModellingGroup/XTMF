@@ -26,7 +26,7 @@ using XTMF;
 
 namespace TMG.GTAModel.NetworkAnalysis
 {
-    [ModuleInformation(Description = "Exports traffic assignment results on links flagged with a countpost number.")]
+    [ModuleInformation(Description = "<b>NOT IMPLEMENTED</b><br/>Exports traffic assignment results on links flagged with a countpost number.")]
     public class ExtractCountpostResults : IEmmeTool
     {
         [RunParameter("Scenario", 0, "The number of the Emme scenario")]

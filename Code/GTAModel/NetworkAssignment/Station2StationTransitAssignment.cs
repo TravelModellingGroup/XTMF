@@ -115,7 +115,7 @@ namespace TMG.GTAModel.NetworkAssignment
                 convertStationsToEmmeSelectorString(), ModeString, WaitFactor, WaitPerception,
                 WalkPerception, UseAdditiveDemand, UseEm4Options );
             string result = null;
-            return mc.Run( "TMG2.Assignment.TransitAssignment.Station2StationAssignment", sb.ToString(), ( p => this.Progress = p ), ref result );
+            return mc.Run("tmg.assignment.transit.V2_line_haul", sb.ToString(), ( p => this.Progress = p ), ref result );
 
             /*
              * ScenarioNumber, DemandMatrixNumber, WaitTimeMatrixNumber, InVehicleTimeMatrixNumber, \
@@ -187,7 +187,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+                mc.Run( "tmg.XTMF_internal.import_matrix_batch_file", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
             }
             finally
             {

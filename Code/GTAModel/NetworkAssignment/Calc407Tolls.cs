@@ -44,7 +44,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Regular Zone Price", 0.2487f, "The unit toll cost per km within the regular zone ($/km)")]
         public float RegularZoneToll;
 
-        private const string ToolName = "TMG2.Assignment.PreProcessing.Calc407Tolls";
+        private const string ToolName = "tmg.assignment.preprocessing.calc_407ETR_tolls";
 
         public bool Execute(Controller controller)
         {

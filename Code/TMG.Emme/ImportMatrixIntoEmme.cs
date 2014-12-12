@@ -33,7 +33,8 @@ namespace TMG.Emme
         [RunParameter("Scenario", 0, "The number of the Emme scenario")]
         public int ScenarioNumber;
 
-        private const string _ToolName = "TMG2.XTMF.ImportMatrix";
+        private const string _ToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string _OldToolName = "TMG2.XTMF.ImportMatrix";
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
@@ -49,7 +50,14 @@ namespace TMG.Emme
             Console.WriteLine("Importing matrix into scenario " + this.ScenarioNumber.ToString() + " from file " + this.MatrixFile.GetFilePath());
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            if(!mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            }
+            else
+            {
+                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
+            }
         }
 
         public string Name

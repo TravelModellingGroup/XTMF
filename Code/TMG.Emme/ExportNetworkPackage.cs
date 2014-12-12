@@ -39,7 +39,8 @@ namespace TMG.Emme
         public FileLocation ExportFile;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "TMG2.IO.ExportScenario";
+        private const string _ToolName = "tmg.input_output.export_network_package";
+        private const string _OldToolName = "TMG2.IO.ExportScenario";
 
         public bool Execute(Controller controller)
         {
@@ -59,7 +60,14 @@ namespace TMG.Emme
             Console.Write("Export network from scenario " + this.ScenarioNumber.ToString() + " to file " + this.ExportFile.GetFilePath());
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            if(mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            }
+            else
+            {
+                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
+            }
         }
 
         public string Name

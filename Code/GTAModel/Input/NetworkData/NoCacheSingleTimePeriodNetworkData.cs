@@ -25,10 +25,10 @@ namespace TMG.GTAModel.Input.NetworkData
 {
     public class NoCacheSingleTimePeriodNetworkData : INetworkData
     {
-        [SubModelInformation( Required = true, Description = "Provides cost data." )]
+        [SubModelInformation(Required = true, Description = "Provides cost data." )]
         public IReadODData<float> CostReader;
 
-        [RunParameter( "Regenerate", true, "Regenerate the data after the first iteration." )]
+        [RunParameter("Regenerate", true, "Regenerate the data after the first iteration." )]
         public bool Regenerate;
 
         [RunParameter("No Unload", false, "Don't unload the data between iterations.")]
@@ -37,8 +37,11 @@ namespace TMG.GTAModel.Input.NetworkData
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation( Required = true, Description = "Provides Travel Time data." )]
+        [SubModelInformation(Required = true, Description = "Provides Travel Time data." )]
         public IReadODData<float> TravelTimeReader;
+
+        [RunParameter("Apply Time Blending", false, "Apply a blending function to the travel times in ")]
+        public bool ApplyTimeBlending;
 
         private float[] Data;
 
@@ -62,7 +65,7 @@ namespace TMG.GTAModel.Input.NetworkData
             set;
         }
 
-        [RunParameter( "Network Name", "Auto", "The name of this network data." )]
+        [RunParameter("Network Name", "Auto", "The name of this network data." )]
         public string NetworkType
         {
             get;
@@ -76,7 +79,7 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 200, 100 ); }
         }
 
         public INetworkData GiveData()
@@ -86,23 +89,23 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
             // setup our zones
-            this.ZoneArray = this.Root.ZoneSystem.ZoneArray;
-            this.Zones = this.ZoneArray.GetFlatData();
-            if ( this.Data == null || this.Regenerate )
+            ZoneArray = Root.ZoneSystem.ZoneArray;
+            Zones = ZoneArray.GetFlatData();
+            if(Data == null || Regenerate)
             {
                 // now that we have zones we can build our data
-                var data = new float[this.Zones.Length * this.Zones.Length * (int)DataTypes.NumberOfDataTypes];
+                var data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
                 //now we need to load in each type
-                LoadData( data, this.TravelTimeReader, (int)DataTypes.TravelTime );
-                LoadData( data, this.CostReader, (int)DataTypes.Cost );
+                LoadData(data, TravelTimeReader, (int)DataTypes.TravelTime, Data != null & ApplyTimeBlending);
+                LoadData(data, CostReader, (int)DataTypes.Cost, false );
                 // now store it
-                this.Data = data;
+                Data = data;
             }
         }
 
@@ -114,39 +117,44 @@ namespace TMG.GTAModel.Input.NetworkData
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.IterativeRoot = this.Root as IIterativeModel;
+            IterativeRoot = Root as IIterativeModel;
+            if(ApplyTimeBlending && IterativeRoot == null)
+            {
+                error = "In '' the option Apply Time Blending is selected however the model system is not an compatible with IIterativeModel!";
+                return false;
+            }
             return true;
         }
 
         public float TravelCost(IZone start, IZone end, Time time)
         {
-            return TravelCost( this.ZoneArray.GetFlatIndex( start.ZoneNumber ), this.ZoneArray.GetFlatIndex( end.ZoneNumber ), time );
+            return TravelCost(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time);
         }
 
         public float TravelCost(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            return this.Data[zoneIndex + (int)DataTypes.Cost];
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            return Data[zoneIndex + (int)DataTypes.Cost];
         }
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return TravelTime( this.ZoneArray.GetFlatIndex( origin.ZoneNumber ), this.ZoneArray.GetFlatIndex( destination.ZoneNumber ), time );
+            return TravelTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time TravelTime(int flatOrigin, int flatDestination, Time time)
         {
-            var zoneIndex = ( flatOrigin * this.Zones.Length + flatDestination ) * (int)DataTypes.NumberOfDataTypes;
-            return Time.FromMinutes( this.Data[zoneIndex + (int)DataTypes.TravelTime] );
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            return Time.FromMinutes(Data[zoneIndex + (int)DataTypes.TravelTime]);
         }
 
         public void UnloadData()
         {
-            if ( !NoUnload )
+            if (!NoUnload)
             {
-                this.Data = null;
-                this.ZoneArray = null;
-                this.Zones = null;
+                Data = null;
+                ZoneArray = null;
+                Zones = null;
             }
         }
 
@@ -160,21 +168,40 @@ namespace TMG.GTAModel.Input.NetworkData
             return true;
         }
 
-        private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset)
+        private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset, bool applyBlending)
         {
-            if ( readODData == null )
+            if(readODData == null )
             {
                 return;
             }
-            var numberOfZones = this.Zones.Length;
+            var numberOfZones = Zones.Length;
             var dataTypes = (int)DataTypes.NumberOfDataTypes;
-            foreach ( var point in readODData.Read() )
+
+            if(applyBlending)
             {
-                var o = this.ZoneArray.GetFlatIndex( point.O );
-                var d = this.ZoneArray.GetFlatIndex( point.D );
-                if ( o >= 0 & d >= 0 )
+                var iteration = IterativeRoot.CurrentIteration;
+                var previousFraction = 1.0f/ (iteration + 1.0f);
+                var currentFraction = iteration / (1.0f + iteration);
+                foreach(var point in readODData.Read())
                 {
-                    data[( o * numberOfZones + d ) * dataTypes + dataTypeOffset] = point.Data;
+                    var o = ZoneArray.GetFlatIndex(point.O);
+                    var d = ZoneArray.GetFlatIndex(point.D);
+                    if(o >= 0 & d >= 0)
+                    {
+                        data[(o * numberOfZones + d) * dataTypes + dataTypeOffset] = data[(o * numberOfZones + d) * dataTypes + dataTypeOffset] * previousFraction + point.Data * currentFraction;
+                    }
+                }
+            }
+            else
+            {
+                foreach(var point in readODData.Read())
+                {
+                    var o = ZoneArray.GetFlatIndex(point.O);
+                    var d = ZoneArray.GetFlatIndex(point.D);
+                    if(o >= 0 & d >= 0)
+                    {
+                        data[(o * numberOfZones + d) * dataTypes + dataTypeOffset] = point.Data;
+                    }
                 }
             }
         }

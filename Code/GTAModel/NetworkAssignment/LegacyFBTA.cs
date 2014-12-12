@@ -39,6 +39,10 @@ namespace TMG.GTAModel.NetworkAssignment
                             TMG2.Assignment.TransitAnalysis." )]
     public class LegacyFBTA : IEmmeTool
     {
+        private const string _ToolName = "tmg.assignment.transit.V3_FBTA";
+        private const string _OldToolName = "TMG2.Assignment.TransitAssignment.LegacyFBTA";
+        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
         [Parameter( "Boarding Parameter", 1.0f, "The perception factor for baording penalties." )]
         public float BoardingPerception;
 
@@ -122,7 +126,14 @@ namespace TMG.GTAModel.NetworkAssignment
                 ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, WalkPerception,
                 InVehiclePerception, BoardingPerception, FarePerception, UseAdditiveDemand, WaitFactor );
             string result = null;
-            return mc.Run( "TMG2.Assignment.TransitAssignment.LegacyFBTA", sb.ToString(), ( p => this.Progress = p ), ref result );
+            if(mc.CheckToolExists(_ToolName))
+            {
+                return mc.Run(_ToolName, sb.ToString(), (p => this.Progress = p), ref result);
+            }
+            else
+            {
+                return mc.Run(_OldToolName, sb.ToString(), (p => this.Progress = p), ref result);
+            }
         }
 
         public bool RuntimeValidation(ref string error)
@@ -205,7 +216,14 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+                if(mc.CheckToolExists(_ImportToolName))
+                {
+                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
+                else
+                {
+                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
             }
             finally
             {

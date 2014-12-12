@@ -56,8 +56,8 @@ namespace TMG.GTAModel.NetworkAnalysis
         public int ScenarioNumber;
 
         private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 255, 173, 28 );
-        private const string ToolName = "TMG2.Analysis.Transit.ExportLineResults";
-        private const string AlternateToolName = "TMG2.Analysis.ExportLineResults";
+        private const string ToolName = "tmg.analysis.transit.export_boardings";
+        private const string AlternateToolName = "TMG2.Analysis.Transit.ExportLineResults";
 
         public string Name
         {

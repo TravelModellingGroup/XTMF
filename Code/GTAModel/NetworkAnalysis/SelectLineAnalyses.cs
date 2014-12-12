@@ -69,8 +69,8 @@ namespace TMG.GTAModel.NetworkAnalysis
         public float WalkTimeCutoff;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string ToolName = "TMG2.Analysis.Transit.Strategies.ExtractSelectLineMatrices";
-        private const string AlternateToolName = "TMG2.Assignment.TransitAnalysis.ExtractSelectLineMatrices";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.select_line_analyses";
+        private const string AlternateToolName = "TMG2.Analysis.Transit.Strategies.ExtractSelectLineMatrices";
 
         public string Name
         {
