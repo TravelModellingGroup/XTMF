@@ -87,10 +87,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("SOLA Flag", true, "Emme 4.1 and newer ONLY! Flag to use SOLA traffic assignment algorithm instead of standard.")]
         public bool SOLAFlag;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string _ToolName = "TMG2.Assignment.RoadAssignment.RoadAssignmentTollAttribute";
-        private const string _ToolNameWithBGTraffic = "TMG2.Assignment.RoadAssignment.TollAttributeTVPH";
-
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private const string _ToolName = "tmg.assignment.road.tolled.toll_attribute";
+        private const string _ToolNameWithBGTraffic = "tmg.assignment.road.tolled.toll_attribute_transit_background";
 
         public string Name
         {
@@ -112,22 +111,22 @@ namespace TMG.GTAModel.NetworkAssignment
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a ModellerController!" );
+            if(mc == null)
+                throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            if ( Tallies.Count > 0 )
+            if(Tallies.Count > 0)
             {
-                PassMatrixIntoEmme( mc );
+                PassMatrixIntoEmme(mc);
             }
 
-            var runName = "\"" + Path.GetFileName( Directory.GetCurrentDirectory() ) + "\"";
+            var runName = "\"" + Path.GetFileName(Directory.GetCurrentDirectory()) + "\"";
 
 
-            string args = string.Join( " ", ScenarioNumber,
+            string args = string.Join(" ", ScenarioNumber,
                                     DemandMatrixNumber,
-                                    ( "mf" + TravelTimeMatrixNumber ),
-                                    ( "mf" + CostMatrixNumber ),
-                                    ( "mf" + TollMatrixNumber ),
+                                    ("mf" + TravelTimeMatrixNumber),
+                                    ("mf" + CostMatrixNumber),
+                                    ("mf" + TollMatrixNumber),
                                     PeakHourFactor,
                                     LinkUnitCost,
                                     TollPerceptionFactor,
@@ -149,13 +148,13 @@ namespace TMG.GTAModel.NetworkAssignment
              *
             */
 
-            if ( UseTransitBackground )
+            if(UseTransitBackground)
             {
-                return mc.Run( _ToolNameWithBGTraffic, args, ( p => this.Progress = p ), ref string result = "" );
+                return mc.Run(_ToolNameWithBGTraffic, args, (p => this.Progress = p), ref string result = "");
             }
             else
             {
-                return mc.Run( _ToolName, args, ( p => this.Progress = p ), ref string result = "" );
+                return mc.Run(_ToolName, args, (p => this.Progress = p), ref string result = "");
             }
         }
 
@@ -169,53 +168,53 @@ namespace TMG.GTAModel.NetworkAssignment
             var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
             // Load the data from the flows and save it to our temporary file
-            var useTempFile = string.IsNullOrWhiteSpace( DemandFileName );
+            var useTempFile = string.IsNullOrWhiteSpace(DemandFileName);
             string outputFileName = useTempFile ? Path.GetTempFileName() : DemandFileName;
             float[][] tally = new float[numberOfZones][];
-            for ( int i = 0; i < numberOfZones; i++ )
+            for(int i = 0; i < numberOfZones; i++)
             {
                 tally[i] = new float[numberOfZones];
             }
-            for ( int i = Tallies.Count - 1; i >= 0; i-- )
+            for(int i = Tallies.Count - 1; i >= 0; i--)
             {
-                Tallies[i].IncludeTally( tally );
+                Tallies[i].IncludeTally(tally);
             }
-            var dir = Path.GetDirectoryName( outputFileName );
-            if ( !string.IsNullOrWhiteSpace( dir ) && !Directory.Exists( dir ) )
+            var dir = Path.GetDirectoryName(outputFileName);
+            if(!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
             {
-                Directory.CreateDirectory( dir );
+                Directory.CreateDirectory(dir);
             }
-            using (StreamWriter writer = new StreamWriter( outputFileName ))
+            using (StreamWriter writer = new StreamWriter(outputFileName))
             {
-                writer.WriteLine( "t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=from_xtmf", DemandMatrixNumber );
+                writer.WriteLine("t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=from_xtmf", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
-                Parallel.For( 0, numberOfZones, delegate (int o)
+                Parallel.For(0, numberOfZones, delegate (int o)
                 {
                     var build = builders[o] = new StringBuilder();
-                    var strBuilder = new StringBuilder( 10 );
+                    var strBuilder = new StringBuilder(10);
                     var convertedO = flatZones[o].ZoneNumber;
-                    for ( int d = 0; d < numberOfZones; d++ )
+                    for(int d = 0; d < numberOfZones; d++)
                     {
-                        mc.ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
-                            convertedO, flatZones[d].ZoneNumber, strBuilder );
+                        mc.ToEmmeFloat(tally[o][d], strBuilder);
+                        build.AppendFormat("{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                            convertedO, flatZones[d].ZoneNumber, strBuilder);
                     }
-                } );
-                for ( int i = 0; i < numberOfZones; i++ )
+                });
+                for(int i = 0; i < numberOfZones; i++)
                 {
-                    writer.Write( builders[i] );
+                    writer.Write(builders[i]);
                 }
             }
 
             try
             {
-                mc.Run("tmg.XTMF_internal.import_matrix_batch_file", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+                mc.Run("tmg.XTMF_internal.import_matrix_batch_file", "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
             }
             finally
             {
-                if ( useTempFile )
+                if(useTempFile)
                 {
-                    File.Delete( outputFileName );
+                    File.Delete(outputFileName);
                 }
             }
         }

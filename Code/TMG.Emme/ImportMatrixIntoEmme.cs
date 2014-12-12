@@ -50,7 +50,7 @@ namespace TMG.Emme
             Console.WriteLine("Importing matrix into scenario " + this.ScenarioNumber.ToString() + " from file " + this.MatrixFile.GetFilePath());
 
             var result = "";
-            if(!mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(_ToolName))
             {
                 return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
             }

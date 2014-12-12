@@ -70,6 +70,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Fare Matrix", 0, "The number of the FULL matrix in which to save transit fares. Enter 0 to skip saving this matrix")]
         public int FareMatrixNumber;
 
+        [RunParameter("Congestion Matrix", 0, "The number of the FULL matrix in which to save transit congestion. Enter 0 to skip saving this matrix")]
+        public int CongestionMatrixNumber;
+
         //-------------------------------------------
 
         [RunParameter("GO Train Headway Fraction", 0.5f, "The headway fraction applied to GO Rail nodes (98000 <= i < 99000) only. Normally, the headway fraction is set to 0.5 "
@@ -166,6 +169,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                         this.WaitMatrixNumber,
                                         this.WalkMatrixNumber,
                                         this.FareMatrixNumber,
+                                        this.CongestionMatrixNumber,
                                         mc.ToEmmeFloat(this.ConnectorLogitScale),
                                         this.ExtractCongestedInVehicleTimeFlag,
                                         mc.ToEmmeFloat(this.CongestionExponent));
