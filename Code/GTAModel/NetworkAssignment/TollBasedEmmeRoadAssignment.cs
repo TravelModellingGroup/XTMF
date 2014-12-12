@@ -94,6 +94,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("SOLA Flag", true, "Emme 4.1 and newer ONLY! Flag to use SOLA traffic assignment algorithm instead of standard.")]
         public bool SOLAFlag;
 
+        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public string Name
@@ -194,7 +197,14 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                mc.Run("tmg.XTMF_internal.import_matrix_batch_file", "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                if(mc.CheckToolExists(_ImportToolName))
+                {
+                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
+                else
+                {
+                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
             }
             finally
             {

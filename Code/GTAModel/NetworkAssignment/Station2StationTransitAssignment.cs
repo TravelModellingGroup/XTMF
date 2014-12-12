@@ -34,6 +34,9 @@ namespace TMG.GTAModel.NetworkAssignment
                              matrices as outputs." )]
     public class Station2StationTransitAssignment : IEmmeTool
     {
+        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+
         [RunParameter( "Demand File Name", "", "Optional file name for saving tally exports for debugging. Leave blank to disable this feature." )]
         public string DemandFileName;
 
@@ -187,7 +190,14 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                mc.Run( "tmg.XTMF_internal.import_matrix_batch_file", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber );
+                if(mc.CheckToolExists(_ImportToolName))
+                {
+                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
+                else
+                {
+                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
             }
             finally
             {

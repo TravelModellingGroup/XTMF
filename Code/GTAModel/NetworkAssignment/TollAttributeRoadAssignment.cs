@@ -29,6 +29,9 @@ namespace TMG.GTAModel.NetworkAssignment
 {
     public class TollAttributeRoadAssignment : IEmmeTool
     {
+        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+
         [RunParameter("Best Relative Gap", 0.01f, "(%) Best Relative Gap convergence criteria.")]
         public float BestRelativeGap;
 
@@ -208,7 +211,14 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                mc.Run("tmg.XTMF_internal.import_matrix_batch_file", "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                if(mc.CheckToolExists(_ImportToolName))
+                {
+                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
+                else
+                {
+                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                }
             }
             finally
             {
