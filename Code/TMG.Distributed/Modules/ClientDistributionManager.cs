@@ -39,6 +39,9 @@ namespace TMG.Distributed.Modules
 
         public string OutputBaseDirectory { get; set; }
 
+        [SubModelInformation(Description = "Initialize the client", Required = false)]
+        public IModelSystemTemplate Initialization;
+
         public float Progress
         {
             get
@@ -103,6 +106,11 @@ namespace TMG.Distributed.Modules
         public void Start()
         {
             InitializeNetworking();
+            if(Initialization != null)
+            {
+                Initialization.Start();
+            }
+            SignalReady();
             while(!Exit)
             {
                 Thread.Sleep(10);
@@ -163,11 +171,16 @@ namespace TMG.Distributed.Modules
                     ulong number = (ulong)data;
                     writer.Write((Int32)CommunicationProtocol.TaskComplete);
                     writer.Write(number);
-                    
+
                 }
                 writer.Flush();
                 writer = null;
             });
+            
+        }
+
+        private void SignalReady()
+        {
             // let the host know we are ready to operate
             Client.SendCustomMessage(null, DistributionDataChannel);
         }
