@@ -54,11 +54,14 @@ namespace James.UTDM
             {
                 return;
             }
-
+            Progress = 0.0f;
+            var step = 1.0f / ToExecute.Count;
             foreach (var module in this.ToExecute)
             {
                 module.Start();
+                Progress += step;
             }
+            Progress = 1.0f;
         }
 
         public string Name
