@@ -210,7 +210,7 @@ namespace Tasha.V4Modes
 
         public bool Feasible(ITrip trip)
         {
-            if ( trip.OriginalZone == trip.DestinationZone ) return false;
+            if ( trip.OriginalZone.PlanningDistrict == trip.DestinationZone.PlanningDistrict) return false;
             return trip.TripChain.Person.Licence;
         }
 

@@ -62,7 +62,7 @@ namespace Tasha.StationAccess
 
         private SparseArray<float> Capacity;
 
-        public class TimePeriod : IModule
+        public sealed class TimePeriod : IModule
         {
             [Parameter("StartTime", "6:00AM", typeof(Time), "The start of the time period inclusive")]
             public Time StartTime;
