@@ -60,8 +60,6 @@ namespace TMG.GTAModel.ParameterDatabase
 
         public void AssignBlendedParameters(List<Parameter> parameters, float weight)
         {
-            var numberOfLinks = this.Links.Count;
-            var numberOfParameters = parameters.Count;
             if ( parameterIndexes == null )
             {
                 CheckParameterNames( parameters );
@@ -78,8 +76,6 @@ namespace TMG.GTAModel.ParameterDatabase
 
         public void AssignParameters(List<Parameter> parameters)
         {
-            var numberOfLinks = this.Links.Count;
-            var numberOfParameters = parameters.Count;
             if ( parameterIndexes == null )
             {
                 CheckParameterNames( parameters );

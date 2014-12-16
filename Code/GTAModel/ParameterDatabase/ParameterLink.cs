@@ -28,7 +28,7 @@ namespace TMG.GTAModel.ParameterDatabase
         [RunParameter( "Mode Parameter Name", "", "The name of the parameter of the mode's module or Utility Component to bind to." )]
         public string ModeParameterName;
 
-        [RunParameter( "Multiplier", 1f, "The ammount to multiply against floating point parameters." )]
+        [RunParameter( "Multiplier", 1f, "The amount to multiply against floating point parameters." )]
         public float Multiplier;
 
         [ParentModel]
