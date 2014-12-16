@@ -302,7 +302,6 @@
     <Compile Include="XTMFModeChoice\PurePassengerTripChain.cs" />
     <Compile Include="XTMFModeChoice\TourData.cs" />
     <Compile Include="XTMFScheduler\LocationChoice\V4LocationChoice.cs" />
-    <Compile Include="XTMFScheduler\LocationChoice\V4LocationChoiceCacheMaker.cs" />
     <Compile Include="XTMFScheduler\Scheduler.cs" />
     <Compile Include="XTMFScheduler\WorkProject.cs" />
     <Compile Include="XTMFScheduler\WorkSchoolProject.cs" />
