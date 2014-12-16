@@ -49,7 +49,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
 
         private bool Loaded = false;
         // This is used to make sure the file is received before we continue
-        private volatile bool FileReceived;
+        private volatile bool FileTransmitted;
         private byte[] Data;
 
         public void Start()
@@ -75,7 +75,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                                 var path = this.FileLocation.GetFilePath();
                                 File.WriteAllBytes( path, data );
                                 Thread.MemoryBarrier();
-                                this.FileReceived = true;
+                                this.FileTransmitted = true;
                             }
                             catch (Exception e)
                             {
@@ -90,24 +90,21 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                 }
                 if ( !Loaded | !OnceOnly )
                 {
-                    this.FileReceived = false;
+                    this.FileTransmitted = false;
                     this.Client.SendCustomMessage( null, this.DataChannel );
-                    while ( this.FileReceived == false )
+                    while ( this.FileTransmitted == false )
                     {
                         Thread.Sleep( 1 );
                         Thread.MemoryBarrier();
                     }
                 }
-                this.Loaded = true;
             }
             else
             {
                 if ( !Loaded )
                 {
-                    // load the file
-                    this.Data = File.ReadAllBytes( this.FileLocation.GetFilePath() );
                     // register the sender
-                        this.Client.RegisterCustomReceiver( this.DataChannel, (stream) =>
+                    this.Client.RegisterCustomReceiver( this.DataChannel, (stream) =>
                     {
                         return null;
                     } );
@@ -118,17 +115,21 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                         this.Client.RegisterCustomSender( this.DataChannel, (_, stream) =>
                     {
                         stream.Write( this.Data, 0, this.Data.Length );
-                        FileReceived = true;
+                        FileTransmitted = true;
                     } );
                 }
-                if ( !FileReceived | !OnceOnly )
+                this.Data = File.ReadAllBytes(this.FileLocation.GetFilePath());
+                if ( !FileTransmitted | !OnceOnly )
                 {
-                    FileReceived = false;
+                    FileTransmitted = false;
                     Thread.MemoryBarrier();
                     this.Client.SendCustomMessage( null, this.DataChannel );
-                    while ( FileReceived ) Thread.Sleep( 0 );
+                    while ( !FileTransmitted ) Thread.Sleep( 0 );
                 }
+                // unload the data once it has been sent
+                this.Data = null;
             }
+            this.Loaded = true;
         }
 
         public string Name { get; set; }
