@@ -50,6 +50,7 @@ namespace TMG.Distributed.Modules
         /// </summary>
         public IHost Host;
 
+        [RunParameter("Input Base Directory", "../../Input", "The input directory for the model system.")]
         public string InputBaseDirectory { get; set; }
 
         public string Name { get; set; }
@@ -183,7 +184,7 @@ namespace TMG.Distributed.Modules
                             {
                                 AvailableClients.Add(client);
                                 var taskNumber = reader.ReadUInt64();
-                                ExecutingTasks.RemoveAll((task) => task.TaskNumber == taskNumber);
+                                ExecutingTasks.RemoveAll((task) => task.TaskNumber == taskNumber && task.Client == client);
                             }
                             break;
                     }
@@ -220,6 +221,7 @@ namespace TMG.Distributed.Modules
                         // clean up
                         AvailableClients.RemoveAt(0);
                         PendingTasks.RemoveAt(0);
+                        // fire the message to start processing
                         task.Client.SendCustomMessage(task, DistributionDataChannel);
                     }
                     else

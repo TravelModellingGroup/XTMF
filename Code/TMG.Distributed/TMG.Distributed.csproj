@@ -53,6 +53,8 @@
     <Compile Include="Modules\HostDistributionManager.cs" />
     <Compile Include="Modules\WaitForAllTasks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\ReadMessageFromClientToConsole.cs" />
+    <Compile Include="Utilities\SendMessageToHost.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
