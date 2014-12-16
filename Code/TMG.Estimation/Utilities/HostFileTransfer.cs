@@ -42,6 +42,9 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
         [RunParameter("To Client", true, "Are we sending the file to the client (true) or receiving from client?")]
         public bool ToClient;
 
+        [RunParameter("Append", false, "Should we append the data to the end of the file if the transfer if from client to host?")]
+        public bool Append;
+
         // This is used to make sure the file is received before we continue
         private volatile bool FileReceived;
 
@@ -107,7 +110,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
         {
             lock (this)
             {
-                using (FileStream stream = new FileStream( path, FileMode.Append ))
+                using (FileStream stream = new FileStream( path, Append ? FileMode.Append : FileMode.Create ))
                 {
                     stream.Write( data, 0, data.Length );
                 }
