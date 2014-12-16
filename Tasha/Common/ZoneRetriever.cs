@@ -156,7 +156,6 @@ namespace Tasha.Common
                 using (var cache = new ZoneCache<IZone>(cacheFileName, ConvertToZone))
                 {
                     AllZones = cache.StoreAll();
-                    cache.Dispose();
                 }
                 ComputeDistances();
                 LoadReagions();
