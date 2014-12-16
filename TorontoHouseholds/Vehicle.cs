@@ -78,7 +78,10 @@ namespace Tasha.Common
         {
             this.VehicleType = null;
             this.Release();
-            Vehicle.Vehicles.Add( this );
+            if(Vehicles.Count < 100)
+            {
+                Vehicle.Vehicles.Add(this);
+            }
         }
     }
 }

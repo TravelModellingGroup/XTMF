@@ -170,7 +170,10 @@ namespace Tasha.Scheduler
             TripStartTime = Time.Zero;
             TripNumber = -1;
             Array.Clear( ModesChosen, 0, ModesChosen.Length );
-            Trips.Add( this );
+            if(Trips.Count < 100)
+            {
+                Trips.Add(this);
+            }
         }
 
         public void SetActivityStartTime(Time time)

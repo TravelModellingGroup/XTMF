@@ -27,7 +27,7 @@ namespace Tasha.Scheduler
 {
     internal sealed class SchedulerTrip : Attachable, ITrip
     {
-        private static ConcurrentBag<SchedulerTrip> Trips = new ConcurrentBag<SchedulerTrip>();
+        private static ConcurrentQueue<SchedulerTrip> Trips = new ConcurrentQueue<SchedulerTrip>();
 
         #region ITrip Members
 
@@ -46,13 +46,13 @@ namespace Tasha.Scheduler
             IntermediateZone = null;
             Mode = null;
             OriginalZone = episode.Origin;
-            if ( episode.People == null )
+            if(episode.People == null)
             {
                 Passengers = null;
             }
             else
             {
-                Passengers = new List<ITashaPerson>( episode.People );
+                Passengers = new List<ITashaPerson>(episode.People);
             }
             Purpose = episode.ActivityType;
         }
@@ -146,9 +146,9 @@ namespace Tasha.Scheduler
         {
             get
             {
-                if ( Mode != null )
+                if(Mode != null)
                 {
-                    return ActivityStartTime - Mode.TravelTime( OriginalZone, DestinationZone, ActivityStartTime );
+                    return ActivityStartTime - Mode.TravelTime(OriginalZone, DestinationZone, ActivityStartTime);
                 }
                 else
                 {
@@ -164,16 +164,19 @@ namespace Tasha.Scheduler
 
         public void Recycle()
         {
-            Release();
-            Mode = null;
-            TripChain = null;
-            OriginalZone = null;
-            DestinationZone = null;
-            fActivityStartTime = 0;
-            ActivityStartTime = Time.Zero;
-            TripNumber = -1;
-            Array.Clear( ModesChosen, 0, ModesChosen.Length );
-            Trips.Add( this );
+            if(Trips.Count < 100)
+            {
+                Release();
+                Mode = null;
+                TripChain = null;
+                OriginalZone = null;
+                DestinationZone = null;
+                fActivityStartTime = 0;
+                ActivityStartTime = Time.Zero;
+                TripNumber = -1;
+                Array.Clear(ModesChosen, 0, ModesChosen.Length);
+                Trips.Enqueue(this);
+            }
         }
 
         public void SetActivityStartTime(Time time)
@@ -194,9 +197,9 @@ namespace Tasha.Scheduler
         internal static SchedulerTrip GetTrip(TravelEpisode episode)
         {
             SchedulerTrip ret;
-            if ( !Trips.TryTake( out ret ) )
+            if(!Trips.TryDequeue(out ret))
             {
-                return new SchedulerTrip( episode );
+                return new SchedulerTrip(episode);
             }
             return ret;
         }
@@ -204,7 +207,7 @@ namespace Tasha.Scheduler
         internal static SchedulerTrip GetTrip(int householdIterations)
         {
             SchedulerTrip ret;
-            if ( !Trips.TryTake( out ret ) )
+            if(!Trips.TryDequeue(out ret))
             {
                 return new SchedulerTrip(householdIterations);
             }

@@ -220,7 +220,10 @@ namespace Tasha.Scheduler
                 this.JointTripChains.Clear();
             }
             this.Person = null;
-            Chains.Enqueue( this );
+            if(Chains.Count < 100)
+            {
+                Chains.Enqueue(this);
+            }
         }
 
         internal static SchedulerTripChain GetTripChain(ITashaPerson person)

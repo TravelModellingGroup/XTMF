@@ -222,7 +222,10 @@ namespace Tasha.Common
                 }
             }
             PersonIterationData.Clear();
-            People.Add(this );
+            if(People.Count < 100)
+            {
+                People.Add(this);
+            }
         }
 
         #region IPerson Members

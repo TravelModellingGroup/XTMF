@@ -120,7 +120,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
         private Time ComputeAvailableTime(IEpisode previous, IEpisode next)
         {
-            return (next == null ? Time.EndOfDay : (next.StartTime + next.Duration - (MaximumEpisodeDurationCompression * next.OriginalDuration))) 
+            return (next == null ? Time.EndOfDay : (next.StartTime + next.Duration - (MaximumEpisodeDurationCompression * next.OriginalDuration)))
                 - (previous == null ? Time.StartOfDay : previous.EndTime - previous.Duration - (MaximumEpisodeDurationCompression * previous.OriginalDuration));
         }
 
@@ -184,8 +184,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-            protected SparseTwinIndex<float>[] To;
-            protected SparseTwinIndex<float>[] From;
+            protected float[][][] To;
+            protected float[][][] From;
 
             [RunParameter("Professional FullTime", "0.0", typeof(float), "The weight applied for the worker category.")]
             public float ProfessionalFullTime;
@@ -217,7 +217,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public SpatialRegion[] PDConstant;
             public ODConstant[] ODConstants;
             private float expSamePD;
-            private SparseTriIndex<int> PDCube;
+            private int[][][] PDCube;
 
             private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
             {
@@ -233,7 +233,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, int i, int j, Time time)
             {
                 return (float)(GetTransitUtility(transitNetwork, i, j, time)
-                    + Math.Exp(autoNetwork.TravelTime(i,j, time).ToMinutes() * AutoTime));
+                    + Math.Exp(autoNetwork.TravelTime(i, j, time).ToMinutes() * AutoTime));
             }
 
             public sealed class ODConstant : IModule
@@ -290,7 +290,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             private SparseArray<IZone> zoneSystem;
             private IZone[] zones;
-            int[] FlatZoneToPDLookup;
+            private int[] FlatZoneToPDCubeLookup;
 
             internal void Load()
             {
@@ -299,12 +299,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 zones = zoneSystem.GetFlatData();
                 if(To == null)
                 {
-                    To = new SparseTwinIndex<float>[timePeriods.Length];
-                    From = new SparseTwinIndex<float>[timePeriods.Length];
+                    To = new float[timePeriods.Length][][];
+                    From = new float[timePeriods.Length][][];
                     for(int i = 0; i < timePeriods.Length; i++)
                     {
-                        To[i] = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-                        From[i] = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                        To[i] = CreateSquare(zones.Length);
+                        From[i] = CreateSquare(zones.Length);
                     }
                 }
                 expSamePD = (float)Math.Exp(SamePD);
@@ -313,25 +313,40 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     ODConstants[i].ExpConstant = (float)Math.Exp(ODConstants[i].Constant);
                 }
-                BuildPDCube();
-                FlatZoneToPDLookup = zones.Select(zone => PDCube.GetFlatIndex(zone.PlanningDistrict)).ToArray();
+                var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
+                BuildPDCube(pds);
+                if(FlatZoneToPDCubeLookup == null)
+                {
+                    FlatZoneToPDCubeLookup = zones.Select(zone => pds.GetFlatIndex(zone.PlanningDistrict)).ToArray();
+                }
                 // now that we are done we can calculate our utilities
                 CalculateUtilities();
             }
 
-            private void BuildPDCube()
+            private static float[][] CreateSquare(int length)
             {
-                var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
-                var pdIndex = pds.ValidIndexArray();
-                PDCube = SparseTriIndex<int>.CreateSimilarArray(pds, pds, pds);
-                var data = PDCube.GetFlatData();
-                for(int i = 0; i < data.Length; i++)
+                var ret = new float[length][];
+                for(int i = 0; i < ret.Length; i++)
                 {
-                    for(int j = 0; j < data[i].Length; j++)
+                    ret[i] = new float[length];
+                }
+                return ret;
+            }
+
+            private void BuildPDCube(SparseArray<float> pds)
+            {
+                var numberOfPds = pds.Count;
+                var pdIndex = pds.ValidIndexArray();
+                PDCube = new int[numberOfPds][][];
+                for(int i = 0; i < PDCube.Length; i++)
+                {
+                    PDCube[i] = new int[numberOfPds][];
+                    for(int j = 0; j < PDCube[i].Length; j++)
                     {
-                        for(int k = 0; k < data[i][j].Length; k++)
+                        PDCube[i][j] = new int[numberOfPds];
+                        for(int k = 0; k < PDCube[i][j].Length; k++)
                         {
-                            data[i][j][k] = GetODIndex(pdIndex[i], pdIndex[j], pdIndex[k]);
+                            PDCube[i][j][k] = GetODIndex(pdIndex[i], pdIndex[j], pdIndex[k]);
                         }
                     }
                 }
@@ -345,18 +360,18 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var n = zoneSystem.GetFlatIndex(nextZone.ZoneNumber);
                 int index = GetTimePeriod(startTime);
                 var times = Parent.TimePeriods[index].TravelTimes.GetFlatData();
-                var from = From[index].GetFlatData();
+                var from = From[index];
                 var available = availableTime.ToMinutes();
                 var timeRow = times[p];
-                var toRow = To[index].GetFlatData()[p];
-                var pIndex = FlatZoneToPDLookup[p];
-                var nIndex = FlatZoneToPDLookup[n];
-                var data = PDCube.GetFlatData()[pIndex];
+                var toRow = To[index][p];
+                var pIndex = FlatZoneToPDCubeLookup[p];
+                var nIndex = FlatZoneToPDCubeLookup[n];
+                var data = PDCube[pIndex];
                 for(int i = 0; i < timeRow.Length; i++)
                 {
                     if(timeRow[i] + times[i][n] <= available)
                     {
-                        calculationSpace[i] = toRow[i] * from[i][n] * GetODUtility(data, pIndex, FlatZoneToPDLookup[i], nIndex);
+                        calculationSpace[i] = toRow[i] * from[i][n] * GetODUtility(data, pIndex, FlatZoneToPDCubeLookup[i], nIndex);
                     }
                     else
                     {
@@ -446,8 +461,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     throw new XTMFRuntimeException("The professional full-time employment data is not of the same size as the number of zones!");
                 }
-                var to = To.Select(d => d.GetFlatData()).ToArray();
-                var from = From.Select(d => d.GetFlatData()).ToArray();
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
                 {
                     var network = Parent.AutoNetwork;
@@ -484,9 +497,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             Time timeOfDay = times[time].StartTime;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            to[time][i][j] = nonTimeUtil * travelUtility;
+                            To[time][i][j] = nonTimeUtil * travelUtility;
                             // compute from
-                            from[time][i][j] = travelUtility;
+                            From[time][i][j] = travelUtility;
                         }
                     }
                 });
@@ -506,8 +519,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var sp = Parent.RetailPartTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mf = Parent.ManufacturingFullTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mp = Parent.ManufacturingPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var to = To.Select(d => d.GetFlatData()).ToArray();
-                var from = From.Select(d => d.GetFlatData()).ToArray();
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
                 {
                     var network = Parent.AutoNetwork;
@@ -543,9 +554,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             Time timeOfDay = times[time].StartTime;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            to[time][i][j] = nonTimeUtil * travelUtility;
+                            To[time][i][j] = nonTimeUtil * travelUtility;
                             // compute from
-                            from[time][i][j] = travelUtility;
+                            From[time][i][j] = travelUtility;
                         }
                     }
                 });
@@ -565,8 +576,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var sp = Parent.RetailPartTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mf = Parent.ManufacturingFullTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mp = Parent.ManufacturingPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var to = To.Select(d => d.GetFlatData()).ToArray();
-                var from = From.Select(d => d.GetFlatData()).ToArray();
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
                 {
                     var network = Parent.AutoNetwork;
@@ -601,9 +610,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             Time timeOfDay = times[time].StartTime;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            to[time][i][j] = nonTimeUtil * travelUtility;
+                            To[time][i][j] = nonTimeUtil * travelUtility;
                             // compute from
-                            from[time][i][j] = travelUtility;
+                            From[time][i][j] = travelUtility;
                         }
                     }
                 });

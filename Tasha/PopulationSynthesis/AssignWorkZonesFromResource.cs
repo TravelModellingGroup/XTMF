@@ -52,16 +52,20 @@ namespace Tasha.PopulationSynthesis
 
                 private SparseTriIndex<float> Probabilities;
 
+                private IZone[] Zones;
+                private SparseArray<IZone> ZoneSystem;
+
                 public void Load()
                 {
+                    ZoneSystem = Root.ZoneSystem.ZoneArray;
+                    Zones = ZoneSystem.GetFlatData();
                     Probabilities = Linkages.AquireResource<SparseTriIndex<float>>();
                     ConvertToProbabilities(Probabilities.GetFlatData());
                 }
 
                 private void ConvertToProbabilities(float[][][] data)
                 {
-                    var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                    var pds = zones.Select(z => z.PlanningDistrict).ToArray();
+                    var pds = Zones.Select(z => z.PlanningDistrict).ToArray();
                     List<int> noProbabilityZones = new List<int>();
                     for(int categoryIndex = 0; categoryIndex < data.Length; categoryIndex++)
                     {
@@ -101,7 +105,7 @@ namespace Tasha.PopulationSynthesis
                                         continue;
                                     }
                                     // if we are here then we can copy the probabilities from j
-                                    Array.Copy(category[j], category[zoneIndex], zones.Length);
+                                    Array.Copy(category[j], category[zoneIndex], Zones.Length);
                                     any = true;
                                     break;
                                 }
@@ -115,7 +119,7 @@ namespace Tasha.PopulationSynthesis
                                             continue;
                                         }
                                         // if we are here then we can copy the probabilities from j
-                                        Array.Copy(category[j], category[zoneIndex], zones.Length);
+                                        Array.Copy(category[j], category[zoneIndex], Zones.Length);
                                         any = true;
                                         break;
                                     }
@@ -150,9 +154,8 @@ namespace Tasha.PopulationSynthesis
 
                 internal IZone ProduceResult(Random random, ITashaHousehold household)
                 {
-                    var zoneSystem = Root.ZoneSystem.ZoneArray;
                     var type = ClassifyHousehold(household);
-                    var homeZoneIndex = zoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
+                    var homeZoneIndex = ZoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
                     var row = Probabilities.GetFlatData()[type][homeZoneIndex];
                     var pop = (float)random.NextDouble();
                     var current = 0.0f;
@@ -163,7 +166,7 @@ namespace Tasha.PopulationSynthesis
                             current += row[i];
                             if(current >= pop)
                             {
-                                return zoneSystem.GetFlatData()[i];
+                                return Zones[i];
                             }
                         }
                     } while(current > 0);

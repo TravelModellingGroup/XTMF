@@ -445,7 +445,7 @@ namespace Tasha
         public override string ToString()
         {
             var status = _Status;
-            return _ExitRequested ? (status == null ? "Exiting" : "Exiting:\r\n" +status()) : (status == null ? Initializing : status());
+            return _ExitRequested ? (status == null ? "Exiting" : "Exiting:\r\n" + status()) : (status == null ? Initializing : status());
         }
 
         private static void RecycleTrips(ITripChain tc)
@@ -753,14 +753,13 @@ namespace Tasha
             if(NetworkData != null)
             {
                 _Status = () => "Loading Network Data for iteration " + (iteration + 1).ToString() + " of " + Iterations;
-                System.Threading.Tasks.Parallel.ForEach(NetworkData,
-                    delegate (INetworkData network)
+                foreach(var network in NetworkData)
                 {
                     if(!_ExitRequested)
                     {
                         network.LoadData();
                     }
-                });
+                }
             }
         }
 

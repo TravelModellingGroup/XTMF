@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using TMG;
 
 namespace Tasha.Common
@@ -125,9 +126,13 @@ namespace Tasha.Common
         public static Household MakeHousehold()
         {
             Household h;
-            if (Households.TryTake(out h))
+            for(int i = 0; i < 10; i++)
             {
-                return h;
+                if(Households.TryTake(out h))
+                {
+                    return h;
+                }
+                Thread.Sleep(0);
             }
             HouseholdsMade++;
             return new Household();
@@ -173,7 +178,10 @@ namespace Tasha.Common
                 vehicles[i].Recycle();
             }
             _NumberOfAdults = -1;
-            Households.Add(this);
+            if(Households.Count < 100)
+            {
+                Households.Add(this);
+            }
         }
 
         internal static void ReleaseHouseholdPool()

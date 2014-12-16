@@ -336,10 +336,10 @@ namespace Tasha.Network
             if(!this.Loaded)
             {
                 // since we are doing more CPU work here we can load it in parallel
-                Parallel.For(0, this.TimePeriods.Length, (int i) =>
-                    {
-                        this.TimePeriods[i].LoadData(zoneArray);
-                    });
+                for(int i = 0; i < TimePeriods.Length; i++)
+                {
+                    this.TimePeriods[i].LoadData(zoneArray);
+                }
                 this.Loaded = true;
             }
         }

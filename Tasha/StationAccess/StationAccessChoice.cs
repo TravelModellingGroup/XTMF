@@ -123,9 +123,9 @@ namespace Tasha.StationAccess
             [RootModule]
             public ITravelDemandModel Root;
 
-            private SparseTwinIndex<float> ToDestination;
+            private float[][] ToDestination;
 
-            private SparseTwinIndex<float> FromOrigin;
+            private float[][] FromOrigin;
 
 
             internal void Load(RangeSet stationRanges, RangeSet spatialZones, SparseArray<float> capacity, int[] closestStation)
@@ -140,19 +140,24 @@ namespace Tasha.StationAccess
                 ITripComponentData transitNetwork = GetNetwork(TransitNetworkName) as ITripComponentData;
                 EnsureNetworks(autoNetwork, transitNetwork);
                 var zoneArray = Root.ZoneSystem.ZoneArray;
+                var zones = zoneArray.GetFlatData();
                 if(ToDestination == null)
                 {
-                    ToDestination = zoneArray.CreateSquareTwinArray<float>();
-                    FromOrigin = zoneArray.CreateSquareTwinArray<float>();
+                    ToDestination = new float[zones.Length][];
+                    FromOrigin = new float[zones.Length][];
+                    for(int i = 0; i < ToDestination.Length; i++)
+                    {
+                        ToDestination[i] = new float[zones.Length];
+                        FromOrigin[i] = new float[zones.Length];
+                    }
                 }
-                var zones = zoneArray.GetFlatData();
+                
                 int[] stationZones = GetStationZones(stationRanges, capacity, zones);
                 var flatCapacityFactor = CapacityFactor.GetFlatData();
                 // compute the toAccess utilities
                 Parallel.For(0, zones.Length, (int originIndex) =>
                 {
                     var zoneNumber = zones[originIndex].ZoneNumber;
-                    var flatData = FromOrigin.GetFlatData();
                     if(spatialZones.Contains(zoneNumber))
                     {
                         for(int i = 0; i < stationZones.Length; i++)
@@ -160,12 +165,12 @@ namespace Tasha.StationAccess
                             var accessIndex = stationZones[i];
                             var factor = (float)Math.Pow(flatCapacityFactor[accessIndex], CapacityFactorExp);
                             // calculate access' to access station this will include more factors
-                            flatData[originIndex][accessIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
+                            FromOrigin[originIndex][accessIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
                                 + (Capacity * capacity[accessIndex]
                                 + ParkingCost * zones[accessIndex].ParkingCost
                                 + (closestStation[originIndex] == accessIndex ? ClosestStationFactor : 0))) * factor;
                             // calculate egress' from access station
-                            flatData[accessIndex][originIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex)) * factor;
+                            FromOrigin[accessIndex][originIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex)) * factor;
                         }
                     }
                 });
@@ -174,7 +179,6 @@ namespace Tasha.StationAccess
                 Parallel.For(0, zones.Length, (int destIndex) =>
                 {
                     var zoneNumber = zones[destIndex].ZoneNumber;
-                    var flatData = ToDestination.GetFlatData();
                     if(spatialZones.Contains(zoneNumber))
                     {
                         for(int i = 0; i < stationZones.Length; i++)
@@ -182,9 +186,9 @@ namespace Tasha.StationAccess
                             var accessIndex = stationZones[i];
                             var factor = (float)Math.Pow(flatCapacityFactor[accessIndex], CapacityFactorExp);
                             // calculate access' to destination
-                            flatData[accessIndex][destIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, destIndex)) * factor;
+                            ToDestination[accessIndex][destIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, destIndex)) * factor;
                             // calculate egress' to access station
-                            flatData[destIndex][accessIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, destIndex, accessIndex)) * factor;
+                            ToDestination[destIndex][accessIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, destIndex, accessIndex)) * factor;
                         }
                     }
                 });
@@ -192,16 +196,12 @@ namespace Tasha.StationAccess
 
             public float AccessUtility(int originIndex, int accessIndex, int destinationIndex)
             {
-                var org = FromOrigin.GetFlatData();
-                var dest = ToDestination.GetFlatData();
-                return org[originIndex][accessIndex] * dest[accessIndex][destinationIndex];
+                return FromOrigin[originIndex][accessIndex] * ToDestination[accessIndex][destinationIndex];
             }
 
             public float EgressUtility(int originIndex, int accessIndex, int destinationIndex)
             {
-                var org = FromOrigin.GetFlatData();
-                var dest = ToDestination.GetFlatData();
-                return dest[originIndex][accessIndex] * org[accessIndex][destinationIndex];
+                return ToDestination[originIndex][accessIndex] * FromOrigin[accessIndex][destinationIndex];
             }
 
             private float ComputeUtility(INetworkData autoNetwork, int originIndex, int destinationIndex)
