@@ -35,10 +35,8 @@ namespace TMG.Distributed.Utilities
         [RunParameter("Message", "Hello", "The message to send to the host.")]
         public string Message;
 
-        [RunParameter("Data Channel", 10, "The data channel used to communicate between the client and host.")]
-        public int DataChannel;
-
-        public IClient Client;
+        [RootModule]
+        public IClientDistributionManager Client;
 
         public string Name { get; set; }
 
@@ -55,15 +53,7 @@ namespace TMG.Distributed.Utilities
 
         public void Start()
         {
-            if(!Loaded)
-            {
-                Client.RegisterCustomSender(DataChannel, (obj, stream) =>
-                {
-                    BinaryWriter writer = new BinaryWriter(stream);
-                    writer.Write(obj == null ? "null" :  obj.ToString());
-                });
-            }
-            Client.SendCustomMessage(Message, DataChannel);
+            Client.SendTextMessageToHost(Message);
         }
     }
 

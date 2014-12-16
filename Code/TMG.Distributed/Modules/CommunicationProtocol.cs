@@ -24,6 +24,8 @@ namespace TMG.Distributed.Modules
         UnknownMessage = 0,
         ClientActivated = 1,
         TaskComplete = 2,
-        RunTask = 3
+        RunTask = 3,
+        TaskFailed = 4,
+        SendTextMessageToHost = 5
     }
 }

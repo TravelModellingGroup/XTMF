@@ -121,6 +121,8 @@ namespace TMG.Distributed.Modules
         {
             internal ulong TaskNumber;
             internal string TaskName;
+            internal bool Success;
+            internal string ErrorMessage;
         }
 
         private void InitializeNetworking()
@@ -135,7 +137,8 @@ namespace TMG.Distributed.Modules
                             var request = new Request()
                             {
                                 TaskNumber = reader.ReadUInt64(),
-                                TaskName = reader.ReadString()
+                                TaskName = reader.ReadString(),
+                                Success = false
                             };
                             System.Threading.Tasks.Task.Factory.StartNew(() =>
                             {
@@ -146,13 +149,18 @@ namespace TMG.Distributed.Modules
                                     {
                                         taskToRun.TaskModelSystem.Start();
                                     }
+                                    request.Success = true;
+                                }
+                                catch (Exception e)
+                                {
+                                    request.ErrorMessage = e.Message + "\r\n" + e.StackTrace;
                                 }
                                 finally
                                 {
                                     // let the host know we finished
-                                    Client.SendCustomMessage(request.TaskNumber, DistributionDataChannel);
+                                    Client.SendCustomMessage(request, DistributionDataChannel);
                                 }
-                            });
+                            }, System.Threading.Tasks.TaskCreationOptions.LongRunning);
                         }
                         break;
                 }
@@ -162,16 +170,29 @@ namespace TMG.Distributed.Modules
             Client.RegisterCustomSender(DistributionDataChannel, (data, stream) =>
             {
                 BinaryWriter writer = new BinaryWriter(stream);
+                var request = data as Request;
+                var message = data as string;
                 if(data == null)
                 {
                     writer.Write((Int32)CommunicationProtocol.ClientActivated);
                 }
-                else
+                else if(request != null)
                 {
-                    ulong number = (ulong)data;
-                    writer.Write((Int32)CommunicationProtocol.TaskComplete);
-                    writer.Write(number);
-
+                    if(request.Success)
+                    {
+                        writer.Write((Int32)CommunicationProtocol.TaskComplete);
+                        writer.Write(request.TaskNumber);
+                    }
+                    else
+                    {
+                        writer.Write((Int32)CommunicationProtocol.TaskFailed);
+                        writer.Write(request.ErrorMessage);
+                    }
+                }
+                else if(message != null)
+                {
+                    writer.Write((Int32)CommunicationProtocol.SendTextMessageToHost);
+                    writer.Write(message);
                 }
                 writer.Flush();
                 writer = null;
@@ -188,6 +209,14 @@ namespace TMG.Distributed.Modules
         public bool HasTaskWithName(string taskName)
         {
             return Tasks.Any(t => t.TaskName == taskName);
+        }
+
+        public void SendTextMessageToHost(string message)
+        {
+            if(message != null)
+            {
+                Client.SendCustomMessage(message, DistributionDataChannel);
+            }
         }
     }
 }

@@ -27,5 +27,6 @@ namespace TMG.Distributed
     public interface IClientDistributionManager : IModelSystemTemplate, IResourceSource
     {
         bool HasTaskWithName(string taskName);
+        void SendTextMessageToHost(string message);
     }
 }

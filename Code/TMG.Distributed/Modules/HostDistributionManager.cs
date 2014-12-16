@@ -187,6 +187,15 @@ namespace TMG.Distributed.Modules
                                 ExecutingTasks.RemoveAll((task) => task.TaskNumber == taskNumber && task.Client == client);
                             }
                             break;
+                        case CommunicationProtocol.TaskFailed:
+                            {
+                                Console.WriteLine("Client Error:\r\n" + reader.ReadString());
+                                client.SendCancel("Previous Task Failed");
+                            }
+                            break;
+                        case CommunicationProtocol.SendTextMessageToHost:
+                            Console.WriteLine(reader.ReadString());
+                            break;
                     }
                 }
                 UpdateTaskAssignments();
