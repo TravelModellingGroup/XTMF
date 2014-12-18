@@ -144,23 +144,23 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-            public SparseTwinIndex<float> TravelTimes;
+            public float[] TravelTimes;
 
             public void Load()
             {
-                var times = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                var size = Root.ZoneSystem.ZoneArray.Count;
+                var data = new float[size * size];
                 var network = Parent.AutoNetwork;
-                var data = times.GetFlatData();
-                Parallel.For(0, data.Length, (int i) =>
+                Parallel.For(0, size, (int i) =>
                 {
-                    var row = data[i];
                     var time = StartTime;
-                    for(int j = 0; j < row.Length; j++)
+                    int startingIndex = i * size;
+                    for(int j = 0; j < size; j++)
                     {
-                        row[j] = network.TravelTime(i, j, time).ToMinutes();
+                        data[startingIndex + j] = network.TravelTime(i, j, time).ToMinutes();
                     }
                 });
-                TravelTimes = times;
+                TravelTimes = data;
             }
 
             public bool RuntimeValidation(ref string error)
@@ -184,8 +184,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-            protected float[][][] To;
-            protected float[][][] From;
+            protected float[][] To;
+            protected float[][] From;
 
             [RunParameter("Professional FullTime", "0.0", typeof(float), "The weight applied for the worker category.")]
             public float ProfessionalFullTime;
@@ -299,12 +299,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 zones = zoneSystem.GetFlatData();
                 if(To == null)
                 {
-                    To = new float[timePeriods.Length][][];
-                    From = new float[timePeriods.Length][][];
+                    To = new float[timePeriods.Length][];
+                    From = new float[timePeriods.Length][];
                     for(int i = 0; i < timePeriods.Length; i++)
                     {
-                        To[i] = CreateSquare(zones.Length);
-                        From[i] = CreateSquare(zones.Length);
+                        To[i] = new float[zones.Length * zones.Length];
+                        From[i] = new float[zones.Length * zones.Length];
                     }
                 }
                 expSamePD = (float)Math.Exp(SamePD);
@@ -358,30 +358,38 @@ namespace Tasha.XTMFScheduler.LocationChoice
             {
                 var p = zoneSystem.GetFlatIndex(previousZone.ZoneNumber);
                 var n = zoneSystem.GetFlatIndex(nextZone.ZoneNumber);
+                var size = zones.Length;
                 int index = GetTimePeriod(startTime);
-                var times = Parent.TimePeriods[index].TravelTimes.GetFlatData();
+                var times = Parent.TimePeriods[index].TravelTimes;
                 var from = From[index];
                 var available = availableTime.ToMinutes();
-                var timeRow = times[p];
-                var toRow = To[index][p];
+                var to = To[index];
                 var pIndex = FlatZoneToPDCubeLookup[p];
                 var nIndex = FlatZoneToPDCubeLookup[n];
                 var data = PDCube[pIndex];
-                for(int i = 0; i < timeRow.Length; i++)
+                int previousIndexOffset = p * size;
+                int nextSizeOffset = n * size;
+                float total = 0.0f;
+                for(int i = 0; i < calculationSpace.Length; i++)
                 {
-                    if(timeRow[i] + times[i][n] <= available)
+                    if(times[previousIndexOffset + i] + times[i * size + n] <= available)
                     {
-                        calculationSpace[i] = toRow[i] * from[i][n] * GetODUtility(data, pIndex, FlatZoneToPDCubeLookup[i], nIndex);
+                        var odUtility = 1.0f;
+                        var pdindex = data[FlatZoneToPDCubeLookup[i]][nIndex];
+                        if(pdindex >= 0)
+                        {
+                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i] & nIndex == pIndex) ? ODConstants[pdindex].ExpConstant * expSamePD : ODConstants[pdindex].ExpConstant;
+                        }
+                        else
+                        {
+                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i] & nIndex == pIndex) ? expSamePD : 1.0f;
+                        }
+                        total += calculationSpace[i] = to[previousIndexOffset + i] * from[nextSizeOffset + i] * odUtility;
                     }
                     else
                     {
                         calculationSpace[i] = 0;
                     }
-                }
-                float total = 0.0f;
-                for(int i = 0; i < calculationSpace.Length; i++)
-                {
-                    total += calculationSpace[i];
                 }
                 if(total <= 0)
                 {
@@ -405,16 +413,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     }
                 }
                 return null;
-            }
-
-            private float GetODUtility(int[][] indexMap, int flatPPD, int flatIPD, int flatNPD)
-            {
-                var index = indexMap[flatIPD][flatNPD];
-                if(index >= 0)
-                {
-                    return (flatPPD == flatIPD & flatNPD == flatPPD) ? ODConstants[index].ExpConstant * expSamePD : ODConstants[index].ExpConstant;
-                }
-                return (flatPPD == flatIPD & flatNPD == flatPPD) ? expSamePD : 1.0f;
             }
 
             private int GetODIndex(int pPD, int iPD, int nPD)
@@ -497,9 +495,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             Time timeOfDay = times[time].StartTime;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i][j] = nonTimeUtil * travelUtility;
+                            To[time][i * zones.Length + j] = nonTimeUtil * travelUtility;
                             // compute from
-                            From[time][i][j] = travelUtility;
+                            From[time][j * zones.Length + i] = travelUtility;
                         }
                     }
                 });
@@ -554,9 +552,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             Time timeOfDay = times[time].StartTime;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i][j] = nonTimeUtil * travelUtility;
+                            To[time][i * zones.Length + j] = nonTimeUtil * travelUtility;
                             // compute from
-                            From[time][i][j] = travelUtility;
+                            From[time][j * zones.Length + i] = travelUtility;
                         }
                     }
                 });
@@ -610,9 +608,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             Time timeOfDay = times[time].StartTime;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i][j] = nonTimeUtil * travelUtility;
+                            To[time][i * zones.Length + j] = nonTimeUtil * travelUtility;
                             // compute from
-                            From[time][i][j] = travelUtility;
+                            From[time][j * zones.Length + i] = travelUtility;
                         }
                     }
                 });

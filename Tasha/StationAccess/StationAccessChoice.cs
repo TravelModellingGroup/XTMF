@@ -123,9 +123,13 @@ namespace Tasha.StationAccess
             [RootModule]
             public ITravelDemandModel Root;
 
-            private float[][] ToDestination;
+            internal float[] AccessFromOrigin;
+            internal float[] EgressFromOrigin;
 
-            private float[][] FromOrigin;
+            internal float[] AccessToDestination;
+            internal float[] EgressToDestination;
+
+            private IZone[] zones;
 
 
             internal void Load(RangeSet stationRanges, RangeSet spatialZones, SparseArray<float> capacity, int[] closestStation)
@@ -140,20 +144,18 @@ namespace Tasha.StationAccess
                 ITripComponentData transitNetwork = GetNetwork(TransitNetworkName) as ITripComponentData;
                 EnsureNetworks(autoNetwork, transitNetwork);
                 var zoneArray = Root.ZoneSystem.ZoneArray;
-                var zones = zoneArray.GetFlatData();
-                if(ToDestination == null)
-                {
-                    ToDestination = new float[zones.Length][];
-                    FromOrigin = new float[zones.Length][];
-                    for(int i = 0; i < ToDestination.Length; i++)
-                    {
-                        ToDestination[i] = new float[zones.Length];
-                        FromOrigin[i] = new float[zones.Length];
-                    }
-                }
-                
+                zones = zoneArray.GetFlatData();
+
+
                 int[] stationZones = GetStationZones(stationRanges, capacity, zones);
                 var flatCapacityFactor = CapacityFactor.GetFlatData();
+                if(AccessFromOrigin == null)
+                {
+                    AccessToDestination = new float[stationZones.Length * zones.Length];
+                    AccessFromOrigin = new float[stationZones.Length * zones.Length];
+                    EgressToDestination = new float[stationZones.Length * zones.Length];
+                    EgressFromOrigin = new float[stationZones.Length * zones.Length];
+                }
                 // compute the toAccess utilities
                 Parallel.For(0, zones.Length, (int originIndex) =>
                 {
@@ -165,12 +167,12 @@ namespace Tasha.StationAccess
                             var accessIndex = stationZones[i];
                             var factor = (float)Math.Pow(flatCapacityFactor[accessIndex], CapacityFactorExp);
                             // calculate access' to access station this will include more factors
-                            FromOrigin[originIndex][accessIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
+                            AccessFromOrigin[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
                                 + (Capacity * capacity[accessIndex]
                                 + ParkingCost * zones[accessIndex].ParkingCost
                                 + (closestStation[originIndex] == accessIndex ? ClosestStationFactor : 0))) * factor;
                             // calculate egress' from access station
-                            FromOrigin[accessIndex][originIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex)) * factor;
+                            EgressFromOrigin[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex)) * factor;
                         }
                     }
                 });
@@ -186,22 +188,12 @@ namespace Tasha.StationAccess
                             var accessIndex = stationZones[i];
                             var factor = (float)Math.Pow(flatCapacityFactor[accessIndex], CapacityFactorExp);
                             // calculate access' to destination
-                            ToDestination[accessIndex][destIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, destIndex)) * factor;
+                            AccessToDestination[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, destIndex)) * factor;
                             // calculate egress' to access station
-                            ToDestination[destIndex][accessIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, destIndex, accessIndex)) * factor;
+                            EgressToDestination[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, destIndex, accessIndex)) * factor;
                         }
                     }
                 });
-            }
-
-            public float AccessUtility(int originIndex, int accessIndex, int destinationIndex)
-            {
-                return FromOrigin[originIndex][accessIndex] * ToDestination[accessIndex][destinationIndex];
-            }
-
-            public float EgressUtility(int originIndex, int accessIndex, int destinationIndex)
-            {
-                return ToDestination[originIndex][accessIndex] * FromOrigin[accessIndex][destinationIndex];
             }
 
             private float ComputeUtility(INetworkData autoNetwork, int originIndex, int destinationIndex)
@@ -277,6 +269,7 @@ namespace Tasha.StationAccess
         private bool FirstLoad = true;
 
         private IZone[] AccessZones;
+        private IZone[] zones;
         private int[] AccessZoneIndexes;
 
         public void Load()
@@ -288,6 +281,7 @@ namespace Tasha.StationAccess
                 LoadStationCapacity();
                 GetAccessZones();
                 AssignClosestStations();
+                zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 FirstLoad = false;
             }
             LoadTimePeriods();
@@ -382,16 +376,14 @@ namespace Tasha.StationAccess
                 if(firstTimePeriod == null | secondTimePeriod == null) return null;
                 var zoneArray = Root.ZoneSystem.ZoneArray;
                 float[] utilities = new float[AccessZoneIndexes.Length];
-                var firstOrigin = zoneArray.GetFlatIndex(first.OriginalZone.ZoneNumber);
-                var firstDestination = zoneArray.GetFlatIndex(first.DestinationZone.ZoneNumber);
-                var secondOrigin = zoneArray.GetFlatIndex(second.OriginalZone.ZoneNumber);
-                var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber);
-                for(int i = 0; i < AccessZoneIndexes.Length; i++)
+                var firstOrigin = zoneArray.GetFlatIndex(first.OriginalZone.ZoneNumber) * AccessZoneIndexes.Length;
+                var firstDestination = zoneArray.GetFlatIndex(first.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
+                var secondOrigin = zoneArray.GetFlatIndex(second.OriginalZone.ZoneNumber) * AccessZoneIndexes.Length;
+                var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
+                for(int i = 0; i < utilities.Length; i++)
                 {
-                    utilities[i] = firstTimePeriod.AccessUtility(firstOrigin,
-                        AccessZoneIndexes[i], firstDestination);
-                    utilities[i] *= secondTimePeriod.EgressUtility(secondOrigin,
-                        AccessZoneIndexes[i], secondDestination);
+                    utilities[i] = firstTimePeriod.AccessFromOrigin[firstOrigin + i] * firstTimePeriod.AccessToDestination[secondDestination + i]
+                                   * secondTimePeriod.EgressToDestination[secondOrigin + i] * secondTimePeriod.EgressFromOrigin[secondDestination + i];
                     // this will get rid of NaN's as well
                     if(!(utilities[i] >= MinimumStationUtility))
                     {
