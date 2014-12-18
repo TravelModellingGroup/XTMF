@@ -186,7 +186,13 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
+            /// <summary>
+            /// To[timePeriod][o * #zones + d]
+            /// </summary>
             protected float[][] To;
+            /// <summary>
+            /// From[timePeriod][o * #zones + d]
+            /// </summary>
             protected float[][] From;
 
             [RunParameter("Professional FullTime", "0.0", typeof(float), "The weight applied for the worker category.")]
