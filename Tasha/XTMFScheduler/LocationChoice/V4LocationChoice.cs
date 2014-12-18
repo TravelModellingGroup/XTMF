@@ -89,6 +89,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
         [ThreadStatic]
         private static float[] CalculationSpace;
 
+        private System.Collections.Concurrent.ConcurrentStack<float[]> CalculationPool = new System.Collections.Concurrent.ConcurrentStack<float[]>();
+
         private IZone GetLocation(IEpisode ep, Random random, IEpisode previous, IEpisode next, Time startTime)
         {
             var previousZone = GetZone(previous, ep);
@@ -346,7 +348,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         PDCube[i][j] = new int[numberOfPds];
                         for(int k = 0; k < PDCube[i][j].Length; k++)
                         {
-                            PDCube[i][j][k] = GetODIndex(pdIndex[i], pdIndex[j], pdIndex[k]);
+                            PDCube[i][j][k] = GetODIndex(pdIndex[i], pdIndex[k], pdIndex[j]);
                         }
                     }
                 }
@@ -366,7 +368,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var to = To[index];
                 var pIndex = FlatZoneToPDCubeLookup[p];
                 var nIndex = FlatZoneToPDCubeLookup[n];
-                var data = PDCube[pIndex];
+                var data = PDCube[pIndex][nIndex];
                 int previousIndexOffset = p * size;
                 int nextSizeOffset = n * size;
                 float total = 0.0f;
@@ -375,7 +377,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     if(times[previousIndexOffset + i] + times[i * size + n] <= available)
                     {
                         var odUtility = 1.0f;
-                        var pdindex = data[FlatZoneToPDCubeLookup[i]][nIndex];
+                        var pdindex = data[FlatZoneToPDCubeLookup[i]];
                         if(pdindex >= 0)
                         {
                             odUtility = (pIndex == FlatZoneToPDCubeLookup[i] & nIndex == pIndex) ? ODConstants[pdindex].ExpConstant * expSamePD : ODConstants[pdindex].ExpConstant;
