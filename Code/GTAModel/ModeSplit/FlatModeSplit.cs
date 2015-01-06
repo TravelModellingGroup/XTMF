@@ -270,7 +270,7 @@ namespace TMG.GTAModel.ModeSplit
             "The file that contains the mode adjustments.  In CSV form (Occ,OriginPdStart,OriginPdEnd,DestinationPDStart,DesinstaionPDEnd,[1 column for each mode])" )]
         public FileFromInputDirectory InputFile;
 
-        [Parameter( "Matricies Per Occupation", 20, "The number of matricies processed before swiching occupation." )]
+        [Parameter( "Matrices Per Occupation", 20, "The number of matrices processed before switching occupation." )]
         public int MatriciesPerOccupation;
 
         [RunParameter( "Number of Occupations", 4, "The number of different occupations for this model." )]

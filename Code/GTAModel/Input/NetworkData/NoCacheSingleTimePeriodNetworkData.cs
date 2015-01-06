@@ -99,8 +99,12 @@ namespace TMG.GTAModel.Input.NetworkData
             Zones = ZoneArray.GetFlatData();
             if(Data == null || Regenerate)
             {
+                var data = Data;
                 // now that we have zones we can build our data
-                var data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
+                if(data == null)
+                {
+                    data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
+                }
                 //now we need to load in each type
                 LoadData(data, TravelTimeReader, (int)DataTypes.TravelTime, Data != null & ApplyTimeBlending);
                 LoadData(data, CostReader, (int)DataTypes.Cost, false );
@@ -150,12 +154,7 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public void UnloadData()
         {
-            if (!NoUnload)
-            {
-                Data = null;
-                ZoneArray = null;
-                Zones = null;
-            }
+            //just ignore this
         }
 
         public bool ValidOD(IZone start, IZone end, Time time)

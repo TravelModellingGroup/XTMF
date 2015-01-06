@@ -25,22 +25,22 @@ namespace TMG.GTAModel.Input.NetworkData
 {
     public class NoCacheSingleTimePeriodNetworkComponentData : ITripComponentData
     {
-        [SubModelInformation(Required = false, Description = "Provides Boarding data." )]
+        [SubModelInformation(Required = false, Description = "Provides Boarding data.")]
         public IReadODData<float> BoardingReader;
 
-        [SubModelInformation(Required = false, Description = "Provides fare data." )]
+        [SubModelInformation(Required = false, Description = "Provides fare data.")]
         public IReadODData<float> FaresReader;
 
-        [SubModelInformation(Required = true, Description = "Provides IVTT data." )]
+        [SubModelInformation(Required = true, Description = "Provides IVTT data.")]
         public IReadODData<float> IvttReader;
 
-        [RunParameter("No Walktime Infeasible", false, "If there is 0 walk time then the OD Pair is infeasible!" )]
+        [RunParameter("No Walktime Infeasible", false, "If there is 0 walk time then the OD Pair is infeasible!")]
         public bool NoWalkTimeInfeasible;
 
-        [RunParameter("Regenerate", true, "Regenerate the data after the first iteration." )]
+        [RunParameter("Regenerate", true, "Regenerate the data after the first iteration.")]
         public bool Regenerate;
 
-        [RunParameter("No Unload", false, "Don't unload the data between iterations." )]
+        [RunParameter("No Unload", false, "Don't unload the data between iterations.")]
         public bool NoUnload;
 
         [RunParameter("Apply Time Blending", false, "Apply a blending function to the travel times in ")]
@@ -49,10 +49,10 @@ namespace TMG.GTAModel.Input.NetworkData
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation(Required = true, Description = "Provides Wait data." )]
+        [SubModelInformation(Required = true, Description = "Provides Wait data.")]
         public IReadODData<float> WaitReader;
 
-        [SubModelInformation(Required = true, Description = "Provides Walk data." )]
+        [SubModelInformation(Required = true, Description = "Provides Walk data.")]
         public IReadODData<float> WalkReader;
 
         private float[] Data;
@@ -80,7 +80,7 @@ namespace TMG.GTAModel.Input.NetworkData
             set;
         }
 
-        [RunParameter("Network Name", "Transit", "The name of this network data." )]
+        [RunParameter("Network Name", "Transit", "The name of this network data.")]
         public string NetworkType
         {
             get;
@@ -94,7 +94,7 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>(100, 200, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
         public Time BoardingTime(IZone origin, IZone destination, Time time)
@@ -159,7 +159,11 @@ namespace TMG.GTAModel.Input.NetworkData
             if(Data == null || Regenerate)
             {
                 // now that we have zones we can build our data
-                var data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
+                var data = Data;
+                if(data == null)
+                {
+                    data = new float[Zones.Length * Zones.Length * (int)DataTypes.NumberOfDataTypes];
+                }
                 //now we need to load in each type
                 LoadData(data, IvttReader, (int)DataTypes.TravelTime, Data != null & ApplyTimeBlending);
                 LoadData(data, FaresReader, (int)DataTypes.Cost, false);
@@ -215,17 +219,11 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public void UnloadData()
         {
-            if (!NoUnload)
-            {
-                Data = null;
-                ZoneArray = null;
-                Zones = null;
-            }
         }
 
         public bool ValidOD(IZone start, IZone end, Time time)
         {
-            if (!NoWalkTimeInfeasible || WalkTime(start, end, time) > Time.Zero)
+            if(!NoWalkTimeInfeasible || WalkTime(start, end, time) > Time.Zero)
             {
                 return true;
             }
@@ -261,7 +259,7 @@ namespace TMG.GTAModel.Input.NetworkData
 
         private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset, bool applyTimeBlending)
         {
-            if(readODData == null )
+            if(readODData == null)
             {
                 return;
             }

@@ -160,7 +160,7 @@ namespace TMG.Functions
 
         private void ProcessFlow(int flatOrigin)
         {
-            double sumAF = 0;
+            float sumAF = 0;
             var flatProductions = this.Productions.GetFlatData();
             var flatFriction = this.Friction.GetFlatData();
             var flatAStar = this.AttractionsStar.GetFlatData();
@@ -178,7 +178,7 @@ namespace TMG.Functions
                 sumAF += flatFrictionRow[i] * ( flatAttractions[i] * flatAStar[i] );
             }
             sumAF = ( 1 / sumAF ) * flatProductions[flatOrigin];
-            if ( double.IsInfinity( sumAF ) | double.IsNaN( sumAF ) )
+            if (float.IsInfinity( sumAF ) | float.IsNaN( sumAF ) )
             {
                 // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
                 sumAF = 0f;
@@ -186,7 +186,7 @@ namespace TMG.Functions
             var flatFlowsRow = this.FlowMatrix.GetFlatData()[flatOrigin];
             for ( int i = 0; i < flatFlowsRow.Length; i++ )
             {
-                var temp = (float)( flatFrictionRow[i] * ( sumAF * flatAttractions[i] * flatAStar[i] ) );
+                var temp = ( flatFrictionRow[i] * ( sumAF * flatAttractions[i] * flatAStar[i] ) );
                 flatFlowsRow[i] = float.IsInfinity( temp ) | float.IsNaN( temp ) ? 0 : temp;
             }
         }
