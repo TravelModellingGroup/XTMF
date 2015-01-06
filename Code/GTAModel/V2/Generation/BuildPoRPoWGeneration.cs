@@ -48,7 +48,7 @@ namespace TMG.GTAModel.V2.Generation
         [SubModelInformation( Description = "Used to gather the work intra zonal", Required = true )]
         public IDataSource<SparseTriIndex<float>> LoadWorkIntraZonalRates;
 
-        [RunParameter( "Min Attraction", 0f, "The minimum ammount of attraction." )]
+        [RunParameter( "Min Attraction", 0f, "The minimum amount of attraction." )]
         public float MinAttraction;
 
         [ParentModel]
