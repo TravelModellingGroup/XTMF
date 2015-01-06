@@ -48,8 +48,11 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Demand Matrix Number", 10, "The matrix number which will store th auto OD matrix. If the matrix exists already, it will be overwritten.")]
         public int DemandMatrixNumber;
 
-        [Parameter("Peak Hour Factor", 0.42f, "Factor to convert the modeled time period into a one-hour assignment period.")]
+        [RunParameter("Peak Hour Factor", 0.42f, "Factor to convert the modeled time period into a one-hour assignment period.  This value is only used if the Peak Hour Matrix is set to 0.")]
         public float PeakHourFactor;
+
+        [RunParameter("Peak Hour Matrix", 0, "In lieu of using a peak hour factor if this parameter is set to a non-zero value it will instead use that matrix to scale demand.")]
+        public int PeakHourMatrix;
 
         [Parameter("Link Unit Cost", 0.138f, "The link unit cost in $/km, applied to all links")]
         public float LinkCost;
@@ -132,7 +135,8 @@ namespace TMG.GTAModel.NetworkAssignment
             var sb = new StringBuilder();
             sb.AppendFormat("{0} {1} mf{2} mf{3} mf{4} {5} {6} {7} {8} {9} {10} {11} {12} {13} \"{14}\" {15} {16}",
                 ScenarioNumber, DemandMatrixNumber, TravelTimeMatrixNumber, CostMatrixNumber,
-                TollMatrixNumber, PeakHourFactor, LinkCost, TollUnitCost, TollPerceptionFactor,
+                TollMatrixNumber, (PeakHourMatrix != 0 ? "mf" + PeakHourMatrix : PeakHourFactor.ToString()),
+                LinkCost, TollUnitCost, TollPerceptionFactor,
                 MaxIterations, RelativeGap, BestRelativeGap, NormalizedGap, HighPerformanceMode,
                 runName, TollLinkSelector, SOLAFlag);
             string result = null;
