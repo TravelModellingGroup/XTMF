@@ -61,7 +61,7 @@ namespace TMG.NetworkEstimation
         [SubModelInformation(Description = "Line Aggregation File", Required = true)]
         public FileLocation LineAggregationFile;
 
-        private const string _ToolName = "TMG2.XTMF.returnBoardingsAndWAW";
+        private const string _ToolName = "tmg.XTMF_internal.return_boardings_and_WAW";
         private const string _WawKey = "Walk-all-way";
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
