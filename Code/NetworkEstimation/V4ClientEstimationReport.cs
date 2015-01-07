@@ -43,7 +43,7 @@ namespace TMG.NetworkEstimation
         public int ScenarioNumber;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private const string _ToolName = "TMG2.XTMF.returnGroupBoardings";
+        private const string _ToolName = "tmg.XTMF_internal.return_grouped_boardings";
 
         public bool Execute(Controller controller)
         {

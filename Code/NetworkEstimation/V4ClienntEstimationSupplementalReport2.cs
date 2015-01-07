@@ -43,7 +43,7 @@ namespace TMG.NetworkEstimation
         public int DemandMatrixNumber;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "TMG2.XTMF.matrixResults1";
+        private const string _ToolName = "tmg.XTMF_internal.return_matrix_results";
 
         public bool Execute(Controller controller)
         {
