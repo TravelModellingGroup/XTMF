@@ -161,11 +161,11 @@ namespace TMG.GTAModel.V2.Generation
             for ( int i = 0; i < flatAttraction.Length; i++ )
             {
                 flatProduction[i] -= wah[i] + intrazonal[i];
+                flatAttraction[i] -= wah[i] + intrazonal[i];
                 if ( flatProduction[i] < 0 )
                 {
                     flatProduction[i] = 0;
                 }
-                flatAttraction[i] -= wah[i] + intrazonal[i];
                 if ( flatAttraction[i] < 0 )
                 {
                     flatAttraction[i] = 0;
@@ -186,16 +186,19 @@ namespace TMG.GTAModel.V2.Generation
             {
                 var occ = this.OccupationCategory[0].Start;
                 var emp = 1;
-                var occData = this.Root.Demographics.OccupationRates[zones[i].ZoneNumber];
-                var empData = this.Root.Demographics.EmploymentStatusRates[zones[i].ZoneNumber];
+                int planningDistrict = zones[i].PlanningDistrict;
+                int zoneNumber = zones[i].ZoneNumber;
+                var occData = this.Root.Demographics.OccupationRates[zoneNumber];
+                var empData = this.Root.Demographics.EmploymentStatusRates[zoneNumber];
                 if ( occData == null | empData == null ) continue;
                 foreach ( var agesset in this.AllAges )
                 {
                     for ( int age = agesset.Start; age <= agesset.Stop; age++ )
                     {
                         var employmentFactor = occData[age, emp, occ] * empData[age, emp];
-                        internalWorkers[i] += zones[i].Population * ageRates[zones[i].ZoneNumber, age] * employmentFactor
-                            * ( 1 - this.ExternalRates[zones[i].PlanningDistrict, age, emp] );
+                        
+                        internalWorkers[i] += zones[i].Population * ageRates[zoneNumber, age] * employmentFactor
+                            * ( 1 - this.ExternalRates[planningDistrict, age, emp] );
                     }
                 }
             }

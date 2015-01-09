@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using TMG.Emme;
@@ -44,6 +45,9 @@ namespace TMG.NetworkEstimation
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
         private const string _ToolName = "tmg.XTMF_internal.return_grouped_boardings";
+
+        [SubModelInformation(Required = false, Description = "Save to this file instead of sending over the network.")]
+        public FileLocation SaveToFile;
 
         public bool Execute(Controller controller)
         {
@@ -75,9 +79,18 @@ namespace TMG.NetworkEstimation
                 builder.Append( val.ToString() );
             }
             builder.AppendLine();
-
-            //now that we have built up the data, send it to the host
-            this.SendToHost( builder.ToString() );
+            if(SaveToFile == null)
+            {
+                //now that we have built up the data, send it to the host
+                this.SendToHost(builder.ToString());
+            }
+            else
+            {
+                using (StreamWriter writer = new StreamWriter(SaveToFile) )
+                {
+                    writer.WriteLine(builder.ToString());
+                }
+            }
             return true;
         }
 
