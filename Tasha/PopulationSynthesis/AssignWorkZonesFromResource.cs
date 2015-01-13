@@ -18,11 +18,13 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Datastructure;
 using Tasha.Common;
 using TMG;
+using TMG.Input;
 using XTMF;
 
 namespace Tasha.PopulationSynthesis
@@ -50,21 +52,40 @@ namespace Tasha.PopulationSynthesis
                 [SubModelInformation(Required = true, Description = "SparseTriIndex<float>")]
                 public IResource Linkages;
 
+                [SubModelInformation(Required = false, Description = "Save the worker probabilities to file, skipped of not filled in.")]
+                public FileLocation SaveProbabilities;
+
+                [SubModelInformation(Required = false, Description = "Save the worker categories to file, skipped of not filled in.")]
+                public FileLocation SaveWorkerCategory;
+
                 private SparseTriIndex<float> Probabilities;
 
                 private IZone[] Zones;
                 private SparseArray<IZone> ZoneSystem;
-
+                private float[][] WorkerResults;
                 public void Load()
                 {
                     ZoneSystem = Root.ZoneSystem.ZoneArray;
                     Zones = ZoneSystem.GetFlatData();
                     Probabilities = Linkages.AquireResource<SparseTriIndex<float>>();
                     ConvertToProbabilities(Probabilities.GetFlatData());
+                    Linkages.ReleaseResource();
+                    if(SaveWorkerCategory != null)
+                    {
+                        WorkerResults = new float[3][];
+                        for(int i = 0; i < WorkerResults.Length; i++)
+                        {
+                            WorkerResults[i] = new float[Zones.Length];
+                        }
+                    }
                 }
 
                 private void ConvertToProbabilities(float[][][] data)
                 {
+                    if(SaveProbabilities != null)
+                    {
+                        SaveProbabilitiesToFile(data);
+                    }
                     var pds = Zones.Select(z => z.PlanningDistrict).ToArray();
                     List<int> noProbabilityZones = new List<int>();
                     for(int categoryIndex = 0; categoryIndex < data.Length; categoryIndex++)
@@ -130,10 +151,31 @@ namespace Tasha.PopulationSynthesis
                     }
                 }
 
+                private void SaveProbabilitiesToFile(float[][][] data)
+                {
+                    SparseArray<IZone> zoneSystem = Root.ZoneSystem.ZoneArray;
+                    var zones = zoneSystem.GetFlatData();
+                    var saveData = new float[zones.Length][];
+                    for(int i = 0; i < saveData.Length; i++)
+                    {
+                        saveData[i] = new float[zones.Length];
+                        for(int j = 0; j < saveData[i].Length; j++)
+                        {
+                            float total = 0.0f;
+                            for(int k = 0; k < data.Length; k++)
+                            {
+                                total += data[k][i][j];
+                            }
+                            saveData[i][j] = total;
+                        }
+                    }
+                    TMG.Functions.SaveData.SaveMatrix(zones, saveData, SaveProbabilities);
+                }
+
                 public void Unload()
                 {
                     Probabilities = null;
-                    Linkages.ReleaseResource();
+                    SaveHouseholdCategoryRecords();
                 }
 
                 public string Name { get; set; }
@@ -175,22 +217,59 @@ namespace Tasha.PopulationSynthesis
 
                 private int ClassifyHousehold(ITashaHousehold household)
                 {
-                    var lics = 0;
+                    var numberOfLicenses = 0;
                     var numberOfVehicles = household.Vehicles.Length;
-                    if(numberOfVehicles == 0)
+                    if(numberOfVehicles > 0)
                     {
-                        return 0;
-                    }
-                    var persons = household.Persons;
-                    for(int i = 0; i < persons.Length; i++)
-                    {
-                        if(persons[i].Licence)
+                        var persons = household.Persons;
+                        for(int i = 0; i < persons.Length; i++)
                         {
-                            lics++;
+                            if(persons[i].Licence)
+                            {
+                                numberOfLicenses++;
+                            }
                         }
                     }
-                    if(lics == 0) return 0;
-                    return lics < numberOfVehicles ? 1 : 2;
+                    int category = numberOfLicenses == 0 ? 0 : (numberOfVehicles < numberOfLicenses ? 1 : 2);
+                    if(SaveWorkerCategory != null)
+                    {
+                        RecordHouseholdCategory(category, household.HomeZone.ZoneNumber, household.ExpansionFactor);
+                    }
+                    return category;
+                }
+
+                private void RecordHouseholdCategory(int category, int zoneNumber, float expansionFactor)
+                {
+                    var flatZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(zoneNumber);
+                    if(flatZoneIndex >= 0)
+                    {
+                        // this code is never executed in parallel
+                        WorkerResults[category][flatZoneIndex] += expansionFactor;
+                    }
+                }
+
+                private void SaveHouseholdCategoryRecords()
+                {
+                    if(SaveWorkerCategory != null)
+                    {
+                        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                        using (var writer = new StreamWriter(SaveWorkerCategory))
+                        {
+                            writer.WriteLine("Zone,Category,Total");
+                            for(int i = 0; i < zones.Length; i++)
+                            {
+                                var zoneNumber = zones[i].ZoneNumber;
+                                for(int cat = 0; cat < WorkerResults.Length; cat++)
+                                {
+                                    writer.Write(zoneNumber);
+                                    writer.Write(',');
+                                    writer.Write(cat + 1);
+                                    writer.Write(',');
+                                    writer.WriteLine(WorkerResults[cat][i]);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
