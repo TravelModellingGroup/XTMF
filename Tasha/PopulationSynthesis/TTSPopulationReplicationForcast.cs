@@ -328,7 +328,7 @@ namespace Tasha.PopulationSynthesis
                 }
             }
             if(lics == 0) return 0;
-            return lics < numberOfVehicles ? 1 : 2;
+            return numberOfVehicles < lics ? 1 : 2;
         }
 
         private int SavePersons(List<KeyValuePair<int, int>>[] results, PDData[] pds, ref int totalPerson)
