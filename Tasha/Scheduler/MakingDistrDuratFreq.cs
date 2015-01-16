@@ -501,7 +501,7 @@ namespace Tasha.Scheduler
             {
                 return;
             }
-            StoreResults(household, eventCount);
+            StoreResults(household.ExpansionFactor, eventCount);
 
             Interlocked.Increment(ref CurrentHousehold);
             Progress = ( (float)CurrentHousehold / NumberOfHouseholds) / Iterations + CompletedIterationPercentage;
@@ -594,11 +594,9 @@ namespace Tasha.Scheduler
             Scheduler.SecondaryWorkMinStartTime = SecondaryWorkMinStartTimeDateTime;
         }
 
-        private void StoreResults(ITashaHousehold household, int[][][] eventCount)
+        private void StoreResults(float expFactor, int[][][] eventCount)
         {
             // now that we have the count of all of the events go and add them to the totals
-            var expFactor = household.ExpansionFactor;
-
             System.Threading.Tasks.Parallel.For(0, NumberOfDistributionsLocal, delegate(int id)
             {
                 // if there is no data for this ID just continue

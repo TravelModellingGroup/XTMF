@@ -126,6 +126,9 @@ namespace Tasha.Network
                 }
                 else
                 {
+                    var iteration = timesLoaded + 1;
+                    var previousFraction = 1.0f / (iteration + 1.0f);
+                    var currentFraction = iteration / (1.0f + iteration);
                     foreach(var point in readODData.Read())
                     {
                         var o = point.O == previousPointO ? previousFlatO : zoneArray.GetFlatIndex(point.O);
@@ -135,7 +138,7 @@ namespace Tasha.Network
                             previousPointO = point.O;
                             previousFlatO = o;
                             var index = (o * numberOfZones + d) * dataTypes + dataTypeOffset;
-                            data[index] = data[index] * 0.75f + point.Data * 0.25f;
+                            data[index] = data[index] * previousFraction + point.Data * currentFraction;
                         }
                     }
                 }

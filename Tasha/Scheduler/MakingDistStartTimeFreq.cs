@@ -418,14 +418,14 @@ namespace Tasha.Scheduler
 
         private void Run(int i, ITashaHousehold household)
         {
-            var numberOfPeople = household.Persons.Length;
-            Time[] workStartTimes = new Time[numberOfPeople];
-            Time[] workEndTimes = new Time[numberOfPeople];
-            for(int p = 0; p < numberOfPeople; p++)
+            var persons = household.Persons;
+            Time[] workStartTimes = new Time[persons.Length];
+            Time[] workEndTimes = new Time[persons.Length];
+            for(int p = 0; p < persons.Length; p++)
             {
-                AssignEpisodes(household.Persons[p], ref workStartTimes[p], ref workEndTimes[p], null);
+                AssignEpisodes(persons[p], ref workStartTimes[p], ref workEndTimes[p], null);
             }
-            System.Threading.Tasks.Parallel.For(0, numberOfPeople, delegate (int personNumber)
+            System.Threading.Tasks.Parallel.For(0, persons.Length, delegate (int personNumber)
             {
                 ITashaPerson person = household.Persons[personNumber];
                 Time workStartTime = workStartTimes[personNumber];
@@ -433,11 +433,12 @@ namespace Tasha.Scheduler
                 bool invalidPerson = false;
                 var eventCount = new int[this.NumberOfDistributionsLocal];
                 var startTimeCount = new int[this.NumberOfDistributionsLocal][];
-                foreach(var TripChain in person.TripChains)
+                foreach(var tripChain in person.TripChains)
                 {
-                    foreach(var trip in TripChain.Trips)
+                    List<ITrip> trips = tripChain.Trips;
+                    for(int t = 0; t < trips.Count; t++)
                     {
-                        IncreaseID(ref invalidPerson, eventCount, startTimeCount, trip, GetID(person, trip));
+                        IncreaseID(ref invalidPerson, eventCount, startTimeCount, trips[t], GetID(person, trips[t]));
                     }
                 }
                 int lunches = LunchPass(person, eventCount, startTimeCount, ref workStartTime, ref workEndTime);
@@ -446,7 +447,7 @@ namespace Tasha.Scheduler
                 {
                     return;
                 }
-                StoreResults(household, eventCount, startTimeCount);
+                StoreResults(person.ExpansionFactor, eventCount, startTimeCount);
             });
             System.Threading.Interlocked.Increment(ref this.CurrentHousehold);
             this.Progress = ((float)this.CurrentHousehold / this.NumberOfHouseholds) / this.Iterations + this.CompletedIterationPercentage;
@@ -549,29 +550,32 @@ namespace Tasha.Scheduler
             Scheduler.SecondaryWorkMinStartTime = this.SecondaryWorkMinStartTimeDateTime;
         }
 
-        private void StoreResults(ITashaHousehold household, int[] eventCount, int[][] startTimeCount)
+        private void StoreResults(float expFactor, int[] eventCount, int[][] startTimeCount)
         {
-            var expFactor = household.ExpansionFactor;
             lock (ResultsArray)
             {
-                for(int id = 0; id < this.NumberOfDistributionsLocal; id++)
+                for(int id = 0; id < eventCount.Length; id++)
                 {
                     var freq = eventCount[id] >= this.MaxFrequencyLocal ? this.MaxFrequencyLocal : eventCount[id];
                     if(startTimeCount[id] == null) continue;
                     var startTimeArray = startTimeCount[id];
-                    for(int startTime = 0; startTime < this.StartTimeQuantums; startTime++)
+                    var resultRow = ResultsArray[id][freq];
+                    if(Smooth == true)
                     {
-                        if(Smooth == true)
+                        for(int startTime = 0; startTime < resultRow.Length; startTime++)
                         {
-                            ResultsArray[id][freq][startTime] += expFactor * startTimeArray[startTime] / 2.0f;
-                            ResultsArray[id][freq][startTime + 1 < this.StartTimeQuantums ? startTime + 1 : this.StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 6.0f;
-                            ResultsArray[id][freq][startTime + 2 < this.StartTimeQuantums ? startTime + 2 : this.StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 12.0f;
-                            ResultsArray[id][freq][startTime - 1 > 0 ? startTime - 1 : 0] += expFactor * startTimeArray[startTime] / 6.0f;
-                            ResultsArray[id][freq][startTime - 2 > 0 ? startTime - 2 : 0] += expFactor * startTimeArray[startTime] / 12.0f;
+                            resultRow[startTime] += expFactor * startTimeArray[startTime] / 2.0f;
+                            resultRow[startTime + 1 < this.StartTimeQuantums ? startTime + 1 : this.StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 6.0f;
+                            resultRow[startTime + 2 < this.StartTimeQuantums ? startTime + 2 : this.StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 12.0f;
+                            resultRow[startTime - 1 > 0 ? startTime - 1 : 0] += expFactor * startTimeArray[startTime] / 6.0f;
+                            resultRow[startTime - 2 > 0 ? startTime - 2 : 0] += expFactor * startTimeArray[startTime] / 12.0f;
                         }
-                        else
+                    }
+                    else
+                    {
+                        for(int startTime = 0; startTime < resultRow.Length; startTime++)
                         {
-                            ResultsArray[id][freq][startTime] += expFactor * startTimeArray[startTime];
+                            resultRow[startTime] += expFactor * startTimeArray[startTime];
                         }
                     }
                 }
