@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Tasha.Common;
+using TMG.Input;
 using XTMF;
 
 namespace Tasha.Validation
@@ -34,11 +35,9 @@ namespace Tasha.Validation
         )]
     public class Distance : IPostHousehold
     {
-        [RunParameter("Output File", "DistanceValidation.csv", "The file that will contain the results")]
-        public string OutputFile;
+        [SubModelInformation(Required = true, Description = "The location to save the validation data.")]
+        public FileLocation OutputFile;
 
-        [RunParameter("ModeCount", "ModeCount.csv", "The file that will contain the results")]
-        public string OutputFile2;
 
         [RootModule]
         public ITashaRuntime Root;
