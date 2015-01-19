@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using Datastructure;
@@ -113,19 +114,8 @@ namespace TMG.GTAModel.Analysis
 
         private static float Sum(SparseTwinIndex<float> data)
         {
-            var flatData = data.GetFlatData();
-            double total = 0;
-            for ( int i = 0; i < flatData.Length; i++ )
-            {
-                var local = 0f;
-                var row = flatData[i];
-                for ( int j = row.Length - 1; j >= 0; j-- )
-                {
-                    local += row[j];
-                }
-                total += local;
-            }
-            return (float)total;
+
+            return data.GetFlatData().AsParallel().Sum(row => row.Sum());
         }
 
         private void Clear(float[][] matrix)
