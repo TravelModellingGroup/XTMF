@@ -268,7 +268,7 @@ namespace Tasha.Scheduler
 
         private bool AddStartTime(int[][] startTimeCount, int id, ITrip trip)
         {
-            int startTime = (int)(((trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime).ToMinutes() / 15) - 16);
+            int startTime = (int)Math.Round((((trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime).ToMinutes() / 15) - 16),0);
             if(startTime < 0)
             {
                 startTime += this.StartTimeQuantums;

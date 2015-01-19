@@ -369,7 +369,7 @@ namespace Tasha.Scheduler
                     var ThisTrip = TripChain.Trips[j];
                     var NextTrip = TripChain.Trips[j + 1];
                     Time thisStartTime = ThisTrip.OriginalZone == null || ThisTrip.DestinationZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
-                    int startTime = (int)(thisStartTime.ToMinutes() / 15  - 16 );
+                    int startTime = (int)Math.Round((thisStartTime.ToMinutes() / 15  - 16 ),0);
                     var TripDuration = (int)((NextTrip.TripStartTime - thisStartTime).ToMinutes() / 15 );
                     if (!PreProcessTimes(person, ref startTime, ref TripDuration))
                     {
