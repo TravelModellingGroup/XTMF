@@ -27,6 +27,9 @@ namespace Tasha.Common
         [SubModelInformation( Required = false, Description = "The model systems to host after an iteration has completed." )]
         public List<ISelfContainedModule> ModelSystems;
 
+        [RunParameter("Execute Model Systems", true, "Should we execute the contained model systems?")]
+        public bool ExecuteModelSystems;
+
         private Func<float> GetProgress = () => 0f;
 
         public string Name
@@ -47,10 +50,13 @@ namespace Tasha.Common
 
         public void Execute(int iterationNumber, int totalIterations)
         {
-            foreach ( var ms in this.ModelSystems )
+            if(ExecuteModelSystems)
             {
-                this.GetProgress = () => ms.Progress;
-                ms.Start();
+                foreach(var ms in this.ModelSystems)
+                {
+                    this.GetProgress = () => ms.Progress;
+                    ms.Start();
+                }
             }
         }
 
