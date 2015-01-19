@@ -67,9 +67,6 @@ namespace Tasha.PopulationSynthesis
                 {
                     ZoneSystem = Root.ZoneSystem.ZoneArray;
                     Zones = ZoneSystem.GetFlatData();
-                    Probabilities = Linkages.AquireResource<SparseTriIndex<float>>();
-                    ConvertToProbabilities(Probabilities.GetFlatData());
-                    Linkages.ReleaseResource();
                     if(SaveWorkerCategory != null)
                     {
                         WorkerResults = new float[3][];
@@ -78,6 +75,9 @@ namespace Tasha.PopulationSynthesis
                             WorkerResults[i] = new float[Zones.Length];
                         }
                     }
+                    Probabilities = Linkages.AquireResource<SparseTriIndex<float>>();
+                    ConvertToProbabilities(Probabilities.GetFlatData());
+                    Linkages.ReleaseResource();
                 }
 
                 private void ConvertToProbabilities(float[][][] data)
@@ -250,7 +250,7 @@ namespace Tasha.PopulationSynthesis
 
                 private void SaveHouseholdCategoryRecords()
                 {
-                    if(SaveWorkerCategory != null)
+                    if(SaveWorkerCategory != null && WorkerResults != null)
                     {
                         var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                         using (var writer = new StreamWriter(SaveWorkerCategory))
