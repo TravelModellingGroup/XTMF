@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -60,7 +60,7 @@ namespace TMG.Emme
             var args = string.Join(" ", "\""+Path.GetFullPath(NetworkPackage.GetFilePath())+"\"",
                                     ScenarioId, this.ConflictOption.ToString());
 
-            Console.Write("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
+            Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
 
             var result = "";
             return mc.Run(_ToolName, args, (p => Progress = p), ref result);
