@@ -198,11 +198,11 @@ namespace Tasha.Estimation.PoRPoW
                             {
                                 // y - deltaXY <=> 2y-x
                                 cellError = pTruth * Math.Log( Math.Min( ( Math.Max( ( pTruth + pTruth - pModel ), 0 )
-                                    + ( pTruth * 0.015 ) ) / ( pTruth * 1.015 ), 1 ) );
+                                    + ( pTruth * 0.00015 ) ) / ( pTruth * 1.00015 ), 1 ) );
                             }
                             else
                             {
-                                cellError = pTruth * Math.Log( Math.Min( ( pModel + ( pTruth * 0.015 ) ) / ( pTruth * 1.015 ), 1 ) );
+                                cellError = pTruth * Math.Log( Math.Min( ( pModel + ( pTruth * 0.00015 ) ) / ( pTruth * 1.00015 ), 1 ) );
                             }
                             currentError += cellError;
                         }

@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Tasha.Common;
+using TMG.Input;
 using XTMF;
 
 namespace Tasha.Validation
@@ -30,16 +31,15 @@ namespace Tasha.Validation
                         "This is important as it allows for the analysis of the planned schedule before mode choice occurs."
 
         )]
-    public class StartTimeIPostScheduler : IPostScheduler, IDisposable
+    public class StartTimeIPostScheduler : IPostScheduler
     {
-        [RunParameter( "Output File", "OutputResult.csv", "The file that will contain the results" )]
-        public string OutputFile;
+        [SubModelInformation(Required = true, Description = "The location to store the data.")]
+        public FileLocation OutputFile;
 
         [RootModule]
         public ITashaRuntime Root;
 
-        private Dictionary<string, int> StartTime = new Dictionary<string, int>();
-        private StreamWriter Writer;
+        private Dictionary<Activity, Dictionary<int, float>> ActivityStartTimeDictionaries = new Dictionary<Activity, Dictionary<int, float>>();
 
         public string Name
         {
@@ -55,35 +55,29 @@ namespace Tasha.Validation
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 100, 100); }
         }
 
         public void Execute(ITashaHousehold household)
         {
-            lock ( this )
+            lock (this)
             {
-                foreach ( var person in household.Persons )
+                foreach(var person in household.Persons)
                 {
-                    foreach ( var tripChain in person.TripChains )
+                    var expFactor = person.ExpansionFactor;
+                    foreach(var tripChain in person.TripChains)
                     {
-                        foreach ( var trip in tripChain.Trips )
+                        foreach(var trip in tripChain.Trips)
                         {
-                            if ( trip.Purpose == Activity.ReturnFromSchool || trip.Purpose == Activity.ReturnFromWork )
+                            Dictionary<int, float> activityDictionary = GetDictionary(trip.Purpose);
+                            int hour = trip.ActivityStartTime.Hours;
+                            if(activityDictionary.ContainsKey(hour))
                             {
-                                string TripTime = trip.ActivityStartTime.ToString();
-                                string[] Hours = TripTime.Split( ':' );
-                                if ( StartTime.ContainsKey( Hours[0] ) )
-                                {
-                                    StartTime[Hours[0]] += 1;
-                                }
-                                else
-                                {
-                                    StartTime.Add( Hours[0], 1 );
-                                }
+                                activityDictionary[hour] += expFactor;
                             }
                             else
                             {
-                                continue;
+                                activityDictionary.Add(hour, expFactor);
                             }
                         }
                     }
@@ -91,13 +85,30 @@ namespace Tasha.Validation
             }
         }
 
+        private Dictionary<int, float> GetDictionary(Activity purpose)
+        {
+            Dictionary<int, float> ret;
+            if(!ActivityStartTimeDictionaries.TryGetValue(purpose, out ret))
+            {
+                ret = new Dictionary<int, float>();
+                ActivityStartTimeDictionaries[purpose] = ret;
+            }
+            return ret;
+        }
+
         public void IterationFinished(int iterationNumber)
         {
-            foreach ( var pair in StartTime )
+            using (StreamWriter writer = new StreamWriter(OutputFile))
             {
-                Writer.WriteLine( "{0}, {1}", pair.Key, pair.Value );
+                foreach(var activityDictionary in ActivityStartTimeDictionaries)
+                {
+                    var activityStr = activityDictionary.Key.ToString();
+                    foreach(var e in activityDictionary.Value)
+                    {
+                        writer.WriteLine("{0}, {1}", e.Key, e.Value);
+                    }
+                }
             }
-            this.Dispose( true );
         }
 
         public void Load(int maxIterations)
@@ -111,26 +122,7 @@ namespace Tasha.Validation
 
         public void IterationStarting(int iteration)
         {
-            bool exists = File.Exists( OutputFile );
-            if ( !exists )
-            {
-                Writer = new StreamWriter( OutputFile );
-            }
-        }
-
-        public void Dispose()
-        {
-            this.Dispose( true );
-            GC.SuppressFinalize( this );
-        }
-
-        protected virtual void Dispose(bool all)
-        {
-            if ( this.Writer != null )
-            {
-                this.Writer.Dispose();
-                this.Writer = null;
-            }
+            ActivityStartTimeDictionaries.Clear();
         }
     }
 }
