@@ -1504,9 +1504,6 @@ Global
 		{63996C2B-6769-4305-8933-1A87944679DC} = {6CB731FD-131F-4D60-B988-96F531D03679}
 		{B803C3EF-1C09-47AE-80E6-6BB40520F516} = {D9A501B7-837A-4651-9217-F811BF7FF300}
 	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = XTMF.vsmdi
 	EndGlobalSection

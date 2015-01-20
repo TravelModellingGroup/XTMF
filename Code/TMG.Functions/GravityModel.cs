@@ -60,7 +60,7 @@ namespace TMG.Functions
             int length = validIndexes.Length;
             this.Productions = O;
             this.Attractions = D;
-            if ( attractionStar == null )
+            if(attractionStar == null)
             {
                 this.AttractionsStar = D.CreateSimilarArray<float>();
             }
@@ -69,14 +69,14 @@ namespace TMG.Functions
                 this.AttractionsStar = attractionStar;
             }
             this.FlowMatrix = this.Productions.CreateSquareTwinArray<float>();
-            if ( this.Friction == null )
+            if(this.Friction == null)
             {
-                InitializeFriction( length );
+                InitializeFriction(length);
             }
             var flatAttractionStar = this.AttractionsStar.GetFlatData();
             float[] oldTotal = new float[flatAttractionStar.Length];
             var flatAttractions = this.Attractions.GetFlatData();
-            for ( int i = 0; i < length; i++ )
+            for(int i = 0; i < length; i++)
             {
                 flatAttractionStar[i] = 1f;
                 oldTotal[i] = flatAttractions[i];
@@ -84,21 +84,18 @@ namespace TMG.Functions
             int iteration = 0;
             do
             {
-                if ( this.ProgressCallback != null )
+                if(this.ProgressCallback != null)
                 {
                     // this doesn't go to 100%, but that is alright since when we end, the progress
                     // of the calling model should assume we hit 100%
-                    this.ProgressCallback( iteration / (float)MaxIterations );
+                    this.ProgressCallback(iteration / (float)MaxIterations);
                 }
-                Parallel.For( 0, length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
-                {
-                    this.ProcessFlow( i );
-                } );
-            } while ( ( ++iteration ) < MaxIterations && !this.Balance(oldTotal) );
+                this.ProcessFlow();
+            } while((++iteration) < MaxIterations && !this.Balance(oldTotal));
 
-            if ( this.ProgressCallback != null )
+            if(this.ProgressCallback != null)
             {
-                this.ProgressCallback( 1f );
+                this.ProgressCallback(1f);
             }
             // Rebalancing isn't actually doing anything productive
             //Rebalance( this.FlowMatrix, O );
@@ -113,34 +110,48 @@ namespace TMG.Functions
             var flatAttractionStar = AttractionsStar.GetFlatData();
             int length = flatAttractions.Length;
             float ep = (float)this.Epsilon;
-            Parallel.For( 0, length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
+            float[] jTotal = new float[length];
+            Parallel.For(0, length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                () => new float[length],
+                (int i, ParallelLoopState state, float[] localTotals) =>
             {
-                double total = 0;
-                if ( flatAttractions[j] == 0 ) return;
-                for ( int i = 0; i < length; i++ )
+                var row = flatFlows[i];
+                for(int j = 0; j < localTotals.Length; j++)
                 {
-                    total += flatFlows[i][j];
+                    localTotals[j] += row[j];
                 }
-                float residule;
-                /*if ( Math.Abs( total - oldTotal[j] ) > this.MaxErrorChangePerIteration )
+                return localTotals;
+            },
+                (float[] localTotals) =>
+            {
+                lock (jTotal)
                 {
-                    balanced = false;
-                }*/
-                total = 1 / total;
-                residule = (float)( flatAttractions[j] * total );
-                if ( !double.IsInfinity( total ) & !double.IsNaN( total ) )
+                    for(int i = 0; i < localTotals.Length; i++)
+                    {
+                        jTotal[i] += localTotals[i];
+                    }
+                }
+            }
+                );
+            Parallel.For(0, length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int j)
+            {
+                
+                if(flatAttractions[j] == 0) return;
+                var total = 1 / jTotal[j];
+                var residual = (float)(flatAttractions[j] * total);
+                if(!float.IsInfinity(total) & !float.IsNaN(total))
                 {
-                    if ( Math.Abs( 1 - residule ) > ep )
+                    if(Math.Abs(1 - residual) > ep)
                     {
                         balanced = false;
                     }
-                    flatAttractionStar[j] *= residule;
+                    flatAttractionStar[j] *= residual;
                 }
                 else
                 {
                     flatAttractionStar[j] = 1.0f;
                 }
-            } );
+            });
             return balanced;
         }
 
@@ -148,75 +159,50 @@ namespace TMG.Functions
         {
             this.Friction = this.Productions.CreateSquareTwinArray<float>();
             var flatFriction = this.Friction.GetFlatData();
-            Parallel.For( 0, length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                delegate(int i)
+            Parallel.For(0, length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                delegate (int i)
+            {
+                for(int j = 0; j < length; j++)
                 {
-                    for ( int j = 0; j < length; j++ )
-                    {
-                        flatFriction[i][j] = (float)this.FrictionFunction( this.Productions.GetSparseIndex( i ), this.Attractions.GetSparseIndex( j ) );
-                    }
-                } );
+                    flatFriction[i][j] = (float)this.FrictionFunction(this.Productions.GetSparseIndex(i), this.Attractions.GetSparseIndex(j));
+                }
+            });
         }
 
-        private void ProcessFlow(int flatOrigin)
+        private void ProcessFlow()
         {
-            float sumAF = 0;
-            var flatProductions = this.Productions.GetFlatData();
-            var flatFriction = this.Friction.GetFlatData();
-            var flatAStar = this.AttractionsStar.GetFlatData();
-            var flatAttractions = this.Attractions.GetFlatData();
-            var length = flatFriction.Length;
-            var flatFrictionRow = flatFriction[flatOrigin];
-            // check to see if there is no production
-            if ( flatProductions[flatOrigin] <= 0 )
+            Parallel.For(0, this.Productions.GetFlatData().Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int flatOrigin)
             {
-                return;
-            }
-            // if there is production just continue on
-            for ( int i = 0; i < flatFrictionRow.Length; i++ )
-            {
-                sumAF += flatFrictionRow[i] * ( flatAttractions[i] * flatAStar[i] );
-            }
-            sumAF = ( 1 / sumAF ) * flatProductions[flatOrigin];
-            if (float.IsInfinity( sumAF ) | float.IsNaN( sumAF ) )
-            {
-                // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
-                sumAF = 0f;
-            }
-            var flatFlowsRow = this.FlowMatrix.GetFlatData()[flatOrigin];
-            for ( int i = 0; i < flatFlowsRow.Length; i++ )
-            {
-                var temp = ( flatFrictionRow[i] * ( sumAF * flatAttractions[i] * flatAStar[i] ) );
-                flatFlowsRow[i] = float.IsInfinity( temp ) | float.IsNaN( temp ) ? 0 : temp;
-            }
-        }
-
-        private void Rebalance(SparseTwinIndex<float> sparseTwinIndex, SparseArray<float> O)
-        {
-            var data = sparseTwinIndex.GetFlatData();
-            var original = O.GetFlatData();
-            Parallel.For( 0, original.Length, (int i) =>
+                float sumAF = 0;
+                var flatProductions = this.Productions.GetFlatData();
+                var flatFriction = this.Friction.GetFlatData();
+                var flatAStar = this.AttractionsStar.GetFlatData();
+                var flatAttractions = this.Attractions.GetFlatData();
+                var length = flatFriction.Length;
+                var flatFrictionRow = flatFriction[flatOrigin];
+                // check to see if there is no production
+                if(flatProductions[flatOrigin] <= 0)
                 {
-                    var row = data[i];
-                    var sum = 0.0;
-                    if ( original[i] == 0 )
-                    {
-                        return;
-                    }
-                    for ( int j = 0; j < row.Length; j++ )
-                    {
-                        sum += row[j];
-                    }
-                    var factor = (float)( original[i] / sum );
-                    if ( float.IsNaN( factor ) || float.IsInfinity( factor ) )
-                    {
-                        return;
-                    }
-                    for ( int j = 0; j < row.Length; j++ )
-                    {
-                        row[j] *= factor;
-                    }
-                } );
+                    return;
+                }
+                // if there is production just continue on
+                for(int i = 0; i < flatFrictionRow.Length; i++)
+                {
+                    sumAF += flatFrictionRow[i] * (flatAttractions[i] * flatAStar[i]);
+                }
+                sumAF = (1 / sumAF) * flatProductions[flatOrigin];
+                if(float.IsInfinity(sumAF) | float.IsNaN(sumAF))
+                {
+                    // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
+                    sumAF = 0f;
+                }
+                var flatFlowsRow = this.FlowMatrix.GetFlatData()[flatOrigin];
+                for(int i = 0; i < flatFlowsRow.Length; i++)
+                {
+                    var temp = (flatFrictionRow[i] * (sumAF * flatAttractions[i] * flatAStar[i]));
+                    flatFlowsRow[i] = float.IsInfinity(temp) | float.IsNaN(temp) ? 0 : temp;
+                }
+            });
         }
     }
 }
