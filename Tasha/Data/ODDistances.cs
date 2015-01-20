@@ -44,6 +44,9 @@ namespace Tasha.Data
         [RootModule]
         public ITravelDemandModel Root;
 
+        [RunParameter("Convert to KM", false, "Should we divide the distances by 1k to convert to KM?")]
+        public bool ConvertToKM;
+
         public SparseTwinIndex<float> GiveData()
         {
             return Data;
@@ -51,11 +54,30 @@ namespace Tasha.Data
 
         public void LoadData()
         {
+            
             if(!Root.ZoneSystem.Loaded)
             {
                 Root.ZoneSystem.LoadData();
             }
-            Data = Root.ZoneSystem.Distances;
+
+            SparseTwinIndex<float> distances = Root.ZoneSystem.Distances;
+            if(!ConvertToKM)
+            {
+                Data = distances;
+            }
+            else
+            {
+                var flatDistances = distances.GetFlatData();
+                Data = distances.CreateSimilarArray<float>();
+                var local = Data.GetFlatData();
+                for(int i = 0; i < local.Length; i++)
+                {
+                    for(int j = 0; j < local[i].Length; j++)
+                    {
+                        local[i][j] = flatDistances[i][j] * 0.001f;
+                    }
+                }
+            }
         }
 
         public bool RuntimeValidation(ref string error)

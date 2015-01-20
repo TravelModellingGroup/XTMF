@@ -89,21 +89,39 @@ namespace TMG.Functions
         private static bool Balance(float[] ret, float[] destinations, float[] destinationStar, float epsilon, int categories, int numberofZones)
         {
             bool balanced = true;
+            float[] jTotal = new float[numberofZones];
+            Parallel.For(0, numberofZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                ()=> new float[numberofZones],
+                (int i, ParallelLoopState state, float[] localTotals) =>
+            {
+                for(int k = 0; k < categories; k++)
+                {
+                    int categoryDestOffset = (numberofZones * numberofZones * k) + i * numberofZones;
+                    for(int j = 0; j < numberofZones; j++)
+                    {
+                        localTotals[j] += ret[categoryDestOffset + j];
+                    }
+                }
+                return localTotals;
+            },
+                (float[] localTotals)=>
+            {
+                lock (jTotal)
+                {
+                    for(int i = 0; i < localTotals.Length; i++)
+                    {
+                        jTotal[i] += localTotals[i];
+                    }
+                }
+            }
+                );
+
             Parallel.For( 0, numberofZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 () => true,
                 (int j, ParallelLoopState state, bool localBalanced) =>
             {
                 if ( destinations[j] <= 0 ) return localBalanced;
-                float total = 0.0f;
-                for ( int k = 0; k < categories; k++ )
-                {
-                    int categoryDestOffset = ( numberofZones * numberofZones * k ) + j;
-                    for ( int i = 0; i < numberofZones; i++ )
-                    {
-                        total += ret[categoryDestOffset + i * numberofZones];
-                    }
-                }
-                var residule = destinations[j] / total;
+                var residule = destinations[j] / jTotal[j];
                 if ( float.IsInfinity( residule ) )
                 {
                     destinationStar[j] = destinations[j];
