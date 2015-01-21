@@ -105,7 +105,7 @@ namespace Tasha.Validation
                     var activityStr = activityDictionary.Key.ToString();
                     foreach(var e in activityDictionary.Value)
                     {
-                        writer.WriteLine("{0}, {1}", e.Key, e.Value);
+                        writer.WriteLine("{2},{0},{1}", e.Key, e.Value, activityStr);
                     }
                 }
             }
