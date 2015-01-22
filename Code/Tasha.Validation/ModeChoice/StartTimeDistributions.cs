@@ -42,6 +42,9 @@ namespace Tasha.Validation.ModeChoice
         [RunParameter("Minimum Age", 11, "The minimum age for the trips to be recorded in the total.")]
         public int MinimumAge;
 
+        [RunParameter("Trip Start Time", true, "Set to true to get the trip's start time.  Setting this to false will give the activity start times.")]
+        public bool TripStartTime;
+
         private const int NumberOfTimeBins = 48;
         private ITashaMode[] Modes;
         public void Execute(ITashaHousehold household, int iteration)
@@ -59,7 +62,7 @@ namespace Tasha.Validation.ModeChoice
                         var tripChain = tripChains[j].Trips;
                         for ( int k = 0; k < tripChain.Count; k++ )
                         {
-                            int index = ( ( (int)tripChain[k].TripStartTime.ToMinutes() ) / 30 );
+                            int index = ( ( (int)(TripStartTime? tripChain[k].TripStartTime : tripChain[k].ActivityStartTime).ToMinutes() ) / 30 );
                             var tripStartIndex = index < 0 ? ( index % NumberOfTimeBins + NumberOfTimeBins ) % NumberOfTimeBins : index % NumberOfTimeBins;
                             var array = GetPurposeCount( tripChain[k].Purpose );
                             var tripModeIndex = GetTripModeIndex( tripChain[k].Mode );
