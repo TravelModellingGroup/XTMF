@@ -40,6 +40,9 @@ namespace Tasha.Common
             get { return null; }
         }
 
+        [RunParameter("Unload after acquire", false, "Should re release this resource after it has been acquired?")]
+        public bool UnloadAfterAcquired;
+
         [RunParameter("Resource Name", "UniqueName", "The unique name for this resource.")]
         public string ResourceName { get; set; }
 
@@ -51,18 +54,22 @@ namespace Tasha.Common
                 return default(T);
             }
             // check to see if the resource needs to be loaded
-            if(!Loaded)
+
+            lock (this)
             {
-                lock (this)
+                if(!Loaded)
                 {
-                    if(!Loaded)
-                    {
-                        DataSource.LoadData();
-                        Loaded = true;
-                    }
+                    DataSource.LoadData();
+                    Loaded = true;
                 }
+                var data = source.GiveData();
+                if(UnloadAfterAcquired)
+                {
+                    Loaded = false;
+                    source.UnloadData();
+                }
+                return data;
             }
-            return source.GiveData();
         }
 
         public bool CheckResourceType(Type dataType)

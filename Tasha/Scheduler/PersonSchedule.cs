@@ -272,30 +272,24 @@ namespace Tasha.Scheduler
             throw new NotImplementedException();
         }
 
-        public static int SkippedWorkEpisodes = 0;
+        public static float SkippedWorkEpisodes = 0;
+        private static SpinLock SkippedWorkLock = new SpinLock(false);
 
         internal void InsertWorkSchedule(Schedule schedule, Random random)
         {
-            // First pass is to add works based business trips
-            for(int i = 0; i < schedule.EpisodeCount; i++)
-            {
-                if(schedule.Episodes[i].ActivityType == Activity.WorkBasedBusiness)
-                {
-                    if(!Insert((Episode)schedule.Episodes[i], random))
-                    {
-                        Interlocked.Increment(ref SkippedWorkEpisodes);
-                    }
-                }
-            }
-
             //Second pass is to add primary work trips
+            bool taken = false;
             for(int i = 0; i < schedule.EpisodeCount; i++)
             {
                 if(schedule.Episodes[i].ActivityType == Activity.PrimaryWork)
                 {
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
-                        Interlocked.Increment(ref SkippedWorkEpisodes);
+                        var expFactor = Owner.ExpansionFactor;
+                        taken = false;
+                        SkippedWorkLock.Enter(ref taken);
+                        SkippedWorkEpisodes += expFactor;
+                        if(taken) SkippedWorkLock.Exit(true);
                     }
                 }
             }
@@ -308,10 +302,32 @@ namespace Tasha.Scheduler
                 {
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
-                        Interlocked.Increment(ref SkippedWorkEpisodes);
+                        var expFactor = Owner.ExpansionFactor;
+                        taken = false;
+                        SkippedWorkLock.Enter(ref taken);
+                        SkippedWorkEpisodes += expFactor;
+                        if(taken) SkippedWorkLock.Exit(true);
                     }
                 }
             }
+
+            // First pass is to add works based business trips
+            for(int i = 0; i < schedule.EpisodeCount; i++)
+            {
+                if(schedule.Episodes[i].ActivityType == Activity.WorkBasedBusiness)
+                {
+                    if(!Insert((Episode)schedule.Episodes[i], random))
+                    {
+                        var expFactor = Owner.ExpansionFactor;
+                        taken = false;
+                        SkippedWorkLock.Enter(ref taken);
+                        SkippedWorkEpisodes += expFactor;
+                        if(taken) SkippedWorkLock.Exit(true);
+                    }
+                }
+            }
+
+            
         }
 
         private static bool FillInGaps(Episode middle, ref Time priorOverlap, ref Time postOverlap)
