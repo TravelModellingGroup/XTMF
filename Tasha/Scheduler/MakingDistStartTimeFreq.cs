@@ -70,14 +70,11 @@ namespace Tasha.Scheduler
         [RunParameter("Output Files", "FrequencyStartDistribution.csv", "The Output File")]
         public string OutputResults;
 
-        [SubModelInformation(Description = "Primary Mode used for travel times", Required = true)]
-        public ITashaMode PrimaryMode;
-
         [RunParameter("ReturnHomeFromWorkMaxEndTime", "15:00", typeof(Time), "The number of start time quantums for the distributions")]
         public Time ReturnHomeFromWorkMaxEndTimeDateTime;
 
-        [SubModelInformation(Description = "Secondary Mode used for travel times", Required = false)]
-        public ITashaMode SecondaryMode;
+        [RunParameter("Observed Mode", "ObservedMode", "The attribute name for the observed mode.")]
+        public string ObservedMode;
 
         [RunParameter("SecondaryWorkMinStartTime", "15:00", typeof(Time), "The number of start time quantums for the distributions")]
         public Time SecondaryWorkMinStartTimeDateTime;
@@ -98,7 +95,7 @@ namespace Tasha.Scheduler
 
         private string Status = "Initializing";
 
-        [DoNotAutomate]
+        [SubModelInformation(Required = false, Description = "All of the modes for this analysis.")]
         public List<ITashaMode> AllModes { get; set; }
 
         [DoNotAutomate]
@@ -238,10 +235,6 @@ namespace Tasha.Scheduler
             }
 
             this.IterationPercentage = 1f / this.Iterations;
-            //if (this.Scheduler != null)
-            //{
-            //this.Scheduler.LoadOneTimeLocalData();
-            //}
 
             for(int i = 0; i < this.Iterations; i++)
             {
@@ -268,7 +261,12 @@ namespace Tasha.Scheduler
 
         private bool AddStartTime(int[][] startTimeCount, int id, ITrip trip)
         {
-            int startTime = (int)Math.Round((((trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime).ToMinutes() / 15) - 16),0);
+            return AddStartTime(startTimeCount, id, (trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime) );
+        }
+
+        private bool AddStartTime(int[][] startTimeCount, int id, Time tripTime)
+        {
+            int startTime = (int)Math.Round((tripTime.ToMinutes() / 15) - 16, 0);
             if(startTime < 0)
             {
                 startTime += this.StartTimeQuantums;
@@ -297,16 +295,15 @@ namespace Tasha.Scheduler
         {
             person.InitializePersonalProjects();
             var PersonData = person["SData"] as SchedulerPersonData;
-            var primaryVehicle = this.PrimaryMode.RequiresVehicle;
 
             foreach(var TripChain in person.TripChains)
             {
-                bool usePrimary = this.SecondaryMode == null || primaryVehicle == null || primaryVehicle.CanUse(person);
                 for(int j = 0; j < (TripChain.Trips.Count - 1); j++)
                 {
                     var ThisTrip = TripChain.Trips[j];
                     var NextTrip = TripChain.Trips[j + 1];
-                    ThisTrip.Mode = NextTrip.Mode = usePrimary ? this.PrimaryMode : this.SecondaryMode;
+                    ThisTrip.Mode = ThisTrip[ObservedMode] as ITashaMode;
+                    NextTrip.Mode = NextTrip[ObservedMode] as ITashaMode;
                     var startTime = ThisTrip.OriginalZone == null || ThisTrip.DestinationZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
                     var endTime = NextTrip.TripStartTime;
                     var duration = endTime - startTime;
@@ -438,7 +435,19 @@ namespace Tasha.Scheduler
                     List<ITrip> trips = tripChain.Trips;
                     for(int t = 0; t < trips.Count; t++)
                     {
-                        IncreaseID(ref invalidPerson, eventCount, startTimeCount, trips[t], GetID(person, trips[t]));
+                        if(trips[t].Purpose != Activity.PrimaryWork)
+                        {
+                            IncreaseID(ref invalidPerson, eventCount, startTimeCount, trips[t], GetID(person, trips[t]));
+                        }
+                    }
+                }
+                if(workStartTime > Time.Zero)
+                {
+                    var workID = Distribution.GetDistributionID(person, Activity.PrimaryWork);
+                    if(workID >= 0)
+                    {
+                        eventCount[workID]++;
+                        AddStartTime(startTimeCount, workID, workStartTime );
                     }
                 }
                 int lunches = LunchPass(person, eventCount, startTimeCount, ref workStartTime, ref workEndTime);

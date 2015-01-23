@@ -277,8 +277,11 @@ namespace Tasha.Scheduler
 
         internal void InsertWorkSchedule(Schedule schedule, Random random)
         {
-            //Second pass is to add primary work trips
+            
             bool taken = false;
+
+
+            //Second pass is to add primary work trips
             for(int i = 0; i < schedule.EpisodeCount; i++)
             {
                 if(schedule.Episodes[i].ActivityType == Activity.PrimaryWork)
@@ -326,8 +329,7 @@ namespace Tasha.Scheduler
                     }
                 }
             }
-
-            
+           
         }
 
         private static bool FillInGaps(Episode middle, ref Time priorOverlap, ref Time postOverlap)
@@ -665,8 +667,8 @@ namespace Tasha.Scheduler
                         {
                             Time travelTime = Scheduler.TravelTime(Owner, Owner.Household.HomeZone,
                                 Episodes[i + 1].Zone, Episodes[i + 1].StartTime);
-                            ((Episode)Episodes[i + 1]).StartTime = (Episodes[i].StartTime - FirstTripTime) + travelTime;
-                            FirstTripTime = travelTime;
+                            ((Episode)Episodes[i + 1]).StartTime = ((Episode)Episodes[i]).StartTime - FirstTripTime + travelTime;
+                            FirstTripTime = ((Episode)Episodes[i + 1]).StartTime - travelTime;
                         }
                         Array.Copy(Episodes, i + 1, Episodes, i, EpisodeCount - i - 1);
                     }
