@@ -25,6 +25,7 @@ using TMG.Estimation;
 using TMG.Input;
 using XTMF;
 using Datastructure;
+using System.IO;
 
 namespace TMG.NetworkEstimation
 {
@@ -60,6 +61,18 @@ namespace TMG.NetworkEstimation
 
         [SubModelInformation(Description = "Line Aggregation File", Required = true)]
         public FileLocation LineAggregationFile;
+
+        [SubModelInformation(Required = false, Description = "Optionally where to save the aggregated boardings to file.")]
+        public FileLocation SaveAMBoardingsByAggregatedLine;
+
+        [SubModelInformation(Required = false, Description = "Optionally where to save the deltas of the aggregated boardings to file.")]
+        public FileLocation SaveAMBoardingDifferencesByAggregatedLine;
+
+        [SubModelInformation(Required = false, Description = "Optionally where to save the aggregated boardings to file.")]
+        public FileLocation SavePMBoardingsByAggregatedLine;
+
+        [SubModelInformation(Required = false, Description = "Optionally where to save the deltas of the aggregated boardings to file.")]
+        public FileLocation SavePMBoardingDifferencesByAggregatedLine;
 
         private const string _ToolName = "tmg.XTMF_internal.return_boardings_and_WAW";
         private const string _WawKey = "Walk-all-way";
@@ -148,7 +161,14 @@ namespace TMG.NetworkEstimation
         {
             double squaredErrorSum = 0.0;
             int numberOfLines = 0;
-
+            if(SaveAMBoardingsByAggregatedLine != null)
+            {
+                SaveBoardings(SaveAMBoardingsByAggregatedLine,modelledBoardingsAm);
+            }
+            if(SavePMBoardingsByAggregatedLine != null)
+            {
+                SaveBoardings(SavePMBoardingsByAggregatedLine,modelledBoardingsPm);
+            }
             //Calc error for AM boardings
             foreach (var entry in observedBoardingsAM)
             {
@@ -167,6 +187,16 @@ namespace TMG.NetworkEstimation
                 numberOfLines++;
             }
 
+            if(SaveAMBoardingDifferencesByAggregatedLine != null)
+            {
+                SaveBoardings(SaveAMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsAM, modelledBoardingsAm));
+            }
+
+            if(SavePMBoardingDifferencesByAggregatedLine != null)
+            {
+                SaveBoardings(SavePMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsPM, modelledBoardingsPm));
+            }
+
             //Add in the values for walk-all-ways
             if (this.WAWErrorFactor != 0.0f)
             {
@@ -175,6 +205,26 @@ namespace TMG.NetworkEstimation
             }
 
             this.Root.RetrieveValue = (() => (float)( Math.Sqrt(squaredErrorSum / numberOfLines)));
+        }
+
+        private Dictionary<string, float> ComputeDeltas(Dictionary<string, float> observedBoardingsAM, Dictionary<string, float> modelledBoardingsAm)
+        {
+            return (from modelled in modelledBoardingsAm
+                    select new KeyValuePair<string,float>(modelled.Key, modelled.Value - observedBoardingsAM[modelled.Key])).ToDictionary(e=>e.Key,e=>e.Value);
+        }
+
+        private void SaveBoardings(FileLocation location, Dictionary<string, float> periodData)
+        {
+            using (StreamWriter writer = new StreamWriter(location))
+            {
+                writer.WriteLine("Line,Boardings");
+                foreach(var set in periodData)
+                {
+                    writer.Write(set.Key);
+                    writer.Write(',');
+                    writer.WriteLine(set.Value);
+                }
+            }
         }
 
         public string Name
