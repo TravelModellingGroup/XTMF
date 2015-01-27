@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Datastructure;
 using Tasha.Common;
 using TMG;
 using XTMF;
@@ -261,7 +262,7 @@ namespace Tasha.Scheduler
 
         private bool AddStartTime(int[][] startTimeCount, int id, ITrip trip)
         {
-            return AddStartTime(startTimeCount, id, (trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime) );
+            return AddStartTime(startTimeCount, id, (trip.OriginalZone == null || trip.DestinationZone == null ? trip.TripStartTime : trip.ActivityStartTime));
         }
 
         private bool AddStartTime(int[][] startTimeCount, int id, Time tripTime)
@@ -320,13 +321,16 @@ namespace Tasha.Scheduler
                     {
                         var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, person);
                         NewEpisode.Zone = ThisTrip.DestinationZone;
-                        if(workStartTime == Time.Zero || NewEpisode.StartTime < workStartTime)
+                        if(ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
                         {
-                            workStartTime = NewEpisode.StartTime;
-                        }
-                        if(workEndTime == Time.Zero || NewEpisode.EndTime > workEndTime)
-                        {
-                            workEndTime = NewEpisode.EndTime;
+                            if(workStartTime == Time.Zero || NewEpisode.StartTime < workStartTime)
+                            {
+                                workStartTime = NewEpisode.StartTime;
+                            }
+                            if(workEndTime == Time.Zero || NewEpisode.EndTime > workEndTime)
+                            {
+                                workEndTime = NewEpisode.EndTime;
+                            }
                         }
                         PersonData.WorkSchedule.Schedule.Insert(NewEpisode, random);
                     }
@@ -447,7 +451,7 @@ namespace Tasha.Scheduler
                     if(workID >= 0)
                     {
                         eventCount[workID]++;
-                        AddStartTime(startTimeCount, workID, workStartTime );
+                        AddStartTime(startTimeCount, workID, workStartTime);
                     }
                 }
                 int lunches = LunchPass(person, eventCount, startTimeCount, ref workStartTime, ref workEndTime);
@@ -518,18 +522,6 @@ namespace Tasha.Scheduler
             this.HouseholdLoader.Reset();
         }
 
-        private void RunParallel(int iteration)
-        {
-            var hhlds = this.HouseholdLoader.ToArray();
-            System.Threading.Tasks.Parallel.For(0, hhlds.Length,
-               delegate (int i)
-            {
-                ITashaHousehold hhld = hhlds[i];
-                this.Run(iteration, hhld);
-            }
-             );
-        }
-
         private void RunSerial(int iteration)
         {
             this.Status = "Calculating Start Time Distributions";
@@ -541,8 +533,61 @@ namespace Tasha.Scheduler
                 this.Run(iteration, household);
                 this.Progress = (float)i / households.Length;
             }
+            ModifyStartTimes();
             PrintResults();
         }
+
+        public DistributionFactor[] ModificationFactors;
+
+        private void ModifyStartTimes()
+        {
+            foreach(var mod in ModificationFactors)
+            {
+                foreach(var idRange in mod.IDRange)
+                {
+                    for(int id = idRange.Start; id <= idRange.Stop; id++)
+                    {
+                        var idRow = ResultsArray[id];
+                        for(int i = 1; i < idRow.Length; i++)
+                        {
+                            var startRow = idRow[i];
+                            foreach(var startTimeRange in mod.StartTimeRange)
+                            {
+                                for(int start = startTimeRange.Start; start < startTimeRange.Stop; start++)
+                                {
+                                    startRow[start] *= mod.Factor;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        public sealed class DistributionFactor : XTMF.IModule
+        {
+            [RunParameter("ID Range", "", typeof(RangeSet), "The range of distributions to apply this factor to.")]
+            public RangeSet IDRange;
+
+            [RunParameter("Time Range", "", typeof(RangeSet), "The range of distribution start times to apply this factor to.")]
+            public RangeSet StartTimeRange;
+
+            [RunParameter("Factor", 1.0f, "The factor to apply to the selected distributions.")]
+            public float Factor;
+
+            public string Name { get; set; }
+
+            public float Progress { get; set; }
+
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
 
         private void SimulateScheduler()
         {

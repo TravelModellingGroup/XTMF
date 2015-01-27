@@ -654,7 +654,6 @@ namespace Tasha.Scheduler
                         continue;
                     }
 
-                    //TODO: this does not match previous TASHA since distributions not normalized
                     int freq = TimeTable.GetFrequency(person, Activity.PrimaryWork, random);
                     if(freq <= 0)
                     {
@@ -693,7 +692,7 @@ namespace Tasha.Scheduler
 
                         Episode primWorkEpisode;
 
-                        primWorkEpisode = new ActivityEpisode(System.Threading.Interlocked.Increment(ref Episode.GeneratedEpisodes), new TimeWindow(startTime, endTime),
+                        primWorkEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime),
                                     Activity.PrimaryWork, person);
                         primWorkEpisode.Zone = person.EmploymentZone;
                         if(!workSchedule.Insert(primWorkEpisode, random) && i == 0)
@@ -887,47 +886,33 @@ namespace Tasha.Scheduler
             Time startTime = primWorkEpisode.StartTime;
             Time endTime = primWorkEpisode.EndTime;
 
-            int freq = TimeTable.GetFrequency(person, Activity.WorkBasedBusiness, random, 10, startTime, endTime);
+            int freq = TimeTable.GetFrequency(person, Activity.WorkBasedBusiness, random, Scheduler.MaxFrequency, startTime, endTime);
             for(int i = 0; i < freq; i++)
             {
+                var attempt = 0;
                 bool success = false;
-                short attempt = 0;
-                while(!success && attempt < Scheduler.EpisodeSchedulingAttempts)
+                while(attempt < Scheduler.EpisodeSchedulingAttempts)
                 {
-
+                    attempt++;
                     if(!TimeTable.GetStartTime(person, Activity.WorkBasedBusiness, freq,
                         startTime, endTime, random, out startTimeB))
                     {
-                        attempt++;
-                        success = false;
                         continue;
                     }
 
                     if(!TimeTable.GetDuration(person, Activity.WorkBasedBusiness, startTimeB, endTime - startTimeB, random, out durationB))
                     {
-                        attempt++;
-                        success = false;
                         continue;
                     }
-                    
-                    if(durationB == Time.Zero)
-                    {
-                        success = false;
-                    }
-                    else if(startTimeB + durationB > endTime)
-                    {
-                        success = false;
-                    }
-                    else //generate episode
-                    {
-                        Episode businessEpisode;
-                        businessEpisode = new ActivityEpisode(0,
-                            new TimeWindow(startTimeB, startTimeB + durationB), Activity.WorkBasedBusiness, person);
 
-                        workSchedule.Insert(businessEpisode, random);
+                    Episode businessEpisode;
+                    businessEpisode = new ActivityEpisode(0,
+                        new TimeWindow(startTimeB, startTimeB + durationB), Activity.WorkBasedBusiness, person);
+                    if(workSchedule.Insert(businessEpisode, random))
+                    {
                         success = true;
+                        break;
                     }
-                    attempt++;
                 }
             }
         }

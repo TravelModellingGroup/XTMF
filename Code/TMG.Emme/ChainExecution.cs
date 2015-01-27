@@ -40,6 +40,9 @@ The goal of this module was for testing multiple executions of the EMME/3 Modell
             set;
         }
 
+        [RunParameter("Execute", true, "Set this to false in order to skip the execution of it's children.")]
+        public bool Execute;
+
         public string Name
         {
             get;
@@ -76,19 +79,18 @@ The goal of this module was for testing multiple executions of the EMME/3 Modell
 
         public void Start()
         {
-            if ( ToExecute == null )
+            if(Execute)
             {
-                return;
+                var incrment = 1.0f / this.ToExecute.Count;
+                var soFar = 0.0f;
+                foreach(var module in this.ToExecute)
+                {
+                    _Progress = () => soFar + incrment * module.Progress;
+                    module.Start();
+                    soFar += incrment;
+                }
+                _Progress = () => 1.0f;
             }
-            var incrment = 1.0f / this.ToExecute.Count;
-            var soFar = 0.0f;
-            foreach ( var module in this.ToExecute )
-            {
-                _Progress = () => soFar + incrment * module.Progress;
-                module.Start();
-                soFar += incrment;
-            }
-            _Progress = () => 1.0f;
         }
     }
 }

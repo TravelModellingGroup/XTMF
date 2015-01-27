@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Datastructure;
 using Tasha.Common;
 using TMG;
 using XTMF;
@@ -640,7 +641,50 @@ namespace Tasha.Scheduler
                 Run(iteration, household);
                 Progress = (float)i / households.Length;
             }
+            ModifyResults();
             SaveResults();
+        }
+
+        public DistributionFactor[] ModificationFactors;
+
+
+        public sealed class DistributionFactor : XTMF.IModule
+        {
+            [RunParameter("ID Range", "", typeof(RangeSet), "The range of distributions to apply this factor to non zero frequencies.")]
+            public RangeSet IDRange;
+
+            [RunParameter("Factor", 1.0f, "The factor to apply to the selected distributions.")]
+            public float Factor;
+
+            public string Name { get; set; }
+
+            public float Progress { get; set; }
+
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+
+        private void ModifyResults()
+        {
+            foreach(var mod in ModificationFactors)
+            {
+                foreach(var range in mod.IDRange)
+                {
+                    for(int id = range.Start; id <= range.Stop; id++)
+                    {
+                        var row = ResultsArray[id];
+                        for(int i = 1; i < row.Length; i++)
+                        {
+                            row[i] *= mod.Factor;
+                        }
+                    }
+                }
+            }
         }
 
         private void SimulateScheduler()

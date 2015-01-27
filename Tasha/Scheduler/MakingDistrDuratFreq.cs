@@ -93,7 +93,13 @@ namespace Tasha.Scheduler
 
         private float[][][] ResultsArray = new float[262][][];
 
+        [RunParameter("Smooth durations", true, "Smooth the observed durations")]
+        public bool SmoothDurations;
+
         private string Status = "Initializing!";
+
+        [RunParameter("Distance Factor", 1000.0f, "The higher this factor the less smoothing will occure.")]
+        public float DistanceFactor;
 
         [SubModelInformation(Required = false, Description = "All of the modes for this analysis.")]
         public List<ITashaMode> AllModes { get; set; }
@@ -329,7 +335,7 @@ namespace Tasha.Scheduler
                     {
                         var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, person);
                         NewEpisode.Zone = ThisTrip.DestinationZone;
-                        if(ThisTrip.Purpose == Activity.PrimaryWork)
+                        if(ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
                         {
                             if(workStartTime == Time.Zero || NewEpisode.StartTime < workStartTime)
                             {
@@ -523,7 +529,7 @@ namespace Tasha.Scheduler
                 {
                     int startTime = (int)(workStartTime.ToMinutes() / 15 - 16);
                     var duration = (int)((workEndTime - workStartTime).ToMinutes() / 15);
-                    if(duration > 0)
+                    if(duration >= 0)
                     {
                         AddStartTimeDuration(eventCount, person, startTime, duration, id);
                     }
@@ -599,6 +605,29 @@ namespace Tasha.Scheduler
                 Run(iteration, household);
                 Progress = (float)i / households.Length;
             }
+
+            if(SmoothDurations)
+            {
+                System.Threading.Tasks.Parallel.For(0, ResultsArray.Length, (int id) =>
+                {
+                    // for each start time smooth the distributions
+                    for(int start = 0; start < ResultsArray[id].Length; start++)
+                    {
+                        var originalRow = ResultsArray[id][start];
+                        var smoothedRow = new float[originalRow.Length];
+                        for(int i = 0; i < originalRow.Length; i++)
+                        {
+                            for(int j = 0; j < smoothedRow.Length; j++)
+                            {
+                                var distanceFactor = 1.0f / (Math.Abs(i - j) * DistanceFactor + 1.0f);
+                                smoothedRow[j] += originalRow[i] * distanceFactor;
+                            }
+                        }
+                        ResultsArray[id][start] = smoothedRow;
+                    }
+                });
+            }
+
             PrintResults();
         }
 

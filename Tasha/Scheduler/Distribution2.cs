@@ -75,7 +75,7 @@ namespace Tasha.Scheduler
 
             float pdfFactor = 0.0f;
 
-            for ( int i = min; i < max; ++i )
+            for ( int i = min; i <= max; ++i )
             {
                 pdfFactor += pdf[start][i];
             }
@@ -87,7 +87,7 @@ namespace Tasha.Scheduler
             }
             rand *= pdfFactor;
             float cdf = 0.0f;
-            for ( int i = min; i < max; ++i )
+            for ( int i = min; i <= max; ++i )
             {
                 cdf += pdf[start][i];
                 if ( rand < cdf )
