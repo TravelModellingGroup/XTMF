@@ -37,7 +37,7 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Scenario Number", 0, "The scenario number to execute against.")]
         public int ScenarioNumber;
 
-        const string ToolName = "tmg.xtmf_internal.Multi_Class_Road_Assignment";
+        const string ToolName = "tmg.XTMF_internal.multi_class_road_assignment";
 
         [SubModelInformation(Description = "The classes for this multi-class assignment.")]
         public Class[] Classes;
@@ -130,7 +130,7 @@ namespace TMG.Emme.NetworkAssignment
 
         private string GetParameters()
         {
-            return string.Join(",",
+            return string.Join(" ",
                 ScenarioNumber.ToString(),
                 GetClasses(),
                 GetDemand(),
