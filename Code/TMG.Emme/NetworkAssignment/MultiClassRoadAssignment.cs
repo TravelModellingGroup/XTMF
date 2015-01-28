@@ -42,15 +42,6 @@ namespace TMG.Emme.NetworkAssignment
         [SubModelInformation(Description = "The classes for this multi-class assignment.")]
         public Class[] Classes;
 
-        [RunParameter("Time Matrix", 0, "The matrix number to save in vehicle travel times")]
-        public int TimeMatrix;
-
-        [RunParameter("Cost Matrix", 0, "The matrix number to save the total cost into.")]
-        public int CostMatrix;
-
-        [RunParameter("Toll Matrix", 0, "The matrix to save the toll costs into.")]
-        public int TollMatrix;
-
         [RunParameter("Peak Hour Factor", 0f, "A factor to apply to the demand in order to build a representative hour.")]
         public float PeakHourFactor;
 
@@ -89,6 +80,15 @@ namespace TMG.Emme.NetworkAssignment
 
             [RunParameter("Demand Matrix", 0, "The id of the demand matrix to use.")]
             public int DemandMatrixNumber;
+
+            [RunParameter("Time Matrix", 0, "The matrix number to save in vehicle travel times")]
+            public int TimeMatrix;
+
+            [RunParameter("Cost Matrix", 0, "The matrix number to save the total cost into.")]
+            public int CostMatrix;
+
+            [RunParameter("Toll Matrix", 0, "The matrix to save the toll costs into.")]
+            public int TollMatrix;
 
             public string Name { get; set; }
 
@@ -134,10 +134,25 @@ namespace TMG.Emme.NetworkAssignment
                 ScenarioNumber.ToString(),
                 GetClasses(),
                 GetDemand(),
-                ("mf" + TimeMatrix.ToString()), ("mf" + CostMatrix.ToString()), ("mf" + TollMatrix.ToString()),
+                GetTimes(), GetCosts(), GetTolls(),
                 PeakHourFactor.ToString(), LinkCost.ToString(), TollWeight.ToString(), Iterations.ToString(), RelativeGap.ToString(), BestRelativeGap.ToString(),
                 NormalizedGap.ToString(), PerformanceMode.ToString(), "\"" + RunTitle + "\"", "\"" + LinkTollAttributeID + "\""
                 );
+        }
+
+        private string GetTimes()
+        {
+            return "\"" + string.Join(",", Classes.Select(c => "mf" + c.TimeMatrix.ToString())) + "\"";
+        }
+
+        private string GetCosts()
+        {
+            return "\"" + string.Join(",", Classes.Select(c => "mf" + c.CostMatrix.ToString())) + "\"";
+        }
+
+        private string GetTolls()
+        {
+            return "\"" + string.Join(",", Classes.Select(c => "mf" + c.TollMatrix.ToString())) + "\"";
         }
 
         private string GetClasses()
