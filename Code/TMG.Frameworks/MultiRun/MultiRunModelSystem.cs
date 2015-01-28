@@ -100,7 +100,7 @@ namespace TMG.Frameworks.MultiRun
             }
             if(ChildStructure == null)
             {
-                error = "In '" + this.Name + "' we were unable to find the Client Model System!";
+                error = "In '" + Name + "' we were unable to find the Client Model System!";
                 return false;
             }
             return true;
@@ -163,9 +163,108 @@ namespace TMG.Frameworks.MultiRun
             BatchCommands.Add("writetofile", WriteToFile);
         }
 
+        private static string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
+        {
+            var at = node.Attributes[attribute];
+            if(at == null)
+            {
+                throw new XTMFRuntimeException(errorMessage + "\r\n" + node.OuterXml);
+            }
+            return at.InnerText;
+        }
+
         private void CopyFiles(XmlNode command)
         {
-            throw new NotImplementedException("Copy Files Coming Soon...");
+            var origin = GetAttributeOrError(command, "Origin", "There was a copy command without an 'Origin' attribute!");
+            var destination = GetAttributeOrError(command, "Destination", "There was a copy command without an 'Destination' attribute!");
+            bool move = false;
+            var moveAt = command.Attributes["Move"];
+            if(moveAt != null)
+            {
+                bool result = false;
+                if(bool.TryParse(moveAt.InnerText, out result))
+                {
+                    move = result;
+                }
+            }
+            Copy(origin, destination, move);
+        }
+
+        public bool Copy(string origin, string destination, bool move)
+        {
+            try
+            {
+                if(Directory.Exists(origin))
+                {
+                    // check to see if we don't need to make a copy
+                    if(move)
+                    {
+                        if(Directory.Exists(destination))
+                        {
+                            Directory.Delete(destination);
+                        }
+                        Directory.Move(origin, destination);
+                    }
+                    else
+                    {
+                        DirectoryCopy(origin, destination);
+                    }
+                }
+                else
+                {
+                    if(move)
+                    {
+                        if(File.Exists(destination))
+                        {
+                            File.Delete(destination);
+                        }
+                        File.Move(origin, destination);
+                    }
+                    else
+                    {
+                        File.Copy(origin, destination, true);
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private void DirectoryCopy(string sourceDirectory, string destinationDirectory)
+        {
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirectory);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+            if(!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirectory);
+            }
+
+            // If the destination directory doesn't exist, create it.
+            if(!Directory.Exists(destinationDirectory))
+            {
+                Directory.CreateDirectory(destinationDirectory);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach(FileInfo file in files)
+            {
+                string temppath = Path.Combine(destinationDirectory, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            foreach(DirectoryInfo subdir in dirs)
+            {
+                string temppath = Path.Combine(destinationDirectory, subdir.Name);
+                DirectoryCopy(subdir.FullName, temppath);
+            }
         }
 
         private void ChangeParameter(XmlNode command)
@@ -196,12 +295,7 @@ namespace TMG.Frameworks.MultiRun
 
         private void DeleteCommand(XmlNode command)
         {
-            var path = command.Attributes["Path"];
-            if(path == null)
-            {
-                throw new XTMFRuntimeException("There is a Delete file command that does not define a path to delete!");
-            }
-            var filePath = path.InnerText;
+            var filePath = GetAttributeOrError(command, "Path", "There is a Delete file command that does not define a path to delete!");
             if(IsDirectory(filePath))
             {
                 Directory.Delete(filePath, IsRecursiveDelete(command));
@@ -228,7 +322,11 @@ namespace TMG.Frameworks.MultiRun
 
         private void WriteToFile(XmlNode command)
         {
-            throw new NotImplementedException("WriteToFile Coming Soon...");
+            var path = GetAttributeOrError(command, "Path", "The attribute 'Path' was not defined!");
+            using (StreamWriter writer = new StreamWriter(path, true))
+            {
+                writer.WriteLine(command.InnerText);
+            }
         }
 
         private void SetupRun(XmlNode run, ref string name)
@@ -246,7 +344,7 @@ namespace TMG.Frameworks.MultiRun
                     Action<XmlNode> command;
                     if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
                     {
-                        throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!");
+                        throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
                     }
                     command.Invoke(runChild);
                 }
