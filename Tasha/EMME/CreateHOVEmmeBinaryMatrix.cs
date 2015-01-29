@@ -57,6 +57,11 @@ namespace Tasha.EMME
 
         private SpinLock WriteLock = new SpinLock(false);
 
+        private int GetFlatIndex(IZone zone)
+        {
+            return ZoneSystem.GetFlatIndex(zone.ZoneNumber);
+        }
+
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
             var persons = household.Persons;
@@ -87,10 +92,10 @@ namespace Tasha.EMME
 
                                 var driversTrip = trips[k]["Driver"] as ITrip;
                                 // driver originData
-                                var driverOrigin = ZoneSystem.GetFlatIndex(driversTrip.OriginalZone.ZoneNumber);
-                                var passengerOrigin = ZoneSystem.GetFlatIndex(trips[k].OriginalZone.ZoneNumber);
-                                var passengerDestination = ZoneSystem.GetFlatIndex(trips[k].DestinationZone.ZoneNumber);
-                                var driverDestination = ZoneSystem.GetFlatIndex(driversTrip.DestinationZone.ZoneNumber);
+                                var driverOrigin = GetFlatIndex(driversTrip.OriginalZone);
+                                var passengerOrigin = GetFlatIndex(trips[k].OriginalZone);
+                                var passengerDestination = GetFlatIndex(trips[k].DestinationZone);
+                                var driverDestination = GetFlatIndex(driversTrip.DestinationZone);
                                 
                                 var driverTripChain = driversTrip.TripChain;
                                 var driverOnJoint = driverTripChain.JointTrip;
@@ -113,8 +118,8 @@ namespace Tasha.EMME
                             {
                                 if(AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], access, out var origin, out var destination))
                                 {
-                                    var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
-                                    var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
+                                    var originIndex = GetFlatIndex(origin);
+                                    var destinationIndex = GetFlatIndex(destination);
                                     WriteLock.Enter(ref (bool gotLock = false));
                                     Matrix[0][originIndex][destinationIndex] += expFactor;
                                     if(gotLock) WriteLock.Exit(true);
@@ -123,8 +128,8 @@ namespace Tasha.EMME
                             }
                             else
                             {
-                                var originIndex = ZoneSystem.GetFlatIndex(trips[k].OriginalZone.ZoneNumber);
-                                var destinationIndex = ZoneSystem.GetFlatIndex(trips[k].DestinationZone.ZoneNumber);
+                                var originIndex = GetFlatIndex(trips[k].OriginalZone);
+                                var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
                                 AddToMatrix(expFactor, jointTour, originIndex, destinationIndex);
                             }
                         }
