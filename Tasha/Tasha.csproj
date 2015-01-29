@@ -179,6 +179,7 @@
     <Compile Include="Data\UnloadResourceIPostIteration.cs" />
     <Compile Include="Data\ZoneInformation.cs" />
     <Compile Include="Data\ZoneODInformation.cs" />
+    <Compile Include="EMME\CreateHOVEmmeBinaryMatrix.cs" />
     <Compile Include="EMME\CreateEmmeBinaryMatrix.cs" />
     <Compile Include="Estimation\AccessStation\AccessStationChoiceEstimationModelSystemTemplate.cs" />
     <Compile Include="Estimation\AccessStation\AccessTourData.cs" />
