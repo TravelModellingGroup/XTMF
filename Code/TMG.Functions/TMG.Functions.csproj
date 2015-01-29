@@ -108,6 +108,7 @@
     <Compile Include="Compression.cs" />
     <Compile Include="Fratar.cs" />
     <Compile Include="MirrorModeTree.cs" />
+    <Compile Include="ModelSystemReflection.cs" />
     <Compile Include="MultiRunGPUGravityModel.cs" />
     <Compile Include="GPUGravityModel.cs" />
     <Compile Include="GravityModel.cs" />

@@ -24,6 +24,7 @@ using System.Text;
 using System.Xml;
 using TMG.Input;
 using XTMF;
+using TMG.Functions;
 namespace TMG.Frameworks.MultiRun
 {
 
@@ -40,7 +41,13 @@ namespace TMG.Frameworks.MultiRun
         public string OutputBaseDirectory { get; set; }
 
 
-        public float Progress { get; set; }
+        public float Progress
+        {
+            get
+            {
+                return CurrentProgress();
+            }
+        }
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
@@ -107,9 +114,11 @@ namespace TMG.Frameworks.MultiRun
         }
 
         private string RunName = "Initializing";
+        private Func<float> CurrentProgress = () => 0f;
 
         public void Start()
         {
+            CurrentProgress = () => Child.Progress;
             foreach(var runName in ExecuteRuns())
             {
                 RunName = runName;
@@ -138,13 +147,24 @@ namespace TMG.Frameworks.MultiRun
             var root = doc.FirstChild;
             if(root.HasChildNodes)
             {
-                foreach(XmlNode run in root.ChildNodes)
+                foreach(XmlNode topLevelCommand in root.ChildNodes)
                 {
-                    if(run.LocalName.Equals("Run", StringComparison.InvariantCultureIgnoreCase))
+                    if(topLevelCommand.LocalName.Equals("Run", StringComparison.InvariantCultureIgnoreCase))
                     {
                         string name = "Unnamed Run";
-                        SetupRun(run, ref name);
+                        SetupRun(topLevelCommand, ref name);
                         yield return name;
+                    }
+                    else
+                    {
+                        var commandName = topLevelCommand.LocalName;
+                        Action<XmlNode> command;
+                        if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                        {
+                            throw new XTMFRuntimeException("We are unable to find a command named '" + commandName 
+                                + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
+                        }
+                        command.Invoke(topLevelCommand);
                     }
                 }
             }
@@ -157,10 +177,10 @@ namespace TMG.Frameworks.MultiRun
         {
             BatchCommands.Clear();
             // Add all of the available commands to our dictionary for the execution engine
-            BatchCommands.Add("copyfiles", CopyFiles);
+            BatchCommands.Add("copy", CopyFiles);
             BatchCommands.Add("changeparameter", ChangeParameter);
-            BatchCommands.Add("deletefiles", DeleteFiles);
-            BatchCommands.Add("writetofile", WriteToFile);
+            BatchCommands.Add("delete", DeleteFiles);
+            BatchCommands.Add("write", WriteToFile);
         }
 
         private static string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
@@ -190,7 +210,7 @@ namespace TMG.Frameworks.MultiRun
             Copy(origin, destination, move);
         }
 
-        public bool Copy(string origin, string destination, bool move)
+        public static bool Copy(string origin, string destination, bool move)
         {
             try
             {
@@ -233,7 +253,7 @@ namespace TMG.Frameworks.MultiRun
             return true;
         }
 
-        private void DirectoryCopy(string sourceDirectory, string destinationDirectory)
+        private static void DirectoryCopy(string sourceDirectory, string destinationDirectory)
         {
             // Get the subdirectories for the specified directory.
             DirectoryInfo dir = new DirectoryInfo(sourceDirectory);
@@ -269,8 +289,26 @@ namespace TMG.Frameworks.MultiRun
 
         private void ChangeParameter(XmlNode command)
         {
-            throw new NotImplementedException("Change Parameter Coming Soon...");
+            string value = GetAttributeOrError(command, "Value", "The attribute 'Value' was not found!");
+            if(command.HasChildNodes)
+            {
+                foreach(XmlNode child in command)
+                {
+                    if(child.LocalName.ToLowerInvariant() == "parameter")
+                    {
+                        string parameterName = GetAttributeOrError(child, "ParameterPath", "The attribute 'ParameterPath' was not found!");
+                        ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
+                    }
+                }
+            }
+            else
+            {
+                string parameterName = GetAttributeOrError(command, "ParameterPath", "The attribute 'ParameterPath' was not found!");
+                ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
+            }
         }
+
+
 
         private static bool IsDirectory(string path)
         {
