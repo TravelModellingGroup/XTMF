@@ -27,7 +27,6 @@ using TMG;
 using Datastructure;
 using TMG.Input;
 using System.Threading;
-using Tasha.XTMFModeChoice;
 
 namespace Tasha.EMME
 {
