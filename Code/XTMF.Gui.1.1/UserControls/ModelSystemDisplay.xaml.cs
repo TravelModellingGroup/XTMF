@@ -257,9 +257,6 @@ namespace XTMF.Gui.UserControls
                         case Key.W:
                             Close();
                             break;
-                        case Key.Delete:
-                            RemoveCurrentModule();
-                            break;
                     }
                 }
                 else
@@ -268,6 +265,9 @@ namespace XTMF.Gui.UserControls
                     {
                         case Key.F1:
                             ShowDocumentation();
+                            break;
+                        case Key.Delete:
+                            RemoveCurrentModule();
                             break;
                         case Key.F2:
                             Rename();
@@ -459,7 +459,19 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveCurrentModule()
         {
-
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            if(selected.IsCollection)
+            {
+                string error = null;
+                if(!selected.RemoveAllCollectionMembers(ref error))
+                {
+                    throw new Exception(error);
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
     }

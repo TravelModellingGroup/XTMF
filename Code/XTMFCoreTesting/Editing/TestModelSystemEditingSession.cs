@@ -192,6 +192,49 @@ namespace XTMF.Testing.Editing
             }
         }
 
+        [TestMethod]
+        public void TestRemovingEntireCollection()
+        {
+            var runtime = TestXTMFCore.CreateRuntime();
+            var controller = runtime.ModelSystemController;
+            var msName = "TestModelSystem";
+            controller.Delete(msName);
+            var ms = controller.LoadOrCreate(msName);
+            Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
+            using (var session = controller.EditModelSystem(ms))
+            {
+                var model = session.ModelSystemModel;
+                Assert.IsNotNull(model, "No model system model was created!");
+                ModelSystemStructureModel root = model.Root;
+                Assert.IsNotNull(root, "No root object was made!");
+
+                root.Type = typeof(TestModelSystemTemplate);
+                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+
+                Assert.IsNotNull(root.Children, "The test model system template doesn't have any children models!");
+
+                var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+                Assert.IsNotNull(collection, "We were unable to find a child member that contained the test collection!");
+
+                string error = null;
+                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+                Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), "We were unable to properly add a new collection member.");
+                Assert.IsFalse(collection.AddCollectionMember(typeof(int), ref error), "We were able to use an integer as a collection member!");
+
+                Assert.AreEqual(2, collection.Children.Count, "An incorrect number of children were found.");
+                var oldChildren = collection.Children.ToList();
+                Assert.IsTrue(collection.RemoveAllCollectionMembers(ref error), "We were unable to remove all collection members!");
+                Assert.AreEqual(0, collection.Children.Count, "After removing all of the collection members, there were still elements left in the collection.");
+                Assert.IsTrue(session.Undo(ref error), "We failed to undo the remove all!");
+                Assert.AreEqual(2, collection.Children.Count, "After undoing the remove all there were still issues.");
+
+                for(int i = 0; i < collection.Children.Count; i++)
+                {
+                    Assert.AreEqual(oldChildren[i], collection.Children[i], "A child was not the same as before!");
+                }
+            }
+        }
+
 
         [TestMethod]
         public void TestMovingCollectionMember()

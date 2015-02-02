@@ -205,18 +205,60 @@ namespace XTMF
                     data.StructureInQuestion = RealModelSystemStructure.Children[data.Index] as ModelSystemStructure;
                     RealModelSystemStructure.Children.RemoveAt(data.Index);
                     Children.RemoveAt(data.Index);
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
                     return true;
                 },
                 (ref string e) =>
                 {
                     Children.Insert(data.Index, data.ModelInQuestion);
                     RealModelSystemStructure.Children.Insert(data.Index, data.StructureInQuestion);
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
                     return true;
                 },
                 (ref string e) =>
                 {
                     RealModelSystemStructure.Children.RemoveAt(data.Index);
                     Children.RemoveAt(data.Index);
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
+                    return true;
+                }),
+                ref error);
+        }
+
+        public bool RemoveAllCollectionMembers(ref string error)
+        {
+            if(!IsCollection)
+            {
+                throw new InvalidOperationException("You can not add collection members to a module that is not a collection!");
+            }
+            IList<ModelSystemStructureModel> oldChildren = null;
+            IList<IModelSystemStructure> oldRealChildren = null;
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                (ref string e) =>
+                {
+                    oldRealChildren = RealModelSystemStructure.Children.ToList();
+                    oldChildren = Children.ToList();
+                    RealModelSystemStructure.Children.Clear();
+                    Children.Clear();
+                    return true;
+                },
+                (ref string e) =>
+                {
+                    foreach(var child in oldChildren)
+                    {
+                        Children.Add(child);
+                    }
+                    var realChildList = RealModelSystemStructure.Children;
+                    foreach(var child in oldRealChildren)
+                    {
+                        realChildList.Add(child);
+                    }
+                    return true;
+                },
+                (ref string e) =>
+                {
+                    RealModelSystemStructure.Children.Clear();
+                    Children.Clear();
                     return true;
                 }),
                 ref error);
