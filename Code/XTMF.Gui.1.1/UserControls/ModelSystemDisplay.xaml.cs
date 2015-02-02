@@ -266,6 +266,9 @@ namespace XTMF.Gui.UserControls
                 {
                     switch(e.Key)
                     {
+                        case Key.F1:
+                            ShowDocumentation();
+                            break;
                         case Key.F2:
                             Rename();
                             break;
@@ -407,6 +410,11 @@ namespace XTMF.Gui.UserControls
 
         private void Help_Clicked(object sender, RoutedEventArgs e)
         {
+            ShowDocumentation();
+        }
+
+        private void ShowDocumentation()
+        {
             XTMF.Gui.Controllers.ModelSystemEditingController.HelpRequested(ModuleDisplay.SelectedItem as ModelSystemStructureModel);
         }
 
@@ -434,7 +442,7 @@ namespace XTMF.Gui.UserControls
                     {
                         throw new Exception(error);
                     }
-                }, selectedModuleControl);
+                }, selectedModuleControl, selected.Name);
                 layer.Add(adorn);
                 adorn.Focus();
             }

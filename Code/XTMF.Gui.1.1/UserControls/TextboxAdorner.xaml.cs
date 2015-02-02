@@ -19,6 +19,10 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class TextboxAdorner : Adorner
     {
+        Border Border = new Border();
+
+        Grid Grid = new Grid();
+        TextBlock TextBlock = new TextBlock();
 
         public TextBox Textbox = new TextBox()
         {
@@ -28,9 +32,25 @@ namespace XTMF.Gui.UserControls
 
         Action<string> GiveResult;
 
-        public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo) : base(attachedTo)
+        public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "") : base(attachedTo)
         {
-            AddVisualChild(Textbox);
+            Border.BorderBrush = Brushes.DarkGray;
+            //        <Color x:Key="SelectionBlue" A="255" R="120" G="150" B="120" />
+            Border.Background = new SolidColorBrush(Color.FromRgb(120, 150, 120));
+            Border.BorderThickness = new Thickness(2.0);
+            Border.Width = 400;
+            Border.Height = 52;
+            Grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(25) });
+            Grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(25) });
+            Border.Child = this.Grid;
+            TextBlock.Text = question;
+            Textbox.Text = initialValue;
+            Textbox.CaretIndex = initialValue.Length;
+            Grid.Children.Add(TextBlock);
+            Grid.Children.Add(Textbox);
+            Grid.SetRow(TextBlock, 0);
+            Grid.SetRow(Textbox, 1);
+            AddVisualChild(Border);
             GiveResult = giveResult;
             Textbox.LostFocus += Textbox_LostFocus;
             Loaded += MainLoaded;
@@ -84,19 +104,19 @@ namespace XTMF.Gui.UserControls
         protected override Visual GetVisualChild(int index)
         {
             if(index != 0) throw new ArgumentOutOfRangeException();
-            return Textbox;
+            return Border;
         }
 
         protected override Size MeasureOverride(Size constraint)
         {
-            Textbox.Measure(constraint);
-            return Textbox.DesiredSize;
+            Border.Measure(constraint);
+            return Border.DesiredSize;
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            Textbox.Arrange(new Rect(new Point(0, 0), finalSize));
-            return new Size(Textbox.ActualWidth, Textbox.ActualHeight);
+            Border.Arrange(new Rect(new Point(0, 0), finalSize));
+            return new Size(Border.ActualWidth, Border.ActualHeight);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)

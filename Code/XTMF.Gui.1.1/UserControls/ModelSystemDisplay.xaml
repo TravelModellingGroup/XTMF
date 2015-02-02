@@ -45,7 +45,7 @@
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
                 <TreeView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Rename" Click="Rename_Clicked">
+                        <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
@@ -54,8 +54,8 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Module" Click="Module_Clicked" />
-                        <MenuItem Header="Remove" Click="Remove_Clicked">
+                        <MenuItem Header="Module (ctrl+m)" Click="Module_Clicked" />
+                        <MenuItem Header="Remove (del)" Click="Remove_Clicked">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
@@ -64,7 +64,7 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Help" Click="Help_Clicked">
+                        <MenuItem Header="Help (F1)" Click="Help_Clicked">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>

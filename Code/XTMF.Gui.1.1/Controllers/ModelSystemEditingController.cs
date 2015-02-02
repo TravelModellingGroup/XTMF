@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
 using XTMF.Gui.UserControls;
 namespace XTMF.Gui.Controllers
 {
@@ -29,7 +30,9 @@ namespace XTMF.Gui.Controllers
         {
             if(modelSystemStructure != null)
             {
-                MainWindow.Us.NewDocumentationWindow(new DocumentationControl() { Type = modelSystemStructure.Type });
+                var documentationControl = new DocumentationControl() { Type = modelSystemStructure.Type };
+                MainWindow.Us.NewDocumentationWindow(documentationControl);
+                Keyboard.Focus(documentationControl);
             }
         }
     }
