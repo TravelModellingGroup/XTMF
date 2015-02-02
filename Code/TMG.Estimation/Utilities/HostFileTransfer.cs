@@ -45,64 +45,60 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
         [RunParameter("Append", false, "Should we append the data to the end of the file if the transfer if from client to host?")]
         public bool Append;
 
-        // This is used to make sure the file is received before we continue
-        private volatile bool FileReceived;
-
         public IHost Host;
 
         private byte[] Data;
 
         public void Start()
         {
-            if ( ToClient )
+            if(ToClient)
             {
                 // load the file
-                this.Data = File.ReadAllBytes( this.FileLocation.GetFilePath() );
+                this.Data = File.ReadAllBytes(this.FileLocation.GetFilePath());
                 // register the sender
-                this.Host.RegisterCustomReceiver( this.DataChannel, (stream, remote) =>
+                this.Host.RegisterCustomReceiver(this.DataChannel, (stream, remote) =>
                 {
                     return null;
-                } );
-                this.Host.RegisterCustomMessageHandler( this.DataChannel, (_, stream) =>
+                });
+                this.Host.RegisterCustomMessageHandler(this.DataChannel, (_, stream) =>
                 {
-                    stream.SendCustomMessage( null, this.DataChannel );
-                } );
-                this.Host.RegisterCustomSender( this.DataChannel, (_, remote, stream) =>
+                    stream.SendCustomMessage(null, this.DataChannel);
+                });
+                this.Host.RegisterCustomSender(this.DataChannel, (_, remote, stream) =>
                 {
-                    stream.Write( this.Data, 0, this.Data.Length );
-                } );
+                    stream.Write(this.Data, 0, this.Data.Length);
+                });
             }
             else
             {
                 // if we are going to receive a file from the client
-                this.Host.RegisterCustomReceiver( this.DataChannel, (stream, _remote) =>
+                this.Host.RegisterCustomReceiver(this.DataChannel, (stream, _remote) =>
                     {
                         var data = new byte[stream.Length];
-                        stream.Read( data, 0, data.Length );
+                        stream.Read(data, 0, data.Length);
                         return data;
-                    } );
-                this.Host.RegisterCustomMessageHandler( this.DataChannel, (obj, _remote) =>
+                    });
+                this.Host.RegisterCustomMessageHandler(this.DataChannel, (obj, _remote) =>
                     {
                         var data = obj as byte[];
-                        System.Threading.Tasks.Task.Factory.StartNew( () =>
+                        System.Threading.Tasks.Task.Factory.StartNew(() =>
                         {
                             try
                             {
                                 var path = this.FileLocation.GetFilePath();
-                                AppendToFile( path, data );
+                                AppendToFile(path, data);
                                 Thread.MemoryBarrier();
-                                this.FileReceived = true;
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine( e.Message );
+                                Console.WriteLine(e.Message);
                             }
-                        } );
-                    } );
-                this.Host.RegisterCustomSender( this.DataChannel, (data, _remote, stream) =>
+                        });
+                    });
+                this.Host.RegisterCustomSender(this.DataChannel, (data, _remote, stream) =>
                     {
                         // do nothing, no data is needed to trigger the send
-                    } );
+                    });
             }
         }
 
@@ -110,9 +106,9 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
         {
             lock (this)
             {
-                using (FileStream stream = new FileStream( path, Append ? FileMode.Append : FileMode.Create ))
+                using (FileStream stream = new FileStream(path, Append ? FileMode.Append : FileMode.Create))
                 {
-                    stream.Write( data, 0, data.Length );
+                    stream.Write(data, 0, data.Length);
                 }
             }
         }
@@ -126,7 +122,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+            get { return new Tuple<byte, byte, byte>(50, 150, 50); }
         }
 
         public bool RuntimeValidation(ref string error)
