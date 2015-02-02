@@ -90,6 +90,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controllers\EditorController.cs" />
+    <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />
     <Compile Include="UserControls\AboutXTMF.xaml.cs">
       <DependentUpon>AboutXTMF.xaml</DependentUpon>
@@ -105,6 +106,9 @@
     </Compile>
     <Compile Include="UserControls\ColourSelector.xaml.cs">
       <DependentUpon>ColourSelector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\DocumentationControl.xaml.cs">
+      <DependentUpon>DocumentationControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
@@ -174,6 +178,10 @@
     <Page Include="UserControls\ColourSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\DocumentationControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ErrorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

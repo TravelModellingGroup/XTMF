@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -243,6 +243,10 @@ namespace XTMF.Gui
                     var name = modelSystem.ModelSystemName;
                     SetSaveButtons(name);
                 }
+                else
+                {
+                    SetSaveButtons(null);
+                }
             }
         }
 
@@ -359,6 +363,14 @@ namespace XTMF.Gui
         private void ReleaseMemory_Click(object sender, RoutedEventArgs e)
         {
             GC.Collect();
+        }
+
+        internal void NewDocumentationWindow(DocumentationControl documentationControl)
+        {
+            var doc = AddNewWindow("Documentation - " + documentationControl.TypeNameText, documentationControl);
+            doc.IsSelected = true;
+            Keyboard.Focus(documentationControl);
+            documentationControl.Focus();
         }
     }
 }

@@ -23,6 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
              xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding ElementName=FilterBox}"
              mc:Ignorable="d" 
@@ -40,7 +41,40 @@
             </Grid.RowDefinitions>
             <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search... (Ctrl+E)" />
             <TreeView Grid.Row="1" Background="{StaticResource ControlBackgroundBrush}" 
-                  x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}" SelectedItemChanged="ModuleDisplay_SelectedItemChanged"  KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
+                  x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}" SelectedItemChanged="ModuleDisplay_SelectedItemChanged"
+                      KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Rename">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Module" />
+                        <MenuItem Header="Remove" Click="Remove_Clicked">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Help" Click="Help_Clicked">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/help.png" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </TreeView.ContextMenu>
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type xtmf:ModelSystemStructureModel}" ItemsSource="{Binding Path=Children}">
                         <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
