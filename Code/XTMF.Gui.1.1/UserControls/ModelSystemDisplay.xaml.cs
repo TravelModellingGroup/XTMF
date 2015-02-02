@@ -368,6 +368,11 @@ namespace XTMF.Gui.UserControls
             XTMF.Gui.Controllers.ModelSystemEditingController.HelpRequested(ModuleDisplay.SelectedItem as ModelSystemStructureModel);
         }
 
+        private void Module_Clicked(object sender, RoutedEventArgs e)
+        {
+            SelectReplacement();
+        }
+
         private void Remove_Clicked(object sender, RoutedEventArgs e)
         {
 

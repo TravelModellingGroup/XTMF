@@ -54,7 +54,7 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Module" />
+                        <MenuItem Header="Module" Click="Module_Clicked" />
                         <MenuItem Header="Remove" Click="Remove_Clicked">
                             <MenuItem.Icon>
                                 <Image>

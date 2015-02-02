@@ -93,15 +93,14 @@ namespace XTMF.Gui.UserControls
             if(newType == null)
             {
                 us.ModuleName = "No Type Loaded";
-                us.ModuleNamespace = String.Empty;
-                us.ModuleDescription = String.Empty;
+                us.ModuleNamespace = string.Empty;
+                us.ModuleDescription = string.Empty;
             }
             else
             {
                 us.ModuleName = newType.Name;
                 us.ModuleNamespace = newType.FullName;
-                us.ModuleDescription = GetDescription(newType);
-                SetDescription(us, us.ModuleDescription);
+                SetDescription(us, GetDescription(newType));
             }
         }
 
@@ -136,7 +135,7 @@ namespace XTMF.Gui.UserControls
 
         public DocumentationControl()
         {
-            this.DataContext = this;
+            DataContext = this;
             InitializeComponent();
         }
     }
