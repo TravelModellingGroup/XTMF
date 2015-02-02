@@ -37,13 +37,6 @@ using System.Windows.Shapes;
 namespace XTMF.Gui.UserControls
 {
 
-    public class TestData : INotifyPropertyChanged
-    {
-        public string Name { get; set; }
-        public ObservableCollection<TestData> Children { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-    }
 
     /// <summary>
     /// Interaction logic for ModelSystemDisplay.xaml
@@ -52,9 +45,6 @@ namespace XTMF.Gui.UserControls
     {
         public static readonly DependencyProperty ModelSystemProperty = DependencyProperty.Register("ModelSystem", typeof(ModelSystemModel), typeof(ModelSystemDisplay),
     new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnModelSystemChanged));
-
-        //public static readonly DependencyProperty DisplayRootProperty = DependencyProperty.Register("DisplayRoot", typeof(ObservableCollection<TestData>), typeof(ModelSystemDisplay),
-    //new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
         public static readonly DependencyProperty ModelSystemNameProperty = DependencyProperty.Register("ModelSystemName", typeof(string), typeof(ModelSystemDisplay),
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
@@ -75,18 +65,6 @@ namespace XTMF.Gui.UserControls
                 SetValue(ModelSystemProperty, value);
             }
         }
-
-        /*public ObservableCollection<TestData> DisplayRoot
-        {
-            get
-            {
-                return (ObservableCollection<TestData>)GetValue(DisplayRootProperty);
-            }
-            set
-            {
-                SetValue(DisplayRootProperty, value);
-            }
-        }*/
 
         public string ModelSystemName
         {
@@ -131,27 +109,27 @@ namespace XTMF.Gui.UserControls
         {
             DataContext = this;
             InitializeComponent();
-            /*FilterBox.Filter = (o, text) =>
+            FilterBox.Filter = (o, text) =>
             {
                 var module = o as ModelSystemStructureModel;
                 bool ret = false;
                 ret = CheckFilterRec(module, text);
                 return ret;
-            };*/
+            };
         }
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
         {
             if(parameters != null)
             {
-                /*ParameterDisplay.ItemsSource = parameters.GetParameters();
+                ParameterDisplay.ItemsSource = parameters.GetParameters();
                 ParameterFilterBox.Display = ParameterDisplay;
                 ParameterFilterBox.Filter = FilterParameters;
-                ParameterFilterBox.RefreshFilter();*/
+                ParameterFilterBox.RefreshFilter();
             }
             else
             {
-                //ParameterDisplay.ItemsSource = null;
+                ParameterDisplay.ItemsSource = null;
             }
         }
 
@@ -169,13 +147,13 @@ namespace XTMF.Gui.UserControls
         {
             var tvi = (TreeViewItem)sender;
             e.Handled = true;
-            //FilterBox.RefreshFilter();
+            FilterBox.RefreshFilter();
         }
 
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             base.OnGotFocus(e);
-            //FilterBox.Focus();
+            FilterBox.Focus();
         }
 
         private Window GetWindow()
@@ -215,27 +193,16 @@ namespace XTMF.Gui.UserControls
             var newModelSystem = e.NewValue as ModelSystemModel;
             if(newModelSystem != null)
             {
-                var display = new ObservableCollection<TestData>();
-                display.Add(new TestData()
-                {
-                    Name = newModelSystem.Root.Name,
-                    Children = new ObservableCollection<TestData>((from c in newModelSystem.Root.Children
-                               select new TestData()
-                               {
-                                   Name = c.Name,
-                                   Children = null
-                               }).ToList())
-                });
-                us.ModuleDisplay.ItemsSource = display;
+                us.ModuleDisplay.ItemsSource = new ObservableCollection<ModelSystemStructureModel>() { newModelSystem.Root };
                 us.ModelSystemName = newModelSystem.Name;
                 us.ModuleDisplay.Items.MoveCurrentToFirst();
-                //us.FilterBox.Display = us.ModuleDisplay;
+                us.FilterBox.Display = us.ModuleDisplay;
             }
             else
             {
                 us.ModuleDisplay.DataContext = null;
                 us.ModelSystemName = "No model loaded";
-                //us.FilterBox.Display = null;
+                us.FilterBox.Display = null;
             }
         }
 
@@ -386,7 +353,11 @@ namespace XTMF.Gui.UserControls
 
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-
+            var module = (e.NewValue as ModelSystemStructureModel);
+            if(module != null)
+            {
+                ModelSystemDisplay_ParametersChanged(sender, module.Parameters);
+            }
         }
     }
 }
