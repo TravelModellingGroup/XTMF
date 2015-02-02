@@ -54,8 +54,8 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Module (ctrl+m)" Click="Module_Clicked" />
-                        <MenuItem Header="Remove (del)" Click="Remove_Clicked">
+                        <MenuItem Header="Module (Ctrl+M)" Click="Module_Clicked" />
+                        <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
