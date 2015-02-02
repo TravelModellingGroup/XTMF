@@ -218,11 +218,11 @@ namespace XTMF.Gui.UserControls
                         e.Handled = true;
                         break;
                     case Key.P:
-                        //ParameterFilterBox.Focus();
+                        ParameterFilterBox.Focus();
                         e.Handled = true;
                         break;
                     case Key.E:
-                        //FilterBox.Focus();
+                        FilterBox.Focus();
                         e.Handled = true;
                         break;
                     case Key.W:
@@ -354,10 +354,13 @@ namespace XTMF.Gui.UserControls
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             var module = (e.NewValue as ModelSystemStructureModel);
-            if(module != null)
+            this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                ModelSystemDisplay_ParametersChanged(sender, module.Parameters);
-            }
+                if(module != null)
+                {
+                    ModelSystemDisplay_ParametersChanged(sender, module.Parameters);
+                }
+            }));
         }
     }
 }
