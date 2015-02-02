@@ -133,6 +133,25 @@ namespace XTMF.Gui.UserControls
             window.Browser.NavigateToString(window.ModuleDescription);
         }
 
+        public event Action<object> RequestClose;
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if(!e.Handled)
+            {
+                if(e.Key == Key.W)
+                {
+                    var ev = RequestClose;
+                    if(ev != null)
+                    {
+                        ev(this);
+                    }
+                    e.Handled = true;
+                }
+            }
+            base.OnKeyDown(e);
+        }
+
         public DocumentationControl()
         {
             DataContext = this;

@@ -368,6 +368,7 @@ namespace XTMF.Gui
         internal void NewDocumentationWindow(DocumentationControl documentationControl)
         {
             var doc = AddNewWindow("Documentation - " + documentationControl.TypeNameText, documentationControl);
+            documentationControl.RequestClose += (ignored) => doc.Close();
             doc.IsSelected = true;
             Keyboard.Focus(documentationControl);
             documentationControl.Focus();
