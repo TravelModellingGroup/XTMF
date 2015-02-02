@@ -466,7 +466,7 @@ namespace XTMF.Gui.UserControls
         {
             if(parameters != null)
             {
-                ParameterDisplay.ItemsSource = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el=>el.Name));
+                ParameterDisplay.ItemsSource = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el => el.Name));
                 ParameterFilterBox.Display = ParameterDisplay;
                 ParameterFilterBox.Filter = FilterParameters;
                 ParameterFilterBox.RefreshFilter();
@@ -476,6 +476,5 @@ namespace XTMF.Gui.UserControls
                 ParameterDisplay.ItemsSource = null;
             }
         }
-
     }
 }
