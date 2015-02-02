@@ -338,6 +338,29 @@ namespace XTMF
                 ), ref error);
         }
 
+        public bool SetName(string newName, ref string error)
+        {
+            var oldName = "";
+            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            {
+                oldName = this.RealModelSystemStructure.Name;
+                this.RealModelSystemStructure.Name = newName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                return true;
+            }, (ref string e) =>
+            {
+                this.RealModelSystemStructure.Name = oldName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                return true;
+            },
+            (ref string e) =>
+            {
+                this.RealModelSystemStructure.Name = newName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                return true;
+            }), ref error);
+        }
+
         private void UpdateChildren()
         {
             Children = CreateChildren(Session, RealModelSystemStructure);

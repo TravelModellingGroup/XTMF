@@ -141,6 +141,9 @@
     <Compile Include="UserControls\StringRequest.xaml.cs">
       <DependentUpon>StringRequest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\TextboxAdorner.xaml.cs">
+      <DependentUpon>TextboxAdorner.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\TitledTextbox.xaml.cs">
       <DependentUpon>TitledTextbox.xaml</DependentUpon>
     </Compile>
@@ -220,6 +223,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\StringRequest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\TextboxAdorner.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

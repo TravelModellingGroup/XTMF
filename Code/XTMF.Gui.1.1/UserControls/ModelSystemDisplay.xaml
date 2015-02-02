@@ -45,7 +45,7 @@
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
                 <TreeView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Rename">
+                        <MenuItem Header="Rename" Click="Rename_Clicked">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>

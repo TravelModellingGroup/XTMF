@@ -105,6 +105,33 @@ namespace XTMF.Gui.UserControls
             return show;
         }
 
+        private UIElement GetCurrentlySelectedControl()
+        {
+            return GetCurrentlySelectedControl(ModelSystem.Root, ModuleDisplay.SelectedItem as ModelSystemStructureModel);
+        }
+
+        private UIElement GetCurrentlySelectedControl(ModelSystemStructureModel current, ModelSystemStructureModel lookingFor, TreeViewItem previous = null)
+        {
+            var children = current.Children;
+            var contianer = (previous == null ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current) : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
+            if(current == lookingFor && contianer != null)
+            {
+                return contianer;
+            }
+            if(children != null)
+            {
+                foreach(var child in children)
+                {
+                    var childResult = GetCurrentlySelectedControl(child, lookingFor, contianer);
+                    if(childResult != null)
+                    {
+                        return childResult;
+                    }
+                }
+            }
+            return null;
+        }
+
         public ModelSystemDisplay()
         {
             DataContext = this;
@@ -209,25 +236,40 @@ namespace XTMF.Gui.UserControls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if(e.Handled == false && Controllers.EditorController.IsControlDown())
+            if(e.Handled == false)
             {
-                switch(e.Key)
+                if(Controllers.EditorController.IsControlDown())
                 {
-                    case Key.M:
-                        SelectReplacement();
-                        e.Handled = true;
-                        break;
-                    case Key.P:
-                        ParameterFilterBox.Focus();
-                        e.Handled = true;
-                        break;
-                    case Key.E:
-                        FilterBox.Focus();
-                        e.Handled = true;
-                        break;
-                    case Key.W:
-                        Close();
-                        break;
+                    switch(e.Key)
+                    {
+                        case Key.M:
+                            SelectReplacement();
+                            e.Handled = true;
+                            break;
+                        case Key.P:
+                            ParameterFilterBox.Focus();
+                            e.Handled = true;
+                            break;
+                        case Key.E:
+                            FilterBox.Focus();
+                            e.Handled = true;
+                            break;
+                        case Key.W:
+                            Close();
+                            break;
+                        case Key.Delete:
+                            RemoveCurrentModule();
+                            break;
+                    }
+                }
+                else
+                {
+                    switch(e.Key)
+                    {
+                        case Key.F2:
+                            Rename();
+                            break;
+                    }
                 }
             }
         }
@@ -373,7 +415,41 @@ namespace XTMF.Gui.UserControls
             SelectReplacement();
         }
 
+        private void Rename_Clicked(object sender, RoutedEventArgs e)
+        {
+            Rename();
+        }
+
+        private void Rename()
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            var selectedModuleControl = GetCurrentlySelectedControl();
+            if(selectedModuleControl != null)
+            {
+                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
+                var adorn = new TextboxAdorner("Rename", (result) =>
+                {
+                    string error = null;
+                    if(!selected.SetName(result, ref error))
+                    {
+                        throw new Exception(error);
+                    }
+                }, selectedModuleControl);
+                layer.Add(adorn);
+                adorn.Focus();
+            }
+            else
+            {
+                throw new InvalidAsynchronousStateException("The current module could not be found!");
+            }
+        }
+
         private void Remove_Clicked(object sender, RoutedEventArgs e)
+        {
+            RemoveCurrentModule();
+        }
+
+        private void RemoveCurrentModule()
         {
 
         }
