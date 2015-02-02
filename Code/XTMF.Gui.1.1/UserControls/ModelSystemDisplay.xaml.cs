@@ -147,17 +147,7 @@ namespace XTMF.Gui.UserControls
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
         {
-            if(parameters != null)
-            {
-                ParameterDisplay.ItemsSource = parameters.GetParameters();
-                ParameterFilterBox.Display = ParameterDisplay;
-                ParameterFilterBox.Filter = FilterParameters;
-                ParameterFilterBox.RefreshFilter();
-            }
-            else
-            {
-                ParameterDisplay.ItemsSource = null;
-            }
+            UpdateParameters(parameters);
         }
 
         private bool FilterParameters(object arg1, string arg2)
@@ -209,6 +199,7 @@ namespace XTMF.Gui.UserControls
                     if((var selectedType = findReplacement.SelectedType) != null)
                     {
                         selectedModule.Type = selectedType;
+                        UpdateParameters(selectedModule.Parameters);
                     }
                 }
             }
@@ -460,17 +451,29 @@ namespace XTMF.Gui.UserControls
         private void RemoveCurrentModule()
         {
             var selected = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
-            if(selected.IsCollection)
+            if(selected != null)
             {
                 string error = null;
-                if(!selected.RemoveAllCollectionMembers(ref error))
+                if(!ModelSystem.Remove(selected, ref error))
                 {
                     throw new Exception(error);
                 }
+                UpdateParameters(selected.Parameters);
+            }
+        }
+
+        private void UpdateParameters(ParametersModel parameters)
+        {
+            if(parameters != null)
+            {
+                ParameterDisplay.ItemsSource = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el=>el.Name));
+                ParameterFilterBox.Display = ParameterDisplay;
+                ParameterFilterBox.Filter = FilterParameters;
+                ParameterFilterBox.RefreshFilter();
             }
             else
             {
-                throw new NotImplementedException();
+                ParameterDisplay.ItemsSource = null;
             }
         }
 

@@ -193,5 +193,51 @@ namespace XTMF
         {
             throw new NotImplementedException();
         }
+
+        public bool Remove(ModelSystemStructureModel selected, ref string error)
+        {
+            if(selected.IsCollection)
+            {
+                return selected.RemoveAllCollectionMembers(ref error);
+            }
+            return Remove(Root, null, selected, ref error);
+        }
+
+        private bool Remove(ModelSystemStructureModel current, ModelSystemStructureModel previous, ModelSystemStructureModel selected, ref string error)
+        {
+            if(current == selected)
+            {
+                if(previous == null)
+                {
+                    Root.Type = null;
+                    return true;
+                }
+                else
+                {
+                    if(previous.IsCollection)
+                    {
+                        return previous.RemoveCollectionMember(previous.Children.IndexOf(selected), ref error);
+                    }
+                    else
+                    {
+                        selected.Type = null;
+                        return true;
+                    }
+                }
+            }
+            var children = current.Children;
+            if(children != null)
+            {
+                foreach(var child in current.Children)
+                {
+                    var success = Remove(child, current, selected, ref error);
+                    if(success)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
