@@ -52,22 +52,91 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty TypeProperty =
             DependencyProperty.Register("Type", typeof(Type), typeof(DocumentationControl), new PropertyMetadata(null, OnTypeChanged));
 
+
+
+        public string ModuleName
+        {
+            get { return (string)GetValue(ModuleNameProperty); }
+            set { SetValue(ModuleNameProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ModuleNameProperty =
+            DependencyProperty.Register("ModuleName", typeof(string), typeof(DocumentationControl), new PropertyMetadata(""));
+
+        public string ModuleNamespace
+        {
+            get { return (string)GetValue(ModuleNamespaceProperty); }
+            set { SetValue(ModuleNamespaceProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ModuleNamespaceProperty =
+            DependencyProperty.Register("ModuleNamespace", typeof(string), typeof(DocumentationControl), new PropertyMetadata(""));
+
+        public string ModuleDescription
+        {
+            get { return (string)GetValue(ModuleDescriptionProperty); }
+            set { SetValue(ModuleDescriptionProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ModuleName.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ModuleDescriptionProperty =
+            DependencyProperty.Register("ModuleDescription", typeof(string), typeof(DocumentationControl), new PropertyMetadata(""));
+
+
+
         private static void OnTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var newType = e.NewValue as Type;
             var us = d as DocumentationControl;
             if(newType == null)
             {
-                us.TypeName.Text = "No Type Loaded";
+                us.ModuleName = "No Type Loaded";
+                us.ModuleNamespace = String.Empty;
+                us.ModuleDescription = String.Empty;
             }
             else
             {
-                us.TypeName.Text = newType.Name;
+                us.ModuleName = newType.Name;
+                us.ModuleNamespace = newType.FullName;
+                us.ModuleDescription = GetDescription(newType);
+                SetDescription(us, us.ModuleDescription);
             }
+        }
+
+        private static string GetDescription(Type type)
+        {
+            var attributes = type.GetCustomAttributes(true);
+            string description = "No Description";
+            foreach(var at in attributes)
+            {
+                var info = at as ModuleInformationAttribute;
+                if(info != null)
+                {
+                    description = info.Description;
+                    break;
+                }
+            }
+            return description;
+        }
+
+        private static void SetDescription(DocumentationControl window, string description)
+        {
+            StringBuilder builder = new StringBuilder();
+            window.Browser.Visibility = Visibility.Collapsed;
+            builder.Append(@"<!DOCTYPE html>
+<html>
+<head><meta http-equiv='X-UA-Compatible' content='IE=edge' /> </head><body style='background-color: #ffffff; color:#000;'>");
+            builder.Append(description);
+            builder.Append("</body></html>");
+            window.ModuleDescription = builder.ToString();
+            window.Browser.NavigateToString(window.ModuleDescription);
         }
 
         public DocumentationControl()
         {
+            this.DataContext = this;
             InitializeComponent();
         }
     }
