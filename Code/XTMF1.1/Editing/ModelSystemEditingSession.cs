@@ -34,7 +34,7 @@ namespace XTMF
         /// <summary>
         /// The command stack that contains commands that have been done will go on
         /// </summary>
-        private EditingStack UndoStack = new EditingStack( 100 );
+        private EditingStack UndoStack = new EditingStack(100);
 
         /// <summary>
         /// Get the available types for the selected module
@@ -43,13 +43,13 @@ namespace XTMF
         /// <returns>A list of the allowed types.</returns>
         public List<Type> GetValidModules(ModelSystemStructureModel selectedModule)
         {
-            return selectedModule.RealModelSystemStructure.GetPossibleModules( ModelSystemModel.Root.RealModelSystemStructure );
+            return selectedModule.RealModelSystemStructure.GetPossibleModules(ModelSystemModel.Root.RealModelSystemStructure);
         }
 
         /// <summary>
         /// The command stack that commands that have been undone will go on
         /// </summary>
-        private EditingStack RedoStack = new EditingStack( 100 );
+        private EditingStack RedoStack = new EditingStack(100);
 
         /// <summary>
         /// The runtime we are in
@@ -82,7 +82,7 @@ namespace XTMF
         {
             Runtime = runtime;
             ModelSystem = modelSystem;
-            ModelSystemModel = new ModelSystemModel( this, modelSystem );
+            ModelSystemModel = new ModelSystemModel(this, modelSystem);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace XTMF
             Runtime = runtime;
             this.ProjectEditingSession = ProjectEditingSession;
             ModelSystemIndex = modelSystemIndex;
-            ModelSystemModel = new ModelSystemModel( this, this.ProjectEditingSession.Project, modelSystemIndex );
+            ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, modelSystemIndex);
         }
 
         /// <summary>
@@ -118,17 +118,17 @@ namespace XTMF
             // this needs to block as if a command is running
             lock (SessionLock)
             {
-                if ( !CanRun )
+                if(!CanRun)
                 {
                     error = "You can not run this model system.";
                     return null;
                 }
-                XTMFRun run = new XTMFRun( ProjectEditingSession.Project, ModelSystemIndex, Runtime.Configuration, runName );
-                this._Run.Add( run );
+                XTMFRun run = new XTMFRun(ProjectEditingSession.Project, ModelSystemIndex, Runtime.Configuration, runName);
+                this._Run.Add(run);
                 _IsRunning = true;
-                run.RunComplete += () => TerminateRun( run );
-                run.ValidationError += (e) => TerminateRun( run );
-                run.RuntimeValidationError += (e) => TerminateRun( run );
+                run.RunComplete += () => TerminateRun(run);
+                run.ValidationError += (e) => TerminateRun(run);
+                run.RuntimeValidationError += (e) => TerminateRun(run);
                 return run;
             }
         }
@@ -137,8 +137,8 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                _Run.Remove( run );
-                if ( _Run.Count == 0 )
+                _Run.Remove(run);
+                if(_Run.Count == 0)
                 {
                     _IsRunning = false;
                 }
@@ -187,7 +187,7 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if ( !ModelSystemModel.Save( ref error ) )
+                if(!ModelSystemModel.Save(ref error))
                 {
                     return false;
                 }
@@ -199,16 +199,16 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if ( _IsRunning )
+                if(_IsRunning)
                 {
                     error = "You can not edit a model system while it is running.";
                     return false;
                 }
-                if ( command.Do( ref error ) )
+                if(command.Do(ref error))
                 {
-                    if ( command.CanUndo() )
+                    if(command.CanUndo())
                     {
-                        UndoStack.Add( command );
+                        UndoStack.Add(command);
                     }
                     // if we do something new, redo no long is available
                     RedoStack.Clear();
@@ -226,13 +226,13 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if ( UndoStack.TryPop( out var command ) )
+                if(UndoStack.TryPop(out var command))
                 {
-                    if ( command != null )
+                    if(command != null)
                     {
-                        if ( command.Undo( ref error ) )
+                        if(command.Undo(ref error))
                         {
-                            RedoStack.Add( command );
+                            RedoStack.Add(command);
                             return true;
                         }
                         return false;
@@ -251,13 +251,13 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if ( RedoStack.TryPop( out var command ) )
+                if(RedoStack.TryPop(out var command))
                 {
-                    if ( command != null )
+                    if(command != null)
                     {
-                        if ( command.Redo( ref error ) )
+                        if(command.Redo(ref error))
                         {
-                            UndoStack.Add( command );
+                            UndoStack.Add(command);
                             return true;
                         }
                         return false;
@@ -277,7 +277,7 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if ( ModelSystemModel.IsDirty )
+                if(ModelSystemModel.IsDirty)
                 {
                     error = "The project has changed and has not been saved.";
                     return false;
@@ -294,13 +294,13 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if ( this.EditingModelSystem )
+                if(this.EditingModelSystem)
                 {
-                    Runtime.ModelSystemController.ReleaseEditingSession( this );
+                    Runtime.ModelSystemController.ReleaseEditingSession(this);
                 }
                 else
                 {
-                    this.ProjectEditingSession.ModelSystemEditingSessionClosed( this, this.ModelSystemIndex );
+                    this.ProjectEditingSession.ModelSystemEditingSessionClosed(this, this.ModelSystemIndex);
                 }
             }
         }
@@ -322,9 +322,9 @@ namespace XTMF
         internal void SessionTerminated()
         {
             var temp = SessionClosed;
-            if ( temp != null )
+            if(temp != null)
             {
-                temp( this, new EventArgs() );
+                temp(this, new EventArgs());
             }
         }
 
@@ -335,7 +335,7 @@ namespace XTMF
 
         public void Dispose()
         {
-            Dispose( false );
+            Dispose(false);
         }
     }
 }

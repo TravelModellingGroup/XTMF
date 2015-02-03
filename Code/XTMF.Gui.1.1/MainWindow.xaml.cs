@@ -230,23 +230,55 @@ namespace XTMF.Gui
                 SaveMenu.IsEnabled = false;
                 SaveAsMenu.IsEnabled = false;
                 CloseMenu.IsEnabled = true;
-                //Setup anything that needs to happen when we change focus
-                var projectPage = document.Content as ProjectDisplay;
-                var modelSystem = document.Content as ModelSystemDisplay;
-                if(projectPage != null)
+                SetupSaveButtons(document);
+                SetupRunButton(document);
+            }
+        }
+
+        private void SetupRunButton(LayoutDocument document)
+        {
+            var modelSystem = document.Content as ModelSystemDisplay;
+            RunMenu.IsEnabled = false;
+            if(modelSystem != null)
+            {
+                var session = modelSystem.Session;
+                if(session.CanRun)
                 {
-                    // you can't save a project (but we need to reset the menu)
-                    SetSaveButtons(null);
+                    RunMenu.IsEnabled = true;
+                    _CurrentRun = () =>
+                    {
+                        RunWindow window = new RunWindow(session);
+                        var doc = AddNewWindow("New Run", window);
+                        doc.CanClose = true;
+                        doc.IsSelected = true;
+                        Keyboard.Focus(window);
+                        window.Focus();
+                    };
                 }
-                else if(modelSystem != null)
-                {
-                    var name = modelSystem.ModelSystemName;
-                    SetSaveButtons(name);
-                }
-                else
-                {
-                    SetSaveButtons(null);
-                }
+            }
+        }
+
+        private Action _CurrentRun;
+
+        private void SetupSaveButtons(LayoutDocument document)
+        {
+            _CurrentRun = null;
+            //Setup anything that needs to happen when we change focus
+            var projectPage = document.Content as ProjectDisplay;
+            var modelSystem = document.Content as ModelSystemDisplay;
+            if(projectPage != null)
+            {
+                // you can't save a project (but we need to reset the menu)
+                SetSaveButtons(null);
+            }
+            else if(modelSystem != null)
+            {
+                var name = modelSystem.ModelSystemName;
+                SetSaveButtons(name);
+            }
+            else
+            {
+                SetSaveButtons(null);
             }
         }
 
@@ -372,6 +404,34 @@ namespace XTMF.Gui
             doc.IsSelected = true;
             Keyboard.Focus(documentationControl);
             documentationControl.Focus();
+        }
+
+        private void RunMenu_Click(object sender, RoutedEventArgs e)
+        {
+            ExecuteRun();
+        }
+
+        public void ExecuteRun()
+        {
+            if(_CurrentRun != null)
+            {
+                _CurrentRun();
+            }
+        }
+
+        internal void CloseWindow(UIElement window)
+        {
+            foreach(var page in OpenPages)
+            {
+                if(page.Content == window)
+                {
+                    if(!page.CanClose)
+                    {
+                        page.CanClose = true;
+                    }
+                    page.Close();
+                }
+            }
         }
     }
 }

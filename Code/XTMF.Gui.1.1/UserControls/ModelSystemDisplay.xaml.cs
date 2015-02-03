@@ -263,6 +263,9 @@ namespace XTMF.Gui.UserControls
                         case Key.F2:
                             Rename();
                             break;
+                        case Key.F5:
+                            MainWindow.Us.ExecuteRun();
+                            break;
                     }
                 }
             }

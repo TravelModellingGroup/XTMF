@@ -48,6 +48,12 @@
                 </MenuItem>
                 <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="False" />
                 <Separator />
+                <MenuItem x:Name="RunMenu" Header="_Run (F5)" Click="RunMenu_Click" IsEnabled="False">
+                    <MenuItem.Icon>
+                        <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
                 <MenuItem x:Name="SaveMenu" Header="_Save" Click="SaveMenu_Click" IsEnabled="False">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
