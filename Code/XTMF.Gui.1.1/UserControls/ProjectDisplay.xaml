@@ -72,22 +72,22 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
-                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                        <ListBox x:Name="PastRunDisplay" Background="Transparent"
-                                 SelectionChanged="PastRunDisplay_SelectionChanged">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" Header="{Binding Name}"
+                    <ListBox Grid.Row="1" x:Name="PastRunDisplay" Background="Transparent"
+                                 SelectionChanged="PastRunDisplay_SelectionChanged"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                           ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"  />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" Header="{Binding Name}"
                                                          Text="{Binding TimeStamp}" Width="300" Margin="5"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </ScrollViewer>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
             </TabItem>
         </TabControl>
