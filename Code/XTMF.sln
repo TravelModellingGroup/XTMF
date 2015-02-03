@@ -139,6 +139,7 @@ Global
 		{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}.64Bit|x64.ActiveCfg = 64Bit|Any CPU
 		{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}.64Bit|x86.ActiveCfg = 64Bit|Any CPU
 		{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}.Development|Any CPU.Build.0 = Development|Any CPU
 		{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}.Development|Mixed Platforms.ActiveCfg = Development|Any CPU
 		{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}.Development|Mixed Platforms.Build.0 = Development|Any CPU
 		{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}.Development|Win32.ActiveCfg = Development|Any CPU

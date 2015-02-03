@@ -469,10 +469,17 @@ namespace XTMF.Gui.UserControls
         {
             if(parameters != null)
             {
-                ParameterDisplay.ItemsSource = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el => el.Name));
-                ParameterFilterBox.Display = ParameterDisplay;
-                ParameterFilterBox.Filter = FilterParameters;
-                ParameterFilterBox.RefreshFilter();
+                Task.Factory.StartNew(() =>
+                {
+                    var source = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el => el.Name));
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        ParameterDisplay.ItemsSource = source;
+                        ParameterFilterBox.Display = ParameterDisplay;
+                        ParameterFilterBox.Filter = FilterParameters;
+                        ParameterFilterBox.RefreshFilter();
+                    }));
+                });
             }
             else
             {

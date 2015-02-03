@@ -63,9 +63,12 @@ namespace XTMF.Gui.UserControls
 
                 public string Description { get { return Root.Description; } }
 
-                public ContainedModelSystemModel(IModelSystemStructure ms)
+                public int RealIndex { get; private set; }
+
+                public ContainedModelSystemModel(IModelSystemStructure ms, IProject project)
                 {
                     Root = ms;
+                    RealIndex = project.ModelSystemStructure.IndexOf(ms);
                 }
             }
 
@@ -94,6 +97,7 @@ namespace XTMF.Gui.UserControls
 
             private void RefreshPastRuns(IConfiguration config)
             {
+
                 if(PreviousRuns == null)
                 {
                     PreviousRuns = new List<PreviousRun>();
@@ -119,7 +123,10 @@ namespace XTMF.Gui.UserControls
                             TimeStamp = info.CreationTime.ToString()
                         });
                     }
-                    PreviousRuns.AddRange(list);
+                    lock (PreviousRuns)
+                    {
+                        PreviousRuns.AddRange(list);
+                    }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
                 });
             }
@@ -137,7 +144,7 @@ namespace XTMF.Gui.UserControls
                 Task.Factory.StartNew(() =>
                 {
                     ContainedModelSystems.AddRange((from ms in Project.ModelSystemStructure
-                                                   select new ContainedModelSystemModel(ms)).OrderBy(x => x.Name));
+                                                    select new ContainedModelSystemModel(ms, Project)).OrderBy(x => x.Name));
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
                 });
             }
@@ -228,7 +235,10 @@ namespace XTMF.Gui.UserControls
             };
 
             us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
-            us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
+            lock (us.Model.PreviousRuns)
+            {
+                us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
+            }
 
             us.FilterModelSystemsBox.Display = us.ModelSystemDisplay;
             us.FilterModelSystemsBox.Filter = us.FilterMS;
@@ -282,7 +292,7 @@ namespace XTMF.Gui.UserControls
                 var invoke = InitiateModelSystemEditingSession;
                 if(invoke != null)
                 {
-                    var index = Model.ContainedModelSystems.IndexOf(selected);
+                    var index = selected.RealIndex;
                     invoke(Session.EditModelSystem(index));
                 }
                 ModelSystemDisplay.SelectedItem = null;
