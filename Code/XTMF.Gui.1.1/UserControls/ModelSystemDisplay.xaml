@@ -49,7 +49,7 @@
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" />
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
                                     </Image.Source>
                                 </Image>
                             </MenuItem.Icon>
@@ -59,7 +59,7 @@
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" />
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
                                     </Image.Source>
                                 </Image>
                             </MenuItem.Icon>
@@ -68,7 +68,7 @@
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/help.png" />
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/help.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
                                     </Image.Source>
                                 </Image>
                             </MenuItem.Icon>
