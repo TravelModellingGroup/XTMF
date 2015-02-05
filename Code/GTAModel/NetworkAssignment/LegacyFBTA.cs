@@ -43,7 +43,7 @@ namespace TMG.GTAModel.NetworkAssignment
         private const string _OldToolName = "TMG2.Assignment.TransitAssignment.LegacyFBTA";
         private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
         private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
-        [Parameter( "Boarding Parameter", 1.0f, "The perception factor for baording penalties." )]
+        [Parameter( "Boarding Parameter", 1.0f, "The perception factor for boarding penalties." )]
         public float BoardingPerception;
 
         [RunParameter( "Demand File Name", "", "Should we save the demand after tallying?  If so what should we name the file? (Blank will use a temporary file)" )]
@@ -79,7 +79,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter( "Wait Perception", 2.0f, "The perception factor for waiting time." )]
         public float WaitPerception;
 
-        [Parameter( "Walk Perception", 2.0f, "The perception factor for walking (auxilliary transit) time." )]
+        [Parameter( "Walk Perception", 2.0f, "The perception factor for walking (auxiliary transit) time." )]
         public float WalkPerception;
 
         [Parameter( "Walk Speed", 6.0f, "Walking speed, in km/hr" )]
