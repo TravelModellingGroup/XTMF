@@ -1,5 +1,5 @@
 ﻿'''
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -523,10 +523,10 @@ class XTMFBridge:
         return
 
     def CheckToolExists(self):
-        _m.logbook_write("Check tool existence invocation")
         ns = self.ReadString()
-        _m.logbook_write("Tool ns = %s" %ns)
         ret = ns in self.Modeller.tool_namespaces()
+        if ret == False:
+            _m.logbook_write("Unable to find a tool named " + ns)
         self.SendReturnSuccess(ret)
         return
     
