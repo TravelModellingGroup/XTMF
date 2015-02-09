@@ -71,7 +71,7 @@ namespace Tasha.Estimation.PoRPoW
         {
             get
             {
-                return new Tuple<byte, byte, byte>( 50, 150, 50 );
+                return new Tuple<byte, byte, byte>(50, 150, 50);
             }
         }
 
@@ -88,12 +88,12 @@ namespace Tasha.Estimation.PoRPoW
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !TruthData.CheckResourceType<SparseTwinIndex<float>>() )
+            if(!TruthData.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the Truth Data is not of type SparseTwinIndex<float>!";
                 return false;
             }
-            if ( !ModelData.CheckResourceType<SparseTriIndex<float>>() )
+            if(!ModelData.CheckResourceType<SparseTriIndex<float>>())
             {
                 error = "In '" + Name + "' the Model Data is not of type SparseTriIndex<float>!";
                 return false;
@@ -107,6 +107,9 @@ namespace Tasha.Estimation.PoRPoW
         [SubModelInformation(Required = true, Description = "The model to test against the truth data.")]
         public IResource ModelData;
 
+        [RunParameter("Reload Truth", false, "Reload the truth data each iteration.  Set this to true for batch runs.")]
+        public bool LoadTruthEveryTime;
+
         bool FirstTime = true;
 
         private float InverseOfTotalTrips;
@@ -117,55 +120,56 @@ namespace Tasha.Estimation.PoRPoW
 
         public void Start()
         {
-            if ( FirstTime )
+            if(FirstTime || LoadTruthEveryTime)
             {
                 ZoneSystem.LoadData();
-                foreach ( var network in NetworkData )
+                foreach(var network in NetworkData)
                 {
                     network.LoadData();
                 }
                 truth = TruthData.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+                TruthData.ReleaseResource();
             }
             var model = ModelData.AquireResource<SparseTriIndex<float>>().GetFlatData();
             var zones = ZoneSystem.ZoneArray.GetFlatData();
             // sum up the truth
-            if ( FirstTime )
+            if(FirstTime || LoadTruthEveryTime)
             {
                 // we only need to do this once
-                TruthRows = ( from row in truth
-                              select row.Sum() ).ToArray();
+                TruthRows = (from row in truth
+                             select row.Sum()).ToArray();
 
                 InverseOfTotalTrips = 1.0f / TruthRows.Sum();
-                if ( AggregateToPlanningDistricts )
+                if(AggregateToPlanningDistricts)
                 {
-                    PDError = ZoneSystemHelper.CreatePDTwinArray<float>( ZoneSystem.ZoneArray );
-                    ZoneToPDIndexMap = ( from zone in zones
-                                         select PDError.GetFlatIndex( zone.PlanningDistrict ) ).ToArray();
+                    PDError = ZoneSystemHelper.CreatePDTwinArray<float>(ZoneSystem.ZoneArray);
+                    ZoneToPDIndexMap = (from zone in zones
+                                        select PDError.GetFlatIndex(zone.PlanningDistrict)).ToArray();
                     // transform the truth to be PD based
-                    truth = AggregateResults( ( new float[][][] { truth } ), zones )
-                        .Select( row => row.Select( element => element ).ToArray() ).ToArray();
+                    truth = AggregateResults((new float[][][] { truth }), zones)
+                        .Select(row => row.Select(element => element).ToArray()).ToArray();
                 }
                 FirstTime = false;
             }
-            var aggregated = AggregateResults( model, zones );
+            var aggregated = AggregateResults(model, zones);
             // calculate the error
-            float error = ComputeError( truth, aggregated );
+            float error = ComputeError(truth, aggregated);
             // set the value in the root
             Root.RetrieveValue = () => error;
-            if ( ModelSaveFile != null )
+            if(ModelSaveFile != null)
             {
-                SaveData.SaveMatrix( zones, AggregateResults( model, zones ), ModelSaveFile );
+                SaveData.SaveMatrix(zones, AggregateResults(model, zones), ModelSaveFile);
             }
 
-            if (this.DistanceHistogram != null)
+            if(this.DistanceHistogram != null)
             {
                 var distances = ZoneSystem.Distances.GetFlatData();
                 this.DistanceHistogram.Export(distances, model);
             }
-            
+
 
             ModelData.ReleaseResource();
-            for ( int i = 0; i < PostRun.Length; i++ )
+            for(int i = 0; i < PostRun.Length; i++)
             {
                 PostRun[i].Start();
             }
@@ -174,7 +178,7 @@ namespace Tasha.Estimation.PoRPoW
         private float ComputeError(float[][] truth, float[][] aggregated)
         {
             float error = 0.0f;
-            Parallel.For( 0, truth.Length, () =>
+            Parallel.For(0, truth.Length, () =>
             {
                 // we start with no error
                 return 0.0f;
@@ -184,25 +188,25 @@ namespace Tasha.Estimation.PoRPoW
                 var truthRow = truth[i];
                 var sumOfRow = TruthRows[i];
                 var aggRow = aggregated[i];
-                if ( sumOfRow > 0 )
+                if(sumOfRow > 0)
                 {
                     // for each destination
-                    for ( int j = 0; j < truthRow.Length; j++ )
+                    for(int j = 0; j < truthRow.Length; j++)
                     {
-                        var pTruth = ( truthRow[j] * InverseOfTotalTrips );
-                        if ( pTruth > 0 )
+                        var pTruth = (truthRow[j] * InverseOfTotalTrips);
+                        if(pTruth > 0)
                         {
                             var pModel = aggRow[j] * InverseOfTotalTrips;
                             double cellError;
-                            if ( pModel > pTruth )
+                            if(pModel > pTruth)
                             {
                                 // y - deltaXY <=> 2y-x
-                                cellError = pTruth * Math.Log( Math.Min( ( Math.Max( ( pTruth + pTruth - pModel ), 0 )
-                                    + ( pTruth * 0.00015 ) ) / ( pTruth * 1.00015 ), 1 ) );
+                                cellError = pTruth * Math.Log(Math.Min((Math.Max((pTruth + pTruth - pModel), 0)
+                                    + (pTruth * 0.00015)) / (pTruth * 1.00015), 1));
                             }
                             else
                             {
-                                cellError = pTruth * Math.Log( Math.Min( ( pModel + ( pTruth * 0.00015 ) ) / ( pTruth * 1.00015 ), 1 ) );
+                                cellError = pTruth * Math.Log(Math.Min((pModel + (pTruth * 0.00015)) / (pTruth * 1.00015), 1));
                             }
                             currentError += cellError;
                         }
@@ -218,7 +222,7 @@ namespace Tasha.Estimation.PoRPoW
                 {
                     error += localError;
                 }
-            } );
+            });
             return error;
         }
 
@@ -228,50 +232,50 @@ namespace Tasha.Estimation.PoRPoW
         {
 
             var ret = AggArray;
-            if ( ret == null )
+            if(ret == null)
             {
                 ret = new float[zones.Length][];
-                for ( int i = 0; i < ret.Length; i++ )
+                for(int i = 0; i < ret.Length; i++)
                 {
                     ret[i] = new float[zones.Length];
                 }
                 AggArray = ret;
             }
-            Parallel.For( 0, zones.Length, (int i) =>
+            Parallel.For(0, zones.Length, (int i) =>
                 {
                     var retRow = ret[i];
-                    if ( model.Length > 0 )
+                    if(model.Length > 0)
                     {
                         var row = model[0][i];
-                        for ( int j = 0; j < row.Length; j++ )
+                        for(int j = 0; j < row.Length; j++)
                         {
                             retRow[j] = row[j];
                         }
-                        for ( int k = 1; k < model.Length; k++ )
+                        for(int k = 1; k < model.Length; k++)
                         {
                             row = model[k][i];
-                            for ( int j = 0; j < row.Length; j++ )
+                            for(int j = 0; j < row.Length; j++)
                             {
                                 retRow[j] += row[j];
                             }
                         }
                     }
-                } );
-            if ( AggregateToPlanningDistricts )
+                });
+            if(AggregateToPlanningDistricts)
             {
                 var data = PDError.GetFlatData();
-                for ( int i = 0; i < data.Length; i++ )
+                for(int i = 0; i < data.Length; i++)
                 {
                     var row = data[i];
-                    for ( int j = 0; j < row.Length; j++ )
+                    for(int j = 0; j < row.Length; j++)
                     {
                         row[j] = 0;
                     }
                 }
-                for ( int i = 0; i < ret.Length; i++ )
+                for(int i = 0; i < ret.Length; i++)
                 {
                     var row = ret[i];
-                    for ( int j = 0; j < row.Length; j++ )
+                    for(int j = 0; j < row.Length; j++)
                     {
                         data[ZoneToPDIndexMap[i]][ZoneToPDIndexMap[j]] += row[j];
                     }
@@ -284,7 +288,7 @@ namespace Tasha.Estimation.PoRPoW
         private static float SumModel(float[][][] model, int i, int j)
         {
             var total = 0.0f;
-            for ( int workerCategory = 0; workerCategory < model.Length; workerCategory++ )
+            for(int workerCategory = 0; workerCategory < model.Length; workerCategory++)
             {
                 total += model[workerCategory][i][j];
             }
@@ -294,7 +298,7 @@ namespace Tasha.Estimation.PoRPoW
         public static float SumModelRow(float[][][] model, int i)
         {
             var total = 0.0f;
-            for ( int workerCategory = 0; workerCategory < model.Length; workerCategory++ )
+            for(int workerCategory = 0; workerCategory < model.Length; workerCategory++)
             {
                 total += model[workerCategory][i].Sum();
             }
@@ -306,7 +310,7 @@ namespace Tasha.Estimation.PoRPoW
             [RootModule]
             public PoRPoWMST Root;
 
-            [RunParameter("Bins", "0-5;5-10;10-15;15-20;20-30;", typeof( RangeSet ), "")]
+            [RunParameter("Bins", "0-5;5-10;10-15;15-20;20-30;", typeof(RangeSet), "")]
             public RangeSet HistogramBins;
 
             [SubModelInformation(Description = "Save file location", Required = true)]
@@ -320,9 +324,9 @@ namespace Tasha.Estimation.PoRPoW
                 //var odMatrixData = model[this.WorkerCategory];
 
                 float[][] binData = new float[1 + this.HistogramBins.Count][]; //Extra bin for outside of the array
-                for (int i = 0; i < binData.Length; i++) binData[i] = new float[model.Length];
+                for(int i = 0; i < binData.Length; i++) binData[i] = new float[model.Length];
 
-                for (int wcat = 0; wcat < model.Length; wcat++)
+                for(int wcat = 0; wcat < model.Length; wcat++)
                 {
                     var odMatrixData = model[wcat];
 
@@ -331,13 +335,13 @@ namespace Tasha.Estimation.PoRPoW
                         var row = odMatrixData[i];
                         var distanceRow = distances[i];
 
-                        for (int j = 0; j < row.Length; j++)
+                        for(int j = 0; j < row.Length; j++)
                         {
                             var distance = (int)(distanceRow[j] * this.CoordinateFactor);
 
                             int index = this.HistogramBins.IndexOf(distance);
 
-                            if (index < 0)
+                            if(index < 0)
                             {
                                 index = this.HistogramBins.Count; //The last index
                             }
@@ -347,28 +351,28 @@ namespace Tasha.Estimation.PoRPoW
                     });
                 }
 
-                
+
 
                 using (var writer = new StreamWriter(this.SaveFile.GetFilePath()))
                 {
                     var header = "Distance";
-                    foreach (var wcat in model) header += ",WCAT " + wcat;
+                    foreach(var wcat in model) header += ",WCAT " + wcat;
                     writer.WriteLine(header);
 
-                    for (int i = 0; i < this.HistogramBins.Count; i++)
+                    for(int i = 0; i < this.HistogramBins.Count; i++)
                     {
                         var range = this.HistogramBins[i];
                         var binrow = binData[i];
 
                         var line = range.ToString();
-                        foreach (var count in binrow) line += "," + count;
+                        foreach(var count in binrow) line += "," + count;
 
                         writer.WriteLine(line);
                     }
 
                     var lastline = this.HistogramBins[this.HistogramBins.Count - 1].Start + "+";
                     var lastbin = binData[this.HistogramBins.Count - 1];
-                    foreach (var count in lastbin) lastline += "," + count;
+                    foreach(var count in lastbin) lastline += "," + count;
 
                     writer.WriteLine(lastline);
 
@@ -400,7 +404,7 @@ namespace Tasha.Estimation.PoRPoW
 
             public bool RuntimeValidation(ref string error)
             {
-                if (this.HistogramBins.Count < 1)
+                if(this.HistogramBins.Count < 1)
                 {
                     error = "Histogram bins must define at least one range.";
                     return false;
