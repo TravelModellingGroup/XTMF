@@ -290,7 +290,7 @@ namespace Tasha.PopulationSynthesis
 
         private float[] CreateWorkersByCategory(SparseArray<float> occPopByZone, float[] workerSplits)
         {
-            if(LocalWorkerCategories != null)
+            if(KeepLocalData && LocalWorkerCategories != null)
             {
                 return LocalWorkerCategories;
             }
@@ -304,7 +304,11 @@ namespace Tasha.PopulationSynthesis
                     ret[i + WorkerCategoryOffset] = pop[i] * workerSplits[i + WorkerCategoryOffset];
                 }
             }
-            return (LocalWorkerCategories = ret);
+            if(KeepLocalData)
+            {
+                LocalWorkerCategories = ret;
+            }
+            return ret;
         }
 
         private SparseTriIndex<float> ConvertResults(float[] results, SparseArray<IZone> zoneSystem)
