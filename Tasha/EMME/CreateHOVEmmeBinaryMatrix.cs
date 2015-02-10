@@ -75,7 +75,11 @@ namespace Tasha.EMME
                     {
                         continue;
                     }
-                    var jointTour = tripChains[j].JointTrip && tripChains[j].JointTripRep;
+                    var jointTour = tripChains[j].JointTrip;
+                    if(!tripChains[j].JointTripRep)
+                    {
+                        continue;
+                    }
                     var trips = tripChains[j].Trips;
                     // check to see if we should be running access or egress for this person on their trip chain
                     bool access = true;
@@ -281,7 +285,7 @@ namespace Tasha.EMME
                 for(int j = 0; j < 2; j++)
                 {
                     Matrix[j] = new float[NumberOfZones][];
-                    for(int i = 0; i < Matrix.Length; i++)
+                    for(int i = 0; i < Matrix[j].Length; i++)
                     {
                         Matrix[j][i] = new float[NumberOfZones];
                     }

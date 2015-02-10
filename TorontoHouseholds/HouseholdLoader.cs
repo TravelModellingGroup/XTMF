@@ -187,6 +187,7 @@ namespace TMG.Tasha
             {
                 Reset();
             }
+            Exception terminalException = null;
             var parallelLoader = Task.Factory.StartNew(() =>
                 {
                     ITashaHousehold next = null;
@@ -225,6 +226,10 @@ namespace TMG.Tasha
                             } while(true);
                         }
                     }
+                    catch (Exception e)
+                    {
+                        terminalException = e;
+                    }
                     finally
                     {
                         BlockingBuffer.CompleteAdding();
@@ -235,6 +240,10 @@ namespace TMG.Tasha
                 yield return h;
             }
             parallelLoader.Wait();
+            if(terminalException != null)
+            {
+                throw terminalException;
+            }
             NeedsReset = true;
         }
 

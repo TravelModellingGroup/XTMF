@@ -296,8 +296,8 @@ namespace Tasha.V4Modes
         public bool Feasible(ITripChain tripChain)
         {
             var trips = tripChain.Trips;
-            int lastPlace = trips[0].OriginalZone.ZoneNumber;
-            int homeZone = lastPlace;
+            var lastPlace = trips[0].OriginalZone;
+            var homeZone = lastPlace;
             bool lastMadeWithBike = true;
             bool firstWasBike = trips[0].Mode == this;
             bool anyBike = false;
@@ -307,11 +307,11 @@ namespace Tasha.V4Modes
                 if(trip.Mode == this)
                 {
                     anyBike = true;
-                    if(trip.OriginalZone.ZoneNumber != lastPlace)
+                    if(trip.OriginalZone != lastPlace)
                     {
                         return false;
                     }
-                    lastPlace = trip.DestinationZone.ZoneNumber;
+                    lastPlace = trip.DestinationZone;
                     lastMadeWithBike = true;
                 }
                 else
