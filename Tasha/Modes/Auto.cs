@@ -29,37 +29,37 @@ namespace Tasha.Modes
     /// </summary>
     public sealed class Auto : ITashaMode
     {
-        [RunParameter( "Constant", 0f, "The constant for this mode." )]
+        [RunParameter("Constant", 0f, "The constant for this mode.")]
         public float Constant;
 
-        [RunParameter( "dpurp_oth_drive", 0f, "The weight for the cost of doing an other drive (ITashaRuntime only)" )]
+        [RunParameter("dpurp_oth_drive", 0f, "The weight for the cost of doing an other drive (ITashaRuntime only)")]
         public float dpurp_oth_drive;
 
-        [RunParameter( "dpurp_shop_drive", 0f, "The weight for the cost of doing a shopping drive (ITashaRuntime only)" )]
+        [RunParameter("dpurp_shop_drive", 0f, "The weight for the cost of doing a shopping drive (ITashaRuntime only)")]
         public float dpurp_shop_drive;
 
-        [RunParameter( "Intrazonal Constant", 0f, "The constant to use for intrazonal trips." )]
+        [RunParameter("Intrazonal Constant", 0f, "The constant to use for intrazonal trips.")]
         public float IntrazonalConstantWeight;
 
-        [RunParameter( "Intrazonal Distance", 0f, "The parameter applied to the distance of an intrazonal trip." )]
+        [RunParameter("Intrazonal Distance", 0f, "The parameter applied to the distance of an intrazonal trip.")]
         public float IntrazonalDistanceWeight;
 
-        [RunParameter( "pkcost", 0f, "The weight for cost of parking" )]
+        [RunParameter("pkcost", 0f, "The weight for cost of parking")]
         public float parking;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [RunParameter( "travelcost", 0f, "The weight for cost of travel" )]
+        [RunParameter("travelcost", 0f, "The weight for cost of travel")]
         public float travelCost;
 
-        [RunParameter( "atime", 0f, "The weight cost of time" )]
+        [RunParameter("atime", 0f, "The weight cost of time")]
         public float travelTime;
 
-        [RunParameter( "Use Intrazonal Regression", false, "Should we use a regression for intrazonal trips based on the interzonal distance?" )]
+        [RunParameter("Use Intrazonal Regression", false, "Should we use a regression for intrazonal trips based on the interzonal distance?")]
         public bool UseIntrazonalRegression;
 
-        [RunParameter( "Vehicle Type Name", "", "If the mode is Auto, leave blank, otherwise, search other vehicle type." )]
+        [RunParameter("Vehicle Type Name", "", "If the mode is Auto, leave blank, otherwise, search other vehicle type.")]
         public string VehicleTypeName;
 
         [DoNotAutomate]
@@ -79,10 +79,10 @@ namespace Tasha.Modes
         {
         }
 
-        [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
+        [Parameter("Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?")]
         public float CurrentlyFeasible { get; set; }
 
-        [RunParameter( "Name", "Auto", "The name of the mode" )]
+        [RunParameter("Name", "Auto", "The name of the mode")]
         public string ModeName { get; set; }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Tasha.Modes
             set;
         }
 
-        [RunParameter( "Network Name", "Auto", "The name of the network that this mode uses." )]
+        [RunParameter("Network Name", "Auto", "The name of the network that this mode uses.")]
         public string NetworkType
         {
             get;
@@ -112,7 +112,7 @@ namespace Tasha.Modes
         /// <summary>
         /// The character that is to be written to the output file for the chosen mode
         /// </summary>
-        [RunParameter( "Output Signature", 'A', "The output signature for saving trips." )]
+        [RunParameter("Output Signature", 'A', "The output signature for saving trips.")]
         public char OutputSignature
         {
             get;
@@ -126,7 +126,7 @@ namespace Tasha.Modes
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
         [DoNotAutomate]
@@ -138,7 +138,7 @@ namespace Tasha.Modes
             get { return AutoType; }
         }
 
-        [RunParameter( "Variance Scale", 1.0f, "The scale for varriance used for variance testing." )]
+        [RunParameter("Variance Scale", 1.0f, "The scale for varriance used for variance testing.")]
         public double VarianceScale
         {
             get;
@@ -154,22 +154,22 @@ namespace Tasha.Modes
         {
             double V = 0;
             IZone o = trip.OriginalZone, d = trip.DestinationZone;
-            if ( ( o == d ) & UseIntrazonalRegression )
+            if((o == d) & UseIntrazonalRegression)
             {
                 V += IntrazonalConstantWeight + o.InternalDistance * IntrazonalDistanceWeight;
             }
             else
             {
                 V += this.Constant;
-                V += AutoData.TravelTime( o, d, trip.ActivityStartTime ).ToMinutes() * this.travelTime;
-                V += AutoData.TravelCost( o, d, trip.ActivityStartTime ) * this.travelCost;
+                V += AutoData.TravelTime(o, d, trip.ActivityStartTime).ToMinutes() * this.travelTime;
+                V += AutoData.TravelCost(o, d, trip.ActivityStartTime) * this.travelCost;
             }
             V += d.ParkingCost * parking;
-            if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket )
+            if(trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket)
             {
                 V += this.dpurp_shop_drive;
             }
-            else if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther )
+            else if(trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther)
             {
                 V += this.dpurp_oth_drive;
             }
@@ -186,20 +186,20 @@ namespace Tasha.Modes
         public float CalculateV(IZone o, IZone d, Time time)
         {
             float V = 0;
-            V += TravelTime( o, d, time ).ToMinutes() * this.travelTime;
-            V += AutoData.TravelCost( o, d, time ) * this.travelCost;
+            V += TravelTime(o, d, time).ToMinutes() * this.travelTime;
+            V += AutoData.TravelCost(o, d, time) * this.travelCost;
             V += d.ParkingCost * parking;
             return V;
         }
 
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return AutoData.TravelCost( origin, destination, time );
+            return AutoData.TravelCost(origin, destination, time);
         }
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
         {
-            return ( origin == destination && UseIntrazonalRegression ) || ( CurrentlyFeasible > 0 & this.AutoData.ValidOD( origin, destination, timeOfDay ) );
+            return (origin == destination && UseIntrazonalRegression) || (CurrentlyFeasible > 0 & this.AutoData.ValidOD(origin, destination, timeOfDay));
         }
 
         /// <summary>
@@ -210,12 +210,12 @@ namespace Tasha.Modes
         public bool Feasible(ITrip trip)
         {
             var person = trip.TripChain.Person;
-            if ( !person.Licence ) return false;
+            if(!person.Licence) return false;
             var vehicles = person.Household.Vehicles;
             var length = vehicles.Length;
-            for ( int i = 0; i < length; i++ )
+            for(int i = 0; i < length; i++)
             {
-                if ( vehicles[i].VehicleType == this.AutoType )
+                if(vehicles[i].VehicleType == this.AutoType)
                 {
                     return true;
                 }
@@ -237,16 +237,16 @@ namespace Tasha.Modes
             bool noAutoTrips = true;
             bool first = false;
             bool lastMadeWithAuto = false;
-            for ( int i = 0; i < length; i++ )
+            for(int i = 0; i < length; i++)
             {
                 var trip = trips[i];
                 var mode = trip.Mode;
-                if ( !mode.NonPersonalVehicle )
+                if(!mode.NonPersonalVehicle)
                 {
-                    if ( mode.RequiresVehicle == this.AutoType )
+                    if(mode.RequiresVehicle == this.AutoType)
                     {
                         // it is only not feasible if we actually take the mode and we don't have a licence
-                        if ( ( trip.OriginalZone.ZoneNumber != vehicleLeftAt ) )
+                        if((trip.OriginalZone.ZoneNumber != vehicleLeftAt))
                         {
                             return false;
                         }
@@ -263,12 +263,12 @@ namespace Tasha.Modes
                 {
                     lastMadeWithAuto = false;
                 }
-                if ( i == 0 )
+                if(i == 0)
                 {
                     first = lastMadeWithAuto;
                 }
             }
-            return ( noAutoTrips ) | ( ( first ) & ( lastMadeWithAuto ) & ( vehicleLeftAt == home ) );
+            return (noAutoTrips) | ((first) & (lastMadeWithAuto) & (vehicleLeftAt == home));
         }
 
         /// <summary>
@@ -290,12 +290,12 @@ namespace Tasha.Modes
             // if our deep ancestor is in fact a tasha runtime
             this.TashaRuntime = this.Root as ITashaRuntime;
             IList<INetworkData> networks;
-            if ( this.TashaRuntime == null )
+            if(this.TashaRuntime == null)
             {
                 // check for a 4Step model system template
                 var tdm = this.Root as ITravelDemandModel;
                 // if it isn't report the error
-                if ( tdm == null )
+                if(tdm == null)
                 {
                     error = "The Tasha.Modes.Auto Module only works with ITashaRuntime's and ITravelDemandModel's!";
                     return false;
@@ -304,17 +304,17 @@ namespace Tasha.Modes
             }
             else
             {
-                if ( String.IsNullOrWhiteSpace( this.VehicleTypeName ) )
+                if(String.IsNullOrWhiteSpace(this.VehicleTypeName))
                 {
                     this.AutoType = this.TashaRuntime.AutoType;
                 }
                 else
                 {
-                    if ( this.TashaRuntime.VehicleTypes != null )
+                    if(this.TashaRuntime.VehicleTypes != null)
                     {
-                        foreach ( var v in this.TashaRuntime.VehicleTypes )
+                        foreach(var v in this.TashaRuntime.VehicleTypes)
                         {
-                            if ( v.VehicleName == this.VehicleTypeName )
+                            if(v.VehicleName == this.VehicleTypeName)
                             {
                                 this.AutoType = v;
                                 break;
@@ -322,36 +322,36 @@ namespace Tasha.Modes
                         }
                     }
                 }
-                if ( AutoType == null )
+                if(AutoType == null)
                 {
                     error = "We were unable to find an vehicle type to use for '" + this.ModeName + "'!";
                     return false;
                 }
                 networks = this.TashaRuntime.NetworkData;
             }
-            if ( String.IsNullOrWhiteSpace( this.NetworkType ) )
+            if(String.IsNullOrWhiteSpace(this.NetworkType))
             {
-                error = "There was no network type selected for the " + ( String.IsNullOrWhiteSpace( this.ModeName ) ? "Auto" : this.ModeName ) + " mode!";
+                error = "There was no network type selected for the " + (String.IsNullOrWhiteSpace(this.ModeName) ? "Auto" : this.ModeName) + " mode!";
                 return false;
             }
-            if ( networks == null )
+            if(networks == null)
             {
                 error = "There was no Auto Network loaded for the Auto Mode!";
                 return false;
             }
             bool found = false;
-            foreach ( var network in networks )
+            foreach(var network in networks)
             {
-                if ( network.NetworkType == this.NetworkType )
+                if(network.NetworkType == this.NetworkType)
                 {
                     this.AutoData = network;
                     found = true;
                     break;
                 }
             }
-            if ( !found )
+            if(!found)
             {
-                error = "We were unable to find the network data with the name \"" + this.NetworkType + "\" in this Model System!";
+                error = "In '" + Name + "' we were unable to find the network data with the name \"" + this.NetworkType + "\" in this Model System!";
                 return false;
             }
 
@@ -360,7 +360,7 @@ namespace Tasha.Modes
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return AutoData.TravelTime( origin, destination, time );
+            return AutoData.TravelTime(origin, destination, time);
         }
     }
 }
