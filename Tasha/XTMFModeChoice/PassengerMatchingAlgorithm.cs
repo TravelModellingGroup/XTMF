@@ -177,17 +177,16 @@ namespace Tasha.XTMFModeChoice
         private void CheckForPotentialPassengerTrips(ModeChoiceTripChainData driverTripChainData, ModeChoiceTripChainData passengerTripChainData,
             int driverIndex, int passengerIndex, int passengerTripChainIndex, Random random)
         {
+            var driverTripChainTrips = driverTripChainData.TripChain.Trips;
             for(int j = 0; j < passengerTripChainData.TripData.Length; j++)
             {
                 float passengerEpsilon = float.NegativeInfinity;
                 for(int i = 0; i < driverTripChainData.TripData.Length; i++)
                 {
                     float v;
-                    if(driverTripChainData.TripChain.Trips[i].Mode != PassengerMode.AssociatedMode)
-                    {
-                        continue;
-                    }
-                    if(PassengerMode.CalculateV(driverTripChainData.TripChain.Trips[i], passengerTripChainData.TripChain.Trips[j], out v))
+                    ITrip passengerTrip;
+                    if(driverTripChainTrips[i].Mode == PassengerMode.AssociatedMode &&
+                        PassengerMode.CalculateV(driverTripChainTrips[i], (passengerTrip = passengerTripChainData.TripChain.Trips[j]), out v))
                     {
                         // only pop a random variable for the passenger when it is needed (performance)
                         if(passengerEpsilon <= float.NegativeInfinity)
@@ -199,8 +198,8 @@ namespace Tasha.XTMFModeChoice
                         var deltaU = v + passengerEpsilon + GenerateEpsilon(random) - GetUtilityOfTrips(passengerTripChainData, j, driverTripChainData, i);
                         if(deltaU > 0)
                         {
-                            PotentialTrips.Add(new PotentialPassengerTrip(driverTripChainData.TripChain.Trips[i],
-                                passengerTripChainData.TripChain.Trips[j], deltaU, driverIndex, passengerIndex, passengerTripChainIndex, j));
+                            PotentialTrips.Add(new PotentialPassengerTrip(driverTripChainTrips[i],
+                                passengerTrip, deltaU, driverIndex, passengerIndex, passengerTripChainIndex, j));
                         }
                     }
                 }
