@@ -39,7 +39,7 @@
                     <MenuItem x:Name="NewProjectButton" Header="_Project" />
                     <MenuItem x:Name="NewModelSystemButton" Header="_Model System" Click="NewModelSystemButton_Click" />
                 </MenuItem>
-                <MenuItem Header="_Open">
+                <MenuItem x:Name="OpenMenuItem" Header="_Open">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="20" Height="20"/>
                     </MenuItem.Icon>

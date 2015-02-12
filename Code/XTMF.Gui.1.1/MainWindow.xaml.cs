@@ -100,26 +100,28 @@ namespace XTMF.Gui
             open.OpenProject(EditorController.Runtime);
             Task.Factory.StartNew(() =>
             {
-                OperationProgressing progressing = null;
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    progressing = new OperationProgressing()
-                    {
-                        Owner = this
-                    };
-                }));
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    progressing.ShowDialog();
-                }));
                 if(open.LoadTask != null)
                 {
+                    OperationProgressing progressing = null;
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        progressing = new OperationProgressing()
+                        {
+                            Owner = this
+                        };
+                    }));
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.ShowDialog();
+                    }));
+
                     open.LoadTask.Wait();
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         progressing.Close();
                     }));
                 }
+
                 var projectSession = open.ProjectSession;
                 if(projectSession != null)
                 {
@@ -155,20 +157,20 @@ namespace XTMF.Gui
             openWindow.OpenModelSystem(EditorController.Runtime);
             Task.Factory.StartNew(() =>
             {
-                OperationProgressing progressing = null;
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    progressing = new OperationProgressing()
-                    {
-                        Owner = this
-                    };
-                }));
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    progressing.ShowDialog();
-                }));
                 if(openWindow.LoadTask != null)
                 {
+                    OperationProgressing progressing = null;
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        progressing = new OperationProgressing()
+                        {
+                            Owner = this
+                        };
+                    }));
+                        Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.ShowDialog();
+                    }));
                     openWindow.LoadTask.Wait();
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
