@@ -394,7 +394,7 @@ namespace XTMF.Gui.UserControls
 
         public void SaveRequested()
         {
-
+            MessageBox.Show("Save is not implemented yet!");
         }
 
         public void CloneRequested(string clonedName)
