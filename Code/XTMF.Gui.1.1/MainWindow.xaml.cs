@@ -155,10 +155,25 @@ namespace XTMF.Gui
             openWindow.OpenModelSystem(EditorController.Runtime);
             Task.Factory.StartNew(() =>
             {
-                var t = openWindow.LoadTask;
-                if(t != null)
+                OperationProgressing progressing = null;
+                Dispatcher.Invoke(new Action(() =>
                 {
-                    t.Wait();
+                    progressing = new OperationProgressing()
+                    {
+                        Owner = this
+                    };
+                }));
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    progressing.ShowDialog();
+                }));
+                if(openWindow.LoadTask != null)
+                {
+                    openWindow.LoadTask.Wait();
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.Close();
+                    }));
                 }
                 var session = openWindow.ModelSystemSession;
                 if(session != null)
