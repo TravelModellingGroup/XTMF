@@ -33,6 +33,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
@@ -214,7 +215,7 @@ namespace XTMF.Gui.UserControls
             var newModelSystem = e.NewValue as ModelSystemModel;
             if(newModelSystem != null)
             {
-                us.ModuleDisplay.ItemsSource =  us.CreateDisplayModel(newModelSystem.Root);
+                us.ModuleDisplay.ItemsSource = us.CreateDisplayModel(newModelSystem.Root);
                 us.ModelSystemName = newModelSystem.Name;
                 us.ModuleDisplay.Items.MoveCurrentToFirst();
                 us.FilterBox.Display = us.ModuleDisplay;
@@ -405,13 +406,10 @@ namespace XTMF.Gui.UserControls
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             var module = (e.NewValue as ModelSystemStructureDisplayModel);
-            this.Dispatcher.BeginInvoke(new Action(() =>
+            if(module != null)
             {
-                if(module != null)
-                {
-                    ModelSystemDisplay_ParametersChanged(sender, module.BaseModel.Parameters);
-                }
-            }));
+                UpdateParameters(module.BaseModel.Parameters);
+            }
         }
 
         private void Help_Clicked(object sender, RoutedEventArgs e)

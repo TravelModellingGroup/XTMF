@@ -118,7 +118,8 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search... (Ctrl+P)" />
-            <ListView Grid.Row="1" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" 
+            <ListView Grid.Row="1" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                      HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" 
                       Margin="0" Background="{StaticResource ControlBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -175,6 +176,11 @@
                         </Style.Resources>
                     </Style>
                 </ListView.ItemContainerStyle>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
             </ListView>
         </Grid>
     </Grid>
