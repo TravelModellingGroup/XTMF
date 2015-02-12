@@ -38,7 +38,7 @@
                 <Image Grid.Column="0" Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
                 <StackPanel Grid.Column="1">
                     <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
-                    <Label Content="&lt; Insert Your Model Here /&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
+                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1">

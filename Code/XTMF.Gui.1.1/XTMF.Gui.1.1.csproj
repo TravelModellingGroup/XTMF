@@ -92,6 +92,7 @@
     <Compile Include="Controllers\EditorController.cs" />
     <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />
+    <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="UserControls\AboutXTMF.xaml.cs">
       <DependentUpon>AboutXTMF.xaml</DependentUpon>
     </Compile>

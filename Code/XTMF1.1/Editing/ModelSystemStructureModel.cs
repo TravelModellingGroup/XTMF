@@ -425,6 +425,13 @@ namespace XTMF
         public ParametersModel Parameters { get; private set; }
 
         /// <summary>
+        /// Is this an optional module.
+        /// </summary>
+        /// <returns>True if the module is optional.</returns>
+        public bool IsOptional { get { return !RealModelSystemStructure.Required; } }
+
+
+        /// <summary>
         /// Commit the changes into the underlying data
         /// </summary>
         /// <param name="error">If there is a problem</param>

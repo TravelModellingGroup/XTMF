@@ -33,6 +33,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
@@ -50,6 +51,8 @@ namespace XTMF.Gui.UserControls
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
         public ModelSystemEditingSession Session { get; set; }
+
+        private ModelSystemStructureDisplayModel DisplayRoot;
 
         /// <summary>
         /// The model system to display
@@ -78,7 +81,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private bool CheckFilterRec(ModelSystemStructureModel module, string filterText, TreeViewItem previous = null)
+        private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, TreeViewItem previous = null)
         {
             var children = module.Children;
             var show = false;
@@ -107,22 +110,22 @@ namespace XTMF.Gui.UserControls
 
         private UIElement GetCurrentlySelectedControl()
         {
-            return GetCurrentlySelectedControl(ModelSystem.Root, ModuleDisplay.SelectedItem as ModelSystemStructureModel);
+            return GetCurrentlySelectedControl(DisplayRoot, ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel);
         }
 
-        private UIElement GetCurrentlySelectedControl(ModelSystemStructureModel current, ModelSystemStructureModel lookingFor, TreeViewItem previous = null)
+        private UIElement GetCurrentlySelectedControl(ModelSystemStructureDisplayModel current, ModelSystemStructureDisplayModel lookingFor, TreeViewItem previous = null)
         {
             var children = current.Children;
-            var contianer = (previous == null ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current) : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
-            if(current == lookingFor && contianer != null)
+            var container = (previous == null ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current) : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
+            if(current == lookingFor && container != null)
             {
-                return contianer;
+                return container;
             }
             if(children != null)
             {
                 foreach(var child in children)
                 {
-                    var childResult = GetCurrentlySelectedControl(child, lookingFor, contianer);
+                    var childResult = GetCurrentlySelectedControl(child, lookingFor, container);
                     if(childResult != null)
                     {
                         return childResult;
@@ -138,7 +141,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             FilterBox.Filter = (o, text) =>
             {
-                var module = o as ModelSystemStructureModel;
+                var module = o as ModelSystemStructureDisplayModel;
                 bool ret = false;
                 ret = CheckFilterRec(module, text);
                 return ret;
@@ -185,21 +188,21 @@ namespace XTMF.Gui.UserControls
 
         private void SelectReplacement()
         {
-            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if(Session == null)
             {
                 throw new InvalidOperationException("Session has not been set before operating.");
             }
             if(selectedModule != null)
             {
-                ModuleTypeSelect findReplacement = new ModuleTypeSelect(Session, selectedModule);
+                ModuleTypeSelect findReplacement = new ModuleTypeSelect(Session, selectedModule.BaseModel);
                 findReplacement.Owner = GetWindow();
                 if(findReplacement.ShowDialog() == true)
                 {
                     if((var selectedType = findReplacement.SelectedType) != null)
                     {
-                        selectedModule.Type = selectedType;
-                        UpdateParameters(selectedModule.Parameters);
+                        selectedModule.BaseModel.Type = selectedType;
+                        UpdateParameters(selectedModule.BaseModel.Parameters);
                     }
                 }
             }
@@ -211,7 +214,7 @@ namespace XTMF.Gui.UserControls
             var newModelSystem = e.NewValue as ModelSystemModel;
             if(newModelSystem != null)
             {
-                us.ModuleDisplay.ItemsSource = new ObservableCollection<ModelSystemStructureModel>() { newModelSystem.Root };
+                us.ModuleDisplay.ItemsSource =  us.CreateDisplayModel(newModelSystem.Root);
                 us.ModelSystemName = newModelSystem.Name;
                 us.ModuleDisplay.Items.MoveCurrentToFirst();
                 us.FilterBox.Display = us.ModuleDisplay;
@@ -222,6 +225,15 @@ namespace XTMF.Gui.UserControls
                 us.ModelSystemName = "No model loaded";
                 us.FilterBox.Display = null;
             }
+        }
+
+        private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
+        {
+            var ret = new ObservableCollection<ModelSystemStructureDisplayModel>()
+            {
+                (DisplayRoot = new ModelSystemStructureDisplayModel(root))
+            };
+            return ret;
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -392,12 +404,12 @@ namespace XTMF.Gui.UserControls
 
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            var module = (e.NewValue as ModelSystemStructureModel);
+            var module = (e.NewValue as ModelSystemStructureDisplayModel);
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 if(module != null)
                 {
-                    ModelSystemDisplay_ParametersChanged(sender, module.Parameters);
+                    ModelSystemDisplay_ParametersChanged(sender, module.BaseModel.Parameters);
                 }
             }));
         }
@@ -424,7 +436,7 @@ namespace XTMF.Gui.UserControls
 
         private void Rename()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
             if(selectedModuleControl != null)
             {
@@ -453,15 +465,15 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveCurrentModule()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if(selected != null)
             {
                 string error = null;
-                if(!ModelSystem.Remove(selected, ref error))
+                if(!ModelSystem.Remove(selected.BaseModel, ref error))
                 {
                     throw new Exception(error);
                 }
-                UpdateParameters(selected.Parameters);
+                UpdateParameters(selected.BaseModel.Parameters);
             }
         }
 

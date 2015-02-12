@@ -80,7 +80,7 @@
                         <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
                                      Header="{Binding Name}"
                                      Text="{Binding Description}"
-                                     ShadowColour="{StaticResource ControlHeaderColour}"
+                                     ShadowColour="{Binding BackgroundColour}"
                                      HighlightColour="Green"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}"
