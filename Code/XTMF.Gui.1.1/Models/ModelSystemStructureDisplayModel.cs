@@ -48,6 +48,11 @@ namespace XTMF.Gui.Models
             if(ev != null)
             {
                 ev(sender, e);
+                // If the type changes it is possible that our background colour should change as well
+                if(e.PropertyName == "Type")
+                {
+                    ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                }
             }
         }
 
