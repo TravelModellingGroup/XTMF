@@ -126,6 +126,9 @@
     <Compile Include="UserControls\OpenWindow.xaml.cs">
       <DependentUpon>OpenWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\OperationProgressing.xaml.cs">
+      <DependentUpon>OperationProgressing.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ProjectDisplay.xaml.cs">
       <DependentUpon>ProjectDisplay.xaml</DependentUpon>
     </Compile>
@@ -206,6 +209,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\OpenWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\OperationProgressing.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -100,9 +100,25 @@ namespace XTMF.Gui
             open.OpenProject(EditorController.Runtime);
             Task.Factory.StartNew(() =>
             {
+                OperationProgressing progressing = null;
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    progressing = new OperationProgressing()
+                    {
+                        Owner = this
+                    };
+                }));
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    progressing.ShowDialog();
+                }));
                 if(open.LoadTask != null)
                 {
                     open.LoadTask.Wait();
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.Close();
+                    }));
                 }
                 var projectSession = open.ProjectSession;
                 if(projectSession != null)
