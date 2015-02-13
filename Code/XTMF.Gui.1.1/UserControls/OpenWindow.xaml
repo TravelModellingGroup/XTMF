@@ -44,7 +44,7 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <my:BorderIconButton Margin="2" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}" Text="{Binding Text}"
+                        <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Text}"
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" Clicked="BorderIconButton_Clicked">
                             <my:BorderIconButton.Style>
                                 <Style TargetType="my:BorderIconButton">
@@ -58,8 +58,8 @@
                     <Style TargetType="ListViewItem">
                         <Setter Property="BorderThickness" Value="0" />
                         <Style.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource HeaderSelectionColour}"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource SelectionBlue}"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource FocusColour}"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource FocusColour}"/>
                         </Style.Resources>
                     </Style>
                 </ListView.ItemContainerStyle>
