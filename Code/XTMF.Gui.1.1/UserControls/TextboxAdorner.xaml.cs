@@ -30,20 +30,30 @@ namespace XTMF.Gui.UserControls
             Height = 25
         };
 
+        private static Brush Background;
+
+        static TextboxAdorner()
+        {
+            Background = (Brush)Application.Current.TryFindResource("ControlBackgroundBrush");
+        }
+
         Action<string> GiveResult;
 
         public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "") : base(attachedTo)
         {
-            Border.BorderBrush = Brushes.DarkGray;
-            //        <Color x:Key="SelectionBlue" A="255" R="120" G="150" B="120" />
-            Border.Background = new SolidColorBrush(Color.FromRgb(120, 150, 120));
+            this.Opacity = 0.9;
+            Border.BorderBrush = Brushes.White;
+            Border.Background = Background;
             Border.BorderThickness = new Thickness(2.0);
             Border.Width = 400;
             Border.Height = 52;
             Grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(25) });
             Grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(25) });
+            Grid.Margin = new Thickness(2.0);
             Border.Child = this.Grid;
             TextBlock.Text = question;
+            TextBlock.Foreground = Brushes.White;
+            TextBlock.FontSize = 14.0;
             Textbox.Text = initialValue;
             Textbox.CaretIndex = initialValue.Length;
             Grid.Children.Add(TextBlock);

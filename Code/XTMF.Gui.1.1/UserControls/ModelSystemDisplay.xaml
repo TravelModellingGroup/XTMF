@@ -84,13 +84,15 @@
                                      HighlightColour="Green"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}"
-                                    Margin="0"
+                                    Margin="4"
                                     KeyboardNavigation.TabNavigation="Continue"
                                     KeyboardNavigation.IsTabStop="false" IsTabStop="False" Width="275" Focusable="False" x:Name="DisplayButton">
                         </my:BorderIconButton>
                         <HierarchicalDataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
-                                <Setter TargetName="DisplayButton" Property="ShadowColour" Value="{StaticResource ResourceKey=FocusColour}" />
+                                <Setter TargetName="DisplayButton" Property="BorderBrush" Value="{DynamicResource ResourceKey=AnimatedFocusBrush}" />
+                                <Setter TargetName="DisplayButton" Property="BorderThickness" Value="2" />
+                                <Setter TargetName="DisplayButton" Property="Margin" Value="2" />
                             </DataTrigger>
                         </HierarchicalDataTemplate.Triggers>
                     </HierarchicalDataTemplate>
@@ -152,7 +154,7 @@
                                     <TextBlock HorizontalAlignment="Left" Foreground="White" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                                 </Expander>
-                                <TextBox  Margin="0.2cm,5,0.2cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True, Mode=OneWay}" SourceUpdated="TextBox_SourceUpdated"
+                                <TextBox  Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True, Mode=OneWay}" SourceUpdated="TextBox_SourceUpdated"
                                              PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="Black" FontSize="14"
                                          SelectionBrush="#0F6FC6" SelectionOpacity="0.4" BorderThickness="0" Height="20" Padding="10">
                                     <TextBox.Background>

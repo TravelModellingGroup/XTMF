@@ -25,12 +25,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <Grid Background="{StaticResource ControlBackgroundBrush}">
+        <Grid Background="{StaticResource WindowBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Background="{StaticResource ControlHeaderBrush}">
+            <Grid Grid.Row="0" Background="{StaticResource ControlBackgroundBrush}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="AUTO" />
                     <ColumnDefinition Width="*" />
@@ -47,24 +47,24 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" BorderBrush="White" BorderThickness="2">
-                    <Grid Background="{StaticResource ControlBackgroundBrush}">
+                    <Grid Background="{StaticResource WindowBackgroundBrush}">
                         <Grid.Resources>
                             <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
                                 <Setter Property="Cursor" Value="Hand" />
-                                <Setter Property="Foreground" Value="{StaticResource SelectionBlueBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource FocusBrush}" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Trigger.EnterActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.25" />
+                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.EnterActions>
                                         <Trigger.ExitActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource SelectionBlue}" Duration="0:0:0.50" />
+                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </Trigger.ExitActions>

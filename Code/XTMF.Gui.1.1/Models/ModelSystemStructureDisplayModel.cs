@@ -33,10 +33,14 @@ namespace XTMF.Gui.Models
         public event PropertyChangedEventHandler PropertyChanged;
 
         private static Color AddingYellow;
+        private static Color OptionalGreen;
+        private static Color WarningRed;
 
         static ModelSystemStructureDisplayModel()
         {
             AddingYellow = (Color)App.Current.FindResource("AddingYellow");
+            WarningRed = (Color)App.Current.FindResource("WarningRed");
+            OptionalGreen = Color.FromRgb(50, 140, 50);
         }
 
         public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel)
@@ -77,7 +81,7 @@ namespace XTMF.Gui.Models
                 }
                 if(BaseModel.Type == null)
                 {
-                    return (BaseModel.IsOptional) ? Color.FromRgb(0x30, 0x45, 0x30) : Color.FromRgb(0x56, 0x3C, 0x3c);
+                    return (BaseModel.IsOptional) ? OptionalGreen : WarningRed;
                 }
                 return Color.FromRgb(0x30, 0x30, 0x30);
             }
