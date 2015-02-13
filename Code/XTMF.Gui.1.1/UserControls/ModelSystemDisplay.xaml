@@ -119,11 +119,11 @@
             </Grid.RowDefinitions>
             <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search... (Ctrl+P)" />
             <ListView Grid.Row="1" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" 
+                      HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       Margin="0" Background="{StaticResource ControlBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderThickness="1" BorderBrush="#999999" HorizontalAlignment="Stretch">
+                        <Border BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter">

@@ -83,17 +83,34 @@
         </Menu>
         <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
         <xcad:DockingManager x:Name="DockManager" Grid.Row="1" AllowMixedOrientation="True">
+            <xcad:DockingManager.DocumentTitleTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="12" Margin="1" Foreground="White" />
+                    </Grid>
+                </DataTemplate>
+            </xcad:DockingManager.DocumentTitleTemplate>
             <xcad:DockingManager.DocumentHeaderTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Text="{Binding Title}" Foreground="Black" />
+                        <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="White" />
                     </StackPanel>
                 </DataTemplate>
             </xcad:DockingManager.DocumentHeaderTemplate>
             <xcad:DockingManager.Background>
-                <SolidColorBrush Color="LightGray" />
+                <SolidColorBrush Color="{StaticResource WindowBackgroundColour}" />
             </xcad:DockingManager.Background>
+            <xcad:DockingManager.Theme>
+                <xcad:MetroTheme />
+            </xcad:DockingManager.Theme>
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">
                     <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
@@ -102,9 +119,9 @@
                 </xcad:LayoutPanel>
             </xcad:LayoutRoot>
         </xcad:DockingManager>
-        <StatusBar HorizontalAlignment="Stretch" Grid.Row="2">
+        <StatusBar Background="{StaticResource WindowBackgroundBrush}" HorizontalAlignment="Stretch" Grid.Row="2">
             <StatusBarItem HorizontalAlignment="Left">
-                <TextBlock x:Name="StatusDisplay" />
+                <TextBlock x:Name="StatusDisplay" Foreground="White" />
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
                 <ProgressBar Width="100" Height="10" Minimum="0" Maximum="10000" />

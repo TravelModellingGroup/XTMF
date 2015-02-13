@@ -25,14 +25,14 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <Color x:Key="WarningRed" A="255" R="140" G="0" B="0" />
-        <Color x:Key="AddingYellow" A="255" R="140" G="140" B="0" />
+        <Color x:Key="AddingYellow" A="255" R="0x8C" G="0x8c" B="0" />
         <Color x:Key="InformationGreen" A="255" R="0" G="140" B="0" />
-        <Color x:Key="SelectionBlue" A="255" R="120" G="150" B="120" />
-        <Color x:Key="HeaderSelectionColour" A="255" R="0" G="240" B="0" />
-        <Color x:Key="ControlBackgroundColour" A="255" R="0x30" G="0x45" B="0x30" />
-        <Color x:Key="ControlHeaderColour" A="255" R="55" G="75" B="55" />
-        <Color x:Key="FocusColour" A="255" R="120" G="175" B="120" />
+        <Color x:Key="SelectionBlue" A="255" R="0x51" G="0x71" B="0x51" />
+        <Color x:Key="ControlHeaderColour" A="255" R="0x30" G="0x45" B="0x30" />
+        <Color x:Key="ControlBackgroundColour" A="255" R="0x0F" G="0x32" B="0x0F" />
+        <Color x:Key="FocusColour" A="255" R="0x72" G="0x93" B="0x72" />
         <Color x:Key="MultiLayedLayerColour" A="200" R="0x50" G="0x50" B="0x60" />
+        <Color x:Key="WindowBackgroundColour" A="255" R="0x16" G="0x2d" B="0x2d" />
         <SolidColorBrush x:Key="SelectionBlueBrush" Color="{StaticResource ResourceKey=SelectionBlue}" />
         <SolidColorBrush x:Key="FocusBrush" Color="{StaticResource ResourceKey=FocusColour}" />
         <SolidColorBrush x:Key="AddingYellowBrush" Color="{StaticResource ResourceKey=AddingYellow}" />
@@ -40,6 +40,7 @@
         <SolidColorBrush x:Key="WarningRedBrush" Color="{StaticResource ResourceKey=WarningRed}" />
         <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource ResourceKey=ControlBackgroundColour}" />
         <SolidColorBrush x:Key="ControlHeaderBrush" Color="{StaticResource ResourceKey=ControlHeaderColour}" />
+        <SolidColorBrush x:Key="WindowBackgroundBrush"  Color="{StaticResource ResourceKey=WindowBackgroundColour}" />
         <Style TargetType="{x:Type ScrollBar}">
         </Style>
 
@@ -323,8 +324,8 @@
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
                 <Grid>
-                    <TextBlock x:Name="CollapsedArrow" Foreground="Black" FontStyle="Italic" Text="(Show More)" Cursor="Hand" FontSize="12" VerticalAlignment="Center" />
-                    <TextBlock x:Name="ExpandededArrow" Foreground="Black" FontStyle="Italic" Text="(Show Less)" Visibility="Hidden" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock x:Name="CollapsedArrow" Foreground="White" FontStyle="Italic" Text="(Show More)" Cursor="Hand" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock x:Name="ExpandededArrow" Foreground="White" FontStyle="Italic" Text="(Show Less)" Visibility="Hidden" FontSize="12" VerticalAlignment="Center" />
                 </Grid>
             </Border>
         </ControlTemplate>
@@ -418,25 +419,26 @@
         </Style>
         
         <Style TargetType="Menu">
-            <Setter Property="Background" Value="{StaticResource ControlHeaderBrush}" />
+            <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
         </Style>
 
         <Style TargetType="MenuItem">
-            <Setter Property="Background" Value="{StaticResource ControlHeaderBrush}" />
-            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="BorderThickness" Value="0" />
             <Style.Triggers>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="{StaticResource SelectionBlueBrush}" />
+                    <Setter Property="Background" Value="{StaticResource FocusBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="MenuItem">
-            <Border Background="{StaticResource ControlHeaderBrush}" x:Name="_grid" Padding="2" BorderThickness="0" BorderBrush="{StaticResource ControlHeaderBrush}" >
+            <Border Background="{StaticResource ControlBackgroundBrush}" x:Name="_grid" Padding="2" BorderThickness="0" BorderBrush="{StaticResource ControlBackgroundBrush}" >
                 <Grid >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
@@ -449,7 +451,7 @@
             </Border>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="{StaticResource SelectionBlueBrush}" TargetName="_grid"/>
+                    <Setter Property="Background" Value="{StaticResource FocusBrush}" TargetName="_grid"/>
                     <Setter Property="BorderBrush" Value="Black" TargetName="_grid"/>
                     <Setter Property="Foreground" Value="White" />
                 </Trigger>
@@ -460,19 +462,21 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="MenuItem">
-            <Border Background="{StaticResource ControlHeaderBrush}" Padding="0" x:Name="_grid" BorderThickness="0" >
+            <Border Background="{StaticResource ControlBackgroundBrush}" Padding="0" x:Name="_grid" BorderThickness="0" >
                 <Grid >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
                         <ColumnDefinition Width="Auto" MinWidth="30"/>
                         <ColumnDefinition Width="*" MinWidth="30"/>
-                        <ColumnDefinition Width="30" MinWidth="0" />
+                        <ColumnDefinition Width="18" MinWidth="0" />
                     </Grid.ColumnDefinitions>
                     <Path Data="M 0,2 L 10,10 L 0,18 Z" Fill="White" Grid.Column="3" Margin="0,0,0,0" />
                     <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
                     <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}" />
                     <Popup x:Name="popup" PlacementTarget="{Binding ElementName=_grid}" Placement="Right" HorizontalOffset="0">
-                        <ItemsPresenter x:Name="_items" />
+                        <Border BorderBrush="White" BorderThickness="1">
+                            <ItemsPresenter x:Name="_items" />
+                        </Border>
                     </Popup>
                 </Grid>
             </Border>
@@ -480,7 +484,7 @@
                 <Trigger Property="IsHighlighted" Value="True" >
                     <Setter Property="Visibility" Value="Visible" TargetName="_items" />
                     <Setter Property="IsOpen" Value="True" TargetName="popup" />
-                    <Setter Property="Background" Value="{StaticResource SelectionBlueBrush}" TargetName="_grid"/>
+                    <Setter Property="Background" Value="{StaticResource FocusBrush}" TargetName="_grid"/>
                     <Setter Property="BorderBrush" Value="White" TargetName="_grid"/>
                     <Setter Property="Foreground" Value="White" />
                 </Trigger>
@@ -493,7 +497,9 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Separator">
-                        <Border Background="White" Height="2" />
+                        <Grid Background="{StaticResource ControlBackgroundBrush}">
+                            <Border Background="White" Height="2" Margin="5,2,5,2" />
+                        </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>

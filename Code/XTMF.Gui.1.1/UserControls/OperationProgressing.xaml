@@ -1,13 +1,14 @@
 ﻿<Window x:Class="XTMF.Gui.UserControls.OperationProgressing"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Operation Progressing" ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" >
+        Title="Operation Progressing" ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource WindowBackgroundBrush}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="AUTO" />
         </Grid.RowDefinitions>
-        <Label Content="Please Wait..." />
-        <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" />
+        <Label Content="Please Wait..." Foreground="White" FontSize="14" />
+        <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" Foreground="{StaticResource FocusBrush}" />
     </Grid>
 </Window>

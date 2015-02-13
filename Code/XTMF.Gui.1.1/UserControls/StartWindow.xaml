@@ -30,7 +30,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Background="{StaticResource SelectionBlueBrush}">
+            <Grid Grid.Row="0" Background="{StaticResource ControlHeaderBrush}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="AUTO" />
                     <ColumnDefinition Width="*" />
@@ -47,7 +47,31 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" BorderBrush="White" BorderThickness="2">
-                    <Grid Background="{StaticResource ControlHeaderBrush}">
+                    <Grid Background="{StaticResource ControlBackgroundBrush}">
+                        <Grid.Resources>
+                            <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
+                                <Setter Property="Cursor" Value="Hand" />
+                                <Setter Property="Foreground" Value="{StaticResource SelectionBlueBrush}" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.25" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource SelectionBlue}" Duration="0:0:0.50" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Resources>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO" MinHeight="200" />
                             <RowDefinition Height="AUTO" MinHeight="200" />
@@ -55,15 +79,15 @@
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left">
                             <Label Content="Projects" FontSize="18" Foreground="White" />
-                            <Label Content="Create a new project" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" FontSize="14" Cursor="Hand" MouseUp="NewProject_MouseUp" />
-                            <Label Content="Open a project" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="OpenProject_MouseUp" />
-                            <Label Content="Recent Projects" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" />
+                            <Label Style="{StaticResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
+                            <Label Style="{StaticResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
+                            <Label Style="{StaticResource HoverLabel}" Content="Recent Projects" Margin="0.25cm,0,0,0" FontSize="14" />
                         </StackPanel>
                         <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left">
                             <Label Content="Model Systems" FontSize="18" Foreground="White" />
-                            <Label Content="Create a new Model System" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
-                            <Label Content="Open a Model System" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
-                            <Label Content="Recent Model Systems" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" />
+                            <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
+                            <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
+                            <Label Style="{StaticResource HoverLabel}" Content="Recent Model Systems" Margin="0.25cm,0,0,0"  FontSize="14" />
                         </StackPanel>
                     </Grid>
                 </Border>

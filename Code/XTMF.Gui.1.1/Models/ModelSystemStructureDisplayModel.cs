@@ -32,11 +32,18 @@ namespace XTMF.Gui.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private static Color AddingYellow;
+
+        static ModelSystemStructureDisplayModel()
+        {
+            AddingYellow = (Color)App.Current.FindResource("AddingYellow");
+        }
+
         public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel)
         {
             BaseModel = baseModel;
-            Children = baseModel.Children == null ? null 
-                : new ObservableCollection <ModelSystemStructureDisplayModel>(
+            Children = baseModel.Children == null ? null
+                : new ObservableCollection<ModelSystemStructureDisplayModel>(
                 from child in baseModel.Children
                 select new ModelSystemStructureDisplayModel(child));
             BaseModel.PropertyChanged += BaseModel_PropertyChanged;
@@ -66,11 +73,11 @@ namespace XTMF.Gui.Models
             {
                 if(BaseModel.IsCollection)
                 {
-                    return Color.FromRgb(140, 140, 0);
+                    return AddingYellow;
                 }
                 if(BaseModel.Type == null)
                 {
-                    return (BaseModel.IsOptional) ? Color.FromRgb(0, 140, 0) : Color.FromRgb(140, 0, 0);
+                    return (BaseModel.IsOptional) ? Color.FromRgb(0x30, 0x45, 0x30) : Color.FromRgb(0x56, 0x3C, 0x3c);
                 }
                 return Color.FromRgb(0x30, 0x30, 0x30);
             }
