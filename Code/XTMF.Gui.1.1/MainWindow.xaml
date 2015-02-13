@@ -25,7 +25,7 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="XTMF Version 1.1" Height="768" Width="1024"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico">
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
@@ -47,7 +47,7 @@
                     <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
                 </MenuItem>
                 <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="False" />
-                <Separator />
+                <Separator Background="{StaticResource ControlBackgroundBrush}" />
                 <MenuItem x:Name="RunMenu" Header="_Run (F5)" Click="RunMenu_Click" IsEnabled="False">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>

@@ -29,8 +29,8 @@
         <Color x:Key="InformationGreen" A="255" R="0" G="140" B="0" />
         <Color x:Key="SelectionBlue" A="255" R="120" G="150" B="120" />
         <Color x:Key="HeaderSelectionColour" A="255" R="0" G="240" B="0" />
-        <Color x:Key="ControlBackgroundColour" A="255" R="200" G="200" B="205" />
-        <Color x:Key="ControlHeaderColour" A="255" R="75" G="75" B="75" />
+        <Color x:Key="ControlBackgroundColour" A="255" R="0x30" G="0x45" B="0x30" />
+        <Color x:Key="ControlHeaderColour" A="255" R="55" G="75" B="55" />
         <Color x:Key="FocusColour" A="255" R="120" G="175" B="120" />
         <Color x:Key="MultiLayedLayerColour" A="200" R="0x50" G="0x50" B="0x60" />
         <SolidColorBrush x:Key="SelectionBlueBrush" Color="{StaticResource ResourceKey=SelectionBlue}" />
@@ -95,7 +95,7 @@
             </Style.Resources>
             <Setter Property="BorderThickness" Value="0" />
         </Style>
-        
+
         <!-- Tab control -->
 
         <Style x:Key="XTMFTabControl"  TargetType="{x:Type TabControl}">
@@ -416,7 +416,88 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Style TargetType="Menu">
+            <Setter Property="Background" Value="{StaticResource ControlHeaderBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
 
+        <Style TargetType="MenuItem">
+            <Setter Property="Background" Value="{StaticResource ControlHeaderBrush}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{StaticResource SelectionBlueBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="MenuItem">
+            <Border Background="{StaticResource ControlHeaderBrush}" x:Name="_grid" Padding="2" BorderThickness="0" BorderBrush="{StaticResource ControlHeaderBrush}" >
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
+                        <ColumnDefinition Width="Auto" MinWidth="30" />
+                        <ColumnDefinition Width="20" />
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
+                    <ContentPresenter Grid.Column="1" VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" />
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{StaticResource SelectionBlueBrush}" TargetName="_grid"/>
+                    <Setter Property="BorderBrush" Value="Black" TargetName="_grid"/>
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="Gray" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="MenuItem">
+            <Border Background="{StaticResource ControlHeaderBrush}" Padding="0" x:Name="_grid" BorderThickness="0" >
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
+                        <ColumnDefinition Width="Auto" MinWidth="30"/>
+                        <ColumnDefinition Width="*" MinWidth="30"/>
+                        <ColumnDefinition Width="30" MinWidth="0" />
+                    </Grid.ColumnDefinitions>
+                    <Path Data="M 0,2 L 10,10 L 0,18 Z" Fill="White" Grid.Column="3" Margin="0,0,0,0" />
+                    <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
+                    <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}" />
+                    <Popup x:Name="popup" PlacementTarget="{Binding ElementName=_grid}" Placement="Right" HorizontalOffset="0">
+                        <ItemsPresenter x:Name="_items" />
+                    </Popup>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsHighlighted" Value="True" >
+                    <Setter Property="Visibility" Value="Visible" TargetName="_items" />
+                    <Setter Property="IsOpen" Value="True" TargetName="popup" />
+                    <Setter Property="Background" Value="{StaticResource SelectionBlueBrush}" TargetName="_grid"/>
+                    <Setter Property="BorderBrush" Value="White" TargetName="_grid"/>
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+
+        <Style TargetType="Separator" x:Key="{x:Static MenuItem.SeparatorStyleKey}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Background="White" Height="2" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
 
     </Application.Resources>

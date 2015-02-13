@@ -25,7 +25,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <Grid Background="#f2f2f2">
+        <Grid Background="{StaticResource ControlBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -47,23 +47,23 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" BorderBrush="White" BorderThickness="2">
-                    <Grid Background="#E0EFE0">
+                    <Grid Background="{StaticResource ControlHeaderBrush}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO" MinHeight="200" />
                             <RowDefinition Height="AUTO" MinHeight="200" />
                             <RowDefinition Height="*" MinHeight="200" />
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left">
-                            <Label Content="Projects" FontSize="18" />
-                            <Label Content="Create a new project" Foreground="Blue" Margin="0.25cm,0,0,0" FontSize="14" Cursor="Hand" MouseUp="NewProject_MouseUp" />
-                            <Label Content="Open a project" Foreground="Blue" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="OpenProject_MouseUp" />
-                            <Label Content="Recent Projects" Foreground="Blue" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" />
+                            <Label Content="Projects" FontSize="18" Foreground="White" />
+                            <Label Content="Create a new project" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" FontSize="14" Cursor="Hand" MouseUp="NewProject_MouseUp" />
+                            <Label Content="Open a project" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="OpenProject_MouseUp" />
+                            <Label Content="Recent Projects" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" />
                         </StackPanel>
                         <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left">
-                            <Label Content="Model Systems" FontSize="18" />
-                            <Label Content="Create a new Model System" Foreground="Blue" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
-                            <Label Content="Open a Model System" Foreground="Blue" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
-                            <Label Content="Recent Model Systems" Foreground="Blue" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" />
+                            <Label Content="Model Systems" FontSize="18" Foreground="White" />
+                            <Label Content="Create a new Model System" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
+                            <Label Content="Open a Model System" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
+                            <Label Content="Recent Model Systems" Foreground="{StaticResource SelectionBlueBrush}" Margin="0.25cm,0,0,0" Cursor="Hand" FontSize="14" />
                         </StackPanel>
                     </Grid>
                 </Border>

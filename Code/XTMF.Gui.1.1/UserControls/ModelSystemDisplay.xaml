@@ -142,14 +142,14 @@
                                             </Grid.ColumnDefinitions>
                                             <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding TempQuick}" ToolTip="Quick Parameter"
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
-                                            <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="Black" TextTrimming="CharacterEllipsis" Cursor="Hand" />
+                                            <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                             <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
                                                ToolTip="{Binding LinkedParameter}" Visibility="{Binding LinkedParameterVisibility}" />
                                             <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
                                                ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
                                         </Grid>
                                     </Expander.Header>
-                                    <TextBlock HorizontalAlignment="Left" Foreground="Black" FontWeight="Normal"
+                                    <TextBlock HorizontalAlignment="Left" Foreground="White" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                                 </Expander>
                                 <TextBox  Margin="0.2cm,5,0.2cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True, Mode=OneWay}" SourceUpdated="TextBox_SourceUpdated"
