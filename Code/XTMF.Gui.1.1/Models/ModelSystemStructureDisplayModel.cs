@@ -23,12 +23,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Media;
+using System.Collections.Specialized;
 
 namespace XTMF.Gui.Models
 {
     internal class ModelSystemStructureDisplayModel : INotifyPropertyChanged
     {
         internal ModelSystemStructureModel BaseModel;
+        private ObservableCollection<ModelSystemStructureModel> BaseChildren;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -46,11 +48,57 @@ namespace XTMF.Gui.Models
         public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel)
         {
             BaseModel = baseModel;
-            Children = baseModel.Children == null ? null
+            BaseChildren = baseModel.Children;
+            Children = BaseChildren == null ? null
                 : new ObservableCollection<ModelSystemStructureDisplayModel>(
                 from child in baseModel.Children
                 select new ModelSystemStructureDisplayModel(child));
             BaseModel.PropertyChanged += BaseModel_PropertyChanged;
+            if(BaseChildren != null)
+            {
+                BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
+            }
+        }
+
+        private void BaseChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch(e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    {
+                        var insertAt = e.NewStartingIndex;
+                        foreach(var item in e.NewItems)
+                        {
+                            Children.Insert(insertAt, new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel));
+                            insertAt++;
+                        }
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    {
+                        Children.Move(e.OldStartingIndex, e.NewStartingIndex);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        Children.RemoveAt(e.OldStartingIndex);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    {
+                        Children[e.OldStartingIndex] = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    {
+                        Children.Clear();
+                    }
+                    break;
+                default:
+                    {
+                        throw new NotImplementedException("An unknown action was performed!");
+                    }
+            }
         }
 
         private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -58,6 +106,18 @@ namespace XTMF.Gui.Models
             var ev = PropertyChanged;
             if(ev != null)
             {
+                if(e.PropertyName == "Children")
+                {
+                    if(BaseChildren != null)
+                    {
+                        BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
+                    }
+                    BaseChildren = BaseModel.Children;
+                    if(BaseChildren != null)
+                    {
+                        BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
+                    }
+                }
                 ModelHelper.PropertyChanged(ev, this, e.PropertyName);
                 // If the type changes it is possible that our background colour should change as well
                 if(e.PropertyName == "Type")

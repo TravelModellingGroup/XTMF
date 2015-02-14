@@ -322,7 +322,9 @@ namespace XTMF
             {
                 this.Children = new List<IModelSystemStructure>();
             }
-            this.Children.Add(new ModelSystemStructure(this.Configuration, name, type));
+            var newChild = new ModelSystemStructure(this.Configuration, name, ParentFieldType);
+            newChild.Type = type;
+            this.Children.Add(newChild);
         }
 
         public void Add(IModelSystemStructure p)

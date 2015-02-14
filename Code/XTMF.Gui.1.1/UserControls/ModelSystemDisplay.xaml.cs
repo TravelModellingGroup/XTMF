@@ -202,7 +202,18 @@ namespace XTMF.Gui.UserControls
                 {
                     if((var selectedType = findReplacement.SelectedType) != null)
                     {
-                        selectedModule.BaseModel.Type = selectedType;
+                        if(selectedModule.BaseModel.IsCollection)
+                        {
+                            string error = null;
+                            if(!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
+                            {
+                                throw new Exception(error);
+                            }
+                        }
+                        else
+                        {
+                            selectedModule.BaseModel.Type = selectedType;
+                        }
                         UpdateParameters(selectedModule.BaseModel.Parameters);
                     }
                 }
@@ -215,10 +226,17 @@ namespace XTMF.Gui.UserControls
             var newModelSystem = e.NewValue as ModelSystemModel;
             if(newModelSystem != null)
             {
-                us.ModuleDisplay.ItemsSource = us.CreateDisplayModel(newModelSystem.Root);
-                us.ModelSystemName = newModelSystem.Name;
-                us.ModuleDisplay.Items.MoveCurrentToFirst();
-                us.FilterBox.Display = us.ModuleDisplay;
+                Task.Factory.StartNew(() =>
+                {
+                    var displayModel = us.CreateDisplayModel(newModelSystem.Root);
+                    us.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        us.ModuleDisplay.ItemsSource = displayModel;
+                        us.ModelSystemName = newModelSystem.Name;
+                        us.ModuleDisplay.Items.MoveCurrentToFirst();
+                        us.FilterBox.Display = us.ModuleDisplay;
+                    }));
+                });
             }
             else
             {
