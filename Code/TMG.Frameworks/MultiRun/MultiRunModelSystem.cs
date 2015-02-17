@@ -374,6 +374,17 @@ namespace TMG.Frameworks.MultiRun
             {
                 name = runName.InnerText;
             }
+            var saveAndRunAs = run.Attributes["RunAs"];
+            if(saveAndRunAs != null)
+            {
+                var newDirectoryName = saveAndRunAs.InnerText;
+                DirectoryInfo info = new DirectoryInfo(newDirectoryName);
+                if(!info.Exists)
+                {
+                    info.Create();
+                }
+                Directory.SetCurrentDirectory(newDirectoryName);
+            }
             if(run.HasChildNodes)
             {
                 foreach(XmlNode runChild in run.ChildNodes)
@@ -387,6 +398,15 @@ namespace TMG.Frameworks.MultiRun
                     command.Invoke(runChild);
                 }
             }
+            if(saveAndRunAs != null)
+            {
+                GetRoot().Save("RunParameters.xml");
+            }
+        }
+
+        private IModelSystemStructure GetRoot()
+        {
+            return ChildStructure;
         }
     }
 
