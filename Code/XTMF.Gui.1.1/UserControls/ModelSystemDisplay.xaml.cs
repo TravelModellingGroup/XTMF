@@ -325,7 +325,7 @@ namespace XTMF.Gui.UserControls
             {
                 border.Background = border.Background.CloneCurrentValue();
             }
-            ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin ? 
+            ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin ?
                 (Color)Application.Current.FindResource("FocusColour") :
                 (Color)Application.Current.FindResource("SelectionBlue"),
                 new Duration(new TimeSpan(0, 0, 0, 0, 100)));
@@ -499,6 +499,7 @@ namespace XTMF.Gui.UserControls
         {
             if(parameters != null)
             {
+                FadeOut();
                 Task.Factory.StartNew(() =>
                 {
                     var source = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el => el.Name));
@@ -508,6 +509,8 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
                         ParameterFilterBox.RefreshFilter();
+                        DoubleAnimation fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                        this.ParameterDisplay.BeginAnimation(ListView.OpacityProperty, fadeIn);
                     }));
                 });
             }
@@ -515,6 +518,12 @@ namespace XTMF.Gui.UserControls
             {
                 ParameterDisplay.ItemsSource = null;
             }
+        }
+
+        private void FadeOut()
+        {
+            DoubleAnimation fadeOut = new DoubleAnimation(0.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+            this.ParameterDisplay.BeginAnimation(ListView.OpacityProperty, fadeOut);
         }
     }
 }
