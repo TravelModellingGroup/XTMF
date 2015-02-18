@@ -56,7 +56,7 @@
                         <RowDefinition Height="AUTO" />
                     </Grid.RowDefinitions>
 
-                    <my:BorderIconButton Grid.Row="0" x:Name="OpenDirectoryButton" Margin="5,5,5,5" Width="250" Header="Open Run Ouput"
+                    <my:BorderIconButton Grid.Row="0" x:Name="OpenDirectoryButton" Margin="5,5,5,5" Width="250" Header="Open Run Output"
                                      Text="Open the run's output directory" Icon="/XTMF.Gui;component/Resources/FolderOpen_32x32_72.png"
                                      HighlightColour="{StaticResource InformationGreen}"
                                      Clicked="OpenDirectoryButton_Clicked" />

@@ -60,5 +60,20 @@ namespace XTMF.Gui.UserControls
         }
 
         public ModelSystemEditingSession Session { get; private set; }
+
+        private void OpenDirectoryButton_Clicked(object obj)
+        {
+
+        }
+
+        private void CancelButton_Clicked(object obj)
+        {
+
+        }
+
+        private void ContinueButton_Clicked(object obj)
+        {
+
+        }
     }
 }
