@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -25,7 +25,7 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="XTMF Version 1.1" Height="768" Width="1024"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico">
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
@@ -39,7 +39,7 @@
                     <MenuItem x:Name="NewProjectButton" Header="_Project" />
                     <MenuItem x:Name="NewModelSystemButton" Header="_Model System" Click="NewModelSystemButton_Click" />
                 </MenuItem>
-                <MenuItem Header="_Open">
+                <MenuItem x:Name="OpenMenuItem" Header="_Open">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
@@ -47,7 +47,7 @@
                     <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
                 </MenuItem>
                 <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="False" />
-                <Separator />
+                <Separator Background="{StaticResource ControlBackgroundBrush}" />
                 <MenuItem x:Name="RunMenu" Header="_Run (F5)" Click="RunMenu_Click" IsEnabled="False">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
@@ -83,17 +83,57 @@
         </Menu>
         <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
         <xcad:DockingManager x:Name="DockManager" Grid.Row="1" AllowMixedOrientation="True">
+            <xcad:DockingManager.DocumentTitleTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="12" Margin="1" Foreground="White" />
+                    </Grid>
+                </DataTemplate>
+            </xcad:DockingManager.DocumentTitleTemplate>
             <xcad:DockingManager.DocumentHeaderTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Text="{Binding Title}" Foreground="Black" />
+                        <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="{StaticResource FocusBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Trigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.EnterActions>
+                                            <Trigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}"  Duration="0:0:0.1" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.ExitActions>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </StackPanel>
                 </DataTemplate>
             </xcad:DockingManager.DocumentHeaderTemplate>
             <xcad:DockingManager.Background>
-                <SolidColorBrush Color="LightGray" />
+                <SolidColorBrush Color="{StaticResource WindowBackgroundColour}" />
             </xcad:DockingManager.Background>
+            <xcad:DockingManager.Theme>
+                <xcad:MetroTheme />
+            </xcad:DockingManager.Theme>
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">
                     <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
@@ -102,9 +142,9 @@
                 </xcad:LayoutPanel>
             </xcad:LayoutRoot>
         </xcad:DockingManager>
-        <StatusBar HorizontalAlignment="Stretch" Grid.Row="2">
+        <StatusBar Background="{StaticResource WindowBackgroundBrush}" HorizontalAlignment="Stretch" Grid.Row="2">
             <StatusBarItem HorizontalAlignment="Left">
-                <TextBlock x:Name="StatusDisplay" />
+                <TextBlock x:Name="StatusDisplay" Foreground="White" />
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
                 <ProgressBar Width="100" Height="10" Minimum="0" Maximum="10000" />

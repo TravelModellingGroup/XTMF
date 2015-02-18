@@ -24,15 +24,15 @@
              xmlns:UserControl="clr-namespace:XTMF.Gui.UserControls"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <Color x:Key="WarningRed" A="255" R="140" G="0" B="0" />
-        <Color x:Key="AddingYellow" A="255" R="140" G="140" B="0" />
+        <Color x:Key="WarningRed" A="255" R="0xA1" G="0x3B" B="0x45" />
+        <Color x:Key="AddingYellow" A="255" R="0x7B" G="0x79" B="0x1E" />
         <Color x:Key="InformationGreen" A="255" R="0" G="140" B="0" />
-        <Color x:Key="SelectionBlue" A="255" R="120" G="150" B="120" />
-        <Color x:Key="HeaderSelectionColour" A="255" R="0" G="240" B="0" />
-        <Color x:Key="ControlBackgroundColour" A="255" R="200" G="200" B="205" />
-        <Color x:Key="ControlHeaderColour" A="255" R="75" G="75" B="75" />
-        <Color x:Key="FocusColour" A="255" R="120" G="175" B="120" />
+        <Color x:Key="SelectionBlue" A="255" R="0x55" G="0x6C" B="0x93" />
+        <Color x:Key="ControlHeaderColour" A="255" R="0x2F" G="0x47" B="0x6E" />
+        <Color x:Key="ControlBackgroundColour" A="255" R="0x1A" G="0x2E" B="0x52" />
+        <Color x:Key="FocusColour" A="255" R="0x7E" G="0x93" B="0xB7" />
         <Color x:Key="MultiLayedLayerColour" A="200" R="0x50" G="0x50" B="0x60" />
+        <Color x:Key="WindowBackgroundColour" A="255" R="0x09" G="0x18" B="0x32" />
         <SolidColorBrush x:Key="SelectionBlueBrush" Color="{StaticResource ResourceKey=SelectionBlue}" />
         <SolidColorBrush x:Key="FocusBrush" Color="{StaticResource ResourceKey=FocusColour}" />
         <SolidColorBrush x:Key="AddingYellowBrush" Color="{StaticResource ResourceKey=AddingYellow}" />
@@ -40,6 +40,14 @@
         <SolidColorBrush x:Key="WarningRedBrush" Color="{StaticResource ResourceKey=WarningRed}" />
         <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource ResourceKey=ControlBackgroundColour}" />
         <SolidColorBrush x:Key="ControlHeaderBrush" Color="{StaticResource ResourceKey=ControlHeaderColour}" />
+        <SolidColorBrush x:Key="WindowBackgroundBrush"  Color="{StaticResource ResourceKey=WindowBackgroundColour}" />
+        <LinearGradientBrush x:Shared="false" x:Name="AnimatedFocusBrush" x:Key="AnimatedFocusBrush">
+            <GradientStop Color="{StaticResource FocusColour}" Offset="0.0" />
+            <GradientStop Color="{StaticResource FocusColour}" Offset="0.2" />
+            <GradientStop Color="White" Offset="0.5" />
+            <GradientStop Color="{StaticResource FocusColour}" Offset="0.8" />
+            <GradientStop Color="{StaticResource FocusColour}" Offset="1.0" />
+        </LinearGradientBrush>
         <Style TargetType="{x:Type ScrollBar}">
         </Style>
 
@@ -95,7 +103,7 @@
             </Style.Resources>
             <Setter Property="BorderThickness" Value="0" />
         </Style>
-        
+
         <!-- Tab control -->
 
         <Style x:Key="XTMFTabControl"  TargetType="{x:Type TabControl}">
@@ -323,8 +331,8 @@
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
                 <Grid>
-                    <TextBlock x:Name="CollapsedArrow" Foreground="Black" FontStyle="Italic" Text="(Show More)" Cursor="Hand" FontSize="12" VerticalAlignment="Center" />
-                    <TextBlock x:Name="ExpandededArrow" Foreground="Black" FontStyle="Italic" Text="(Show Less)" Visibility="Hidden" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock x:Name="CollapsedArrow" Foreground="White" FontStyle="Italic" Text="(Show More)" Cursor="Hand" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock x:Name="ExpandededArrow" Foreground="White" FontStyle="Italic" Text="(Show Less)" Visibility="Hidden" FontSize="12" VerticalAlignment="Center" />
                 </Grid>
             </Border>
         </ControlTemplate>
@@ -416,7 +424,93 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Style TargetType="Menu">
+            <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
 
+        <Style TargetType="MenuItem">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{StaticResource FocusBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="MenuItem">
+            <Border Background="{StaticResource ControlBackgroundBrush}" x:Name="_grid" Padding="2" BorderThickness="0" BorderBrush="{StaticResource ControlBackgroundBrush}" >
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
+                        <ColumnDefinition Width="Auto" MinWidth="30" />
+                        <ColumnDefinition Width="20" />
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
+                    <ContentPresenter Grid.Column="1" VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" />
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{StaticResource FocusBrush}" TargetName="_grid"/>
+                    <Setter Property="BorderBrush" Value="Black" TargetName="_grid"/>
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="Gray" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="MenuItem">
+            <Border Background="{StaticResource ControlBackgroundBrush}" Padding="0" x:Name="_grid" BorderThickness="0" >
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
+                        <ColumnDefinition Width="Auto" MinWidth="30"/>
+                        <ColumnDefinition Width="*" MinWidth="30"/>
+                        <ColumnDefinition Width="18" MinWidth="0" />
+                    </Grid.ColumnDefinitions>
+                    <Path Data="M 0,2 L 10,10 L 0,18 Z" Fill="White" Grid.Column="3" Margin="0,0,0,0" />
+                    <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
+                    <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}" />
+                    <Popup x:Name="popup" PlacementTarget="{Binding ElementName=_grid}" Placement="Right" HorizontalOffset="0">
+                        <Border BorderBrush="White" BorderThickness="1">
+                            <ItemsPresenter x:Name="_items" />
+                        </Border>
+                    </Popup>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsHighlighted" Value="True" >
+                    <Setter Property="Visibility" Value="Visible" TargetName="_items" />
+                    <Setter Property="IsOpen" Value="True" TargetName="popup" />
+                    <Setter Property="Background" Value="{StaticResource FocusBrush}" TargetName="_grid"/>
+                    <Setter Property="BorderBrush" Value="White" TargetName="_grid"/>
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+
+        <Style TargetType="Separator" x:Key="{x:Static MenuItem.SeparatorStyleKey}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Grid Background="{StaticResource ControlBackgroundBrush}">
+                            <Border Background="White" Height="2" Margin="5,2,5,2" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
 
     </Application.Resources>

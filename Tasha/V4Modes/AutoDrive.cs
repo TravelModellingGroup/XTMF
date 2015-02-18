@@ -211,7 +211,7 @@ namespace Tasha.V4Modes
             return 0f;
         }
 
-        private void GetPersonVariables(ITashaPerson person,out float time, out float constant, out float cost)
+        private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
         {
             if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
             {
@@ -280,24 +280,16 @@ namespace Tasha.V4Modes
             for(int i = 0; i < trips.Count; i++)
             {
                 var trip = trips[i];
-                var mode = trip.Mode;
-                if(!mode.NonPersonalVehicle)
+                if(trip.Mode.RequiresVehicle == RequiresVehicle)
                 {
-                    if(mode.RequiresVehicle == RequiresVehicle)
+                    // it is only not feasible if we actually take the mode and we don't have a license
+                    if((trip.OriginalZone != vehicleLeftAt))
                     {
-                        // it is only not feasible if we actually take the mode and we don't have a license
-                        if((trip.OriginalZone != vehicleLeftAt))
-                        {
-                            return false;
-                        }
-                        vehicleLeftAt = trip.DestinationZone;
-                        lastMadeWithAuto = true;
-                        noAutoTrips = false;
+                        return false;
                     }
-                    else
-                    {
-                        lastMadeWithAuto = false;
-                    }
+                    vehicleLeftAt = trip.DestinationZone;
+                    lastMadeWithAuto = true;
+                    noAutoTrips = false;
                 }
                 else
                 {

@@ -92,6 +92,7 @@
     <Compile Include="Controllers\EditorController.cs" />
     <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />
+    <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="UserControls\AboutXTMF.xaml.cs">
       <DependentUpon>AboutXTMF.xaml</DependentUpon>
     </Compile>
@@ -125,6 +126,9 @@
     </Compile>
     <Compile Include="UserControls\OpenWindow.xaml.cs">
       <DependentUpon>OpenWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\OperationProgressing.xaml.cs">
+      <DependentUpon>OperationProgressing.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ProjectDisplay.xaml.cs">
       <DependentUpon>ProjectDisplay.xaml</DependentUpon>
@@ -206,6 +210,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\OpenWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\OperationProgressing.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

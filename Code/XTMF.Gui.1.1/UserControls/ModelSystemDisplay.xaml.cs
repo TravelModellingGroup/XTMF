@@ -33,6 +33,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
@@ -50,6 +52,8 @@ namespace XTMF.Gui.UserControls
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
         public ModelSystemEditingSession Session { get; set; }
+
+        private ModelSystemStructureDisplayModel DisplayRoot;
 
         /// <summary>
         /// The model system to display
@@ -78,7 +82,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private bool CheckFilterRec(ModelSystemStructureModel module, string filterText, TreeViewItem previous = null)
+        private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, TreeViewItem previous = null)
         {
             var children = module.Children;
             var show = false;
@@ -107,22 +111,22 @@ namespace XTMF.Gui.UserControls
 
         private UIElement GetCurrentlySelectedControl()
         {
-            return GetCurrentlySelectedControl(ModelSystem.Root, ModuleDisplay.SelectedItem as ModelSystemStructureModel);
+            return GetCurrentlySelectedControl(DisplayRoot, ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel);
         }
 
-        private UIElement GetCurrentlySelectedControl(ModelSystemStructureModel current, ModelSystemStructureModel lookingFor, TreeViewItem previous = null)
+        private UIElement GetCurrentlySelectedControl(ModelSystemStructureDisplayModel current, ModelSystemStructureDisplayModel lookingFor, TreeViewItem previous = null)
         {
             var children = current.Children;
-            var contianer = (previous == null ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current) : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
-            if(current == lookingFor && contianer != null)
+            var container = (previous == null ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(current) : previous.ItemContainerGenerator.ContainerFromItem(current)) as TreeViewItem;
+            if(current == lookingFor && container != null)
             {
-                return contianer;
+                return container;
             }
             if(children != null)
             {
                 foreach(var child in children)
                 {
-                    var childResult = GetCurrentlySelectedControl(child, lookingFor, contianer);
+                    var childResult = GetCurrentlySelectedControl(child, lookingFor, container);
                     if(childResult != null)
                     {
                         return childResult;
@@ -138,7 +142,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             FilterBox.Filter = (o, text) =>
             {
-                var module = o as ModelSystemStructureModel;
+                var module = o as ModelSystemStructureDisplayModel;
                 bool ret = false;
                 ret = CheckFilterRec(module, text);
                 return ret;
@@ -185,21 +189,32 @@ namespace XTMF.Gui.UserControls
 
         private void SelectReplacement()
         {
-            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if(Session == null)
             {
                 throw new InvalidOperationException("Session has not been set before operating.");
             }
             if(selectedModule != null)
             {
-                ModuleTypeSelect findReplacement = new ModuleTypeSelect(Session, selectedModule);
+                ModuleTypeSelect findReplacement = new ModuleTypeSelect(Session, selectedModule.BaseModel);
                 findReplacement.Owner = GetWindow();
                 if(findReplacement.ShowDialog() == true)
                 {
                     if((var selectedType = findReplacement.SelectedType) != null)
                     {
-                        selectedModule.Type = selectedType;
-                        UpdateParameters(selectedModule.Parameters);
+                        if(selectedModule.BaseModel.IsCollection)
+                        {
+                            string error = null;
+                            if(!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
+                            {
+                                throw new Exception(error);
+                            }
+                        }
+                        else
+                        {
+                            selectedModule.BaseModel.Type = selectedType;
+                        }
+                        UpdateParameters(selectedModule.BaseModel.Parameters);
                     }
                 }
             }
@@ -211,10 +226,17 @@ namespace XTMF.Gui.UserControls
             var newModelSystem = e.NewValue as ModelSystemModel;
             if(newModelSystem != null)
             {
-                us.ModuleDisplay.ItemsSource = new ObservableCollection<ModelSystemStructureModel>() { newModelSystem.Root };
-                us.ModelSystemName = newModelSystem.Name;
-                us.ModuleDisplay.Items.MoveCurrentToFirst();
-                us.FilterBox.Display = us.ModuleDisplay;
+                Task.Factory.StartNew(() =>
+                {
+                    var displayModel = us.CreateDisplayModel(newModelSystem.Root);
+                    us.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        us.ModuleDisplay.ItemsSource = displayModel;
+                        us.ModelSystemName = newModelSystem.Name;
+                        us.ModuleDisplay.Items.MoveCurrentToFirst();
+                        us.FilterBox.Display = us.ModuleDisplay;
+                    }));
+                });
             }
             else
             {
@@ -222,6 +244,15 @@ namespace XTMF.Gui.UserControls
                 us.ModelSystemName = "No model loaded";
                 us.FilterBox.Display = null;
             }
+        }
+
+        private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
+        {
+            var ret = new ObservableCollection<ModelSystemStructureDisplayModel>()
+            {
+                (DisplayRoot = new ModelSystemStructureDisplayModel(root))
+            };
+            return ret;
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -294,8 +325,10 @@ namespace XTMF.Gui.UserControls
             {
                 border.Background = border.Background.CloneCurrentValue();
             }
-            ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin ? Color.FromRgb(120, 150, 120) : Color.FromRgb(120, 175, 120),
-                new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin ?
+                (Color)Application.Current.FindResource("FocusColour") :
+                (Color)Application.Current.FindResource("SelectionBlue"),
+                new Duration(new TimeSpan(0, 0, 0, 0, 100)));
             border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
         }
 
@@ -308,7 +341,7 @@ namespace XTMF.Gui.UserControls
             if(!border.IsKeyboardFocusWithin)
             {
                 var background = (Color)Application.Current.FindResource("ControlBackgroundColour");
-                ColorAnimation setFocus = new ColorAnimation(background, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+                ColorAnimation setFocus = new ColorAnimation(background, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
                 border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
             }
         }
@@ -356,7 +389,7 @@ namespace XTMF.Gui.UserControls
             {
                 textbox.Background = textbox.Background.CloneCurrentValue();
             }
-            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
             textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
         }
 
@@ -371,7 +404,7 @@ namespace XTMF.Gui.UserControls
             {
                 textbox.Background = textbox.Background.CloneCurrentValue();
             }
-            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
             textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
         }
 
@@ -382,7 +415,7 @@ namespace XTMF.Gui.UserControls
 
         public void SaveRequested()
         {
-
+            MessageBox.Show("Save is not implemented yet!");
         }
 
         public void CloneRequested(string clonedName)
@@ -392,14 +425,11 @@ namespace XTMF.Gui.UserControls
 
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            var module = (e.NewValue as ModelSystemStructureModel);
-            this.Dispatcher.BeginInvoke(new Action(() =>
+            var module = (e.NewValue as ModelSystemStructureDisplayModel);
+            if(module != null)
             {
-                if(module != null)
-                {
-                    ModelSystemDisplay_ParametersChanged(sender, module.Parameters);
-                }
-            }));
+                UpdateParameters(module.BaseModel.Parameters);
+            }
         }
 
         private void Help_Clicked(object sender, RoutedEventArgs e)
@@ -424,7 +454,7 @@ namespace XTMF.Gui.UserControls
 
         private void Rename()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
             if(selectedModuleControl != null)
             {
@@ -453,15 +483,15 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveCurrentModule()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureModel;
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if(selected != null)
             {
                 string error = null;
-                if(!ModelSystem.Remove(selected, ref error))
+                if(!ModelSystem.Remove(selected.BaseModel, ref error))
                 {
                     throw new Exception(error);
                 }
-                UpdateParameters(selected.Parameters);
+                UpdateParameters(selected.BaseModel.Parameters);
             }
         }
 
@@ -469,6 +499,7 @@ namespace XTMF.Gui.UserControls
         {
             if(parameters != null)
             {
+                FadeOut();
                 Task.Factory.StartNew(() =>
                 {
                     var source = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el => el.Name));
@@ -478,6 +509,8 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
                         ParameterFilterBox.RefreshFilter();
+                        DoubleAnimation fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                        this.ParameterDisplay.BeginAnimation(ListView.OpacityProperty, fadeIn);
                     }));
                 });
             }
@@ -485,6 +518,12 @@ namespace XTMF.Gui.UserControls
             {
                 ParameterDisplay.ItemsSource = null;
             }
+        }
+
+        private void FadeOut()
+        {
+            DoubleAnimation fadeOut = new DoubleAnimation(0.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+            this.ParameterDisplay.BeginAnimation(ListView.OpacityProperty, fadeOut);
         }
     }
 }

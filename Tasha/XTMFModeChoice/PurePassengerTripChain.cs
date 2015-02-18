@@ -42,17 +42,17 @@ namespace Tasha.XTMFModeChoice
 
         public ITripChain GetRepTripChain
         {
-            get { throw new NotImplementedException(); }
+            get { return null; }
         }
 
         public bool JointTrip
         {
-            get { throw new NotImplementedException(); }
+            get { return false; }
         }
 
         public List<ITripChain> JointTripChains
         {
-            get { throw new NotImplementedException(); }
+            get { return null; }
         }
 
         public int JointTripID
@@ -62,12 +62,12 @@ namespace Tasha.XTMFModeChoice
 
         public bool JointTripRep
         {
-            get { throw new NotImplementedException(); }
+            get { return false; }
         }
 
         public List<ITashaPerson> passengers
         {
-            get { throw new NotImplementedException(); }
+            get { return null; }
         }
 
         public ITashaPerson Person
@@ -78,7 +78,7 @@ namespace Tasha.XTMFModeChoice
 
         public List<IVehicleType> requiresVehicle
         {
-            get { throw new NotImplementedException(); }
+            get { return null; }
         }
 
         public Time StartTime
@@ -91,7 +91,7 @@ namespace Tasha.XTMFModeChoice
 
         public bool TripChainRequiresPV
         {
-            get { throw new NotImplementedException(); }
+            get { return false; }
         }
 
         public List<ITrip> Trips
@@ -109,17 +109,17 @@ namespace Tasha.XTMFModeChoice
 
         public ITripChain Clone()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public ITripChain DeepClone()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void Recycle()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

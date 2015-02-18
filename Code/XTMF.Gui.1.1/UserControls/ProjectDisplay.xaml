@@ -30,7 +30,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-        <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="1" HorizontalAlignment="Stretch" Background="Gray">
+        <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="1" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                 <my:BorderIconButton x:Name="OpenProjectFolder" Margin="0,0,4,0" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/FolderOpen_32x32_72.png"  />
                 <my:BorderIconButton x:Name="DeleteProject" Margin="0,0,4,0" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Images/Delete.png"
@@ -40,7 +40,7 @@
             </WrapPanel>
         </Border>
         <TabControl Grid.Row="0" Background="{StaticResource ControlBackgroundBrush}" Style="{StaticResource XTMFTabControl}">
-            <TabItem Header="Model Systems" Style="{StaticResource XTMFTabItem}" Foreground="Black">
+            <TabItem Header="Model Systems" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
                 <Grid Margin="0.25cm" >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
@@ -65,7 +65,7 @@
                     </ScrollViewer>
                 </Grid>
             </TabItem>
-            <TabItem Header="PreviousRuns" Style="{StaticResource XTMFTabItem}" Foreground="Black">
+            <TabItem Header="PreviousRuns" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
                 <Grid Margin="0.25cm">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />

@@ -102,8 +102,26 @@ namespace XTMF.Gui
             {
                 if(open.LoadTask != null)
                 {
+                    OperationProgressing progressing = null;
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        progressing = new OperationProgressing()
+                        {
+                            Owner = this
+                        };
+                    }));
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.ShowDialog();
+                    }));
+
                     open.LoadTask.Wait();
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.Close();
+                    }));
                 }
+
                 var projectSession = open.ProjectSession;
                 if(projectSession != null)
                 {
@@ -139,10 +157,25 @@ namespace XTMF.Gui
             openWindow.OpenModelSystem(EditorController.Runtime);
             Task.Factory.StartNew(() =>
             {
-                var t = openWindow.LoadTask;
-                if(t != null)
+                if(openWindow.LoadTask != null)
                 {
-                    t.Wait();
+                    OperationProgressing progressing = null;
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        progressing = new OperationProgressing()
+                        {
+                            Owner = this
+                        };
+                    }));
+                        Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.ShowDialog();
+                    }));
+                    openWindow.LoadTask.Wait();
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        progressing.Close();
+                    }));
                 }
                 var session = openWindow.ModelSystemSession;
                 if(session != null)

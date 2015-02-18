@@ -143,8 +143,12 @@ namespace XTMF.Gui.UserControls
                 }
                 Task.Factory.StartNew(() =>
                 {
-                    ContainedModelSystems.AddRange((from ms in Project.ModelSystemStructure
-                                                    select new ContainedModelSystemModel(ms, Project)).OrderBy(x => x.Name));
+                    var modelSystems = (from ms in Project.ModelSystemStructure
+                                        select new ContainedModelSystemModel(ms, Project)).OrderBy(x => x.Name);
+                    lock (ContainedModelSystems)
+                    {
+                        ContainedModelSystems.AddRange(modelSystems);
+                    }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
                 });
             }
@@ -233,8 +237,10 @@ namespace XTMF.Gui.UserControls
                     us.FilterPastRunsBox.RefreshFilter();
                 }));
             };
-
-            us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
+            lock (us.Model.ContainedModelSystems)
+            {
+                us.ModelSystemDisplay.ItemsSource = us.Model.ContainedModelSystems;
+            }
             lock (us.Model.PreviousRuns)
             {
                 us.PastRunDisplay.ItemsSource = us.Model.PreviousRuns;
