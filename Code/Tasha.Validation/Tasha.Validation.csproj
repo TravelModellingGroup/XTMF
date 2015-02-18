@@ -98,6 +98,7 @@
     <Compile Include="ModeChoice\TimePeriodModeSplit.cs" />
     <Compile Include="ModeChoice\ModeSplit.cs" />
     <Compile Include="ModeChoice\ZonalModeSplits.cs" />
+    <Compile Include="PopulationSynthesis\SocialValidation.cs" />
     <Compile Include="PopulationSynthesis\ValidateOccupationResidence.cs" />
     <Compile Include="PoRPoW\ExtractPoRPoWAssignments.cs" />
     <Compile Include="PoRPoW\LinkageDistanceHistogram.cs" />
