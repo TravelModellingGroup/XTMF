@@ -107,86 +107,7 @@ namespace Tasha.Validation.PopulationSynthesis
                     CarCounts[household.Vehicles.Length] += household.ExpansionFactor;
                 }
             }
-        }
-
-        /*public int GetOccupationType(int occupation)
-        {
-            try
-            {
-                return Array.IndexOf(OccupationCategories, occupation);
-            }
-
-            catch
-            {
-                throw new XTMFRuntimeException("The occupation type was not properly specified");
-            }
-
-            /* switch (occupation)
-            {
-                case "Office":
-                    return 0;                    
-
-                case "Manufacturing":
-                    return 1;                    
-
-                case "Professional":
-                    return 2;                    
-
-                case "Retail":                    
-                    return 3;
-
-                case "Farmer":
-                    return 4;                    
-
-                case "NotEmployed":
-                    return 5;                    
-
-                case "Unknown":
-                    return 6;                   
-
-                default:
-                    throw new XTMFRuntimeException("Person Occupation is not properly defined");
-            }
-        }
-        */
-
-        /*public int GetEmploymentType(string employment)
-        {
-            try
-            {
-                return Array.IndexOf(EmploymentCategories, employment);
-            }
-            catch
-            {
-                throw new XTMFRuntimeException("The occupation type was not properly specified");
-            }
-
-            /*
-            switch (employment)
-            {
-                case "FullTime":
-                    return 0;                    
-
-                case "WorkAtHome_FullTime":
-                    return 1;                                        
-
-                case "WorkAtHome_PartTime":
-                    return 2;                     
-
-                case "NotEmployed":
-                    return 3;                    
-
-                case "PartTime":
-                    return 4;                   
-
-                case "Unknown":
-                    return 5;                    
-
-                default:
-                    throw new XTMFRuntimeException("Person Employment Status is not properly defined");
-            }
-        }
-        */
+        }        
 
         public void IterationFinished(int iteration)
         {
@@ -256,7 +177,6 @@ namespace Tasha.Validation.PopulationSynthesis
                 {
                     Writer.WriteLine("{0}, {1}", i, CarCounts[i]);
                 }
-
             }
                                        
         }
