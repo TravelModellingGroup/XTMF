@@ -75,6 +75,7 @@ namespace XTMF.Gui.UserControls
             public class PreviousRun : INotifyPropertyChanged
             {
                 public string Name { get; internal set; }
+                public string Path { get; internal set; }
                 public string TimeStamp { get; internal set; }
 
                 public event PropertyChangedEventHandler PropertyChanged;
@@ -88,14 +89,14 @@ namespace XTMF.Gui.UserControls
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public ProjectModel(IProject project, IConfiguration config)
+            public ProjectModel(IProject project, ProjectEditingSession session)
             {
                 Project = project;
                 RefreshModelSystems();
-                RefreshPastRuns(config);
+                RefreshPastRuns(session);
             }
 
-            private void RefreshPastRuns(IConfiguration config)
+            private void RefreshPastRuns(ProjectEditingSession session)
             {
 
                 if(PreviousRuns == null)
@@ -110,16 +111,14 @@ namespace XTMF.Gui.UserControls
                 {
 
                     var list = new List<PreviousRun>();
-                    var projectDir = Path.Combine(config.ProjectDirectory, Project.Name);
                     PreviousRuns.Clear();
-                    foreach(var pastRun in from dir in Directory.EnumerateDirectories(projectDir)
-                                           where File.Exists(Path.Combine(projectDir, dir, "RunParameters.xml"))
-                                           select Path.Combine(projectDir, dir))
+                    foreach(var pastRun in session.GetPreviousRuns())
                     {
                         DirectoryInfo info = new DirectoryInfo(pastRun);
                         list.Add(new PreviousRun()
                         {
                             Name = info.Name,
+                            Path = pastRun,
                             TimeStamp = info.CreationTime.ToString()
                         });
                     }
@@ -202,7 +201,7 @@ namespace XTMF.Gui.UserControls
         {
             var us = source as ProjectDisplay;
             us.DataContext = us.Project;
-            us.Model = new ProjectModel(us.Project, us.Session.GetConfiguration());
+            us.Model = new ProjectModel(us.Project, us.Session);
         }
 
         private bool FilterMS(object e, string text)
@@ -292,6 +291,11 @@ namespace XTMF.Gui.UserControls
 
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            LoadModelSystem();
+        }
+
+        private void LoadModelSystem()
+        {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if(selected != null)
             {
@@ -307,7 +311,21 @@ namespace XTMF.Gui.UserControls
 
         private void PastRunDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
+            if(selected != null)
+            {
+                var invoke = InitiateModelSystemEditingSession;
+                if(invoke != null)
+                {
+                    string error = null;
+                    var newSession = Session.LoadPreviousRun(selected.Path, ref error);
+                    if(newSession != null)
+                    {
+                        invoke(newSession);
+                    }
+                }
+                PastRunDisplay.SelectedItem = null;
+            }
         }
     }
 }

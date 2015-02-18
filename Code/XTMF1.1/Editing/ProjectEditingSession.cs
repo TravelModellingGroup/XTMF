@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -124,6 +125,42 @@ namespace XTMF
             }
             return true;
         }
+
+        /// <summary>
+        /// Get a list of previous runs for this project.
+        /// </summary>
+        /// <returns>A list of paths to directories containing</returns>
+        public List<string> GetPreviousRuns()
+        {
+            var projectDir = Path.Combine(this.GetConfiguration().ProjectDirectory, Project.Name);
+            return (from dir in Directory.EnumerateDirectories(projectDir)
+                    where File.Exists(Path.Combine(projectDir, dir, "RunParameters.xml"))
+                    select Path.Combine(projectDir, dir)).ToList();
+        }
+
+        /// <summary>
+        /// Load a previous run from file
+        /// </summary>
+        /// <param name="path">The directory the previous run was in.</param>
+        /// <param name="error">An error in case of failure</param>
+        /// <returns>An editing session if successfull, null otherwise.</returns>
+        public ModelSystemEditingSession LoadPreviousRun(string path, ref string error)
+        {
+            DirectoryInfo info = new DirectoryInfo(path);
+            if(!info.Exists)
+            {
+                error = "There is no directory with the name '" + path + "'!";
+                return null;
+            }
+            var runFileName = Path.Combine(path, "RunParameters.xml");
+            if(!File.Exists(runFileName))
+            {
+                error = "There is no file containing run parameters in the directory '" + path + "'!";
+                return null;
+            }
+            return new ModelSystemEditingSession(Runtime, this, runFileName);
+        }
+
 
         /// <summary>
         /// Move the model systems inside of a project.

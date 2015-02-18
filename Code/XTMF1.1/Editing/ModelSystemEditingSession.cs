@@ -69,6 +69,7 @@ namespace XTMF
         private List<XTMFRun> _Run = new List<XTMFRun>();
 
         private volatile bool _IsRunning;
+
         public bool IsRunning
         {
             get { return _IsRunning; }
@@ -97,6 +98,21 @@ namespace XTMF
             ModelSystemIndex = modelSystemIndex;
             ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, modelSystemIndex);
         }
+
+        /// <summary>
+        /// Create a model editing session for a previous run.  This will be read-only!
+        /// </summary>
+        /// <param name="runtime">A link to the XTMFRuntime</param>
+        /// <param name="projectSession">The project this is for.</param>
+        /// <param name="runFile">The location of the previous run.</param>
+        public ModelSystemEditingSession(XTMFRuntime runtime, ProjectEditingSession projectSession, string runFile)
+        {
+            this.Runtime = runtime;
+            ProjectEditingSession = projectSession;
+            ModelSystemIndex = -1;
+            ModelSystemModel = new ModelSystemModel(Runtime, this, projectSession.Project, runFile);
+        }
+
 
         /// <summary>
         /// Lets you know if the model system is able to run.

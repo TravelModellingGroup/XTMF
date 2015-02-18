@@ -173,6 +173,16 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Load a model system structure from file.
+        /// </summary>
+        /// <param name="runFile">The file to load from.</param>
+        /// <returns>The model system structure located at that file.</returns>
+        public ModelSystemStructure LoadFromRunFile(string runFile)
+        {
+            return ModelSystemStructure.Load(runFile, Runtime.Configuration) as ModelSystemStructure;
+        }
+
+        /// <summary>
         /// Check the name parameter
         /// </summary>
         /// <param name="name"></param>

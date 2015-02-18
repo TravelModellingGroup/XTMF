@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace XTMF
 {
@@ -113,8 +114,23 @@ namespace XTMF
             Name = project.ModelSystemStructure[modelSystemIndex].Name;
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
             Root = new ModelSystemStructureModel(session, project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters, modelSystemIndex) as ModelSystemStructure);
-            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
             _Description = Project.ModelSystemDescriptions[modelSystemIndex];
+            LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+        }
+
+        /// <summary>
+        /// Create a model system model for a previous run.
+        /// </summary>
+        /// <param name="modelSystemEditingSession">The session to use</param>
+        /// <param name="project">The project the previous run is in.</param>
+        /// <param name="runFile">The path to the run file.</param>
+        public ModelSystemModel(XTMFRuntime runtime, ModelSystemEditingSession modelSystemEditingSession, Project project, string runFile)
+        {
+            Project = project;
+            ModelSystemIndex = -1;
+            Name = Path.GetFileName(runFile);
+            _Description = "Previous run";
+            Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
         }
 
         private bool _Dirty = false;
@@ -132,6 +148,7 @@ namespace XTMF
 
 
         private string _Description;
+
         /// <summary>
         /// Describes the Model System
         /// </summary>
@@ -177,11 +194,16 @@ namespace XTMF
                 ModelSystem.Description = Description;
                 return ModelSystem.Save(ref error);
             }
-            else
+            else if(ModelSystemIndex >= 0)
             {
                 Project.ModelSystemStructure[ModelSystemIndex] = ClonedModelSystemRoot;
                 Project.ModelSystemDescriptions[ModelSystemIndex] = Description;
                 return Project.Save(ref error);
+            }
+            else
+            {
+                error = "You can not save over previous runs!";
+                return false;
             }
         }
 
