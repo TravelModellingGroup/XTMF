@@ -57,7 +57,8 @@ namespace XTMF
         private XTMFRuntime Runtime;
         private ModelSystem ModelSystem;
         private int ModelSystemIndex;
-        private ProjectEditingSession ProjectEditingSession;
+
+        public ProjectEditingSession ProjectEditingSession { get; private set; }
 
         /// <summary>
         /// This event occurs when no references are left to this editing session.
@@ -193,6 +194,7 @@ namespace XTMF
         {
             get; private set;
         }
+
 
         /// <summary>
         /// Save the session.

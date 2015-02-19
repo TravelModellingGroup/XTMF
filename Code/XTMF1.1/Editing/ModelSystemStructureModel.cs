@@ -36,7 +36,7 @@ namespace XTMF
         {
             Session = session;
             RealModelSystemStructure = realModelSystemStructure;
-            Parameters = new ParametersModel(RealModelSystemStructure, session);
+            Parameters = new ParametersModel(this, session);
             Children = CreateChildren(Session, RealModelSystemStructure);
         }
 
@@ -74,7 +74,7 @@ namespace XTMF
                         Dirty = true;
                         RealModelSystemStructure.Type = value;
                         UpdateChildren();
-                        Parameters = new ParametersModel(RealModelSystemStructure, Session);
+                        Parameters = new ParametersModel(this, Session);
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
                         if(oldDirty == false)
                         {

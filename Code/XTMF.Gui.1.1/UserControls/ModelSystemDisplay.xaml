@@ -39,7 +39,7 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search... (Ctrl+E)" />
+            <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
             <TreeView Grid.Row="1" Background="{StaticResource ControlBackgroundBrush}" 
                   x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}" SelectedItemChanged="ModuleDisplay_SelectedItemChanged"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
@@ -117,10 +117,21 @@
         <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
+                <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search... (Ctrl+P)" />
-            <ListView Grid.Row="1" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Border Grid.Row="0" BorderBrush="White" Background="{StaticResource ControlHeaderBrush}" BorderThickness="1" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="White" FontSize="16" />
+                    <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="White" FontSize="12" />
+                </Grid>
+            </Border>
+            <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
+            <ListView Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       Margin="0" Background="{StaticResource ControlBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle">
                 <ListView.ItemTemplate>

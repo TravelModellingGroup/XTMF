@@ -454,16 +454,21 @@ namespace XTMF.Gui
 
         internal void CloseWindow(UIElement window)
         {
-            foreach(var page in OpenPages)
+            var page = OpenPages.FirstOrDefault(p =>
             {
-                if(page.Content == window)
+                if(p.Content == window)
                 {
-                    if(!page.CanClose)
+                    if(!p.CanClose)
                     {
-                        page.CanClose = true;
+                        p.CanClose = true;
                     }
-                    page.Close();
+                    return true;
                 }
+                return false;
+            });
+            if(page != null)
+            {
+                page.Close();
             }
         }
     }

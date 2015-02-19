@@ -509,6 +509,17 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
                         ParameterFilterBox.RefreshFilter();
+                        var type = parameters.ModelSystemStructure.Type;
+                        if(type != null)
+                        {
+                            SelectedName.Text = type.Name;
+                            SelectedNamespace.Text = type.FullName;
+                        }
+                        else
+                        {
+                            SelectedName.Text = "None Selected";
+                            SelectedNamespace.Text = String.Empty;
+                        }
                         DoubleAnimation fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
                         this.ParameterDisplay.BeginAnimation(ListView.OpacityProperty, fadeIn);
                     }));
@@ -517,6 +528,8 @@ namespace XTMF.Gui.UserControls
             else
             {
                 ParameterDisplay.ItemsSource = null;
+                SelectedName.Text = "None Selected";
+                SelectedNamespace.Text = String.Empty;
             }
         }
 

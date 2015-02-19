@@ -29,10 +29,11 @@ namespace XTMF
     {
         private ModelSystemEditingSession Session;
 
-        public ParametersModel(ModelSystemStructure RealModelSystemStructure, ModelSystemEditingSession session)
+        public ParametersModel(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession session)
         {
             Session = session;
-            Parameters = CreateParameterModels(RealModelSystemStructure, Session);
+            ModelSystemStructure = modelSystemStructure;
+            Parameters = CreateParameterModels(modelSystemStructure, Session);
         }
 
         public bool IsDirty
@@ -49,14 +50,15 @@ namespace XTMF
             }
         }
 
+        public ModelSystemStructureModel ModelSystemStructure { get; private set; }
         internal List<ParameterModel> Parameters { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static List<ParameterModel> CreateParameterModels(ModelSystemStructure realModelSystemStructure, ModelSystemEditingSession Session)
+        private static List<ParameterModel> CreateParameterModels(ModelSystemStructureModel modelSystemStructure, ModelSystemEditingSession Session)
         {
-            if(realModelSystemStructure.Parameters == null) return null;
-            var realParameters = realModelSystemStructure.Parameters.Parameters;
+            if(modelSystemStructure.RealModelSystemStructure.Parameters == null) return null;
+            var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters.Parameters;
             if(realParameters == null) return null;
             var ret = new List<ParameterModel>(realParameters.Count);
             for(int i = 0; i < realParameters.Count; i++)

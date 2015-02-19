@@ -29,6 +29,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Shell;
+using System.Windows.Threading;
 
 namespace XTMF.Gui.UserControls
 {
@@ -38,19 +40,215 @@ namespace XTMF.Gui.UserControls
     public partial class RunWindow : UserControl
     {
         private XTMFRun Run;
+        private string RunDirectory;
+        private DateTime StartTime;
+        private DispatcherTimer Timer;
+        private bool Windows7OrAbove = false;
+        private volatile bool IsActive = false;
+        private volatile bool IsFinished = false;
+        private volatile bool WasCanceled = false;
+        static Tuple<byte, byte, byte> ErrorColour;
+        private BindingListWithRemoving<SubProgress> SubProgressBars = new BindingListWithRemoving<SubProgress>();
+        private BindingListWithRemoving<IProgressReport> ProgressReports;
+
+        private struct SubProgress
+        {
+            internal Label Name;
+            internal TMGProgressBar ProgressBar;
+        }
+
+        /// <summary>
+        /// Requires Windows 7
+        /// </summary>
+        private TaskbarItemInfo TaskbarInformation;
+
+        static RunWindow()
+        {
+            var errorColour = (Color)Application.Current.FindResource("WarningRed");
+            ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
+        }
 
         public RunWindow(ModelSystemEditingSession session)
         {
             InitializeComponent();
             Session = session;
             session.SessionClosed += Session_SessionClosed;
+            var runName = "Run Name";
+            var question = new 
+            StartRun(session, string runName);
         }
+
+        private void StartRun(ModelSystemEditingSession session, string runName)
+        {
+            string error = null;
+            Run = session.Run(runName, ref error);
+            ProgressReports = Run.Configuration.ProgressReports;
+            Run.RunComplete += Run_RunComplete;
+            Run.RunStarted += Run_RunStarted;
+            Run.RuntimeError += Run_RuntimeError;
+            Run.RuntimeValidationError += Run_RuntimeValidationError;
+            Run.ValidationStarting += Run_ValidationStarting;
+            Run.ValidationError += Run_ValidationError;
+            RunDirectory = Run.RunDirectory;
+            Timer = new DispatcherTimer();
+            Timer.Interval = TimeSpan.FromMilliseconds(1000 / 30);
+            Timer.Tick += new EventHandler(Timer_Tick);
+            if(Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                var major = Environment.OSVersion.Version.Major;
+                if(major > 6 || (major >= 6 && Environment.OSVersion.Version.Minor >= 1))
+                {
+                    Windows7OrAbove = true;
+                    TaskbarInformation = new TaskbarItemInfo();
+                }
+            }
+            StartRunAsync();
+            Timer.Start();
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                if(IsActive)
+                {
+                    if(Run != null)
+                    {
+                        float progress = 1;
+                        Tuple<byte, byte, byte> colour = ErrorColour;
+                        try
+                        {
+                            StatusLabel.Text = Run.PollStatusMessage();
+                            progress = Run.PollProgress();
+                            colour = Run.PollColour();
+                        }
+                        catch
+                        { }
+                        progress = progress * 10000;
+
+                        if(progress > 10000) progress = 10000;
+                        if(progress < 0) progress = 0;
+                        if(colour != null)
+                        {
+                            ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
+                        }
+                        ProgressBar.Value = progress;
+                        if(Windows7OrAbove)
+                        {
+                            TaskbarInformation.ProgressValue = ((progress / 10000));
+                        }
+                        int subProgressBarLength = SubProgressBars.Count;
+                        for(int i = 0; i < subProgressBarLength; i++)
+                        {
+                            try
+                            {
+                                progress = ProgressReports[i].GetProgress();
+                                progress = progress * 10000;
+                                if(progress > 10000) progress = 10000;
+                                if(progress < 0) progress = 0;
+                                SubProgressBars[i].ProgressBar.Value = progress;
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        if(!(IsFinished))
+                        {
+                            var elapsedTime = (DateTime.Now - StartTime);
+                            int days = elapsedTime.Days;
+                            elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
+                            if(days < 1)
+                            {
+                                ElapsedTimeLabel.Content = string.Format("Elapsed Time: {0:g}", elapsedTime);
+                            }
+                            else
+                            {
+                                ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}", elapsedTime, days);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ProgressBar.Value = IsFinished ? 10000 : 0;
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        private void Run_ValidationError(string obj)
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                SetRunFinished();
+                MessageBox.Show("Validation Error\r\n" + obj);
+            }));
+        }
+
+        private void Run_ValidationStarting()
+        {
+        }
+
+        private void Run_RuntimeValidationError(string obj)
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                SetRunFinished();
+                MessageBox.Show("Runtime Validation Error\r\n" + obj);
+            }));
+        }
+
+        private void Run_RuntimeError(Exception obj)
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                SetRunFinished();
+                MessageBox.Show("Runtime Error\r\n" + obj.Message);
+            }));
+            
+        }
+
+        private void SetRunFinished()
+        {
+            IsFinished = true;
+            ContinueButton.IsEnabled = true;
+            CancelButton.IsEnabled = false;
+            if(WasCanceled)
+            {
+                StatusLabel.Text = "Run Canceled";
+            }
+            else
+            {
+                StatusLabel.Text = "Run Complete";
+            }
+            ProgressBar.Finished = true;
+            ContinueButton.FlashAnimation(5);
+            OpenDirectoryButton.FlashAnimation(5);
+        }
+
+        private void Run_RunStarted()
+        {
+            IsActive = true;
+        }
+
+        private void Run_RunComplete()
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                SetRunFinished();
+            }));
+        }
+
 
         /// <summary>
         /// Starts the run asynchronously
         /// </summary>
         private void StartRunAsync()
         {
+            StartTime = DateTime.Now;
+            StartTimeLabel.Content = string.Format("Start Time: {0:g}", StartTime);
             Run.Start();
         }
 
@@ -63,17 +261,24 @@ namespace XTMF.Gui.UserControls
 
         private void OpenDirectoryButton_Clicked(object obj)
         {
-
+            if(System.IO.Directory.Exists(RunDirectory))
+            {
+                System.Diagnostics.Process.Start(RunDirectory);
+            }
+            else
+            {
+                MessageBox.Show(RunDirectory + " does not exist!");
+            }
         }
 
         private void CancelButton_Clicked(object obj)
         {
-
+            WasCanceled = Run.ExitRequest();
         }
 
         private void ContinueButton_Clicked(object obj)
         {
-
+            MainWindow.Us.CloseWindow(this);
         }
     }
 }

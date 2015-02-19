@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,7 +32,7 @@ namespace XTMF
         /// <summary>
         /// The link to XTMF's settings
         /// </summary>
-        protected IConfiguration Config;
+        public IConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// The model system to execute
@@ -54,12 +54,15 @@ namespace XTMF
         /// </summary>
         protected string RunName;
 
+        public string RunDirectory { get; private set; }
+
         public XTMFRun(IProject project, int modelSystemIndex, IConfiguration config, string runName)
         {
-            this.Project = project;
-            this.ModelSystemIndex = modelSystemIndex;
-            this.Config = config;
-            this.RunName = runName;
+            Project = project;
+            ModelSystemIndex = modelSystemIndex;
+            Configuration = config;
+            RunName = runName;
+            RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
         }
 
         /// <summary>
@@ -100,8 +103,8 @@ namespace XTMF
         /// <returns>If the model system accepted the exit request</returns>
         public bool ExitRequest()
         {
-            var mst = this.MST;
-            if ( mst != null )
+            var mst = MST;
+            if(mst != null )
             {
                 return mst.ExitRequest();
             }
@@ -114,8 +117,8 @@ namespace XTMF
         /// <returns>The colour requested by the model system</returns>
         public Tuple<byte, byte, byte> PollColour()
         {
-            var mst = this.MST;
-            if ( mst != null )
+            var mst = MST;
+            if(mst != null )
             {
                 return mst.ProgressColour;
             }
@@ -128,8 +131,8 @@ namespace XTMF
         /// <returns>The current progress between 0 and 1</returns>
         public virtual float PollProgress()
         {
-            var mst = this.MST;
-            if ( mst != null )
+            var mst = MST;
+            if(mst != null )
             {
                 return mst.Progress;
             }
@@ -142,8 +145,8 @@ namespace XTMF
         /// <returns></returns>
         public virtual string PollStatusMessage()
         {
-            var mst = this.MST;
-            if ( mst != null )
+            var mst = MST;
+            if(mst != null )
             {
                 return mst.ToString();
             }
@@ -152,7 +155,7 @@ namespace XTMF
 
         public virtual void Start()
         {
-            new Task( () => OurRun(), TaskCreationOptions.LongRunning ).Start();
+            new Task(() => OurRun(), TaskCreationOptions.LongRunning).Start();
         }
 
         /// <summary>
@@ -163,19 +166,19 @@ namespace XTMF
         /// <returns>This will be false if there is an error, true otherwise</returns>
         protected bool RunTimeValidation(ref string error, IModelSystemStructure currentPoint)
         {
-            if ( currentPoint.Module != null )
+            if(currentPoint.Module != null )
             {
-                if ( !currentPoint.Module.RuntimeValidation( ref error ) )
+                if (!currentPoint.Module.RuntimeValidation(ref error))
                 {
                     return false;
                 }
             }
             // check to see if there are descendants that need to be checked
-            if ( currentPoint.Children != null )
+            if(currentPoint.Children != null )
             {
-                foreach ( var module in currentPoint.Children )
+                foreach(var module in currentPoint.Children)
                 {
-                    if ( !this.RunTimeValidation( ref error, module ) )
+                    if (!RunTimeValidation(ref error, module))
                     {
                         return false;
                     }
@@ -186,8 +189,8 @@ namespace XTMF
 
         private void AlertValidationStarting()
         {
-            var alert = this.ValidationStarting;
-            if ( alert != null )
+            var alert = ValidationStarting;
+            if(alert != null )
             {
                 alert();
             }
@@ -199,20 +202,20 @@ namespace XTMF
         /// <param name="ms">The model system structure to clean up</param>
         private void CleanUpModelSystem(IModelSystemStructure ms)
         {
-            if ( ms != null )
+            if(ms != null )
             {
                 var disp = ms.Module as IDisposable;
-                if ( disp != null )
+                if(disp != null )
                 {
                     disp.Dispose();
                 }
                 ms.Module = null;
             }
-            if ( ms.Children != null )
+            if(ms.Children != null )
             {
-                foreach ( var child in ms.Children )
+                foreach(var child in ms.Children)
                 {
-                    this.CleanUpModelSystem( child );
+                    CleanUpModelSystem(child);
                 }
             }
         }
@@ -223,66 +226,65 @@ namespace XTMF
             string error = null;
             try
             {
-                this.MST = this.Project.CreateModelSystem( ref error, this.ModelSystemIndex );
+                MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
             }
             catch (Exception e)
             {
-                SendValidationError( e.Message );
+                SendValidationError(e.Message);
                 return;
             }
-            if ( MST == null )
+            if(MST == null )
             {
-                SendValidationError( error );
+                SendValidationError(error);
                 return;
             }
-            var MSTStructure = this.Project.ModelSystemStructure[this.ModelSystemIndex];
+            var MSTStructure = Project.ModelSystemStructure[ModelSystemIndex];
             try
             {
                 AlertValidationStarting();
-                var path = Path.Combine( this.Config.ProjectDirectory, this.Project.Name, this.RunName );
-                cwd = System.IO.Directory.GetCurrentDirectory();
+                cwd = Directory.GetCurrentDirectory();
                 // check to see if the directory exists, if it doesn't create it
-                DirectoryInfo info = new DirectoryInfo( path );
-                if ( !info.Exists )
+                DirectoryInfo info = new DirectoryInfo(RunDirectory);
+                if (!info.Exists)
                 {
                     info.Create();
                 }
-                System.IO.Directory.SetCurrentDirectory( path );
-                MSTStructure.Save( Path.GetFullPath( "RunParameters.xml" ) );
-                if ( !this.RunTimeValidation( ref error, MSTStructure ) )
+                Directory.SetCurrentDirectory(RunDirectory);
+                MSTStructure.Save(Path.GetFullPath("RunParameters.xml" ) );
+                if (!RunTimeValidation(ref error, MSTStructure))
                 {
-                    this.SendRuntimeValidationError( error );
+                    SendRuntimeValidationError(error);
                 }
                 else
                 {
-                    this.SetStatusToRunning();
+                    SetStatusToRunning();
                     MST.Start();
                 }
             }
             catch (Exception e)
             {
-                this.SendRuntimeError( e );
+                SendRuntimeError(e);
             }
             finally
             {
                 Thread.MemoryBarrier();
-                this.CleanUpModelSystem( MSTStructure );
+                CleanUpModelSystem(MSTStructure);
                 MSTStructure = null;
                 MST = null;
-                ( this.Config as Configuration ).ModelSystemExited();
+                ((Configuration as Configuration)).ModelSystemExited();
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 Thread.MemoryBarrier();
-                System.IO.Directory.SetCurrentDirectory( cwd );
+                Directory.SetCurrentDirectory(cwd);
                 SendRunComplete();
             }
         }
 
         private void SendRunComplete()
         {
-            var alert = this.RunComplete;
-            if ( alert != null )
+            var alert = RunComplete;
+            if(alert != null )
             {
                 alert();
             }
@@ -290,35 +292,35 @@ namespace XTMF
 
         private void SendRuntimeError(Exception errorMessage)
         {
-            var alert = this.RuntimeError;
-            if ( alert != null )
+            var alert = RuntimeError;
+            if(alert != null )
             {
-                alert( errorMessage );
+                alert(errorMessage);
             }
         }
 
         private void SendRuntimeValidationError(string errorMessage)
         {
-            var alert = this.RuntimeValidationError;
-            if ( alert != null )
+            var alert = RuntimeValidationError;
+            if(alert != null )
             {
-                alert( errorMessage );
+                alert(errorMessage);
             }
         }
 
         private void SendValidationError(string errorMessage)
         {
-            var alert = this.ValidationError;
-            if ( alert != null )
+            var alert = ValidationError;
+            if(alert != null )
             {
-                alert( errorMessage );
+                alert(errorMessage);
             }
         }
 
         private void SetStatusToRunning()
         {
-            var alert = this.RunStarted;
-            if ( alert != null )
+            var alert = RunStarted;
+            if(alert != null )
             {
                 alert();
             }
