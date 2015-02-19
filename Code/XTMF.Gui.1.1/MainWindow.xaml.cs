@@ -471,5 +471,21 @@ namespace XTMF.Gui
                 page.Close();
             }
         }
+
+        internal void SetWindowName(object window, string newName)
+        {
+            var page = OpenPages.FirstOrDefault(p =>
+            {
+                if(p.Content == window)
+                {
+                    return true;
+                }
+                return false;
+            });
+            if(page != null)
+            {
+                page.Title = newName;
+            }
+        }
     }
 }

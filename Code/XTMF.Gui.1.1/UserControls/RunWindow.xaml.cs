@@ -74,13 +74,33 @@ namespace XTMF.Gui.UserControls
             Session = session;
             session.SessionClosed += Session_SessionClosed;
             var runName = "Run Name";
-            var question = new 
-            StartRun(session, string runName);
+            StringRequest req = new StringRequest("Run Name", ValidateName);
+            if(req.ShowDialog() == true)
+            {
+                runName = req.Answer;
+                StartRun(session, runName);
+            }
+            else
+            {
+                MainWindow.Us.CloseWindow(this);
+            }
+        }
+
+        private bool ValidateName(string arg)
+        {
+            return !String.IsNullOrEmpty(arg) &&
+                !(from c in System.IO.Path.GetInvalidFileNameChars()
+                  where arg.Contains(c)
+                  select c).Any();
         }
 
         private void StartRun(ModelSystemEditingSession session, string runName)
         {
             string error = null;
+            Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    MainWindow.Us.SetWindowName(this, "Run - " + runName);
+                }));
             Run = session.Run(runName, ref error);
             ProgressReports = Run.Configuration.ProgressReports;
             Run.RunComplete += Run_RunComplete;
@@ -207,7 +227,7 @@ namespace XTMF.Gui.UserControls
                 SetRunFinished();
                 MessageBox.Show("Runtime Error\r\n" + obj.Message);
             }));
-            
+
         }
 
         private void SetRunFinished()
