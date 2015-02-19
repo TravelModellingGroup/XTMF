@@ -76,7 +76,7 @@ namespace Tasha.EMME
                         continue;
                     }
                     var jointTour = tripChains[j].JointTrip;
-                    if(!tripChains[j].JointTripRep)
+                    if(tripChains[j].JointTrip && !tripChains[j].JointTripRep)
                     {
                         continue;
                     }
