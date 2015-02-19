@@ -44,6 +44,10 @@ namespace XTMF
 
         internal ModelSystemStructure ClonedModelSystemRoot { get; private set; }
 
+        private Project Project;
+
+        private int ModelSystemIndex;
+
         public ModelSystemModel(ModelSystemEditingSession session, ModelSystem modelSystem)
         {
             ModelSystem = modelSystem;
@@ -103,9 +107,6 @@ namespace XTMF
             }
             return null;
         }
-
-        private Project Project;
-        private int ModelSystemIndex;
 
         public ModelSystemModel(ModelSystemEditingSession session, Project project, int modelSystemIndex)
         {
