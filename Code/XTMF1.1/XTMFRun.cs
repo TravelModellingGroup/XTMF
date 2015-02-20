@@ -54,6 +54,11 @@ namespace XTMF
         /// </summary>
         protected string RunName;
 
+        /// <summary>
+        /// The model system root if we are using a past run
+        /// </summary>
+        private ModelSystemStructureModel ModelSystemStructureModelRoot;
+
         public string RunDirectory { get; private set; }
 
         public XTMFRun(IProject project, int modelSystemIndex, IConfiguration config, string runName)
@@ -64,6 +69,16 @@ namespace XTMF
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
         }
+
+        public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName)
+        {
+            Project = project;
+            ModelSystemStructureModelRoot = root;
+            Configuration = configuration;
+            RunName = runName;
+            RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
+        }
+
 
         /// <summary>
         /// An event that fires when the run completes successfully
@@ -104,7 +119,7 @@ namespace XTMF
         public bool ExitRequest()
         {
             var mst = MST;
-            if(mst != null )
+            if(mst != null)
             {
                 return mst.ExitRequest();
             }
@@ -118,7 +133,7 @@ namespace XTMF
         public Tuple<byte, byte, byte> PollColour()
         {
             var mst = MST;
-            if(mst != null )
+            if(mst != null)
             {
                 return mst.ProgressColour;
             }
@@ -132,7 +147,7 @@ namespace XTMF
         public virtual float PollProgress()
         {
             var mst = MST;
-            if(mst != null )
+            if(mst != null)
             {
                 return mst.Progress;
             }
@@ -146,7 +161,7 @@ namespace XTMF
         public virtual string PollStatusMessage()
         {
             var mst = MST;
-            if(mst != null )
+            if(mst != null)
             {
                 return mst.ToString();
             }
@@ -166,19 +181,19 @@ namespace XTMF
         /// <returns>This will be false if there is an error, true otherwise</returns>
         protected bool RunTimeValidation(ref string error, IModelSystemStructure currentPoint)
         {
-            if(currentPoint.Module != null )
+            if(currentPoint.Module != null)
             {
-                if (!currentPoint.Module.RuntimeValidation(ref error))
+                if(!currentPoint.Module.RuntimeValidation(ref error))
                 {
                     return false;
                 }
             }
             // check to see if there are descendants that need to be checked
-            if(currentPoint.Children != null )
+            if(currentPoint.Children != null)
             {
                 foreach(var module in currentPoint.Children)
                 {
-                    if (!RunTimeValidation(ref error, module))
+                    if(!RunTimeValidation(ref error, module))
                     {
                         return false;
                     }
@@ -190,7 +205,7 @@ namespace XTMF
         private void AlertValidationStarting()
         {
             var alert = ValidationStarting;
-            if(alert != null )
+            if(alert != null)
             {
                 alert();
             }
@@ -202,16 +217,16 @@ namespace XTMF
         /// <param name="ms">The model system structure to clean up</param>
         private void CleanUpModelSystem(IModelSystemStructure ms)
         {
-            if(ms != null )
+            if(ms != null)
             {
                 var disp = ms.Module as IDisposable;
-                if(disp != null )
+                if(disp != null)
                 {
                     disp.Dispose();
                 }
                 ms.Module = null;
             }
-            if(ms.Children != null )
+            if(ms.Children != null)
             {
                 foreach(var child in ms.Children)
                 {
@@ -224,34 +239,44 @@ namespace XTMF
         {
             string cwd = null;
             string error = null;
+            IModelSystemStructure MSTStructure;
             try
             {
-                MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
+                if(ModelSystemStructureModelRoot == null)
+                {
+                    MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
+                    MSTStructure = Project.ModelSystemStructure[ModelSystemIndex];
+                }
+                else
+                {
+                    MST = ((Project)Project).CreateModelSystem(ref error, ModelSystemStructureModelRoot.RealModelSystemStructure);
+                    MSTStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
+                }
             }
             catch (Exception e)
             {
                 SendValidationError(e.Message);
                 return;
             }
-            if(MST == null )
+            if(MST == null)
             {
                 SendValidationError(error);
                 return;
             }
-            var MSTStructure = Project.ModelSystemStructure[ModelSystemIndex];
+
             try
             {
                 AlertValidationStarting();
                 cwd = Directory.GetCurrentDirectory();
                 // check to see if the directory exists, if it doesn't create it
                 DirectoryInfo info = new DirectoryInfo(RunDirectory);
-                if (!info.Exists)
+                if(!info.Exists)
                 {
                     info.Create();
                 }
                 Directory.SetCurrentDirectory(RunDirectory);
-                MSTStructure.Save(Path.GetFullPath("RunParameters.xml" ) );
-                if (!RunTimeValidation(ref error, MSTStructure))
+                MSTStructure.Save(Path.GetFullPath("RunParameters.xml"));
+                if(!RunTimeValidation(ref error, MSTStructure))
                 {
                     SendRuntimeValidationError(error);
                 }
@@ -284,7 +309,7 @@ namespace XTMF
         private void SendRunComplete()
         {
             var alert = RunComplete;
-            if(alert != null )
+            if(alert != null)
             {
                 alert();
             }
@@ -293,7 +318,7 @@ namespace XTMF
         private void SendRuntimeError(Exception errorMessage)
         {
             var alert = RuntimeError;
-            if(alert != null )
+            if(alert != null)
             {
                 alert(errorMessage);
             }
@@ -302,7 +327,7 @@ namespace XTMF
         private void SendRuntimeValidationError(string errorMessage)
         {
             var alert = RuntimeValidationError;
-            if(alert != null )
+            if(alert != null)
             {
                 alert(errorMessage);
             }
@@ -311,7 +336,7 @@ namespace XTMF
         private void SendValidationError(string errorMessage)
         {
             var alert = ValidationError;
-            if(alert != null )
+            if(alert != null)
             {
                 alert(errorMessage);
             }
@@ -320,7 +345,7 @@ namespace XTMF
         private void SetStatusToRunning()
         {
             var alert = RunStarted;
-            if(alert != null )
+            if(alert != null)
             {
                 alert();
             }

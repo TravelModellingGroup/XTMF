@@ -96,7 +96,7 @@ namespace XTMF.Gui.UserControls
                 RefreshPastRuns(session);
             }
 
-            private void RefreshPastRuns(ProjectEditingSession session)
+            public void RefreshPastRuns(ProjectEditingSession session)
             {
 
                 if(PreviousRuns == null)
@@ -326,6 +326,11 @@ namespace XTMF.Gui.UserControls
                 }
                 PastRunDisplay.SelectedItem = null;
             }
+        }
+
+        private void RefreshPreviousRuns_Clicked(object obj)
+        {
+            Model.RefreshPastRuns(Session);
         }
     }
 }

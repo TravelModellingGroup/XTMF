@@ -243,13 +243,17 @@ namespace XTMF
 
         internal void ModelSystemEditingSessionClosed(ModelSystemEditingSession modelSystemEditingSession, int modelSystemIndex)
         {
-            lock (EditingSessionsLock)
+            // ensure this model system is not a past run
+            if(modelSystemIndex >= 0)
             {
-                this.EditingSessions[modelSystemIndex].References--;
-                if(this.EditingSessions[modelSystemIndex].References <= 0)
+                lock (EditingSessionsLock)
                 {
-                    this.EditingSessions[modelSystemIndex].References = 0;
-                    this.EditingSessions[modelSystemIndex].Session = null;
+                    this.EditingSessions[modelSystemIndex].References--;
+                    if(this.EditingSessions[modelSystemIndex].References <= 0)
+                    {
+                        this.EditingSessions[modelSystemIndex].References = 0;
+                        this.EditingSessions[modelSystemIndex].Session = null;
+                    }
                 }
             }
         }

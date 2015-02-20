@@ -69,10 +69,14 @@
                 <Grid Margin="0.25cm">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
+                        <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
-                    <ListBox Grid.Row="1" x:Name="PastRunDisplay" Background="Transparent"
+                    <my:BorderIconButton HorizontalAlignment="Left" x:Name="RefreshPreviousRuns" Margin="0,0,4,0" Header="Refresh" Text="Refresh previous runs"
+                                         Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png"
+                                         Clicked="RefreshPreviousRuns_Clicked"/>
+                    <my:FilterBox Grid.Row="1" x:Name="FilterPastRunsBox" />
+                    <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="Transparent"
                                  SelectionChanged="PastRunDisplay_SelectionChanged"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListBox.ItemsPanel>

@@ -140,7 +140,15 @@ namespace XTMF
                     error = "You can not run this model system.";
                     return null;
                 }
-                XTMFRun run = new XTMFRun(ProjectEditingSession.Project, ModelSystemIndex, Runtime.Configuration, runName);
+                XTMFRun run;
+                if(ModelSystemIndex >= 0)
+                {
+                    run = new XTMFRun(ProjectEditingSession.Project, ModelSystemIndex, Runtime.Configuration, runName);
+                }
+                else
+                {
+                    run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName);
+                }
                 this._Run.Add(run);
                 _IsRunning = true;
                 run.RunComplete += () => TerminateRun(run);
