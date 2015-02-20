@@ -27,6 +27,7 @@ using TMG;
 using Datastructure;
 using TMG.Input;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Tasha.EMME
 {
@@ -308,6 +309,9 @@ namespace Tasha.EMME
 
         public void IterationFinished(int iteration, int totalIterations)
         {
+            //Min each OD to Zero
+            MinZero(Matrix[0]);
+            MinZero(Matrix[1]);
             // Apply the special generators
             for(int i = 0; i < SpecialGenerators.Length; i++)
             {
@@ -316,6 +320,18 @@ namespace Tasha.EMME
             // write to disk
             new EmmeMatrix(ZoneSystem, Matrix[0]).Save(SOVMatrixSaveLocation, true);
             new EmmeMatrix(ZoneSystem, Matrix[1]).Save(HOVMatrixSaveLocation, true);
+        }
+
+        private void MinZero(float[][] matrix)
+        {
+            Parallel.For(0, matrix.Length, (int i) =>
+            {
+                var row = matrix[i];
+                for(int j = 0; j < row.Length; j++)
+                {
+                    row[j] = Math.Max(row[j], 0.0f);
+                }
+            });
         }
 
         public void Load(int maxIterations)
