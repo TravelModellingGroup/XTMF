@@ -134,46 +134,50 @@ namespace XTMF.Gui.UserControls
                 {
                     if(Run != null)
                     {
-                        float progress = 1;
-                        Tuple<byte, byte, byte> colour = ErrorColour;
-                        try
-                        {
-                            StatusLabel.Text = Run.PollStatusMessage();
-                            progress = Run.PollProgress();
-                            colour = Run.PollColour();
-                        }
-                        catch
-                        { }
-                        progress = progress * 10000;
-
-                        if(progress > 10000) progress = 10000;
-                        if(progress < 0) progress = 0;
-                        if(colour != null)
-                        {
-                            ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
-                        }
-                        ProgressBar.Value = progress;
-                        if(Windows7OrAbove)
-                        {
-                            TaskbarInformation.ProgressValue = ((progress / 10000));
-                        }
-                        int subProgressBarLength = SubProgressBars.Count;
-                        for(int i = 0; i < subProgressBarLength; i++)
-                        {
-                            try
-                            {
-                                progress = ProgressReports[i].GetProgress();
-                                progress = progress * 10000;
-                                if(progress > 10000) progress = 10000;
-                                if(progress < 0) progress = 0;
-                                SubProgressBars[i].ProgressBar.Value = progress;
-                            }
-                            catch
-                            {
-                            }
-                        }
                         if(!(IsFinished))
                         {
+                            float progress = 1;
+                            Tuple<byte, byte, byte> colour = ErrorColour;
+                            try
+                            {
+                                var status = Run.PollStatusMessage(); ;
+                                if(status != null)
+                                {
+                                    StatusLabel.Text = status;
+                                }
+                                progress = Run.PollProgress();
+                                colour = Run.PollColour();
+                            }
+                            catch
+                            { }
+                            progress = progress * 10000;
+
+                            if(progress > 10000) progress = 10000;
+                            if(progress < 0) progress = 0;
+                            if(colour != null)
+                            {
+                                ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
+                            }
+                            ProgressBar.Value = progress;
+                            if(Windows7OrAbove)
+                            {
+                                TaskbarInformation.ProgressValue = ((progress / 10000));
+                            }
+                            int subProgressBarLength = SubProgressBars.Count;
+                            for(int i = 0; i < subProgressBarLength; i++)
+                            {
+                                try
+                                {
+                                    progress = ProgressReports[i].GetProgress();
+                                    progress = progress * 10000;
+                                    if(progress > 10000) progress = 10000;
+                                    if(progress < 0) progress = 0;
+                                    SubProgressBars[i].ProgressBar.Value = progress;
+                                }
+                                catch
+                                {
+                                }
+                            }
                             var elapsedTime = (DateTime.Now - StartTime);
                             int days = elapsedTime.Days;
                             elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);

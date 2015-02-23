@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -505,6 +506,7 @@ namespace XTMF.Gui.UserControls
                     var source = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el => el.Name));
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
+                        CleanUpParameters();
                         ParameterDisplay.ItemsSource = source;
                         ParameterFilterBox.Display = ParameterDisplay;
                         ParameterFilterBox.Filter = FilterParameters;
@@ -531,6 +533,11 @@ namespace XTMF.Gui.UserControls
                 SelectedName.Text = "None Selected";
                 SelectedNamespace.Text = String.Empty;
             }
+        }
+
+        private void CleanUpParameters()
+        {
+            
         }
 
         private void FadeOut()

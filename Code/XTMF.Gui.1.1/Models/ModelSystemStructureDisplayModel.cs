@@ -27,7 +27,7 @@ using System.Collections.Specialized;
 
 namespace XTMF.Gui.Models
 {
-    internal class ModelSystemStructureDisplayModel : INotifyPropertyChanged
+    internal sealed class ModelSystemStructureDisplayModel : INotifyPropertyChanged
     {
         internal ModelSystemStructureModel BaseModel;
         private ObservableCollection<ModelSystemStructureModel> BaseChildren;
