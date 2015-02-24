@@ -122,6 +122,7 @@
     <Compile Include="SetWriteToLogbook.cs" />
     <Compile Include="SimpleNetworkAssignment.cs" />
     <Compile Include="EmmeTool.cs" />
+    <Compile Include="Tools\ApplyBatchLineEdits.cs" />
     <Compile Include="TransitLines.cs" />
     <Compile Include="Utilities\ChainExecutionDuringEmme.cs" />
     <Compile Include="Utilities\ConvertMatrixToBinary.cs" />
