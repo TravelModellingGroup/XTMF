@@ -43,6 +43,9 @@ namespace TMG.Emme.Tools
         [SubModelInformation(Required = true, Description = "A link to the file containing how to modify transit schedules.")]
         public FileLocation TransitAlternativeTable;
 
+        [SubModelInformation(Required = true, Description = "A path to the batch edit file.")]
+        public FileLocation BatchEditFile;
+
         [RunParameter("Default Aggregation", "Naive", typeof(Aggregation), "The default aggregation to apply.")]
         public Aggregation DefaultAggregation;
 
@@ -132,7 +135,7 @@ namespace TMG.Emme.Tools
                  Scen4Description, Scen4Start, Scen4End,
                  Scen5UnNumber, Scen5UnDescription, Scen5Number, 
                  Scen5Description, Scen5Start, Scen5End,
-                 TransitServiceTableFile, AggTypeSelectionFile, AlternativeDataFile,
+                 TransitServiceTableFile, AggTypeSelectionFile, AlternativeDataFile,BatchEditFile,
                  DefaultAgg, PublishFlag, OverwriteScenarioFlag, NodeFilterAttributeId,
                  StopFilterAttributeId, ConnectorFilterAttributeId, AttributeAggregatorString,
                  LineFilterExpression*/
@@ -142,6 +145,7 @@ namespace TMG.Emme.Tools
                                     "\"" + Path.GetFullPath(TransitServiceTable.GetFilePath()) + "\"",
                                     "\"" + Path.GetFullPath(TransitAggreggationSelectionTable.GetFilePath()) + "\"",
                                     "\"" + Path.GetFullPath(TransitAlternativeTable.GetFilePath()) + "\"",
+                                    "\"" + Path.GetFullPath(BatchEditFile.GetFilePath()) + "\"",
                                     DefaultAggregation == Aggregation.Naive ? "n" : "a",
                                     "True",
                                     "True",
