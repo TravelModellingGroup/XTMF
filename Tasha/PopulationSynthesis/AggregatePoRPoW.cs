@@ -178,15 +178,26 @@ namespace Tasha.PopulationSynthesis
             return (float)utility;
         }
 
+        public int[][] HighPerformanceMap;
+
+
         private Segment GetSegment(int pdO, int pdD)
         {
             var segments = Segments;
-            for(int i = 0; i < segments.Length; i++)
+            if(HighPerformanceMap != null)
             {
-                if(segments[i].OriginPDs.Contains(pdO)
-                    && segments[i].DestinationPDs.Contains(pdD))
+                var index = HighPerformanceMap[pdO][pdD];
+                return index >= 0 ? segments[index] : null;
+            }
+            else
+            {
+                for(int i = 0; i < segments.Length; i++)
                 {
-                    return segments[i];
+                    if(segments[i].OriginPDs.Contains(pdO)
+                        && segments[i].DestinationPDs.Contains(pdD))
+                    {
+                        return segments[i];
+                    }
                 }
             }
             return null;
@@ -221,6 +232,10 @@ namespace Tasha.PopulationSynthesis
             if(pds == null)
             {
                 PlanningDistricts = pds = zones.Select((zone) => zone.PlanningDistrict).ToArray();
+            }
+            if(KeepLocalData)
+            {
+                CreateHighPerformanceLookup(zoneArray);
             }
             float[] workerSplits = LoadWorkerCategories(zones, zoneArray);
             SparseTwinIndex<float> kFactors = null;
@@ -275,6 +290,33 @@ namespace Tasha.PopulationSynthesis
                 WorkerCategories = null;
             }
             Loaded = true;
+        }
+
+        private void CreateHighPerformanceLookup(SparseArray<IZone> zoneArray)
+        {
+            if(HighPerformanceMap == null)
+            {
+                var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<int>(zoneArray);
+                var pdIndexes = pds.ValidIndexArray();
+                HighPerformanceMap = new int[pdIndexes.Max() + 1][];
+                Parallel.For(0, HighPerformanceMap.Length, (int i) =>
+                {
+                    var row = HighPerformanceMap[i] = new int[HighPerformanceMap.Length];
+                    for(int j = 0; j < row.Length; j++)
+                    {
+                        int index = -1;
+                        for(int k = 0; k < Segments.Length; k++)
+                        {
+                            if(Segments[k].OriginPDs.Contains(i) && Segments[k].DestinationPDs.Contains(j))
+                            {
+                                index = k;
+                                break;
+                            }
+                        }
+                        row[j] = index;
+                    }
+                });
+            }
         }
 
         private float[] CreateNormalizedJobs(SparseArray<float> employmentSeekers, float[] employment)

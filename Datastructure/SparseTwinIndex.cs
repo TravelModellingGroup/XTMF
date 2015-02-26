@@ -448,7 +448,6 @@ namespace Datastructure
         private bool TansformO(SparseSet[] subIndexes, ref int o, out SparseSet oSet)
         {
             // if it is large use binary search
-            oSet = default( SparseSet );
             if ( subIndexes.Length < LookUpLinearMax )
             {
                 //otherwise just do a linear search\
@@ -486,6 +485,7 @@ namespace Datastructure
                     }
                 }
             }
+            oSet = default(SparseSet);
             return false;
         }
 
