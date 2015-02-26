@@ -45,7 +45,7 @@ namespace XTMF
         {
             var hours = (long)time;
             var minutes = (long)( Math.Round( ( time - (long)time ) * 100 ) );
-            this.InternalTime = ( hours * 3600 + minutes * 60 ) * 1000;
+            this.InternalTime = ( hours * 3600000L + minutes * 60000L);
         }
 
         public Time(DateTime time)
@@ -121,7 +121,7 @@ namespace XTMF
 
         public static Time FromMinutes(float result)
         {
-            return new Time() { InternalTime = (long)Math.Round( result * 60000.0f ) };
+            return new Time() { InternalTime = (long)(result * 60000.0f) };
         }
 
         public static implicit operator DateTime(Time t)

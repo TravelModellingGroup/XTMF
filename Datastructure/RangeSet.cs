@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Datastructure
@@ -232,7 +233,7 @@ namespace Datastructure
         {
             for ( int i = 0; i < this.SetRanges.Length; i++ )
             {
-                if ( ( number >= this.SetRanges[i].Start ) & ( number <= this.SetRanges[i].Stop ) )
+                if ( ( number >= this.SetRanges[i].Start ) && ( number <= this.SetRanges[i].Stop ) )
                 {
                     return true;
                 }
