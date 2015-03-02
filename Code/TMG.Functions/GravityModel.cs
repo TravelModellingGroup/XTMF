@@ -20,11 +20,20 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
-
+using System.Numerics;
+using TMG.Functions.VectorHelper;
 namespace TMG.Functions
 {
     public sealed class GravityModel
     {
+        // Dummy code to get the JIT to startup with SIMD
+        static Vector<float> _Unused;
+
+        static GravityModel()
+        {
+            _Unused = Vector<float>.One;
+        }
+
         private SparseArray<float> Attractions;
         private SparseArray<float> AttractionsStar;
         private float Epsilon;
@@ -84,6 +93,7 @@ namespace TMG.Functions
             }
             int iteration = 0;
             float[] columnTotals = new float[length];
+            var balanced = false;
             do
             {
                 if(ProgressCallback != null)
@@ -93,15 +103,21 @@ namespace TMG.Functions
                     ProgressCallback(iteration / (float)MaxIterations);
                 }
                 Array.Clear(columnTotals, 0, columnTotals.Length);
-                ProcessFlow(columnTotals);
-            } while((++iteration) < MaxIterations && !Balance(columnTotals, oldTotal));
+                if(Vector.IsHardwareAccelerated)
+                {
+                    VectorProcessFlow(columnTotals);
+                }
+                else
+                {
+                    ProcessFlow(columnTotals);
+                }
+                balanced = Balance(columnTotals, oldTotal);
+            } while((++iteration) < MaxIterations && !balanced);
 
             if(ProgressCallback != null)
             {
                 ProgressCallback(1f);
             }
-            // Rebalancing isn't actually doing anything productive
-            //Rebalance( this.FlowMatrix, O );
             return FlowMatrix;
         }
 
@@ -133,6 +149,7 @@ namespace TMG.Functions
                     }
                 }
             });
+            Thread.MemoryBarrier();
             return balanced;
         }
 
@@ -196,6 +213,43 @@ namespace TMG.Functions
                         {
                             columnTotals[i] += localTotals[i];
                         }
+                    }
+                });
+        }
+
+        private void VectorProcessFlow(float[] columnTotals)
+        {
+            Parallel.For(0, Productions.GetFlatData().Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                () => new float[columnTotals.Length],
+                (int flatOrigin, ParallelLoopState state, float[] localTotals) =>
+                {
+                    float sumAF = 0;
+                    var flatProductions = Productions.GetFlatData();
+                    var flatFriction = Friction.GetFlatData();
+                    var flatAStar = AttractionsStar.GetFlatData();
+                    var flatAttractions = Attractions.GetFlatData();
+                    var length = flatFriction.Length;
+                    var flatFrictionRow = flatFriction[flatOrigin];
+                    // check to see if there is no production, if not skip this
+                    if(flatProductions[flatOrigin] > 0)
+                    {
+                        sumAF = VectorMultiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, length);
+                        sumAF = (1 / sumAF) * flatProductions[flatOrigin];
+                        if(float.IsInfinity(sumAF) | float.IsNaN(sumAF))
+                        {
+                            // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
+                            sumAF = 0f;
+                        }
+                        var flatFlowsRow = FlowMatrix.GetFlatData()[flatOrigin];
+                        VectorMultiply3Scalar1AndColumnSum(flatFlowsRow, 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, length);
+                    }
+                    return localTotals;
+                },
+                (float[] localTotals) =>
+                {
+                    lock (columnTotals)
+                    {
+                        VectorAdd(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
                     }
                 });
         }

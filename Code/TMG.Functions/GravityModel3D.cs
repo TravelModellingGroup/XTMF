@@ -23,10 +23,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
+using System.Numerics;
+using TMG.Functions.VectorHelper;
 namespace TMG.Functions
 {
     public static class GravityModel3D
     {
+        // Dummy code to get the JIT to startup with SIMD
+        static Vector<float> _Unused;
+
+        static GravityModel3D()
+        {
+            _Unused = Vector<float>.One;
+        }
+
         public static float[] ProduceFlows(int maxIterations, float epsilon, float[] categoriesByOrigin, float[] destinations, float[] friction, int categories, int numberofZones)
         {
 
@@ -42,26 +52,18 @@ namespace TMG.Functions
             do
             {
                 Array.Clear(columnTotals, 0, columnTotals.Length);
-                Apply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
-                balanced = Balance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
+                if(Vector.IsHardwareAccelerated)
+                {
+                    VectorApply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
+                    balanced = Balance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
+                }
+                else
+                {
+                    Apply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
+                    balanced = Balance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
+                }
             } while(iterations++ < maxIterations & !balanced);
             return ret;
-        }
-
-        public static float _CountRows(int numberOfZones, float[] ret, int categories, int i)
-        {
-            float total = 0.0f;
-            for(int k = 0; k < categories; k++)
-            {
-                int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
-                float local = 0.0f;
-                for(int j = 0; j < numberOfZones; j++)
-                {
-                    local += ret[index + j];
-                }
-                total += local;
-            }
-            return total;
         }
 
         private static void Apply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
@@ -98,6 +100,33 @@ namespace TMG.Functions
                     {
                         columnTotals[i] += localTotals[i];
                     }
+                }
+            });
+        }
+
+        private static void VectorApply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
+        {
+            var numberOfZones = columnTotals.Length;
+            Parallel.For(0, columnTotals.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                () => new float[columnTotals.Length],
+                 (int i, ParallelLoopState state, float[] localTotals) =>
+            {
+                for(int k = 0; k < categories; k++)
+                {
+                    var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
+                    if(catByOrigin <= 0) continue;
+                    int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
+                    var sumAF = VectorMultiplyAndSum(friction, index, dStar, 0, numberOfZones);
+                    if(sumAF <= 0) continue;
+                    VectorMultiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAF, localTotals, 0, numberOfZones);
+                }
+                return localTotals;
+            },
+                 (float[] localTotals) =>
+            {
+                lock (columnTotals)
+                {
+                    VectorAdd(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
                 }
             });
         }

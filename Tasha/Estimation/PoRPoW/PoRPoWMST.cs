@@ -175,6 +175,9 @@ namespace Tasha.Estimation.PoRPoW
             }
         }
 
+        [RunParameter("Use RMSE", false, "Use Root Mean Square Error instead of log likelihood.")]
+        public bool UseRMSE;
+
         private float ComputeError(float[][] truth, float[][] aggregated)
         {
             float error = 0.0f;
@@ -190,25 +193,37 @@ namespace Tasha.Estimation.PoRPoW
                 var aggRow = aggregated[i];
                 if(sumOfRow > 0)
                 {
-                    // for each destination
-                    for(int j = 0; j < truthRow.Length; j++)
+                    if(UseRMSE)
                     {
-                        var pTruth = (truthRow[j] * InverseOfTotalTrips);
-                        if(pTruth > 0)
+                        // for each destination
+                        for(int j = 0; j < truthRow.Length; j++)
                         {
-                            var pModel = aggRow[j] * InverseOfTotalTrips;
-                            double cellError;
-                            if(pModel > pTruth)
+                            var delta = aggRow[j] - truthRow[j];
+                            currentError += delta * delta;
+                        }
+                    }
+                    else
+                    {
+                        // for each destination
+                        for(int j = 0; j < truthRow.Length; j++)
+                        {
+                            var pTruth = (truthRow[j] * InverseOfTotalTrips);
+                            if(pTruth > 0)
                             {
-                                // y - deltaXY <=> 2y-x
-                                cellError = pTruth * Math.Log(Math.Min((Math.Max((pTruth + pTruth - pModel), 0)
-                                    + (pTruth * 0.00015)) / (pTruth * 1.00015), 1));
+                                var pModel = aggRow[j] * InverseOfTotalTrips;
+                                double cellError;
+                                if(pModel > pTruth)
+                                {
+                                    // y - deltaXY <=> 2y-x
+                                    cellError = pTruth * Math.Log(Math.Min((Math.Max((pTruth + pTruth - pModel), 0)
+                                        + (pTruth * 0.00015)) / (pTruth * 1.00015), 1));
+                                }
+                                else
+                                {
+                                    cellError = pTruth * Math.Log(Math.Min((pModel + (pTruth * 0.00015)) / (pTruth * 1.00015), 1));
+                                }
+                                currentError += cellError;
                             }
-                            else
-                            {
-                                cellError = pTruth * Math.Log(Math.Min((pModel + (pTruth * 0.00015)) / (pTruth * 1.00015), 1));
-                            }
-                            currentError += cellError;
                         }
                     }
                 }

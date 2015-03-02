@@ -4,6 +4,6 @@
     <StartArguments>128.100.16.88 1447</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|x86'">
-    <StartArguments>128.100.14.206 1447</StartArguments>
+    <StartArguments>localhost 1447</StartArguments>
   </PropertyGroup>
 </Project>
