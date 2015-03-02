@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,28 +32,30 @@ namespace TMG.Functions
 
             var ret = new float[categories * numberofZones * numberofZones];
             var destinationStar = new float[numberofZones];
-            for ( int i = 0; i < destinationStar.Length; i++ )
+            for(int i = 0; i < destinationStar.Length; i++)
             {
                 destinationStar[i] = destinations[i];
             }
             int iterations = 1;
             bool balanced;
+            float[] columnTotals = new float[numberofZones];
             do
             {
-                Apply( ret, categoriesByOrigin, friction, destinationStar, categories, numberofZones );
-                balanced = Balance( ret, destinations, destinationStar, epsilon, categories, numberofZones );
-            } while (iterations++ < maxIterations & !balanced);
+                Array.Clear(columnTotals, 0, columnTotals.Length);
+                Apply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
+                balanced = Balance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
+            } while(iterations++ < maxIterations & !balanced);
             return ret;
         }
 
         public static float _CountRows(int numberOfZones, float[] ret, int categories, int i)
         {
             float total = 0.0f;
-            for ( int k = 0; k < categories; k++ )
+            for(int k = 0; k < categories; k++)
             {
-                int index = ( k * numberOfZones * numberOfZones ) + ( i * numberOfZones );
+                int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
                 float local = 0.0f;
-                for ( int j = 0; j < numberOfZones; j++ )
+                for(int j = 0; j < numberOfZones; j++)
                 {
                     local += ret[index + j];
                 }
@@ -62,74 +64,61 @@ namespace TMG.Functions
             return total;
         }
 
-        private static void Apply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, int categories, int numberOfZones)
+        private static void Apply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
         {
-            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
-            {
-                for ( int k = 0; k < categories; k++ )
-                {
-                    var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
-                    if ( catByOrigin <= 0 ) continue;
-                    int index = ( k * numberOfZones * numberOfZones ) + ( i * numberOfZones );
-                    float sumAF = 0.0f;
-                    for ( int j = 0; j < numberOfZones; j++ )
-                    {
-                        sumAF += friction[index + j] * dStar[j];
-                    }
-                    if ( sumAF <= 0 ) continue;
-                    var totalFromOrigin = catByOrigin / sumAF;
-                    for ( int j = 0; j < numberOfZones; j++ )
-                    {
-                        ret[index + j] = totalFromOrigin * friction[index + j] * dStar[j];
-                    }
-                }
-            } );
-        }
-
-        private static bool Balance(float[] ret, float[] destinations, float[] destinationStar, float epsilon, int categories, int numberofZones)
-        {
-            bool balanced = true;
-            float[] jTotal = new float[numberofZones];
-            Parallel.For(0, numberofZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                ()=> new float[numberofZones],
-                (int i, ParallelLoopState state, float[] localTotals) =>
+            var numberOfZones = columnTotals.Length;
+            Parallel.For(0, columnTotals.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                () => new float[columnTotals.Length],
+                 (int i, ParallelLoopState state, float[] localTotals) =>
             {
                 for(int k = 0; k < categories; k++)
                 {
-                    int categoryDestOffset = (numberofZones * numberofZones * k) + i * numberofZones;
-                    for(int j = 0; j < numberofZones; j++)
+                    var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
+                    if(catByOrigin <= 0) continue;
+                    int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
+                    float sumAF = 0.0f;
+                    for(int j = 0; j < numberOfZones; j++)
                     {
-                        localTotals[j] += ret[categoryDestOffset + j];
+                        sumAF += friction[index + j] * dStar[j];
+                    }
+                    if(sumAF <= 0) continue;
+                    var totalFromOrigin = catByOrigin / sumAF;
+                    for(int j = 0; j < numberOfZones; j++)
+                    {
+                        localTotals[j] += ret[index + j] = totalFromOrigin * friction[index + j] * dStar[j];
                     }
                 }
                 return localTotals;
             },
-                (float[] localTotals)=>
+                 (float[] localTotals) =>
             {
-                lock (jTotal)
+                lock (columnTotals)
                 {
                     for(int i = 0; i < localTotals.Length; i++)
                     {
-                        jTotal[i] += localTotals[i];
+                        columnTotals[i] += localTotals[i];
                     }
                 }
-            }
-                );
+            });
+        }
 
-            Parallel.For( 0, numberofZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+        private static bool Balance(float[] ret, float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon, int categories)
+        {
+            bool balanced = true;
+            Parallel.For(0, columnTotals.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 () => true,
                 (int j, ParallelLoopState state, bool localBalanced) =>
             {
-                if ( destinations[j] <= 0 ) return localBalanced;
-                var residule = destinations[j] / jTotal[j];
-                if ( float.IsInfinity( residule ) )
+                if(destinations[j] <= 0) return localBalanced;
+                var residule = destinations[j] / columnTotals[j];
+                if(float.IsInfinity(residule))
                 {
                     destinationStar[j] = destinations[j];
                     return false;
                 }
                 else
                 {
-                    if ( Math.Abs( residule - 1.0f ) > epsilon )
+                    if(Math.Abs(residule - 1.0f) > epsilon)
                     {
                         localBalanced = false;
                     }
@@ -139,11 +128,11 @@ namespace TMG.Functions
             },
                 (bool localBalanced) =>
             {
-                if ( !localBalanced )
+                if(!localBalanced)
                 {
                     balanced = false;
                 }
-            } );
+            });
             Thread.MemoryBarrier();
             return balanced;
         }
