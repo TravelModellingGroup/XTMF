@@ -206,7 +206,8 @@ namespace TMG.Functions
         /// <param name="length">The amount of data to multiply</param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorMultiplyAndSum(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static float VectorMultiplyAndSum(float[] destination, int destIndex, float[] first, int firstIndex,
+            float[] second, int secondIndex, int length)
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
@@ -263,14 +264,15 @@ namespace TMG.Functions
         /// <param name="length">The amount of data to multiply</param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorMultiply3AndSum(float[] first, int firstIndex, float[] second, int secondIndex, float[] third, int thirdIndex, int length)
+        public static float VectorMultiply3AndSum(float[] first, int firstIndex, float[] second, int secondIndex,
+            float[] third, int thirdIndex, int length)
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
             // copy everything we can do inside of a vector
             for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
             {
-                var local = (new Vector<float>(first, i + firstIndex) * new Vector<float>(second, i + secondIndex) * new Vector<float>(second, i + thirdIndex));
+                var local = (new Vector<float>(first, i + firstIndex) * new Vector<float>(second, i + secondIndex) * new Vector<float>(third, i + thirdIndex));
                 acc += local;
             }
             // copy the remainder

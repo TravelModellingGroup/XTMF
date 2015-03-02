@@ -95,12 +95,76 @@ namespace XTMF.Testing
         }
 
         [TestMethod]
-        public void TestVectirMultiplyAndSum2V()
+        public void TestVectorMultiplyAndSum2V()
         {
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
             var total = VectorMultiplyAndSum(first, 0, first, 0, second, 0, first.Length);
             Assert.AreEqual(600.0f, total, 0.00001f);
+            for(int i = 0; i < first.Length; i++)
+            {
+                Assert.AreEqual(6.0f, first[i], 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void TestVectorMultiplyAndSum2VNoSave()
+        {
+            float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
+            float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
+            var total = VectorMultiplyAndSum(first, 0, second, 0, first.Length);
+            Assert.AreEqual(600.0f, total, 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestVectorMultiplyAndSum3VNoSave()
+        {
+            float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
+            float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
+            float[] third = Enumerable.Range(1, 100).Select(p => 5.0f).ToArray();
+            var total = VectorMultiply3AndSum(first, 0, second, 0, third, 0, first.Length);
+            Assert.AreEqual(3000, total, 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestVectorMultiply2Scalar1AndColumnSum()
+        {
+            float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
+            float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
+            float[] columnSum = Enumerable.Range(1, 100).Select(p => (float)p).ToArray();
+            VectorMultiply2Scalar1AndColumnSum(first, 0, first, 0, second, 0, -1.0f, columnSum, 0, first.Length);
+            for(int i = 0; i < first.Length; i++)
+            {
+                Assert.AreEqual(-6.0f, first[i], 0.00001f);
+                Assert.AreEqual((i + 1) + -6.0f, columnSum[i], 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void TestVectorMultiply3Scalar1AndColumnSum()
+        {
+            float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
+            float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
+            float[] third = Enumerable.Range(1, 100).Select(p => 7.0f).ToArray();
+            float[] columnSum = Enumerable.Range(1, 100).Select(p => (float)p).ToArray();
+            VectorMultiply3Scalar1AndColumnSum(first, 0, first, 0, second, 0, third, 0, -1.0f, columnSum, 0, first.Length);
+            for(int i = 0; i < first.Length; i++)
+            {
+                Assert.AreEqual(-42.0f, first[i], 0.00001f);
+                Assert.AreEqual((i + 1) + -42.0f, columnSum[i], 0.00001f);
+            }
+        }
+
+        [TestMethod]
+        public void TestVectorAdd()
+        {
+            float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
+            float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
+            VectorAdd(first, 0, first, 0, second, 0, first.Length);
+            for(int i = 0; i < first.Length; i++)
+            {
+                Assert.AreEqual(5.0f, first[i], 0.00001f);
+            }
         }
     }
 }
