@@ -26,6 +26,7 @@ using Datastructure;
 using System.Threading.Tasks;
 using TMG.Input;
 using TMG.Functions;
+using TMG.Functions.VectorHelper;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -325,7 +326,19 @@ namespace Tasha.PopulationSynthesis
             var totalPop = pop.Sum();
             var totalEmployment = employment.Sum();
             var balanceFactor = totalPop / totalEmployment;
-            return employment.AsParallel().Select(emp => emp * balanceFactor).ToArray();
+            var ret = new float[employment.Length];
+            if(IsHardwareAccelerated)
+            {
+                VectorMultiply(ret, 0, employment, 0, balanceFactor, ret.Length);
+            }
+            else
+            {
+                for(int i = 0; i < employment.Length; i++)
+                {
+                    ret[i] = employment[i] * balanceFactor;
+                }
+            }
+            return ret;
         }
 
         private float[] LocalWorkerCategories;
@@ -341,9 +354,16 @@ namespace Tasha.PopulationSynthesis
             for(int workerCategory = 0; workerCategory < NumberOfWorkerCategories; workerCategory++)
             {
                 int WorkerCategoryOffset = workerCategory * pop.Length;
-                for(int i = 0; i < pop.Length; i++)
+                if(IsHardwareAccelerated)
                 {
-                    ret[i + WorkerCategoryOffset] = pop[i] * workerSplits[i + WorkerCategoryOffset];
+                    VectorMultiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
+                }
+                else
+                {
+                    for(int i = 0; i < pop.Length; i++)
+                    {
+                        ret[i + WorkerCategoryOffset] = pop[i] * workerSplits[i + WorkerCategoryOffset];
+                    }
                 }
             }
             if(KeepLocalData)
@@ -371,15 +391,14 @@ namespace Tasha.PopulationSynthesis
             }
             // now fill it
             var r = ret.GetFlatData();
-            var length = sizeof(float) * r[0].Length;
-            Parallel.For(0, r.Length, (int i) =>
+            var numberOfZones = r[0].Length;
+            Parallel.For(0, numberOfZones, (int i) =>
             {
-                var originRow = r[i];
-                var pos = (originRow.Length * originRow.Length * sizeof(float)) * i;
-                for(int j = 0; j < originRow.Length; j++)
+                for(int workerCategory = 0; workerCategory < r.Length; workerCategory++)
                 {
-                    Buffer.BlockCopy(results, pos, originRow[j], 0, length);
-                    pos += length;
+                    var workerCategoryMatrix = r[workerCategory];
+                    var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + workerCategoryMatrix.Length * i);
+                    Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones);
                 }
             });
             return ret;

@@ -34,10 +34,10 @@ namespace XTMF.Testing
             var d = SparseArray<float>.CreateSparseArray( new int[] { 1, 2 }, new float[] { 1.5f, 2.5f } );
             var ret = gm.ProcessFlow( o, d, new int[] { 1, 2 } );
             var result = ret.GetFlatData();
-            Assert.AreEqual( 0.5f, result[0][0] );
-            Assert.AreEqual( 1.5f, result[0][1] );
-            Assert.AreEqual( 1f, result[1][0] );
-            Assert.AreEqual( 1f, result[1][1] );
+            Assert.AreEqual( 0.5f, result[0][0], 0.0001f );
+            Assert.AreEqual( 1.5f, result[0][1], 0.0001f);
+            Assert.AreEqual( 1f, result[1][0], 0.0001f);
+            Assert.AreEqual( 1f, result[1][1], 0.0001f);
         }
 
         private static SparseTwinIndex<float> CreateData()

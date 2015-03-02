@@ -29,6 +29,8 @@ using Datastructure;
 using System.Threading.Tasks;
 using Tasha.ModeChoice;
 using TMG.Input;
+using TMG.Functions.VectorHelper;
+
 namespace Tasha.StationAccess
 {
 
@@ -380,10 +382,23 @@ namespace Tasha.StationAccess
                 var firstDestination = zoneArray.GetFlatIndex(first.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondOrigin = zoneArray.GetFlatIndex(second.OriginalZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
+                if(IsHardwareAccelerated)
+                {
+                    VectorMultiply(utilities, 0, firstTimePeriod.AccessFromOrigin, firstOrigin,
+                        firstTimePeriod.AccessToDestination, secondDestination,
+                        secondTimePeriod.EgressToDestination, secondOrigin,
+                        secondTimePeriod.EgressFromOrigin, secondDestination, utilities.Length);
+                }
+                else
+                {
+                    for(int i = 0; i < utilities.Length; i++)
+                    {
+                        utilities[i] = firstTimePeriod.AccessFromOrigin[firstOrigin + i] * firstTimePeriod.AccessToDestination[firstDestination + i]
+                                       * secondTimePeriod.EgressToDestination[secondOrigin + i] * secondTimePeriod.EgressFromOrigin[secondDestination + i];
+                    }
+                }
                 for(int i = 0; i < utilities.Length; i++)
                 {
-                    utilities[i] = firstTimePeriod.AccessFromOrigin[firstOrigin + i] * firstTimePeriod.AccessToDestination[secondDestination + i]
-                                   * secondTimePeriod.EgressToDestination[secondOrigin + i] * secondTimePeriod.EgressFromOrigin[secondDestination + i];
                     // this will get rid of NaN's as well
                     if(!(utilities[i] >= MinimumStationUtility))
                     {

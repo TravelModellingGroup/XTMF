@@ -26,6 +26,7 @@ using Tasha.Common;
 using Tasha.Scheduler;
 using TMG;
 using XTMF;
+using TMG.Functions.VectorHelper;
 
 namespace Tasha.XTMFScheduler.LocationChoice
 {
@@ -368,7 +369,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var n = zoneSystem.GetFlatIndex(nextZone.ZoneNumber);
                 var size = zones.Length;
                 int index = GetTimePeriod(startTime);
-                var times = Parent.TimePeriods[index].TravelTimes;
+                var times = Parent.TimePeriods[index].TravelTimes; 
                 var from = From[index];
                 var available = availableTime.ToMinutes();
                 var to = To[index];

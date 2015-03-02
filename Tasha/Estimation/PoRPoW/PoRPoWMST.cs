@@ -27,6 +27,7 @@ using TMG.Estimation;
 using System.Threading.Tasks;
 using TMG.Input;
 using TMG.Functions;
+using TMG.Functions.VectorHelper;
 using System.IO;
 
 namespace Tasha.Estimation.PoRPoW
@@ -196,10 +197,17 @@ namespace Tasha.Estimation.PoRPoW
                     if(UseRMSE)
                     {
                         // for each destination
-                        for(int j = 0; j < truthRow.Length; j++)
+                        if(IsHardwareAccelerated)
                         {
-                            var delta = aggRow[j] - truthRow[j];
-                            currentError += delta * delta;
+                            currentError = VectorSquareDiff(aggRow, 0, truthRow, 0, aggRow.Length);
+                        }
+                        else
+                        {
+                            for(int j = 0; j < truthRow.Length; j++)
+                            {
+                                var delta = aggRow[j] - truthRow[j];
+                                currentError += delta * delta;
+                            }
                         }
                     }
                     else
@@ -269,9 +277,17 @@ namespace Tasha.Estimation.PoRPoW
                         for(int k = 1; k < model.Length; k++)
                         {
                             row = model[k][i];
-                            for(int j = 0; j < row.Length; j++)
+                            // accelerated
+                            if(IsHardwareAccelerated)
                             {
-                                retRow[j] += row[j];
+                                VectorAdd(retRow, 0, retRow, 0, row, 0, row.Length);
+                            }
+                            else
+                            {
+                                for(int j = 0; j < row.Length; j++)
+                                {
+                                    retRow[j] += row[j];
+                                }
                             }
                         }
                     }
