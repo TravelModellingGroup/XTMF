@@ -86,10 +86,13 @@ namespace Tasha.PopulationSynthesis
 
         INetworkData TransitNetwork;
 
-        public class Segment : IModule
+        public sealed class Segment : IModule
         {
             [RunParameter("Auto Time", 0.0f, "The weight of the auto travel time between zones.")]
             public float AutoTime;
+
+            [RunParameter("Passenger Time", 0.0f, "The weight of the auto travel time between zones.")]
+            public float PassengerTime;
 
             [RunParameter("Transit Time", 0.0f, "The total travel time by transit's weight.")]
             public float TransitTime;
@@ -106,11 +109,45 @@ namespace Tasha.PopulationSynthesis
             [RunParameter("Distance Constant", 0.0f, "The constant applied for distance.")]
             public float DistanceConstant;
 
+            private float _IntrazonalConstant;
             [RunParameter("Intrazonal", 0.0f, "A constant applied to intrazonals.")]
-            public float IntrazonalConstant;
+            public float IntrazonalConstant
+            {
+                get
+                {
+                    return _IntrazonalConstant;
+                }
+                set
+                {
+                    _IntrazonalConstant = value;
+                    ExpIntrazonalConstant = (float)Math.Exp(value);
+                }
+            }
 
+            /// <summary>
+            /// Use this value to help remove the cost of Exp
+            /// </summary>
+            internal float ExpIntrazonalConstant;
+
+            private float _IntraPDConstant;
             [RunParameter("IntraPD", 0.0f, "A constant applied to intra-Planning-District linkages.")]
-            public float IntraPDConstant;
+            public float IntraPDConstant
+            {
+                get
+                {
+                    return _IntraPDConstant;
+                }
+                set
+                {
+                    _IntraPDConstant = value;
+                    ExpIntraPDConstant = (float)Math.Exp(value);
+                }
+            }
+
+            /// <summary>
+            /// Use this value to help remove the cost of Exp
+            /// </summary>
+            internal float ExpIntraPDConstant;
 
             [RunParameter("Origin PDs", "1-48", "The planning districts contained in this segment.")]
             public RangeSet OriginPDs;
@@ -150,14 +187,9 @@ namespace Tasha.PopulationSynthesis
             // 0 = No Car / No License
             // 1 = Less cars than people with licenses
             // 2 = More or equal cars to persons with licenses
-            float time;
-            // auto (only apply auto for people who have cars)
-            time = AutoNetwork.TravelTime(zoneO, zoneD, TimeOfDay).ToMinutes();
-            if(workerIndex > 0)
-            {
-                utility = Math.Exp(segment.AutoTime * time +
+            float time = AutoNetwork.TravelTime(zoneO, zoneD, TimeOfDay).ToMinutes();
+            utility = Math.Exp((workerIndex == 0 ? segment.PassengerTime : segment.AutoTime) * time +
                     (workerIndex == 2 ? segment.SaturatedVehicles : 0));
-            }
             // transit
             time = TransitNetwork.TravelTime(zoneO, zoneD, TimeOfDay).ToMinutes();
             if(time > 0)
@@ -169,14 +201,10 @@ namespace Tasha.PopulationSynthesis
             {
                 utility += Math.Exp(segment.Distance * distance + segment.DistanceConstant);
             }
-            var constants = 0.0;
-            if(zoneO == zoneD) constants += segment.IntrazonalConstant;
-            if(pdO == pdD) constants += segment.IntraPDConstant;
-            if(constants > 0.0f)
-            {
-                return (float)(utility * Math.Exp(constants));
-            }
-            return (float)utility;
+            var constants = 1.0;
+            if(zoneO == zoneD) constants *= segment.ExpIntrazonalConstant;
+            if(pdO == pdD) constants *= segment.ExpIntraPDConstant;
+            return (float)(utility * constants);
         }
 
         public int[][] HighPerformanceMap;
@@ -397,7 +425,7 @@ namespace Tasha.PopulationSynthesis
                 for(int workerCategory = 0; workerCategory < r.Length; workerCategory++)
                 {
                     var workerCategoryMatrix = r[workerCategory];
-                    var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + workerCategoryMatrix.Length * i);
+                    var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
                     Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones);
                 }
             });
@@ -493,6 +521,10 @@ namespace Tasha.PopulationSynthesis
         public void UnloadData()
         {
             Loaded = false;
+            if(!KeepLocalData)
+            {
+                Data = null;
+            }
         }
     }
 }
