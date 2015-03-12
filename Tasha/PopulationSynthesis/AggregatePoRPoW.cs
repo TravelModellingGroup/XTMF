@@ -426,7 +426,7 @@ namespace Tasha.PopulationSynthesis
                 {
                     var workerCategoryMatrix = r[workerCategory];
                     var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
-                    Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones);
+                    Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones * sizeof(float));
                 }
             });
             return ret;

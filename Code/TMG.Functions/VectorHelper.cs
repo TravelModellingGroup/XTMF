@@ -23,6 +23,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace TMG.Functions
 {
@@ -52,7 +53,7 @@ namespace TMG.Functions
         /// <param name="v">The vector to sum</param>
         /// <returns>The sum of the elements in the vector</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float Sum(this Vector<float> v)
+        private static float Sum(ref Vector<float> v)
         {
             float[] tempSpace = new float[Vector<float>.Count];
             var sum = 0.0f;
@@ -87,7 +88,92 @@ namespace TMG.Functions
             {
                 remainderSum += array[i];
             }
-            return remainderSum + acc.Sum();
+            return remainderSum + Sum(ref acc);
+        }
+
+        /// <summary>
+        /// Take the average of the absolute values
+        /// </summary>
+        /// <param name="first">The first vector</param>
+        /// <param name="firstIndex">Where to start in the first vector</param>
+        /// <param name="second">The second vector</param>
+        /// <param name="secondIndex">Where to start in the second vector</param>
+        /// <param name="length">The number of elements to read</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float VectorAbsDiffAverage(float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        {
+            var remainderSum = 0.0f;
+            var acc = Vector<float>.Zero;
+            if(firstIndex == 0 && secondIndex == 0)
+            {
+                int highestForVector = length - Vector<float>.Count;
+                for(int i = 0; i <= highestForVector; i += Vector<float>.Count)
+                {
+                    acc += Vector.Abs(new Vector<float>(first, i) - new Vector<float>(second, i));
+                }
+            }
+            else
+            {
+                int highestForVector = length - Vector<float>.Count + firstIndex;
+                int s = secondIndex;
+                for(int f = 0; f <= highestForVector; f += Vector<float>.Count)
+                {
+                    acc += Vector.Abs(new Vector<float>(first, f) - new Vector<float>(second, s));
+                    s += Vector<float>.Count;
+                }
+            }
+            // copy the remainder
+            for(int i = length - (length % Vector<float>.Count); i < length; i++)
+            {
+                remainderSum += Math.Abs(first[i + firstIndex] - second[i + secondIndex]);
+            }
+            return remainderSum + Sum(ref acc) / length;
+        }
+
+        /// <summary>
+        /// Get the maximum difference from two arrays.
+        /// </summary>
+        /// <param name="first">The first vector</param>
+        /// <param name="firstIndex">Where to start in the first vector</param>
+        /// <param name="second">The second vector</param>
+        /// <param name="secondIndex">Where to start in the second vector</param>
+        /// <param name="length">The number of elements to read</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float VectorAbsDiffMax(float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        {
+            var remainderMax = 0.0f;
+            var vectorMax = Vector<float>.Zero;
+            if(firstIndex == 0 && secondIndex == 0)
+            {
+                int highestForVector = length - Vector<float>.Count;
+                for(int i = 0; i <= highestForVector; i += Vector<float>.Count)
+                {
+                    vectorMax = Vector.Max(Vector.Abs(new Vector<float>(first, i) - new Vector<float>(second, i)), vectorMax);
+                }
+            }
+            else
+            {
+                int highestForVector = length - Vector<float>.Count + firstIndex;
+                int s = secondIndex;
+                for(int f = 0; f <= highestForVector; f += Vector<float>.Count)
+                {
+                    vectorMax = Vector.Max(Vector.Abs(new Vector<float>(first, f) - new Vector<float>(second, s)), vectorMax);
+                    s += Vector<float>.Count;
+                }
+            }
+            // copy the remainder
+            for(int i = length - (length % Vector<float>.Count); i < length; i++)
+            {
+                remainderMax = Math.Max(remainderMax, Math.Abs(first[i + firstIndex] - second[i + secondIndex]));
+            }
+            float[] temp = new float[Vector<float>.Count];
+            for(int i = 0; i < temp.Length; i++)
+            {
+                remainderMax = Math.Max(temp[i], remainderMax);
+            }
+            return remainderMax;
         }
 
         /// <summary>
@@ -116,7 +202,7 @@ namespace TMG.Functions
                 var diff = first[i + firstIndex] - second[i + secondIndex];
                 remainderSum += diff * diff;
             }
-            return remainderSum + acc.Sum();
+            return remainderSum + Sum(ref acc);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -223,7 +309,7 @@ namespace TMG.Functions
             {
                 remainderSum += destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
             }
-            return remainderSum + acc.Sum();
+            return remainderSum + Sum(ref acc);
         }
 
         /// <summary>
@@ -251,7 +337,7 @@ namespace TMG.Functions
             {
                 remainderSum += first[i + firstIndex] * second[i + secondIndex];
             }
-            return remainderSum + acc.Sum();
+            return remainderSum + Sum(ref acc);
         }
 
         /// <summary>
@@ -280,7 +366,7 @@ namespace TMG.Functions
             {
                 remainderSum += first[i + firstIndex] * second[i + secondIndex] * third[i + thirdIndex];
             }
-            return remainderSum + acc.Sum();
+            return remainderSum + Sum(ref acc);
         }
 
         /// <summary>
