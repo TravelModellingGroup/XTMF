@@ -55,14 +55,7 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float Sum(ref Vector<float> v)
         {
-            float[] tempSpace = new float[Vector<float>.Count];
-            var sum = 0.0f;
-            v.CopyTo(tempSpace);
-            for(int i = 0; i < tempSpace.Length; i++)
-            {
-                sum += tempSpace[i];
-            }
-            return sum;
+            return Vector.Dot(v, Vector<float>.One);
         }
 
         /// <summary>
