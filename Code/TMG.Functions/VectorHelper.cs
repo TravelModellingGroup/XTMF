@@ -55,6 +55,8 @@ namespace TMG.Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float Sum(ref Vector<float> v)
         {
+            // shockingly to myself this is actually faster than doing a copy to an array
+            // and manually computing the sum
             return Vector.Dot(v, Vector<float>.One);
         }
 
