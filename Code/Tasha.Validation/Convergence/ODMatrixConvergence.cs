@@ -125,9 +125,8 @@ namespace Tasha.Validation.Convergence
                 {
                     var firstRow = first[i];
                     var secondRow = second[i];
-                    diff += TMG.Functions.VectorHelper.VectorAbsDiffAverage(firstRow, 0, secondRow, 0, firstRow.Length);
+                    diff += VectorAbsDiffAverage(firstRow, 0, secondRow, 0, firstRow.Length);
                 }
-                diff /= first.Length;
             }
             else
             {
@@ -142,8 +141,8 @@ namespace Tasha.Validation.Convergence
                     }
                     diff += local / firstRow.Length;
                 }
-                diff = diff / first.Length;
             }
+            diff = diff / first.Length;
             FirstMatrix.ReleaseResource();
             SecondMatrix.ReleaseResource();
             return diff;
@@ -160,7 +159,7 @@ namespace Tasha.Validation.Convergence
                 {
                     var firstRow = first[i];
                     var secondRow = second[i];
-                    diff = Math.Max(TMG.Functions.VectorHelper.VectorAbsDiffMax(firstRow, 0, secondRow, 0, firstRow.Length), diff);
+                    diff = Math.Max(VectorAbsDiffMax(firstRow, 0, secondRow, 0, firstRow.Length), diff);
                 }
             }
             else
