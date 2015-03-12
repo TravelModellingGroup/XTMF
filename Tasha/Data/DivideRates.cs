@@ -23,6 +23,7 @@ using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
+using TMG.Functions.VectorHelper;
 namespace Tasha.Data
 {
     [ModuleInformation( Description =
@@ -60,9 +61,16 @@ namespace Tasha.Data
             var flatFirst = firstRate.GetFlatData();
             var flatSecond = secondRate.GetFlatData();
             var flat = data.GetFlatData();
-            for(int i = 0; i < flat.Length; i++)
+            if(IsHardwareAccelerated)
             {
-                flat[i] = flatFirst[i] / flatSecond[i];
+                VectorDivide(flat, 0, flatFirst, 0, flatSecond, 0, flat.Length);
+            }
+            else
+            {
+                for(int i = 0; i < flat.Length; i++)
+                {
+                    flat[i] = flatFirst[i] / flatSecond[i];
+                }
             }
             this.Data = data;
         }
