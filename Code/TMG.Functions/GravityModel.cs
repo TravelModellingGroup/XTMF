@@ -105,7 +105,7 @@ namespace TMG.Functions
                 Array.Clear(columnTotals, 0, columnTotals.Length);
                 if(Vector.IsHardwareAccelerated)
                 {
-                    VectorProcessFlow(columnTotals);
+                    VectorProcessFlow(columnTotals, FlowMatrix.GetFlatData());
                 }
                 else
                 {
@@ -129,27 +129,37 @@ namespace TMG.Functions
             var flatAttractionStar = AttractionsStar.GetFlatData();
             int length = flatAttractions.Length;
             float ep = (float)Epsilon;
-            Parallel.For(0, columnTotals.Length, (int i) =>
+            if(IsHardwareAccelerated)
             {
-                if(flatAttractions[i] > 0)
+                VectorDivide(columnTotals, 0, flatAttractions, 0, columnTotals, 0, columnTotals.Length);
+                VectorMultiply(flatAttractionStar, 0, flatAttractionStar, 0, columnTotals, 0, flatAttractionStar.Length);
+                ReplaceIfNotFinite(flatAttractionStar, 0, 1.0f, flatAttractionStar.Length);
+                balanced = !AnyGreaterThan(columnTotals, 0, ep, columnTotals.Length);
+            }
+            else
+            {
+                // profiling showed that this is actually faster without running in parallel
+                for(int i = 0; i < flatAttractions.Length; i++)
                 {
-                    var total = 1.0f / columnTotals[i];
-                    if(!float.IsInfinity(total) & !float.IsNaN(total))
+                    if(flatAttractions[i] > 0)
                     {
-                        var residual = (float)(flatAttractions[i] * total);
-                        if(Math.Abs(1 - residual) > ep)
+                        var total = 1.0f / columnTotals[i];
+                        if(!float.IsInfinity(total) & !float.IsNaN(total))
                         {
-                            balanced = false;
+                            var residual = (float)(flatAttractions[i] * total);
+                            if(Math.Abs(1 - residual) > ep)
+                            {
+                                balanced = false;
+                            }
+                            flatAttractionStar[i] *= residual;
                         }
-                        flatAttractionStar[i] *= residual;
-                    }
-                    else
-                    {
-                        flatAttractionStar[i] = 1.0f;
+                        else
+                        {
+                            flatAttractionStar[i] = 1.0f;
+                        }
                     }
                 }
-            });
-            Thread.MemoryBarrier();
+            }
             return balanced;
         }
 
@@ -217,31 +227,28 @@ namespace TMG.Functions
                 });
         }
 
-        private void VectorProcessFlow(float[] columnTotals)
+        private void VectorProcessFlow(float[] columnTotals, float[][] flatFlows)
         {
             Parallel.For(0, Productions.GetFlatData().Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 () => new float[columnTotals.Length],
                 (int flatOrigin, ParallelLoopState state, float[] localTotals) =>
                 {
-                    float sumAF = 0;
                     var flatProductions = Productions.GetFlatData();
-                    var flatFriction = Friction.GetFlatData();
-                    var flatAStar = AttractionsStar.GetFlatData();
-                    var flatAttractions = Attractions.GetFlatData();
-                    var length = flatFriction.Length;
-                    var flatFrictionRow = flatFriction[flatOrigin];
                     // check to see if there is no production, if not skip this
                     if(flatProductions[flatOrigin] > 0)
                     {
-                        sumAF = VectorMultiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, length);
-                        sumAF = (1 / sumAF) * flatProductions[flatOrigin];
+                        var flatFriction = Friction.GetFlatData();
+                        var flatAStar = AttractionsStar.GetFlatData();
+                        var flatAttractions = Attractions.GetFlatData();
+                        var flatFrictionRow = flatFriction[flatOrigin];
+                        var sumAF = VectorMultiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, flatFriction.Length);
+                        sumAF = (flatProductions[flatOrigin] / sumAF);
                         if(float.IsInfinity(sumAF) | float.IsNaN(sumAF))
                         {
                             // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
                             sumAF = 0f;
                         }
-                        var flatFlowsRow = FlowMatrix.GetFlatData()[flatOrigin];
-                        VectorMultiply3Scalar1AndColumnSum(flatFlowsRow, 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, length);
+                        VectorMultiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, flatFriction.Length);
                     }
                     return localTotals;
                 },

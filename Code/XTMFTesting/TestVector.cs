@@ -46,7 +46,7 @@ namespace XTMF.Testing
         public void TestSum()
         {
             float[] testArray = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
-            Assert.AreEqual(2.0f*testArray.Length, VectorSum(testArray, 0, testArray.Length), 0.000001f);
+            Assert.AreEqual(2.0f * testArray.Length, VectorSum(testArray, 0, testArray.Length), 0.000001f);
         }
 
         [TestMethod]
@@ -165,6 +165,30 @@ namespace XTMF.Testing
             {
                 Assert.AreEqual(5.0f, first[i], 0.00001f);
             }
+        }
+
+        [TestMethod]
+        public void TestSelectIfFinite()
+        {
+            Vector<float> alternate = new Vector<float>(1.0f);
+            float[] temp = new float[Vector<float>.Count];
+            for(int i = 0; i < temp.Length; i++)
+            {
+                temp[i] = i + 5.0f;
+            }
+            temp[temp.Length - 1] = float.NaN;
+            temp[temp.Length - 2] = float.PositiveInfinity;
+            temp[temp.Length - 3] = float.NegativeInfinity;
+            Vector<float> v = new Vector<float>(temp);
+            var result = new float[Vector<float>.Count];
+            SelectIfFinite(v, alternate).CopyTo(result);
+            for(int i = 0; i < temp.Length - 3; i++)
+            {
+                Assert.AreEqual(temp[i], result[i]);
+            }
+            Assert.AreEqual(1.0f, result[result.Length - 1], "NaN wasn't change to 1!");
+            Assert.AreEqual(1.0f, result[result.Length - 2], "Positive Infinity wasn't change to 1!");
+            Assert.AreEqual(1.0f, result[result.Length - 3], "Negative Infinity wasn't change to 1!");
         }
     }
 }

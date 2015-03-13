@@ -265,7 +265,7 @@ namespace TMG.Functions
                 // copy the remainder
                 for(int i = length - (length % Vector<float>.Count); i < length; i++)
                 {
-                    destination[i] = first[i] * second[i];
+                    destination[i] = first[i] / second[i];
                 }
             }
             else
@@ -279,7 +279,7 @@ namespace TMG.Functions
                 // copy the remainder
                 for(int i = length - (length % Vector<float>.Count); i < length; i++)
                 {
-                    destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
+                    destination[i + destIndex] = first[i + firstIndex] / second[i + secondIndex];
                 }
             }
         }
@@ -635,7 +635,7 @@ namespace TMG.Functions
                 // copy the remainder
                 for(int i = length - (length % Vector<float>.Count); i < length; i++)
                 {
-                    destination[i] = first[i] * second[i];
+                    destination[i] = first[i] + second[i];
                 }
             }
             else
@@ -647,9 +647,114 @@ namespace TMG.Functions
                 // copy the remainder
                 for(int i = length - (length % Vector<float>.Count); i < length; i++)
                 {
-                    destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex];
+                    destination[i + destIndex] = first[i + firstIndex] + second[i + secondIndex];
                 }
             }
         }
+
+        /// <summary>
+        /// Produce a new vector selecting the original value if it is finite.  If it is not,
+        /// select the alternative value.
+        /// </summary>
+        /// <param name="baseValues">The values to test for their finite property</param>
+        /// <param name="alternateValues">The values to replace if the base value is not finite</param>
+        /// <returns>A new vector containing the proper mix of the base and alternate values</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector<float> SelectIfFinite(Vector<float> baseValues, Vector<float> alternateValues)
+        {
+            Vector<float> max = new Vector<float>(float.MaxValue);
+            //If it is greater than the maximum value it is infinite, if it is not equal to itself it is NaN
+            return Vector.ConditionalSelect(
+                Vector.BitwiseAnd(Vector.LessThanOrEqual(Vector.Abs(baseValues), max), Vector.Equals(baseValues, baseValues)),
+                baseValues, alternateValues
+                );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="destIndex"></param>
+        /// <param name="alternateValue"></param>
+        /// <param name="length"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ReplaceIfNotFinite(float[] destination, int destIndex, float alternateValue, int length)
+        {
+            var altV = new Vector<float>(alternateValue);
+            if(destIndex == 0)
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    (SelectIfFinite(new Vector<float>(destination, i), altV)).CopyTo(destination, i);
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    if(float.IsNaN(destination[i]) || float.IsInfinity(destination[i]))
+                    {
+                        destination[i] = alternateValue;
+                    }
+                }
+            }
+            else
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    (SelectIfFinite(new Vector<float>(destination, i + destIndex), altV)).CopyTo(destination, i + destIndex);
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    if(float.IsNaN(destination[i + destIndex]) || float.IsInfinity(destination[i + destIndex]))
+                    {
+                        destination[i + destIndex] = alternateValue;
+                    }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AnyGreaterThan(float[] data, int dataIndex, float rhs, int length)
+        {
+            var rhsV = new Vector<float>(rhs);
+            if(dataIndex == 0)
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    if(Vector.GreaterThanAny(new Vector<float>(data,i), rhsV))
+                    {
+                        return true;
+                    }
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    if(data[i] > rhs)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    if(Vector.GreaterThanAny(new Vector<float>(data, i + dataIndex), rhsV))
+                    {
+                        return true;
+                    }
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    if(data[i + dataIndex] > rhs)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
     }
 }

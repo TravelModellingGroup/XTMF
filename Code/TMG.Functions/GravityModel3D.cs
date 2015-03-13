@@ -165,5 +165,15 @@ namespace TMG.Functions
             Thread.MemoryBarrier();
             return balanced;
         }
+
+        private static bool VectorBalance(float[] ret, float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon, int categories)
+        {
+            bool balanced = true;
+            VectorDivide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
+            VectorMultiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
+            ReplaceIfNotFinite(destinationStar, 0, 1.0f, destinationStar.Length);
+            balanced = !AnyGreaterThan(columnTotals, 0, epsilon, columnTotals.Length);
+            return balanced;
+        }
     }
 }
