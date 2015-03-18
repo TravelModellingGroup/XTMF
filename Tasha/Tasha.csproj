@@ -162,6 +162,7 @@
     <Compile Include="Common\Zone.cs" />
     <Compile Include="Common\ZoneRetriever.cs" />
     <Compile Include="DataExtraction\ExtractBaseYearStudentLinkages.cs" />
+    <Compile Include="DataExtraction\ExtractObservedDemandToPD.cs" />
     <Compile Include="DataExtraction\GatherEmploymentByAgeByPD.cs" />
     <Compile Include="DataExtraction\ExecuteWithResources.cs" />
     <Compile Include="DataExtraction\GatherAgeByPD.cs" />

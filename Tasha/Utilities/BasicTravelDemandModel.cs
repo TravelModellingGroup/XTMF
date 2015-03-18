@@ -60,9 +60,17 @@ namespace Tasha.Utilities
 
         public void Start()
         {
+            if(ZoneSystem != null)
+            {
+                ZoneSystem.LoadData();
+            }
             for(int i = 0; i < ToExecute.Length; i++)
             {
                 ToExecute[i].Start();
+            }
+            if(ZoneSystem != null)
+            {
+                ZoneSystem.UnloadData();
             }
         }
     }

@@ -25,7 +25,7 @@ using XTMF;
 
 namespace TMG.GTAModel.NetworkAssignment
 {
-    [ModuleInformation(Description= "Executes a congested transit assignment procedure "+
+    [ModuleInformation(Description = "Executes a congested transit assignment procedure "+
                         "for GTAModel V4.0. "+
                         "<br><br>Hard-coded assumptions: "+
                         "<ul><li> Boarding penalties are assumed stored in <b>UT3</b></li>"+
@@ -56,6 +56,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("Segment Fare Attribute", "@sfare", "The ID of the SEGMENT extra attribute containing actual fare costs.")]
         public string SegmentFareAttribute;
 
+        [Parameter("Effective Headway Attribute", "@ehdw", "The name of the attribute to use for the effective headway")]
+        public string EffectiveHeadwayAttributeId;
+
         //-------------------------------------------
 
         [RunParameter("In-vehicle Times Matrix", 0, "The number of the FULL matrix in which to save in-vehicle travel time. Enter 0 to skip saving this matrix")]
@@ -75,10 +78,8 @@ namespace TMG.GTAModel.NetworkAssignment
 
         //-------------------------------------------
 
-        [RunParameter("GO Train Headway Fraction", 0.5f, "The headway fraction applied to GO Rail nodes (98000 <= i < 99000) only. Normally, the headway fraction is set to 0.5 "
-                        + "which represents a uniform arrival of passengers at a stop, given an average wait time of 1/2 (0.5 *) the headway. GO Trains run on very infrequent "
-                        + "schedules, so passengers try to time their arrival to coincide with the train's departure and thus experience less waiting time.")]
-        public float GoTrainHeadwayFraction;
+        [RunParameter("Effective Headway Slope", 0.5f, "")]
+        public float EffectiveHeadwaySlope;
 
         [RunParameter("Wait Time Perception", 1.0f, "Perception factor applied to wait time component.")]
         public float WaitTimePerception;
@@ -141,41 +142,42 @@ namespace TMG.GTAModel.NetworkAssignment
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if (mc == null)
+            if(mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.ScenarioNumber, 
-                                        this.DemandMatrixNumber,
-                                        mc.ToEmmeFloat(this.GoTrainHeadwayFraction),
-                                        mc.ToEmmeFloat(this.WaitTimePerception),
-                                        mc.ToEmmeFloat(this.WalkSpeed),
-                                        mc.ToEmmeFloat(this.WalkPerceptionToronto),
-                                        mc.ToEmmeFloat(this.WalkPerceptionNonToronto),
-                                        mc.ToEmmeFloat(this.WalkPerceptionTorontoConnectors),
-                                        mc.ToEmmeFloat(this.WalkPerceptionNonTorontoConnectors),
-                                        mc.ToEmmeFloat(this.WalkPerceptionPD1),
-                                        this.WalkPerceptionAttribute,
-                                        this.HeadwayFractionAttribute,
-                                        this.LinkFareAttribute,
-                                        this.SegmentFareAttribute,
-                                        mc.ToEmmeFloat(this.BoardingPerception), 
-                                        mc.ToEmmeFloat(this.CongestionPerception),
-                                        mc.ToEmmeFloat(this.FarePerception),
-                                        mc.ToEmmeFloat(this.RepresentativeHourFactor), 
-                                        this.MaxIterations, 
-                                        mc.ToEmmeFloat(this.NormalizedGap),
-                                        mc.ToEmmeFloat(this.RelativeGap),
-                                        this.InVehicleMatrixNumber,
-                                        this.WaitMatrixNumber,
-                                        this.WalkMatrixNumber,
-                                        this.FareMatrixNumber,
-                                        this.CongestionMatrixNumber,
-                                        mc.ToEmmeFloat(this.ConnectorLogitScale),
-                                        this.ExtractCongestedInVehicleTimeFlag,
-                                        mc.ToEmmeFloat(this.CongestionExponent));
+            var args = string.Join(" ", ScenarioNumber,
+                                        DemandMatrixNumber,
+                                        mc.ToEmmeFloat(WaitTimePerception),
+                                        mc.ToEmmeFloat(WalkSpeed),
+                                        mc.ToEmmeFloat(WalkPerceptionToronto),
+                                        mc.ToEmmeFloat(WalkPerceptionNonToronto),
+                                        mc.ToEmmeFloat(WalkPerceptionTorontoConnectors),
+                                        mc.ToEmmeFloat(WalkPerceptionNonTorontoConnectors),
+                                        mc.ToEmmeFloat(WalkPerceptionPD1),
+                                        WalkPerceptionAttribute,
+                                        HeadwayFractionAttribute,
+                                        LinkFareAttribute,
+                                        SegmentFareAttribute,
+                                        EffectiveHeadwayAttributeId,
+                                        mc.ToEmmeFloat(EffectiveHeadwaySlope),
+                                        mc.ToEmmeFloat(BoardingPerception),
+                                        mc.ToEmmeFloat(CongestionPerception),
+                                        mc.ToEmmeFloat(FarePerception),
+                                        mc.ToEmmeFloat(RepresentativeHourFactor),
+                                        MaxIterations,
+                                        mc.ToEmmeFloat(NormalizedGap),
+                                        mc.ToEmmeFloat(RelativeGap),
+                                        InVehicleMatrixNumber,
+                                        WaitMatrixNumber,
+                                        WalkMatrixNumber,
+                                        FareMatrixNumber,
+                                        CongestionMatrixNumber,
+                                        mc.ToEmmeFloat(ConnectorLogitScale),
+                                        ExtractCongestedInVehicleTimeFlag,
+                                        mc.ToEmmeFloat(CongestionExponent));
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name
