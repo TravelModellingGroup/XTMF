@@ -87,8 +87,8 @@ namespace Tasha.StationAccess
             [RunParameter("tivtt", 0.0f, "Transit in vehicle time factor for local transit.")]
             public float TIVTT;
 
-            [RunParameter("rivtt", 0.0f, "Transit in vehicle time factor for rail.")]
-            public float RIVTT;
+            [RunParameter("boarding", 0.0f, "Transit boarding penalties factor.")]
+            public float Boarding;
 
             [RunParameter("twalk", 0.0f, "Transit walk time factor.")]
             public float TWALK;
@@ -206,10 +206,10 @@ namespace Tasha.StationAccess
 
             private float ComputeUtility(ITripComponentData transitNetwork, int originIndex, int destIndex)
             {
-                if(transitNetwork.GetAllData(originIndex, destIndex, StartTime, out float ivtt, out float walk, out float wait, out float railTime, out float cost) && (railTime > 0))
+                if(transitNetwork.GetAllData(originIndex, destIndex, StartTime, out float ivtt, out float walk, out float wait, out float boardingPenalty, out float cost) && (boardingPenalty > 0))
                 {
-                    return TIVTT * (ivtt - railTime)
-                        + RIVTT * railTime
+                    return TIVTT * ivtt
+                        + Boarding * boardingPenalty
                         + TWALK * walk
                         + TWAIT * wait
                         + TransitFare * cost;
@@ -388,6 +388,7 @@ namespace Tasha.StationAccess
                         firstTimePeriod.AccessToDestination, secondDestination,
                         secondTimePeriod.EgressToDestination, secondOrigin,
                         secondTimePeriod.EgressFromOrigin, secondDestination, utilities.Length);
+                    ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
                 }
                 else
                 {
@@ -395,14 +396,10 @@ namespace Tasha.StationAccess
                     {
                         utilities[i] = firstTimePeriod.AccessFromOrigin[firstOrigin + i] * firstTimePeriod.AccessToDestination[firstDestination + i]
                                        * secondTimePeriod.EgressToDestination[secondOrigin + i] * secondTimePeriod.EgressFromOrigin[secondDestination + i];
-                    }
-                }
-                for(int i = 0; i < utilities.Length; i++)
-                {
-                    // this will get rid of NaN's as well
-                    if(!(utilities[i] >= MinimumStationUtility))
-                    {
-                        utilities[i] = 0.0f;
+                        if(!(utilities[i] >= MinimumStationUtility))
+                        {
+                            utilities[i] = 0.0f;
+                        }
                     }
                 }
                 return new Pair<IZone[], float[]>(AccessZones, utilities);

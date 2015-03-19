@@ -36,9 +36,15 @@ namespace TMG.Functions
         // Dummy code to get the JIT to startup with SIMD
         static Vector<float> _Unused;
 
+        /// <summary>
+        /// A vector containing the maximum value of a float
+        /// </summary>
+        private static Vector<float> MaxFloat;
+
         static VectorHelper()
         {
             _Unused = Vector<float>.One;
+            MaxFloat = new Vector<float>(float.MaxValue);
         }
 
         /// <summary>
@@ -671,6 +677,22 @@ namespace TMG.Functions
         }
 
         /// <summary>
+        /// Produce a new vector selecting the original value if it is finite.  If it is not,
+        /// select the alternative value.
+        /// </summary>
+        /// <param name="baseValues">The values to test for their finite property</param>
+        /// <param name="alternateValues">The values to replace if the base value is not finite</param>
+        /// <returns>A new vector containing the proper mix of the base and alternate values</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector<float> SelectIfFiniteAndLessThan(Vector<float> baseValues, Vector<float> alternateValues, Vector<float> minimumV)
+        {
+            //If it is greater than the maximum value it is infinite, if it is not equal to itself it is NaN
+            return Vector.ConditionalSelect(
+                Vector.BitwiseAnd(Vector.BitwiseAnd(Vector.LessThanOrEqual(Vector.Abs(baseValues), MaxFloat), Vector.Equals(baseValues, baseValues)),Vector.GreaterThanOrEqual(baseValues, minimumV)),
+                baseValues, alternateValues
+                );
+        }
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="destination"></param>
@@ -713,6 +735,42 @@ namespace TMG.Functions
             }
         }
 
+        public static void ReplaceIfLessThanOrNotFinite(float[] destination, int destIndex, float alternateValue, float minimum, int length)
+        {
+            var altV = new Vector<float>(alternateValue);
+            var minimumV = new Vector<float>(minimum);
+            if(destIndex == 0)
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    (SelectIfFiniteAndLessThan(new Vector<float>(destination, i), altV, minimumV)).CopyTo(destination, i);
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    if(float.IsInfinity(destination[i]) || !(destination[i] >= minimum))
+                    {
+                        destination[i] = alternateValue;
+                    }
+                }
+            }
+            else
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    (SelectIfFiniteAndLessThan(new Vector<float>(destination, i + destIndex), altV, minimumV)).CopyTo(destination, i + destIndex);
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    if(float.IsInfinity(destination[i + destIndex]) || !(destination[i + destIndex] >= minimum))
+                    {
+                        destination[i + destIndex] = alternateValue;
+                    }
+                }
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AnyGreaterThan(float[] data, int dataIndex, float rhs, int length)
         {
@@ -721,7 +779,7 @@ namespace TMG.Functions
             {
                 for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                 {
-                    if(Vector.GreaterThanAny(new Vector<float>(data,i), rhsV))
+                    if(Vector.GreaterThanAny(new Vector<float>(data, i), rhsV))
                     {
                         return true;
                     }

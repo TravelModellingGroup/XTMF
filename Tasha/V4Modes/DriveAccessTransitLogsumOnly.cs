@@ -24,7 +24,7 @@ using Datastructure;
 using Tasha.Common;
 using TMG;
 using XTMF;
-
+using TMG.Functions.VectorHelper;
 namespace Tasha.V4Modes
 {
     [ModuleInformation(Description =
@@ -297,24 +297,38 @@ namespace Tasha.V4Modes
             var utils = accessData.Second;
             var totalUtil = 0.0f;
             bool any = false;
-            for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
+            if(IsHardwareAccelerated)
             {
-                if ( !float.IsNaN( utils[i] ) )
+                totalUtil = VectorSum(utils, 0, utils.Length);
+                if(totalUtil <= 0)
                 {
-                    totalUtil += utils[i];
-                    any = true;
+                    dependentUtility = float.NaN;
+                    return false;
                 }
+                dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
+                VectorMultiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
             }
-            if ( !any | totalUtil <= 0 )
+            else
             {
-                dependentUtility = float.NaN;
-                return false;
-            }
-            dependentUtility = LogsumCorrelation * (float)Math.Log( totalUtil ) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict); ;
-            totalUtil = 1 / totalUtil;
-            for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
-            {
-                utils[i] *= totalUtil;
+                for(int i = 0; i < utils.Length; i++)
+                {
+                    if(!float.IsNaN(utils[i]))
+                    {
+                        totalUtil += utils[i];
+                        any = true;
+                    }
+                }
+                if(!any | totalUtil <= 0)
+                {
+                    dependentUtility = float.NaN;
+                    return false;
+                }
+                dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
+                totalUtil = 1 / totalUtil;
+                for(int i = 0; i < utils.Length; i++)
+                {
+                    utils[i] *= totalUtil;
+                }
             }
             return true;
         }

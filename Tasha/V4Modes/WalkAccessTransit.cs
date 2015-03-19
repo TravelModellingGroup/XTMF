@@ -98,18 +98,8 @@ namespace Tasha.V4Modes
         [RunParameter("WaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
         public float WaitTimeFactor;
 
-        [RunParameter("ProfessionalPremiumTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float ProfessionalPremiumTimeFactor;
-        [RunParameter("GeneralPremiumTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float GeneralPremiumTimeFactor;
-        [RunParameter("SalesPremiumTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float SalesPremiumTimeFactor;
-        [RunParameter("ManufacturingPremiumTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float ManufacturingPremiumTimeFactor;
-        [RunParameter("StudentPremiumTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float StudentPremiumTimeFactor;
-        [RunParameter("NonWorkerStudentPremiumTimeFactor", 0f, "The TimeFactor applied to the person type.")]
-        public float NonWorkerStudenPremiumtTimeFactor;
+        [RunParameter("BoardingFactor", 0f, "The factor applied to the boarding penalties.")]
+        public float BoardingFactor;
 
         [RunParameter("Vehicle Type", "Auto", "The name of the type of vehicle to use.")]
         public string VehicleTypeName;
@@ -175,7 +165,7 @@ namespace Tasha.V4Modes
             IZone destinationZone = trip.DestinationZone;
             var d = zoneArray.GetFlatIndex(destinationZone.ZoneNumber );
             var p = trip.TripChain.Person;
-            GetPersonVariables(p, out float timeFactor, out float premiumTransitTime, out float constant, out float costFactor);
+            GetPersonVariables(p, out float timeFactor, out float constant, out float costFactor);
             float v = constant;
             // if Intrazonal
             if ( o == d )
@@ -192,10 +182,10 @@ namespace Tasha.V4Modes
                 }
                 if ( Network.GetAllData( o, d, trip.TripStartTime, out float ivtt, out float walk, out float wait, out float boarding, out float cost) )
                 {
-                    v += (ivtt - boarding) * timeFactor
+                    v += ivtt * timeFactor
                         + walk * WalkTimeFactor
                         + wait * WaitTimeFactor
-                        + boarding * premiumTransitTime
+                        + boarding * BoardingFactor
                         + cost * costFactor;
                 }
                 else
@@ -230,7 +220,7 @@ namespace Tasha.V4Modes
             return (double)v;
         }
 
-        private void GetPersonVariables(ITashaPerson person, out float time, out float premiumTime, out float constant, out float cost)
+        private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
         {
             if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
             {
@@ -240,25 +230,21 @@ namespace Tasha.V4Modes
                         cost = ProfessionalCostFactor;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
-                        premiumTime = ProfessionalPremiumTimeFactor;
                         return;
                     case Occupation.Office:
                         cost = GeneralCostFactor;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
-                        premiumTime = GeneralPremiumTimeFactor;
                         return;
                     case Occupation.Retail:
                         cost = SalesCostFactor;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
-                        premiumTime = SalesPremiumTimeFactor;
                         return;
                     case Occupation.Manufacturing:
                         cost = ManufacturingCostFactor;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
-                        premiumTime = ManufacturingPremiumTimeFactor;
                         return;
                 }
             }
@@ -269,13 +255,11 @@ namespace Tasha.V4Modes
                     cost = StudentCostFactor;
                     constant = StudentConstant;
                     time = StudentTimeFactor;
-                    premiumTime = StudentPremiumTimeFactor;
                     return;
             }
             cost = NonWorkerStudentCostFactor;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
-            premiumTime = NonWorkerStudenPremiumtTimeFactor;
             return;
         }
 

@@ -73,6 +73,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Fare Matrix", 0, "The number of the FULL matrix in which to save transit fares. Enter 0 to skip saving this matrix")]
         public int FareMatrixNumber;
 
+        [RunParameter("Boarding Matrix", 0, "The number of the FULL matrix in which to save the incurred boarding penalties. Enter 0 to skip saving this matrix")]
+        public int BoardingMatrixNumber;
+
         [RunParameter("Congestion Matrix", 0, "The number of the FULL matrix in which to save transit congestion. Enter 0 to skip saving this matrix")]
         public int CongestionMatrixNumber;
 
@@ -172,6 +175,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                         WalkMatrixNumber,
                                         FareMatrixNumber,
                                         CongestionMatrixNumber,
+                                        BoardingMatrixNumber,
                                         mc.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
                                         mc.ToEmmeFloat(CongestionExponent));
