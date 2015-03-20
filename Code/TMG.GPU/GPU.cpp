@@ -407,8 +407,8 @@ namespace TMG
 			ID3DBlob* pErrorBlob = NULL;
 			ID3D11ComputeShader* compiledShader = NULL;
 			// (1 << 13) == Force IEEE floating point strictness + O3 == (1 << 15)|(1 << 13)
-			hr = D3DX11CompileFromFile(csf, defines, NULL, csm, "cs_5_0",
-				(1 << 1) | (1 << 13) | (1 << 11) | (1 << 15), NULL, NULL, &pBlobOut, &pErrorBlob, NULL);
+			hr = D3DCompileFromFile(csf, defines, NULL, csm, "cs_5_0",
+				(1 << 1) | (1 << 13) | (1 << 11) | (1 << 15), 0, &pBlobOut, &pErrorBlob);
 
 			ReleaseDefines(&defines, DefineNames, DefineValues);
 
