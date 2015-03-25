@@ -40,7 +40,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
-    <OutputPath>bin\32Bit\</OutputPath>
+    <OutputPath>..\..\..\XTMF32\Modules\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -56,7 +56,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
-    <OutputPath>bin\64Bit\</OutputPath>
+    <OutputPath>..\..\..\XTMF\Modules\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
@@ -81,7 +81,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
-    <OutputPath>bin\Development\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\Modules\</OutputPath>
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
