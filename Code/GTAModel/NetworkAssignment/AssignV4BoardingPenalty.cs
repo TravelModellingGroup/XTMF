@@ -153,7 +153,10 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
-            return true;
+            error = Name + " is currently using the now obsolete module TMG.GTAModel.NetworkAssignmentAssignV4BoardingPenalty. " +
+                "This module has since been replaced by TMG.Emme.NetworkAssignment.PreProcessing.AssignBoardingPenalties. " +
+                "Please contact your model system provider to help you update your model system, or contact TMG.";
+            return false;
         }
     }
 }
