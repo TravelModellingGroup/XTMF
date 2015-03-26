@@ -34,31 +34,52 @@ namespace James.UTDM
             return true;
         }
 
-        class HighPerformanceAdding(private float[] dataToAdd, private GPU gpu, private ComputeShader adder)
+        class HighPerformanceAdding
         {
+            private float[] DataToAdd;
+            private GPU Gpu;
+            private ComputeShader Adder;
+            public HighPerformanceAdding (float[] dataToAdd, GPU gpu, ComputeShader adder)
+	        {
+                DataToAdd = dataToAdd;
+                Gpu = gpu;
+                Adder = adder;
+	        }
 
-            private struct AddStream(private GPU gpu, private int BufferSize, private float[] data)
+            private struct AddStream
             {
-                private GPUBuffer Buffer = gpu.CreateBuffer( BufferSize, sizeof(float), true );
+                private GPU Gpu;
+                private int BufferSize;
+                private float[] Data;
 
-                private int PassLength = 0;
+                public AddStream(GPU gpu, int bufferSize, float[] data) : this()
+                {
+                    Gpu = gpu;
+                    BufferSize = bufferSize;
+                    Data = data;
+                    Buffer = gpu.CreateBuffer(BufferSize, sizeof(float), true);
+                }
+
+                private GPUBuffer Buffer;
+
+                private int PassLength;
 
                 internal void LoadData(int index)
                 {
-                    var length = Math.Min( this.BufferSize, data.Length - ( index + this.BufferSize ) );
+                    var length = Math.Min( this.BufferSize, Data.Length - ( index + this.BufferSize ) );
                     if ( length > 0 )
                     {
-                        this.gpu.Write( this.Buffer, data, index, 0, length );
+                        Gpu.Write(this.Buffer, Data, index, 0, length);
                     }
                     else
                     {
                         //we are in a remainder case
-                        length = data.Length - index;
+                        length = Data.Length - index;
                         // if there is any data left to work with
                         if ( length > 0 )
                         {
-                            this.gpu.Write( this.Buffer, data, index, 0, length );
-                            this.gpu.Clear( this.Buffer, length, this.BufferSize );
+                            this.Gpu.Write(this.Buffer, Data, index, 0, length);
+                            this.Gpu.Clear( this.Buffer, length, this.BufferSize );
                         }
                     }
                     PassLength = length;
@@ -69,7 +90,7 @@ namespace James.UTDM
                     if ( PassLength > 0 )
                     {
                         adder.NumberOfXThreads = this.BufferSize / 512;
-                        this.gpu.ExecuteComputeShader( adder );
+                        Gpu.ExecuteComputeShader( adder );
                     }
                 }
 
@@ -80,7 +101,7 @@ namespace James.UTDM
                     if ( PassLength > 0 )
                     {
                         var elementsToRead = this.BufferSize / 512;
-                        gpu.Read( this.Buffer, tempBuffer, 0, 0, elementsToRead );
+                        Gpu.Read( this.Buffer, tempBuffer, 0, 0, elementsToRead );
                         if ( elementsToRead == tempBuffer.Length )
                         {
                             for ( int i = 0; i < tempBuffer.Length; i++ )
@@ -107,20 +128,20 @@ namespace James.UTDM
 
             public float Add(int bufferSize)
             {
-                adder.ThreadGroupSizeX = 64;
-                adder.RemoveAllBuffers();
-                var stream = new AddStream( gpu, bufferSize, dataToAdd );
+                Adder.ThreadGroupSizeX = 64;
+                Adder.RemoveAllBuffers();
+                var stream = new AddStream( Gpu, bufferSize, DataToAdd );
                 int index = 0;
                 var total = 0.0f;
-                var constBuffer = gpu.CreateConstantBuffer( 16 );                
+                var constBuffer = Gpu.CreateConstantBuffer( 16 );                
                 var tempBuffer = new float[bufferSize / 512];
-                adder.AddBuffer( constBuffer );
-                stream.AttachBuffer( adder );
-                while ( index < this.dataToAdd.Length )
+                Adder.AddBuffer(constBuffer);
+                stream.AttachBuffer(Adder);
+                while ( index < DataToAdd.Length )
                 {
                     // Load up the next set of data
                     stream.LoadData( index );
-                    stream.ApplyPass( this.adder, constBuffer, index );
+                    stream.ApplyPass(this.Adder, constBuffer, index);
                     total += stream.GetAnswer( tempBuffer );
                     index += bufferSize;
                 }

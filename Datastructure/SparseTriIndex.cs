@@ -138,7 +138,8 @@ namespace Datastructure
 
         public int GetFlatIndex(int sparseSpaceIndex)
         {
-            if(TansformO(Indexes.Indexes, ref sparseSpaceIndex, out var unused))
+            SparseSet unused;
+            if(TansformO(Indexes.Indexes, ref sparseSpaceIndex, out unused))
             {
                 // the now transformed sparse space index for O
                 return sparseSpaceIndex;
@@ -363,7 +364,8 @@ namespace Datastructure
             if(Indexes.Indexes == null) return false;
             if(TansformO(Indexes.Indexes, ref o, out oSet))
             {
-                if(TansformD(oSet, ref d, out var dSet))
+                SparseSet dSet;
+                if(TansformD(oSet, ref d, out dSet))
                 {
                     return true;
                 }

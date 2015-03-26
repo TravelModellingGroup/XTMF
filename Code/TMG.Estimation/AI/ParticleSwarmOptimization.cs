@@ -58,32 +58,41 @@ namespace TMG.Estimation.AI
 
         public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50 ); } }
+        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
         /// <summary>
         /// This represents a unique element in the estimation that keeps a local history as it moves
         /// through parameter space.
         /// </summary>
-        private struct Particle(Job job, bool maximize, Random random)
+        private struct Particle
         {
-            internal Job Job { get; set; } = job;
+            internal Job Job { get; set; }
 
-            internal float BestValue = maximize ? float.MinValue : float.MaxValue;
+            internal float BestValue;
 
-            private bool Maximize = maximize;
+            private bool Maximize;
 
-            internal float[] BestParameters { get; set; } = InitializeBestParameters(job);
+            internal float[] BestParameters { get; set; }
 
-            internal float[] Velocity = InitializeVelocity(job, random);
+            internal float[] Velocity;
+
+            public Particle(Job job, bool maximize, Random random) : this()
+            {
+                Maximize = maximize;
+                BestValue = maximize ? float.MinValue : float.MaxValue;
+                Velocity = InitializeVelocity(job, random);
+                BestParameters = InitializeBestParameters(job);
+                Job = job;
+            }
 
             private static float[] InitializeVelocity(Job job, Random random)
             {
                 var parameters = job.Parameters;
                 float[] velocity = new float[parameters.Length];
                 // initialize all of the velocities to [-1,1] since we work in relative parameter space
-                for ( int i = 0; i < velocity.Length; i++)
+                for(int i = 0; i < velocity.Length; i++)
                 {
-                    velocity[i] = (float)((random.NextDouble() * 2.0 ) - 1.0 );
+                    velocity[i] = (float)((random.NextDouble() * 2.0) - 1.0);
                 }
                 return velocity;
             }
@@ -92,7 +101,7 @@ namespace TMG.Estimation.AI
             {
                 var parameters = job.Parameters;
                 var copy = new float[parameters.Length];
-                for ( int i = 0; i < parameters.Length; i++)
+                for(int i = 0; i < parameters.Length; i++)
                 {
                     copy[i] = parameters[i].Current;
                 }
@@ -112,7 +121,7 @@ namespace TMG.Estimation.AI
                     var bestParameters = BestParameters;
                     var currentParameters = Job.Parameters;
                     BestValue = currentValue;
-                    for ( int i = 0; i < bestParameters.Length; i++)
+                    for(int i = 0; i < bestParameters.Length; i++)
                     {
                         bestParameters[i] = currentParameters[i].Current;
                     }
@@ -121,7 +130,7 @@ namespace TMG.Estimation.AI
 
             private static int FindInsertIndex(float[] distance, float element, int maxIndex)
             {
-                for ( int j = 0; j < maxIndex; j++)
+                for(int j = 0; j < maxIndex; j++)
                 {
                     if(distance[j] > element)
                     {
@@ -139,7 +148,7 @@ namespace TMG.Estimation.AI
             /// <param name="j">The position to shift down from</param>
             private void Push(int[] closest, float[] distance, int j)
             {
-                for ( int i = closest.Length - 1; i > j; i--)
+                for(int i = closest.Length - 1; i > j; i--)
                 {
                     closest[i] = closest[i - 1];
                     distance[i] = distance[i - 1];
@@ -151,7 +160,7 @@ namespace TMG.Estimation.AI
             {
                 var ourParameters = BestParameters;
                 float distance = 0.0f;
-                for ( int i = 0; i < otherParameters.Length; i++)
+                for(int i = 0; i < otherParameters.Length; i++)
                 {
                     distance += Math.Abs((ourParameters[i] - otherParameters[i]) / parameters[i].Size);
                 }
@@ -166,14 +175,14 @@ namespace TMG.Estimation.AI
             internal void UpdateVelocity(ParticleSwarmOptimization us, float[] globalBest, float[] bestInGeneration, int ourIndex, Random r)
             {
                 var parameters = us.Root.Parameters;
-                for ( int i = 0; i < Velocity.Length; i++)
+                for(int i = 0; i < Velocity.Length; i++)
                 {
                     var bestParameterRandom = r.NextDouble();
                     var optimalRandom = r.NextDouble();
                     var generationRandom = r.NextDouble();
                     var current = Job.Parameters[i].Current;
                     var globalBestV = us.BestParameterWeight * bestParameterRandom * RelativeDistance(parameters[i], current, BestParameters[i]);
-                    var localBestV =  us.OptimalWeight * optimalRandom * RelativeDistance(parameters[i], current, globalBest[i]);
+                    var localBestV = us.OptimalWeight * optimalRandom * RelativeDistance(parameters[i], current, globalBest[i]);
                     var generationBestV = us.GenerationOptimalWeight * RelativeDistance(parameters[i], current, bestInGeneration[i]);
                     // we step our velocity by apply a momentum to the old velocity and then applying the new with the rest of the fraction
                     Velocity[i] = (us.Momentum * Velocity[i]) + (float)(globalBestV + localBestV + generationBestV);
@@ -190,7 +199,7 @@ namespace TMG.Estimation.AI
                 job.Processing = false;
                 job.Value = float.NaN;
                 var parameters = job.Parameters = new ParameterSetting[temp.Length];
-                for ( int i = 0; i < temp.Length; i++)
+                for(int i = 0; i < temp.Length; i++)
                 {
                     parameters[i] = new ParameterSetting();
                     // we need to move in real parameter space instead of relative parameter space
@@ -218,7 +227,7 @@ namespace TMG.Estimation.AI
 
         public List<Job> CreateJobsForIteration()
         {
-            if(Root.CurrentIteration == 0 )
+            if(Root.CurrentIteration == 0)
             {
                 InitializeSwarm();
             }
@@ -248,8 +257,8 @@ namespace TMG.Estimation.AI
         private void InitializePopulation()
         {
             var population = new Particle[SwarmSize];
-            var random = new Random(RandomSeed * 2 );
-            for ( int i = 0; i < population.Length; i++)
+            var random = new Random(RandomSeed * 2);
+            for(int i = 0; i < population.Length; i++)
             {
                 population[i] = new Particle(Jobs[i], Maximize, random);
             }
@@ -261,7 +270,7 @@ namespace TMG.Estimation.AI
             Job[] jobs = new Job[SwarmSize];
             var random = new Random(RandomSeed);
             var parameters = Root.Parameters;
-            for ( int i = 0; i < jobs.Length; i++)
+            for(int i = 0; i < jobs.Length; i++)
             {
                 jobs[i] = GenerateRandomJob(parameters, random);
             }
@@ -271,10 +280,10 @@ namespace TMG.Estimation.AI
         private Job GenerateRandomJob(List<ParameterSetting> parameters, Random random)
         {
             var ret = CleanJob(parameters);
-            for ( int i = 0; i < ret.Parameters.Length; i++)
+            for(int i = 0; i < ret.Parameters.Length; i++)
             {
                 ret.Parameters[i].Current =
-                    ((ret.Parameters[i].Maximum - ret.Parameters[i].Minimum) * ( (float)random.NextDouble()) )
+                    ((ret.Parameters[i].Maximum - ret.Parameters[i].Minimum) * ((float)random.NextDouble()))
                     + ret.Parameters[i].Minimum;
             }
             return ret;
@@ -288,7 +297,7 @@ namespace TMG.Estimation.AI
             ret.Value = float.NaN;
             ret.Processing = false;
             ret.Parameters = new ParameterSetting[parameters.Count];
-            for ( int i = 0; i < ret.Parameters.Length; i++)
+            for(int i = 0; i < ret.Parameters.Length; i++)
             {
                 ret.Parameters[i] = new ParameterSetting()
                 {
@@ -310,7 +319,7 @@ namespace TMG.Estimation.AI
             {
                 // Update the current particle if it has seen the best parameter for itself so far
                 Population[i].UpdateIfBest();
-            } );
+            });
             float[] globalBest, generationBest;
             GetGlobalBest(out globalBest, out generationBest);
             // Now that we have the best, find the closest M to our best and update our position
@@ -318,7 +327,7 @@ namespace TMG.Estimation.AI
             {
                 // Figure our who the closest neighbors are
                 Population[i].UpdateVelocity(this, globalBest, generationBest, i, Random);
-                Jobs[i] = Population[i].UpdatePosition(this );
+                Jobs[i] = Population[i].UpdatePosition(this);
             }
         }
 
@@ -328,7 +337,7 @@ namespace TMG.Estimation.AI
             int generationBestIndex = 0;
             if(Maximize)
             {
-                for ( int i = 1; i < Population.Length; i++)
+                for(int i = 1; i < Population.Length; i++)
                 {
                     if(Population[i].BestValue > Population[globalBestIndex].BestValue)
                     {
@@ -342,7 +351,7 @@ namespace TMG.Estimation.AI
             }
             else
             {
-                for ( int i = 1; i < Population.Length; i++)
+                for(int i = 1; i < Population.Length; i++)
                 {
                     if(Population[i].BestValue < Population[globalBestIndex].BestValue)
                     {
@@ -355,7 +364,7 @@ namespace TMG.Estimation.AI
                 }
             }
             globalBest = Population[globalBestIndex].BestParameters;
-            generationBest = Population[generationBestIndex].Job.Parameters.Select(p=>p.Current).ToArray();
+            generationBest = Population[generationBestIndex].Job.Parameters.Select(p => p.Current).ToArray();
         }
 
         public void IterationComplete()
@@ -365,7 +374,7 @@ namespace TMG.Estimation.AI
 
         public bool RuntimeValidation(ref string error)
         {
-            if(SwarmSize <= 0 )
+            if(SwarmSize <= 0)
             {
                 error = "In '" + Name + "' the swarm size must be greater than 1!";
                 return false;

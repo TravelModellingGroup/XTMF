@@ -67,7 +67,8 @@ namespace TMG.Estimation.Utilities
 
         private float GetBestFitness()
         {
-            FitnessLock.Enter(ref bool taken = false);
+            bool taken = false;
+            FitnessLock.Enter(ref taken);
             var ret = BestFitness;
             FitnessLock.Exit(true);
             return ret;
@@ -75,9 +76,10 @@ namespace TMG.Estimation.Utilities
 
         private void Root_FitnessFunctionEvaluated(Job job, int gen, float fitness)
         {
+            bool taken = false;
             if(Maximize)
             {
-                FitnessLock.Enter(ref bool taken = false);
+                FitnessLock.Enter(ref taken);
                 if(BestFitness < fitness)
                 {
                     BestFitness = fitness;
@@ -86,7 +88,7 @@ namespace TMG.Estimation.Utilities
             }
             else
             {
-                FitnessLock.Enter(ref bool taken = false);
+                FitnessLock.Enter(ref taken);
                 if(BestFitness > fitness)
                 {
                     BestFitness = fitness;

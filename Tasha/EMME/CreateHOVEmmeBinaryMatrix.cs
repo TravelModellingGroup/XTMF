@@ -120,11 +120,13 @@ namespace Tasha.EMME
                             }
                             else if((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
                             {
-                                if(AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], access, out var origin, out var destination))
+                                IZone origin, destination;
+                                if(AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
                                 {
                                     var originIndex = GetFlatIndex(origin);
                                     var destinationIndex = GetFlatIndex(destination);
-                                    WriteLock.Enter(ref (bool gotLock = false));
+                                    bool gotLock = false;
+                                    WriteLock.Enter(ref gotLock);
                                     Matrix[0][originIndex][destinationIndex] += expFactor;
                                     if(gotLock) WriteLock.Exit(true);
                                 }
@@ -145,7 +147,8 @@ namespace Tasha.EMME
         private void AddToMatrix(float expFactor, bool jointTrip, int originIndex, int destinationIndex)
         {
             var row = Matrix[jointTrip ? 1 : 0][originIndex];
-            WriteLock.Enter(ref (bool gotLock = false));
+            bool gotLock = false;
+            WriteLock.Enter(ref gotLock);
             row[destinationIndex] += expFactor;
             if(gotLock) WriteLock.Exit(true);
         }

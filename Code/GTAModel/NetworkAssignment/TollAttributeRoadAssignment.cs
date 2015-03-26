@@ -151,14 +151,14 @@ namespace TMG.GTAModel.NetworkAssignment
                  RunTitle, LinkTollAttributeId)
              *
             */
-
+            string result = "";
             if(UseTransitBackground)
             {
-                return mc.Run(_ToolNameWithBGTraffic, args, (p => this.Progress = p), ref string result = "");
+                return mc.Run(_ToolNameWithBGTraffic, args, (p => this.Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_ToolName, args, (p => this.Progress = p), ref string result = "");
+                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
             }
         }
 
@@ -188,11 +188,11 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 Directory.CreateDirectory(dir);
             }
-            using (StreamWriter writer = new StreamWriter(outputFileName))
+            using(StreamWriter writer = new StreamWriter(outputFileName))
             {
                 writer.WriteLine("t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=from_xtmf", DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
-                Parallel.For(0, numberOfZones, delegate (int o)
+                Parallel.For(0, numberOfZones, delegate(int o)
                 {
                     var build = builders[o] = new StringBuilder();
                     var strBuilder = new StringBuilder(10);

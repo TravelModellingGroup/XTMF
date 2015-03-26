@@ -43,14 +43,16 @@ namespace XTMF.Testing
                 },
                 () =>
                 {
-                    while ( ( var res = queue.GetMessageOrTimeout( 10 ) ) > 0 )
+                    int res;
+                    while ( ( res = queue.GetMessageOrTimeout( 10 ) ) > 0 )
                     {
                         found[res - 1] = true;
                     }
                 },
                 () =>
                 {
-                    while ( ( var res = queue.GetMessageOrTimeout( 10 ) ) > 0 )
+                    int res;
+                    while ( ( res = queue.GetMessageOrTimeout( 10 ) ) > 0 )
                     {
                         found[res - 1] = true;
                     }

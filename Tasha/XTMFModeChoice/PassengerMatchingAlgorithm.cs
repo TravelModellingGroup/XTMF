@@ -164,7 +164,8 @@ namespace Tasha.XTMFModeChoice
                 {
                     if(TimeSlots[i].AvailableCars > 0)
                     {
-                        if(Time.Intersection(StartTime, EndTime, TimeSlots[i].TimeSpan.Start, TimeSlots[i].TimeSpan.End, out var intersectionStart, out var intersectionEnd))
+                        Time intersectionStart, intersectionEnd;
+                        if(Time.Intersection(StartTime, EndTime, TimeSlots[i].TimeSpan.Start, TimeSlots[i].TimeSpan.End, out intersectionStart, out intersectionEnd))
                         {
                             DriverTripChain = CreateDriverTripChain(intersectionStart, intersectionEnd, Household.HomeZone, driver);
                             CheckForPurePassengerTrips(DriverTripChain, PassengerTripChainData, driverIndex, passengerIndex, passengerTripChainIndex, random);

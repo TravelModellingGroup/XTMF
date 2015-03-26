@@ -252,7 +252,8 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if(UndoStack.TryPop(out var command))
+                XTMFCommand command;
+                if(UndoStack.TryPop(out command))
                 {
                     if(command != null)
                     {
@@ -277,7 +278,8 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if(RedoStack.TryPop(out var command))
+                XTMFCommand command;
+                if(RedoStack.TryPop(out command))
                 {
                     if(command != null)
                     {

@@ -54,8 +54,19 @@ namespace XTMF.Editing
         /// <summary>
         /// This class provides an easy way to generate commands through our factory
         /// </summary>
-        private class DelegateCommand(private XTMFCommandMethod OnDo, private XTMFCommandMethod OnUndo = null, private XTMFCommandMethod OnRedo = null) : XTMFCommand
+        private class DelegateCommand : XTMFCommand
         {
+            private XTMFCommandMethod OnDo;
+            private XTMFCommandMethod OnUndo = null;
+            private XTMFCommandMethod OnRedo = null;
+
+            public DelegateCommand(XTMFCommandMethod onDo, XTMFCommandMethod onUndo = null, XTMFCommandMethod onRedo = null)
+            {
+                OnDo = onDo;
+                OnUndo = onUndo;
+                OnRedo = onRedo;
+            }
+
             public override bool CanUndo()
             {
                 return this.OnUndo != null;

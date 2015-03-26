@@ -31,8 +31,15 @@ using XTMF;
 namespace Tasha
 {
     [ModuleInformation(Description = "This is the base for all Tasha Application Runs")]
-    public class TashaRuntime(private IConfiguration XTMFConfiguration) : ITashaRuntime
+    public class TashaRuntime : ITashaRuntime
     {
+        private IConfiguration XTMFConfiguration;
+
+        public TashaRuntime(IConfiguration config)
+        {
+            XTMFConfiguration = config;
+        }
+
         private const string FinishedProcessingHouseholds = "Finished processing households...";
         private const string StartingHouseholds = "Starting to process households...";
         private const string Initializing = "Initializing Model";
@@ -317,12 +324,14 @@ namespace Tasha
                 {
                     reader.LoadLine();
                 }
-                if(reader.LoadLine(out var lineSize))
+                int lineSize;
+                if(reader.LoadLine(out lineSize))
                 {
                     if(lineSize < numberOfParameters) numberOfParameters = lineSize;
                     for(int i = 2; i < numberOfParameters; i++)
                     {
-                        reader.Get(out float temp, i);
+                        float temp;
+                        reader.Get(out temp, i);
                         AssignValue(headers[i], temp);
                     }
                 }

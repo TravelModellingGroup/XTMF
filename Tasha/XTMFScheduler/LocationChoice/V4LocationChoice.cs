@@ -26,7 +26,7 @@ using Tasha.Common;
 using Tasha.Scheduler;
 using TMG;
 using XTMF;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 
 namespace Tasha.XTMFScheduler.LocationChoice
 {

@@ -81,17 +81,26 @@ Once we have a near optimal point we continue to explore the space with a the GD
         /// This represents a unique element in the estimation that keeps a local history as it moves
         /// through parameter space.
         /// </summary>
-        private struct Particle(Job job, bool maximize, Random random)
+        private struct Particle
         {
-            internal Job Job { get; set; } = job;
+            internal Job Job { get; set; }
 
-            internal float BestValue = maximize ? float.MinValue : float.MaxValue;
+            internal float BestValue;
 
-            private bool Maximize = maximize;
+            private bool Maximize;
 
-            internal float[] BestParameters { get; set; } = InitializeBestParameters( job );
+            internal float[] BestParameters { get; set; }
 
-            internal float[] Velocity = InitializeVelocity( job, random );
+            internal float[] Velocity;
+
+            public Particle(Job job, bool maximize, Random random) : this()
+            {
+                Maximize = maximize;
+                BestValue = maximize ? float.MinValue : float.MaxValue;
+                Velocity = InitializeVelocity(job, random);
+                Job = job;
+                BestParameters = InitializeBestParameters(job);
+            }
 
             private static float[] InitializeVelocity(Job job, Random random)
             {

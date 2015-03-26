@@ -43,12 +43,14 @@ namespace TMG.Estimation.AI
 
         public string Name
         {
-            get; set;
+            get;
+            set;
         }
 
         public float Progress
         {
-            get; set;
+            get;
+            set;
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -63,17 +65,17 @@ namespace TMG.Estimation.AI
         {
             var ret = new List<Job>();
             var parameters = this.Root.Parameters.ToArray();
-            using (var reader = new CsvReader( this.ResultFile.GetFilePath() ))
+            using(var reader = new CsvReader(this.ResultFile.GetFilePath()))
             {
-                int[] columnToParameterMap = CreateParameterMap( reader );
-                var baseParameters = LoadBaseParameters( parameters, reader, columnToParameterMap );
-                ret.Add( CreateZero( baseParameters ) );
-                ret.Add( CreateJob( baseParameters ) );
-                for ( int i = 0; i < baseParameters.Length; i++ )
+                int[] columnToParameterMap = CreateParameterMap(reader);
+                var baseParameters = LoadBaseParameters(parameters, reader, columnToParameterMap);
+                ret.Add(CreateZero(baseParameters));
+                ret.Add(CreateJob(baseParameters));
+                for(int i = 0; i < baseParameters.Length; i++)
                 {
                     // we will need 4 points to approx the second derivative for now
-                    ret.Add( CreateWithOffset( baseParameters, i, -Delta ) );
-                    ret.Add( CreateWithOffset( baseParameters, i, Delta ) );
+                    ret.Add(CreateWithOffset(baseParameters, i, -Delta));
+                    ret.Add(CreateWithOffset(baseParameters, i, Delta));
                 }
             }
             return ret;
@@ -81,25 +83,25 @@ namespace TMG.Estimation.AI
 
         private Job CreateZero(ParameterSetting[] baseParameters)
         {
-            var parameters = Clone( baseParameters );
-            for ( int i = 0; i < parameters.Length; i++ )
+            var parameters = Clone(baseParameters);
+            for(int i = 0; i < parameters.Length; i++)
             {
                 parameters[i].Current = parameters[i].NullHypothesis;
             }
-            return CreateJob( parameters );
+            return CreateJob(parameters);
         }
 
         private Job CreateWithOffset(ParameterSetting[] baseParameters, int index, float delta)
         {
-            var parameters = Clone( baseParameters );
-            parameters[index].Current += delta * ( parameters[index].Maximum - parameters[index].Minimum );
-            return CreateJob( parameters );
+            var parameters = Clone(baseParameters);
+            parameters[index].Current += delta * (parameters[index].Maximum - parameters[index].Minimum);
+            return CreateJob(parameters);
         }
 
         private ParameterSetting[] Clone(ParameterSetting[] parameters)
         {
             ParameterSetting[] ret = new ParameterSetting[parameters.Length];
-            for ( int i = 0; i < parameters.Length; i++ )
+            for(int i = 0; i < parameters.Length; i++)
             {
                 ret[i] = new ParameterSetting()
                 {
@@ -129,7 +131,8 @@ namespace TMG.Estimation.AI
         {
             var baseParameters = new ParameterSetting[parameters.Length];
             // we only read the first line
-            if ( reader.LoadLine( out int columns ) )
+            int columns;
+            if(reader.LoadLine(out columns))
             {
                 var job = new Job()
                 {
@@ -140,7 +143,7 @@ namespace TMG.Estimation.AI
                     Parameters = baseParameters
                 };
 
-                for ( int i = 0; i < parameters.Length; i++ )
+                for(int i = 0; i < parameters.Length; i++)
                 {
                     baseParameters[i] = new ParameterSetting()
                     {
@@ -150,9 +153,9 @@ namespace TMG.Estimation.AI
                     };
                 }
 
-                for ( int i = 0; i < columnMap.Length; i++ )
+                for(int i = 0; i < columnMap.Length; i++)
                 {
-                    reader.Get( out baseParameters[columnMap[i]].Current, i + 2 );
+                    reader.Get(out baseParameters[columnMap[i]].Current, i + 2);
                 }
             }
             return baseParameters;
@@ -161,11 +164,13 @@ namespace TMG.Estimation.AI
         private int[] CreateParameterMap(CsvReader reader)
         {
             var parameters = this.Root.Parameters.ToArray();
-            reader.LoadLine( out var columns );
+            int columns;
+            reader.LoadLine( out columns );
             var ret = new int[columns - 2];
             for ( int i = 2; i < columns; i++ )
             {
-                reader.Get( out string name, i );
+                string name;
+                reader.Get( out name, i );
                 var selectedParameter = ( from p in parameters
                                           where p.Names.Contains( name )
                                           select p ).FirstOrDefault();
@@ -180,9 +185,9 @@ namespace TMG.Estimation.AI
 
         private int IndexOf(ParameterSetting[] parameters, ParameterSetting selectedParameter)
         {
-            for ( int i = 0; i < parameters.Length; i++ )
+            for(int i = 0; i < parameters.Length; i++)
             {
-                if ( parameters[i] == selectedParameter ) return i;
+                if(parameters[i] == selectedParameter) return i;
             }
             return -1;
         }
@@ -195,40 +200,40 @@ namespace TMG.Estimation.AI
             // job 1 is all parameters included
             var zeroValue = jobs[0].Value;
             var baseValue = jobs[1].Value;
-            var baseRho = GetRho( baseValue, zeroValue );
-            using (var writer = new StreamWriter( ReportFile ))
+            var baseRho = GetRho(baseValue, zeroValue);
+            using(var writer = new StreamWriter(ReportFile))
             {
-                writer.WriteLine( "Fitness,ZeroFitness,Rho^2" );
-                writer.Write( baseValue );
-                writer.Write( ',' );
-                writer.Write( zeroValue );
-                writer.Write( ',' );
-                writer.WriteLine( GetRho( baseValue, zeroValue ) );
-                writer.WriteLine( "ParameterName,Coefficient,Left,Right,SecondDerivative,t-statistic" );
-                for ( int i = 0; i < parameters.Count; i++ )
+                writer.WriteLine("Fitness,ZeroFitness,Rho^2");
+                writer.Write(baseValue);
+                writer.Write(',');
+                writer.Write(zeroValue);
+                writer.Write(',');
+                writer.WriteLine(GetRho(baseValue, zeroValue));
+                writer.WriteLine("ParameterName,Coefficient,Left,Right,SecondDerivative,t-statistic");
+                for(int i = 0; i < parameters.Count; i++)
                 {
-                    var secondDerivative = SecondDerivative( i );
+                    var secondDerivative = SecondDerivative(i);
                     var current = jobs[1].Parameters[i].Current;
                     int offset = i * 2 + 2;
-                    writer.Write( parameters[i].Names[0] );
-                    writer.Write( ',' );
-                    writer.Write( current );
-                    writer.Write( ',' );
-                    writer.Write( jobs[offset].Value );
-                    writer.Write( ',' );
-                    writer.Write( jobs[offset + 1].Value );
-                    writer.Write( ',' );
-                    writer.Write( secondDerivative );
-                    writer.Write( ',' );
-                    writer.WriteLine( ComputeTStatistic( current, i, secondDerivative ) );
+                    writer.Write(parameters[i].Names[0]);
+                    writer.Write(',');
+                    writer.Write(current);
+                    writer.Write(',');
+                    writer.Write(jobs[offset].Value);
+                    writer.Write(',');
+                    writer.Write(jobs[offset + 1].Value);
+                    writer.Write(',');
+                    writer.Write(secondDerivative);
+                    writer.Write(',');
+                    writer.WriteLine(ComputeTStatistic(current, i, secondDerivative));
                 }
             }
         }
 
         private double ComputeTStatistic(float current, int i, double secondDerivative)
         {
-            var variance = ( -1 ) / secondDerivative;
-            var std = Math.Sqrt( variance );
+            var variance = (-1) / secondDerivative;
+            var std = Math.Sqrt(variance);
             return current / std;
         }
 
@@ -236,16 +241,16 @@ namespace TMG.Estimation.AI
         {
             var jobs = this.Root.CurrentJobs;
             var parameters = this.Root.Parameters;
-            var parameterDelta = Delta * ( parameters[parameterIndex].Maximum - parameters[parameterIndex].Minimum );
+            var parameterDelta = Delta * (parameters[parameterIndex].Maximum - parameters[parameterIndex].Minimum);
             // 4 parameters per job, 2 jobs to get value and zero value
             var parameterOffset = parameterIndex * 2 + 2;
-            return ( jobs[parameterOffset + 1].Value - ( 2 * jobs[1].Value ) + jobs[parameterOffset].Value )
-                / ( parameterDelta * parameterDelta );
+            return (jobs[parameterOffset + 1].Value - (2 * jobs[1].Value) + jobs[parameterOffset].Value)
+                / (parameterDelta * parameterDelta);
         }
 
         private float GetRho(float current, float zeroParams)
         {
-            return 1.0f - ( current / zeroParams );
+            return 1.0f - (current / zeroParams);
         }
 
         public bool RuntimeValidation(ref string error)

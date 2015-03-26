@@ -150,7 +150,8 @@ namespace TMG.Tasha
 
         private void FinishHousehold(ITashaHousehold household, List<ITashaPerson> persons)
         {
-            ((Household)household).Persons = (var personArray = persons.ToArray());
+            ITashaPerson[] personArray = persons.ToArray();
+            ((Household)household).Persons = personArray;
             // first assign school zones
             if(PlaceOfResidencePlaceOfSchool != null)
             {

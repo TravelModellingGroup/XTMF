@@ -26,7 +26,7 @@ using Datastructure;
 using System.Threading.Tasks;
 using TMG.Input;
 using TMG.Functions;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -355,9 +355,9 @@ namespace Tasha.PopulationSynthesis
             var totalEmployment = employment.Sum();
             var balanceFactor = totalPop / totalEmployment;
             var ret = new float[employment.Length];
-            if(IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
-                VectorMultiply(ret, 0, employment, 0, balanceFactor, ret.Length);
+                VectorHelper.VectorMultiply(ret, 0, employment, 0, balanceFactor, ret.Length);
             }
             else
             {
@@ -382,9 +382,9 @@ namespace Tasha.PopulationSynthesis
             for(int workerCategory = 0; workerCategory < NumberOfWorkerCategories; workerCategory++)
             {
                 int WorkerCategoryOffset = workerCategory * pop.Length;
-                if(IsHardwareAccelerated)
+                if(VectorHelper.IsHardwareAccelerated)
                 {
-                    VectorMultiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
+                    VectorHelper.VectorMultiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
                 }
                 else
                 {
@@ -453,7 +453,8 @@ namespace Tasha.PopulationSynthesis
             using (CsvReader reader = new CsvReader(WorkerCategorySplits))
             {
                 //burn header
-                reader.LoadLine(out int columns);
+                int columns;
+                reader.LoadLine(out columns);
                 // read data
                 while(reader.LoadLine(out columns))
                 {
@@ -461,9 +462,11 @@ namespace Tasha.PopulationSynthesis
                     {
                         continue;
                     }
-                    reader.Get(out int zone, 0);
-                    reader.Get(out int category, 1);
-                    reader.Get(out float probability, 2);
+                    int zone, category;
+                    float probability;
+                    reader.Get(out zone, 0);
+                    reader.Get(out category, 1);
+                    reader.Get(out probability, 2);
                     zone = zoneArray.GetFlatIndex(zone);
                     // categories are 1 indexed however we want 0 indexed
                     category -= 1;

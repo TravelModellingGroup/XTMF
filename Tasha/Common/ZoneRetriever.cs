@@ -180,13 +180,15 @@ namespace Tasha.Common
                 using (CsvReader reader = new CsvReader(RegionFile))
                 {
                     // burn header
-                    reader.LoadLine(out int columns);
+                    int columns;
+                    reader.LoadLine(out columns);
                     // read the rest
                     while(reader.LoadLine(out columns))
                     {
                         if(columns < 2) continue;
-                        reader.Get(out int zoneNumber, 0);
-                        reader.Get(out int regionNumber, 1);
+                        int zoneNumber, regionNumber;
+                        reader.Get(out zoneNumber, 0);
+                        reader.Get(out regionNumber, 1);
                         int index = zoneArray.GetFlatIndex(zoneNumber);
                         if(index >= 0)
                         {

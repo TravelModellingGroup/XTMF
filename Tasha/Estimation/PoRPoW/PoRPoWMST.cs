@@ -27,7 +27,7 @@ using TMG.Estimation;
 using System.Threading.Tasks;
 using TMG.Input;
 using TMG.Functions;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 using System.IO;
 
 namespace Tasha.Estimation.PoRPoW
@@ -197,9 +197,9 @@ namespace Tasha.Estimation.PoRPoW
                     if(UseRMSE)
                     {
                         // for each destination
-                        if(IsHardwareAccelerated)
+                        if(VectorHelper.IsHardwareAccelerated)
                         {
-                            currentError = VectorSquareDiff(aggRow, 0, truthRow, 0, aggRow.Length);
+                            currentError = VectorHelper.VectorSquareDiff(aggRow, 0, truthRow, 0, aggRow.Length);
                         }
                         else
                         {
@@ -278,9 +278,9 @@ namespace Tasha.Estimation.PoRPoW
                         {
                             row = model[k][i];
                             // accelerated
-                            if(IsHardwareAccelerated)
+                            if(VectorHelper.IsHardwareAccelerated)
                             {
-                                VectorAdd(retRow, 0, retRow, 0, row, 0, row.Length);
+                                VectorHelper.VectorAdd(retRow, 0, retRow, 0, row, 0, row.Length);
                             }
                             else
                             {

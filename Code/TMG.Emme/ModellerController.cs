@@ -224,7 +224,8 @@ namespace TMG.Emme
                     writer.Flush();
                     // now that we have setup the macro, we can force the writer out of scope
                     writer = null;
-                    return WaitForEmmeResponce(ref string _unused = null, null);
+                    string _unused = null;
+                    return WaitForEmmeResponce(ref _unused, null);
                 }
                 catch (EndOfStreamException)
                 {
@@ -325,10 +326,11 @@ namespace TMG.Emme
                 }
                 catch (IOException e)
                 {
-                    throw new XTMFRuntimeException("I/O Connection with emme while sending data, with:\r\n" + e.Message);
+                    throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                 }
                 // now we need to wait
-                return WaitForEmmeResponce(ref string _unused = null, null);
+                string _unused = null;
+                return WaitForEmmeResponce(ref _unused, null);
             }
         }
 

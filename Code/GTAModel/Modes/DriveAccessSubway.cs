@@ -169,23 +169,4 @@ namespace TMG.GTAModel.Modes
             this.AccessUtilities = this.AccessStationUtilities.AquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
         }
     }
-
-    class Point(float x, float y)
-    {
-        public float X { get; } = x;
-        public float Y { get; } = y;
-
-        public static Point operator+(Point first, Point second)
-        {
-            return new Point( first.X + second.X, first.Y + second.Y );
-        }
-
-        public void OtherCode()
-        {
-            Parallel.For( 0, 100, (int i) =>
-            {
-
-            } );
-        }
-    }
 }

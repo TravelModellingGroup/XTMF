@@ -68,7 +68,8 @@ namespace XTMF
                     }
                 }
                 // If we didn't find one create a new reference
-                this.EditingSessions.Add(var session = new ProjectEditingSession(project, this.Runtime));
+                var session = new ProjectEditingSession(project, this.Runtime);
+                this.EditingSessions.Add(session);
                 this.ReferenceCount.Add(1);
                 return session;
             }
@@ -141,7 +142,8 @@ namespace XTMF
         {
             lock (EditingSessionLock)
             {
-                if((var alreadyLoaded = this.Load(name, ref error)) != null)
+                Project alreadyLoaded;
+                if((alreadyLoaded = this.Load(name, ref error)) != null)
                 {
                     return alreadyLoaded;
                 }
@@ -171,7 +173,8 @@ namespace XTMF
             lock (EditingSessionLock)
             {
                 // check to see if it already exists
-                if((var index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
+                int index;
+                if((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
                 {
                     this.ReferenceCount[index]++;
                     return this.EditingSessions[index];
@@ -205,7 +208,9 @@ namespace XTMF
         /// <returns>True if the project was deleted</returns>
         public bool DeleteProject(string name, ref string error)
         {
-            if((var project = this.Load(name, ref string ignore = null)) != null)
+            Project project;
+            string ignore = null;
+            if((project = this.Load(name, ref ignore)) != null)
             {
                 return this.DeleteProject(project, ref error);
             }
@@ -223,7 +228,8 @@ namespace XTMF
         {
             lock (EditingSessionLock)
             {
-                if((var index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
+                int index;
+                if((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
                 {
                     error = "You can not delete a project while it is being edited.";
                     return false;

@@ -117,8 +117,8 @@ namespace XTMF.Testing.Editing
 
                 root.Type = typeof(TestModelSystemTemplate);
                 Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
-
-                Assert.IsTrue(session.Undo(ref (string error = null)), "The undo failed!");
+                string error = null;
+                Assert.IsTrue(session.Undo(ref error), "The undo failed!");
                 Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
 
                 Assert.IsTrue(session.Redo(ref error), "The undo failed!");
@@ -317,7 +317,8 @@ namespace XTMF.Testing.Editing
             var controller = runtime.ProjectController;
             string error = null;
             controller.DeleteProject("TestProject", ref error);
-            Assert.IsTrue((var project = controller.LoadOrCreate("TestProject", ref error)) != null);
+            Project project;
+            Assert.IsTrue((project = controller.LoadOrCreate("TestProject", ref error)) != null);
             using (var session = controller.EditProject(project))
             {
                 var testModelSystem = CreateTestModelSystem(runtime);
@@ -328,7 +329,8 @@ namespace XTMF.Testing.Editing
                     var root = modelSystemSession.ModelSystemModel.Root;
                     var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
                     Assert.IsNotNull(collection);
-                    Assert.IsNotNull((var run = modelSystemSession.Run("TestRun", ref error)));
+                    XTMFRun run;
+                    Assert.IsNotNull(run = modelSystemSession.Run("TestRun", ref error));
                     bool finished = false;
                     run.RunComplete += () =>
                     {

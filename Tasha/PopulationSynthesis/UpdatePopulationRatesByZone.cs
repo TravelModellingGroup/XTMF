@@ -85,7 +85,8 @@ namespace Tasha.PopulationSynthesis
             Writer.WriteLine(household.Vehicles.Length);
             foreach(var person in household.Persons)
             {
-                if((var employmentZone = person.EmploymentZone) == null || !IsExternal(employmentZone))
+                IZone employmentZone;
+                if((employmentZone = person.EmploymentZone) == null || !IsExternal(employmentZone))
                 {
                     switch(person.EmploymentStatus)
                     {
@@ -223,15 +224,18 @@ namespace Tasha.PopulationSynthesis
             using (CsvReader reader = new CsvReader(FutureYearPopulationByZone))
             {
                 reader.LoadLine();
-                while(reader.LoadLine(out int columns))
+                int columns;
+                while(reader.LoadLine(out columns))
                 {
                     if(columns >= 2)
                     {
-                        reader.Get(out int sparseZone, 0);
+                        int sparseZone;
+                        reader.Get(out sparseZone, 0);
                         int zone = zoneSystem.GetFlatIndex(sparseZone);
                         if(zone >= 0)
                         {
-                            reader.Get(out float futurePopulation, 1);
+                            float futurePopulation;
+                            reader.Get(out futurePopulation, 1);
                             ExpansionModiferByZone[zone] = futurePopulation / (float)zones[zone].Population;
                             if(zones[zone].Population > 0)
                             {

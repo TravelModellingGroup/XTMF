@@ -151,7 +151,8 @@ namespace Tasha.V4Modes
             var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
             var chain = trip.TripChain;
             var p = chain.Person;
-            GetPersonVariables(p, out float timeFactor, out float constant, out float costParameter);
+            float timeFactor, constant, costParameter;
+            GetPersonVariables(p, out timeFactor, out constant, out costParameter);
             float v = constant;
             // if Intrazonal
             if(o == d)
@@ -162,8 +163,9 @@ namespace Tasha.V4Modes
             else
             {
                 // if not intrazonal
+                float ivtt, cost;
                 var parkingCosts = zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(trip, chain));
-                Network.GetAllData(o, d, trip.TripStartTime, out float ivtt, out float cost);
+                Network.GetAllData(o, d, trip.TripStartTime, out ivtt, out cost);
                 v += timeFactor * ivtt + costParameter * (cost + parkingCosts);
             }
             // Apply personal factors

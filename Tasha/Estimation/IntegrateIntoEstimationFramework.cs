@@ -58,15 +58,16 @@ namespace Tasha.Estimation
             get { return null; }
         }
 
-        private SpinLock FitnessUpdateLock = new SpinLock( false );
+        private SpinLock FitnessUpdateLock = new SpinLock(false);
 
         public void Execute(ITashaHousehold household, int iteration)
         {
-            var householdFitness = (float)EvaluateHousehold( household );
-            FitnessUpdateLock.Enter( ref ( bool taken = false ) );
+            var householdFitness = (float)EvaluateHousehold(household);
+            bool taken = false;
+            FitnessUpdateLock.Enter(ref taken);
             Thread.MemoryBarrier();
             Fitness += householdFitness;
-            if ( taken ) FitnessUpdateLock.Exit( true );
+            if(taken) FitnessUpdateLock.Exit(true);
         }
 
         public void IterationFinished(int iteration)
@@ -82,7 +83,7 @@ namespace Tasha.Estimation
         public bool RuntimeValidation(ref string error)
         {
             OurTasha = Root.MainClient as ITashaRuntime;
-            if ( OurTasha == null )
+            if(OurTasha == null)
             {
                 error = "In '" + Name + "' the estimation's client model system is not an ITashaRuntime!";
                 return false;
@@ -98,14 +99,14 @@ namespace Tasha.Estimation
         private double EvaluateHousehold(ITashaHousehold household)
         {
             double fitness = 0;
-            foreach ( var p in household.Persons )
+            foreach(var p in household.Persons)
             {
-                foreach ( var chain in p.TripChains )
+                foreach(var chain in p.TripChains)
                 {
-                    foreach ( var trip in chain.Trips )
+                    foreach(var trip in chain.Trips)
                     {
-                        var value = Math.Log( ( EvaluateTrip( trip ) + 1.0 ) / ( HouseholdIterations + 1.0 ) );
-                        Array.Clear( trip.ModesChosen, 0, trip.ModesChosen.Length );
+                        var value = Math.Log((EvaluateTrip(trip) + 1.0) / (HouseholdIterations + 1.0));
+                        Array.Clear(trip.ModesChosen, 0, trip.ModesChosen.Length);
                         fitness += value;
                     }
                     chain.Release();
@@ -120,9 +121,9 @@ namespace Tasha.Estimation
         {
             int correct = 0;
             var observedMode = trip[ObservedMode];
-            foreach ( var choice in trip.ModesChosen )
+            foreach(var choice in trip.ModesChosen)
             {
-                if ( choice == observedMode )
+                if(choice == observedMode)
                 {
                     correct++;
                 }

@@ -250,7 +250,8 @@ namespace Tasha.V4Modes
                     driverOriginalTrip.DestinationZone.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
                 same++;
             }
-            GetPersonVariables(passenger, out float timeFactor, out float passengerConstant, out float costFactor);
+            float timeFactor, passengerConstant, costFactor;
+            GetPersonVariables(passenger, out timeFactor, out passengerConstant, out costFactor);
             // if all three are the same then apply the intrazonal constant, otherwise use the regular constant
             v += passengerConstant;
             if(same == 3)

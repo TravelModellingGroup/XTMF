@@ -85,7 +85,8 @@ namespace Tasha.Validation.ModeChoice
                             var dIndex = ZoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
                             if(oIndex >= 0 & dIndex >= 0)
                             {
-                                DataLock[index].Enter(ref bool taken = false);
+                                bool taken = false;
+                                DataLock[index].Enter(ref taken);
                                 if(taken)
                                 {
                                     Data[index][oIndex][dIndex] += expansionFactor;

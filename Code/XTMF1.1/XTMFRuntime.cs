@@ -37,6 +37,7 @@ namespace XTMF
 
         public XTMFRuntime(Configuration configuration = null)
         {
+            CopyBuffer = new CopyBuffer();
             this.Configuration = configuration == null ? new Configuration() : configuration;
             this.ModelSystemController = new ModelSystemController( this );
             this.ProjectController = new ProjectController( this );
@@ -58,7 +59,7 @@ namespace XTMF
         /// <summary>
         /// Get the copy buffer
         /// </summary>
-        public CopyBuffer CopyBuffer { get; } = new CopyBuffer();
+        public CopyBuffer CopyBuffer { get; private set; }
 
 
         public IClient InitializeRemoteClient(string address, int port)

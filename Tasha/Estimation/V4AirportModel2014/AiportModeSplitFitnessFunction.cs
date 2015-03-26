@@ -119,17 +119,20 @@ namespace Tasha.Estimation.V4AirportModel2014
                 // burn header
                 reader.LoadLine();
                 // read in the rest of the data
-                while(reader.LoadLine(out int columns))
+                int columns;
+                while(reader.LoadLine(out columns))
                 {
                     if(columns >= 3)
                     {
-                        reader.Get(out int zone, 0);
+                        int zone;
+                        reader.Get(out zone, 0);
                         zone = zoneSystem.GetFlatIndex(zone);
                         if(zone >= 0)
                         {
-                            reader.Get(out float auto, 1);
-                            reader.Get(out float transit, 2);
-                            reader.Get(out float totalTrips, 3);
+                            float auto, transit, totalTrips;
+                            reader.Get(out auto, 1);
+                            reader.Get(out transit, 2);
+                            reader.Get(out totalTrips, 3);
                             AutoProbabilities[zone] = auto;
                             TransitProbabilities[zone] = transit;
                             TotalTrips[zone] = totalTrips;

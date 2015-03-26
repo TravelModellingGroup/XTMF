@@ -23,7 +23,7 @@ using System.Text;
 using Datastructure;
 using TMG;
 using XTMF;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 namespace Tasha.Data
 {
 
@@ -71,11 +71,11 @@ namespace Tasha.Data
                 var flatDistances = distances.GetFlatData();
                 Data = distances.CreateSimilarArray<float>();
                 var local = Data.GetFlatData();
-                if(IsHardwareAccelerated)
+                if(VectorHelper.IsHardwareAccelerated)
                 {
                     for(int i = 0; i < local.Length; i++)
                     {
-                        VectorMultiply(local[i], 0, flatDistances[i], 0, 0.001f, local.Length);
+                        VectorHelper.VectorMultiply(local[i], 0, flatDistances[i], 0, 0.001f, local.Length);
                     }
                 }
                 else

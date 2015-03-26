@@ -46,9 +46,17 @@ namespace Tasha.PopulationSynthesis
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        internal class ExpandedHousehold(internal ITashaHousehold Household)
+        internal class ExpandedHousehold
         {
-            internal float ExpansionFactor = Household.ExpansionFactor;
+            internal ITashaHousehold Household;
+
+            public ExpandedHousehold(ITashaHousehold household)
+            {
+                Household = household;
+                ExpansionFactor = household.ExpansionFactor;
+            }
+
+            internal float ExpansionFactor;
 
             internal void ResetExpansion()
             {
@@ -71,7 +79,8 @@ namespace Tasha.PopulationSynthesis
             internal void Add(ITashaHousehold household)
             {
                 var expansionFactor = household.ExpansionFactor;
-                Lock.Enter(ref (bool taken = false));
+                bool taken = false;
+                Lock.Enter(ref taken);
                 TotalExpansionFactor += expansionFactor;
                 Households.Add(new ExpandedHousehold(household));
                 if(taken) Lock.Exit(true);

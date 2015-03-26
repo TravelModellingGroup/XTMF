@@ -138,7 +138,8 @@ namespace Tasha.V4Modes
             var o = zoneArray.GetFlatIndex(trip.OriginalZone.ZoneNumber);
             var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
             var p = trip.TripChain.Person;
-            GetPersonVariables(p,out float timeFactor, out float constant, out float costFactor);
+            float timeFactor, constant, costFactor;
+            GetPersonVariables(p,out timeFactor, out constant, out costFactor);
             float v = constant;
             
             // if Intrazonal
@@ -151,7 +152,8 @@ namespace Tasha.V4Modes
             {
                 // if not intrazonal
                 var startTime = trip.TripStartTime;
-                Network.GetAllData(o, d, startTime, out float aivtt, out float cost);
+                float aivtt, cost;
+                Network.GetAllData(o, d, startTime, out aivtt, out cost);
                 v += timeFactor * aivtt + costFactor * cost;
             }
             // Apply personal factors

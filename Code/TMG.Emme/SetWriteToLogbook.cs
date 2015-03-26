@@ -48,7 +48,8 @@ namespace TMG.Emme
 
         public bool Execute(Controller controller)
         {
-            if((var modeller = controller as ModellerController) != null)
+            ModellerController modeller;
+            if((modeller = controller as ModellerController) != null)
             {
                 modeller.WriteToLogbook = WriteToLogbook;
                 return true;

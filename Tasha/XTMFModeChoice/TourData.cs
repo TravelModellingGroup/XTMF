@@ -24,5 +24,15 @@ using Tasha.Common;
 
 namespace Tasha.XTMFModeChoice
 {
-    internal class TourData(internal float[] TourUtilityModifiers, internal Action<ITripChain>[] OnSolution) { }
+    internal class TourData
+    {
+        internal float[] TourUtilityModifiers;
+        internal Action<ITripChain>[] OnSolution;
+
+        public TourData(float[] tourUtilityModifiers, Action<ITripChain>[] onSolution)
+        {
+            TourUtilityModifiers = tourUtilityModifiers;
+            OnSolution = onSolution;
+        }
+    }
 }

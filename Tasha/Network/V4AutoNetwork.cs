@@ -251,7 +251,8 @@ namespace Tasha.Network
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
-            if(GetData(this.ZoneArray.GetFlatIndex(start.ZoneNumber), this.ZoneArray.GetFlatIndex(end.ZoneNumber), time, out float localIvtt, out cost))
+            float localIvtt;
+            if(GetData(this.ZoneArray.GetFlatIndex(start.ZoneNumber), this.ZoneArray.GetFlatIndex(end.ZoneNumber), time, out localIvtt, out cost))
             {
                 ivtt = Time.FromMinutes(localIvtt);
                 return true;

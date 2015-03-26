@@ -24,7 +24,7 @@ using TMG;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 namespace Tasha.Data
 {
     [ModuleInformation(Description =
@@ -60,11 +60,11 @@ namespace Tasha.Data
             SparseArray<float> data;
             data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePDArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
-            if(IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
                 for(int j = 0; j < resources.Length; j++)
                 {
-                    VectorAdd(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
+                    VectorHelper.VectorAdd(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
                 }
             }
             else

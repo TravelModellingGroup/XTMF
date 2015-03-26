@@ -56,7 +56,8 @@ namespace TMG.Estimation
                     current.Minimum = float.Parse( child.Attributes["Minimum"].InnerText );
                     current.Maximum = float.Parse( child.Attributes["Maximum"].InnerText );
                     current.Current = current.Minimum;
-                    if ( ( var nullHypothesis = child.Attributes["NullHypothesis"] ) != null )
+                    XmlAttribute nullHypothesis;
+                    if ( ( nullHypothesis = child.Attributes["NullHypothesis"] ) != null )
                     {
                         current.NullHypothesis = float.Parse( nullHypothesis.InnerText );
                     }

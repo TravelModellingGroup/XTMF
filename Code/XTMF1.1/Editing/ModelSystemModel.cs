@@ -53,7 +53,8 @@ namespace XTMF
             ModelSystem = modelSystem;
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
-            Root = new ModelSystemStructureModel(session, ClonedModelSystemRoot = modelSystem.CreateEditingClone(out List<ILinkedParameter> editingLinkedParameters) as ModelSystemStructure);
+            List<ILinkedParameter> editingLinkedParameters;
+            Root = new ModelSystemStructureModel(session, ClonedModelSystemRoot = modelSystem.CreateEditingClone(out editingLinkedParameters) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
         }
 
@@ -99,7 +100,8 @@ namespace XTMF
             {
                 for(int i = 0; i < children.Count; i++)
                 {
-                    if((var ret = GetModelFor(realStructure, children[i])) != null)
+                    ModelSystemStructureModel ret;
+                    if((ret = GetModelFor(realStructure, children[i])) != null)
                     {
                         return ret;
                     }
@@ -114,7 +116,8 @@ namespace XTMF
             ModelSystemIndex = modelSystemIndex;
             Name = project.ModelSystemStructure[modelSystemIndex].Name;
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
-            Root = new ModelSystemStructureModel(session, project.CloneModelSystemStructure(out List<ILinkedParameter> editingLinkedParameters, modelSystemIndex) as ModelSystemStructure);
+            List<ILinkedParameter> editingLinkedParameters;
+            Root = new ModelSystemStructureModel(session, project.CloneModelSystemStructure(out editingLinkedParameters, modelSystemIndex) as ModelSystemStructure);
             _Description = Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
         }

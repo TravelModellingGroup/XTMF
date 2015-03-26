@@ -44,7 +44,8 @@ namespace Tasha.PopulationSynthesis
             }
             // If we are in the first iteration, or we don't care, load in our data and split
             var zoneSystem = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            LoadInData(out SparseTwinIndex<float> occ, out SparseTwinIndex<float> emp );
+            SparseTwinIndex<float> occ, emp;
+            LoadInData(out occ, out emp );
             // apply the rates
             Parallel.For( 0, zoneSystem.Length, (int i) =>
             {

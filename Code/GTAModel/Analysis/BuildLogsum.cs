@@ -43,9 +43,9 @@ namespace TMG.GTAModel.Analysis
 
             public string Name { get; set; }
 
-            public float Progress { get; } = 0f;
+            public float Progress { get; private set;}
 
-            public Tuple<byte, byte, byte> ProgressColour { get; } = null;
+            public Tuple<byte, byte, byte> ProgressColour { get; private set; }
 
             public void Add(SparseTwinIndex<float> data)
             {

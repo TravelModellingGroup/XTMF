@@ -24,7 +24,7 @@ using XTMF;
 
 namespace TMG.Estimation
 {
-    public class LocalClient(private IConfiguration XtmfConfig) : IEstimationClientModelSystem
+    public class LocalClient : IEstimationClientModelSystem
     {
 
         [RootModule]
@@ -32,11 +32,18 @@ namespace TMG.Estimation
 
         private IModelSystemStructure ClientStructure;
 
+        private IConfiguration XtmfConfig;
+        public LocalClient(IConfiguration config)
+        {
+            XtmfConfig = config;
+        }
+
         private volatile bool Exit;
 
         public ClientTask CurrentTask
         {
-            get; set;
+            get;
+            set;
         }
 
         public string InputBaseDirectory { get; set; }
@@ -65,7 +72,7 @@ namespace TMG.Estimation
         {
             get
             {
-                return new Tuple<byte, byte, byte>( 50, 150, 50 );
+                return new Tuple<byte, byte, byte>(50, 150, 50);
             }
         }
 
@@ -73,11 +80,11 @@ namespace TMG.Estimation
 
         private void InitializeParameters(ClientTask task)
         {
-            for ( int i = 0; i < task.ParameterValues.Length && i < this.Parameters.Length; i++ )
+            for(int i = 0; i < task.ParameterValues.Length && i < this.Parameters.Length; i++)
             {
-                for ( int j = 0; j < this.Parameters[i].Names.Length; j++ )
+                for(int j = 0; j < this.Parameters[i].Names.Length; j++)
                 {
-                    AssignValue( this.Parameters[i].Names[j], task.ParameterValues[i] );
+                    AssignValue(this.Parameters[i].Names[j], task.ParameterValues[i]);
                 }
             }
             SaveParametersIfNeeded();
@@ -85,83 +92,84 @@ namespace TMG.Estimation
 
         private void SaveParametersIfNeeded()
         {
-            if ( SaveParameters )
+            if(SaveParameters)
             {
-                if ( !XtmfConfig.ProjectRepository.ActiveProject.Save( ref string error = null ) )
+                string error = null;
+                if(!XtmfConfig.ProjectRepository.ActiveProject.Save(ref error))
                 {
-                    throw new XTMFRuntimeException( "We were unable to save the project! " + error );
+                    throw new XTMFRuntimeException("We were unable to save the project! " + error);
                 }
             }
         }
 
         private void AssignValue(string parameterName, float value)
         {
-            string[] parts = SplitNameToParts( parameterName );
-            AssignValue( parts, 0, this.ClientStructure, value );
+            string[] parts = SplitNameToParts(parameterName);
+            AssignValue(parts, 0, this.ClientStructure, value);
         }
 
         private void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, float value)
         {
-            if ( currentIndex == parts.Length - 1 )
+            if(currentIndex == parts.Length - 1)
             {
-                AssignValue( parts[currentIndex], currentStructure, value );
+                AssignValue(parts[currentIndex], currentStructure, value);
                 return;
             }
-            if ( currentStructure.Children != null )
+            if(currentStructure.Children != null)
             {
-                for ( int i = 0; i < currentStructure.Children.Count; i++ )
+                for(int i = 0; i < currentStructure.Children.Count; i++)
                 {
-                    if ( currentStructure.Children[i].Name == parts[currentIndex] )
+                    if(currentStructure.Children[i].Name == parts[currentIndex])
                     {
-                        AssignValue( parts, currentIndex + 1, currentStructure.Children[i], value );
+                        AssignValue(parts, currentIndex + 1, currentStructure.Children[i], value);
                         return;
                     }
                 }
             }
-            throw new XTMFRuntimeException( "Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
-                + "' in order to assign parameters!" );
+            throw new XTMFRuntimeException("Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
+                + "' in order to assign parameters!");
         }
 
         private void AssignValue(string variableName, IModelSystemStructure currentStructure, float value)
         {
-            if ( currentStructure == null )
+            if(currentStructure == null)
             {
-                throw new XTMFRuntimeException( "Unable to assign '" + variableName + "', the module is null!" );
+                throw new XTMFRuntimeException("Unable to assign '" + variableName + "', the module is null!");
             }
             var p = currentStructure.Parameters;
-            if ( p == null )
+            if(p == null)
             {
-                throw new XTMFRuntimeException( "The structure '" + currentStructure.Name + "' has no parameters!" );
+                throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
             }
             var parameters = p.Parameters;
             bool any = false;
-            if ( parameters != null )
+            if(parameters != null)
             {
-                for ( int i = 0; i < parameters.Count; i++ )
+                for(int i = 0; i < parameters.Count; i++)
                 {
-                    if ( parameters[i].Name == variableName )
+                    if(parameters[i].Name == variableName)
                     {
                         parameters[i].Value = value;
                         var type = currentStructure.Module.GetType();
-                        if ( parameters[i].OnField )
+                        if(parameters[i].OnField)
                         {
-                            var field = type.GetField( parameters[i].VariableName );
-                            field.SetValue( currentStructure.Module, value );
+                            var field = type.GetField(parameters[i].VariableName);
+                            field.SetValue(currentStructure.Module, value);
                             any = true;
                         }
                         else
                         {
-                            var field = type.GetProperty( parameters[i].VariableName );
-                            field.SetValue( currentStructure.Module, value, null );
+                            var field = type.GetProperty(parameters[i].VariableName);
+                            field.SetValue(currentStructure.Module, value, null);
                             any = true;
                         }
                     }
                 }
             }
-            if ( !any )
+            if(!any)
             {
-                throw new XTMFRuntimeException( "Unable to find a parameter named '" + variableName
-                    + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!" );
+                throw new XTMFRuntimeException("Unable to find a parameter named '" + variableName
+                    + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!");
             }
         }
 
@@ -170,34 +178,34 @@ namespace TMG.Estimation
             List<string> parts = new List<string>();
             var stringLength = parameterName.Length;
             StringBuilder builder = new StringBuilder();
-            for ( int i = 0; i < stringLength; i++ )
+            for(int i = 0; i < stringLength; i++)
             {
-                switch ( parameterName[i] )
+                switch(parameterName[i])
                 {
-                    case '.':
-                        parts.Add( builder.ToString() );
-                        builder.Clear();
-                        break;
-                    case '\\':
-                        if ( i + 1 < stringLength )
+                case '.':
+                    parts.Add(builder.ToString());
+                    builder.Clear();
+                    break;
+                case '\\':
+                    if(i + 1 < stringLength)
+                    {
+                        if(parameterName[i + 1] == '.')
                         {
-                            if ( parameterName[i + 1] == '.' )
-                            {
-                                builder.Append( '.' );
-                                i += 2;
-                            }
-                            else if ( parameterName[i + 1] == '\\' )
-                            {
-                                builder.Append( '\\' );
-                            }
+                            builder.Append('.');
+                            i += 2;
                         }
-                        break;
-                    default:
-                        builder.Append( parameterName[i] );
-                        break;
+                        else if(parameterName[i + 1] == '\\')
+                        {
+                            builder.Append('\\');
+                        }
+                    }
+                    break;
+                default:
+                    builder.Append(parameterName[i]);
+                    break;
                 }
             }
-            parts.Add( builder.ToString() );
+            parts.Add(builder.ToString());
             return parts.ToArray();
         }
 
@@ -209,16 +217,16 @@ namespace TMG.Estimation
 
         private bool FindUs(IModelSystemStructure mst, ref IModelSystemStructure modelSystemStructure)
         {
-            if ( mst.Module == this )
+            if(mst.Module == this)
             {
                 modelSystemStructure = mst;
                 return true;
             }
-            if ( mst.Children != null )
+            if(mst.Children != null)
             {
-                foreach ( var child in mst.Children )
+                foreach(var child in mst.Children)
                 {
-                    if ( FindUs( child, ref modelSystemStructure ) )
+                    if(FindUs(child, ref modelSystemStructure))
                     {
                         return true;
                     }
@@ -231,13 +239,13 @@ namespace TMG.Estimation
         public bool RuntimeValidation(ref string error)
         {
             IModelSystemStructure ourStructure = null;
-            foreach ( var mst in this.XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure )
+            foreach(var mst in this.XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure)
             {
-                if ( FindUs( mst, ref ourStructure ) )
+                if(FindUs(mst, ref ourStructure))
                 {
-                    foreach ( var child in ourStructure.Children )
+                    foreach(var child in ourStructure.Children)
                     {
-                        if ( child.ParentFieldName == "MainClient" )
+                        if(child.ParentFieldName == "MainClient")
                         {
                             this.ClientStructure = child;
                             break;
@@ -246,7 +254,7 @@ namespace TMG.Estimation
                     break;
                 }
             }
-            if ( ClientStructure == null )
+            if(ClientStructure == null)
             {
                 error = "In '" + this.Name + "' we were unable to find the Client Model System!";
                 return false;
@@ -258,10 +266,11 @@ namespace TMG.Estimation
         {
             this.Exit = false;
             this.Parameters = this.Root.Parameters.ToArray();
-            while ( this.Exit != true && ( var job = this.Root.GiveJob() ) != null )
+            Job job;
+            while(this.Exit != true && (job = this.Root.GiveJob()) != null)
             {
-                CreateClientTask( job );
-                this.InitializeParameters( this.CurrentTask );
+                CreateClientTask(job);
+                this.InitializeParameters(this.CurrentTask);
                 this.MainClient.Start();
                 ReportResult();
             }
@@ -274,8 +283,8 @@ namespace TMG.Estimation
             {
                 Generation = -1,
                 Index = -1,
-                ParameterValues = ( from param in job.Parameters
-                                    select param.Current ).ToArray(),
+                ParameterValues = (from param in job.Parameters
+                                   select param.Current).ToArray(),
                 Result = float.NaN
             };
         }
@@ -283,7 +292,7 @@ namespace TMG.Estimation
         private void ReportResult()
         {
             var result = this.RetrieveValue == null ? float.NaN : this.RetrieveValue();
-            this.Root.SaveResult( result );
+            this.Root.SaveResult(result);
         }
     }
 }

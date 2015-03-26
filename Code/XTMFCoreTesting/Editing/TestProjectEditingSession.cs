@@ -36,7 +36,8 @@ namespace XTMF.Testing.Editing
             var controller = runtime.ProjectController;
             string error = null;
             controller.DeleteProject( "TestProject", ref error );
-            Assert.IsTrue( ( var project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
+            Project project;
+            Assert.IsTrue( ( project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
             using (var session = controller.EditProject( project ))
             {
                 var testModelSystem = CreateTestModelSystem( runtime );
@@ -52,7 +53,8 @@ namespace XTMF.Testing.Editing
             var controller = runtime.ProjectController;
             string error = null;
             controller.DeleteProject( "TestProject", ref error );
-            Assert.IsTrue( ( var project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
+            Project project;
+            Assert.IsTrue( ( project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
             using (var session = controller.EditProject( project ))
             {
                 var testModelSystem = CreateTestModelSystem( runtime );
@@ -81,7 +83,8 @@ namespace XTMF.Testing.Editing
             var controller = runtime.ProjectController;
             string error = null;
             controller.DeleteProject( "TestProject", ref error );
-            Assert.IsTrue( ( var project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
+            Project project;
+            Assert.IsTrue( ( project = controller.LoadOrCreate( "TestProject", ref error ) ) != null );
             using (var session = controller.EditProject( project ))
             {
                 // create and add our two model systems into the project

@@ -29,7 +29,7 @@ using Datastructure;
 using System.Threading.Tasks;
 using Tasha.ModeChoice;
 using TMG.Input;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 
 namespace Tasha.StationAccess
 {
@@ -200,13 +200,15 @@ namespace Tasha.StationAccess
 
             private float ComputeUtility(INetworkData autoNetwork, int originIndex, int destinationIndex)
             {
-                autoNetwork.GetAllData(originIndex, destinationIndex, StartTime, out float aivtt, out float cost);
+                float aivtt, cost;
+                autoNetwork.GetAllData(originIndex, destinationIndex, StartTime, out aivtt, out cost);
                 return AIVTT * aivtt + AutoCost * cost;
             }
 
             private float ComputeUtility(ITripComponentData transitNetwork, int originIndex, int destIndex)
             {
-                if(transitNetwork.GetAllData(originIndex, destIndex, StartTime, out float ivtt, out float walk, out float wait, out float boardingPenalty, out float cost) && (boardingPenalty > 0))
+                float ivtt, walk, wait, boardingPenalty, cost;
+                if(transitNetwork.GetAllData(originIndex, destIndex, StartTime, out ivtt, out walk, out wait, out boardingPenalty, out cost) && (boardingPenalty > 0))
                 {
                     return TIVTT * ivtt
                         + Boarding * boardingPenalty
@@ -314,7 +316,8 @@ namespace Tasha.StationAccess
                 double bestDistance = Distance(origin, AccessZones[0]);
                 for(int j = 1; j < AccessZones.Length; j++)
                 {
-                    if((var dist = Distance(origin, AccessZones[j])) < bestDistance)
+                    double dist;
+                    if((dist = Distance(origin, AccessZones[j])) < bestDistance)
                     {
                         bestIndex = j;
                         bestDistance = dist;
@@ -370,7 +373,8 @@ namespace Tasha.StationAccess
 
         public Pair<IZone[], float[]> ProduceResult(ITripChain data)
         {
-            if(GetTripsFirst(data, out ITrip first, out ITrip second))
+            ITrip first, second;
+            if(GetTripsFirst(data, out first, out second))
             {
                 if(first == null | second == null) return null;
                 TimePeriod firstTimePeriod = GetTimePeriod(first);
@@ -382,13 +386,13 @@ namespace Tasha.StationAccess
                 var firstDestination = zoneArray.GetFlatIndex(first.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondOrigin = zoneArray.GetFlatIndex(second.OriginalZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
-                if(IsHardwareAccelerated)
+                if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
                 {
-                    VectorMultiply(utilities, 0, firstTimePeriod.AccessFromOrigin, firstOrigin,
+                    TMG.Functions.VectorHelper.VectorMultiply(utilities, 0, firstTimePeriod.AccessFromOrigin, firstOrigin,
                         firstTimePeriod.AccessToDestination, secondDestination,
                         secondTimePeriod.EgressToDestination, secondOrigin,
                         secondTimePeriod.EgressFromOrigin, secondDestination, utilities.Length);
-                    ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
+                    TMG.Functions.VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
                 }
                 else
                 {

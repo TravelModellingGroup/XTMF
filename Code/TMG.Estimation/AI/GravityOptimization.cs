@@ -90,8 +90,16 @@ namespace TMG.Estimation.AI
             return GenerateNextGeneration();
         }
 
-        private class ParticleCompare(internal int Index, internal float Fitness) : IComparable<ParticleCompare>
+        private class ParticleCompare : IComparable<ParticleCompare>
         {
+            internal int Index;
+            internal float Fitness;
+
+            public ParticleCompare (int index, float fitness)
+            {
+                Index = index;
+                Fitness = fitness;
+            }
             public int CompareTo(ParticleCompare other)
             {
                 if(Fitness < other.Fitness)
@@ -186,7 +194,8 @@ namespace TMG.Estimation.AI
             // make it so
             ComputeParticleWeight();
             // The stars will have already been made so now we can compute our attraction to the stars
-            UpdateStars(out bool starsChanged);
+            bool starsChanged;
+            UpdateStars(out starsChanged);
             if(starsChanged)
             {
                 // Update the weight to the stars given the stars could have been destroyed

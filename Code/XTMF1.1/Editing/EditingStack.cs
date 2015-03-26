@@ -75,7 +75,8 @@ namespace XTMF.Editing
         /// <returns>The top element</returns>
         public XTMFCommand Pop()
         {
-            if(TryPop(out var result))
+            XTMFCommand result;
+            if(TryPop(out result))
             {
                 return result;
             }

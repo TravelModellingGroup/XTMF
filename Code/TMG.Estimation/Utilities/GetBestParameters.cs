@@ -42,9 +42,16 @@ namespace TMG.Estimation.Utilities
         [RunParameter("Maximize", true, "Should this try to maximize or minimize the values?")]
         public bool Maximize;
 
-        private class GenerationJob(internal Job Job, internal int Generation)
+        private class GenerationJob
         {
+            internal Job Job;
+            internal int Generation;
 
+            public GenerationJob(Job job, int generation)
+            {
+                Job = job;
+                Generation = generation;
+            }
         }
 
         public void Start()
@@ -135,7 +142,8 @@ namespace TMG.Estimation.Utilities
                         Processing = false,
                         Parameters = localParameters
                     };
-                    reader.Get( out int generation, 0 );
+                    int generation;
+                    reader.Get( out generation, 0 );
                     GenerationJob genJob = new GenerationJob( job, generation );
                     // we don't load the generation
                     reader.Get( out job.Value, 1 );

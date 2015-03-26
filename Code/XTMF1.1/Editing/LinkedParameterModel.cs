@@ -149,8 +149,9 @@ namespace XTMF
         {
             lock (this.ParameterModelsLock)
             {
+                string error = null;
                 this.ParameterModels.Insert(index, toAdd);
-                this.RealLinkedParameter.Add(toAdd.RealParameter, ref string error = null);
+                this.RealLinkedParameter.Add(toAdd.RealParameter, ref error);
             }
         }
 
@@ -159,8 +160,9 @@ namespace XTMF
             lock (this.ParameterModelsLock)
             {
                 var index = this.ParameterModels.IndexOf(toRemove);
+                string error = null;
                 this.ParameterModels.RemoveAt(index);
-                this.RealLinkedParameter.Remove(toRemove.RealParameter, ref string error = null);
+                this.RealLinkedParameter.Remove(toRemove.RealParameter, ref error);
                 return index;
             }
         }

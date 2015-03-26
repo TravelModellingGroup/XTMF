@@ -60,20 +60,21 @@ namespace Tasha.Validation.ModeChoice
         public void Execute(ITashaHousehold household, int iteration)
         {
             var persons = household.Persons;
-            WriteLock.Enter( ref bool taken = false );
-            for ( int i = 0; i < persons.Length; i++ )
+            bool taken = false;
+            WriteLock.Enter(ref taken);
+            for(int i = 0; i < persons.Length; i++)
             {
                 var expanionFactor = persons[i].ExpansionFactor;
                 var tripChains = persons[i].TripChains;
-                for (int j = 0; j < tripChains.Count; j++ )
+                for(int j = 0; j < tripChains.Count; j++)
                 {
                     var tripChain = tripChains[j].Trips;
-                    for (int k = 0; k < tripChain.Count; k++ )
+                    for(int k = 0; k < tripChain.Count; k++)
                     {
                         var mode = tripChain[k].Mode;
-                        for (int l = 0; l < Modes.Length; l++ )
+                        for(int l = 0; l < Modes.Length; l++)
                         {
-                            if (Modes[l] == mode)
+                            if(Modes[l] == mode)
                             {
                                 Counts[l] += expanionFactor;
                                 break;
@@ -82,24 +83,24 @@ namespace Tasha.Validation.ModeChoice
                     }
                 }
             }
-            if ( taken ) WriteLock.Exit( true );
+            if(taken) WriteLock.Exit(true);
         }
 
         public void IterationFinished(int iteration)
         {
-            using (var writer = new StreamWriter(OutputFileLocation, true))
+            using(var writer = new StreamWriter(OutputFileLocation, true))
             {
-                writer.Write( "Iteration: " );
-                writer.WriteLine( iteration );
-                writer.WriteLine( "Mode,ExpandedTrips" );
-                for (int i = 0; i < Modes.Length; i++ )
+                writer.Write("Iteration: ");
+                writer.WriteLine(iteration);
+                writer.WriteLine("Mode,ExpandedTrips");
+                for(int i = 0; i < Modes.Length; i++)
                 {
-                    writer.Write( Modes[i].ModeName );
-                    writer.Write( ',' );
-                    writer.WriteLine( Counts[i] );
+                    writer.Write(Modes[i].ModeName);
+                    writer.Write(',');
+                    writer.WriteLine(Counts[i]);
                 }
             }
-            for (int i = 0; i < Counts.Length; i++ )
+            for(int i = 0; i < Counts.Length; i++)
             {
                 Counts[i] = 0.0f;
             }

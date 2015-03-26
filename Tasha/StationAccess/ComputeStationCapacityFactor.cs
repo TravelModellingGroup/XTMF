@@ -77,18 +77,18 @@ namespace Tasha.StationAccess
 
             internal void Execute(int iteration)
             {
-                BinaryHelpers.ExecuteReader( (reader) =>
+                BinaryHelpers.ExecuteReader((reader) =>
                 {
-                    EmmeMatrix matrix = new EmmeMatrix( reader );
-                    switch ( matrix.Type )
+                    EmmeMatrix matrix = new EmmeMatrix(reader);
+                    switch(matrix.Type)
                     {
-                        case EmmeMatrix.DataType.Float:
-                            ProcessData( matrix.FloatData, iteration );
-                            break;
-                        default:
-                            throw new XTMFRuntimeException( "In '" + Name + "' the data type for the file '" + DemandMatrix + "' was not float!" );
+                    case EmmeMatrix.DataType.Float:
+                        ProcessData(matrix.FloatData, iteration);
+                        break;
+                    default:
+                        throw new XTMFRuntimeException("In '" + Name + "' the data type for the file '" + DemandMatrix + "' was not float!");
                     }
-                }, DemandMatrix );
+                }, DemandMatrix);
             }
 
             private void ProcessData(float[] autoTripMatrix, int iteration)
@@ -97,12 +97,12 @@ namespace Tasha.StationAccess
                 int[] zoneIndexForStation = Parent.AccessZoneIndexes;
                 float[] accessStationCounts = new float[zoneIndexForStation.Length];
                 // a fast way of tallying the station counts
-                Parallel.For( 0, zones.Length,
+                Parallel.For(0, zones.Length,
                     () => { return new float[zoneIndexForStation.Length]; },
                     (int i, ParallelLoopState state, float[] threadLocalStationAccessCounts) =>
                     {
                         var iOffset = i * zones.Length;
-                        for ( int j = 0; j < zoneIndexForStation.Length; j++ )
+                        for(int j = 0; j < zoneIndexForStation.Length; j++)
                         {
                             threadLocalStationAccessCounts[j] += autoTripMatrix[iOffset + zoneIndexForStation[j]];
                         }
@@ -110,39 +110,40 @@ namespace Tasha.StationAccess
                     },
                     (float[] threadLocalAccessStationCounts) =>
                     {
-                        lock (accessStationCounts)
+                        lock(accessStationCounts)
                         {
-                            for ( int i = 0; i < accessStationCounts.Length; i++ )
+                            for(int i = 0; i < accessStationCounts.Length; i++)
                             {
                                 accessStationCounts[i] += threadLocalAccessStationCounts[i];
                             }
                         }
-                    } );
+                    });
                 var capacity = Parent.Capacity.GetFlatData();
-                if ( CapacityFactors == null )
+                if(CapacityFactors == null)
                 {
                     CapacityFactors = new float[accessStationCounts.Length];
-                    for ( int i = 0; i < CapacityFactors.Length; i++ )
+                    for(int i = 0; i < CapacityFactors.Length; i++)
                     {
                         CapacityFactors[i] = 1.0f;
                     }
                 }
-                using (var writer = new StreamWriter( CapacityFactorOutput ))
+                using(var writer = new StreamWriter(CapacityFactorOutput))
                 {
-                    writer.WriteLine( "Zone,Factor,Demand,Capacity" );
-                    for ( int i = 0; i < accessStationCounts.Length; i++ )
+                    writer.WriteLine("Zone,Factor,Demand,Capacity");
+                    for(int i = 0; i < accessStationCounts.Length; i++)
                     {
                         float stationCapacity = capacity[zoneIndexForStation[i]];
-                        if ( ComputeStationCapacityFactor( accessStationCounts[i], stationCapacity, CapacityFactors[i], out float capacityFactor ) )
+                        float capacityFactor;
+                        if(ComputeStationCapacityFactor(accessStationCounts[i], stationCapacity, CapacityFactors[i], out capacityFactor))
                         {
                             CapacityFactors[i] = capacityFactor;
-                            writer.Write( zones[zoneIndexForStation[i]].ZoneNumber );
-                            writer.Write( ',' );
-                            writer.Write( capacityFactor );
-                            writer.Write( ',' );
-                            writer.Write( accessStationCounts[i] );
-                            writer.Write( ',' );
-                            writer.WriteLine( stationCapacity );
+                            writer.Write(zones[zoneIndexForStation[i]].ZoneNumber);
+                            writer.Write(',');
+                            writer.Write(capacityFactor);
+                            writer.Write(',');
+                            writer.Write(accessStationCounts[i]);
+                            writer.Write(',');
+                            writer.WriteLine(stationCapacity);
                         }
                         else
                         {
@@ -154,26 +155,26 @@ namespace Tasha.StationAccess
 
             public bool ComputeStationCapacityFactor(float demand, float capacity, float previousCapacityFactor, out float capacityFactor)
             {
-                if ( capacity <= 0 )
+                if(capacity <= 0)
                 {
                     capacityFactor = float.NaN;
                     return false;
                 }
-                if ( previousCapacityFactor < 1 )
+                if(previousCapacityFactor < 1)
                 {
                     // we know demand is greater than capacity and non zero
-                    if ( demand <= 0 )
+                    if(demand <= 0)
                     {
-                        capacityFactor = 1.0f - ( ( 1.0f - previousCapacityFactor ) / 2.0f );
+                        capacityFactor = 1.0f - ((1.0f - previousCapacityFactor) / 2.0f);
                     }
                     else
                     {
-                        capacityFactor = Math.Min( ( capacity / demand ) * previousCapacityFactor, 1.0f - ( ( 1.0f - previousCapacityFactor ) / 2.0f ) );
+                        capacityFactor = Math.Min((capacity / demand) * previousCapacityFactor, 1.0f - ((1.0f - previousCapacityFactor) / 2.0f));
                     }
                 }
                 else
                 {
-                    if ( demand <= capacity )
+                    if(demand <= capacity)
                     {
                         capacityFactor = 1;
                         return true;
@@ -188,7 +189,7 @@ namespace Tasha.StationAccess
 
             public float Progress { get; set; }
 
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); } }
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
             public bool RuntimeValidation(ref string error)
             {
@@ -206,11 +207,11 @@ namespace Tasha.StationAccess
         private void LoadStationCapacity()
         {
             SparseArray<float> capacity = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            foreach ( var point in StationCapacity.Read() )
+            foreach(var point in StationCapacity.Read())
             {
-                if ( !capacity.ContainsIndex( point.O ) )
+                if(!capacity.ContainsIndex(point.O))
                 {
-                    throw new XTMFRuntimeException( "In '" + Name + "' we found an invalid zone '" + point.O + "' while reading in the station capacities!" );
+                    throw new XTMFRuntimeException("In '" + Name + "' we found an invalid zone '" + point.O + "' while reading in the station capacities!");
                 }
                 // use the log of capacity
                 capacity[point.O] = point.Data;
@@ -221,9 +222,9 @@ namespace Tasha.StationAccess
         private void LoadAccessZones()
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            var indexes = GetStationZones( StationZoneRanges, Capacity.GetFlatData(), zones );
+            var indexes = GetStationZones(StationZoneRanges, Capacity.GetFlatData(), zones);
             AccessZones = new IZone[indexes.Length];
-            for ( int i = 0; i < indexes.Length; i++ )
+            for(int i = 0; i < indexes.Length; i++)
             {
                 AccessZones[i] = zones[indexes[i]];
             }
@@ -233,11 +234,11 @@ namespace Tasha.StationAccess
         internal static int[] GetStationZones(RangeSet stationRanges, float[] capacity, IZone[] zones)
         {
             List<int> validStationIndexes = new List<int>();
-            for ( int i = 0; i < zones.Length; i++ )
+            for(int i = 0; i < zones.Length; i++)
             {
-                if ( capacity[i] > 0 && stationRanges.Contains( zones[i].ZoneNumber ) )
+                if(capacity[i] > 0 && stationRanges.Contains(zones[i].ZoneNumber))
                 {
-                    validStationIndexes.Add( i );
+                    validStationIndexes.Add(i);
                 }
             }
             return validStationIndexes.ToArray();
@@ -249,16 +250,16 @@ namespace Tasha.StationAccess
         public void Execute(int iterationNumber, int totalIterations)
         {
             // if we are 
-            if ( iterationNumber == 0 )
+            if(iterationNumber == 0)
             {
                 LoadStationCapacity();
                 LoadAccessZones();
             }
             // compute everything in parallel
-            Parallel.ForEach( TimePeriods, (period) =>
+            Parallel.ForEach(TimePeriods, (period) =>
             {
-                period.Execute( iterationNumber );
-            } );
+                period.Execute(iterationNumber);
+            });
         }
 
         public void Load(IConfiguration config, int totalIterations)

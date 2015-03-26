@@ -135,7 +135,8 @@ namespace Tasha.Estimation.AccessStation
                 //burn the header
                 reader.LoadLine();
                 // after that read in the rest of the lines
-                while(reader.LoadLine(out int columns))
+                int columns;
+                while(reader.LoadLine(out columns))
                 {
                     // if they have less than the number of columns we need, skip them
                     if(columns < 7) continue;
@@ -155,7 +156,6 @@ namespace Tasha.Estimation.AccessStation
                         GetTimeFromColumn(reader, 5),
                         // access station
                         GetZoneFromColumn(zones, reader, 6)));
-
                 }
             }
             this.Data = ConvertToursToTripChains(tours);
@@ -190,13 +190,15 @@ namespace Tasha.Estimation.AccessStation
 
         private Time GetTimeFromColumn(CsvReader reader, int column)
         {
-            reader.Get(out string data, column);
+            string data;
+            reader.Get(out data, column);
             return new Time(data);
         }
 
         private static IZone GetZoneFromColumn(SparseArray<IZone> zones, CsvReader reader, int column)
         {
-            reader.Get(out int zone, column);
+            int zone;
+            reader.Get(out zone, column);
             return zones[zone];
         }
 

@@ -79,9 +79,10 @@ namespace XTMF.Testing
             {
                 Assert.AreEqual( true, stack.Contains( commands[i] ), "The stack lost a command it should have retained!" );
             }
+            XTMFCommand command;
             for ( int i = 19; i >= 10; i-- )
             {
-                if ( stack.TryPop( out var command ) )
+                if ( stack.TryPop( out command ) )
                 {
                     Assert.AreEqual( commands[i], command, "While popping we popped an unexpected command!" );
                 }

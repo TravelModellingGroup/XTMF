@@ -32,6 +32,7 @@ namespace XTMF
 
         public ParameterModel(ModuleParameter realParameter, ModelSystemEditingSession session)
         {
+            IsDirty = false;
             RealParameter = realParameter;
             Session = session;
             Name = RealParameter.Name;
@@ -40,7 +41,7 @@ namespace XTMF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool IsDirty { get; set; } = false;
+        public bool IsDirty { get;  private set; }
 
         public string Name { get; private set; }
 

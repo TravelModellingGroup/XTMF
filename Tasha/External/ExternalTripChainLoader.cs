@@ -228,7 +228,8 @@ namespace Tasha.External
                     var chains = new List<ITripChain>();
                     var modes = this.Root.AllModes;
                     Household[] households = CreateHouseholds( zones );
-                    reader.LoadLine( out int columns );
+                    int columns;
+                    reader.LoadLine( out columns );
                     int previousPerson = -1;
                     Person currentPerson = null;
                     TripChain currentChain = null;
@@ -238,13 +239,16 @@ namespace Tasha.External
                         {
                             continue;
                         }
-                        reader.Get( out int personNumber, 0 );
-                        reader.Get( out float expFactor, 1 );
-                        reader.Get( out int homeZone, 2 );
-                        reader.Get( out int origin, 3 );
-                        reader.Get( out int destination, 4 );
-                        reader.Get( out int startTime, 5 );
-                        reader.Get( out char modeCode, 6 );
+                        int personNumber, homeZone, origin, destination, startTime;
+                        float expFactor;
+                        char modeCode;
+                        reader.Get( out personNumber, 0 );
+                        reader.Get( out expFactor, 1 );
+                        reader.Get( out homeZone, 2 );
+                        reader.Get( out origin, 3 );
+                        reader.Get( out destination, 4 );
+                        reader.Get( out startTime, 5 );
+                        reader.Get( out  modeCode, 6 );
                         // check for the start of a new person
                         if ( personNumber != previousPerson )
                         {

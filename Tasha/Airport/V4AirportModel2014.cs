@@ -206,8 +206,9 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         private void ComputeModeSplitForZone(int zone, ModeSplitUtilities[] utilities)
         {
             // first we need to get the data from the network
-            AutoNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out float aivtt, out float acost);
-            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out float tivtt, out float twalk, out float twait, out float _railTime, out float tfare);
+            float aivtt, acost, tivtt, twalk, twait, _railTime, tfare;
+            AutoNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out aivtt, out acost);
+            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out tivtt, out twalk, out twait, out _railTime, out tfare);
             // Second compute the utilities for each mode
             utilities[zone].Auto = (float)Math.Exp(BetaAutoTime * aivtt + BetaAutoCost * acost);
             if(transit && (tivtt > 0 | twalk > 0))

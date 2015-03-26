@@ -79,7 +79,8 @@ namespace XTMF
             {
                 throw new ArgumentNullException("modelSystem");
             }
-            var clone = CloneModelSystemStructure(modelSystem, out var linkedParameters);
+            List<ILinkedParameter> linkedParameters;
+            var clone = CloneModelSystemStructure(modelSystem, out linkedParameters);
             if(clone == null)
             {
                 error = "Unable to clone the model system.";

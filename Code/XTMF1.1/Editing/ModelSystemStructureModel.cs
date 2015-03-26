@@ -63,7 +63,8 @@ namespace XTMF
             }
             set
             {
-                if((var oldType = RealModelSystemStructure.Type) != value)
+                var oldType = RealModelSystemStructure.Type;
+                if(oldType != value)
                 {
                     var oldChildren = Children;
                     var oldParameters = Parameters;
@@ -83,7 +84,7 @@ namespace XTMF
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
                         return true;
                     };
-
+                    string error = null;
                     // run the command to change the type so we can undo it later
                     Session.RunCommand(XTMFCommand.CreateCommand(
                      apply,
@@ -109,7 +110,7 @@ namespace XTMF
                         }
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
                         return true;
-                    }, apply), ref (string error = null));
+                    }, apply), ref error);
 
                 }
             }

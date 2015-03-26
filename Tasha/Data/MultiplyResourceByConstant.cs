@@ -22,7 +22,6 @@ using System.Linq;
 using System.Text;
 using Datastructure;
 using XTMF;
-using TMG.Functions.VectorHelper;
 namespace Tasha.Data
 {
 
@@ -58,9 +57,9 @@ namespace Tasha.Data
             var otherData = resource.GetFlatData();
             var ourResource = resource.CreateSimilarArray<float>();
             var data = ourResource.GetFlatData();
-            if(IsHardwareAccelerated)
+            if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
             {
-                VectorMultiply(data, 0, otherData, 0, Factor, data.Length);
+                TMG.Functions.VectorHelper.VectorMultiply(data, 0, otherData, 0, Factor, data.Length);
             }
             else
             {

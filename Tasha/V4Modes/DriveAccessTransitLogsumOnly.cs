@@ -24,7 +24,7 @@ using Datastructure;
 using Tasha.Common;
 using TMG;
 using XTMF;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 namespace Tasha.V4Modes
 {
     [ModuleInformation(Description =
@@ -132,7 +132,8 @@ namespace Tasha.V4Modes
             }
             // Apply personal factors
             var p = trip.TripChain.Person;
-            GetPersonVariables(p, out float constant);
+            float constant;
+            GetPersonVariables(p, out constant);
             v = constant;
             if ( p.Female )
             {
@@ -254,7 +255,8 @@ namespace Tasha.V4Modes
         {
             bool first;
             var trips = chain.Trips;
-            int tripCount = CountTripsUsingThisMode( tripIndex, out first, out int otherIndex, trips );
+            int otherIndex;
+            int tripCount = CountTripsUsingThisMode( tripIndex, out first, out otherIndex, trips );
 
             if ( tripCount > 2 )
             {
@@ -297,16 +299,16 @@ namespace Tasha.V4Modes
             var utils = accessData.Second;
             var totalUtil = 0.0f;
             bool any = false;
-            if(IsHardwareAccelerated)
+            if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
             {
-                totalUtil = VectorSum(utils, 0, utils.Length);
+                totalUtil = TMG.Functions.VectorHelper.VectorSum(utils, 0, utils.Length);
                 if(totalUtil <= 0)
                 {
                     dependentUtility = float.NaN;
                     return false;
                 }
                 dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
-                VectorMultiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
+                TMG.Functions.VectorHelper.VectorMultiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
             }
             else
             {

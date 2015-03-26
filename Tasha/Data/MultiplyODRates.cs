@@ -23,7 +23,7 @@ using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 namespace Tasha.Data
 {
     [ModuleInformation(Description =
@@ -60,11 +60,11 @@ namespace Tasha.Data
             SparseTwinIndex<float> data;
             data = zoneArray.CreateSquareTwinArray<float>();
             var flatData = data.GetFlatData();
-            if(IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
                 for(int i = 0; i < flatData.Length; i++)
                 {
-                    VectorMultiply(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
+                    VectorHelper.VectorMultiply(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
                 }
             }
             else

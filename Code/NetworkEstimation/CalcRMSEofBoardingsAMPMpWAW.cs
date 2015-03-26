@@ -147,8 +147,8 @@ namespace TMG.NetworkEstimation
                     if (numCol < 2)
                         throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol.ToString() + ")");
                 
-                    
-                    reader.Get(out float boardings, 1);
+                    float boardings;
+                    reader.Get(out boardings, 1);
 
                     result[lineId] = boardings;
                 }

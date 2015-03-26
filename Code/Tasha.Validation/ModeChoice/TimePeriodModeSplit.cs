@@ -65,17 +65,17 @@ namespace Tasha.Validation.ModeChoice
             public Time EndTime;
 
             internal Dictionary<Activity, float[]> Counts = new Dictionary<Activity, float[]>();
-            SpinLock WriteLock = new SpinLock( false );
+            SpinLock WriteLock = new SpinLock(false);
 
             public bool Execute(Time tripStart, int modeIndex, float expansionFactor, Activity activity)
             {
                 var modes = Parent.Modes;
-                if ( StartTime <= tripStart && tripStart < EndTime )
+                if(StartTime <= tripStart && tripStart < EndTime)
                 {
                     bool taken = false;
-                    WriteLock.Enter( ref taken );
-                    GetPurposeCount( activity )[modeIndex] += expansionFactor;
-                    if ( taken ) WriteLock.Exit( true );
+                    WriteLock.Enter(ref taken);
+                    GetPurposeCount(activity)[modeIndex] += expansionFactor;
+                    if(taken) WriteLock.Exit(true);
                     return true;
                 }
                 return false;
@@ -83,12 +83,12 @@ namespace Tasha.Validation.ModeChoice
 
             private float[] GetPurposeCount(Activity purpose)
             {
-                if ( Counts.TryGetValue( purpose, out var value ) )
+                float[] value;
+                if(!Counts.TryGetValue(purpose, out value))
                 {
-                    return value;
+                    Counts.Add(purpose, value = new float[Parent.Modes.Length]);
                 }
-                Counts.Add( purpose, var ret = new float[Parent.Modes.Length] );
-                return ret;
+                return value;
             }
 
             public void FinishIteration(int iteration)
@@ -105,11 +105,11 @@ namespace Tasha.Validation.ModeChoice
 
             public float Progress { get; set; }
 
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); } }
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
             public bool RuntimeValidation(ref string error)
             {
-                if ( StartTime > EndTime )
+                if(StartTime > EndTime)
                 {
                     error = "In '" + Name + "' the start time is later than the end time!";
                     return false;
@@ -129,34 +129,34 @@ namespace Tasha.Validation.ModeChoice
         public void Execute(ITashaHousehold household, int iteration)
         {
             var persons = household.Persons;
-            for ( int i = 0; i < persons.Length; i++ )
+            for(int i = 0; i < persons.Length; i++)
             {
-                if ( persons[i].Age >= MinimumAge )
+                if(persons[i].Age >= MinimumAge)
                 {
                     var expansionFactor = persons[i].ExpansionFactor;
                     var tripChains = persons[i].TripChains;
-                    for ( int j = 0; j < tripChains.Count; j++ )
+                    for(int j = 0; j < tripChains.Count; j++)
                     {
                         var tripChain = tripChains[j].Trips;
-                        for ( int k = 0; k < tripChain.Count; k++ )
+                        for(int k = 0; k < tripChain.Count; k++)
                         {
                             var tripStart = tripChain[k].TripStartTime;
                             var mode = tripChain[k].Mode;
                             int modeIndex = -1;
-                            for ( int l = 0; l < Modes.Length; l++ )
+                            for(int l = 0; l < Modes.Length; l++)
                             {
-                                if ( Modes[l] == mode )
+                                if(Modes[l] == mode)
                                 {
                                     modeIndex = l;
                                     break;
                                 }
                             }
                             var activity = tripChain[k].Purpose;
-                            if ( modeIndex >= 0 )
+                            if(modeIndex >= 0)
                             {
-                                for ( int l = 0; l < TimePeriods.Length; l++ )
+                                for(int l = 0; l < TimePeriods.Length; l++)
                                 {
-                                    if ( TimePeriods[l].Execute( tripStart, modeIndex, expansionFactor, activity ) )
+                                    if(TimePeriods[l].Execute(tripStart, modeIndex, expansionFactor, activity))
                                     {
                                         break;
                                     }
@@ -173,71 +173,71 @@ namespace Tasha.Validation.ModeChoice
         public void IterationFinished(int iteration)
         {
             float[] counts = new float[Modes.Length];
-            for ( int i = 0; i < counts.Length; i++ )
+            for(int i = 0; i < counts.Length; i++)
             {
                 // get the sum of each time period for each purpose for the ith mode
-                counts[i] = TimePeriods.Sum( period => period.Counts.Sum( (type) => type.Value[i] ) );
+                counts[i] = TimePeriods.Sum(period => period.Counts.Sum((type) => type.Value[i]));
             }
-            IterationTotals.Add( counts );
-            using (var writer = new StreamWriter( OutputFileLocation, true ))
+            IterationTotals.Add(counts);
+            using(var writer = new StreamWriter(OutputFileLocation, true))
             {
-                writer.Write( "Iteration: " );
-                writer.WriteLine( iteration );
-                writer.Write( "Mode" );
-                for ( int i = 0; i < TimePeriods.Length; i++ )
+                writer.Write("Iteration: ");
+                writer.WriteLine(iteration);
+                writer.Write("Mode");
+                for(int i = 0; i < TimePeriods.Length; i++)
                 {
-                    foreach ( var key in TimePeriods[i].Counts.Keys )
+                    foreach(var key in TimePeriods[i].Counts.Keys)
                     {
-                        writer.Write( ',' );
-                        writer.Write( TimePeriods[i].Name );
-                        writer.Write( ':' );
-                        writer.Write( Enum.GetName( typeof(Activity), key ) );
+                        writer.Write(',');
+                        writer.Write(TimePeriods[i].Name);
+                        writer.Write(':');
+                        writer.Write(Enum.GetName(typeof(Activity), key));
                     }
                 }
-                writer.WriteLine( ",Total" );
-                for ( int i = 0; i < Modes.Length; i++ )
+                writer.WriteLine(",Total");
+                for(int i = 0; i < Modes.Length; i++)
                 {
-                    writer.Write( Modes[i].ModeName );
-                    for ( int j = 0; j < TimePeriods.Length; j++ )
+                    writer.Write(Modes[i].ModeName);
+                    for(int j = 0; j < TimePeriods.Length; j++)
                     {
-                        foreach ( var key in TimePeriods[j].Counts.Keys )
+                        foreach(var key in TimePeriods[j].Counts.Keys)
                         {
-                            writer.Write( ',' );
-                            writer.Write( TimePeriods[j].Counts[key][i] );
+                            writer.Write(',');
+                            writer.Write(TimePeriods[j].Counts[key][i]);
                         }
                     }
-                    writer.Write( ',' );
-                    writer.WriteLine( counts[i] );
+                    writer.Write(',');
+                    writer.WriteLine(counts[i]);
                 }
-                if ( iteration >= Root.Iterations - 1 )
+                if(iteration >= Root.Iterations - 1)
                 {
                     writer.WriteLine();
-                    writer.Write( "Iterations" );
-                    for ( int i = 0; i < Modes.Length; i++ )
+                    writer.Write("Iterations");
+                    for(int i = 0; i < Modes.Length; i++)
                     {
-                        writer.Write( ',' );
-                        writer.Write( Modes[i].ModeName );
+                        writer.Write(',');
+                        writer.Write(Modes[i].ModeName);
                     }
-                    writer.WriteLine( ",,Total" );
+                    writer.WriteLine(",,Total");
 
-                    for ( int it = 0; it < IterationTotals.Count; it++ )
+                    for(int it = 0; it < IterationTotals.Count; it++)
                     {
                         var row = IterationTotals[it];
-                        writer.Write( ( it + 1 ) );
-                        for ( int i = 0; i < row.Length; i++ )
+                        writer.Write((it + 1));
+                        for(int i = 0; i < row.Length; i++)
                         {
-                            writer.Write( ',' );
-                            writer.Write( row[i] );
+                            writer.Write(',');
+                            writer.Write(row[i]);
                         }
-                        writer.Write( ',' );
-                        writer.Write( ',' );
-                        writer.WriteLine( row.Sum() );
+                        writer.Write(',');
+                        writer.Write(',');
+                        writer.WriteLine(row.Sum());
                     }
                 }
             }
-            for ( int i = 0; i < TimePeriods.Length; i++ )
+            for(int i = 0; i < TimePeriods.Length; i++)
             {
-                TimePeriods[i].FinishIteration( iteration );
+                TimePeriods[i].FinishIteration(iteration);
             }
 
         }
@@ -256,9 +256,9 @@ namespace Tasha.Validation.ModeChoice
         public void IterationStarting(int iteration)
         {
             Modes = Root.AllModes.ToArray();
-            for ( int i = 0; i < TimePeriods.Length; i++ )
+            for(int i = 0; i < TimePeriods.Length; i++)
             {
-                TimePeriods[i].StartIteration( iteration );
+                TimePeriods[i].StartIteration(iteration);
             }
         }
     }

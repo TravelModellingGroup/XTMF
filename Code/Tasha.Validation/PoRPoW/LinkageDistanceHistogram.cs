@@ -97,8 +97,8 @@ namespace Tasha.Validation.PoRPoW
                 {
                     index = this.HistogramBins.Count;
                 }
-                
-                WriteLock.Enter(ref bool taken = false);
+                bool taken = false;
+                WriteLock.Enter(ref taken);
                 this._BinData[index][wcat] += person.ExpansionFactor;
                 if (taken) WriteLock.Exit(true);
             }

@@ -108,8 +108,9 @@ namespace James.UTDM
                 {
                     if ( reader.LoadLine() > 1 )
                     {
-                        reader.Get( out float x, 0 );
-                        reader.Get( out float y, 1 );
+                        float x, y;
+                        reader.Get( out x, 0 );
+                        reader.Get( out y, 1 );
                         points.Add( new Point() { X = x, Y = y } );
                     }
                 }

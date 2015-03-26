@@ -45,7 +45,7 @@ namespace XTMF
         /// <summary>
         /// Stores the data
         /// </summary>
-        private class LinkedParameterChange()
+        private class LinkedParameterChange
         {
             internal LinkedParameterModel Model;
             internal int Index;

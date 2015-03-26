@@ -120,7 +120,8 @@ namespace XTMF
                     {
                         this.Delete((ModelSystem)oldModelSystem);
                     }
-                    if((var newInfo = file.CopyTo(
+                    FileInfo newInfo;
+                    if((newInfo = file.CopyTo(
                         Path.Combine(Runtime.Configuration.ModelSystemDirectory, msName + ".xml")
                         )) != null)
                     {
@@ -160,7 +161,8 @@ namespace XTMF
             lock (RepositoryLock)
             {
                 // if another model system with the same name already exists
-                if((var alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
+                IModelSystem alreadyMade;
+                if((alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
                 {
                     //then we can't make this new model system
                     return alreadyMade as ModelSystem;
@@ -224,8 +226,9 @@ namespace XTMF
             }
             lock (RepositoryLock)
             {
+                IModelSystem alreadyMade;
                 // if another model system with the same name already exists
-                if((var alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
+                if((alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
                 {
                     //then we can't make this new model system
                     return alreadyMade as ModelSystem;
@@ -248,7 +251,8 @@ namespace XTMF
             lock (RepositoryLock)
             {
                 // if another model system with the same name already exists
-                if((var alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
+                IModelSystem alreadyMade;
+                if((alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
                 {
                     lock (EditingLock)
                     {

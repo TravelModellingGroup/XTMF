@@ -88,7 +88,8 @@ namespace Tasha.EMME
                                 var originIndex = ZoneSystem.GetFlatIndex(trips[k].OriginalZone.ZoneNumber);
                                 var destinationIndex = ZoneSystem.GetFlatIndex(trips[k].DestinationZone.ZoneNumber);
                                 var row = Matrix[originIndex];
-                                WriteLock.Enter(ref (bool gotLock = false));
+                                bool gotLock = false;
+                                WriteLock.Enter(ref gotLock);
                                 row[destinationIndex] += expFactor * times;
                                 if(gotLock) WriteLock.Exit(true);
                             }
@@ -104,11 +105,13 @@ namespace Tasha.EMME
                                 }
                                 if(times > 0)
                                 {
-                                    if(AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out var origin, out var destination))
+                                    IZone origin, destination;
+                                    if(AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
                                     {
                                         var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
                                         var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
-                                        WriteLock.Enter(ref (bool gotLock = false));
+                                        bool gotLock = false;
+                                        WriteLock.Enter(ref gotLock);
                                         Matrix[originIndex][destinationIndex] += expFactor * times;
                                         if(gotLock) WriteLock.Exit(true);
                                     }

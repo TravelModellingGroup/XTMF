@@ -357,7 +357,8 @@ namespace Tasha.PopulationSynthesis
         public IZone ProduceResult(ITashaPerson person)
         {
             // Gather the base data and create our random generator
-            if(IsExternal(var empZone = person.EmploymentZone))
+            IZone empZone;
+            if(IsExternal(empZone = person.EmploymentZone))
             {
                 return empZone;
             }

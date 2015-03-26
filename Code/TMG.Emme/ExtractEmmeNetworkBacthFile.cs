@@ -46,13 +46,15 @@ namespace TMG.Emme
 
             var args = string.Join(" ", this.ScenarioNumber,
                                         this.ExportFile.GetFilePath());
+            var result = "";
             if(mc.CheckToolExists(_ToolName))
             {
-                return mc.Run(_ToolName, args, (p => this.Progress = p), ref var result = "");
+
+                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref var result = "");
+                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
             }
         }
 

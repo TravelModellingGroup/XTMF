@@ -42,8 +42,15 @@ namespace Tasha.Validation
         [RootModule]
         public ITashaRuntime Root;
 
-        private class DistanceCount(internal float TotalDistance, internal int Records)
+        private class DistanceCount
         {
+            internal float TotalDistance;
+            internal int Records;
+            public DistanceCount(float totalDistance, int records)
+            {
+                TotalDistance = totalDistance;
+                Records = records;
+            }
         }
 
         private Dictionary<Activity, DistanceCount> DistancesDictionary = new Dictionary<Activity, DistanceCount>();

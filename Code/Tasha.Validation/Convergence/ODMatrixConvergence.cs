@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using XTMF;
-using TMG.Functions.VectorHelper;
+using TMG.Functions;
 using System.IO;
 using Tasha.Common;
 using TMG.Input;
@@ -119,11 +119,11 @@ namespace Tasha.Validation.Convergence
             var first = FirstMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var second = SecondMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var diff = 0.0f;
-            if(IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
                 for(int i = 0; i < first.Length; i++)
                 {
-                    diff += VectorAbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
+                    diff += VectorHelper.VectorAbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
                 }
             }
             else
@@ -151,11 +151,11 @@ namespace Tasha.Validation.Convergence
             var first = FirstMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var second = SecondMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var diff = 0.0f;
-            if(IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
                 for(int i = 0; i < first.Length; i++)
                 {
-                    diff = Math.Max(VectorAbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
+                    diff = Math.Max(VectorHelper.VectorAbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
                 }
             }
             else

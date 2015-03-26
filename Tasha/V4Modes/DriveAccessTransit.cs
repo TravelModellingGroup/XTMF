@@ -158,7 +158,8 @@ namespace Tasha.V4Modes
             }
             // Apply personal factors
             var p = trip.TripChain.Person;
-            GetPersonVariables(p, out float constant);
+            float constant;
+            GetPersonVariables(p, out constant);
             float v = constant;
             if ( p.Female )
             {
@@ -310,7 +311,8 @@ namespace Tasha.V4Modes
         {
             bool first;
             var trips = chain.Trips;
-            int tripCount = CountTripsUsingThisMode( tripIndex, out first, out int otherIndex, trips );
+            int otherIndex;
+            int tripCount = CountTripsUsingThisMode( tripIndex, out first, out otherIndex, trips );
 
             if ( tripCount > 2 )
             {
@@ -387,7 +389,8 @@ namespace Tasha.V4Modes
                 if ( probability > 0 )
                 {
                     var local = 0.0f;
-                    TransitNetwork.GetAllData( stationIndex, fd, time, out float tivtt, out float twalk, out float twait, out float _unused, out float cost );
+                    float tivtt, twalk, twait, _unused, cost;
+                    TransitNetwork.GetAllData( stationIndex, fd, time, out tivtt, out twalk, out twait, out _unused, out cost );
                     local += tivtt * TransitInVehicleTime + twalk * TransitWalk + twait * TransitWait + cost * travelCostFactor;
                     TransitNetwork.GetAllData( stationIndex, so, time, out tivtt, out twalk, out twait, out _unused, out cost );
                     local += tivtt * TransitInVehicleTime + twalk * TransitWalk + twait * TransitWait + cost * travelCostFactor;
