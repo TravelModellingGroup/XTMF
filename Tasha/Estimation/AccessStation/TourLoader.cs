@@ -164,14 +164,14 @@ namespace Tasha.Estimation.AccessStation
         private ITripChain[] ConvertToursToTripChains(List<AccessTourData> tours)
         {
             var ret = new ITripChain[tours.Count];
-            Parallel.For(0, ret.Length, (int i) =>
+            for(int i = 0; i < ret.Length; i++)
             {
                 var tc = new AuxiliaryTripChain();
                 tc.Trips.Add(CreateTrip(tours[i].FirstOrigin, tours[i].FirstDestination, tours[i].FirstTime));
                 tc.Trips.Add(CreateTrip(tours[i].SecondOrigin, tours[i].SecondDestination, tours[i].SecondTime));
                 tc[this.AccessStationTag] = tours[i].AccessStation;
                 ret[i] = tc;
-            });
+            }
             return ret;
         }
 
@@ -180,6 +180,14 @@ namespace Tasha.Estimation.AccessStation
 
         private ITrip CreateTrip(IZone origin, IZone destination, Time time)
         {
+            if(origin == null)
+            {
+                throw new XTMFRuntimeException("Origin was null");
+            }
+            if(destination == null)
+            {
+                throw new XTMFRuntimeException("Destination was null");
+            }
             var trip = Scheduler.SchedulerHomeTrip.GetTrip(HouseholdIterations);
             trip.OriginalZone = origin;
             trip.DestinationZone = destination;
@@ -199,7 +207,12 @@ namespace Tasha.Estimation.AccessStation
         {
             int zone;
             reader.Get(out zone, column);
-            return zones[zone];
+            var ret = zones[zone];
+            if(ret == null)
+            {
+                throw new XTMFRuntimeException("An unknown zone was loaded '" + zone.ToString() + "'.");
+            }
+            return ret;
         }
 
         public void Reset()

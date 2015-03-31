@@ -63,11 +63,11 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
             [RunParameter("Label", "", "Describes what the penalty is being applied for")]
             public string Label;
 
-            [RunParameter("Line Filter", "", "Leave this blank to use a mode filter, otherwise set this equal to an EMME filter string.")]
+            [RunParameter("Line Filter", "", "Apply a line filter string for this boarding penalty.")]
             public string LineFilter;
 
-            [RunParameter("Mode", 'm', "This parameter is only used if the Line Filter is empty.  Set this to the mode you wish to apply this filter to.")]
-            public char Mode;
+            [RunParameter("Mode Filter", "", "Apply a mode filter for this boarding penalty.")]
+            public string ModeFilter;
 
             [RunParameter("Penalty", 0.0f, "The boarding penalty to apply for this filter.")]
             public float Penalty;
@@ -75,7 +75,9 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
             internal string ReturnFilter(ModellerController controller)
             {
                 return Label.Replace('"', '\'') + ":" 
-                    + (String.IsNullOrWhiteSpace(LineFilter) ? "modes=" + (Mode == '"' ? '\'' : Mode) : "line=" + LineFilter.Replace('"', '\''))
+                    + (!String.IsNullOrWhiteSpace(LineFilter) ? "line=" + LineFilter.Replace('"', '\'') : "")
+                    + (!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter) ? " and " : "")
+                    + (!String.IsNullOrWhiteSpace(ModeFilter) ? "mode=" + (ModeFilter == "\"" ? "'" : ModeFilter) : "")
                     + ": " + controller.ToEmmeFloat(Penalty).ToString();
             }
 
@@ -94,8 +96,8 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
         private string GetArguments(ModellerController controller)
         {
             var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
-            var penaltyString = "\"" + string.Join("\n", BoardingPenalties.Select(b => b.ReturnFilter(controller))) + "\"";
-            return scenarioString + " " + penaltyString;
+            var penaltyString = "\"" + string.Join(",", BoardingPenalties.Select(b => b.ReturnFilter(controller))) + "\"";
+            return "\""+scenarioString + "\" "+ penaltyString;
         }
     }
 
