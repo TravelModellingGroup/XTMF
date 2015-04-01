@@ -108,12 +108,6 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Boarding Penalty Perception", 0.0f, "Perception factor applied to boarding penalty component.")]
         public float BoardingPerception;
 
-        [RunParameter("Congestion Penalty Perception", 0.15f, "Perception factor applied to congestion penalty component.")]
-        public float CongestionPerception;
-
-        [Parameter("Congestion Exponent", 4.0f, "The exponent value in the congestion function.")]
-        public float CongestionExponent;
-
         [RunParameter("Fare Perception", 1.0f, "Perception factor applied to path transit fares, in $/hr.")]
         public float FarePerception;
 
@@ -142,6 +136,34 @@ namespace TMG.GTAModel.NetworkAssignment
 
         private const string _ToolName = "tmg.assignment.transit.V4_FBTA";
 
+
+        public sealed class TTFDefinitions : XTMF.IModule
+        {
+            [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
+            public int TTFNumber;
+
+            [RunParameter("Congestion Perception", 0.0f, "The congestion exponent to apply to this TTF.")]
+            public float CongestionPerception;
+
+            [RunParameter("Congestion Exponent", 0.0f, "The congestion exponent to apply to this TTF.")]
+            public float CongestionExponent;
+
+            public string Name { get; set; }
+
+            public float Progress { get; set; }
+
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        [SubModelInformation(Description = "The TTF's to apply in the assignment.")]
+        public TTFDefinitions[] TTF;
+
+
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
@@ -164,7 +186,6 @@ namespace TMG.GTAModel.NetworkAssignment
                                         EffectiveHeadwayAttributeId,
                                         mc.ToEmmeFloat(EffectiveHeadwaySlope),
                                         mc.ToEmmeFloat(BoardingPerception),
-                                        mc.ToEmmeFloat(CongestionPerception),
                                         mc.ToEmmeFloat(FarePerception),
                                         mc.ToEmmeFloat(RepresentativeHourFactor),
                                         MaxIterations,
@@ -178,7 +199,11 @@ namespace TMG.GTAModel.NetworkAssignment
                                         BoardingMatrixNumber,
                                         mc.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
-                                        mc.ToEmmeFloat(CongestionExponent));
+                                        string.Join(",", from ttf in TTF
+                                                         select ttf.TTFNumber.ToString() + ":" 
+                                                         + mc.ToEmmeFloat(ttf.CongestionPerception).ToString() + ":" 
+                                                         + mc.ToEmmeFloat(ttf.CongestionExponent))
+                                        );
 
             var result = "";
             return mc.Run(_ToolName, args, (p => Progress = p), ref result);
