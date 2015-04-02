@@ -131,7 +131,7 @@
     <Compile Include="SimpleNetworkAssignment.cs" />
     <Compile Include="EmmeTool.cs" />
     <Compile Include="Tools\ApplyBatchLineEdits.cs" />
-    <Compile Include="Tools\FullNetworkSetGenerator.py.cs" />
+    <Compile Include="Tools\FullNetworkSetGenerator.cs" />
     <Compile Include="TransitLines.cs" />
     <Compile Include="Utilities\ChainExecutionDuringEmme.cs" />
     <Compile Include="Utilities\ConvertMatrixToBinary.cs" />

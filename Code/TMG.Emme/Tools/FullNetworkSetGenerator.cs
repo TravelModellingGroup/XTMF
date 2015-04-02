@@ -87,6 +87,9 @@ namespace TMG.Emme.Tools
             public Time StartTime;
             [RunParameter("End Time", "9:00", typeof(Time), "The end time for this scenario")]
             public Time EndTime;
+
+            [SubModelInformation(Required = false, Description = "The location of the network update file for this time period.")]
+            public FileLocation ScenarioNetworkUpdateFile;
             public string Name { get; set; }
 
             public float Progress { get; set; }
@@ -160,13 +163,14 @@ namespace TMG.Emme.Tools
         private string GetTimePeriodScenarioParameters()
         {
             return string.Join(" ", from period in TimePeriods
-                                    select string.Format("{0} \"{1}\" {2} \"{3}\" {4} {5}",
+                                    select string.Format("{0} \"{1}\" {2} \"{3}\" {4} {5} \"{6}\"",
                                     period.UncleanedScenarioNumber.ToString(),
                                     period.UncleanedDescription.Replace('\"', '\''),
                                     period.CleanedScenarioNumber.ToString(),
                                     period.UncleanedDescription.Replace('\"', '\''),
                                     ConvertTimeToSeconds(period.StartTime),
-                                    ConvertTimeToSeconds(period.EndTime)));
+                                    ConvertTimeToSeconds(period.EndTime),
+                                    period.ScenarioNetworkUpdateFile == null? "None" : Path.GetFullPath(period.ScenarioNetworkUpdateFile)));
         }
 
         private string ConvertTimeToSeconds(Time time)
