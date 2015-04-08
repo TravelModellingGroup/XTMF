@@ -33,6 +33,7 @@ namespace TMG.Distributed.Modules
 
         public IClient Client;
 
+        [RunParameter("Input Directory", "../../Input", "The input directory for this model system.")]
         public string InputBaseDirectory { get; set; }
 
         public string Name { get; set; }
