@@ -52,11 +52,14 @@ namespace TMG.Frameworks.Extensibility
         [RunParameter("Wait For Exit", false, "Should we wait for the program to exit before continuing?")]
         public bool WaitForExit;
 
+        [RunParameter("Arguments", "", "Optional: The arguments to send to the program at launch.")]
+        public string Arguments;
+
         public void Start()
         {
             try
             {
-                var process = Process.Start(Program);
+                var process = Process.Start(Program, Arguments);
                 if(WaitForExit)
                 {
                     process.WaitForExit();

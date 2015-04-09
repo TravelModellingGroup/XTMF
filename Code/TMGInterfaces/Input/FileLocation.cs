@@ -18,6 +18,7 @@
 */
 using System;
 using System.IO;
+using System.Reflection;
 using XTMF;
 
 namespace TMG.Input
@@ -117,6 +118,27 @@ namespace TMG.Input
         public override string GetFilePath()
         {
             return this.FileName.GetFileName();
+        }
+    }
+
+    public class FilePathFromXTMFDirectory : FileLocation
+    {
+        [RunParameter("File From XTMF Installation", "Filename.type", typeof(FileFromOutputDirectory), "A path relative to the installation directory of XTMF.")]
+        public FileFromOutputDirectory PathFromXTMFInstall;
+
+        public override string GetFilePath()
+        {
+            var relativePath = PathFromXTMFInstall.GetFileName();
+            if(Path.IsPathRooted(relativePath))
+            {
+                return relativePath;
+            }
+            return Path.Combine(GetXTMFDirectory(), relativePath);
+        }
+
+        private string GetXTMFDirectory()
+        {
+            return Path.GetFullPath(Assembly.GetEntryAssembly().CodeBase.Replace("file:///", String.Empty));
         }
     }
 }

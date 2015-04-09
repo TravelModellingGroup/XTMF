@@ -39,12 +39,6 @@ namespace TMG.Emme
         /// </summary>
         private const int SignalParameterError = 4;
 
-        internal void SetLogbookWriting(bool v)
-        {
-            throw new NotImplementedException();
-        }
-
-
         /// <summary>
         /// Receive a signal that contains a progress report
         /// </summary>

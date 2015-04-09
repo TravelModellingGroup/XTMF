@@ -116,7 +116,7 @@
     <Compile Include="ICalculation.cs" />
     <Compile Include="Input\FileFromInputDirectory.cs" />
     <Compile Include="Input\FileFromOutputDirectory.cs" />
-    <Compile Include="Input\FileReferences.cs" />
+    <Compile Include="Input\FileLocation.cs" />
     <Compile Include="Input\IDataLineSource.cs" />
     <Compile Include="Input\IODDataSource.cs" />
     <Compile Include="Input\ISaveODData.cs" />
