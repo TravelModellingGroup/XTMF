@@ -43,6 +43,9 @@ namespace TMG.Distributed.Modules
         [RunParameter("Distribution Data Channel", 0, "The networking channel to use for communicating with clients.")]
         public int DistributionDataChannel;
 
+        [RunParameter("Prefer Previous Client", true, "Assign tasks to clients that have previously executed the task if available.")]
+        public bool PreferPreviousClient;
+
         private volatile bool Exit = false;
 
         /// <summary>
@@ -178,11 +181,11 @@ namespace TMG.Distributed.Modules
                     {
                         case CommunicationProtocol.ClientActivated:
                             Clients.Add(client);
-                            AvailableClients.Add(client);
+                            AvailableClients.Push(client);
                             break;
                         case CommunicationProtocol.TaskComplete:
                             {
-                                AvailableClients.Add(client);
+                                AvailableClients.Push(client);
                                 var taskNumber = reader.ReadUInt64();
                                 ExecutingTasks.RemoveAll((task) => task.TaskNumber == taskNumber && task.Client == client);
                             }
@@ -224,11 +227,21 @@ namespace TMG.Distributed.Modules
                     if(AvailableClients.Count > 0)
                     {
                         var task = PendingTasks[0];
-                        task.Client = AvailableClients[0];
+                        IRemoteXTMF previousHost = null;
+                        if(PreferPreviousClient && PreviousTaskAssignments.TryGetValue(task.TaskName, out previousHost)
+                            && AvailableClients.Contains(previousHost))
+                        {
+                            RemoveClient(previousHost);
+                            task.Client = previousHost;
+                        }
+                        else
+                        {
+                            task.Client = AvailableClients.Pop();
+                        }
                         task.TaskNumber = GetTaskNumber();
+                        PreviousTaskAssignments[task.TaskName] = task.Client;
                         ExecutingTasks.Add(task);
                         // clean up
-                        AvailableClients.RemoveAt(0);
                         PendingTasks.RemoveAt(0);
                         // fire the message to start processing
                         task.Client.SendCustomMessage(task, DistributionDataChannel);
@@ -273,7 +286,9 @@ namespace TMG.Distributed.Modules
         /// <summary>
         /// The clients that are not currently executing
         /// </summary>
-        List<IRemoteXTMF> AvailableClients = new List<IRemoteXTMF>();
+        Stack<IRemoteXTMF> AvailableClients = new Stack<IRemoteXTMF>();
+
+        Dictionary<string, IRemoteXTMF> PreviousTaskAssignments = new Dictionary<string, IRemoteXTMF>();
 
         private void Host_NewClientConnected(IRemoteXTMF obj)
         {
@@ -286,7 +301,7 @@ namespace TMG.Distributed.Modules
             lock (Host)
             {
                 var unfinishedTasks = ExecutingTasks.Where(task => task.Client == disconnectingClient && task.Complete == false);
-                AvailableClients.Remove(disconnectingClient);
+                RemoveClient(disconnectingClient);
                 Clients.Remove(disconnectingClient);
                 foreach(var unfinishedTask in unfinishedTasks)
                 {
@@ -297,6 +312,18 @@ namespace TMG.Distributed.Modules
                 }
             }
             UpdateTaskAssignments();
+        }
+
+        /// <summary>
+        /// The calling method must have the Host lock!
+        /// </summary>
+        /// <param name="toRemove">The client to remove</param>
+        private void RemoveClient(IRemoteXTMF toRemove)
+        {
+            AvailableClients = new Stack<IRemoteXTMF>(
+                from client in AvailableClients
+                where client != toRemove
+                select client);
         }
 
         public void WaitAll()
