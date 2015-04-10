@@ -138,7 +138,7 @@ namespace TMG.Input
 
         private string GetXTMFDirectory()
         {
-            return Path.GetFullPath(Assembly.GetEntryAssembly().CodeBase.Replace("file:///", String.Empty));
+            return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().CodeBase.Replace("file:///", String.Empty)));
         }
     }
 }
