@@ -221,10 +221,16 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public float Population;
             [RunParameter("Auto TravelTime", "0.0", typeof(float), "The weight applied for the travel time from origin to zone to final destination.")]
             public float AutoTime;
-            [RunParameter("Transit TravelTime", "0.0", typeof(float), "The weight applied for the travel time from origin to zone to final destination.")]
+            [RunParameter("Transit IVTT", "0.0", typeof(float), "The weight applied for the in vehicle travel time travel time from origin to zone to final destination.")]
             public float TransitTime;
-            [RunParameter("Transit Cost", "0.0", typeof(float), "The weight applied for the transit cost from origin to zone to final destination.")]
-            public float TransitCost;
+            [RunParameter("Transit Walk", "0.0", typeof(float), "The weight applied for the walk time travel time from origin to zone to final destination.")]
+            public float TransitWalk;
+            [RunParameter("Transit Wait", "0.0", typeof(float), "The weight applied for the wait travel time travel time from origin to zone to final destination.")]
+            public float TransitWait;
+            [RunParameter("Transit Boarding", "0.0", typeof(float), "The weight applied for the boarding penalties from origin to zone to final destination.")]
+            public float TransitBoarding;
+            [RunParameter("Cost", "0.0", typeof(float), "The weight applied for the cost from origin to zone to final destination.")]
+            public float Cost;
             [RunParameter("Same PD", 0.0f, "The constant applied if the zone of interest is the same as both the previous and next planning districts.")]
             public float SamePD;
 
@@ -235,19 +241,27 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
             {
-                float ivtt = 0.0f, walk = 0.0f, wait = 0.0f, cost = 0.0f, boarding = 0.0f;
+                float ivtt, walk, wait, cost, boarding;
                 if(!network.GetAllData(i, j, time, out ivtt, out walk, out wait, out boarding, out cost))
                 {
                     return 0f;
                 }
-                return Math.Exp(TransitTime * (ivtt + walk + wait)
-                    + TransitCost * cost);
+                return Math.Exp(
+                      TransitTime * ivtt 
+                    + TransitWalk * walk 
+                    + TransitWait * wait
+                    + Cost * cost);
             }
 
             protected float GetTravelLogsum(INetworkData autoNetwork, ITripComponentData transitNetwork, int i, int j, Time time)
             {
+                float ivtt, cost;
+                if(!autoNetwork.GetAllData(i, j, time, out ivtt, out cost))
+                {
+                    return 0.0f;
+                }
                 return (float)(GetTransitUtility(transitNetwork, i, j, time)
-                    + Math.Exp(autoNetwork.TravelTime(i, j, time).ToMinutes() * AutoTime));
+                    + Math.Exp( ivtt * AutoTime + cost * Cost));
             }
 
             public sealed class ODConstant : IModule
