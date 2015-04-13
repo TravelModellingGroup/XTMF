@@ -34,16 +34,16 @@ namespace TMG.Emme.Tools
         [RunParameter("Base Scenario Number", 0, "The scenario number for the base network.")]
         public int BaseScenarioNumber;
 
-        [SubModelInformation(Required = true, Description = "A link to the file containing transit service data.")]
+        [SubModelInformation(Required = false, Description = "A link to the file containing transit service data.")]
         public FileLocation TransitServiceTable;
 
-        [SubModelInformation(Required = true, Description = "A link to the file containing how to aggregate schedules.")]
+        [SubModelInformation(Required = false, Description = "A link to the file containing how to aggregate schedules.")]
         public FileLocation TransitAggreggationSelectionTable;
 
-        [SubModelInformation(Required = true, Description = "A link to the file containing how to modify transit schedules.")]
+        [SubModelInformation(Required = false, Description = "A link to the file containing how to modify transit schedules.")]
         public FileLocation TransitAlternativeTable;
 
-        [SubModelInformation(Required = true, Description = "A path to the batch edit file.")]
+        [SubModelInformation(Required = false, Description = "A path to the batch edit file.")]
         public FileLocation BatchEditFile;
 
         [RunParameter("Default Aggregation", "Naive", typeof(Aggregation), "The default aggregation to apply.")]
@@ -145,10 +145,10 @@ namespace TMG.Emme.Tools
             // times are in seconds
             return string.Join(" ", BaseScenarioNumber.ToString(),
                                     GetTimePeriodScenarioParameters(),
-                                    "\"" + Path.GetFullPath(TransitServiceTable.GetFilePath()) + "\"",
-                                    "\"" + Path.GetFullPath(TransitAggreggationSelectionTable.GetFilePath()) + "\"",
-                                    "\"" + Path.GetFullPath(TransitAlternativeTable.GetFilePath()) + "\"",
-                                    "\"" + Path.GetFullPath(BatchEditFile.GetFilePath()) + "\"",
+                                    GetFileLocationOrNone(TransitServiceTable),
+                                    GetFileLocationOrNone(TransitAggreggationSelectionTable),
+                                    GetFileLocationOrNone(TransitAlternativeTable),
+                                    GetFileLocationOrNone(BatchEditFile),
                                     DefaultAggregation == Aggregation.Naive ? "n" : "a",
                                     "True",
                                     "True",
@@ -163,14 +163,19 @@ namespace TMG.Emme.Tools
         private string GetTimePeriodScenarioParameters()
         {
             return string.Join(" ", from period in TimePeriods
-                                    select string.Format("{0} \"{1}\" {2} \"{3}\" {4} {5} \"{6}\"",
+                                    select string.Format("{0} \"{1}\" {2} \"{3}\" {4} {5} {6}",
                                     period.UncleanedScenarioNumber.ToString(),
                                     period.UncleanedDescription.Replace('\"', '\''),
                                     period.CleanedScenarioNumber.ToString(),
                                     period.UncleanedDescription.Replace('\"', '\''),
                                     ConvertTimeToSeconds(period.StartTime),
                                     ConvertTimeToSeconds(period.EndTime),
-                                    period.ScenarioNetworkUpdateFile == null? "None" : Path.GetFullPath(period.ScenarioNetworkUpdateFile)));
+                                    GetFileLocationOrNone(period.ScenarioNetworkUpdateFile)));
+        }
+
+        private static string GetFileLocationOrNone(FileLocation location)
+        {
+            return location == null ? "None" : "\"" + location.GetFilePath() + "\"";
         }
 
         private string ConvertTimeToSeconds(Time time)
