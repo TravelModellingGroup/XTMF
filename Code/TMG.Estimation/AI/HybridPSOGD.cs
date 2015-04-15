@@ -48,6 +48,9 @@ Once we have a near optimal point we continue to explore the space with a the GD
         [RunParameter("Globally Optimal Weight", "2.99671", typeof(float), "The weight of the globally optimal parameter.")]
         public float OptimalWeight;
 
+        [RunParameter("Generation Optimal Weight", "1.215541", typeof(float), "The weight of the globally optimal parameter.")]
+        public float GenerationOptimalWeight;
+
         [RunParameter("Momentum", "0.002844917", typeof(float), "The carried velocity between iterations per particle.")]
         public float Momentum;
 
@@ -189,21 +192,20 @@ Once we have a near optimal point we continue to explore the space with a the GD
                 return ( otherValue - ourValue ) / parameter.Size;
             }
 
-            internal void UpdateVelocity(HybridPSOGD us, float[] globalBest, int ourIndex, Random r)
+            internal void UpdateVelocity(HybridPSOGD us, float[] globalBest, float[] bestInGeneration, int ourIndex, Random r)
             {
                 var parameters = us.Root.Parameters;
-                var mOptimalRandom = r.NextDouble();
-                var bestParameterRandom = r.NextDouble();
-                var optimalRandom = r.NextDouble();
-                for ( int i = 0; i < Velocity.Length; i++ )
+                for(int i = 0; i < Velocity.Length; i++)
                 {
+                    var bestParameterRandom = r.NextDouble();
+                    var optimalRandom = r.NextDouble();
+                    var generationRandom = r.NextDouble();
                     var current = Job.Parameters[i].Current;
-                    var delta = us.BestParameterWeight * bestParameterRandom * RelativeDistance( parameters[i], current, BestParameters[i] )
-                        + us.OptimalWeight * optimalRandom * RelativeDistance( parameters[i], current, globalBest[i] );
+                    var globalBestV = us.BestParameterWeight * bestParameterRandom * RelativeDistance(parameters[i], current, BestParameters[i]);
+                    var localBestV = us.OptimalWeight * optimalRandom * RelativeDistance(parameters[i], current, globalBest[i]);
+                    var generationBestV = us.GenerationOptimalWeight * RelativeDistance(parameters[i], current, bestInGeneration[i]);
                     // we step our velocity by apply a momentum to the old velocity and then applying the new with the rest of the fraction
-                    Velocity[i] = (float)((us.Momentum  * Velocity[i])
-                        // calculate the velocity for this term
-                        + (1.0 - us.Momentum) * delta);
+                    Velocity[i] = (us.Momentum * Velocity[i]) + (float)(globalBestV + localBestV + generationBestV);
                 }
             }
 
@@ -216,24 +218,24 @@ Once we have a near optimal point we continue to explore the space with a the GD
                 job.Processing = false;
                 job.Value = float.NaN;
                 var parameters = job.Parameters = new ParameterSetting[temp.Length];
-                for ( int i = 0; i < temp.Length; i++ )
+                for(int i = 0; i < temp.Length; i++)
                 {
                     parameters[i] = new ParameterSetting();
                     // we need to move in real parameter space instead of relative parameter space
-                    parameters[i].Current = temp[i].Current + Velocity[i] * ( temp[i].Size );
+                    parameters[i].Current = temp[i].Current + Velocity[i] * (temp[i].Size);
                     // clamp the value inside of parameter space
-                    if ( parameters[i].Current < ( parameters[i].Minimum = temp[i].Minimum ) )
+                    if(parameters[i].Current < (parameters[i].Minimum = temp[i].Minimum))
                     {
                         parameters[i].Current = temp[i].Minimum;
-                        Velocity[i] = 0.0f;
+                        Velocity[i] = -Velocity[i];
                     }
-                    if ( parameters[i].Current > ( parameters[i].Maximum = temp[i].Maximum ) )
+                    if(parameters[i].Current > (parameters[i].Maximum = temp[i].Maximum))
                     {
                         parameters[i].Current = temp[i].Maximum;
-                        Velocity[i] = 0.0f;
+                        Velocity[i] = -Velocity[i];
                     }
                 }
-                return ( Job = job );
+                return (Job = job);
             }
 
         }
@@ -397,40 +399,51 @@ Once we have a near optimal point we continue to explore the space with a the GD
                 // Update the current particle if it has seen the best parameter for itself so far
                 Population[i].UpdateIfBest();
             } );
-            float[] globalBest = GetGlobalBest();
+            float[] globalBest, generationBest;
+            GetGlobalBest(out globalBest, out generationBest);
             // Now that we have the best, find the closest M to our best and update our position
             for( int i = 0; i < Population.Length; i++)
             {
                 // Figure our who the closest neighbors are
-                Population[i].UpdateVelocity( this, globalBest, i, Random );
+                Population[i].UpdateVelocity( this, globalBest, generationBest, i, Random );
                 Jobs[i] = Population[i].UpdatePosition( this );
             }
         }
 
-        private float[] GetGlobalBest()
+        private void GetGlobalBest(out float[] globalBest, out float[] generationBest)
         {
-            int bestIndex = 0;
-            if ( Maximize )
+            int globalBestIndex = 0;
+            int generationBestIndex = 0;
+            if(Maximize)
             {
-                for ( int i = 1; i < Population.Length; i++ )
+                for(int i = 1; i < Population.Length; i++)
                 {
-                    if ( Population[i].BestValue > Population[bestIndex].BestValue )
+                    if(Population[i].BestValue > Population[globalBestIndex].BestValue)
                     {
-                        bestIndex = i;
+                        globalBestIndex = i;
+                    }
+                    if(Population[i].Job.Value > Population[generationBestIndex].Job.Value)
+                    {
+                        generationBestIndex = i;
                     }
                 }
             }
             else
             {
-                for ( int i = 1; i < Population.Length; i++ )
+                for(int i = 1; i < Population.Length; i++)
                 {
-                    if ( Population[i].BestValue < Population[bestIndex].BestValue )
+                    if(Population[i].BestValue < Population[globalBestIndex].BestValue)
                     {
-                        bestIndex = i;
+                        globalBestIndex = i;
+                    }
+                    if(Population[i].Job.Value < Population[generationBestIndex].Job.Value)
+                    {
+                        generationBestIndex = i;
                     }
                 }
             }
-            return Population[bestIndex].BestParameters;
+            globalBest = Population[globalBestIndex].BestParameters;
+            generationBest = Population[generationBestIndex].Job.Parameters.Select(p => p.Current).ToArray();
         }
 
         float[] KernelMomentum;

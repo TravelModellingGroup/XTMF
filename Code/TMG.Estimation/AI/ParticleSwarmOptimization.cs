@@ -186,7 +186,6 @@ namespace TMG.Estimation.AI
                     var generationBestV = us.GenerationOptimalWeight * RelativeDistance(parameters[i], current, bestInGeneration[i]);
                     // we step our velocity by apply a momentum to the old velocity and then applying the new with the rest of the fraction
                     Velocity[i] = (us.Momentum * Velocity[i]) + (float)(globalBestV + localBestV + generationBestV);
-
                 }
             }
 
