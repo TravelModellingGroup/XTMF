@@ -180,7 +180,7 @@ namespace TMG.Emme.Tools
 
         private string ConvertTimeToSeconds(Time time)
         {
-            return (time.Hours * 3600 + time.Minutes * 60 + time.Seconds).ToString();
+            return ((int)(time.Hours * 100f + time.Seconds)).ToString();
         }
 
         public bool RuntimeValidation(ref string error)

@@ -24,6 +24,7 @@ using System.Text;
 using Datastructure;
 using Tasha.Common;
 using TMG;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -91,24 +92,41 @@ namespace Tasha.PopulationSynthesis
                     for(int categoryIndex = 0; categoryIndex < data.Length; categoryIndex++)
                     {
                         var category = data[categoryIndex];
-                        for(int originIndex = 0; originIndex < category.Length; originIndex++)
+                        if(VectorHelper.IsHardwareAccelerated)
                         {
-                            var row = category[originIndex];
-                            var total = 0.0f;
-                            for(int destinationIndex = 0; destinationIndex < row.Length; destinationIndex++)
+                            for(int originIndex = 0; originIndex < category.Length; originIndex++)
                             {
-                                total += row[destinationIndex];
+                                var total = VectorHelper.VectorSum(category[originIndex], 0, category[originIndex].Length);
+                                // we do not greater than in case total is NaN, this will pass
+                                if(!(total > 0))
+                                {
+                                    noProbabilityZones.Add(originIndex);
+                                    continue;
+                                }
+                                VectorHelper.VectorMultiply(category[originIndex], 0, category[originIndex], 0, 1.0f / total, category[originIndex].Length);
                             }
-                            // we do not greater than in case total is NaN, this will pass
-                            if(!(total > 0))
+                        }
+                        else
+                        {
+                            for(int originIndex = 0; originIndex < category.Length; originIndex++)
                             {
-                                noProbabilityZones.Add(originIndex);
-                                continue;
-                            }
-                            total = 1.0f / total;
-                            for(int k = 0; k < row.Length; k++)
-                            {
-                                row[k] *= total;
+                                var row = category[originIndex];
+                                var total = 0.0f;
+                                for(int destinationIndex = 0; destinationIndex < row.Length; destinationIndex++)
+                                {
+                                    total += row[destinationIndex];
+                                }
+                                // we do not greater than in case total is NaN, this will pass
+                                if(!(total > 0))
+                                {
+                                    noProbabilityZones.Add(originIndex);
+                                    continue;
+                                }
+                                total = 1.0f / total;
+                                for(int k = 0; k < row.Length; k++)
+                                {
+                                    row[k] *= total;
+                                }
                             }
                         }
                         if(noProbabilityZones.Count > 0)

@@ -29,7 +29,7 @@ namespace Tasha.V4Modes
     /// </summary>
     [ModuleInformation( Description =
         @"This module is designed to implement the Walk mode for GTAModel V4.0+." )]
-    public sealed class Walk : ITashaMode
+    public sealed class Walk : ITashaMode, IIterationSensitive
     {
         [RootModule]
         public ITashaRuntime Root;
@@ -91,6 +91,9 @@ namespace Tasha.V4Modes
         [RunParameter( "Mode Name", "Walk", "The name of the mode" )]
         public string ModeName { get; set; }
 
+        [SubModelInformation(Required = false, Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
         /// <summary>
         /// What is the name of this mode?
         /// </summary>
@@ -139,7 +142,10 @@ namespace Tasha.V4Modes
                 v += this.DriversLicenseFlag;
             }
 
-            v += TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() 
+            IZone origin = trip.OriginalZone;
+            IZone destination = trip.DestinationZone;
+            Time startTime = trip.ActivityStartTime;
+            v += TravelTime(origin, destination, startTime).ToMinutes() 
                 * this.TravelTimeFactor;
 
             //checking if child
@@ -157,7 +163,7 @@ namespace Tasha.V4Modes
             }
 
             //if intrazonal trip
-            if ( trip.OriginalZone == trip.DestinationZone )
+            if (origin == destination)
             {
                 v += this.IntrazonalConstant;
             }
@@ -183,7 +189,19 @@ namespace Tasha.V4Modes
                     v += this.SchoolFlag;
                     break;
             }
-            return v;
+            return v + GetPlanningDistrictConstant(startTime, origin.PlanningDistrict, destination.PlanningDistrict);
+        }
+
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if(startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
         }
 
         private void GetPersonVariables(ITashaPerson person, out float constant)
@@ -292,6 +310,19 @@ namespace Tasha.V4Modes
         {
             this.AvgWalkSpeed = this.AvgWalkSpeedInKmPerHour * 1000f / 60f;
             return true;
+        }
+
+        public void IterationEnding(int iterationNumber, int maxIterations)
+        {
+            
+        }
+
+        public void IterationStarting(int iterationNumber, int maxIterations)
+        {
+            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
+            }
         }
     }
 }
