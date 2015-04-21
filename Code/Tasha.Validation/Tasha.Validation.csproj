@@ -113,6 +113,10 @@
     <Compile Include="PoRPoW\PostSchedulePoRPoWAssignments.cs" />
     <Compile Include="Scheduler\PrintMissedWorkEpisodes.cs" />
     <Compile Include="School\ProduceStudentMatrix.cs" />
+    <Compile Include="SmartTrackPerformance\DistanceMatrix.cs" />
+    <Compile Include="SmartTrackPerformance\TripPurposeMeasure.cs" />
+    <Compile Include="SmartTrackPerformance\VKTMeasure.cs" />
+    <Compile Include="SmartTrackPerformance\VKTV2.cs" />
     <Compile Include="TashaAccessStation.cs" />
     <Compile Include="AutoSanityCheck.cs" />
     <Compile Include="DurationsVsStartTimeVersion2.cs" />
@@ -148,6 +152,10 @@
     <ProjectReference Include="..\..\Tasha\Tasha.csproj">
       <Project>{7DD20E37-8F3F-4BF6-953E-47453F611094}</Project>
       <Name>Tasha</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Emme\TMG.Emme.csproj">
+      <Project>{9423a82c-0120-4d8f-aac0-c9c37966b3a8}</Project>
+      <Name>TMG.Emme</Name>
     </ProjectReference>
     <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj">
       <Project>{4129e4db-412b-493a-bda1-f0c367ee1f6f}</Project>
