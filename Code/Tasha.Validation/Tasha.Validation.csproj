@@ -113,6 +113,7 @@
     <Compile Include="PoRPoW\PostSchedulePoRPoWAssignments.cs" />
     <Compile Include="Scheduler\PrintMissedWorkEpisodes.cs" />
     <Compile Include="School\ProduceStudentMatrix.cs" />
+    <Compile Include="SmartTrackPerformance\TripLengthMeasure.cs" />
     <Compile Include="SmartTrackPerformance\DistanceMatrix.cs" />
     <Compile Include="SmartTrackPerformance\TripPurposeMeasure.cs" />
     <Compile Include="SmartTrackPerformance\VKTMeasure.cs" />

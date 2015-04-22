@@ -167,7 +167,7 @@ namespace TMG.Emme.Tools
                                     period.UncleanedScenarioNumber.ToString(),
                                     period.UncleanedDescription.Replace('\"', '\''),
                                     period.CleanedScenarioNumber.ToString(),
-                                    period.UncleanedDescription.Replace('\"', '\''),
+                                    period.CleanedDescription.Replace('\"', '\''),
                                     ConvertTimeToSeconds(period.StartTime),
                                     ConvertTimeToSeconds(period.EndTime),
                                     GetFileLocationOrNone(period.ScenarioNetworkUpdateFile)));
@@ -180,6 +180,7 @@ namespace TMG.Emme.Tools
 
         private string ConvertTimeToSeconds(Time time)
         {
+            Console.WriteLine(((int)(time.Hours * 100f + time.Seconds)).ToString());
             return ((int)(time.Hours * 100f + time.Seconds)).ToString();
         }
 
