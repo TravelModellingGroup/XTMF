@@ -269,7 +269,7 @@ namespace TMG.Emme.Tools
         [RunParameter("X Min", 0.0f, "Minimum x-coordinate.")]
         public float XMin;
 
-        [RunParameter("X Max", 0.0f, "MAximum x-coordinate.")]
+        [RunParameter("X Max", 0.0f, "Maximum x-coordinate.")]
         public float XMax;
 
         [RunParameter("Y Min", 0.0f, "Minimum y-coordinate.")]
