@@ -48,7 +48,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
             }
 
-            var args = string.Join(" ", scenarioNumber, "\"" + DistanceMatrix.GetFilePath() + "\"");
+            var args = string.Join(" ", ScenarioNumber, "\"" + DistanceMatrix.GetFilePath() + "\"");
 
             bool emmeRun;
             emmeRun = mc.Run(_ToolName, args);            
