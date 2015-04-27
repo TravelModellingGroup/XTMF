@@ -106,6 +106,7 @@
     <Compile Include="ModeChoice\TimePeriodModeSplit.cs" />
     <Compile Include="ModeChoice\ModeSplit.cs" />
     <Compile Include="ModeChoice\ZonalModeSplits.cs" />
+    <Compile Include="PerformanceMeasures\TransferMatrixExport.cs" />
     <Compile Include="PopulationSynthesis\SocialValidation.cs" />
     <Compile Include="PopulationSynthesis\ValidateOccupationResidence.cs" />
     <Compile Include="PoRPoW\ExtractPoRPoWAssignments.cs" />
@@ -113,11 +114,10 @@
     <Compile Include="PoRPoW\PostSchedulePoRPoWAssignments.cs" />
     <Compile Include="Scheduler\PrintMissedWorkEpisodes.cs" />
     <Compile Include="School\ProduceStudentMatrix.cs" />
-    <Compile Include="SmartTrackPerformance\TripLengthMeasure.cs" />
-    <Compile Include="SmartTrackPerformance\DistanceMatrix.cs" />
-    <Compile Include="SmartTrackPerformance\TripPurposeMeasure.cs" />
-    <Compile Include="SmartTrackPerformance\VKTMeasure.cs" />
-    <Compile Include="SmartTrackPerformance\VKTV2.cs" />
+    <Compile Include="PerformanceMeasures\TripLengthMeasure.cs" />
+    <Compile Include="PerformanceMeasures\DistanceMatrix.cs" />
+    <Compile Include="PerformanceMeasures\TripPurposeMeasure.cs" />
+    <Compile Include="PerformanceMeasures\ODTripSumByHomeZone.cs" />
     <Compile Include="TashaAccessStation.cs" />
     <Compile Include="AutoSanityCheck.cs" />
     <Compile Include="DurationsVsStartTimeVersion2.cs" />
