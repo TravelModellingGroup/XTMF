@@ -29,7 +29,7 @@ using TMG.Emme;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
-    class TransferMatrixExport : IEmmeTool
+    public class TransferMatrixExport : IEmmeTool
     {
 
         [SubModelInformation(Required = true, Description = "Distance Matrix .CSV name")]
