@@ -249,7 +249,8 @@ namespace XTMF
             }
 
             IModelSystemTemplate modelSystem = null;
-            if(CreateModule(modelSystemStructure, modelSystemStructure, ref error))
+            IConfiguration proxy = new XTMF.RunProxy.ConfigurationProxy(Configuration as Configuration, this);
+            if(CreateModule(proxy, modelSystemStructure, modelSystemStructure, ref error))
             {
                 modelSystem = modelSystemStructure.Module as IModelSystemTemplate;
             }
@@ -451,7 +452,7 @@ namespace XTMF
             }
         }
 
-        private bool AddCollection(IModule root, IModelSystemStructure rootMS, IModelSystemStructure child,
+        private bool AddCollection(IConfiguration config, IModule root, IModelSystemStructure rootMS, IModelSystemStructure child,
             FieldInfo infoField, PropertyInfo infoProperty, Type listOfInner, Type inner, ref string error)
         {
             object collectionValue = null;
@@ -584,7 +585,7 @@ namespace XTMF
                     var setValue = collectionTrueType.GetMethod("SetValue", new Type[] { typeof(object), typeof(int) });
                     for(int i = 0; i < child.Children.Count; i++)
                     {
-                        if(!CreateModule(rootMS, child.Children[i], ref error)) return false;
+                        if(!CreateModule(config, rootMS, child.Children[i], ref error)) return false;
                         setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, i });
                     }
                 }
@@ -598,7 +599,7 @@ namespace XTMF
                     }
                     foreach(var member in child.Children)
                     {
-                        if(!CreateModule(rootMS, member, ref error)) return false;
+                        if(!CreateModule(config, rootMS, member, ref error)) return false;
                         addMethod.Invoke(collectionObject, new object[] { member.Module });
                     }
                 }
@@ -686,7 +687,7 @@ namespace XTMF
             return true;
         }
 
-        private bool CreateModule(IModelSystemStructure rootMS, IModelSystemStructure ps, ref string error)
+        private bool CreateModule(IConfiguration config, IModelSystemStructure rootMS, IModelSystemStructure ps, ref string error)
         {
             IModule root = null;
             if(ps.Type == null)
@@ -699,7 +700,7 @@ namespace XTMF
             {
                 try
                 {
-                    root = configConstructor.Invoke(new object[] { Configuration }) as IModule;
+                    root = configConstructor.Invoke(new object[] { config }) as IModule;
                 }
                 catch
                 {
@@ -780,7 +781,7 @@ namespace XTMF
                                 error = string.Format("While building the module '{2}' we were unable to find a field or property called {0} in type {1}", child.ParentFieldName, ps.Type.FullName, ps.Name);
                                 return false;
                             }
-                            if(!AddCollection(root, rootMS, child, infoField, infoProperty, listOfInner, inner, ref error))
+                            if(!AddCollection(config, root, rootMS, child, infoField, infoProperty, listOfInner, inner, ref error))
                             {
                                 return false;
                             }
@@ -799,7 +800,7 @@ namespace XTMF
                         }
                         else if(child.Type != null)
                         {
-                            if(!CreateModule(rootMS, child, ref error))
+                            if(!CreateModule(config, rootMS, child, ref error))
                             {
                                 return false;
                             }
