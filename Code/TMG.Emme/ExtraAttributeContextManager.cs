@@ -184,6 +184,11 @@ namespace TMG.Emme
 
         public bool RuntimeValidation(ref string error)
         {
+            if(EmmeToolsToRun.Count == 0 && AttributesToCreate.Count > 0)
+            {
+                error = "In '"+Name+"' you must have at least one tool to run in order for ExtraAttributeContextManager to function properly.";
+                return false;
+            }
             return true;
         }
     }
