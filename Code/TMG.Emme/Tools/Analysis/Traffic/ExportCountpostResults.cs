@@ -28,7 +28,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 {
     public class ExportCountpostResults : IEmmeTool
     {
-        private const string ToolName = "tmg.analysis.traffic.export_screenline_results";
+        private const string ToolName = "tmg.analysis.traffic.export_countpost_results";
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -55,12 +55,38 @@ namespace TMG.Emme.Tools.Analysis.Traffic
             {
                 throw new XTMFRuntimeException("In '" + Name + "' we require the use of EMME Modeller in order to execute.");
             }
-            return false;// modeller.Run(ToolName, );
+            modeller.Run(ToolName, GetParameters());
+            return true;
+        }
+
+        private static string AddQuotes(string toQuote)
+        {
+            return String.Concat("\"", toQuote, "\"");
+        }
+
+        private string GetParameters()
+        {
+            //xtmf_ScenarioNumber, CountpostAttributeId, AlternateCountpostAttributeId,ExportFile
+            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(SaveTo.GetFilePath()));
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            error = "'" + this.GetType().FullName + "' is not implemented";
+            if(ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
+                || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
+        {
+            if(String.IsNullOrWhiteSpace(flag))
+            {
+                error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
+                return true;
+            }
             return false;
         }
     }

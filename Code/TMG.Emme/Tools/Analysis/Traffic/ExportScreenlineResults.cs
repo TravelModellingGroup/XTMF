@@ -64,12 +64,32 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 
         private string GetParameters()
         {
-            throw new NotImplementedException();
+            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo));
+        }
+
+        private static string AddQuotes(string toQuote)
+        {
+            return String.Concat("\"", toQuote, "\"");
         }
 
         public bool RuntimeValidation(ref string error)
         {
+            if(ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
+                || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
+            {
+                return false;
+            }
             return true;
+        }
+
+        private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
+        {
+            if(String.IsNullOrWhiteSpace(flag))
+            {
+                error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
+                return true;
+            }
+            return false;
         }
     }
 
