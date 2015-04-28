@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
-    <Compile Include="ConfigurationProxy.cs" />
+    <Compile Include="RunProxy\ConfigurationProxy.cs" />
     <Compile Include="Editing\CopyBuffer.cs" />
     <Compile Include="Editing\EditingStack.cs" />
     <Compile Include="Editing\Model.cs" />
@@ -85,6 +85,7 @@
     <Compile Include="Editing\ProjectEditingSession.cs" />
     <Compile Include="Controller\ProjectController.cs" />
     <Compile Include="ProjectRepository.cs" />
+    <Compile Include="RunProxy\ProjectRepositoryProxy.cs" />
     <Compile Include="XTMFRun.cs" />
     <Compile Include="XTMFRuntime.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
