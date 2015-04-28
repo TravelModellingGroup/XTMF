@@ -207,31 +207,52 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(new Action(() =>
             {
                 SetRunFinished();
-                MessageBox.Show("Validation Error\r\n" + obj);
+                ShowErrorMessage("Validation Error", obj);
             }));
+        }
+
+        private void ShowErrorMessage(string header, string message)
+        {
+            (new ErrorWindow() { ErrorMessage = header + "\r\n" + message}).ShowDialog();
+        }
+
+        private void ShowErrorMessage(string v, Exception error)
+        {
+            (new ErrorWindow() { Exception = error }).ShowDialog();
         }
 
         private void Run_ValidationStarting()
         {
         }
 
-        private void Run_RuntimeValidationError(string obj)
+        private void Run_RuntimeValidationError(string errorMessage)
         {
             Dispatcher.Invoke(new Action(() =>
             {
                 SetRunFinished();
-                MessageBox.Show("Runtime Validation Error\r\n" + obj);
+                ShowErrorMessage("Runtime Validation Error", errorMessage);
             }));
         }
 
-        private void Run_RuntimeError(Exception obj)
+        private void Run_RuntimeError(Exception error)
         {
             Dispatcher.Invoke(new Action(() =>
             {
                 SetRunFinished();
-                MessageBox.Show("Runtime Error\r\n" + obj.Message);
+                error = GetInnermostError(error);
+                ShowErrorMessage("Runtime Error", error);
             }));
 
+        }
+
+        private Exception GetInnermostError(Exception error)
+        {
+            var ret = error;
+            while(ret.InnerException != null)
+            {
+                ret = ret.InnerException;
+            }
+            return ret;
         }
 
         private void SetRunFinished()
