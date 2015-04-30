@@ -487,5 +487,13 @@ namespace XTMF.Gui
                 page.Title = newName;
             }
         }
+
+        private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
+        {
+            var helpUI = new UserControls.Help.HelpDialog(EditorController.Runtime.Configuration);
+            var document = AddNewWindow("Help",helpUI);
+            document.IsSelected = true;
+            Keyboard.Focus(helpUI);
+        }
     }
 }

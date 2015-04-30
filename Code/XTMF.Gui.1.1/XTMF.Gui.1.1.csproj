@@ -54,6 +54,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
     <OutputPath>bin\64Bit\</OutputPath>
@@ -148,6 +149,10 @@
     <Compile Include="UserControls\FilterBox.xaml.cs">
       <DependentUpon>FilterBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\Help\ContentReference.cs" />
+    <Compile Include="UserControls\Help\HelpDialog.xaml.cs">
+      <DependentUpon>HelpDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\HintedTextBox.cs" />
     <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
@@ -229,6 +234,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\FilterBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\Help\HelpDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
