@@ -33,17 +33,15 @@ namespace XTMF.Gui.UserControls.Help
     /// </summary>
     public class ContentReference
     {
-        private UIElement _Content;
-
+        /// <summary>
+        /// Get the content
+        /// </summary>
+        /// <returns></returns>
         public UIElement Content
         {
             get
             {
-                if(_Content == null)
-                {
-                    _Content = GenerateContent();
-                }
-                return _Content;
+                return GenerateContent();
             }
         }
 
@@ -52,6 +50,9 @@ namespace XTMF.Gui.UserControls.Help
         /// </summary>
         private string Name;
 
+        /// <summary>
+        /// The type of module that this will represent
+        /// </summary>
         private Type Module;
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace XTMF.Gui.UserControls.Help
 
         private UIElement GenerateContent()
         {
-            return new TextBlock() { Text = Module == null ? "Unknown module" : Module.Name, Foreground = Brushes.White };
+            return new DocumentationControl() { Type = Module, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
         }
 
         public override string ToString()
