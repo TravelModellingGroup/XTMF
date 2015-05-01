@@ -125,7 +125,7 @@ namespace XTMF.Testing.Editing
                 var inputDirectory = GetParameter( parameters, "Input Directory" );
                 var secondaryString = GetParameter( parameters, "SecondaryString" );
 
-                List<LinkedParameterModel> linkedParameterList = linkedParameters.GetLinkedParameters();
+                var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 Assert.IsTrue( linkedParameterList[0].AddParameter( secondaryString, ref error ), error );
                 string oldValue = linkedParameterList[0].GetValue();
@@ -184,7 +184,7 @@ namespace XTMF.Testing.Editing
                 var inputDirectory = GetParameter( parameters, "Input Directory" );
                 var secondaryString = GetParameter( parameters, "SecondaryString" );
 
-                List<LinkedParameterModel> linkedParameterList = linkedParameters.GetLinkedParameters();
+                var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 Assert.IsTrue( linkedParameterList[0].AddParameter( secondaryString, ref error ), error );
                 string oldValue = linkedParameterList[0].GetValue();

@@ -160,7 +160,7 @@ namespace XTMF.Gui.UserControls
             var parameter = arg1 as ParameterModel;
             if(parameter != null)
             {
-                return (String.IsNullOrWhiteSpace(arg2) || parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0);
+                return (string.IsNullOrWhiteSpace(arg2) || parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0);
             }
             return false;
         }
@@ -227,7 +227,7 @@ namespace XTMF.Gui.UserControls
             var newModelSystem = e.NewValue as ModelSystemModel;
             if(newModelSystem != null)
             {
-                Task.Factory.StartNew(() =>
+                Task.Run(() =>
                 {
                     var displayModel = us.CreateDisplayModel(newModelSystem.Root);
                     us.Dispatcher.BeginInvoke(new Action(() =>
@@ -440,7 +440,7 @@ namespace XTMF.Gui.UserControls
 
         private void ShowDocumentation()
         {
-            XTMF.Gui.Controllers.ModelSystemEditingController.HelpRequested(ModuleDisplay.SelectedItem as ModelSystemStructureModel);
+            Controllers.ModelSystemEditingController.HelpRequested(ModuleDisplay.SelectedItem as ModelSystemStructureModel);
         }
 
         private void Module_Clicked(object sender, RoutedEventArgs e)
@@ -520,10 +520,10 @@ namespace XTMF.Gui.UserControls
                         else
                         {
                             SelectedName.Text = "None Selected";
-                            SelectedNamespace.Text = String.Empty;
+                            SelectedNamespace.Text = string.Empty;
                         }
                         DoubleAnimation fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-                        this.ParameterDisplay.BeginAnimation(ListView.OpacityProperty, fadeIn);
+                        ParameterDisplay.BeginAnimation(OpacityProperty, fadeIn);
                     }));
                 });
             }
@@ -531,19 +531,20 @@ namespace XTMF.Gui.UserControls
             {
                 ParameterDisplay.ItemsSource = null;
                 SelectedName.Text = "None Selected";
-                SelectedNamespace.Text = String.Empty;
+                SelectedNamespace.Text = string.Empty;
             }
         }
 
         private void CleanUpParameters()
         {
-            
+            ParameterDisplay.BeginAnimation(OpacityProperty, null);
         }
 
         private void FadeOut()
         {
             DoubleAnimation fadeOut = new DoubleAnimation(0.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-            this.ParameterDisplay.BeginAnimation(ListView.OpacityProperty, fadeOut);
+            ParameterDisplay.BeginAnimation(OpacityProperty, null);
+            ParameterDisplay.BeginAnimation(OpacityProperty, fadeOut);
         }
     }
 }

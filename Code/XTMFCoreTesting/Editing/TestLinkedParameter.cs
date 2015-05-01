@@ -59,7 +59,7 @@ namespace XTMF.Testing.Editing
                 Assert.IsNotNull( parameters, "There are no parameters for our test model system template!" );
                 var inputDirectory = GetParameter( parameters, "Input Directory" );
 
-                List<LinkedParameterModel> linkedParameterList = linkedParameters.GetLinkedParameters();
+                var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 var moduleParametersLinked = linkedParameterList[0].GetParameters();
                 Assert.AreEqual( 1, moduleParametersLinked.Count, "The number of module parameters that are linked should just be one!" );
@@ -102,7 +102,7 @@ namespace XTMF.Testing.Editing
                 Assert.IsNotNull( parameters, "There are no parameters for our test model system template!" );
                 var inputDirectory = GetParameter( parameters, "Input Directory" );
 
-                List<LinkedParameterModel> linkedParameterList = linkedParameters.GetLinkedParameters();
+                var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 var moduleParametersLinked = linkedParameterList[0].GetParameters();
                 Assert.AreEqual( 1, moduleParametersLinked.Count, "The number of module parameters that are linked should just be one!" );
@@ -153,7 +153,7 @@ namespace XTMF.Testing.Editing
                 Assert.IsNotNull( parameters, "There are no parameters for our test model system template!" );
                 var inputDirectory = GetParameter( parameters, "Input Directory" );
 
-                List<LinkedParameterModel> linkedParameterList = linkedParameters.GetLinkedParameters();
+                var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 string oldValue = linkedParameterList[0].GetValue();
                 string newValue = "NewValue";

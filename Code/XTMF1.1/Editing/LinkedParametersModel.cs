@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -28,11 +29,14 @@ namespace XTMF
     /// <summary>
     /// The LinkedParametersModel provides a clean interface into the operations of LinkedParameters for editing.
     /// </summary>
-    public class LinkedParametersModel
+    public class LinkedParametersModel : INotifyPropertyChanged
     {
         private ModelSystemEditingSession Session;
         private ModelSystemModel ModelSystem;
         private List<ILinkedParameter> RealLinkedParameters;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public LinkedParametersModel(ModelSystemEditingSession session, ModelSystemModel modelSystem, List<ILinkedParameter> realLinkedParameters)
         {
             Session = session;
@@ -40,7 +44,7 @@ namespace XTMF
             RealLinkedParameters = realLinkedParameters;
             LinkedParameters = CreateLinkedParameters(RealLinkedParameters, Session, ModelSystem);
         }
-        internal BindingListWithRemoving<LinkedParameterModel> LinkedParameters { get; private set; }
+        internal ObservableCollection<LinkedParameterModel> LinkedParameters { get; private set; }
 
         /// <summary>
         /// Stores the data
@@ -131,9 +135,9 @@ namespace XTMF
                 );
         }
 
-        private static BindingListWithRemoving<LinkedParameterModel> CreateLinkedParameters(List<ILinkedParameter> linkedParameters, ModelSystemEditingSession session, ModelSystemModel ModelSystem)
+        private static ObservableCollection<LinkedParameterModel> CreateLinkedParameters(List<ILinkedParameter> linkedParameters, ModelSystemEditingSession session, ModelSystemModel ModelSystem)
         {
-            var ret = new BindingListWithRemoving<LinkedParameterModel>();
+            var ret = new ObservableCollection<LinkedParameterModel>();
             if(linkedParameters == null) return ret;
             for(int i = 0; i < linkedParameters.Count; i++)
             {
@@ -146,9 +150,9 @@ namespace XTMF
         /// Retrieve the linked parameters as they currently stand
         /// </summary>
         /// <returns>A list of the linked parameters</returns>
-        public List<LinkedParameterModel> GetLinkedParameters()
+        public ObservableCollection<LinkedParameterModel> GetLinkedParameters()
         {
-            return this.LinkedParameters.ToList();
+            return this.LinkedParameters;
         }
 
         /// <summary>

@@ -22,6 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
+             xmlns:models="clr-namespace:XTMF.Gui.Models"
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              KeyboardNavigation.IsTabStop="True"
@@ -76,7 +77,7 @@
                     </ContextMenu>
                 </TreeView.ContextMenu>
                 <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type xtmf:ModelSystemStructureModel}" ItemsSource="{Binding Path=Children}">
+                    <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
                         <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
                                      Header="{Binding Name}"
                                      Text="{Binding Description}"
@@ -108,7 +109,7 @@
                         <Setter Property="Focusable" Value="True" />
                         <Setter Property="BorderThickness" Value="0" />
                         <Setter Property="Background" Value="Transparent" />
-                        <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeExpanded" />
+
                     </Style>
                 </TreeView.ItemContainerStyle>
             </TreeView>

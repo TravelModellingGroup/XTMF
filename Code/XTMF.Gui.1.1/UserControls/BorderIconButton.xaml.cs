@@ -245,6 +245,7 @@ namespace XTMF.Gui
             {
                 if(!Selected)
                 {
+                    BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     ColorAnimation fadeInAnimation = new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
                     BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                 }
@@ -258,6 +259,7 @@ namespace XTMF.Gui
             {
                 if(!Selected)
                 {
+                    BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     ColorAnimation fadeInAnimation = new ColorAnimation(ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
                     BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                 }
@@ -270,7 +272,7 @@ namespace XTMF.Gui
             ColorAnimation fadeInAnimation;
             if(!IsHitTestVisible) return;
             fadeInAnimation = new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-
+            BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
             BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
             e.Handled = true;
             MouseInside = true;
@@ -282,6 +284,7 @@ namespace XTMF.Gui
             ColorAnimation fadeInAnimation;
             if(!IsHitTestVisible) return;
             MouseDownInside = false;
+            BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
             if(IsFocused || Selected)
             {
                 fadeInAnimation = new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
@@ -303,6 +306,7 @@ namespace XTMF.Gui
                 MouseDownInside = true;
                 MouseDownPoint = e.GetPosition(this);
             }
+            BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
             BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
             base.OnMouseLeftButtonDown(e);
         }
@@ -318,6 +322,7 @@ namespace XTMF.Gui
                     {
                         Clicked(this);
                     }
+                    BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     if(IsFocused || Selected)
                     {
                         BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
@@ -343,6 +348,7 @@ namespace XTMF.Gui
             if(RightClicked != null)
             {
                 MouseDownInside = true;
+                BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                 BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
             }
             base.OnMouseRightButtonDown(e);
@@ -354,6 +360,7 @@ namespace XTMF.Gui
             {
                 if(e.ClickCount == 1)
                 {
+                    BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     if(IsFocused || Selected)
                     {
                         BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
@@ -399,6 +406,7 @@ namespace XTMF.Gui
             {
                 if(e.OldValue != e.NewValue)
                 {
+                    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     if((bool)e.NewValue)
                     {
                         us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(us.FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
@@ -425,6 +433,7 @@ namespace XTMF.Gui
                     {
                         if(brush.Color != value)
                         {
+                            us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                             ColorAnimation fadeInAnimation = new ColorAnimation(value, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
                             us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                         }
@@ -449,6 +458,7 @@ namespace XTMF.Gui
                 {
                     if(brush.Color != value)
                     {
+                        us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                         ColorAnimation fadeInAnimation = new ColorAnimation(value, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
                         us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                     }

@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -28,12 +29,12 @@ namespace XTMF
     /// <summary>
     /// The linked parameter model provides an interface into the logic of a linked parameter without directly changing them
     /// </summary>
-    public class LinkedParameterModel
+    public class LinkedParameterModel : INotifyPropertyChanged
     {
         /// <summary>
         /// The parameters that are attached to this linked parameter
         /// </summary>
-        private List<ParameterModel> ParameterModels;
+        private ObservableCollection<ParameterModel> ParameterModels;
 
         private ModelSystemEditingSession Session;
         private ModelSystemModel ModelSystem;
@@ -45,9 +46,9 @@ namespace XTMF
             RealLinkedParameter = linkedParameter as LinkedParameter;
         }
 
-        private static List<ParameterModel> CreateInitialParameterModels(ILinkedParameter linkedParameter, ModelSystemModel modelSystem)
+        private static ObservableCollection<ParameterModel> CreateInitialParameterModels(ILinkedParameter linkedParameter, ModelSystemModel modelSystem)
         {
-            var ret = new List<ParameterModel>();
+            var ret = new ObservableCollection<ParameterModel>();
             var real = linkedParameter.Parameters;
             if(real != null)
             {
@@ -64,6 +65,9 @@ namespace XTMF
         }
 
         private object ParameterModelsLock = new object();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
 
 
         /// <summary>
