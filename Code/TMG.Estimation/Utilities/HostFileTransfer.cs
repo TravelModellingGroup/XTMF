@@ -45,6 +45,9 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
         [RunParameter("Append", false, "Should we append the data to the end of the file if the transfer if from client to host?")]
         public bool Append;
 
+        [RunParameter("Cache File", false, "Should we cache the file into memory when sending to the client?")]
+        public bool CacheFile;
+
         public IHost Host;
 
         private byte[] Data;
@@ -54,38 +57,46 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
             if(ToClient)
             {
                 // load the file
-                this.Data = File.ReadAllBytes(this.FileLocation.GetFilePath());
+                if(CacheFile)
+                {
+                    Data = File.ReadAllBytes(FileLocation.GetFilePath());
+                }
                 // register the sender
-                this.Host.RegisterCustomReceiver(this.DataChannel, (stream, remote) =>
+                Host.RegisterCustomReceiver(DataChannel, (stream, remote) =>
                 {
                     return null;
                 });
-                this.Host.RegisterCustomMessageHandler(this.DataChannel, (_, stream) =>
+                Host.RegisterCustomMessageHandler(DataChannel, (_, stream) =>
                 {
-                    stream.SendCustomMessage(null, this.DataChannel);
+                    stream.SendCustomMessage(null, DataChannel);
                 });
-                this.Host.RegisterCustomSender(this.DataChannel, (_, remote, stream) =>
+                Host.RegisterCustomSender(DataChannel, (_, remote, stream) =>
                 {
-                    stream.Write(this.Data, 0, this.Data.Length);
+                    var local = Data;
+                    if(!CacheFile)
+                    {
+                        local = File.ReadAllBytes(FileLocation.GetFilePath());
+                    }
+                    stream.Write(local, 0, Data.Length);
                 });
             }
             else
             {
                 // if we are going to receive a file from the client
-                this.Host.RegisterCustomReceiver(this.DataChannel, (stream, _remote) =>
+                Host.RegisterCustomReceiver(DataChannel, (stream, _remote) =>
                     {
                         var data = new byte[stream.Length];
                         stream.Read(data, 0, data.Length);
                         return data;
                     });
-                this.Host.RegisterCustomMessageHandler(this.DataChannel, (obj, _remote) =>
+                Host.RegisterCustomMessageHandler(DataChannel, (obj, _remote) =>
                     {
                         var data = obj as byte[];
                         System.Threading.Tasks.Task.Factory.StartNew(() =>
                         {
                             try
                             {
-                                var path = this.FileLocation.GetFilePath();
+                                var path = FileLocation.GetFilePath();
                                 AppendToFile(path, data);
                                 Thread.MemoryBarrier();
                             }
@@ -95,7 +106,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                             }
                         });
                     });
-                this.Host.RegisterCustomSender(this.DataChannel, (data, _remote, stream) =>
+                Host.RegisterCustomSender(DataChannel, (data, _remote, stream) =>
                     {
                         // do nothing, no data is needed to trigger the send
                     });
