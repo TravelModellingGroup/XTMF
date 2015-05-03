@@ -77,7 +77,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                     {
                         local = File.ReadAllBytes(FileLocation.GetFilePath());
                     }
-                    stream.Write(local, 0, Data.Length);
+                    stream.Write(local, 0, local.Length);
                 });
             }
             else
