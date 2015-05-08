@@ -35,7 +35,7 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <my:HintedTextBox x:Name="SearchBox" Grid.Row="0" Height="15" HintText="Search..."/>
+            <my:HintedTextBox x:Name="SearchBox" Grid.Row="0" Height="20" HintText="Search..."/>
             <ListBox Grid.Row="1" x:Name="ResultBox" Background="{StaticResource ControlBackgroundBrush}"
                              Foreground="White" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" />
         </Grid>
