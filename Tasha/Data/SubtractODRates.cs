@@ -27,7 +27,7 @@ using TMG.Functions;
 namespace Tasha.Data
 {
     [ModuleInformation(Description =
-        @"This module is designed to add two rates together for each OD.")]
+        @"This module is designed to subtract two rates together for each OD.")]
     public class SubtractODRates : IDataSource<SparseTwinIndex<float>>
     {
         private SparseTwinIndex<float> Data;
@@ -35,10 +35,10 @@ namespace Tasha.Data
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation(Required = true, Description = "The first Matrix")]
+        [SubModelInformation(Required = true, Description = "The first Matrix (First - Second)")]
         public IResource FirstRateToApply;
 
-        [SubModelInformation(Required = true, Description = "The second Matrix.")]
+        [SubModelInformation(Required = true, Description = "The second Matrix (First - Second)")]
         public IResource SecondRateToApply;
 
         public SparseTwinIndex<float> GiveData()
