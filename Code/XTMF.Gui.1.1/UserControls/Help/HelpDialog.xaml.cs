@@ -73,31 +73,38 @@ namespace XTMF.Gui.UserControls.Help
         private void UpdateSearch()
         {
             //search
-            Regex searchFor = new Regex(SearchBox.Text, RegexOptions.IgnoreCase);
-            Task.Run(() =>
+            try
             {
-                try
+                Regex searchFor = new Regex(SearchBox.Text, RegexOptions.IgnoreCase);
+                Task.Run(() =>
                 {
-                    var results = ((from module in Config.ModelRepository.AsParallel()
-                                    where searchFor.IsMatch(module.FullName)
-                                    select new ContentReference(module.FullName, module))).OrderBy(c => c.ToString()).ToArray();
-                    Dispatcher.BeginInvoke(new Action(() =>
+                    try
                     {
-                        SearchedItems.Clear();
-                        foreach(var result in results)
+                        var results = ((from module in Config.ModelRepository.AsParallel()
+                                        where searchFor.IsMatch(module.FullName)
+                                        select new ContentReference(module.FullName, module))).OrderBy(c => c.ToString()).ToArray();
+                        Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            SearchedItems.Add(result);
-                        }
-                    }));
-                }
-                catch (Exception error)
-                {
-                    Dispatcher.BeginInvoke(new Action(() =>
+                            SearchedItems.Clear();
+                            foreach(var result in results)
+                            {
+                                SearchedItems.Add(result);
+                            }
+                        }));
+                    }
+                    catch (Exception error)
                     {
-                        MessageBox.Show(error.Message);
-                    }));
-                }
-            });
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            MessageBox.Show(error.Message);
+                        }));
+                    }
+                });
+            }
+            catch
+            {
+
+            }
         }
 
         public BindingList<ContentReference> SearchedItems { get; private set;}
