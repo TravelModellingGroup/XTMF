@@ -33,23 +33,20 @@ namespace Tasha.Validation.PerformanceMeasures
                        "\nNote: The Expanded trips parameter lets the user choose " +
                        "whether or not he/she wants to look at expansion factors or just frequencies. "
         )]
-    public class TripPurposeMeasure : IPostHousehold
-    {
+    public class TripsByPurposeMeasure : IPostHousehold
+    {        
         [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
         public bool ExpandedTrips;
 
-        [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]
-        public FileLocation TripsByPurpose;
-
-        [SubModelInformation(Required = true, Description = "Where do you want to save the Region Results. Must be in .CSV format.")]
-        public FileLocation TripsByRegion;
+        [SubModelInformation(Required = true, Description = "Folder name in Output Directory where you want to save the files")]
+        public FileLocation ResultsFolder;        
 
         [RootModule]
         public ITashaRuntime Root;
 
-        private Dictionary<Activity, float> PurposeDictionary = new Dictionary<Activity, float>();
+        private Dictionary<Activity, float[]> PurposeDictionary = new Dictionary<Activity,float[]>();
 
-        private Dictionary<string, float> RegionTrips = new Dictionary<string, float>();                            
+        private Dictionary<Activity, float> SummaryTripCount = new Dictionary<Activity, float>();                            
 
         public string Name
         {
@@ -81,14 +78,14 @@ namespace Tasha.Validation.PerformanceMeasures
         public RangeSet OriginZones;
 
         [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
-        public RangeSet DestinationZones;
-
-        //[RunParameter("Save By PD", false, "Save the data by Region.")]
-        //public bool SaveByRegion;
+        public RangeSet DestinationZones;        
 
         public void Execute(ITashaHousehold household, int iteration)
         {
             // only run on the last iteration
+
+            var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
+            
             if(iteration == Root.Iterations - 1)
             {
                 lock (this)
@@ -120,8 +117,9 @@ namespace Tasha.Validation.PerformanceMeasures
                                     var tripStartTime = trip.TripStartTime;
                                     if(tripStartTime >= StartTime && tripStartTime < EndTime)
                                     {
-                                        AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip);
-                                        AddOriginRegion(trip, RegionTrips, amountToAddPerTrip);
+
+                                        AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
+                                        AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
                                     }
                                 }
                             }
@@ -131,60 +129,60 @@ namespace Tasha.Validation.PerformanceMeasures
             }
         }
 
-        private void AddOriginRegion(ITrip trip, Dictionary<string, float> regionDictionary, float occurance)
-        {
-            string region;
+        private void AddToSummary(ITrip trip, Dictionary<Activity, float> summaryDictionary, float occurance)
+        {                        
 
-            if (trip.OriginalZone.ZoneNumber < 1000) { region = "City of Toronto"; }
-            else if (trip.OriginalZone.ZoneNumber < 2000) { region = "Region of Durham"; }
-            else if (trip.OriginalZone.ZoneNumber < 3000) { region = "Region of York "; }
-            else if (trip.OriginalZone.ZoneNumber < 4000) { region = "Region of Peel"; }
-            else if (trip.OriginalZone.ZoneNumber < 5000) { region = "Region of Halton"; }
-            else if (trip.OriginalZone.ZoneNumber < 6000) { region = "City of Hamilton"; }
-            else { region = "External Zones"; }
-
-            if (regionDictionary.ContainsKey(region))
+            if (summaryDictionary.ContainsKey(trip.Purpose))
             {
-                regionDictionary[region] += occurance;
+                summaryDictionary[trip.Purpose] += occurance;
             }
             else
             {
-                regionDictionary.Add(region, occurance);
+                summaryDictionary.Add(trip.Purpose, occurance);
             }            
         }       
 
-        private void AddTripToDictionary(Dictionary<Activity,float> dictionary, float occurance, ITrip trip)
+        private void AddTripToDictionary(Dictionary<Activity,float[]> dictionary, float occurance, ITrip trip, int homeZone)
         {
             if(dictionary.ContainsKey(trip.Purpose))
             {
-                dictionary[trip.Purpose] += occurance;
+                dictionary[trip.Purpose][homeZone] += occurance;
             }
             else
             {
-                dictionary.Add(trip.Purpose, occurance);
+                dictionary.Add(trip.Purpose, new float[Root.ZoneSystem.ZoneArray.GetFlatData().Length]);
+                dictionary[trip.Purpose][homeZone] += occurance;
             }
         }
 
         public void IterationFinished(int iteration)
         {
+            var zoneFlatData = Root.ZoneSystem.ZoneArray.GetFlatData();
             // only run on the last iteration
             if(iteration == Root.Iterations - 1)
             {
-                using (StreamWriter Writer = new StreamWriter(TripsByPurpose))
+                foreach(var purpose in PurposeDictionary.Keys)
                 {
-                    Writer.WriteLine("Trip Purpose, Number of Occurrences");
-                    foreach (var pair in PurposeDictionary)
+                    Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
+                    var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), purpose.ToString() + ".csv");
+                    using (StreamWriter Writer = new StreamWriter(filePath))
                     {
-                        Writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
-                    }                                                                                    
+                        Writer.WriteLine("Home Zone", "Number of Occurrences");
+                        for(int i = 0; i < PurposeDictionary[purpose].Length; i++)
+                        {
+                            Writer.WriteLine("{0}, {1}", zoneFlatData[i].ZoneNumber, PurposeDictionary[purpose][i]);
+                        }
+                    }
                 }
+                
+                var summaryFilePath = Path.Combine(Path.GetFullPath(ResultsFolder), "SummaryFile.csv");
 
-                using (StreamWriter Writer = new StreamWriter(TripsByRegion))
+                using (StreamWriter Writer = new StreamWriter(summaryFilePath))
                 {
-                    Writer.WriteLine("Origin Region, Number of Occurrences");
-                    foreach (var pair in RegionTrips)
+                    Writer.WriteLine("Purpose, Number of Occurrences");
+                    foreach (var pair in SummaryTripCount)
                     {
-                        Writer.WriteLine("{0}, {1}", pair.Key, pair.Value);                            
+                        Writer.WriteLine("{0}, {1}", pair.Key.ToString(), pair.Value);                            
                     }                        
                 }
             }
@@ -200,7 +198,8 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
         public void IterationStarting(int iteration)
-        {            
+        {           
+ 
         }
 
         public override string ToString()
