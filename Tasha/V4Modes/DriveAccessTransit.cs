@@ -71,14 +71,28 @@ namespace Tasha.V4Modes
         [RunParameter("aivtt", 0.0f, "The time spent in the auto vehicle")]
         public float AutoInVehicleTime;
 
-        [RunParameter("tivtt", 0.0f, "The time spent in a public transit vehicle")]
-        public float TransitInVehicleTime;
+        [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+        public float ProfessionalTimeFactor;
+        [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+        public float GeneralTimeFactor;
+        [RunParameter("SalesTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+        public float SalesTimeFactor;
+        [RunParameter("ManufacturingTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+        public float ManufacturingTimeFactor;
+        [RunParameter("StudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+        public float StudentTimeFactor;
+        [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
+        public float NonWorkerStudentTimeFactor;
 
-        [RunParameter("twait", 0.0f, "The time spent in a public transit vehicle")]
+
+        [RunParameter("WaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
         public float TransitWait;
 
-        [RunParameter("twalk", 0.0f, "The time spent in a public transit vehicle")]
+        [RunParameter("WalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
         public float TransitWalk;
+
+        [RunParameter("BoardingFactor", 0.0f, "The boarding penalties incurred.")]
+        public float TransitBoarding;
 
         [RunParameter("LogsumFactor", 0.0f, "The factor to apply to the logsum of the access station choice model.")]
         public float LogsumCorrelation;
@@ -383,7 +397,7 @@ namespace Tasha.V4Modes
                 var accessData = AccessStationModel.ProduceResult( chain );
                 if ( accessData == null || !BuildUtility( trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
                     accessData,
-                    trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, GetTravelCostFactor(chain.Person), trips[tripIndex].TripStartTime,
+                    trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].TripStartTime,
                     out dependentUtility ) )
                 {
                     OnSelection = null;
@@ -409,11 +423,14 @@ namespace Tasha.V4Modes
             return true;
         }
 
-        private bool BuildUtility(IZone firstOrigin, IZone secondOrigin, Pair<IZone[], float[]> accessData, IZone firstDestination, IZone secondDestination, float travelCostFactor, Time time, out float dependentUtility)
+        private bool BuildUtility(IZone firstOrigin, IZone secondOrigin, Pair<IZone[], float[]> accessData, IZone firstDestination, IZone secondDestination,
+            ITashaPerson person, Time time, out float dependentUtility)
         {
             var zones = accessData.First;
             var utils = accessData.Second;
             var totalUtil = 0.0f;
+            float ivttBeta, costBeta, constant;
+            GetPersonVariables(person, out ivttBeta, out constant, out costBeta);
             bool any = false;
             for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
             {
@@ -447,20 +464,89 @@ namespace Tasha.V4Modes
                 if ( probability > 0 )
                 {
                     var local = 0.0f;
-                    float tivtt, twalk, twait, _unused, cost;
-                    TransitNetwork.GetAllData( stationIndex, fd, time, out tivtt, out twalk, out twait, out _unused, out cost );
-                    local += tivtt * TransitInVehicleTime + twalk * TransitWalk + twait * TransitWait + cost * travelCostFactor;
-                    TransitNetwork.GetAllData( stationIndex, so, time, out tivtt, out twalk, out twait, out _unused, out cost );
-                    local += tivtt * TransitInVehicleTime + twalk * TransitWalk + twait * TransitWait + cost * travelCostFactor;
+                    float tivtt, twalk, twait, boarding, cost;
+                    TransitNetwork.GetAllData( stationIndex, fd, time, out tivtt, out twalk, out twait, out boarding, out cost );
+                    local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
+                    TransitNetwork.GetAllData( stationIndex, so, time, out tivtt, out twalk, out twait, out boarding, out cost );
+                    local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
                     AutoNetwork.GetAllData(fo, stationIndex, time, out tivtt, out cost);
-                    local += tivtt * AutoInVehicleTime + travelCostFactor * cost;
+                    local += tivtt * AutoInVehicleTime + costBeta * cost;
                     AutoNetwork.GetAllData(stationIndex, sd, time, out tivtt, out cost);
-                    local += tivtt * AutoInVehicleTime + travelCostFactor * cost;                    
+                    local += tivtt * AutoInVehicleTime + costBeta * cost;                    
                     totalUtil += local * probability;
                 }
             }
             dependentUtility += totalUtil;
             return true;
+        }
+
+        private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
+        {
+            if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
+            {
+                switch(person.Occupation)
+                {
+                    case Occupation.Professional:
+                        cost = ProfessionalCostFactor;
+                        constant = ProfessionalConstant;
+                        time = ProfessionalTimeFactor;
+                        return;
+                    case Occupation.Office:
+                        cost = GeneralCostFactor;
+                        constant = GeneralConstant;
+                        time = GeneralTimeFactor;
+                        return;
+                    case Occupation.Retail:
+                        cost = SalesCostFactor;
+                        constant = SalesConstant;
+                        time = SalesTimeFactor;
+                        return;
+                    case Occupation.Manufacturing:
+                        cost = ManufacturingCostFactor;
+                        constant = ManufacturingConstant;
+                        time = ManufacturingTimeFactor;
+                        return;
+                }
+            }
+            switch(person.StudentStatus)
+            {
+                case StudentStatus.FullTime:
+                case StudentStatus.PartTime:
+                    cost = StudentCostFactor;
+                    constant = StudentConstant;
+                    time = StudentTimeFactor;
+                    return;
+            }
+            if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
+            {
+                switch(person.Occupation)
+                {
+                    case Occupation.Professional:
+                        cost = ProfessionalCostFactor;
+                        constant = ProfessionalConstant;
+                        time = ProfessionalTimeFactor;
+                        return;
+                    case Occupation.Office:
+                        cost = GeneralCostFactor;
+                        constant = GeneralConstant;
+                        time = GeneralTimeFactor;
+                        return;
+                    case Occupation.Retail:
+                        cost = SalesCostFactor;
+                        constant = SalesConstant;
+                        time = SalesTimeFactor;
+                        return;
+                    case Occupation.Manufacturing:
+                        cost = ManufacturingCostFactor;
+                        constant = ManufacturingConstant;
+                        time = ManufacturingTimeFactor;
+                        return;
+                }
+            }
+            cost = NonWorkerStudentCostFactor;
+            constant = NonWorkerStudentConstant;
+            time = NonWorkerStudentTimeFactor;
+            return;
         }
 
         private IZone SelectAccessStation(Random random, Pair<IZone[], float[]> accessData)
