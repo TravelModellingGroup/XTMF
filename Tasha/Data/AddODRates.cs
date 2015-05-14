@@ -69,7 +69,7 @@ namespace Tasha.Data
                 for(int i = 0; i < flatData.Length; i++)
                 {
                     VectorHelper.VectorAdd(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
-                    for(int j = 0; i < dereferenced.Length; j++)
+                    for(int j = 0; j < dereferenced.Length; j++)
                     {
                         VectorHelper.VectorAdd(flatData[i], 0, flatData[i], 0, dereferenced[j][i], 0, flatData[i].Length);
                     }
@@ -83,7 +83,7 @@ namespace Tasha.Data
                     {
                         flatData[i][k] = firstRate[i][k] + secondRate[i][k];
                     }
-                    for(int j = 0; i < dereferenced.Length; j++)
+                    for(int j = 0; j < dereferenced.Length; j++)
                     {
                         for(int k = 0; k < flatData[i].Length; k++)
                         {
