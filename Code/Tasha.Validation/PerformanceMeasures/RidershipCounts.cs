@@ -32,7 +32,7 @@ namespace Tasha.Validation.PerformanceMeasures
 {
     public class RidershipCounts : IEmmeTool
     {
-        private const string _ToolName = "org.emme.Distance";
+        private const string _ToolName = "tmg.analysis.transit.strategy_analysis.volume_per_operator";
 
         [SubModelInformation(Required = true, Description = "Ridership results .CSV file")]
         public FileLocation RidershipResults;
@@ -72,7 +72,7 @@ namespace Tasha.Validation.PerformanceMeasures
                     filterExpression += CustomFilter.Replace('"', '\'');                        
                 }
 
-                if(!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter))
+                else if(!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter))
                 {
                     filterExpression += 
                         (LineFilter.Contains("=") ? LineFilter.Replace('"', '\'') : "line=" + LineFilter.Replace('"', '\'')) + " and " 

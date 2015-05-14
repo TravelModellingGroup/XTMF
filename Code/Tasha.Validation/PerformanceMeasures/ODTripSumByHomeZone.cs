@@ -73,7 +73,7 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
         public void Execute(ITashaHousehold household, int iteration)
-        {
+        {            
             var houseData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
             if (houseData == null)
             {
@@ -98,15 +98,13 @@ namespace Tasha.Validation.PerformanceMeasures
                                 var trip = household.Persons[i].TripChains[j].Trips[k];
                                 var tripMode = trip.Mode;
 
-                                if(trip.ActivityStartTime < StartTime || trip.ActivityStartTime > EndTime)
+                                if(trip.ActivityStartTime >= StartTime && trip.ActivityStartTime < EndTime)
                                 {
-                                    continue;
-                                }
-
-                                if (ValidModeNames.Contains(tripMode.ModeName))
-                                {
-                                    AddData(homeZone, trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber, personalExp);
-                                }                               
+                                    if (ValidModeNames.Contains(tripMode.ModeName))
+                                    {
+                                        AddData(homeZone, trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber, personalExp);
+                                    } 
+                                }                                                              
                             }
                         }                        
                     }

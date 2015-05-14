@@ -161,16 +161,17 @@ namespace Tasha.Validation.PerformanceMeasures
             // only run on the last iteration
             if(iteration == Root.Iterations - 1)
             {
-                foreach(var purpose in PurposeDictionary.Keys)
+                Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));                
+                var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");
+                using (StreamWriter Writer = new StreamWriter(filePath))
                 {
-                    Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
-                    var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), purpose.ToString() + ".csv");
-                    using (StreamWriter Writer = new StreamWriter(filePath))
+                    Writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
+                    foreach(var purpose in PurposeDictionary.Keys)
                     {
-                        Writer.WriteLine("Home Zone", "Number of Occurrences");
+                        var format = purpose.ToString() + ",{0},{1}";  
                         for(int i = 0; i < PurposeDictionary[purpose].Length; i++)
                         {
-                            Writer.WriteLine("{0}, {1}", zoneFlatData[i].ZoneNumber, PurposeDictionary[purpose][i]);
+                            Writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[purpose][i]);
                         }
                     }
                 }

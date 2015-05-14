@@ -106,6 +106,7 @@
     <Compile Include="ModeChoice\TimePeriodModeSplit.cs" />
     <Compile Include="ModeChoice\ModeSplit.cs" />
     <Compile Include="ModeChoice\ZonalModeSplits.cs" />
+    <Compile Include="PerformanceMeasures\AccessibilityCalculations.cs" />
     <Compile Include="PerformanceMeasures\RidershipCounts.cs" />
     <Compile Include="PerformanceMeasures\VKTCalc.cs" />
     <Compile Include="PerformanceMeasures\TransferMatrixExport.cs" />
