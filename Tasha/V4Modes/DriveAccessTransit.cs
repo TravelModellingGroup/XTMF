@@ -101,6 +101,12 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
 
+        [RunParameter("ToActivityDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
+        public float ToActivityDensityFactor;
+
+        [RunParameter("ToHomeDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
+        public float ToHomeDensityFactor;
+
         private INetworkData AutoNetwork;
         private ITripComponentData TransitNetwork;
 
@@ -141,7 +147,19 @@ namespace Tasha.V4Modes
         [RunParameter("Random Seed", 12345, "The random seed to use for selecting a discreet station.")]
         public int RandomSeed;
 
+
+        [SubModelInformation(Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
+        [SubModelInformation(Required = true, Description = "The density of zones for activities")]
+        public IResource ZonalDensityForActivities;
+
+        [SubModelInformation(Required = true, Description = "The density of zones for home")]
+        public IResource ZonalDensityForHome;
+
         private float[] AgeUtilLookup;
+        private float[] ZonalDensityForActivitiesArray;
+        private float[] ZonalDensityForHomeArray;
 
         public double CalculateV(ITrip trip)
         {
@@ -176,13 +194,19 @@ namespace Tasha.V4Modes
                 v += Over55;
             }
             //Apply trip purpose factors
-            switch ( trip.Purpose )
+            switch(trip.Purpose)
             {
                 case Activity.Market:
-                    v += MarketFlag;
+                    v += MarketFlag + ZonalDensityForActivitiesArray[d];
                     break;
                 case Activity.IndividualOther:
-                    v += OtherFlag;
+                    v += OtherFlag + ZonalDensityForActivitiesArray[d];
+                    break;
+                case Activity.Home:
+                    v += ZonalDensityForHomeArray[d];
+                    break;
+                default:
+                    v += ZonalDensityForActivitiesArray[d];
                     break;
             }
             return v;
@@ -190,7 +214,9 @@ namespace Tasha.V4Modes
 
         private void GetPersonVariables(ITashaPerson person, out float constant)
         {
-            if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
+            var empStat = person.EmploymentStatus;
+            var stuStat = person.StudentStatus;
+            if(empStat == TTSEmploymentStatus.FullTime)
             {
                 switch(person.Occupation)
                 {
@@ -214,6 +240,24 @@ namespace Tasha.V4Modes
                 case StudentStatus.PartTime:
                     constant = StudentConstant;
                     return;
+            }
+            if(empStat == TTSEmploymentStatus.PartTime)
+            {
+                switch(person.Occupation)
+                {
+                    case Occupation.Professional:
+                        constant = ProfessionalConstant;
+                        return;
+                    case Occupation.Office:
+                        constant = GeneralConstant;
+                        return;
+                    case Occupation.Retail:
+                        constant = SalesConstant;
+                        return;
+                    case Occupation.Manufacturing:
+                        constant = ManufacturingConstant;
+                        return;
+                }
             }
             constant = NonWorkerStudentConstant;
             return;
@@ -240,6 +284,20 @@ namespace Tasha.V4Modes
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
                     return StudentCostFactor;
+            }
+            if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
+            {
+                switch(person.Occupation)
+                {
+                    case Occupation.Professional:
+                        return ProfessionalCostFactor;
+                    case Occupation.Office:
+                        return GeneralCostFactor;
+                    case Occupation.Retail:
+                        return SalesCostFactor;
+                    case Occupation.Manufacturing:
+                        return ManufacturingCostFactor;
+                }
             }
             return NonWorkerStudentCostFactor;
         }
@@ -394,10 +452,10 @@ namespace Tasha.V4Modes
                     local += tivtt * TransitInVehicleTime + twalk * TransitWalk + twait * TransitWait + cost * travelCostFactor;
                     TransitNetwork.GetAllData( stationIndex, so, time, out tivtt, out twalk, out twait, out _unused, out cost );
                     local += tivtt * TransitInVehicleTime + twalk * TransitWalk + twait * TransitWait + cost * travelCostFactor;
-                    local += AutoNetwork.TravelTime( fo, stationIndex, time ).ToMinutes() * AutoInVehicleTime;
-                    local += AutoNetwork.TravelCost( fo, stationIndex, time ) * travelCostFactor;
-                    local += AutoNetwork.TravelTime( stationIndex, sd, time ).ToMinutes() * AutoInVehicleTime;
-                    local += AutoNetwork.TravelCost( stationIndex, sd, time ) * travelCostFactor;
+                    AutoNetwork.GetAllData(fo, stationIndex, time, out tivtt, out cost);
+                    local += tivtt * AutoInVehicleTime + travelCostFactor * cost;
+                    AutoNetwork.GetAllData(stationIndex, sd, time, out tivtt, out cost);
+                    local += tivtt * AutoInVehicleTime + travelCostFactor * cost;                    
                     totalUtil += local * probability;
                 }
             }
@@ -457,17 +515,44 @@ namespace Tasha.V4Modes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
-            AccessStationModel.Load();
-            AgeUtilLookup = new float[16];
-            for (int i = 0; i < AgeUtilLookup.Length; i++ )
+            if(!AccessStationChoiceLoaded | UnloadAccessStationModelEachIteration)
             {
-                AgeUtilLookup[i] = (float)Math.Log( i + 1, Math.E ) * LogOfAgeFactor;
+                AccessStationModel.Load();
+                AccessStationChoiceLoaded = true;
+            }
+            // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
+            AgeUtilLookup = new float[16];
+            for(int i = 0; i < AgeUtilLookup.Length; i++)
+            {
+                AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
+            }
+            //build the region constants
+            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
+            }
+            ZonalDensityForActivitiesArray = ZonalDensityForActivities.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
+            ZonalDensityForHomeArray = ZonalDensityForHome.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
+            for(int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
+            {
+                ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
+                ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
             }
         }
 
+        [RunParameter("Unload Access Station Per Iteration", true, "Should we unload the access station choice model or keep it between iterations?")]
+        public bool UnloadAccessStationModelEachIteration;
+
+        public bool AccessStationChoiceLoaded = false;
+
         public void IterationEnding(int iterationNumber, int maxIterations)
         {
-            AccessStationModel.Unload();
+            if(UnloadAccessStationModelEachIteration)
+            {
+                AccessStationModel.Unload();
+            }
+            ZonalDensityForActivities.ReleaseResource();
+            ZonalDensityForHome.ReleaseResource();
         }
     }
 }

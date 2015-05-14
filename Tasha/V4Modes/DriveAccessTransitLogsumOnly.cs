@@ -169,7 +169,9 @@ namespace Tasha.V4Modes
         }
         private void GetPersonVariables(ITashaPerson person, out float constant)
         {
-            if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
+            var empStat = person.EmploymentStatus;
+            var stuStat = person.StudentStatus;
+            if(empStat == TTSEmploymentStatus.FullTime)
             {
                 switch(person.Occupation)
                 {
@@ -193,6 +195,24 @@ namespace Tasha.V4Modes
                 case StudentStatus.PartTime:
                     constant = StudentConstant;
                     return;
+            }
+            if(empStat == TTSEmploymentStatus.PartTime)
+            {
+                switch(person.Occupation)
+                {
+                    case Occupation.Professional:
+                        constant = ProfessionalConstant;
+                        return;
+                    case Occupation.Office:
+                        constant = GeneralConstant;
+                        return;
+                    case Occupation.Retail:
+                        constant = SalesConstant;
+                        return;
+                    case Occupation.Manufacturing:
+                        constant = ManufacturingConstant;
+                        return;
+                }
             }
             constant = NonWorkerStudentConstant;
             return;

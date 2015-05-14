@@ -231,6 +231,24 @@ namespace Tasha.V4Modes
                     constant = StudentConstant;
                     return;
             }
+            if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
+            {
+                switch(person.Occupation)
+                {
+                    case Occupation.Professional:
+                        constant = ProfessionalConstant;
+                        return;
+                    case Occupation.Office:
+                        constant = GeneralConstant;
+                        return;
+                    case Occupation.Retail:
+                        constant = SalesConstant;
+                        return;
+                    case Occupation.Manufacturing:
+                        constant = ManufacturingConstant;
+                        return;
+                }
+            }
             constant = NonWorkerStudentConstant;
             return;
         }

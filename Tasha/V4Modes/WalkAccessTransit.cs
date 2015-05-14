@@ -259,6 +259,32 @@ namespace Tasha.V4Modes
                     time = StudentTimeFactor;
                     return;
             }
+            if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
+            {
+                switch(person.Occupation)
+                {
+                    case Occupation.Professional:
+                        cost = ProfessionalCostFactor;
+                        constant = ProfessionalConstant;
+                        time = ProfessionalTimeFactor;
+                        return;
+                    case Occupation.Office:
+                        cost = GeneralCostFactor;
+                        constant = GeneralConstant;
+                        time = GeneralTimeFactor;
+                        return;
+                    case Occupation.Retail:
+                        cost = SalesCostFactor;
+                        constant = SalesConstant;
+                        time = SalesTimeFactor;
+                        return;
+                    case Occupation.Manufacturing:
+                        cost = ManufacturingCostFactor;
+                        constant = ManufacturingConstant;
+                        time = ManufacturingTimeFactor;
+                        return;
+                }
+            }
             cost = NonWorkerStudentCostFactor;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
