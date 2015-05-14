@@ -590,6 +590,17 @@ Once we have a near optimal point we continue to explore the space with a the GD
                 if(!Maximize)
                 {
                     gradient = -gradient;
+                    if(oldJobs[2 * i + 1].Value >= oldJobs[oldJobs.Count - 1].Value && oldJobs[2 * i].Value >= oldJobs[oldJobs.Count - 1].Value)
+                    {
+                        gradient = 0;
+                    }
+                }
+                else
+                {
+                    if(oldJobs[2 * i + 1].Value <= oldJobs[oldJobs.Count - 1].Value && oldJobs[2 * i].Value <= oldJobs[oldJobs.Count - 1].Value)
+                    {
+                        gradient = 0;
+                    }
                 }
                 KernelMomentum[i] = gradient * (1f - MomentumFactor)
                                             + KernelMomentum[i] * MomentumFactor;
