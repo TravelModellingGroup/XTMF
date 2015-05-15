@@ -50,15 +50,15 @@ namespace Tasha.XTMFModeChoice
 
         public ModeChoiceTripData[] TripData;
 
-        public void GenerateRandomTerms(Random rand, ITashaMode[] modes)
+        public void GenerateRandomTerms(Random rand, float[] varianceScale)
         {
             var tripData = TripData;
             for ( int i = 0; i < tripData.Length; i++ )
             {
                 var tce = tripData[i].Error;
-                for ( int j = 0; j < modes.Length; j++ )
+                for ( int j = 0; j < varianceScale.Length; j++ )
                 {
-                    tce[j] = GenerateRandomNumber( rand ) * (float)modes[j].VarianceScale;
+                    tce[j] = GenerateRandomNumber( rand ) * varianceScale[j];
                 }
             }
             var possibleAssignments = PossibleAssignments;

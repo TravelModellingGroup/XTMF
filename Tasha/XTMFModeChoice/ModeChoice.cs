@@ -73,11 +73,19 @@ namespace Tasha.XTMFModeChoice
             VehicleTypes = Root.VehicleTypes.ToArray();
         }
 
+        private float[] VarianceScale;
+
         public void IterationStarted(int currentIteration, int totalIterations)
         {
             foreach(var module in PostHouseholdIteration)
             {
                 module.IterationStarting(currentIteration, totalIterations);
+            }
+
+            VarianceScale = new float[AllModes.Length];
+            for(int i = 0; i < VarianceScale.Length; i++)
+            {
+                VarianceScale[i] = (float)AllModes[i].VarianceScale;
             }
         }
 
@@ -301,7 +309,7 @@ namespace Tasha.XTMFModeChoice
                             return false;
                         }
                         // now we can compute the random terms
-                        tripChain.GenerateRandomTerms( random, allModes );
+                        tripChain.GenerateRandomTerms( random, VarianceScale);
                     }
                 }
             }
@@ -355,7 +363,7 @@ namespace Tasha.XTMFModeChoice
                     if ( !( tripChain.TripChain.JointTrip && !tripChain.TripChain.JointTripRep ) )
                     {
                         // now we can compute the random terms
-                        tripChain.GenerateRandomTerms( random, allModes );
+                        tripChain.GenerateRandomTerms( random, VarianceScale );
                     }
                 }
             }
