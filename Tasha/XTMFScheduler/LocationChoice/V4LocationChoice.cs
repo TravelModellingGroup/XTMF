@@ -399,47 +399,57 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 int previousIndexOffset = p * size;
                 int nextSizeOffset = n * size;
                 float total = 0.0f;
-                if(nIndex == pIndex)
+                unsafe
                 {
-                    for(int i = 0; i < calculationSpace.Length; i++)
+                    fixed (float* pRowTimes = &rowTimes[0])
+                    fixed (float* pColumnTimes = &columnTimes[0])
+                    fixed (float* pTo = &to[0])
+                    fixed (float* pFrom = &from[0])
+                    fixed (int* pData = &data[0])
                     {
-                        if(rowTimes[previousIndexOffset + i] + columnTimes[nextSizeOffset + i] <= available)
+                        if(nIndex == pIndex)
                         {
-                            var odUtility = 1.0f;
-                            var pdindex = data[FlatZoneToPDCubeLookup[i]];
-                            if(pdindex >= 0)
+                            for(int i = 0; i < calculationSpace.Length; i++)
                             {
-                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i] ) ? ODConstants[pdindex].ExpConstant * expSamePD : ODConstants[pdindex].ExpConstant;
+                                if(pRowTimes[previousIndexOffset + i] + pColumnTimes[nextSizeOffset + i] <= available)
+                                {
+                                    var odUtility = 1.0f;
+                                    var pdindex = pData[FlatZoneToPDCubeLookup[i]];
+                                    if(pdindex >= 0)
+                                    {
+                                        odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? ODConstants[pdindex].ExpConstant * expSamePD : ODConstants[pdindex].ExpConstant;
+                                    }
+                                    else
+                                    {
+                                        odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? expSamePD : 1.0f;
+                                    }
+                                    total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextSizeOffset + i] * odUtility;
+                                }
+                                else
+                                {
+                                    calculationSpace[i] = 0;
+                                }
                             }
-                            else
-                            {
-                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? expSamePD : 1.0f;
-                            }
-                            total += calculationSpace[i] = to[previousIndexOffset + i] * from[nextSizeOffset + i] * odUtility;
                         }
                         else
                         {
-                            calculationSpace[i] = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    for(int i = 0; i < calculationSpace.Length; i++)
-                    {
-                        if(rowTimes[previousIndexOffset + i] + columnTimes[nextSizeOffset + i] <= available)
-                        {
-                            var odUtility = 1.0f;
-                            var pdindex = data[FlatZoneToPDCubeLookup[i]];
-                            if(pdindex >= 0)
+                            for(int i = 0; i < calculationSpace.Length; i++)
                             {
-                                odUtility = ODConstants[pdindex].ExpConstant;
+                                if(pRowTimes[previousIndexOffset + i] + pColumnTimes[nextSizeOffset + i] <= available)
+                                {
+                                    var odUtility = 1.0f;
+                                    var pdindex = pData[FlatZoneToPDCubeLookup[i]];
+                                    if(pdindex >= 0)
+                                    {
+                                        odUtility = ODConstants[pdindex].ExpConstant;
+                                    }
+                                    total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextSizeOffset + i] * odUtility;
+                                }
+                                else
+                                {
+                                    calculationSpace[i] = 0;
+                                }
                             }
-                            total += calculationSpace[i] = to[previousIndexOffset + i] * from[nextSizeOffset + i] * odUtility;
-                        }
-                        else
-                        {
-                            calculationSpace[i] = 0;
                         }
                     }
                 }
