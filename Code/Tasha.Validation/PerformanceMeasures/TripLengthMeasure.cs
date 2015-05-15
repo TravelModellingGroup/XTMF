@@ -97,8 +97,11 @@ namespace Tasha.Validation.PerformanceMeasures
                     {
                         foreach (var trip in tripChain.Trips)
                         {
-                            var tripDistance = distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
-                            AddToResults(trip.Purpose, tripDistance * 0.001f, expFactor);
+                            if (trip.Mode != null)
+                            {
+                                var tripDistance = distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
+                                AddToResults(trip.Purpose, tripDistance * 0.001f, expFactor);
+                            }
                         }
                     }
                 }
@@ -117,10 +120,16 @@ namespace Tasha.Validation.PerformanceMeasures
                 distanceBin = (int)Math.Round(tripDistance, 0);
             }
             float[] data;
-            if(ResultsDictionary.ContainsKey(purpose) 
-                || !ResultsDictionary.TryAdd(purpose, (data = new float[MaxDistanceInKm + 1])))
+            if(!ResultsDictionary.TryGetValue(purpose, out data))
             {
-                data = ResultsDictionary[purpose];
+                lock(ResultsDictionary)
+                {
+                    if (!ResultsDictionary.TryGetValue(purpose, out data))
+                    {
+                        data = new float[MaxDistanceInKm + 1];
+                        ResultsDictionary[purpose] = data;
+                    }
+                }
             }
             // we need to lock here in order to make sure we don't have a race condition between the read and write
             lock (this)

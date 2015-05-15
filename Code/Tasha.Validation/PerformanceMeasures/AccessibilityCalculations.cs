@@ -33,7 +33,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = true, Description = "The transit IVTT matrix")]
         public IResource TransitIVTTMatrix;
 
-        [SubModelInformation(Required = true, Description = "The transit IVTT matrix")]
+        [SubModelInformation(Required = true, Description = "The resource that will add all three transit time matrices")]
         public IResource TotalTransitTimeMatrix;
 
         [RunParameter("Accessibility Times to Analyze", "10", typeof(NumberList), "A comma separated list of accessibility times to execute this against.")]
@@ -43,6 +43,7 @@ namespace Tasha.Validation.PerformanceMeasures
         public FileLocation ResultsFile;
 
         Dictionary<int, float> AutoAccessibilityResults = new Dictionary<int, float>();
+        Dictionary<int, float> TransitIVTTAccessibilityResults = new Dictionary<int, float>();
         Dictionary<int, float> TransitAccessibilityResults = new Dictionary<int, float>();
 
         public void Start()
@@ -50,12 +51,13 @@ namespace Tasha.Validation.PerformanceMeasures
             var employmentByZone = EmploymentData.AquireResource<SparseArray<float>>().GetFlatData();
             var popByZone = Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => z.Population).ToArray();
             var AutoTimes = AutoTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var TransitTimes = TransitIVTTMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var TransitIVTT = TransitIVTTMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var TotalTransitTimes = TotalTransitTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
 
             int[] analyzedZonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
                                            where ZoneRange.Contains(z.ZoneNumber)
-                                           select z.ZoneNumber).ToArray();
-                       
+                                           select z.Population).ToArray();            
+           
             float accessiblePopulation;
 
             foreach (var accessTime in AccessibilityTimes)
@@ -69,10 +71,15 @@ namespace Tasha.Validation.PerformanceMeasures
                             accessiblePopulation = (analyzedZonePopulation[i] * employmentByZone[j]);
                             AddToResults(accessiblePopulation, accessTime, AutoAccessibilityResults);                            
                         }
-                        if(TransitTimes[i][j] < accessTime)
+                        if(TransitIVTT[i][j] < accessTime)
                         {
                             accessiblePopulation = analyzedZonePopulation[i] * employmentByZone[j];
-                            AddToResults(accessiblePopulation, accessTime, TransitAccessibilityResults); 
+                            AddToResults(accessiblePopulation, accessTime, TransitIVTTAccessibilityResults); 
+                        }
+                        if (TotalTransitTimes[i][j] < accessTime)
+                        {
+                            accessiblePopulation = analyzedZonePopulation[i] * employmentByZone[j];
+                            AddToResults(accessiblePopulation, accessTime, TransitAccessibilityResults);
                         }
                     }
                 }
@@ -88,7 +95,15 @@ namespace Tasha.Validation.PerformanceMeasures
                     writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
                 }
 
-                writer.WriteLine("Transit Accessibility");
+                writer.WriteLine("Transit IVTT Accessibility");
+                writer.WriteLine("Time(mins), Percentage Accessible");
+                foreach (var pair in TransitIVTTAccessibilityResults)
+                {
+                    var percentageAccessible = TransitIVTTAccessibilityResults[pair.Key] / (analyzedZonePopulation.Sum() * employmentByZone.Sum());
+                    writer.WriteLine("{0},{1}", pair.Key, percentageAccessible);
+                }
+
+                writer.WriteLine("Total Transit Time Accessibility");
                 writer.WriteLine("Time(mins), Percentage Accessible");
                 foreach (var pair in TransitAccessibilityResults)
                 {

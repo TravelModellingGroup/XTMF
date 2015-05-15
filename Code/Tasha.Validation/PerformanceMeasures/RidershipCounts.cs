@@ -114,7 +114,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
             var filterString = "\"" + string.Join(",", OperatorsToConsider.Select(b => b.ReturnFilter(controller))) + "\"";
-            return "\"" + scenarioString + "\" " + filterString;
+            return "\"" + scenarioString + "\" " + filterString + "\"" + Path.GetFullPath(RidershipResults) + "\" ";
         }
 
         public bool Execute(Controller controller)

@@ -81,32 +81,35 @@ namespace Tasha.Validation.PerformanceMeasures
             }
 
             else if (iteration == Root.Iterations - 1)
-            {               
-                var resource = household["ResourceAllocator"] as HouseholdResourceAllocator;
-                var modes = this.Root.AllModes;
-                var homeZone = household.HomeZone.ZoneNumber;
-                
-                if (household.Vehicles.Length > 0)
+            {
+                lock (this)
                 {
-                    for (int i = 0; i < household.Persons.Length; i++)
-                    {
-                        for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
-                        {
-                            var personalExp = household.Persons[i].ExpansionFactor;
-                            for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
-                            {
-                                var trip = household.Persons[i].TripChains[j].Trips[k];
-                                var tripMode = trip.Mode;
+                    var resource = household["ResourceAllocator"] as HouseholdResourceAllocator;
+                    var modes = this.Root.AllModes;
+                    var homeZone = household.HomeZone.ZoneNumber;
 
-                                if(trip.ActivityStartTime >= StartTime && trip.ActivityStartTime < EndTime)
+                    if (household.Vehicles.Length > 0)
+                    {
+                        for (int i = 0; i < household.Persons.Length; i++)
+                        {
+                            for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
+                            {
+                                var personalExp = household.Persons[i].ExpansionFactor;
+                                for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
                                 {
-                                    if (ValidModeNames.Contains(tripMode.ModeName))
+                                    var trip = household.Persons[i].TripChains[j].Trips[k];
+                                    var tripMode = trip.Mode;
+
+                                    if (trip.ActivityStartTime >= StartTime && trip.ActivityStartTime < EndTime)
                                     {
-                                        AddData(homeZone, trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber, personalExp);
-                                    } 
-                                }                                                              
+                                        if (ValidModeNames.Contains(tripMode.ModeName))
+                                        {
+                                            AddData(homeZone, trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber, personalExp);
+                                        }
+                                    }
+                                }
                             }
-                        }                        
+                        }
                     }
                 }
             }
