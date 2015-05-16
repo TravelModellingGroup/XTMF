@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Datastructure;
 using Tasha.Common;
@@ -423,8 +424,22 @@ namespace Tasha.V4Modes
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if(startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    var value = TimePeriodConstants[i].GetConstant(pdO, pdD);
+                    return value;
+                }
+            }
+            return 0f;
+        }
+
         private bool BuildUtility(IZone firstOrigin, IZone secondOrigin, Pair<IZone[], float[]> accessData, IZone firstDestination, IZone secondDestination,
-            ITashaPerson person, Time time, out float dependentUtility)
+            ITashaPerson person, Time firstTime, out float dependentUtility)
         {
             var zones = accessData.First;
             var utils = accessData.Second;
@@ -445,7 +460,7 @@ namespace Tasha.V4Modes
                 dependentUtility = float.NaN;
                 return false;
             }
-            dependentUtility = LogsumCorrelation * (float)Math.Log( totalUtil );
+            dependentUtility = LogsumCorrelation * (float)Math.Log( totalUtil ) + GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
             totalUtil = 1 / totalUtil;
             for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
             {
@@ -465,13 +480,13 @@ namespace Tasha.V4Modes
                 {
                     var local = 0.0f;
                     float tivtt, twalk, twait, boarding, cost;
-                    TransitNetwork.GetAllData( stationIndex, fd, time, out tivtt, out twalk, out twait, out boarding, out cost );
+                    TransitNetwork.GetAllData( stationIndex, fd, firstTime, out tivtt, out twalk, out twait, out boarding, out cost );
                     local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
-                    TransitNetwork.GetAllData( stationIndex, so, time, out tivtt, out twalk, out twait, out boarding, out cost );
+                    TransitNetwork.GetAllData( stationIndex, so, firstTime, out tivtt, out twalk, out twait, out boarding, out cost );
                     local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
-                    AutoNetwork.GetAllData(fo, stationIndex, time, out tivtt, out cost);
+                    AutoNetwork.GetAllData(fo, stationIndex, firstTime, out tivtt, out cost);
                     local += tivtt * AutoInVehicleTime + costBeta * cost;
-                    AutoNetwork.GetAllData(stationIndex, sd, time, out tivtt, out cost);
+                    AutoNetwork.GetAllData(stationIndex, sd, firstTime, out tivtt, out cost);
                     local += tivtt * AutoInVehicleTime + costBeta * cost;                    
                     totalUtil += local * probability;
                 }

@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Tasha.Common;
 using XTMF;
 
@@ -157,6 +158,7 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float GenerateRandomNumber(Random rand)
         {
             double u1 = rand.NextDouble();
