@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,13 +18,13 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Datastructure;
 using Tasha.Common;
+using TMG.Functions;
 using TMG;
 using XTMF;
+using System.Linq;
 
 namespace Tasha.V4Modes
 {
@@ -181,11 +181,11 @@ namespace Tasha.V4Modes
             // compute the non human factors
             var zoneSystem = Root.ZoneSystem;
             var zoneArray = zoneSystem.ZoneArray;
-            var o = zoneArray.GetFlatIndex( trip.OriginalZone.ZoneNumber );
-            var d = zoneArray.GetFlatIndex( trip.DestinationZone.ZoneNumber );
-            
+            var o = zoneArray.GetFlatIndex(trip.OriginalZone.ZoneNumber);
+            var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+
             // if Intrazonal
-            if ( o == d )
+            if(o == d)
             {
                 return float.NaN;
             }
@@ -194,17 +194,17 @@ namespace Tasha.V4Modes
             float constant;
             GetPersonVariables(p, out constant);
             float v = constant;
-            if ( p.Female )
+            if(p.Female)
             {
                 v += FemaleFlag;
             }
             var age = p.Age;
-            v += AgeUtilLookup[Math.Min( Math.Max( age - 15, 0 ), 15 )];
-            if ( age >= 65 )
+            v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
+            if(age >= 65)
             {
                 v += Over65;
             }
-            else if ( age >= 55 )
+            else if(age >= 55)
             {
                 v += Over55;
             }
@@ -280,9 +280,9 @@ namespace Tasha.V4Modes
 
         private float GetTravelCostFactor(ITashaPerson person)
         {
-            if ( person.EmploymentStatus == TTSEmploymentStatus.FullTime )
+            if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
             {
-                switch ( person.Occupation )
+                switch(person.Occupation)
                 {
                     case Occupation.Professional:
                         return ProfessionalCostFactor;
@@ -294,7 +294,7 @@ namespace Tasha.V4Modes
                         return ManufacturingCostFactor;
                 }
             }
-            switch ( person.StudentStatus )
+            switch(person.StudentStatus)
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
@@ -329,7 +329,7 @@ namespace Tasha.V4Modes
 
         public bool Feasible(ITrip trip)
         {
-            if ( trip.OriginalZone == trip.DestinationZone ) return false;
+            if(trip.OriginalZone.PlanningDistrict == trip.DestinationZone.PlanningDistrict) return false;
             return trip.TripChain.Person.Licence;
         }
 
@@ -351,23 +351,23 @@ namespace Tasha.V4Modes
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach ( var network in Root.NetworkData )
+            foreach(var network in Root.NetworkData)
             {
-                if ( network.NetworkType == AutoNetworkName )
+                if(network.NetworkType == AutoNetworkName)
                 {
                     AutoNetwork = network;
                 }
-                else if ( network.NetworkType == TransitNetworkName )
+                else if(network.NetworkType == TransitNetworkName)
                 {
                     TransitNetwork = network as ITripComponentData;
                 }
             }
-            if ( AutoNetwork == null )
+            if(AutoNetwork == null)
             {
                 error = "In '" + Name + "' we were unable to find an auto network called '" + AutoNetworkName + "'";
                 return false;
             }
-            if ( TransitNetwork == null )
+            if(TransitNetwork == null)
             {
                 error = "In '" + Name + "' we were unable to find a transit network called '" + TransitNetworkName + "'";
                 return false;
@@ -385,21 +385,21 @@ namespace Tasha.V4Modes
             bool first;
             var trips = chain.Trips;
             int otherIndex;
-            int tripCount = CountTripsUsingThisMode( tripIndex, out first, out otherIndex, trips );
+            int tripCount = CountTripsUsingThisMode(tripIndex, out first, out otherIndex, trips);
 
-            if ( tripCount > 2 )
+            if(tripCount > 2)
             {
                 dependentUtility = float.NaN;
                 OnSelection = null;
                 return false;
             }
-            if ( first )
+            if(first)
             {
-                var accessData = AccessStationModel.ProduceResult( chain );
-                if ( accessData == null || !BuildUtility( trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
+                var accessData = AccessStationModel.ProduceResult(chain);
+                if(accessData == null || !BuildUtility(trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
                     accessData,
                     trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].TripStartTime,
-                    out dependentUtility ) )
+                    out dependentUtility))
                 {
                     OnSelection = null;
                     dependentUtility = float.NegativeInfinity;
@@ -411,9 +411,9 @@ namespace Tasha.V4Modes
                     var person = tripChain.Person;
                     var household = person.Household;
                     householdIteration++;
-                    tripChain.Attach( "AccessStation", SelectAccessStation(
-                            new Random( household.HouseholdId * person.Id * person.TripChains.IndexOf( tripChain ) * RandomSeed * householdIteration ),
-                            accessData ) );
+                    tripChain.Attach("AccessStation", SelectAccessStation(
+                            new Random(household.HouseholdId * person.Id * person.TripChains.IndexOf(tripChain) * RandomSeed * householdIteration),
+                            accessData));
                 };
             }
             else
@@ -438,6 +438,8 @@ namespace Tasha.V4Modes
             return 0f;
         }
 
+        private int[] StationIndexLookup;
+
         private bool BuildUtility(IZone firstOrigin, IZone secondOrigin, Pair<IZone[], float[]> accessData, IZone firstDestination, IZone secondDestination,
             ITashaPerson person, Time firstTime, out float dependentUtility)
         {
@@ -446,53 +448,118 @@ namespace Tasha.V4Modes
             var totalUtil = 0.0f;
             float ivttBeta, costBeta, constant;
             GetPersonVariables(person, out ivttBeta, out constant, out costBeta);
-            bool any = false;
-            for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
+            if(VectorHelper.IsHardwareAccelerated)
             {
-                if ( !float.IsNaN( utils[i] ) )
+                totalUtil = VectorHelper.VectorSum(utils, 0, utils.Length);
+            }
+            else
+            {
+                for(int i = 0; i < utils.Length; i++)
                 {
                     totalUtil += utils[i];
-                    any = true;
                 }
             }
-            if ( !any | totalUtil <= 0 )
+            if(totalUtil <= 0)
             {
                 dependentUtility = float.NaN;
                 return false;
             }
-            dependentUtility = LogsumCorrelation * (float)Math.Log( totalUtil ) + GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
+            dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
             totalUtil = 1 / totalUtil;
-            for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
+            if(VectorHelper.IsHardwareAccelerated)
             {
-                utils[i] *= totalUtil;
+                VectorHelper.VectorMultiply(utils, 0, utils, 0, totalUtil, utils.Length);
+            }
+            else
+            {
+                for(int i = 0; i < utils.Length; i++)
+                {
+                    utils[i] *= totalUtil;
+                }
             }
             var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var fo = zoneSystem.GetFlatIndex( firstOrigin.ZoneNumber );
-            var so = zoneSystem.GetFlatIndex( secondOrigin.ZoneNumber );
-            var fd = zoneSystem.GetFlatIndex( firstDestination.ZoneNumber );
-            var sd = zoneSystem.GetFlatIndex( secondDestination.ZoneNumber );
+            var fo = zoneSystem.GetFlatIndex(firstOrigin.ZoneNumber);
+            var so = zoneSystem.GetFlatIndex(secondOrigin.ZoneNumber);
+            var fd = zoneSystem.GetFlatIndex(firstDestination.ZoneNumber);
+            var sd = zoneSystem.GetFlatIndex(secondDestination.ZoneNumber);
             totalUtil = 0;
-            for ( int i = 0; i < utils.Length && zones[i] != null; i++ )
+            var fastTransit = TransitNetwork as ITripComponentCompleteData;
+            var fastAuto = AutoNetwork as INetworkCompleteData;
+            var stationIndexLookup = StationIndexLookup;
+            if(stationIndexLookup == null)
             {
-                var stationIndex = zoneSystem.GetFlatIndex( zones[i].ZoneNumber );
-                var probability = utils[i];
-                if ( probability > 0 )
+                stationIndexLookup = CreateStationIndexLookup(zoneSystem, zones);
+            }
+            if(fastTransit == null | fastAuto == null)
+            {
+
+                for(int i = 0; i < utils.Length; i++)
                 {
-                    var local = 0.0f;
-                    float tivtt, twalk, twait, boarding, cost;
-                    TransitNetwork.GetAllData( stationIndex, fd, firstTime, out tivtt, out twalk, out twait, out boarding, out cost );
-                    local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
-                    TransitNetwork.GetAllData( stationIndex, so, firstTime, out tivtt, out twalk, out twait, out boarding, out cost );
-                    local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
-                    AutoNetwork.GetAllData(fo, stationIndex, firstTime, out tivtt, out cost);
-                    local += tivtt * AutoInVehicleTime + costBeta * cost;
-                    AutoNetwork.GetAllData(stationIndex, sd, firstTime, out tivtt, out cost);
-                    local += tivtt * AutoInVehicleTime + costBeta * cost;                    
-                    totalUtil += local * probability;
+                    var stationIndex = StationIndexLookup[i];
+                    var probability = utils[i];
+                    if(probability > 0)
+                    {
+                        var local = 0.0f;
+                        float tivtt, twalk, twait, boarding, cost;
+                        TransitNetwork.GetAllData(stationIndex, fd, firstTime, out tivtt, out twalk, out twait, out boarding, out cost);
+                        local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
+                        TransitNetwork.GetAllData(stationIndex, so, firstTime, out tivtt, out twalk, out twait, out boarding, out cost);
+                        local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
+                        AutoNetwork.GetAllData(fo, stationIndex, firstTime, out tivtt, out cost);
+                        local += tivtt * AutoInVehicleTime + costBeta * cost;
+                        AutoNetwork.GetAllData(stationIndex, sd, firstTime, out tivtt, out cost);
+                        local += tivtt * AutoInVehicleTime + costBeta * cost;
+                        totalUtil += local * probability;
+                    }
+                }
+            }
+            else
+            {
+                int numberOfZones = zoneSystem.GetFlatData().Length;
+                // fo, and so are constant across stations, so we can pull that part of the computation out
+                fo = fo * numberOfZones;
+                so = so * numberOfZones;
+                float[] autoMatrix = fastAuto.GetTimePeriodData(firstTime);
+                float[] transitMatrix = fastTransit.GetTimePeriodData(firstTime);
+                float tivtt, twalk, twait, boarding, cost;
+                for(int i = 0; i < utils.Length; i++)
+                {
+                    var stationIndex = stationIndexLookup[i];
+                    int origin1ToStation = (fo + stationIndex) << 1;
+                    int stationToDestination1 = ((stationIndex * numberOfZones) + fd) * 5;
+                    int origin2ToStation = (so + stationIndex) * 5;
+                    int stationToDestination2 = ((stationIndex * numberOfZones) + sd) << 1;
+                    if(utils[i] > 0)
+                    {
+                        // transit utility
+                        tivtt = transitMatrix[stationToDestination1] + transitMatrix[origin2ToStation];
+                        twait = transitMatrix[stationToDestination1 + 1] + transitMatrix[origin2ToStation + 1];
+                        twalk = transitMatrix[stationToDestination1 + 2] + transitMatrix[origin2ToStation + 2];
+                        cost = transitMatrix[stationToDestination1 + 3] + transitMatrix[origin2ToStation + 3];
+                        boarding = transitMatrix[stationToDestination1 + 4] + transitMatrix[origin2ToStation + 4];
+                        var transitUtil = tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
+
+                        // auto utility
+                        tivtt = autoMatrix[origin1ToStation] + autoMatrix[stationToDestination2];
+                        cost = autoMatrix[origin1ToStation + 1] + autoMatrix[stationToDestination2 + 1];
+                        totalUtil += (transitUtil + tivtt * AutoInVehicleTime + costBeta * cost) * utils[i];
+                    }
                 }
             }
             dependentUtility += totalUtil;
             return true;
+        }
+
+        private int[] CreateStationIndexLookup(SparseArray<IZone> zoneSystem, IZone[] zones)
+        {
+            var lookup = zones.Select(z => zoneSystem.GetFlatIndex(z.ZoneNumber)).ToArray();
+            StationIndexLookup = lookup;
+            return lookup;
+        }
+
+        public abstract class ComputeStationsUtilities
+        {
+
         }
 
         private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
@@ -569,21 +636,21 @@ namespace Tasha.V4Modes
             var rand = random.NextDouble();
             var utils = accessData.Second;
             var runningTotal = 0.0f;
-            for ( int i = 0; i < utils.Length; i++ )
+            for(int i = 0; i < utils.Length; i++)
             {
-                if ( !float.IsNaN( utils[i] ) )
+                if(!float.IsNaN(utils[i]))
                 {
                     runningTotal += utils[i];
-                    if ( runningTotal >= rand )
+                    if(runningTotal >= rand)
                     {
                         return accessData.First[i];
                     }
                 }
             }
             // if we didn't find the right utility, just take the first one we can find
-            for ( int i = 0; i < utils.Length; i++ )
+            for(int i = 0; i < utils.Length; i++)
             {
-                if ( !float.IsNaN( utils[i] ) )
+                if(!float.IsNaN(utils[i]))
                 {
                     return accessData.First[i];
                 }
@@ -596,15 +663,15 @@ namespace Tasha.V4Modes
             int tripCount = 0;
             otherIndex = -1;
             first = true;
-            for ( int i = 0; i < trips.Count; i++ )
+            for(int i = 0; i < trips.Count; i++)
             {
-                if ( trips[i].Mode == this )
+                if(trips[i].Mode == this)
                 {
-                    if ( i < tripIndex )
+                    if(i < tripIndex)
                     {
                         first = false;
                     }
-                    if (tripIndex != i)
+                    if(tripIndex != i)
                     {
                         otherIndex = i;
                     }

@@ -40,4 +40,15 @@ namespace TMG
 
         bool ValidOD(int flatOrigin, int flatDestination, Time time);
     }
+
+    public interface INetworkCompleteData : INetworkData
+    {
+        /// <summary>
+        /// Returns all of the data for the time period in an array with the following format.
+        /// This method is not recommended unless performance is key.
+        /// For each origin, for each destination, [time,cost]
+        /// </summary>
+        /// <returns></returns>
+        float[] GetTimePeriodData(Time time);
+    }
 }

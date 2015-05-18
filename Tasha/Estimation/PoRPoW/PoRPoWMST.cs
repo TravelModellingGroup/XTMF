@@ -179,6 +179,12 @@ namespace Tasha.Estimation.PoRPoW
         [RunParameter("Use RMSE", false, "Use Root Mean Square Error instead of log likelihood.")]
         public bool UseRMSE;
 
+        [RunParameter("Use SimpleLogsum", true, "Use a simplified logsum calculation.")]
+        public bool UseSimpleLogsum;
+
+        [RunParameter("Maximum Error", -10000f, "The maximum error to apply.  In the log estimator, this is a minimum bound.")]
+        public float MaximumError;
+
         private float ComputeError(float[][] truth, float[][] aggregated)
         {
             float error = 0.0f;
@@ -210,7 +216,7 @@ namespace Tasha.Estimation.PoRPoW
                             }
                         }
                     }
-                    else
+                    else if(UseSimpleLogsum)
                     {
                         // for each destination
                         for(int j = 0; j < truthRow.Length; j++)
@@ -232,6 +238,29 @@ namespace Tasha.Estimation.PoRPoW
                                 }
                                 currentError += cellError;
                             }
+                        }
+                    }
+                    else
+                    {
+                        for(int j = 0; j < truthRow.Length; j++)
+                        {
+                            var pTruth = (truthRow[j] * InverseOfTotalTrips);
+                            var pModel = aggRow[j] * InverseOfTotalTrips;
+                            // if in truth it was picked and we did not, and if it was not picked and we did.
+                            // Let P(T) == the probability it was picked in truth
+                            // Let P(X) == the probability it was picked in the model
+                            // error = P(T) * ln(1 - P(X)) + (1 - P(T)) * ln(P(X))
+                            var cellError = pTruth * Math.Log(1.0f - pModel) + (1.0f - pTruth) * Math.Log(pModel);
+                            if(double.IsInfinity(cellError) || double.IsNaN(cellError))
+                            {
+                                cellError = MaximumError;
+                            }
+                            else
+                            {
+                                // the maximum error is a minimum bound in our formulation
+                                cellError = Math.Max(cellError, MaximumError);
+                            }
+                            currentError += cellError;
                         }
                     }
                 }

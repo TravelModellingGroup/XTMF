@@ -50,4 +50,16 @@ namespace TMG
 
         Time WalkTime(int flatOrigin, int flatDestination, Time time);
     }
+
+    public interface ITripComponentCompleteData : ITripComponentData
+    {
+        /// <summary>
+        /// Returns all of the data for the time period in an array with the following format.
+        /// This method is not recommended unless performance is key.
+        /// For each origin, for each destination, [time,wait,walk,cost,boarding]
+        /// </summary>
+        /// <returns></returns>
+        float[] GetTimePeriodData(Time time);
+    }
+
 }

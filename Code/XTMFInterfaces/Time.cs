@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Runtime.CompilerServices;
 
 namespace XTMF
 {
@@ -248,6 +249,7 @@ namespace XTMF
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Time operator +(Time t1, Time t2)
         {
             return new Time() { InternalTime = t1.InternalTime + t2.InternalTime };
@@ -259,6 +261,7 @@ namespace XTMF
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <(Time t1, Time t2)
         {
             return t1.InternalTime < t2.InternalTime;
@@ -270,6 +273,7 @@ namespace XTMF
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <=(Time t1, Time t2)
         {
             return t1.InternalTime <= t2.InternalTime;
@@ -281,6 +285,7 @@ namespace XTMF
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Time t1, Time t2)
         {
             return t1.InternalTime == t2.InternalTime;
@@ -292,6 +297,7 @@ namespace XTMF
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >(Time t1, Time t2)
         {
             return t1.InternalTime > t2.InternalTime;
@@ -303,6 +309,7 @@ namespace XTMF
         /// <param name="t1"></param>
         /// <param name="t2"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >=(Time t1, Time t2)
         {
             return t1.InternalTime >= t2.InternalTime;
@@ -545,6 +552,7 @@ namespace XTMF
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Time other)
         {
             return this.InternalTime < other.InternalTime ? -1 : ( this.InternalTime == other.InternalTime ? 0 : 1 );
@@ -577,6 +585,7 @@ namespace XTMF
             return (float)( this.Hours + ( this.Minutes * 0.01f ) + ( this.Seconds * 0.0001f ) );
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float ToMinutes()
         {
             return this.InternalTime * 1.6666666666666666666666666666667e-5f;

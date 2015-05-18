@@ -247,8 +247,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     return 0f;
                 }
                 return Math.Exp(
-                      TransitTime * ivtt 
-                    + TransitWalk * walk 
+                      TransitTime * ivtt
+                    + TransitWalk * walk
                     + TransitWait * wait
                     + Cost * cost);
             }
@@ -261,7 +261,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     return 0.0f;
                 }
                 return (float)(GetTransitUtility(transitNetwork, i, j, time)
-                    + Math.Exp( ivtt * AutoTime + cost * Cost));
+                    + Math.Exp(ivtt * AutoTime + cost * Cost));
             }
 
             public sealed class ODConstant : IModule

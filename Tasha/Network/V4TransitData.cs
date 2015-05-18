@@ -30,7 +30,7 @@ namespace Tasha.Network
 {
     [ModuleInformation(Description =
         @"This module is used for providing multiple time definitions for network data.  Implemented first for GTAModel V4.0.")]
-    public sealed class V4TransitData : ITripComponentData
+    public sealed class V4TransitData : ITripComponentCompleteData
     {
         [RunParameter("No Walktime Infeasible", false, "If there is 0 walk time then the OD Pair is infeasible!")]
         public bool NoWalkTimeInfeasible;
@@ -156,10 +156,17 @@ namespace Tasha.Network
                 if(time < this.StartTime | time >= this.EndTime) return false;
                 var index = (this.NumberOfZones * flatO + flatD) * ((int)DataTypes.NumberOfDataTypes);
                 travelTime = this.Data[index + (int)DataTypes.TravelTime];
-                travelCost = this.Data[index + (int)DataTypes.Cost];
-                walkTime = this.Data[index + (int)DataTypes.WalkTime];
                 waitTime = this.Data[index + (int)DataTypes.WaitTime];
+                walkTime = this.Data[index + (int)DataTypes.WalkTime];
+                travelCost = this.Data[index + (int)DataTypes.Cost];
                 boardingTime = this.Data[index + (int)DataTypes.BoardingTime];
+                return true;
+            }
+
+            internal bool GetTimePeriodData(Time time, ref float[] data)
+            {
+                if(time < this.StartTime | time >= this.EndTime) return false;
+                data = Data;
                 return true;
             }
 
@@ -233,6 +240,20 @@ namespace Tasha.Network
             }
             travelTime = cost = walkTime = waitTime = boardingTime = 0f;
         }
+
+        public float[] GetTimePeriodData(Time time)
+        {
+            float[] data = null;
+            for(int i = 0; i < this.TimePeriods.Length; i++)
+            {
+                if(TimePeriods[i].GetTimePeriodData(time, ref data))
+                {
+                    return data;
+                }
+            }
+            return data;
+        }
+
 
         public Time BoardingTime(IZone origin, IZone destination, Time time)
         {

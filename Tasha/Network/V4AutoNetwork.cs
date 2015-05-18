@@ -28,7 +28,7 @@ namespace Tasha.Network
 {
     [ModuleInformation(Description =
         @"This module is used for providing multiple time definitions for network data.  Implemented first for GTAModel V4.0.")]
-    public sealed class V4AutoNetwork : INetworkData
+    public sealed class V4AutoNetwork : INetworkCompleteData
     {
         [RunParameter("No Unload", false, "Don't unload the data between iterations.")]
         public bool NoUnload;
@@ -142,6 +142,13 @@ namespace Tasha.Network
                 var index = (this.NumberOfZones * flatO + flatD) * ((int)DataTypes.NumberOfDataTypes);
                 travelTime = this.Data[index + (int)DataTypes.TravelTime];
                 travelCost = this.Data[index + (int)DataTypes.Cost];
+                return true;
+            }
+
+            internal bool GetTimePeriodData(Time time, ref float[] data)
+            {
+                if(time < this.StartTime | time >= this.EndTime) return false;
+                data = Data;
                 return true;
             }
 
@@ -299,6 +306,19 @@ namespace Tasha.Network
             }
             ivtt = cost = 0f;
             return false;
+        }
+
+        public float[] GetTimePeriodData(Time time)
+        {
+            float[] data = null;
+            for(int i = 0; i < TimePeriods.Length; i++)
+            {
+                if(TimePeriods[i].GetTimePeriodData(time, ref data))
+                {
+                    return data;
+                }
+            }
+            return data;
         }
 
         public void UnloadData()
