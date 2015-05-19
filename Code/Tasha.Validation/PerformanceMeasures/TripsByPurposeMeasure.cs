@@ -112,7 +112,7 @@ namespace Tasha.Validation.PerformanceMeasures
                                     IZone destinationZone = trip.DestinationZone;
                                     if (OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                                     {
-                                        var tripStartTime = trip.TripStartTime;
+                                        var tripStartTime = trip.ActivityStartTime;
                                         if (tripStartTime >= StartTime && tripStartTime < EndTime)
                                         {
                                             AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
