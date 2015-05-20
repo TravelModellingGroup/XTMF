@@ -56,8 +56,8 @@ namespace Tasha.Validation.PerformanceMeasures
 
             int[] analyzedZonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
                                            where ZoneRange.Contains(z.ZoneNumber)
-                                           select z.Population).ToArray();            
-           
+                                           select z.Population).ToArray();                                   
+
             float accessiblePopulation;
 
             foreach (var accessTime in AccessibilityTimes)

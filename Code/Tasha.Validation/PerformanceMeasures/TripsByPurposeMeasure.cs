@@ -100,26 +100,24 @@ namespace Tasha.Validation.PerformanceMeasures
                         amountToAddPerTrip = 1;
                     }
 
-                    foreach(var person in household.Persons)
+                    foreach (var person in household.Persons)
                     {
-                        if(person.Age < MinAge)
+                        if (person.Age >= MinAge)
                         {
-                            continue;
-                        }
-                        foreach(var tripChain in person.TripChains)
-                        {
-                            foreach(var trip in tripChain.Trips)
+                            foreach (var tripChain in person.TripChains)
                             {
-                                IZone originalZone = trip.OriginalZone;
-                                IZone destinationZone = trip.DestinationZone;
-                                if(OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
+                                foreach (var trip in tripChain.Trips)
                                 {
-                                    var tripStartTime = trip.TripStartTime;
-                                    if(tripStartTime >= StartTime && tripStartTime < EndTime)
+                                    IZone originalZone = trip.OriginalZone;
+                                    IZone destinationZone = trip.DestinationZone;
+                                    if (OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                                     {
-
-                                        AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
-                                        AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
+                                        var tripStartTime = trip.TripStartTime;
+                                        if (tripStartTime >= StartTime && tripStartTime < EndTime)
+                                        {
+                                            AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
+                                            AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
+                                        }
                                     }
                                 }
                             }

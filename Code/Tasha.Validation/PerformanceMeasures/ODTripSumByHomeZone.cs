@@ -74,13 +74,9 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void Execute(ITashaHousehold household, int iteration)
         {            
-            var houseData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
-            if (houseData == null)
-            {
-                Console.WriteLine("{0}", household.HouseholdId);
-            }
+            var houseData = household["ModeChoiceData"] as ModeChoiceHouseholdData;            
 
-            else if (iteration == Root.Iterations - 1)
+            if (iteration == Root.Iterations - 1 && houseData != null)
             {
                 lock (this)
                 {
