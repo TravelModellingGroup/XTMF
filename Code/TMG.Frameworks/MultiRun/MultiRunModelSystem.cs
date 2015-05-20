@@ -157,14 +157,17 @@ namespace TMG.Frameworks.MultiRun
                     }
                     else
                     {
-                        var commandName = topLevelCommand.LocalName;
-                        Action<XmlNode> command;
-                        if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                        if(topLevelCommand.NodeType != XmlNodeType.Comment)
                         {
-                            throw new XTMFRuntimeException("We are unable to find a command named '" + commandName 
-                                + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
+                            var commandName = topLevelCommand.LocalName;
+                            Action<XmlNode> command;
+                            if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                            {
+                                throw new XTMFRuntimeException("We are unable to find a command named '" + commandName
+                                    + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
+                            }
+                            command.Invoke(topLevelCommand);
                         }
-                        command.Invoke(topLevelCommand);
                     }
                 }
             }
@@ -389,13 +392,16 @@ namespace TMG.Frameworks.MultiRun
             {
                 foreach(XmlNode runChild in run.ChildNodes)
                 {
-                    var commandName = runChild.LocalName;
-                    Action<XmlNode> command;
-                    if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                    if(runChild.NodeType != XmlNodeType.Comment)
                     {
-                        throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
+                        var commandName = runChild.LocalName;
+                        Action<XmlNode> command;
+                        if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                        {
+                            throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
+                        }
+                        command.Invoke(runChild);
                     }
-                    command.Invoke(runChild);
                 }
             }
             if(saveAndRunAs != null)
