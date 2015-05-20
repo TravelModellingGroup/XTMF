@@ -30,7 +30,8 @@ using System.IO;
 namespace TMG.Frameworks.Extensibility
 {
     [ModuleInformation(
-        Description = "This module is designed to execute an external program.  It can optionally wait for the process to complete."
+        Description = "This module is designed to execute an external program.  It can optionally wait for the process to complete."+
+        " When using the multi-run framework, assign to the ShutdownProgram parameter in order to force the process to exit."
         )]
     public class LaunchProgram : ISelfContainedModule
     {
@@ -55,11 +56,41 @@ namespace TMG.Frameworks.Extensibility
         [RunParameter("Arguments", "", "Optional: The arguments to send to the program at launch.")]
         public string Arguments;
 
+        [Parameter("ShutdownProgram", false, "When this variable is assigned to, the running process will be killed.")]
+        public bool ShutdownProgram
+        {
+            get
+            {
+                return false;
+            }
+            set
+            {
+                var process = RunningProcess;
+                if(process != null)
+                {
+                    try
+                    {
+                        if(!process.HasExited)
+                        {
+                            process.Kill();
+                            process.WaitForExit();
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+        }
+
+        private Process RunningProcess;
+
         public void Start()
         {
             try
             {
-                var process = Process.Start(Program, Arguments);
+                var process = RunningProcess = Process.Start(Program, Arguments);
                 if(WaitForExit)
                 {
                     process.WaitForExit();
