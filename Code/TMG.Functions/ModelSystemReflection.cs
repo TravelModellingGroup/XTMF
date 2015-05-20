@@ -87,7 +87,7 @@ namespace TMG.Functions
                             else
                             {
                                 var field = type.GetProperty(parameters[i].VariableName);
-                                field.SetValue(currentStructure.Module, value, null);
+                                field.SetValue(currentStructure.Module, trueValue, null);
                                 any = true;
                             }
                         }
