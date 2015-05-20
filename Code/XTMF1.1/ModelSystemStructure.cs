@@ -487,7 +487,7 @@ namespace XTMF
         public void Save(string fileName)
         {
             var dirName = Path.GetDirectoryName(fileName);
-            if(!Directory.Exists(dirName))
+            if(!String.IsNullOrWhiteSpace(dirName) && !Directory.Exists(dirName))
             {
                 Directory.CreateDirectory(dirName);
             }
