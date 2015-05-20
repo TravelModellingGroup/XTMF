@@ -370,6 +370,8 @@ namespace TMG.Frameworks.MultiRun
             }
         }
 
+        private string OriginalDirectory = null;
+
         private void SetupRun(XmlNode run, ref string name)
         {
             var runName = run.Attributes["Name"];
@@ -380,6 +382,14 @@ namespace TMG.Frameworks.MultiRun
             var saveAndRunAs = run.Attributes["RunAs"];
             if(saveAndRunAs != null)
             {
+                if(OriginalDirectory == null)
+                {
+                    OriginalDirectory = Directory.GetCurrentDirectory();
+                }
+                else
+                {
+                    Directory.SetCurrentDirectory(OriginalDirectory);
+                }
                 var newDirectoryName = saveAndRunAs.InnerText;
                 DirectoryInfo info = new DirectoryInfo(newDirectoryName);
                 if(!info.Exists)

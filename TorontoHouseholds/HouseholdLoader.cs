@@ -287,7 +287,6 @@ namespace TMG.Tasha
                 error = "The model system's input base directory was null!";
                 return false;
             }
-            var householdFile = System.IO.Path.Combine(ibd, FileName);
             AutoType = Root.AutoType;
 
             if(SecondVehicleColumnNumber >= 0)
@@ -311,20 +310,6 @@ namespace TMG.Tasha
                     error = "Could not find vehicle type '" + SecondaryVehicleTypeName + "'.";
                     return false;
                 }
-            }
-
-            try
-            {
-                if(!System.IO.File.Exists(householdFile))
-                {
-                    error = string.Concat("The file ", householdFile, " does not exist!");
-                    return false;
-                }
-            }
-            catch
-            {
-                error = string.Concat("We were unable to access ", householdFile, " the path may be invalid or unavailable at this time.");
-                return false;
             }
             if(CalculateJointTrips && !string.IsNullOrWhiteSpace(RideshareModeName))
             {
