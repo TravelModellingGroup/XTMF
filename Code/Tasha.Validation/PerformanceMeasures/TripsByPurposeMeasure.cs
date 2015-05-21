@@ -29,24 +29,24 @@ namespace Tasha.Validation.PerformanceMeasures
 {
     [ModuleInformation(
         Description = "A Performance Measure that counts and records " +
-                       "the amount of trips created for each trip purpose." +                       
+                       "the amount of trips created for each trip purpose." +
                        "\nNote: The Expanded trips parameter lets the user choose " +
                        "whether or not he/she wants to look at expansion factors or just frequencies. "
         )]
     public class TripsByPurposeMeasure : IPostHousehold
-    {        
+    {
         [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
         public bool ExpandedTrips;
 
         [SubModelInformation(Required = true, Description = "Folder name in Output Directory where you want to save the files")]
-        public FileLocation ResultsFolder;        
+        public FileLocation ResultsFolder;
 
         [RootModule]
         public ITashaRuntime Root;
 
-        private Dictionary<Activity, float[]> PurposeDictionary = new Dictionary<Activity,float[]>();
+        private Dictionary<Activity, float[]> PurposeDictionary = new Dictionary<Activity, float[]>();
 
-        private Dictionary<Activity, float> SummaryTripCount = new Dictionary<Activity, float>();                            
+        private Dictionary<Activity, float> SummaryTripCount = new Dictionary<Activity, float>();
 
         public string Name
         {
@@ -78,42 +78,39 @@ namespace Tasha.Validation.PerformanceMeasures
         public RangeSet OriginZones;
 
         [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
-        public RangeSet DestinationZones;        
+        public RangeSet DestinationZones;
 
         public void Execute(ITashaHousehold household, int iteration)
         {
             // only run on the last iteration
-
             var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
-            
             if(iteration == Root.Iterations - 1)
             {
-                lock (this)
+                float amountToAddPerTrip;
+                if(ExpandedTrips)
                 {
-                    float amountToAddPerTrip;
-                    if(ExpandedTrips)
+                    amountToAddPerTrip = household.ExpansionFactor;
+                }
+                else
+                {
+                    amountToAddPerTrip = 1;
+                }
+                foreach(var person in household.Persons)
+                {
+                    if(person.Age >= MinAge)
                     {
-                        amountToAddPerTrip = household.ExpansionFactor;
-                    }
-                    else
-                    {
-                        amountToAddPerTrip = 1;
-                    }
-
-                    foreach (var person in household.Persons)
-                    {
-                        if (person.Age >= MinAge)
+                        foreach(var tripChain in person.TripChains)
                         {
-                            foreach (var tripChain in person.TripChains)
+                            foreach(var trip in tripChain.Trips)
                             {
-                                foreach (var trip in tripChain.Trips)
+                                IZone originalZone = trip.OriginalZone;
+                                IZone destinationZone = trip.DestinationZone;
+                                if(OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                                 {
-                                    IZone originalZone = trip.OriginalZone;
-                                    IZone destinationZone = trip.DestinationZone;
-                                    if (OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
+                                    var tripStartTime = trip.ActivityStartTime;
+                                    if(tripStartTime >= StartTime && tripStartTime < EndTime)
                                     {
-                                        var tripStartTime = trip.ActivityStartTime;
-                                        if (tripStartTime >= StartTime && tripStartTime < EndTime)
+                                        lock (this)
                                         {
                                             AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
                                             AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
@@ -128,29 +125,25 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
         private void AddToSummary(ITrip trip, Dictionary<Activity, float> summaryDictionary, float occurance)
-        {                        
-
-            if (summaryDictionary.ContainsKey(trip.Purpose))
-            {
-                summaryDictionary[trip.Purpose] += occurance;
-            }
-            else
-            {
-                summaryDictionary.Add(trip.Purpose, occurance);
-            }            
-        }       
-
-        private void AddTripToDictionary(Dictionary<Activity,float[]> dictionary, float occurance, ITrip trip, int homeZone)
         {
-            if(dictionary.ContainsKey(trip.Purpose))
+            float value;
+            var purpose = trip.Purpose;
+            if(!summaryDictionary.TryGetValue(purpose, out value))
             {
-                dictionary[trip.Purpose][homeZone] += occurance;
+                value = 0;
             }
-            else
+            summaryDictionary[trip.Purpose] = value + occurance;
+        }
+
+        private void AddTripToDictionary(Dictionary<Activity, float[]> dictionary, float occurance, ITrip trip, int homeZone)
+        {
+            float[] value;
+            var purpose = trip.Purpose;
+            if(!dictionary.TryGetValue(purpose, out value))
             {
-                dictionary.Add(trip.Purpose, new float[Root.ZoneSystem.ZoneArray.GetFlatData().Length]);
-                dictionary[trip.Purpose][homeZone] += occurance;
+                dictionary.Add(trip.Purpose, (value = new float[Root.ZoneSystem.ZoneArray.GetFlatData().Length]));
             }
+            value[homeZone] += occurance;
         }
 
         public void IterationFinished(int iteration)
@@ -159,30 +152,30 @@ namespace Tasha.Validation.PerformanceMeasures
             // only run on the last iteration
             if(iteration == Root.Iterations - 1)
             {
-                Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));                
+                Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
                 var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");
                 using (StreamWriter Writer = new StreamWriter(filePath))
                 {
                     Writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
                     foreach(var purpose in PurposeDictionary.Keys)
                     {
-                        var format = purpose.ToString() + ",{0},{1}";  
+                        var format = purpose.ToString() + ",{0},{1}";
                         for(int i = 0; i < PurposeDictionary[purpose].Length; i++)
                         {
                             Writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[purpose][i]);
                         }
                     }
                 }
-                
+
                 var summaryFilePath = Path.Combine(Path.GetFullPath(ResultsFolder), "SummaryFile.csv");
 
                 using (StreamWriter Writer = new StreamWriter(summaryFilePath))
                 {
                     Writer.WriteLine("Purpose, Number of Occurrences");
-                    foreach (var pair in SummaryTripCount)
+                    foreach(var pair in SummaryTripCount)
                     {
-                        Writer.WriteLine("{0}, {1}", pair.Key.ToString(), pair.Value);                            
-                    }                        
+                        Writer.WriteLine("{0}, {1}", pair.Key.ToString(), pair.Value);
+                    }
                 }
             }
         }
@@ -197,8 +190,8 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
         public void IterationStarting(int iteration)
-        {           
- 
+        {
+
         }
 
         public override string ToString()
