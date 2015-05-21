@@ -32,7 +32,7 @@ using Tasha.XTMFModeChoice;
 using TMG.Functions;
 
 namespace Tasha.Validation.PerformanceMeasures
-{   
+{
     public class VKTCalc : ISelfContainedModule
     {
         [RootModule]
@@ -45,7 +45,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         [SubModelInformation(Required = false, Description = "The different time periods you wish to calculate VKTs for")]
         public VKTPerTimePeriod[] TimePeriods;
-               
+
 
         public sealed class VKTPerTimePeriod : XTMF.IModule
         {
@@ -59,7 +59,7 @@ namespace Tasha.Validation.PerformanceMeasures
             public FileLocation VKTbyHomeZone;
 
             [SubModelInformation(Required = true, Description = "Resource that will subtract the two Cost Matrices and return a Flat Cost.")]
-            public IResource ODFlatCostMatrix;            
+            public IResource ODFlatCostMatrix;
 
             public string Name
             {
@@ -80,55 +80,54 @@ namespace Tasha.Validation.PerformanceMeasures
 
             public bool RuntimeValidation(ref string error)
             {
-                if (!ODFlatCostMatrix.CheckResourceType<SparseTwinIndex<float>>())
+                if(!ODFlatCostMatrix.CheckResourceType<SparseTwinIndex<float>>())
                 {
                     error = "In '" + Name + "' the ODDistanceMatrix was not of type SparseTwinIndex<float>!";
                     return false;
                 }
-                return true;   
+                return true;
             }
-        }               
-        
+        }
+
         public void Start()
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             char[] separators = { ',' };
-
+            var invCostPerKM = 1.0f / CostPerKm;
             foreach(var timePeriod in TimePeriods)
             {
                 TotalVKT = new Dictionary<int, float>();
-                var odCostMatrix = timePeriod.ODFlatCostMatrix.AquireResource<SparseTwinIndex<float>>();                
-                
-                using (StreamReader sr = File.OpenText(timePeriod.ODTripsData))
+                var odCostMatrix = timePeriod.ODFlatCostMatrix.AquireResource<SparseTwinIndex<float>>();
+                using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
                 {
-                    string s = String.Empty;
-                    sr.ReadLine();
-
-                    while ((s = sr.ReadLine()) != null)
+                    int columns;
+                    while(reader.LoadLine(out columns))
                     {
-                        var line = s.Split(separators);
-                        var distance = (odCostMatrix[Convert.ToInt32(line[1]), Convert.ToInt32(line[2])] * 1 / CostPerKm);
-                        if (TotalVKT.ContainsKey(Convert.ToInt32(line[0])))
+                        if(columns >= 4)
                         {
-                            TotalVKT[Convert.ToInt32(line[0])] += Convert.ToInt32(line[3]) * distance;
-                        }
-                        else
-                        {
-                            TotalVKT.Add(Convert.ToInt32(line[0]), Convert.ToInt32(line[3]) * distance);
+                            float vkt = 0.0f;
+                            int homeZone, origin, destination;
+                            float numberOfTrips;
+                            reader.Get(out homeZone, 0);
+                            reader.Get(out origin, 1);
+                            reader.Get(out destination, 2);
+                            reader.Get(out numberOfTrips, 3);
+                            var distance = odCostMatrix[origin, destination] * invCostPerKM;
+                            TotalVKT.TryGetValue(homeZone, out vkt);
+                            TotalVKT[homeZone] = vkt + numberOfTrips * distance;
                         }
                     }
                 }
-
                 using (StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone))
                 {
                     writer.WriteLine("Home Zone, Total VKTs");
-                    foreach (var pair in TotalVKT)
+                    foreach(var pair in TotalVKT)
                     {
                         writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
                     }
                 }
-            }                        
-        }        
+            }
+        }
 
         public string Name
         {
