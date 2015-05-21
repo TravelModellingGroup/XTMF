@@ -140,5 +140,52 @@ namespace TMG.Functions
             parts.Add(builder.ToString());
             return parts.ToArray();
         }
+
+        /// <summary>
+        /// Retrieve the model system structure from the given project
+        /// </summary>
+        /// <param name="project">The project to analyze</param>
+        /// <param name="toFind">The module to find the structure of</param>
+        /// <param name="modelSystemStructure">The model system structure of the module to find.</param>
+        /// <returns>True if the module was found, false otherwise</returns>
+        public static bool FindModuleStructure(IProject project, IModule toFind, ref IModelSystemStructure modelSystemStructure)
+        {
+            foreach(var ms in project.ModelSystemStructure)
+            {
+                if(FindModuleStructure(ms, toFind, ref modelSystemStructure))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Retrieve the model system structure for the module the given root.
+        /// </summary>
+        /// <param name="root">The base module to look at</param>
+        /// <param name="toFind">An instance of the module we are trying to find</param>
+        /// <param name="modelSystemStructure">The resulting model system structure</param>
+        /// <returns>True if the module was found, false otherwise.</returns>
+        public static bool FindModuleStructure(IModelSystemStructure root, IModule toFind, ref IModelSystemStructure modelSystemStructure)
+        {
+            if(root.Module == toFind)
+            {
+                modelSystemStructure = root;
+                return true;
+            }
+            if(root.Children != null)
+            {
+                foreach(var child in root.Children)
+                {
+                    if(FindModuleStructure(child, toFind, ref modelSystemStructure))
+                    {
+                        return true;
+                    }
+                }
+            }
+            // Then we didn't find it in this tree
+            return false;
+        }
     }
 }
