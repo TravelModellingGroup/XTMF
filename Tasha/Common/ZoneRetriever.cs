@@ -212,13 +212,6 @@ namespace Tasha.Common
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            var zfn = GetFullPath(ZoneFileName);
-            var zcn = GetFullPath(ZoneCacheFile);
-            if(!File.Exists(zfn) && !File.Exists(zcn))
-            {
-                error = string.Format("Both the zone file \"{0}\" and cache file \"{1}\" do not exist!", zfn, zcn);
-                return false;
-            }
             return true;
         }
 

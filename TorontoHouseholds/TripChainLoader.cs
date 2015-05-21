@@ -258,20 +258,6 @@ namespace TMG.Tasha
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            var tripFile = System.IO.Path.Combine( TashaRuntime.InputBaseDirectory, FileName );
-            try
-            {
-                if ( !System.IO.File.Exists( tripFile ) )
-                {
-                    error = string.Concat( "The file ", tripFile, " does not exist!" );
-                    return false;
-                }
-            }
-            catch
-            {
-                error = string.Concat( "We were unable to access ", tripFile, " the path may be invalid or unavailable at this time." );
-                return false;
-            }
             CreateConversionDictionary();
             return true;
         }

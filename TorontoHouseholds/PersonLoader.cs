@@ -330,20 +330,6 @@ namespace TMG.Tasha
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            var personFile = System.IO.Path.Combine(TashaRuntime.InputBaseDirectory, FileName);
-            try
-            {
-                if(!System.IO.File.Exists(personFile))
-                {
-                    error = string.Concat("The file ", personFile, " does not exist!");
-                    return false;
-                }
-            }
-            catch
-            {
-                error = string.Concat("We were unable to access ", personFile, " the path may be invalid or unavailable at this time.");
-                return false;
-            }
             return true;
         }
 

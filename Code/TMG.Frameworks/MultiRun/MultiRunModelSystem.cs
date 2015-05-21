@@ -25,6 +25,8 @@ using System.Xml;
 using TMG.Input;
 using XTMF;
 using TMG.Functions;
+using System.Threading;
+
 namespace TMG.Frameworks.MultiRun
 {
 
@@ -63,46 +65,23 @@ namespace TMG.Frameworks.MultiRun
 
         public bool RuntimeValidation(ref string error)
         {
+            // we need to initialize the commands here so that our children can add new batch commands during their RuntimeValidation
+            InitializeCommands();
             return LoadChildFromXTMF(ref error);
-        }
-
-        private bool FindUs(IModelSystemStructure mst, ref IModelSystemStructure modelSystemStructure)
-        {
-            if(mst.Module == this)
-            {
-                modelSystemStructure = mst;
-                return true;
-            }
-            if(mst.Children != null)
-            {
-                foreach(var child in mst.Children)
-                {
-                    if(FindUs(child, ref modelSystemStructure))
-                    {
-                        return true;
-                    }
-                }
-            }
-            // Then we didn't find it in this tree
-            return false;
         }
 
         private bool LoadChildFromXTMF(ref string error)
         {
             IModelSystemStructure ourStructure = null;
-            foreach(var mst in Config.ProjectRepository.ActiveProject.ModelSystemStructure)
+            if(ModelSystemReflection.FindModuleStructure(Config, this, ref ourStructure))
             {
-                if(FindUs(mst, ref ourStructure))
+                foreach(var child in ourStructure.Children)
                 {
-                    foreach(var child in ourStructure.Children)
+                    if(child.ParentFieldName == "Child")
                     {
-                        if(child.ParentFieldName == "Child")
-                        {
-                            ChildStructure = child;
-                            break;
-                        }
+                        ChildStructure = child;
+                        break;
                     }
-                    break;
                 }
             }
             if(ChildStructure == null)
@@ -141,7 +120,6 @@ namespace TMG.Frameworks.MultiRun
 
         private IEnumerable<string> ExecuteRuns()
         {
-            InitializeCommands();
             XmlDocument doc = new XmlDocument();
             doc.Load(BatchRunFile);
             var root = doc.FirstChild;
@@ -157,14 +135,17 @@ namespace TMG.Frameworks.MultiRun
                     }
                     else
                     {
-                        var commandName = topLevelCommand.LocalName;
-                        Action<XmlNode> command;
-                        if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                        if(topLevelCommand.NodeType != XmlNodeType.Comment)
                         {
-                            throw new XTMFRuntimeException("We are unable to find a command named '" + commandName 
-                                + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
+                            var commandName = topLevelCommand.LocalName;
+                            Action<XmlNode> command;
+                            if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                            {
+                                throw new XTMFRuntimeException("We are unable to find a command named '" + commandName
+                                    + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
+                            }
+                            command.Invoke(topLevelCommand);
                         }
-                        command.Invoke(topLevelCommand);
                     }
                 }
             }
@@ -176,14 +157,40 @@ namespace TMG.Frameworks.MultiRun
         private void InitializeCommands()
         {
             BatchCommands.Clear();
-            // Add all of the available commands to our dictionary for the execution engine
-            BatchCommands.Add("copy", CopyFiles);
-            BatchCommands.Add("changeparameter", ChangeParameter);
-            BatchCommands.Add("delete", DeleteFiles);
-            BatchCommands.Add("write", WriteToFile);
+            // Add all of the basic commands to our dictionary for the execution engine
+            TryAddBatchCommand("copy", CopyFiles, true);
+            TryAddBatchCommand("copy", CopyFiles, true);
+            TryAddBatchCommand("changeparameter", ChangeParameter, true);
+            TryAddBatchCommand("delete", DeleteFiles, true);
+            TryAddBatchCommand("write", WriteToFile, true);
         }
 
-        private static string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
+        /// <summary>
+        /// Tries to add a batch command, this will fail if there is already a command with the same name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="command"></param>
+        /// <param name="overwrite">If true, this command will overwrite any previous command with the same name.</param>
+        /// <returns></returns>
+        public bool TryAddBatchCommand(string name, Action<XmlNode> command, bool overwrite)
+        {
+            name = name.ToLowerInvariant();
+            if(!overwrite && BatchCommands.ContainsKey(name))
+            {
+                return false;
+            }
+            BatchCommands[name] = command;
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the attribute from the xmlnode or throws an XTMFRuntimeException
+        /// </summary>
+        /// <param name="node">The node the is being processed</param>
+        /// <param name="attribute">The name as the attribute to lookup</param>
+        /// <param name="errorMessage">The error message to give if it was not found.</param>
+        /// <returns>The value of the attribute.</returns>
+        public string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
         {
             var at = node.Attributes[attribute];
             if(at == null)
@@ -334,13 +341,24 @@ namespace TMG.Frameworks.MultiRun
         private void DeleteCommand(XmlNode command)
         {
             var filePath = GetAttributeOrError(command, "Path", "There is a Delete file command that does not define a path to delete!");
-            if(IsDirectory(filePath))
+            for(int i = 0; i < 10; i++)
             {
-                Directory.Delete(filePath, IsRecursiveDelete(command));
-            }
-            else
-            {
-                File.Delete(filePath);
+                try
+                {
+                    if(IsDirectory(filePath))
+                    {
+                        Directory.Delete(filePath, IsRecursiveDelete(command));
+                    }
+                    else
+                    {
+                        File.Delete(filePath);
+                    }
+                    return;
+                }
+                catch (IOException)
+                {
+                    Thread.Sleep(200);
+                }
             }
         }
 
@@ -367,6 +385,8 @@ namespace TMG.Frameworks.MultiRun
             }
         }
 
+        private string OriginalDirectory = null;
+
         private void SetupRun(XmlNode run, ref string name)
         {
             var runName = run.Attributes["Name"];
@@ -377,6 +397,14 @@ namespace TMG.Frameworks.MultiRun
             var saveAndRunAs = run.Attributes["RunAs"];
             if(saveAndRunAs != null)
             {
+                if(OriginalDirectory == null)
+                {
+                    OriginalDirectory = Directory.GetCurrentDirectory();
+                }
+                else
+                {
+                    Directory.SetCurrentDirectory(OriginalDirectory);
+                }
                 var newDirectoryName = saveAndRunAs.InnerText;
                 DirectoryInfo info = new DirectoryInfo(newDirectoryName);
                 if(!info.Exists)
@@ -389,13 +417,16 @@ namespace TMG.Frameworks.MultiRun
             {
                 foreach(XmlNode runChild in run.ChildNodes)
                 {
-                    var commandName = runChild.LocalName;
-                    Action<XmlNode> command;
-                    if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                    if(runChild.NodeType != XmlNodeType.Comment)
                     {
-                        throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
+                        var commandName = runChild.LocalName;
+                        Action<XmlNode> command;
+                        if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                        {
+                            throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
+                        }
+                        command.Invoke(runChild);
                     }
-                    command.Invoke(runChild);
                 }
             }
             if(saveAndRunAs != null)

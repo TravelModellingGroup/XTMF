@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -87,7 +87,7 @@ namespace TMG.Functions
                             else
                             {
                                 var field = type.GetProperty(parameters[i].VariableName);
-                                field.SetValue(currentStructure.Module, value, null);
+                                field.SetValue(currentStructure.Module, trueValue, null);
                                 any = true;
                             }
                         }
@@ -107,6 +107,12 @@ namespace TMG.Functions
 
         private static string[] SplitNameToParts(string parameterName)
         {
+            // Allow the path to take the null parameter name so we can reuse this for
+            // find modules given a path
+            if(String.IsNullOrWhiteSpace(parameterName))
+            {
+                return new string[0];
+            }
             List<string> parts = new List<string>();
             var stringLength = parameterName.Length;
             StringBuilder builder = new StringBuilder();
@@ -139,6 +145,161 @@ namespace TMG.Functions
             }
             parts.Add(builder.ToString());
             return parts.ToArray();
+        }
+
+        /// <summary>
+        /// Retrieve the model system structure from the active project
+        /// </summary>
+        /// <param name="config">The XTMF runtime configuration</param>
+        /// <param name="toFind">The module to find the model system structure of</param>
+        /// <param name="modelSystemStructure">The model system structure of the given module</param>
+        /// <returns>True if the module was found, false otherwise</returns>
+        public static bool FindModuleStructure(IConfiguration config, IModule toFind, ref IModelSystemStructure modelSystemStructure)
+        {
+            return FindModuleStructure(config.ProjectRepository.ActiveProject, toFind, ref modelSystemStructure);
+        }
+
+        /// <summary>
+        /// Retrieve the model system structure from the given project
+        /// </summary>
+        /// <param name="project">The project to analyze</param>
+        /// <param name="toFind">The module to find the structure of</param>
+        /// <param name="modelSystemStructure">The model system structure of the module to find.</param>
+        /// <returns>True if the module was found, false otherwise</returns>
+        public static bool FindModuleStructure(IProject project, IModule toFind, ref IModelSystemStructure modelSystemStructure)
+        {
+            foreach(var ms in project.ModelSystemStructure)
+            {
+                if(FindModuleStructure(ms, toFind, ref modelSystemStructure))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Retrieve the model system structure for the module the given root.
+        /// </summary>
+        /// <param name="root">The base module to look at</param>
+        /// <param name="toFind">An instance of the module we are trying to find</param>
+        /// <param name="modelSystemStructure">The resulting model system structure</param>
+        /// <returns>True if the module was found, false otherwise.</returns>
+        public static bool FindModuleStructure(IModelSystemStructure root, IModule toFind, ref IModelSystemStructure modelSystemStructure)
+        {
+            if(root.Module == toFind)
+            {
+                modelSystemStructure = root;
+                return true;
+            }
+            if(root.Children != null)
+            {
+                foreach(var child in root.Children)
+                {
+                    if(FindModuleStructure(child, toFind, ref modelSystemStructure))
+                    {
+                        return true;
+                    }
+                }
+            }
+            // Then we didn't find it in this tree
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the ancestry of a module from the active project
+        /// </summary>
+        /// <param name="config">The XTMF runtime configuration</param>
+        /// <param name="toFind">The module to find</param>
+        /// <returns>A list in order from root to the module to find of their model system structures.</returns>
+        public static List<IModelSystemStructure> BuildModelStructureChain(IConfiguration config, IModule toFind)
+        {
+            return BuildModelStructureChain(config.ProjectRepository.ActiveProject, toFind);
+        }
+
+        /// <summary>
+        /// Gets the ancestry of a module given a project
+        /// </summary>
+        /// <param name="project">The project to analyze</param>
+        /// <param name="toFind">The module to find</param>
+        /// <returns>A list in order from root to the module to find of their model system structures.</returns>
+        public static List<IModelSystemStructure> BuildModelStructureChain(IProject project, IModule toFind)
+        {
+            List<IModelSystemStructure> chain = new List<IModelSystemStructure>();
+            foreach(var ms in project.ModelSystemStructure)
+            {
+                if(BuildModelStructureChain(ms, toFind, chain))
+                {
+                    break;
+                }
+            }
+            return chain;
+        }
+
+        /// <summary>
+        /// Gets the ancestry of a module from the given root.
+        /// </summary>
+        /// <param name="root">The first node to look at.</param>
+        /// <param name="toFind">The module to find</param>
+        /// <param name="chain">The chain to store the results into.</param>
+        /// <returns>True if we found the module, false otherwise</returns>
+        public static bool BuildModelStructureChain(IModelSystemStructure root, IModule toFind, List<IModelSystemStructure> chain)
+        {
+            if(root.Module == toFind)
+            {
+                chain.Add(root);
+                return true;
+            }
+            if(root.Children != null)
+            {
+                foreach(var child in root.Children)
+                {
+                    if(BuildModelStructureChain(child, toFind, chain))
+                    {
+                        chain.Insert(0, root);
+                        return true;
+                    }
+                }
+            }
+            // Then we didn't find it in this tree
+            return false;
+        }
+
+        /// <summary>
+        /// Get a model system structure from a path string relative to the root
+        /// </summary>
+        /// <param name="root">The point to start the path relative to.</param>
+        /// <param name="path">The path to explore</param>
+        /// <param name="structure">The structure at the end of the path</param>
+        /// <returns>True if a model system structure with that path was found, false otherwise</returns>
+        public static bool GetModelSystemStructureFromPath(IModelSystemStructure root, string path, ref IModelSystemStructure structure)
+        {
+            var parts = SplitNameToParts(path);
+            IModelSystemStructure current = root;
+            for(int i = 0; i < parts.Length; i++)
+            {
+                var children = current.Children;
+                if(children == null)
+                {
+                    return false;
+                }
+                bool found = false;
+                for(int j = 0; j < children.Count; j++)
+                {
+                    if(children[j].Name == parts[i])
+                    {
+                        current = children[j];
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found)
+                {
+                    return false;
+                }
+            }
+            structure = current;
+            return true;
         }
     }
 }
