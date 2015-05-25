@@ -88,6 +88,16 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
 
+        private float ProfessionalCost;
+        private float GeneralCost;
+        private float SalesCost;
+        private float ManufacturingCost;
+        private float StudentCost;
+        private float NonWorkerStudentCost;
+
+        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
+        public bool UseCostAsFactorOfTime;
+
         [RunParameter("ParkingCost", 0f, "The factor applied to the cost of parking for the destination zone.")]
         public float ParkingCost;
 
@@ -307,22 +317,22 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
                         return;
@@ -332,7 +342,7 @@ namespace Tasha.V4Modes
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
-                    cost = StudentCostFactor;
+                    cost = StudentCost;
                     constant = StudentConstant;
                     time = StudentTimeFactor;
                     return;
@@ -342,28 +352,28 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
                         return;
                 }
             }
-            cost = NonWorkerStudentCostFactor;
+            cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
             return;
@@ -526,6 +536,25 @@ namespace Tasha.V4Modes
             for(int i = 0; i < AgeUtilLookup.Length; i++)
             {
                 AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
+            }
+
+            if(UseCostAsFactorOfTime)
+            {
+                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
+            }
+            else
+            {
+                ProfessionalCost = ProfessionalCostFactor;
+                GeneralCost = GeneralCostFactor;
+                SalesCost = SalesCostFactor;
+                ManufacturingCost = ManufacturingCostFactor;
+                StudentCost = StudentCostFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor;
             }
         }
     }

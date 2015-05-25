@@ -26,7 +26,7 @@ namespace Tasha.V4Modes
 {
     [ModuleInformation(Description =
         @"This module is designed to implement the Carpool mode for GTAModel V4.0+.")]
-    public sealed class Carpool : ITashaMode
+    public sealed class Carpool : ITashaMode, IIterationSensitive
     {
         [RunParameter("Constant", 0f, "The mode constant.")]
         public float Constant;
@@ -66,6 +66,16 @@ namespace Tasha.V4Modes
 
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
+
+        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
+        public bool UseCostAsFactorOfTime;
+
+        private float ProfessionalCost;
+        private float GeneralCost;
+        private float SalesCost;
+        private float ManufacturingCost;
+        private float StudentCost;
+        private float NonWorkerStudentCost;
 
         [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
         public float ProfessionalConstant;
@@ -181,22 +191,22 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
                         return;
@@ -206,7 +216,7 @@ namespace Tasha.V4Modes
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
-                    cost = StudentCostFactor;
+                    cost = StudentCost;
                     constant = StudentConstant;
                     time = StudentTimeFactor;
                     return;
@@ -216,28 +226,28 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
                         return;
                 }
             }
-            cost = NonWorkerStudentCostFactor;
+            cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
             return;
@@ -306,6 +316,32 @@ namespace Tasha.V4Modes
                 }
             }
             return false;
+        }
+
+        public void IterationEnding(int iterationNumber, int maxIterations)
+        {
+        }
+
+        public void IterationStarting(int iterationNumber, int maxIterations)
+        {
+            if(UseCostAsFactorOfTime)
+            {
+                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
+            }
+            else
+            {
+                ProfessionalCost = ProfessionalCostFactor;
+                GeneralCost = GeneralCostFactor;
+                SalesCost = SalesCostFactor;
+                ManufacturingCost = ManufacturingCostFactor;
+                StudentCost = StudentCostFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor;
+            }
         }
     }
 }

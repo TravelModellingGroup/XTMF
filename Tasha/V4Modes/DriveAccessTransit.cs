@@ -85,7 +85,6 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float NonWorkerStudentTimeFactor;
 
-
         [RunParameter("WaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
         public float TransitWait;
 
@@ -97,6 +96,9 @@ namespace Tasha.V4Modes
 
         [RunParameter("LogsumFactor", 0.0f, "The factor to apply to the logsum of the access station choice model.")]
         public float LogsumCorrelation;
+
+        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
+        public bool UseCostAsFactorOfTime;
 
         [RunParameter("ProfessionalTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float ProfessionalCostFactor;
@@ -121,6 +123,13 @@ namespace Tasha.V4Modes
 
         [RunParameter("ToHomeDensityFactor", 0.0f, "The factor to apply to the destination of the activity's density.")]
         public float ToHomeDensityFactor;
+
+        private float ProfessionalCost;
+        private float GeneralCost;
+        private float SalesCost;
+        private float ManufacturingCost;
+        private float StudentCost;
+        private float NonWorkerStudentCost;
 
         private INetworkData AutoNetwork;
         private ITripComponentData TransitNetwork;
@@ -285,36 +294,36 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        return ProfessionalCostFactor;
+                        return ProfessionalCost;
                     case Occupation.Office:
-                        return GeneralCostFactor;
+                        return GeneralCost;
                     case Occupation.Retail:
-                        return SalesCostFactor;
+                        return SalesCost;
                     case Occupation.Manufacturing:
-                        return ManufacturingCostFactor;
+                        return ManufacturingCost;
                 }
             }
             switch(person.StudentStatus)
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
-                    return StudentCostFactor;
+                    return StudentCost;
             }
             if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
             {
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        return ProfessionalCostFactor;
+                        return ProfessionalCost;
                     case Occupation.Office:
-                        return GeneralCostFactor;
+                        return GeneralCost;
                     case Occupation.Retail:
-                        return SalesCostFactor;
+                        return SalesCost;
                     case Occupation.Manufacturing:
-                        return ManufacturingCostFactor;
+                        return ManufacturingCost;
                 }
             }
-            return NonWorkerStudentCostFactor;
+            return NonWorkerStudentCost;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
@@ -564,11 +573,6 @@ namespace Tasha.V4Modes
             return lookup;
         }
 
-        public abstract class ComputeStationsUtilities
-        {
-
-        }
-
         private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
         {
             if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
@@ -576,22 +580,22 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
                         return;
@@ -601,7 +605,7 @@ namespace Tasha.V4Modes
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
-                    cost = StudentCostFactor;
+                    cost = StudentCost;
                     constant = StudentConstant;
                     time = StudentTimeFactor;
                     return;
@@ -611,31 +615,30 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
                         return;
                 }
             }
-            cost = NonWorkerStudentCostFactor;
+            cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
-            return;
         }
 
         private IZone SelectAccessStation(Random random, Pair<IZone[], float[]> accessData)
@@ -696,7 +699,10 @@ namespace Tasha.V4Modes
                 AccessStationChoiceLoaded = true;
             }
             // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
-            AgeUtilLookup = new float[16];
+            if(AgeUtilLookup == null)
+            {
+                AgeUtilLookup = new float[16];
+            }
             for(int i = 0; i < AgeUtilLookup.Length; i++)
             {
                 AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
@@ -705,6 +711,24 @@ namespace Tasha.V4Modes
             for(int i = 0; i < TimePeriodConstants.Length; i++)
             {
                 TimePeriodConstants[i].BuildMatrix();
+            }
+            if(UseCostAsFactorOfTime)
+            {
+                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
+            }
+            else
+            {
+                ProfessionalCost = ProfessionalCostFactor;
+                GeneralCost = GeneralCostFactor;
+                SalesCost = SalesCostFactor;
+                ManufacturingCost = ManufacturingCostFactor;
+                StudentCost = StudentCostFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor;
             }
             ZonalDensityForActivitiesArray = ZonalDensityForActivities.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
             ZonalDensityForHomeArray = ZonalDensityForHome.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
