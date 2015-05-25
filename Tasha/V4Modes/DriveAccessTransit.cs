@@ -69,9 +69,6 @@ namespace Tasha.V4Modes
         [RunParameter("Over55", 0f, "The factor applied if the person is over the age of 55, but less than 65.")]
         public float Over55;
 
-        [RunParameter("aivtt", 0.0f, "The time spent in the auto vehicle")]
-        public float AutoInVehicleTime;
-
         [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float ProfessionalTimeFactor;
         [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
@@ -85,17 +82,45 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float NonWorkerStudentTimeFactor;
 
-        [RunParameter("WaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
-        public float TransitWait;
+        [RunParameter("ProfessionalWaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float ProfessionalTransitWait;
+        [RunParameter("ProfessionalWalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float ProfessionalTransitWalk;
+        [RunParameter("GeneralWaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float GeneralTransitWait;
+        [RunParameter("GeneralWalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float GeneralTransitWalk;
+        [RunParameter("SalesWaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float SalesTransitWait;
+        [RunParameter("SalesWalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float SalesTransitWalk;
+        [RunParameter("ManufacturingWaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float ManufacturingTransitWait;
+        [RunParameter("ManufacturingWalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float ManufacturingTransitWalk;
+        [RunParameter("StudentWaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float StudentTransitWait;
+        [RunParameter("StudentWalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float StudentTransitWalk;
+        [RunParameter("NonWorkerStudentWaitTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float NonWorkerStudentTransitWait;
+        [RunParameter("NonWorkerStudentWalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
+        public float NonWorkerStudentTransitWalk;
 
-        [RunParameter("WalkTimeFactor", 0.0f, "The time spent in a public transit vehicle")]
-        public float TransitWalk;
+        [RunParameter("ProfessionalBoardingFactor", 0.0f, "The factor to apply against the penalty of boarding")]
+        public float ProfessionalTransitBoarding;
+        [RunParameter("GeneralBoardingFactor", 0.0f, "The factor to apply against the penalty of boarding")]
+        public float GeneralTransitBoarding;
+        [RunParameter("SalesBoardingFactor", 0.0f, "The factor to apply against the penalty of boarding")]
+        public float SalesTransitBoarding;
+        [RunParameter("ManufacturingBoardingFactor", 0.0f, "The factor to apply against the penalty of boarding")]
+        public float ManufacturingTransitBoarding;
+        [RunParameter("StudentBoardingFactor", 0.0f, "The factor to apply against the penalty of boarding")]
+        public float StudentTransitBoarding;
+        [RunParameter("NonWorkerStudentBoardingFactor", 0.0f, "The factor to apply against the penalty of boarding")]
+        public float NonWorkerStudentTransitBoarding;
 
-        [RunParameter("BoardingFactor", 0.0f, "The boarding penalties incurred.")]
-        public float TransitBoarding;
 
-        [RunParameter("LogsumFactor", 0.0f, "The factor to apply to the logsum of the access station choice model.")]
-        public float LogsumCorrelation;
 
         [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
         public bool UseCostAsFactorOfTime;
@@ -287,45 +312,6 @@ namespace Tasha.V4Modes
             return;
         }
 
-        private float GetTravelCostFactor(ITashaPerson person)
-        {
-            if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
-            {
-                switch(person.Occupation)
-                {
-                    case Occupation.Professional:
-                        return ProfessionalCost;
-                    case Occupation.Office:
-                        return GeneralCost;
-                    case Occupation.Retail:
-                        return SalesCost;
-                    case Occupation.Manufacturing:
-                        return ManufacturingCost;
-                }
-            }
-            switch(person.StudentStatus)
-            {
-                case StudentStatus.FullTime:
-                case StudentStatus.PartTime:
-                    return StudentCost;
-            }
-            if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
-            {
-                switch(person.Occupation)
-                {
-                    case Occupation.Professional:
-                        return ProfessionalCost;
-                    case Occupation.Office:
-                        return GeneralCost;
-                    case Occupation.Retail:
-                        return SalesCost;
-                    case Occupation.Manufacturing:
-                        return ManufacturingCost;
-                }
-            }
-            return NonWorkerStudentCost;
-        }
-
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             return 0f;
@@ -455,8 +441,8 @@ namespace Tasha.V4Modes
             var zones = accessData.First;
             var utils = accessData.Second;
             var totalUtil = 0.0f;
-            float ivttBeta, costBeta, constant;
-            GetPersonVariables(person, out ivttBeta, out constant, out costBeta);
+            float ivttBeta, costBeta, walkBeta, waitBeta, boardingBeta, constant;
+            GetPersonVariables(person, out constant, out ivttBeta, out walkBeta, out waitBeta, out boardingBeta, out costBeta);
             if(VectorHelper.IsHardwareAccelerated)
             {
                 totalUtil = VectorHelper.VectorSum(utils, 0, utils.Length);
@@ -473,8 +459,9 @@ namespace Tasha.V4Modes
                 dependentUtility = float.NaN;
                 return false;
             }
-            dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
+            dependentUtility = GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
             totalUtil = 1 / totalUtil;
+            // we still need to do this in order to reduce time for computing the selected access station
             if(VectorHelper.IsHardwareAccelerated)
             {
                 VectorHelper.VectorMultiply(utils, 0, utils, 0, totalUtil, utils.Length);
@@ -511,13 +498,13 @@ namespace Tasha.V4Modes
                         var local = 0.0f;
                         float tivtt, twalk, twait, boarding, cost;
                         TransitNetwork.GetAllData(stationIndex, fd, firstTime, out tivtt, out twalk, out twait, out boarding, out cost);
-                        local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
+                        local += tivtt * ivttBeta + twalk * walkBeta + twait * waitBeta + cost * costBeta + boarding * boardingBeta;
                         TransitNetwork.GetAllData(stationIndex, so, secondTime, out tivtt, out twalk, out twait, out boarding, out cost);
-                        local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
+                        local += tivtt * ivttBeta + twalk * walkBeta + twait * waitBeta + cost * costBeta + boarding * boardingBeta;
                         AutoNetwork.GetAllData(fo, stationIndex, firstTime, out tivtt, out cost);
-                        local += tivtt * AutoInVehicleTime + costBeta * cost;
+                        local += tivtt * ivttBeta + costBeta * cost;
                         AutoNetwork.GetAllData(stationIndex, sd, secondTime, out tivtt, out cost);
-                        local += tivtt * AutoInVehicleTime + costBeta * cost;
+                        local += tivtt * ivttBeta + costBeta * cost;
                         totalUtil += local * probability;
                     }
                 }
@@ -553,12 +540,12 @@ namespace Tasha.V4Modes
                         twalk = firstTransitMatrix[stationToDestination1 + 2] + secondTransitMatrix[origin2ToStation + 2];
                         cost = firstTransitMatrix[stationToDestination1 + 3] + secondTransitMatrix[origin2ToStation + 3];
                         boarding = firstTransitMatrix[stationToDestination1 + 4] + secondTransitMatrix[origin2ToStation + 4];
-                        var transitUtil = tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
+                        var transitUtil = tivtt * ivttBeta + twalk * walkBeta + twait * waitBeta + cost * costBeta + boarding * boardingBeta;
 
                         // auto utility
                         tivtt = firstAutoMatrix[origin1ToStation] + secondAutoMatrix[stationToDestination2];
                         cost = firstAutoMatrix[origin1ToStation + 1] + secondAutoMatrix[stationToDestination2 + 1];
-                        totalUtil += (transitUtil + tivtt * AutoInVehicleTime + costBeta * cost) * utils[i];
+                        totalUtil += (transitUtil + tivtt * ivttBeta + costBeta * cost) * utils[i];
                     }
                 }
             }
@@ -573,7 +560,7 @@ namespace Tasha.V4Modes
             return lookup;
         }
 
-        private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
+        private void GetPersonVariables(ITashaPerson person, out float constant, out float time, out float walk, out float wait, out float boarding, out float cost)
         {
             if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
             {
@@ -583,21 +570,33 @@ namespace Tasha.V4Modes
                         cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
+                        walk = ProfessionalTransitWalk;
+                        wait = ProfessionalTransitWait;
+                        boarding = ProfessionalTransitBoarding;
                         return;
                     case Occupation.Office:
                         cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
+                        walk = GeneralTransitWalk;
+                        wait = GeneralTransitWait;
+                        boarding = GeneralTransitBoarding;
                         return;
                     case Occupation.Retail:
                         cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
+                        walk = SalesTransitWalk;
+                        wait = SalesTransitWait;
+                        boarding = SalesTransitBoarding;
                         return;
                     case Occupation.Manufacturing:
                         cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
+                        walk = ManufacturingTransitWalk;
+                        wait = ManufacturingTransitWait;
+                        boarding = ManufacturingTransitBoarding;
                         return;
                 }
             }
@@ -608,6 +607,9 @@ namespace Tasha.V4Modes
                     cost = StudentCost;
                     constant = StudentConstant;
                     time = StudentTimeFactor;
+                    walk = StudentTransitWalk;
+                    wait = StudentTransitWait;
+                    boarding = StudentTransitBoarding;
                     return;
             }
             if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
@@ -618,27 +620,42 @@ namespace Tasha.V4Modes
                         cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
+                        walk = ProfessionalTransitWalk;
+                        wait = ProfessionalTransitWait;
+                        boarding = ProfessionalTransitBoarding;
                         return;
                     case Occupation.Office:
                         cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
+                        walk = GeneralTransitWalk;
+                        wait = GeneralTransitWait;
+                        boarding = GeneralTransitBoarding;
                         return;
                     case Occupation.Retail:
                         cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
+                        walk = SalesTransitWalk;
+                        wait = SalesTransitWait;
+                        boarding = SalesTransitBoarding;
                         return;
                     case Occupation.Manufacturing:
                         cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
+                        walk = ManufacturingTransitWalk;
+                        wait = ManufacturingTransitWait;
+                        boarding = ManufacturingTransitBoarding;
                         return;
                 }
             }
             cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
+            walk = NonWorkerStudentTransitWalk;
+            wait = NonWorkerStudentTransitWait;
+            boarding = NonWorkerStudentTransitBoarding;
         }
 
         private IZone SelectAccessStation(Random random, Pair<IZone[], float[]> accessData)
