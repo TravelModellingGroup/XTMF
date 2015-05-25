@@ -398,7 +398,7 @@ namespace Tasha.V4Modes
                 var accessData = AccessStationModel.ProduceResult(chain);
                 if(accessData == null || !BuildUtility(trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
                     accessData,
-                    trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].TripStartTime,
+                    trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].ActivityStartTime, trips[otherIndex].ActivityStartTime,
                     out dependentUtility))
                 {
                     OnSelection = null;
@@ -441,7 +441,7 @@ namespace Tasha.V4Modes
         private int[] StationIndexLookup;
 
         private bool BuildUtility(IZone firstOrigin, IZone secondOrigin, Pair<IZone[], float[]> accessData, IZone firstDestination, IZone secondDestination,
-            ITashaPerson person, Time firstTime, out float dependentUtility)
+            ITashaPerson person, Time firstTime, Time secondTime, out float dependentUtility)
         {
             var zones = accessData.First;
             var utils = accessData.Second;
@@ -503,11 +503,11 @@ namespace Tasha.V4Modes
                         float tivtt, twalk, twait, boarding, cost;
                         TransitNetwork.GetAllData(stationIndex, fd, firstTime, out tivtt, out twalk, out twait, out boarding, out cost);
                         local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
-                        TransitNetwork.GetAllData(stationIndex, so, firstTime, out tivtt, out twalk, out twait, out boarding, out cost);
+                        TransitNetwork.GetAllData(stationIndex, so, secondTime, out tivtt, out twalk, out twait, out boarding, out cost);
                         local += tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
                         AutoNetwork.GetAllData(fo, stationIndex, firstTime, out tivtt, out cost);
                         local += tivtt * AutoInVehicleTime + costBeta * cost;
-                        AutoNetwork.GetAllData(stationIndex, sd, firstTime, out tivtt, out cost);
+                        AutoNetwork.GetAllData(stationIndex, sd, secondTime, out tivtt, out cost);
                         local += tivtt * AutoInVehicleTime + costBeta * cost;
                         totalUtil += local * probability;
                     }
@@ -519,8 +519,15 @@ namespace Tasha.V4Modes
                 // fo, and so are constant across stations, so we can pull that part of the computation out
                 fo = fo * numberOfZones;
                 so = so * numberOfZones;
-                float[] autoMatrix = fastAuto.GetTimePeriodData(firstTime);
-                float[] transitMatrix = fastTransit.GetTimePeriodData(firstTime);
+                float[] firstAutoMatrix = fastAuto.GetTimePeriodData(firstTime);
+                float[] firstTransitMatrix = fastTransit.GetTimePeriodData(firstTime);
+                float[] secondAutoMatrix = fastAuto.GetTimePeriodData(secondTime);
+                float[] secondTransitMatrix = fastTransit.GetTimePeriodData(secondTime);
+                if(firstTransitMatrix == null || secondTransitMatrix == null)
+                {
+                    dependentUtility = float.NaN;
+                    return false;
+                }
                 float tivtt, twalk, twait, boarding, cost;
                 for(int i = 0; i < utils.Length; i++)
                 {
@@ -532,16 +539,16 @@ namespace Tasha.V4Modes
                     if(utils[i] > 0)
                     {
                         // transit utility
-                        tivtt = transitMatrix[stationToDestination1] + transitMatrix[origin2ToStation];
-                        twait = transitMatrix[stationToDestination1 + 1] + transitMatrix[origin2ToStation + 1];
-                        twalk = transitMatrix[stationToDestination1 + 2] + transitMatrix[origin2ToStation + 2];
-                        cost = transitMatrix[stationToDestination1 + 3] + transitMatrix[origin2ToStation + 3];
-                        boarding = transitMatrix[stationToDestination1 + 4] + transitMatrix[origin2ToStation + 4];
+                        tivtt = firstTransitMatrix[stationToDestination1] + secondTransitMatrix[origin2ToStation];
+                        twait = firstTransitMatrix[stationToDestination1 + 1] + secondTransitMatrix[origin2ToStation + 1];
+                        twalk = firstTransitMatrix[stationToDestination1 + 2] + secondTransitMatrix[origin2ToStation + 2];
+                        cost = firstTransitMatrix[stationToDestination1 + 3] + secondTransitMatrix[origin2ToStation + 3];
+                        boarding = firstTransitMatrix[stationToDestination1 + 4] + secondTransitMatrix[origin2ToStation + 4];
                         var transitUtil = tivtt * ivttBeta + twalk * TransitWalk + twait * TransitWait + cost * costBeta + boarding * TransitBoarding;
 
                         // auto utility
-                        tivtt = autoMatrix[origin1ToStation] + autoMatrix[stationToDestination2];
-                        cost = autoMatrix[origin1ToStation + 1] + autoMatrix[stationToDestination2 + 1];
+                        tivtt = firstAutoMatrix[origin1ToStation] + secondAutoMatrix[stationToDestination2];
+                        cost = firstAutoMatrix[origin1ToStation + 1] + secondAutoMatrix[stationToDestination2 + 1];
                         totalUtil += (transitUtil + tivtt * AutoInVehicleTime + costBeta * cost) * utils[i];
                     }
                 }
