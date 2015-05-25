@@ -98,9 +98,6 @@ namespace Tasha.V4Modes
         [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
         public bool UseCostAsFactorOfTime;
 
-        [RunParameter("ParkingCost", 0f, "The factor applied to the cost of parking for the destination zone.")]
-        public float ParkingCost;
-
         [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float ProfessionalTimeFactor;
         [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
@@ -137,6 +134,9 @@ namespace Tasha.V4Modes
 
         [RunParameter("Max Driver Time", "15 minutes", typeof(Time), "The amount of time that the driver can shift their trip by.")]
         public Time MaxDriverTimeThreshold;
+
+        [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculate the parking cost for.")]
+        public float MaximumHoursForParking;
 
         [DoNotAutomate]
         public ITashaMode AssociatedMode
@@ -275,6 +275,7 @@ namespace Tasha.V4Modes
                 (AutoData.TravelCost(driverOrigin, passengerOrigin, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerOrigin, passengerDestination, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerDestination, driverOriginalTrip.DestinationZone, passengerTrip.ActivityStartTime))
+                + driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip, driverOriginalTrip.TripChain))
                 ) * costFactor;
             switch(passengerTrip.Purpose)
             {
@@ -308,6 +309,20 @@ namespace Tasha.V4Modes
                 v += Over55;
             }
             return true;
+        }
+
+        private float TimeToNextTrip(ITrip trip, ITripChain chain)
+        {
+            var tchain = trip.TripChain.Trips;
+            for(int i = 0; i < tchain.Count - 1; i++)
+            {
+                if(tchain[i] == trip)
+                {
+                    // the number is (1/60)f
+                    return (tchain[i + 1].ActivityStartTime - trip.ActivityStartTime).ToMinutes() * 0.01666666666666f;
+                }
+            }
+            return 0f;
         }
 
         private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)

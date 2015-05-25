@@ -115,7 +115,7 @@ namespace Tasha.V4Modes
         [RunParameter("Over55", 0f, "The factor applied if the person is over the age of 55, but less than 65.")]
         public float Over55;
 
-        [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculat the parking cost for.")]
+        [RunParameter("Maximum Hours For Parking", 4.0f, "The maximum hours to calculate the parking cost for.")]
         public float MaximumHoursForParking;
 
         private INetworkData Network;
