@@ -108,6 +108,7 @@
     <Compile Include="ModeChoice\ZonalModeSplits.cs" />
     <Compile Include="PerformanceMeasures\AccessibilityCalculations.cs" />
     <Compile Include="PerformanceMeasures\RidershipCounts.cs" />
+    <Compile Include="PerformanceMeasures\TripChainMeasure.cs" />
     <Compile Include="PerformanceMeasures\VKTCalc.cs" />
     <Compile Include="PerformanceMeasures\TransferMatrixExport.cs" />
     <Compile Include="PopulationSynthesis\SocialValidation.cs" />
