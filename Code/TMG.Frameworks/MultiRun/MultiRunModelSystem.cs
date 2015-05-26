@@ -159,7 +159,6 @@ namespace TMG.Frameworks.MultiRun
             BatchCommands.Clear();
             // Add all of the basic commands to our dictionary for the execution engine
             TryAddBatchCommand("copy", CopyFiles, true);
-            TryAddBatchCommand("copy", CopyFiles, true);
             TryAddBatchCommand("changeparameter", ChangeParameter, true);
             TryAddBatchCommand("delete", DeleteFiles, true);
             TryAddBatchCommand("write", WriteToFile, true);

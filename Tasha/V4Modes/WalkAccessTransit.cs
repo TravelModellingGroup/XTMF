@@ -66,6 +66,16 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
 
+        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
+        public bool UseCostAsFactorOfTime;
+
+        private float ProfessionalCost;
+        private float GeneralCost;
+        private float SalesCost;
+        private float ManufacturingCost;
+        private float StudentCost;
+        private float NonWorkerStudentCost;
+
         [RunParameter("ProfessionalConstant", 0f, "The constant applied to the person type.")]
         public float ProfessionalConstant;
         [RunParameter("GeneralConstant", 0f, "The constant applied to the person type.")]
@@ -92,14 +102,46 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float NonWorkerStudentTimeFactor;
 
-        [RunParameter("WalkTimeFactor", 0f, "The factor applied to the walk time (minutes).")]
-        public float WalkTimeFactor;
 
-        [RunParameter("WaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
-        public float WaitTimeFactor;
+        [RunParameter("ProfessionalWalkTimeFactor", 0f, "The factor applied to the walk time (minutes).")]
+        public float ProfessionalWalkTimeFactor;
+        [RunParameter("GeneralWalkTimeFactor", 0f, "The factor applied to the walk time (minutes).")]
+        public float GeneralWalkTimeFactor;
+        [RunParameter("SalesWalkTimeFactor", 0f, "The factor applied to the walk time (minutes).")]
+        public float SalesWalkTimeFactor;
+        [RunParameter("ManufacturingWalkTimeFactor", 0f, "The factor applied to the walk time (minutes).")]
+        public float ManufacturingWalkTimeFactor;
+        [RunParameter("StudentWalkTimeFactor", 0f, "The factor applied to the walk time (minutes).")]
+        public float StudentWalkTimeFactor;
+        [RunParameter("NonWorkerStudentWalkTimeFactor", 0f, "The factor applied to the walk time (minutes).")]
+        public float NonWorkerStudentWalkTimeFactor;
 
-        [RunParameter("BoardingFactor", 0f, "The factor applied to the boarding penalties.")]
-        public float BoardingFactor;
+        [RunParameter("ProfessionalWaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
+        public float ProfessionalWaitTimeFactor;
+        [RunParameter("GeneralWaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
+        public float GeneralWaitTimeFactor;
+        [RunParameter("SalesWaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
+        public float SalesWaitTimeFactor;
+        [RunParameter("ManufacturingWaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
+        public float ManufacturingWaitTimeFactor;
+        [RunParameter("StudentWaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
+        public float StudentWaitTimeFactor;
+        [RunParameter("NonWorkerStudentWaitTimeFactor", 0f, "The factor applied to the wait time (minutes).")]
+        public float NonWorkerStudentWaitTimeFactor;
+
+
+        [RunParameter("ProfessionalBoardingFactor", 0f, "The factor applied to the boarding penalties.")]
+        public float ProfessionalBoardingFactor;
+        [RunParameter("GeneralBoardingFactor", 0f, "The factor applied to the boarding penalties.")]
+        public float GeneralBoardingFactor;
+        [RunParameter("SalesBoardingFactor", 0f, "The factor applied to the boarding penalties.")]
+        public float SalesBoardingFactor;
+        [RunParameter("ManufacturingBoardingFactor", 0f, "The factor applied to the boarding penalties.")]
+        public float ManufacturingBoardingFactor;
+        [RunParameter("StudentBoardingFactor", 0f, "The factor applied to the boarding penalties.")]
+        public float StudentBoardingFactor;
+        [RunParameter("NonWorkerStudentBoardingFactor", 0f, "The factor applied to the boarding penalties.")]
+        public float NonWorkerStudentBoardingFactor;
 
         [RunParameter("Vehicle Type", "Auto", "The name of the type of vehicle to use.")]
         public string VehicleTypeName;
@@ -165,8 +207,8 @@ namespace Tasha.V4Modes
             IZone destinationZone = trip.DestinationZone;
             var d = zoneArray.GetFlatIndex(destinationZone.ZoneNumber );
             var p = trip.TripChain.Person;
-            float timeFactor, constant, costFactor;
-            GetPersonVariables(p, out timeFactor, out constant, out costFactor);
+            float timeFactor, constant, costFactor, walkBeta, waitBeta, boardingBeta;
+            GetPersonVariables(p, out constant, out timeFactor, out walkBeta, out waitBeta, out boardingBeta, out costFactor);
             float v = constant;
             // if Intrazonal
             if ( o == d )
@@ -185,9 +227,9 @@ namespace Tasha.V4Modes
                 if ( Network.GetAllData( o, d, trip.TripStartTime, out ivtt, out walk, out wait, out boarding, out cost) )
                 {
                     v += ivtt * timeFactor
-                        + walk * WalkTimeFactor
-                        + wait * WaitTimeFactor
-                        + boarding * BoardingFactor
+                        + walk * walkBeta
+                        + wait * waitBeta
+                        + boarding * boardingBeta
                         + cost * costFactor;
                 }
                 else
@@ -222,31 +264,43 @@ namespace Tasha.V4Modes
             return (double)v;
         }
 
-        private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
+        private void GetPersonVariables(ITashaPerson person, out float constant, out float time, out float walk, out float wait, out float boarding, out float cost)
         {
             if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
             {
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
+                        walk = ProfessionalWalkTimeFactor;
+                        wait = ProfessionalWaitTimeFactor;
+                        boarding = ProfessionalBoardingFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
+                        walk = GeneralWalkTimeFactor;
+                        wait = GeneralWaitTimeFactor;
+                        boarding = GeneralBoardingFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
+                        walk = SalesWalkTimeFactor;
+                        wait = SalesWaitTimeFactor;
+                        boarding = SalesBoardingFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
+                        walk = ManufacturingWalkTimeFactor;
+                        wait = ManufacturingWaitTimeFactor;
+                        boarding = ManufacturingBoardingFactor;
                         return;
                 }
             }
@@ -254,9 +308,12 @@ namespace Tasha.V4Modes
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
-                    cost = StudentCostFactor;
+                    cost = StudentCost;
                     constant = StudentConstant;
                     time = StudentTimeFactor;
+                    walk = StudentWalkTimeFactor;
+                    wait = StudentWaitTimeFactor;
+                    boarding = StudentBoardingFactor;
                     return;
             }
             if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
@@ -264,31 +321,45 @@ namespace Tasha.V4Modes
                 switch(person.Occupation)
                 {
                     case Occupation.Professional:
-                        cost = ProfessionalCostFactor;
+                        cost = ProfessionalCost;
                         constant = ProfessionalConstant;
                         time = ProfessionalTimeFactor;
+                        walk = ProfessionalWalkTimeFactor;
+                        wait = ProfessionalWaitTimeFactor;
+                        boarding = ProfessionalBoardingFactor;
                         return;
                     case Occupation.Office:
-                        cost = GeneralCostFactor;
+                        cost = GeneralCost;
                         constant = GeneralConstant;
                         time = GeneralTimeFactor;
+                        walk = GeneralWalkTimeFactor;
+                        wait = GeneralWaitTimeFactor;
+                        boarding = GeneralBoardingFactor;
                         return;
                     case Occupation.Retail:
-                        cost = SalesCostFactor;
+                        cost = SalesCost;
                         constant = SalesConstant;
                         time = SalesTimeFactor;
+                        walk = SalesWalkTimeFactor;
+                        wait = SalesWaitTimeFactor;
+                        boarding = SalesBoardingFactor;
                         return;
                     case Occupation.Manufacturing:
-                        cost = ManufacturingCostFactor;
+                        cost = ManufacturingCost;
                         constant = ManufacturingConstant;
                         time = ManufacturingTimeFactor;
+                        walk = ManufacturingWalkTimeFactor;
+                        wait = ManufacturingWaitTimeFactor;
+                        boarding = ManufacturingBoardingFactor;
                         return;
                 }
             }
-            cost = NonWorkerStudentCostFactor;
+            cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
-            return;
+            walk = NonWorkerStudentWalkTimeFactor;
+            wait = NonWorkerStudentWaitTimeFactor;
+            boarding = NonWorkerStudentBoardingFactor;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
@@ -407,6 +478,25 @@ namespace Tasha.V4Modes
             {
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
                 ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
+            }
+
+            if(UseCostAsFactorOfTime)
+            {
+                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
+            }
+            else
+            {
+                ProfessionalCost = ProfessionalCostFactor;
+                GeneralCost = GeneralCostFactor;
+                SalesCost = SalesCostFactor;
+                ManufacturingCost = ManufacturingCostFactor;
+                StudentCost = StudentCostFactor;
+                NonWorkerStudentCost = NonWorkerStudentCostFactor;
             }
         }
 

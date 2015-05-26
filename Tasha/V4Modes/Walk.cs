@@ -50,6 +50,19 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentConstant", 0f, "The constant applied to the person type.")]
         public float NonWorkerStudentConstant;
 
+        [RunParameter("ProfessionalWalkTimeFactor", 0f, "The Walk applied to the person type.")]
+        public float ProfessionalWalk;
+        [RunParameter("GeneralWalkTimeFactor", 0f, "The Walk applied to the person type.")]
+        public float GeneralWalk;
+        [RunParameter("SalesWalkTimeFactor", 0f, "The Walk applied to the person type.")]
+        public float SalesWalk;
+        [RunParameter("ManufacturingWalkTimeFactor", 0f, "The Walk applied to the person type.")]
+        public float ManufacturingWalk;
+        [RunParameter("StudentWalkTimeFactor", 0f, "The Walk applied to the person type.")]
+        public float StudentWalk;
+        [RunParameter("NonWorkerStudentWalkTimeFactor", 0f, "The Walk applied to the person type.")]
+        public float NonWorkerStudentWalk;
+
         [RunParameter( "DriversLicenseFlag", 0.0f, "The constant factor for having a driver's license" )]
         public float DriversLicenseFlag;
 
@@ -132,8 +145,8 @@ namespace Tasha.V4Modes
         {
             double v = 0;
             ITashaPerson Person = trip.TripChain.Person;
-            float constant;
-            GetPersonVariables(Person, out constant);
+            float constant, walkBeta;
+            GetPersonVariables(Person, out constant, out walkBeta);
             v += constant;
 
             //if person has a license
@@ -145,8 +158,8 @@ namespace Tasha.V4Modes
             IZone origin = trip.OriginalZone;
             IZone destination = trip.DestinationZone;
             Time startTime = trip.ActivityStartTime;
-            v += TravelTime(origin, destination, startTime).ToMinutes() 
-                * this.TravelTimeFactor;
+            v += TravelTime(origin, destination, startTime).ToMinutes() * walkBeta;
+
 
             //checking if child
             if ( Person.Youth )
@@ -204,7 +217,7 @@ namespace Tasha.V4Modes
             return 0f;
         }
 
-        private void GetPersonVariables(ITashaPerson person, out float constant)
+        private void GetPersonVariables(ITashaPerson person, out float constant, out float walk)
         {
             if(person.EmploymentStatus == TTSEmploymentStatus.FullTime)
             {
@@ -212,15 +225,19 @@ namespace Tasha.V4Modes
                 {
                     case Occupation.Professional:
                         constant = ProfessionalConstant;
+                        walk = ProfessionalWalk;
                         return;
                     case Occupation.Office:
                         constant = GeneralConstant;
+                        walk = GeneralWalk;
                         return;
                     case Occupation.Retail:
                         constant = SalesConstant;
+                        walk = SalesWalk;
                         return;
                     case Occupation.Manufacturing:
                         constant = ManufacturingConstant;
+                        walk = ManufacturingWalk;
                         return;
                 }
             }
@@ -229,6 +246,7 @@ namespace Tasha.V4Modes
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
                     constant = StudentConstant;
+                    walk = StudentWalk;
                     return;
             }
             if(person.EmploymentStatus == TTSEmploymentStatus.PartTime)
@@ -237,19 +255,24 @@ namespace Tasha.V4Modes
                 {
                     case Occupation.Professional:
                         constant = ProfessionalConstant;
+                        walk = ProfessionalWalk;
                         return;
                     case Occupation.Office:
                         constant = GeneralConstant;
+                        walk = GeneralWalk;
                         return;
                     case Occupation.Retail:
                         constant = SalesConstant;
+                        walk = SalesWalk;
                         return;
                     case Occupation.Manufacturing:
                         constant = ManufacturingConstant;
+                        walk = ManufacturingWalk;
                         return;
                 }
             }
             constant = NonWorkerStudentConstant;
+            walk = NonWorkerStudentWalk;
             return;
         }
 
