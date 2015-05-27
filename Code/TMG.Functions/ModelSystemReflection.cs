@@ -28,14 +28,14 @@ namespace TMG.Functions
         public static void AssignValue(IModelSystemStructure root, string parameterName, string value)
         {
             string[] parts = SplitNameToParts(parameterName);
-            AssignValue(parts, 0, root, value);
+            AssignValue(parameterName, parts, 0, root, value);
         }
 
-        private static void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, string value)
+        private static void AssignValue(string fullPath, string[] parts, int currentIndex, IModelSystemStructure currentStructure, string value)
         {
             if(currentIndex == parts.Length - 1)
             {
-                AssignValue(parts[currentIndex], currentStructure, value);
+                AssignValue(fullPath, parts[currentIndex], currentStructure, value);
                 return;
             }
             if(currentStructure.Children != null)
@@ -44,16 +44,16 @@ namespace TMG.Functions
                 {
                     if(currentStructure.Children[i].Name == parts[currentIndex])
                     {
-                        AssignValue(parts, currentIndex + 1, currentStructure.Children[i], value);
+                        AssignValue(fullPath, parts, currentIndex + 1, currentStructure.Children[i], value);
                         return;
                     }
                 }
             }
             throw new XTMFRuntimeException("Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
-                + "' in order to assign parameters!");
+                + "' in order to assign parameters!\r\nFull Path:'" + fullPath + "'");
         }
 
-        private static void AssignValue(string variableName, IModelSystemStructure currentStructure, string value)
+        private static void AssignValue(string fullPath, string variableName, IModelSystemStructure currentStructure, string value)
         {
             if(currentStructure == null)
             {
@@ -101,7 +101,7 @@ namespace TMG.Functions
             if(!any)
             {
                 throw new XTMFRuntimeException("Unable to find a parameter named '" + variableName
-                    + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!");
+                    + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!\r\nFull Path:'"+ fullPath + "'");
             }
         }
 
