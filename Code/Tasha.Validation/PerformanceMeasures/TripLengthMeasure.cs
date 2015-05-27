@@ -42,7 +42,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("Min Age", 11, "The minimum age to record the results for.")]
         public int MinAge;
 
-        [RunParameter("Max Distance", 20, "The maximum distance (km) to analyze (anything over this distance will be aggregated under the same bin)")]
+        [RunParameter("Max Distance", 30, "The maximum distance (km) to analyze (anything over this distance will be aggregated under the same bin)")]
         public int MaxDistanceInKm;
 
         [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]
@@ -88,19 +88,17 @@ namespace Tasha.Validation.PerformanceMeasures
                         expFactor = 1.0f;
                     }
 
-                    if (person.Age < MinAge)
+                    if (person.Age >= MinAge)
                     {
-                        continue;
-                    }
-
-                    foreach (var tripChain in person.TripChains)
-                    {
-                        foreach (var trip in tripChain.Trips)
+                        foreach (var tripChain in person.TripChains)
                         {
-                            if (trip.Mode != null)
+                            foreach (var trip in tripChain.Trips)
                             {
-                                var tripDistance = distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
-                                AddToResults(trip.Purpose, tripDistance * 0.001f, expFactor);
+                                if (trip.Mode != null)
+                                {
+                                    var tripDistance = distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
+                                    AddToResults(trip.Purpose, tripDistance * 0.001f, expFactor);
+                                }
                             }
                         }
                     }
