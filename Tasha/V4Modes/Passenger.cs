@@ -243,7 +243,8 @@ namespace Tasha.V4Modes
             int driverDestination = ZoneSystem.GetFlatIndex(driverDestinationZone.ZoneNumber);
             var autoData = FastAutoData.GetTimePeriodData(driverOriginalTrip.ActivityStartTime);
             v = float.NegativeInfinity;
-            if(!IsThereEnoughTimeFast(autoData, driverOriginalTrip, passengerTrip,
+            if(autoData == null || 
+                !IsThereEnoughTimeFast(autoData, driverOriginalTrip, passengerTrip,
                 driverOrigin, passengerOrigin, passengerDestination, driverDestination,
                 out dToPTime, out tToPD, out tToDD))
             {
