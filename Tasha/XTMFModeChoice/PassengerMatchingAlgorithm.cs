@@ -18,8 +18,10 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Tasha.Common;
 using TMG;
+using TMG.Functions;
 using XTMF;
 
 namespace Tasha.XTMFModeChoice
@@ -415,13 +417,10 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float GenerateEpsilon(Random rand)
         {
-            double u1 = rand.NextDouble();
-            double u2 = rand.NextDouble();
-            double r = Math.Sqrt(-2.0 * Math.Log(u1));
-            double theta = 2.0 * Math.PI * u2;
-            return (float)((r * Math.Sin(theta)) * PassengerMode.VarianceScale);
+            return (float)(RandomNumberHelper.SampleNormalDistribution(rand) * PassengerMode.VarianceScale);
         }
 
         private List<ITrip> GetUniquePassengerTrips()

@@ -141,6 +141,7 @@ namespace XTMF
                 | ( end2.InternalTime < start1.InternalTime ) );
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Intersection(Time start1, Time end1, Time start2, Time end2, out Time intersection)
         {
             if ( ( end1.InternalTime < start2.InternalTime )
@@ -165,6 +166,7 @@ namespace XTMF
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Intersection(Time start1, Time end1, Time start2, Time end2, out Time intersectionStart, out Time intersectionEnd)
         {
             if ( end1.InternalTime < start2.InternalTime

@@ -119,6 +119,7 @@
     <Compile Include="GravityModel.cs" />
     <Compile Include="PerformanceTesting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomNumberHelper.cs" />
     <Compile Include="SaveData.cs" />
     <Compile Include="SinglyConstrainedGravityModel.cs" />
     <Compile Include="TransitLines.cs" />

@@ -17,6 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Runtime.CompilerServices;
+using Datastructure;
 using Tasha.Common;
 using TMG;
 using XTMF;
@@ -29,6 +31,9 @@ namespace Tasha.V4Modes
     {
         [DoNotAutomate]
         public INetworkData AutoData;
+
+        [DoNotAutomate]
+        public INetworkCompleteData FastAutoData;
 
         [RootModule]
         public ITashaRuntime Root;
@@ -218,6 +223,110 @@ namespace Tasha.V4Modes
         }
 
         public bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
+        {
+            return FastAutoData != null? FastCalcV(driverOriginalTrip, passengerTrip, out v) : NonFastCalcV(driverOriginalTrip, passengerTrip, out v);
+        }
+
+        private SparseArray<IZone> ZoneSystem;
+        private float[][] ZoneDistances;
+
+        private bool FastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
+        {
+            float dToPTime;
+            float tToPD;
+            float tToDD;
+            var numberOfZones = ZoneSystem.Count;
+            IZone driverDestinationZone = driverOriginalTrip.DestinationZone;
+            int passengerOrigin = ZoneSystem.GetFlatIndex(passengerTrip.OriginalZone.ZoneNumber);
+            int passengerDestination = ZoneSystem.GetFlatIndex(passengerTrip.DestinationZone.ZoneNumber);
+            int driverOrigin = ZoneSystem.GetFlatIndex(driverOriginalTrip.OriginalZone.ZoneNumber);
+            int driverDestination = ZoneSystem.GetFlatIndex(driverDestinationZone.ZoneNumber);
+            var autoData = FastAutoData.GetTimePeriodData(driverOriginalTrip.ActivityStartTime);
+            v = float.NegativeInfinity;
+            if(!IsThereEnoughTimeFast(autoData, driverOriginalTrip, passengerTrip,
+                driverOrigin, passengerOrigin, passengerDestination, driverDestination,
+                out dToPTime, out tToPD, out tToDD))
+            {
+                return false;
+            }
+            // Since this is going to be valid, start building a real utility!
+            v = 0f;
+            var sameOrigin = passengerOrigin == driverOrigin;
+            var sameDestination = passengerDestination == driverDestination;
+            var passenger = passengerTrip.TripChain.Person;
+            // we are going to add in the time of the to passenger destination twice
+            int same = 0;
+            // from driver's origin to passenger's origin
+            if(dToPTime <= 0.0f)
+            {
+                v += ZoneDistances[driverOrigin][passengerOrigin] * 0.001f * IntrazonalDriverTripDistanceFactor;
+                same++;
+            }
+            //from passenger origin to passenger destination
+            if(tToPD <= 0.0f)
+            {
+                v += ZoneDistances[passengerOrigin][passengerDestination] * 0.001f * IntrazonalPassengerTripDistanceFactor;
+                same++;
+            }
+            // time to driver destination
+            if(tToDD <= 0.0f)
+            {
+                v += ZoneDistances[passengerDestination][driverDestination] * 0.001f * IntrazonalDriverTripDistanceFactor;
+                same++;
+            }
+            float timeFactor, passengerConstant, costFactor;
+            GetPersonVariables(passenger, out timeFactor, out passengerConstant, out costFactor);
+            // if all three are the same then apply the intrazonal constant, otherwise use the regular constant
+            v += passengerConstant;
+            if(same == 3)
+            {
+                v += IntrazonalConstant;
+            }
+            // apply the travel times (don't worry if we have intrazonals because they will be 0's).
+            v += (dToPTime + tToPD + tToDD + tToPD) * timeFactor;
+            Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
+            // Add in the travel cost
+            v += (
+                 (autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones) + 1]
+                + autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones) + 1]
+                + autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones) + 1])
+                + driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip, driverOriginalTrip.TripChain))
+                ) * costFactor;
+            switch(passengerTrip.Purpose)
+            {
+                case Activity.School:
+                    v += SchoolFlag;
+                    break;
+                case Activity.IndividualOther:
+                case Activity.JointOther:
+                    v += OtherFlag;
+                    break;
+                case Activity.Market:
+                case Activity.JointMarket:
+                    v += MarketFlag;
+                    break;
+            }
+
+            if(passenger.Female) v += FemaleFlag;
+            if(passenger.Licence) v += PassengerHasLicenseFlag;
+            if(sameOrigin | sameDestination)
+            {
+                v += (sameOrigin & sameDestination) ? ShareBothPointsFlag : ShareAPointFlag;
+            }
+            var age = passenger.Age;
+            v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
+            if(age >= 65)
+            {
+                v += Over65;
+            }
+            else if(age >= 55)
+            {
+                v += Over55;
+            }
+            return true;
+        }
+
+        private bool NonFastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
             Time dToPTime;
             Time tToPD;
@@ -484,6 +593,7 @@ namespace Tasha.V4Modes
                 error = "We were unable to find the network data with the name \"Auto\" in this Model System!";
                 return false;
             }
+            FastAutoData = AutoData as INetworkCompleteData;
             return true;
         }
 
@@ -499,17 +609,65 @@ namespace Tasha.V4Modes
             return AutoData.TravelTime(origin, destination, time);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int CalculateBaseIndex(int origin, int desintation, int numberOfZones)
+        {
+            return (origin * numberOfZones + desintation) << 1;
+        }
+
+        private bool IsThereEnoughTimeFast(float[] autoData, ITrip driverOriginalTrip, ITrip passengerTrip,
+            int driverOrigin, int passengerOrigin, int passengerDestination, int driverDestination, out float dToPTime, out float tToPD, out float tToDD)
+        {
+            var numberOfZones = ZoneSystem.Count;
+            // Check to see if the driver is able to get there
+            Time driverActivityStartTime = driverOriginalTrip.ActivityStartTime;
+            var driverTripStartTime = driverActivityStartTime - Time.FromMinutes(autoData[CalculateBaseIndex(driverOrigin, driverDestination, numberOfZones)]);
+            Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
+            Time earliestPassenger = passengerActivityStartTime - MaxPassengerTimeThreshold;
+            Time latestPassenger = passengerActivityStartTime + MaxPassengerTimeThreshold;
+            
+            Time originalDriverTime = driverActivityStartTime - driverTripStartTime;
+            // check to see if the driver is able to get to their destination
+            var timeToPassenger = Time.FromMinutes(dToPTime = autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones)]);
+            var driverArrivesAt = driverTripStartTime + timeToPassenger;
+            var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
+            var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
+            Time overlapStart, overlapEnd;
+            if(!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd))
+            {
+                tToPD = 0.0f;
+                tToDD = 0.0f;
+                return false;
+            }
+
+            var midLegTravelTime = Time.FromMinutes(tToPD = autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones)]);
+            if(passengerDestination != driverDestination)
+            {
+                tToDD = autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones)];
+            }
+            else
+            {
+                tToDD = 0.0f;
+            }
+            if(overlapStart + timeToPassenger + midLegTravelTime + Time.FromMinutes(tToDD) > driverActivityStartTime + MaxDriverTimeThreshold)
+            {
+                return false;
+            }
+            return true;
+        }
+
         private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time dToPTime, out Time tToPD, out Time tToDD)
         {
             // Check to see if the driver is able to get there
+            var driverTripStartTime = driverOriginalTrip.TripStartTime;
             Time earliestPassenger = passengerTrip.ActivityStartTime - MaxPassengerTimeThreshold;
             Time latestPassenger = passengerTrip.ActivityStartTime + MaxPassengerTimeThreshold;
-            Time originalDriverTime = driverOriginalTrip.ActivityStartTime - driverOriginalTrip.TripStartTime;
+            Time originalDriverTime = driverOriginalTrip.ActivityStartTime - driverTripStartTime;
             IZone passengerOrigin = passengerTrip.OriginalZone;
             IZone driverOrigin = driverOriginalTrip.OriginalZone;
             // check to see if the driver is able to get to their destination
-            var timeToPassenger = dToPTime = TravelTime(driverOrigin, passengerOrigin, driverOriginalTrip.TripStartTime);
-            var driverArrivesAt = driverOriginalTrip.TripStartTime + timeToPassenger;
+            var timeToPassenger = dToPTime = TravelTime(driverOrigin, passengerOrigin, driverTripStartTime);
+            var driverArrivesAt = driverTripStartTime + timeToPassenger;
             var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
             var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
             Time overlapStart, overlapEnd;
@@ -547,10 +705,12 @@ namespace Tasha.V4Modes
         private float[] AgeUtilLookup;
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
+            ZoneSystem = Root.ZoneSystem.ZoneArray;
+            ZoneDistances = Root.ZoneSystem.Distances.GetFlatData();
             AgeUtilLookup = new float[16];
             for(int i = 0; i < AgeUtilLookup.Length; i++)
             {
-                AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
+                AgeUtilLookup[i] = (float)Math.Log(i + 1) * LogOfAgeFactor;
             }
 
             if(UseCostAsFactorOfTime)

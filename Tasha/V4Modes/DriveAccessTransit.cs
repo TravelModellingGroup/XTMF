@@ -459,7 +459,8 @@ namespace Tasha.V4Modes
                 dependentUtility = float.NaN;
                 return false;
             }
-            dependentUtility = GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
+            dependentUtility = GetPlanningDistrictConstant(firstTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict)
+                + GetPlanningDistrictConstant(secondTime, secondOrigin.PlanningDistrict, secondDestination.PlanningDistrict);
             totalUtil = 1 / totalUtil;
             // we still need to do this in order to reduce time for computing the selected access station
             if(VectorHelper.IsHardwareAccelerated)
