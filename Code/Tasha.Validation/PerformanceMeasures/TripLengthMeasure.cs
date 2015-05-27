@@ -42,7 +42,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("Min Age", 11, "The minimum age to record the results for.")]
         public int MinAge;
 
-        [RunParameter("Max Distance", 30, "The maximum distance (km) to analyze (anything over this distance will be aggregated under the same bin)")]
+        [RunParameter("Max Distance", 40, "The maximum distance (km) to analyze (anything over this distance will be aggregated under the same bin)")]
         public int MaxDistanceInKm;
 
         [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]

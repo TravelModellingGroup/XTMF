@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Datastructure;
 using Tasha.Common;
 using TMG.Input;
@@ -149,6 +150,8 @@ namespace Tasha.Validation.PerformanceMeasures
         public void IterationFinished(int iteration)
         {
             var zoneFlatData = Root.ZoneSystem.ZoneArray.GetFlatData();
+            PurposeDictionary.OrderBy(k => k.Key);
+
             // only run on the last iteration
             if(iteration == Root.Iterations - 1)
             {
