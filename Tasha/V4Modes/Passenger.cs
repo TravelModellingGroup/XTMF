@@ -100,9 +100,6 @@ namespace Tasha.V4Modes
         private float StudentCost;
         private float NonWorkerStudentCost;
 
-        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
-        public bool UseCostAsFactorOfTime;
-
         [RunParameter("ProfessionalTimeFactor", 0f, "The TimeFactor applied to the person type.")]
         public float ProfessionalTimeFactor;
         [RunParameter("GeneralTimeFactor", 0f, "The TimeFactor applied to the person type.")]
