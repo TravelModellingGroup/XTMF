@@ -148,12 +148,12 @@ namespace Tasha.Validation.PerformanceMeasures
                     writer.Write("{0},", i);
                 }
                 writer.WriteLine();
-                foreach (var purpose in ResultsDictionary.Keys)
+                foreach (var pair in ResultsDictionary.OrderBy(k=>k.Key))
                 {
-                    writer.Write("{0}, ", purpose.ToString());
-                    for (int j = 0; j < ResultsDictionary[purpose].Length; j++)
+                    writer.Write("{0}, ", pair.Key.ToString());
+                    for (int j = 0; j < ResultsDictionary[pair.Key].Length; j++)
                     {
-                        writer.Write("{0}, ", ResultsDictionary[purpose][j]);
+                        writer.Write("{0}, ", ResultsDictionary[pair.Key][j]);
                     }
                     writer.WriteLine();
                 }

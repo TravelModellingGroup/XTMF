@@ -30,20 +30,20 @@ using XTMF;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
-    public class RidershipCounts : IEmmeTool
+    public class LinkVolumes : IEmmeTool
     {
-        private const string _ToolName = "tmg.analysis.transit.strategy_analysis.volume_per_operator";
+        private const string _ToolName = "tmg.analysis.link_specific_volumes";
 
-        [SubModelInformation(Required = true, Description = "Ridership results .CSV file")]
-        public FileLocation RidershipResults;
+        [SubModelInformation(Required = true, Description = "Volume results .CSV file")]
+        public FileLocation LinkVolumeResults;
 
         [RunParameter("Scenario Numbers", "1", typeof(NumberList), "A comma separated list of scenario numbers to execute this against.")]
         public NumberList ScenarioNumbers;
 
-        [SubModelInformation(Required = false, Description = "Operators to Consider")]
-        public Operator[] OperatorsToConsider;
+        [SubModelInformation(Required = false, Description = "The different links to consider")]
+        public LinksToConsider[] LinksConsidered;
    
-        public sealed class Operator : XTMF.IModule
+        public sealed class LinksToConsider : XTMF.IModule
         {
             public string Name { get; set; }
 
@@ -51,47 +51,15 @@ namespace Tasha.Validation.PerformanceMeasures
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-            [RunParameter("Label", "", "What label do you want to apply to this operator")]
-            public string Label;
+            [RunParameter("Label", "HWY407westOf404W", "The appropriate label for this link")]
+            public string Label;                
 
-            [RunParameter("Line Filter", "", "Appropriate line filter for lines with this operator")]
-            public string LineFilter;
-
-            [RunParameter("Mode Filter", "", "Appropriate mode filter for this operator")]
-            public string ModeFilter;
-
-            [RunParameter("Custom Filter", "", "A custom made filter that you would like to apply to the network")]
-            public string CustomFilter;
+            [RunParameter("i,j of link", "123,123", "The i,j tuple of the line separated by a comma")]
+            public string ijLink;            
 
             internal string ReturnFilter(ModellerController controller)
             {   
-                string filterExpression = Label.Replace('"', '\'') + ":";
-
-                if(!String.IsNullOrWhiteSpace(CustomFilter))
-                {
-                    filterExpression += CustomFilter.Replace('"', '\'');                        
-                }
-
-                else if(!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter))
-                {
-                    filterExpression += 
-                        (LineFilter.Contains("=") ? LineFilter.Replace('"', '\'') : "line=" + LineFilter.Replace('"', '\'')) + " and " 
-                        + (ModeFilter.Contains("=") ? ModeFilter.Replace('"', '\'') : "mode=" + ModeFilter.Replace('"', '\''));
-                }
-
-                else if(!String.IsNullOrWhiteSpace(LineFilter))
-                {
-                    filterExpression += 
-                        (LineFilter.Contains("=") ? LineFilter.Replace('"', '\'') : "line=" + LineFilter.Replace('"', '\''));
-                }
-
-                else
-                {
-                    filterExpression += 
-                        (ModeFilter.Contains("=") ? ModeFilter.Replace('"', '\'') : "mode=" + ModeFilter.Replace('"', '\''));
-                }
-
-                return filterExpression;
+                return Label.Replace('"', '\'') + ": link=" + ijLink.Replace('"', '\'');                                                
             }
 
             public bool RuntimeValidation(ref string error)
@@ -101,12 +69,12 @@ namespace Tasha.Validation.PerformanceMeasures
                     error = "In " + Name + " the label parameter was left blank.";
                     return false;
                 }
-
-                if(((!String.IsNullOrWhiteSpace(LineFilter)) || (!String.IsNullOrWhiteSpace(ModeFilter))) && (!String.IsNullOrWhiteSpace(CustomFilter)))
+                else if (String.IsNullOrWhiteSpace(ijLink))
                 {
-                    error = "In " + Name + " the line/mode and custom filters are all filled in. Please fill in either the line/mode or custom, but not both sets of filters.";
-                    return false;                    
+                    error = "in " + Name + " the ij link parameter was left blank";
+                    return false;
                 }
+
                 return true;
             }
         }
@@ -114,8 +82,8 @@ namespace Tasha.Validation.PerformanceMeasures
         private string GenerageArgumentString(ModellerController controller)
         {
             var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
-            var filterString = "\"" + string.Join(",", OperatorsToConsider.Select(b => b.ReturnFilter(controller))) + "\"";
-            return "\"" + scenarioString + "\" " + filterString + "\"" + Path.GetFullPath(RidershipResults) + "\" ";
+            var linkString = "\"" + string.Join(",", LinksConsidered.Select(b => b.ReturnFilter(controller))) + "\"";
+            return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" ";
         }
 
         public bool Execute(Controller controller)

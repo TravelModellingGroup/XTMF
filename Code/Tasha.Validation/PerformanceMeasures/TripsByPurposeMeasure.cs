@@ -151,6 +151,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             var zoneFlatData = Root.ZoneSystem.ZoneArray.GetFlatData();
             PurposeDictionary.OrderBy(k => k.Key);
+            SummaryTripCount.OrderBy(k => k.Key);
 
             // only run on the last iteration
             if(iteration == Root.Iterations - 1)
@@ -160,12 +161,12 @@ namespace Tasha.Validation.PerformanceMeasures
                 using (StreamWriter Writer = new StreamWriter(filePath))
                 {
                     Writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
-                    foreach(var purpose in PurposeDictionary.Keys)
+                    foreach(var pair in PurposeDictionary.OrderBy(k => k.Key))
                     {
-                        var format = purpose.ToString() + ",{0},{1}";
-                        for(int i = 0; i < PurposeDictionary[purpose].Length; i++)
+                        var format = pair.Key.ToString() + ",{0},{1}";
+                        for(int i = 0; i < PurposeDictionary[pair.Key].Length; i++)
                         {
-                            Writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[purpose][i]);
+                            Writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[pair.Key][i]);
                         }
                     }
                 }
@@ -175,7 +176,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 using (StreamWriter Writer = new StreamWriter(summaryFilePath))
                 {
                     Writer.WriteLine("Purpose, Number of Occurrences");
-                    foreach(var pair in SummaryTripCount)
+                    foreach(var pair in SummaryTripCount.OrderBy(k => k.Key))
                     {
                         Writer.WriteLine("{0}, {1}", pair.Key.ToString(), pair.Value);
                     }
