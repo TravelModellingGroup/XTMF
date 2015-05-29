@@ -67,9 +67,6 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
 
-        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
-        public bool UseCostAsFactorOfTime;
-
         private float ProfessionalCost;
         private float GeneralCost;
         private float SalesCost;
@@ -435,24 +432,12 @@ namespace Tasha.V4Modes
                 AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
             }
 
-            if(UseCostAsFactorOfTime)
-            {
-                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
-                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
-                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
-                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
-                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
-            }
-            else
-            {
-                ProfessionalCost = ProfessionalCostFactor;
-                GeneralCost = GeneralCostFactor;
-                SalesCost = SalesCostFactor;
-                ManufacturingCost = ManufacturingCostFactor;
-                StudentCost = StudentCostFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor;
-            }
+            ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+            GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+            SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+            ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+            StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+            NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
         }
     }
 }

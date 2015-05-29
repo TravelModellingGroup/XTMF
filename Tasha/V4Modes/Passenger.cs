@@ -224,7 +224,7 @@ namespace Tasha.V4Modes
 
         public bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
-            return FastAutoData != null? FastCalcV(driverOriginalTrip, passengerTrip, out v) : NonFastCalcV(driverOriginalTrip, passengerTrip, out v);
+            return FastAutoData != null ? FastCalcV(driverOriginalTrip, passengerTrip, out v) : NonFastCalcV(driverOriginalTrip, passengerTrip, out v);
         }
 
         private SparseArray<IZone> ZoneSystem;
@@ -243,7 +243,7 @@ namespace Tasha.V4Modes
             int driverDestination = ZoneSystem.GetFlatIndex(driverDestinationZone.ZoneNumber);
             var autoData = FastAutoData.GetTimePeriodData(driverOriginalTrip.ActivityStartTime);
             v = float.NegativeInfinity;
-            if(autoData == null || 
+            if(autoData == null ||
                 !IsThereEnoughTimeFast(autoData, driverOriginalTrip, passengerTrip,
                 driverOrigin, passengerOrigin, passengerDestination, driverDestination,
                 out dToPTime, out tToPD, out tToDD))
@@ -626,7 +626,7 @@ namespace Tasha.V4Modes
             Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
             Time earliestPassenger = passengerActivityStartTime - MaxPassengerTimeThreshold;
             Time latestPassenger = passengerActivityStartTime + MaxPassengerTimeThreshold;
-            
+
             Time originalDriverTime = driverActivityStartTime - driverTripStartTime;
             // check to see if the driver is able to get to their destination
             var timeToPassenger = Time.FromMinutes(dToPTime = autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones)]);
@@ -713,25 +713,12 @@ namespace Tasha.V4Modes
             {
                 AgeUtilLookup[i] = (float)Math.Log(i + 1) * LogOfAgeFactor;
             }
-
-            if(UseCostAsFactorOfTime)
-            {
-                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
-                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
-                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
-                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
-                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
-            }
-            else
-            {
-                ProfessionalCost = ProfessionalCostFactor;
-                GeneralCost = GeneralCostFactor;
-                SalesCost = SalesCostFactor;
-                ManufacturingCost = ManufacturingCostFactor;
-                StudentCost = StudentCostFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor;
-            }
+            ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+            GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+            SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+            ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+            StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+            NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
         }
     }
 }
