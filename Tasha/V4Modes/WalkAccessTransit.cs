@@ -66,9 +66,6 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
 
-        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
-        public bool UseCostAsFactorOfTime;
-
         private float ProfessionalCost;
         private float GeneralCost;
         private float SalesCost;
@@ -203,15 +200,15 @@ namespace Tasha.V4Modes
             var zoneSystem = Root.ZoneSystem;
             var zoneArray = zoneSystem.ZoneArray;
             IZone originalZone = trip.OriginalZone;
-            var o = zoneArray.GetFlatIndex(originalZone.ZoneNumber );
+            var o = zoneArray.GetFlatIndex(originalZone.ZoneNumber);
             IZone destinationZone = trip.DestinationZone;
-            var d = zoneArray.GetFlatIndex(destinationZone.ZoneNumber );
+            var d = zoneArray.GetFlatIndex(destinationZone.ZoneNumber);
             var p = trip.TripChain.Person;
             float timeFactor, constant, costFactor, walkBeta, waitBeta, boardingBeta;
             GetPersonVariables(p, out constant, out timeFactor, out walkBeta, out waitBeta, out boardingBeta, out costFactor);
             float v = constant;
             // if Intrazonal
-            if ( o == d )
+            if(o == d)
             {
                 v += IntrazonalConstant;
                 v += IntrazonalTripDistanceFactor * zoneSystem.Distances.GetFlatData()[o][d] * 0.001f;
@@ -224,7 +221,7 @@ namespace Tasha.V4Modes
                     v += InterRegionalTrip;
                 }
                 float ivtt, walk, wait, boarding, cost;
-                if ( Network.GetAllData( o, d, trip.TripStartTime, out ivtt, out walk, out wait, out boarding, out cost) )
+                if(Network.GetAllData(o, d, trip.TripStartTime, out ivtt, out walk, out wait, out boarding, out cost))
                 {
                     v += ivtt * timeFactor
                         + walk * walkBeta
@@ -238,14 +235,14 @@ namespace Tasha.V4Modes
                 }
             }
             // Apply personal factors
-            if ( p.Female )
+            if(p.Female)
             {
                 v += FemaleFlag;
             }
             var age = p.Age;
-            v += AgeUtilLookup[Math.Min( Math.Max( age - 15, 0 ), 15 )];
+            v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
             //Apply trip purpose factors
-            switch ( trip.Purpose )
+            switch(trip.Purpose)
             {
                 case Activity.Market:
                     v += MarketFlag + ZonalDensityForActivitiesArray[d];
@@ -369,7 +366,7 @@ namespace Tasha.V4Modes
 
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return Network.TravelCost( origin, destination, time );
+            return Network.TravelCost(origin, destination, time);
         }
 
         public bool Feasible(ITrip trip)
@@ -390,9 +387,9 @@ namespace Tasha.V4Modes
         public bool RuntimeValidation(ref string error)
         {
             var networks = Root.NetworkData;
-            if ( string.IsNullOrWhiteSpace( NetworkType ) )
+            if(string.IsNullOrWhiteSpace(NetworkType))
             {
-                error = "There was no network type selected for the " + ( string.IsNullOrWhiteSpace( ModeName ) ? "Walk access transit" : ModeName ) + " mode!";
+                error = "There was no network type selected for the " + (string.IsNullOrWhiteSpace(ModeName) ? "Walk access transit" : ModeName) + " mode!";
                 return false;
             }
             if(!ZonalDensityForActivities.CheckResourceType<SparseArray<float>>())
@@ -405,12 +402,12 @@ namespace Tasha.V4Modes
                 error = "In '" + Name + "' the resource for Zonal Density For Home was of the wrong type!";
                 return false;
             }
-            if ( networks == null )
+            if(networks == null)
             {
                 error = "There was no Auto Network loaded for the Transit Mode!";
                 return false;
             }
-            if ( !AssignNetwork( networks ) )
+            if(!AssignNetwork(networks))
             {
                 error = "We were unable to find the network data with the name \"" + NetworkType + "\" in this Model System!";
                 return false;
@@ -420,14 +417,14 @@ namespace Tasha.V4Modes
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return Network.TravelTime( origin, destination, time );
+            return Network.TravelTime(origin, destination, time);
         }
 
         private bool AssignNetwork(IList<INetworkData> networks)
         {
-            foreach ( var network in networks )
+            foreach(var network in networks)
             {
-                if ( network.NetworkType == NetworkType )
+                if(network.NetworkType == NetworkType)
                 {
                     Network = network as ITripComponentData;
                     return Network != null;
@@ -464,9 +461,9 @@ namespace Tasha.V4Modes
         {
             // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
             AgeUtilLookup = new float[16];
-            for ( int i = 0; i < AgeUtilLookup.Length; i++ )
+            for(int i = 0; i < AgeUtilLookup.Length; i++)
             {
-                AgeUtilLookup[i] = (float)Math.Log( i + 1, Math.E ) * LogOfAgeFactor;
+                AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
             }
             for(int i = 0; i < TimePeriodConstants.Length; i++)
             {
@@ -479,25 +476,12 @@ namespace Tasha.V4Modes
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
                 ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
             }
-
-            if(UseCostAsFactorOfTime)
-            {
-                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
-                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
-                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
-                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
-                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
-            }
-            else
-            {
-                ProfessionalCost = ProfessionalCostFactor;
-                GeneralCost = GeneralCostFactor;
-                SalesCost = SalesCostFactor;
-                ManufacturingCost = ManufacturingCostFactor;
-                StudentCost = StudentCostFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor;
-            }
+            ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+            GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+            SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+            ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+            StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+            NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
         }
 
         public void IterationEnding(int iterationNumber, int maxIterations)

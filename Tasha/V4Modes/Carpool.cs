@@ -67,9 +67,6 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float NonWorkerStudentCostFactor;
 
-        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
-        public bool UseCostAsFactorOfTime;
-
         private float ProfessionalCost;
         private float GeneralCost;
         private float SalesCost;
@@ -149,9 +146,9 @@ namespace Tasha.V4Modes
             var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
             var p = trip.TripChain.Person;
             float timeFactor, constant, costFactor;
-            GetPersonVariables(p,out timeFactor, out constant, out costFactor);
+            GetPersonVariables(p, out timeFactor, out constant, out costFactor);
             float v = constant;
-            
+
             // if Intrazonal
             if(o == d)
             {
@@ -324,24 +321,12 @@ namespace Tasha.V4Modes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
-            if(UseCostAsFactorOfTime)
-            {
-                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
-                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
-                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
-                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
-                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
-            }
-            else
-            {
-                ProfessionalCost = ProfessionalCostFactor;
-                GeneralCost = GeneralCostFactor;
-                SalesCost = SalesCostFactor;
-                ManufacturingCost = ManufacturingCostFactor;
-                StudentCost = StudentCostFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor;
-            }
+            ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+            GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+            SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+            ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+            StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+            NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
         }
     }
 }

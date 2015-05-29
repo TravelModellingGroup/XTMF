@@ -120,11 +120,6 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentBoardingFactor", 0.0f, "The factor to apply against the penalty of boarding")]
         public float NonWorkerStudentTransitBoarding;
 
-
-
-        [RunParameter("Use Cost As Factor Of Time", false, "Should we treat the cost factors as a factor of their in vehicle time weighting.")]
-        public bool UseCostAsFactorOfTime;
-
         [RunParameter("ProfessionalTravelCostFactor", 0f, "The factor applied to the travel cost ($'s).")]
         public float ProfessionalCostFactor;
 
@@ -525,7 +520,6 @@ namespace Tasha.V4Modes
                     dependentUtility = float.NaN;
                     return false;
                 }
-                float tivtt, twalk, twait, boarding, cost;
                 for(int i = 0; i < utils.Length; i++)
                 {
                     var stationIndex = stationIndexLookup[i];
@@ -536,17 +530,15 @@ namespace Tasha.V4Modes
                     if(utils[i] > 0)
                     {
                         // transit utility
-                        tivtt = firstTransitMatrix[stationToDestination1] + secondTransitMatrix[origin2ToStation];
-                        twait = firstTransitMatrix[stationToDestination1 + 1] + secondTransitMatrix[origin2ToStation + 1];
-                        twalk = firstTransitMatrix[stationToDestination1 + 2] + secondTransitMatrix[origin2ToStation + 2];
-                        cost = firstTransitMatrix[stationToDestination1 + 3] + secondTransitMatrix[origin2ToStation + 3];
-                        boarding = firstTransitMatrix[stationToDestination1 + 4] + secondTransitMatrix[origin2ToStation + 4];
-                        var transitUtil = tivtt * ivttBeta + twalk * walkBeta + twait * waitBeta + cost * costBeta + boarding * boardingBeta;
-
-                        // auto utility
-                        tivtt = firstAutoMatrix[origin1ToStation] + secondAutoMatrix[stationToDestination2];
-                        cost = firstAutoMatrix[origin1ToStation + 1] + secondAutoMatrix[stationToDestination2 + 1];
-                        totalUtil += (transitUtil + tivtt * ivttBeta + costBeta * cost) * utils[i];
+                        var tivtt = firstTransitMatrix[stationToDestination1] + secondTransitMatrix[origin2ToStation];
+                        var twait = firstTransitMatrix[stationToDestination1 + 1] + secondTransitMatrix[origin2ToStation + 1];
+                        var twalk = firstTransitMatrix[stationToDestination1 + 2] + secondTransitMatrix[origin2ToStation + 2];
+                        var tcost = firstTransitMatrix[stationToDestination1 + 3] + secondTransitMatrix[origin2ToStation + 3];
+                        var boarding = firstTransitMatrix[stationToDestination1 + 4] + secondTransitMatrix[origin2ToStation + 4];
+                        var aivtt = firstAutoMatrix[origin1ToStation] + secondAutoMatrix[stationToDestination2];
+                        var acost = firstAutoMatrix[origin1ToStation + 1] + secondAutoMatrix[stationToDestination2 + 1];
+                        var utility = (tivtt + aivtt) * ivttBeta + twalk * walkBeta + twait * waitBeta + (acost + tcost) * costBeta + boarding * boardingBeta;
+                        totalUtil += utility * utils[i];
                     }
                 }
             }
@@ -730,24 +722,12 @@ namespace Tasha.V4Modes
             {
                 TimePeriodConstants[i].BuildMatrix();
             }
-            if(UseCostAsFactorOfTime)
-            {
-                ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
-                GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
-                SalesCost = SalesCostFactor * ProfessionalTimeFactor;
-                ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
-                StudentCost = StudentCostFactor * ProfessionalTimeFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
-            }
-            else
-            {
-                ProfessionalCost = ProfessionalCostFactor;
-                GeneralCost = GeneralCostFactor;
-                SalesCost = SalesCostFactor;
-                ManufacturingCost = ManufacturingCostFactor;
-                StudentCost = StudentCostFactor;
-                NonWorkerStudentCost = NonWorkerStudentCostFactor;
-            }
+            ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
+            GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
+            SalesCost = SalesCostFactor * ProfessionalTimeFactor;
+            ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
+            StudentCost = StudentCostFactor * ProfessionalTimeFactor;
+            NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
             ZonalDensityForActivitiesArray = ZonalDensityForActivities.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
             ZonalDensityForHomeArray = ZonalDensityForHome.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
             for(int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
