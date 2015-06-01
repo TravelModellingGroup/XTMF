@@ -101,6 +101,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
                 {
                     int columns;
+                    reader.LoadLine();
                     while(reader.LoadLine(out columns))
                     {
                         if(columns >= 4)

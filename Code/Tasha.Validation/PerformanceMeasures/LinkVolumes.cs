@@ -59,7 +59,8 @@ namespace Tasha.Validation.PerformanceMeasures
 
             internal string ReturnFilter(ModellerController controller)
             {   
-                return Label.Replace('"', '\'') + ": link=" + ijLink.Replace('"', '\'');                                                
+                string filter = Label.Replace('"', '\'') + ":" + "link=" + ijLink.Replace('"', '\'');
+                return filter;
             }
 
             public bool RuntimeValidation(ref string error)
@@ -82,7 +83,7 @@ namespace Tasha.Validation.PerformanceMeasures
         private string GenerageArgumentString(ModellerController controller)
         {
             var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
-            var linkString = "\"" + string.Join(",", LinksConsidered.Select(b => b.ReturnFilter(controller))) + "\"";
+            var linkString = "\"" + string.Join(";", LinksConsidered.Select(b => b.ReturnFilter(controller))) + "\"";
             return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" ";
         }
 
