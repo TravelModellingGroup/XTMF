@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,11 +32,15 @@
         </Grid.RowDefinitions>
         <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="1" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <my:BorderIconButton x:Name="OpenProjectFolder" Margin="0,0,4,0" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/FolderOpen_32x32_72.png"  />
+                <my:BorderIconButton x:Name="OpenProjectFolder" Margin="0,0,4,0" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/FolderOpen_32x32_72.png" 
+                                     Clicked="OpenProjectFolder_Clicked"/>
                 <my:BorderIconButton x:Name="DeleteProject" Margin="0,0,4,0" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Images/Delete.png"
-                                     HighlightColour="{StaticResource WarningRed}"/>
-                <my:BorderIconButton x:Name="CloneProject"  Margin="0,0,4,0" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png" />
-                <my:BorderIconButton x:Name="RenameProject" Margin="0,0,4,0" Header="Rename Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Resources/base_cog_32.png" />
+                                     HighlightColour="{StaticResource WarningRed}"
+                                     Clicked="DeleteProject_Clicked"/>
+                <my:BorderIconButton x:Name="CloneProject"  Margin="0,0,4,0" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png"
+                                     Clicked="CloneProject_Clicked"/>
+                <my:BorderIconButton x:Name="RenameProject" Margin="0,0,4,0" Header="Rename Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Resources/base_cog_32.png"
+                                     Clicked="RenameProject_Clicked"/>
             </WrapPanel>
         </Border>
         <TabControl Grid.Row="0" Background="{StaticResource ControlBackgroundBrush}" Style="{StaticResource XTMFTabControl}">
