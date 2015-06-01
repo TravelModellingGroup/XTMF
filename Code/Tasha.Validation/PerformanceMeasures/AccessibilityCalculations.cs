@@ -228,7 +228,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 return false;
             }
 
-            else if (!NIAData.CheckResourceType<SparseTwinIndex<float>>())
+            else if (!NIAData.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + Name + "' the NIAData was not of type SparseTwinIndex<float>!";
                 return false;
