@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -331,6 +331,37 @@ namespace XTMF.Gui.UserControls
         private void RefreshPreviousRuns_Clicked(object obj)
         {
             Model.RefreshPastRuns(Session);
+        }
+
+        private void RenameProject_Clicked(object obj)
+        {
+
+        }
+
+        private void OpenProjectFolder_Clicked(object obj)
+        {
+            var directoryName = System.IO.Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
+            try
+            {
+                if(Project != null && System.IO.Directory.Exists(directoryName))
+                {
+                    System.Diagnostics.Process.Start(directoryName);
+                }
+            }
+            catch
+            {
+                MessageBox.Show(MainWindow.Us, "Unable to Open", "We were unable to open the project directory '" + directoryName + "'!");
+            }
+        }
+
+        private void DeleteProject_Clicked(object obj)
+        {
+
+        }
+
+        private void CloneProject_Clicked(object obj)
+        {
+
         }
     }
 }
