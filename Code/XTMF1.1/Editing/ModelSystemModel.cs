@@ -117,7 +117,7 @@ namespace XTMF
             Name = project.ModelSystemStructure[modelSystemIndex].Name;
             _Description = project.ModelSystemDescriptions[modelSystemIndex];
             List<ILinkedParameter> editingLinkedParameters;
-            Root = new ModelSystemStructureModel(session, project.CloneModelSystemStructure(out editingLinkedParameters, modelSystemIndex) as ModelSystemStructure);
+            Root = new ModelSystemStructureModel(session, (ClonedModelSystemRoot = project.CloneModelSystemStructure(out editingLinkedParameters, modelSystemIndex) as ModelSystemStructure));
             _Description = Project.ModelSystemDescriptions[modelSystemIndex];
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
         }

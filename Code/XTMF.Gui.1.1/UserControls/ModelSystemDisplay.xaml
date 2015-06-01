@@ -166,7 +166,7 @@
                                     <TextBlock HorizontalAlignment="Left" Foreground="White" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                                 </Expander>
-                                <TextBox  Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, NotifyOnSourceUpdated=True, Mode=OneWay}" SourceUpdated="TextBox_SourceUpdated"
+                                <TextBox  Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
                                              PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="Black" FontSize="14"
                                          SelectionBrush="#0F6FC6" SelectionOpacity="0.4" BorderThickness="0" Height="20" Padding="10">
                                     <TextBox.Background>

@@ -59,6 +59,8 @@ namespace XTMF
                 {
                     IsDirty = true;
                     _Value = value;
+                    string error = null;
+                    RealParameter.Value = ArbitraryParameterParser.ArbitraryParameterParse(RealParameter.Type, _Value, ref error);
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Value");
                 }
             }
@@ -71,6 +73,24 @@ namespace XTMF
                 return RealParameter.Description;
             }
         }
+
+        public bool IsSystemParameter
+        {
+            get
+            {
+                return RealParameter.SystemParameter;
+            }
+        }
+
+        public bool IsLinked
+        {
+            get
+            {
+                return Session.ModelSystemModel.LinkedParameters.GetContained(this) != null;
+            }
+        }
+
+
 
         /// <summary>
         /// Update the value from the real parameter without issuing a command.

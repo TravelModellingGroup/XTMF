@@ -157,7 +157,7 @@ namespace XTMF.Gui.UserControls
 
         private bool FilterParameters(object arg1, string arg2)
         {
-            var parameter = arg1 as ParameterModel;
+            var parameter = arg1 as ParameterDisplayModel;
             if(parameter != null)
             {
                 return (string.IsNullOrWhiteSpace(arg2) || parameter.Name.IndexOf(arg2, StringComparison.InvariantCultureIgnoreCase) >= 0);
@@ -227,6 +227,7 @@ namespace XTMF.Gui.UserControls
             var newModelSystem = e.NewValue as ModelSystemModel;
             if(newModelSystem != null)
             {
+                us.ModelSystemName = newModelSystem.Name;
                 Task.Run(() =>
                 {
                     var displayModel = us.CreateDisplayModel(newModelSystem.Root);
@@ -377,9 +378,14 @@ namespace XTMF.Gui.UserControls
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
+            var box = sender as TextBox;
+            BindingExpression be = box.GetBindingExpression(CheckBox.IsCheckedProperty);
+            be.UpdateSource();
         }
+
         private void TextBox_SourceUpdated(object sender, DataTransferEventArgs e)
         {
+            
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
@@ -411,12 +417,53 @@ namespace XTMF.Gui.UserControls
 
         private void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if(!e.Handled)
+            {
+                if(e.Key == Key.Enter)
+                {
+                    MoveFocusNext(e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift));
+                    e.Handled = true;
+                }
+                else if(e.Key == Key.Up)
+                {
+                    MoveFocusNext(true);
+                }
+                else if(e.Key == Key.Down)
+                {
+                    MoveFocusNext(false);
+                }
+            }
+        }
 
+        private void MoveFocusNext(bool up)
+        {
+            TraversalRequest request;
+            if(up)
+            {
+                request = new TraversalRequest(FocusNavigationDirection.Previous);
+            }
+            else
+            {
+                request = new TraversalRequest(FocusNavigationDirection.Next);
+            }
+
+            // Gets the element with keyboard focus.
+            UIElement elementWithFocus = Keyboard.FocusedElement as UIElement;
+
+            // Change keyboard focus.
+            if(elementWithFocus != null)
+            {
+                elementWithFocus.MoveFocus(request);
+            }
         }
 
         public void SaveRequested()
         {
-            MessageBox.Show("Save is not implemented yet!");
+            string error = null;
+            if(!Session.Save(ref error))
+            {
+                MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void CloneRequested(string clonedName)
@@ -503,7 +550,7 @@ namespace XTMF.Gui.UserControls
                 FadeOut();
                 Task.Factory.StartNew(() =>
                 {
-                    var source = new ObservableCollection<ParameterModel>(parameters.GetParameters().OrderBy(el => el.Name));
+                    var source = ParameterDisplayModel.CreateParameters(parameters.GetParameters().OrderBy(el => el.Name));
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         CleanUpParameters();

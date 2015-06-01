@@ -18,9 +18,11 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
 
 namespace XTMF.Gui.Models
 {
@@ -56,7 +58,52 @@ namespace XTMF.Gui.Models
 
         public string Description { get { return RealParameter.Description; } }
 
-        public string Value { get { return RealParameter.Value; } }
+        public string Value
+        {
+            get
+            {
+                return RealParameter.Value;
+            }
 
+            set
+            {
+                // only update if something changed
+                if(value != RealParameter.Value)
+                {
+                    string error = null;
+                    if(!RealParameter.SetValue(value, ref error))
+                    {
+                        MessageBox.Show(MainWindow.Us, "We were unable to set the parameter '" + Name + "' with the value '" + value + "'.\r\n" + error, "Unable to Set Parameter",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        public Visibility SystemParameterVisibility
+        {
+            get
+            {
+                return RealParameter.IsSystemParameter ? Visibility.Visible : Visibility.Hidden;
+            }
+        }
+
+        public Visibility LinkedParameterVisibility
+        {
+            get
+            {
+                return RealParameter.IsLinked ? Visibility.Visible : Visibility.Hidden;
+            }
+        }
+
+        /// <summary>
+        /// Create the display model from the parameter model.
+        /// </summary>
+        /// <param name="parameterModel">The parameters in the model</param>
+        /// <returns>An observable collection of the parameters using the display model</returns>
+        internal static ObservableCollection<ParameterDisplayModel> CreateParameters(IOrderedEnumerable<ParameterModel> parameterModel)
+        {
+            return new ObservableCollection<ParameterDisplayModel>(parameterModel.Select(p => new ParameterDisplayModel(p)));
+        }
     }
 }

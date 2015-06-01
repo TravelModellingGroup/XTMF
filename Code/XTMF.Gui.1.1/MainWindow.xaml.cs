@@ -260,6 +260,7 @@ namespace XTMF.Gui
             var document = sender as LayoutDocument;
             if(document != null)
             {
+                CurrentDocument = document;
                 SaveMenu.IsEnabled = false;
                 SaveAsMenu.IsEnabled = false;
                 CloseMenu.IsEnabled = true;
@@ -292,6 +293,7 @@ namespace XTMF.Gui
         }
 
         private Action _CurrentRun;
+        private LayoutDocument CurrentDocument;
 
         private void SetupSaveButtons(LayoutDocument document)
         {
@@ -317,7 +319,17 @@ namespace XTMF.Gui
 
         private void SaveMenu_Click(object sender, RoutedEventArgs e)
         {
-
+            var document = CurrentDocument;
+            var projectPage = document.Content as ProjectDisplay;
+            var modelSystem = document.Content as ModelSystemDisplay;
+            if(projectPage != null)
+            {
+                // TODO
+            }
+            else if(modelSystem != null)
+            {
+                modelSystem.SaveRequested();
+            }
         }
 
         private void SaveAsMenu_Click(object sender, RoutedEventArgs e)
