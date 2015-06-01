@@ -75,14 +75,14 @@ namespace Tasha.Validation.PerformanceMeasures
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = zoneSystem.GetFlatData();
             var popByZone = zones.Select(z => z.Population).ToArray();
-            var NIApop = NIAData.AquireResource<SparseArray<int>>().GetFlatData();
+            var NIApop = NIAData.AquireResource<SparseArray<float>>().GetFlatData();
             var employmentByZone = EmploymentData.AquireResource<SparseArray<float>>().GetFlatData();            
             var AutoTimes = AutoTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var TransitIVTT = TransitIVTTMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var TotalTransitTimes = TotalTransitTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();            
 
-            int[] analyzedZonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
-                                           select z.Population).ToArray();
+            float[] analyzedZonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
+                                           select (float)z.Population).ToArray();
 
             float analizedpopulationSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
                                            where PopZoneRange.Contains(z.ZoneNumber)
@@ -142,7 +142,7 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
         private void CalculateAccessibility(IZone[] zones, float[] employmentByZone, float[][] AutoTimes, float[][] TransitIVTT, 
-            float[][] TotalTransitTimes, int[] analyzedZonePopulation, bool NIAcalc)
+            float[][] TotalTransitTimes, float[] analyzedZonePopulation, bool NIAcalc)
         {
             float accessiblePopulation;
 
@@ -225,6 +225,12 @@ namespace Tasha.Validation.PerformanceMeasures
             else if (!TransitIVTTMatrix.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the AutoTimeMatrix was not of type SparseTwinIndex<float>!";
+                return false;
+            }
+
+            else if (!NIAData.CheckResourceType<SparseTwinIndex<float>>())
+            {
+                error = "In '" + Name + "' the NIAData was not of type SparseTwinIndex<float>!";
                 return false;
             }
 
