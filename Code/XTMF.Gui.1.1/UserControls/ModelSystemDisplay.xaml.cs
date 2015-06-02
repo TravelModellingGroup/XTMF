@@ -188,6 +188,13 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
+        private void ShowLinkedParameterDialog()
+        {
+            var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters);
+            linkedParameterDialog.Owner = GetWindow();
+            linkedParameterDialog.ShowDialog();
+        }
+
         private void SelectReplacement()
         {
             var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
@@ -281,6 +288,10 @@ namespace XTMF.Gui.UserControls
                         case Key.W:
                             Close();
                             break;
+                        case Key.L:
+                            ShowLinkedParameterDialog();
+                            e.Handled = true;
+                            break;
                     }
                 }
                 else
@@ -303,6 +314,8 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+
 
         private void Close()
         {

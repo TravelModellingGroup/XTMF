@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -54,7 +55,7 @@ namespace XTMF.Gui.Models
 
         private void RealLinkedParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            ModelHelper.PropertyChanged(PropertyChanged, this, e.PropertyName);
         }
 
         ~LinkedParameterDisplayModel()
@@ -66,6 +67,11 @@ namespace XTMF.Gui.Models
         {
             PropertyChanged = null;
             RealLinkedParameter.PropertyChanged -= RealLinkedParameter_PropertyChanged;
+        }
+
+        internal static ObservableCollection<LinkedParameterDisplayModel> CreateDisplayModel(ObservableCollection<LinkedParameterModel> observableCollection)
+        {
+            return new ObservableCollection<LinkedParameterDisplayModel>(observableCollection.Select(lp => new LinkedParameterDisplayModel(lp)));
         }
     }
 }

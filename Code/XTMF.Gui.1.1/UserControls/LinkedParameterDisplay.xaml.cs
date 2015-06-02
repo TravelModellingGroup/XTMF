@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
@@ -20,9 +21,21 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class LinkedParameterDisplay : Window
     {
-        public LinkedParameterDisplay()
+        public LinkedParameterDisplay(LinkedParametersModel linkedParameters)
         {
             InitializeComponent();
+            Display.ItemsSource = LinkedParameterDisplayModel.CreateDisplayModel(linkedParameters.GetLinkedParameters());
+            LinkedParameterFilterBox.Display = Display;
+            LinkedParameterFilterBox.Filter = (o, text) =>
+            {
+                var model = o as LinkedParameterDisplayModel;
+                return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            };
+        }
+
+        private void BorderIconButton_Clicked(object obj)
+        {
+
         }
     }
 }

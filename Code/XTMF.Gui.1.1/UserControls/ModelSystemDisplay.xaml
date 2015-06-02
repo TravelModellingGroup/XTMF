@@ -40,7 +40,7 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
+            <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
             <TreeView Grid.Row="1" Background="{StaticResource ControlBackgroundBrush}" 
                   x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}" SelectedItemChanged="ModuleDisplay_SelectedItemChanged"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
@@ -131,7 +131,7 @@
                     <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="White" FontSize="12" />
                 </Grid>
             </Border>
-            <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
+            <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
             <ListView Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       Margin="0" Background="{StaticResource ControlBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle">
