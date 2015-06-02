@@ -123,6 +123,7 @@
     <Compile Include="Controllers\EditorController.cs" />
     <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />
+    <Compile Include="Models\LinkedParameterDisplayModel.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
     <Compile Include="UserControls\AboutXTMF.xaml.cs">
@@ -154,6 +155,9 @@
       <DependentUpon>HelpDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\HintedTextBox.cs" />
+    <Compile Include="UserControls\LinkedParameterDisplay.xaml.cs">
+      <DependentUpon>LinkedParameterDisplay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
     </Compile>
@@ -238,6 +242,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Help\HelpDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\LinkedParameterDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

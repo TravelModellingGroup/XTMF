@@ -419,20 +419,44 @@ namespace XTMF.Gui.UserControls
         {
             if(!e.Handled)
             {
-                if(e.Key == Key.Enter)
+                var shiftDown = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift);
+                e.Handled = true;
+                switch(e.Key)
                 {
-                    MoveFocusNext(e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift));
-                    e.Handled = true;
-                }
-                else if(e.Key == Key.Up)
-                {
-                    MoveFocusNext(true);
-                }
-                else if(e.Key == Key.Down)
-                {
-                    MoveFocusNext(false);
+                    case Key.Enter:
+                        MoveFocusNext(shiftDown);
+                        break;
+                    case Key.Up:
+                        if(shiftDown)
+                        {
+                            MoveFocusNextModule(true);
+                        }
+                        else
+                        {
+                            MoveFocusNext(true);
+                        }
+                        break;
+                    case Key.Down:
+                        if(shiftDown)
+                        {
+                            MoveFocusNextModule(false);
+                        }
+                        else
+                        {
+                            MoveFocusNext(false);
+                        }
+                        break;
+                    default:
+                        e.Handled = false;
+                        break;
                 }
             }
+        }
+
+        private void MoveFocusNextModule(bool up)
+        {
+            Keyboard.Focus(ModuleDisplay);
+            MoveFocusNext(up);
         }
 
         private void MoveFocusNext(bool up)
@@ -440,11 +464,11 @@ namespace XTMF.Gui.UserControls
             TraversalRequest request;
             if(up)
             {
-                request = new TraversalRequest(FocusNavigationDirection.Previous);
+                request = new TraversalRequest(FocusNavigationDirection.Up);
             }
             else
             {
-                request = new TraversalRequest(FocusNavigationDirection.Next);
+                request = new TraversalRequest(FocusNavigationDirection.Down);
             }
 
             // Gets the element with keyboard focus.

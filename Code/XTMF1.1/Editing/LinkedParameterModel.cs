@@ -75,6 +75,47 @@ namespace XTMF
         /// </summary>
         internal LinkedParameter RealLinkedParameter { get; set; }
 
+        /// <summary>
+        /// Gets the name of the linked parameter
+        /// </summary>
+        /// <returns>The name of the linked parameter</returns>
+        public string Name
+        {
+            get
+            {
+                return RealLinkedParameter.Name;
+            }
+        }
+
+        /// <summary>
+        /// Sets the name of the linked parameter
+        /// </summary>
+        /// <param name="newName">The desired new name</param>
+        /// <param name="error">A message describing why the operation failed.</param>
+        /// <returns>True if the name was changed, false otherwise.</returns>
+        public bool SetName(string newName, ref string error)
+        {
+            lock (ParameterModelsLock)
+            {
+                string oldName = RealLinkedParameter.Name;
+                return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+                {
+                    RealLinkedParameter.Name = newName;
+                    return true;
+                },
+                (ref string e) =>
+                {
+                    RealLinkedParameter.Name = oldName;
+                    return true;
+                },
+                (ref string e) =>
+                {
+                    RealLinkedParameter.Name = newName;
+                    return true;
+                }), ref error);
+            }
+            return true;
+        }
 
         public List<ParameterModel> GetParameters()
         {
