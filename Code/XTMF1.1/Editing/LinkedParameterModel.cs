@@ -114,7 +114,6 @@ namespace XTMF
                     return true;
                 }), ref error);
             }
-            return true;
         }
 
         public List<ParameterModel> GetParameters()
