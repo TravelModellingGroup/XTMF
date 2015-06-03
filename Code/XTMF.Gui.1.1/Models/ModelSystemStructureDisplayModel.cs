@@ -148,5 +148,17 @@ namespace XTMF.Gui.Models
         }
 
         public ObservableCollection<ModelSystemStructureDisplayModel> Children { get; private set; }
+        public Type Type
+        {
+            get
+            {
+                return this.BaseModel.Type;
+            }
+        }
+
+        internal ObservableCollection<ParameterModel> GetParameters()
+        {
+            return BaseModel.Parameters.GetParameters();
+        }
     }
 }

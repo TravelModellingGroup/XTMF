@@ -74,6 +74,16 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
+
+                        <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </ContextMenu>
                 </TreeView.ContextMenu>
                 <TreeView.ItemTemplate>
@@ -188,6 +198,11 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
                         </Style.Resources>
+                        <Style.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="true">
+                                <Setter Property="IsSelected" Value="true" />
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>
                 <ListView.ItemsPanel>
@@ -195,6 +210,51 @@
                         <VirtualizingStackPanel />
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/OpenFile.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Open File With" Click="LinkedParameters_Click" />
+                        <MenuItem Header="Open File Location" Click="LinkedParameters_Click" />
+                        <Separator />
+                        <MenuItem Header="Select File (Ctrl+F)" Click="LinkedParameters_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/Edit.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </ListView.ContextMenu>
             </ListView>
         </Grid>
     </Grid>

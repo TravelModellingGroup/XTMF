@@ -202,6 +202,14 @@ namespace XTMF
         {
             get; private set;
         }
+        public IConfiguration Configuration
+        {
+            get
+            {
+                return Runtime.Configuration;
+            }
+        }
+
 
 
         /// <summary>
@@ -364,6 +372,11 @@ namespace XTMF
         public void Dispose()
         {
             Dispose(false);
+        }
+
+        public ModelSystemStructureModel GetRoot(ModelSystemStructureModel currentModule)
+        {
+            return ModelSystemModel.GetModelFor(currentModule.RealModelSystemStructure.GetRoot(ModelSystemModel.Root.RealModelSystemStructure));
         }
     }
 }

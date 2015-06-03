@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -292,6 +293,12 @@ namespace XTMF.Gui.UserControls
                             ShowLinkedParameterDialog();
                             e.Handled = true;
                             break;
+                        case Key.N:
+                            CopyParameterName();
+                            break;
+                        case Key.O:
+                            OpenParameterFileLocation(false, false);
+                            break;
                     }
                 }
                 else
@@ -398,7 +405,7 @@ namespace XTMF.Gui.UserControls
 
         private void TextBox_SourceUpdated(object sender, DataTransferEventArgs e)
         {
-            
+
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
@@ -629,6 +636,119 @@ namespace XTMF.Gui.UserControls
             DoubleAnimation fadeOut = new DoubleAnimation(0.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
             ParameterDisplay.BeginAnimation(OpacityProperty, null);
             ParameterDisplay.BeginAnimation(OpacityProperty, fadeOut);
+        }
+
+        private void LinkedParameters_Click(object sender, RoutedEventArgs e)
+        {
+            ShowLinkedParameterDialog();
+        }
+
+        private void CopyParameterName()
+        {
+            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            if(currentParameter != null)
+            {
+                Clipboard.SetText(currentParameter.Name);
+            }
+        }
+
+        private void OpenParameterFileLocation(bool openWith, bool openDirectory)
+        {
+            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if(currentParameter != null && currentModule != null)
+            {
+                var currentRoot = Session.GetRoot(currentModule.BaseModel);
+                var inputDirectory = GetInputDirectory(currentRoot);
+                var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value);
+                try
+                {
+                    Process.Start(pathToFile);
+                }
+                catch
+                {
+                    MessageBox.Show(GetWindow(), "Unable to load the file at '" + pathToFile + "'!", "Unable to Load", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private string GetInputDirectory(ModelSystemStructureModel root)
+        {
+            var inputDir = root.Type.GetProperty("InputBaseDirectory");
+            var attributes = inputDir.GetCustomAttributes(typeof(ParameterAttribute), true);
+            if(attributes != null && attributes.Length > 0)
+            {
+                var parameterName = ((ParameterAttribute)attributes[0]).Name;
+                var parameters = root.Parameters.GetParameters();
+                for(int i = 0; i < parameters.Count; i++)
+                {
+                    if(parameters[i].Name == parameterName)
+                    {
+                        return parameters[i].Value.ToString();
+                    }
+                }
+            }
+            return null;
+        }
+
+        private string GetRelativePath(string inputDirectory, string parameterValue)
+        {
+            var parameterRooted = System.IO.Path.IsPathRooted(parameterValue);
+            var inputDirectoryRooted = System.IO.Path.IsPathRooted(inputDirectory);
+            if(parameterRooted)
+            {
+                return RemoveRelativeDirectories(parameterValue);
+            }
+            else if(inputDirectoryRooted)
+            {
+                return RemoveRelativeDirectories(System.IO.Path.Combine(inputDirectory, parameterValue));
+            }
+            return RemoveRelativeDirectories(System.IO.Path.Combine(Session.Configuration.ProjectDirectory, "AProject",
+            "RunDirectory", inputDirectory, parameterValue));
+        }
+
+        private string RemoveRelativeDirectories(string path)
+        {
+            var parts = path.Split('\\', '/');
+            StringBuilder finalPath = new StringBuilder();
+            int lastReal = 0;
+            for(int i = 0; i < parts.Length; i++)
+            {
+                if(parts[i] == "..")
+                {
+                    if(lastReal > 0)
+                    {
+                        var removeLength = parts[--lastReal].Length + 1;
+                        finalPath.Remove(finalPath.Length - removeLength, removeLength);
+                    }
+                    else
+                    {
+                        finalPath.Remove(0, finalPath.Length);
+                    }
+                }
+                else if(parts[i] == ".")
+                {
+                    // do nothing
+                }
+                else
+                {
+                    finalPath.Append(parts[i]);
+                    finalPath.Append(System.IO.Path.DirectorySeparatorChar);
+                    lastReal++;
+                }
+            }
+            return finalPath.ToString(0, finalPath.Length - 1);
+        }
+
+
+        private void CopyParameterName_Click(object sender, RoutedEventArgs e)
+        {
+            CopyParameterName();
+        }
+
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenParameterFileLocation(false, false);
         }
     }
 }

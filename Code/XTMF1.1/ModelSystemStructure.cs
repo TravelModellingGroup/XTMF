@@ -368,6 +368,16 @@ namespace XTMF
             return cloneUs;
         }
 
+        internal ModelSystemStructure GetRoot(ModelSystemStructure modelSystemRoot)
+        {
+            var requiredRootType = ModelSystemStructure.GetRootRequirement(Type);
+            if(requiredRootType == null)
+            {
+                requiredRootType = typeof(IModelSystemTemplate);
+            }
+            return ModelSystemStructure.CheckForRootModule(modelSystemRoot, this, requiredRootType) as ModelSystemStructure;
+        }
+
         public IModelSystemStructure CreateCollectionMember(Type newType)
         {
             if(this.IsCollection)
