@@ -181,6 +181,7 @@
     <Compile Include="DataExtraction\SaveAsCSVMatrix.cs" />
     <Compile Include="DataExtraction\SqlServerDataSource.cs" />
     <Compile Include="DataExtraction\ZoneSystemSource.cs" />
+    <Compile Include="Data\NormalizeOD.cs" />
     <Compile Include="Data\SubtractODRates.cs" />
     <Compile Include="Data\AddRates.cs" />
     <Compile Include="Data\AddODRates.cs" />
