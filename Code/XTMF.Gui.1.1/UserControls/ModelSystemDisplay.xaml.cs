@@ -661,6 +661,10 @@ namespace XTMF.Gui.UserControls
                 var currentRoot = Session.GetRoot(currentModule.BaseModel);
                 var inputDirectory = GetInputDirectory(currentRoot);
                 var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value);
+                if(openDirectory)
+                {
+                    pathToFile = System.IO.Path.GetDirectoryName(pathToFile);
+                }
                 try
                 {
                     Process.Start(pathToFile);
@@ -749,6 +753,16 @@ namespace XTMF.Gui.UserControls
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             OpenParameterFileLocation(false, false);
+        }
+
+        private void OpenWith_Click(object sender, RoutedEventArgs e)
+        {
+            OpenParameterFileLocation(true, false);
+        }
+
+        private void OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            OpenParameterFileLocation(false, true);
         }
     }
 }

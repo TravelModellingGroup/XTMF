@@ -231,8 +231,8 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Open File With" Click="LinkedParameters_Click" />
-                        <MenuItem Header="Open File Location" Click="LinkedParameters_Click" />
+                        <MenuItem Header="Open File With" Click="OpenWith_Click" />
+                        <MenuItem Header="Open File Location" Click="OpenFolder_Click" />
                         <Separator />
                         <MenuItem Header="Select File (Ctrl+F)" Click="LinkedParameters_Click">
                             <MenuItem.Icon>
