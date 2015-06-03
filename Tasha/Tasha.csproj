@@ -190,6 +190,7 @@
     <Compile Include="Data\MultiplyODRates.cs" />
     <Compile Include="Data\SaveZoneODAsEmmeMatrix.cs" />
     <Compile Include="Data\SubtractODResources.cs" />
+    <Compile Include="Data\SumOD.cs" />
     <Compile Include="Data\UnloadResource.cs" />
     <Compile Include="Data\ZonalAreaFromInternalTripDistance.cs" />
     <Compile Include="Data\ZonalPopulation.cs" />
