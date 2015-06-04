@@ -234,7 +234,7 @@
                         <MenuItem Header="Open File With" Click="OpenWith_Click" />
                         <MenuItem Header="Open File Location" Click="OpenFolder_Click" />
                         <Separator />
-                        <MenuItem Header="Select File (Ctrl+F)" Click="LinkedParameters_Click">
+                        <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>

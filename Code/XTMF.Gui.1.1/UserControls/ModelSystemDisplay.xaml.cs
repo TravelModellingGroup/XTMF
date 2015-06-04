@@ -288,6 +288,7 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.W:
                             Close();
+                            e.Handled = true;
                             break;
                         case Key.L:
                             ShowLinkedParameterDialog();
@@ -295,9 +296,15 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.N:
                             CopyParameterName();
+                            e.Handled = true;
                             break;
                         case Key.O:
                             OpenParameterFileLocation(false, false);
+                            e.Handled = true;
+                            break;
+                        case Key.F:
+                            SelectFileForCurrentParameter();
+                            e.Handled = true;
                             break;
                     }
                 }
@@ -307,15 +314,19 @@ namespace XTMF.Gui.UserControls
                     {
                         case Key.F1:
                             ShowDocumentation();
+                            e.Handled = true;
                             break;
                         case Key.Delete:
                             RemoveCurrentModule();
+                            e.Handled = true;
                             break;
                         case Key.F2:
                             Rename();
+                            e.Handled = true;
                             break;
                         case Key.F5:
                             MainWindow.Us.ExecuteRun();
+                            e.Handled = true;
                             break;
                     }
                 }
@@ -676,6 +687,49 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void SelectFileForCurrentParameter()
+        {
+            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if(currentParameter != null && currentModule != null)
+            {
+                var currentRoot = Session.GetRoot(currentModule.BaseModel);
+                var inputDirectory = GetInputDirectory(currentRoot);
+                if(inputDirectory != null)
+                {
+                    string fileName = this.OpenFile();
+                    if(fileName == null)
+                    {
+                        return;
+                    }
+                    TransformToRelativePath(inputDirectory, ref fileName);
+                    currentParameter.Value = fileName;
+                }
+            }
+        }
+
+        private void TransformToRelativePath(string inputDirectory, ref string fileName)
+        {
+            var runtimeInputDirectory =
+                System.IO.Path.GetFullPath(
+                System.IO.Path.Combine(Session.Configuration.ProjectDirectory, "AProject", "RunDirectory", inputDirectory)
+                ) + System.IO.Path.DirectorySeparatorChar;
+            if(fileName.StartsWith(runtimeInputDirectory))
+            {
+                fileName = fileName.Substring(runtimeInputDirectory.Length);
+            }
+        }
+
+        private string OpenFile()
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            if(dialog.ShowDialog() == true)
+            {
+                return dialog.FileName;
+            }
+            return null;
+        }
+
         private string GetInputDirectory(ModelSystemStructureModel root)
         {
             var inputDir = root.Type.GetProperty("InputBaseDirectory");
@@ -763,6 +817,11 @@ namespace XTMF.Gui.UserControls
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
             OpenParameterFileLocation(false, true);
+        }
+
+        private void SelectFile_Click(object sender, RoutedEventArgs e)
+        {
+            SelectFileForCurrentParameter();
         }
     }
 }
