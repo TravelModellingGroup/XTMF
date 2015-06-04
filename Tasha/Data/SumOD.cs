@@ -84,7 +84,7 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if(RawDataSource != null ^ ResourceDataSource != null)
+            if(!(RawDataSource != null ^ ResourceDataSource != null))
             {
                 error = "In '" + Name + "' you must only select one of RawDataSource or ResourceDataSource";
                 return false;
