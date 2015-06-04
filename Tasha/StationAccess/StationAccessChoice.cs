@@ -389,7 +389,7 @@ namespace Tasha.StationAccess
                 if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
                 {
                     TMG.Functions.VectorHelper.VectorMultiply(utilities, 0, firstTimePeriod.AccessFromOrigin, firstOrigin,
-                        firstTimePeriod.AccessToDestination, secondDestination,
+                        firstTimePeriod.AccessToDestination, firstDestination,
                         secondTimePeriod.EgressToDestination, secondOrigin,
                         secondTimePeriod.EgressFromOrigin, secondDestination, utilities.Length);
                     TMG.Functions.VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
