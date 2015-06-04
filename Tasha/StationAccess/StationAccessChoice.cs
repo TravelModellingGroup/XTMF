@@ -125,11 +125,11 @@ namespace Tasha.StationAccess
             [RootModule]
             public ITravelDemandModel Root;
 
-            internal float[] AccessFromOrigin;
-            internal float[] EgressFromOrigin;
+            internal float[] AutoFromOriginToAccessStation;
+            internal float[] AutoFromAccessStationToDestination;
 
-            internal float[] AccessToDestination;
-            internal float[] EgressToDestination;
+            internal float[] TransitFromAccessStationToDestination;
+            internal float[] TransitFromDestinationToAccessStation;
 
             private IZone[] zones;
 
@@ -151,12 +151,12 @@ namespace Tasha.StationAccess
 
                 int[] stationZones = GetStationZones(stationRanges, capacity, zones);
                 var flatCapacityFactor = CapacityFactor.GetFlatData();
-                if(AccessFromOrigin == null)
+                if(AutoFromOriginToAccessStation == null)
                 {
-                    AccessToDestination = new float[stationZones.Length * zones.Length];
-                    AccessFromOrigin = new float[stationZones.Length * zones.Length];
-                    EgressToDestination = new float[stationZones.Length * zones.Length];
-                    EgressFromOrigin = new float[stationZones.Length * zones.Length];
+                    TransitFromAccessStationToDestination = new float[stationZones.Length * zones.Length];
+                    AutoFromOriginToAccessStation = new float[stationZones.Length * zones.Length];
+                    TransitFromDestinationToAccessStation = new float[stationZones.Length * zones.Length];
+                    AutoFromAccessStationToDestination = new float[stationZones.Length * zones.Length];
                 }
                 // compute the toAccess utilities
                 Parallel.For(0, zones.Length, (int originIndex) =>
@@ -169,12 +169,12 @@ namespace Tasha.StationAccess
                             var accessIndex = stationZones[i];
                             var factor = (float)Math.Pow(flatCapacityFactor[accessIndex], CapacityFactorExp);
                             // calculate access' to access station this will include more factors
-                            AccessFromOrigin[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
+                            AutoFromOriginToAccessStation[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
                                 + (Capacity * capacity[accessIndex]
                                 + ParkingCost * zones[accessIndex].ParkingCost
                                 + (closestStation[originIndex] == accessIndex ? ClosestStationFactor : 0))) * factor;
                             // calculate egress' from access station
-                            EgressFromOrigin[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex)) * factor;
+                            AutoFromAccessStationToDestination[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex)) * factor;
                         }
                     }
                 });
@@ -190,9 +190,9 @@ namespace Tasha.StationAccess
                             var accessIndex = stationZones[i];
                             var factor = (float)Math.Pow(flatCapacityFactor[accessIndex], CapacityFactorExp);
                             // calculate access' to destination
-                            AccessToDestination[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, destIndex)) * factor;
+                            TransitFromAccessStationToDestination[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, destIndex)) * factor;
                             // calculate egress' to access station
-                            EgressToDestination[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, destIndex, accessIndex)) * factor;
+                            TransitFromDestinationToAccessStation[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, destIndex, accessIndex)) * factor;
                         }
                     }
                 });
@@ -276,9 +276,15 @@ namespace Tasha.StationAccess
         private IZone[] zones;
         private int[] AccessZoneIndexes;
 
+        [RunParameter("Notify Status", false, "Should we identify when we are loading and finishing the caching of station utilities?")]
+        public bool NotifiyStatus;
+
         public void Load()
         {
-            Console.WriteLine("Loading Station Access Choice...");
+            if(NotifiyStatus)
+            {
+                Console.WriteLine("Loading Station Access Choice...");
+            }
             if(FirstLoad == true)
             {
                 LoadMode();
@@ -289,7 +295,10 @@ namespace Tasha.StationAccess
                 FirstLoad = false;
             }
             LoadTimePeriods();
-            Console.WriteLine("Finished Loading Station Access Choice...");
+            if(NotifiyStatus)
+            {
+                Console.WriteLine("Finished Loading Station Access Choice...");
+            }
         }
 
         private void LoadMode()
@@ -388,18 +397,18 @@ namespace Tasha.StationAccess
                 var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
                 if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
                 {
-                    TMG.Functions.VectorHelper.VectorMultiply(utilities, 0, firstTimePeriod.AccessFromOrigin, firstOrigin,
-                        firstTimePeriod.AccessToDestination, firstDestination,
-                        secondTimePeriod.EgressToDestination, secondOrigin,
-                        secondTimePeriod.EgressFromOrigin, secondDestination, utilities.Length);
+                    TMG.Functions.VectorHelper.VectorMultiply(utilities, 0, firstTimePeriod.AutoFromOriginToAccessStation, firstOrigin,
+                        firstTimePeriod.TransitFromAccessStationToDestination, firstDestination,
+                        secondTimePeriod.TransitFromDestinationToAccessStation, secondOrigin,
+                        secondTimePeriod.AutoFromAccessStationToDestination, secondDestination, utilities.Length);
                     TMG.Functions.VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
                 }
                 else
                 {
                     for(int i = 0; i < utilities.Length; i++)
                     {
-                        utilities[i] = firstTimePeriod.AccessFromOrigin[firstOrigin + i] * firstTimePeriod.AccessToDestination[firstDestination + i]
-                                       * secondTimePeriod.EgressToDestination[secondOrigin + i] * secondTimePeriod.EgressFromOrigin[secondDestination + i];
+                        utilities[i] = firstTimePeriod.AutoFromOriginToAccessStation[firstOrigin + i] * firstTimePeriod.TransitFromAccessStationToDestination[firstDestination + i]
+                                       * secondTimePeriod.TransitFromDestinationToAccessStation[secondOrigin + i] * secondTimePeriod.AutoFromAccessStationToDestination[secondDestination + i];
                         if(!(utilities[i] >= MinimumStationUtility))
                         {
                             utilities[i] = 0.0f;

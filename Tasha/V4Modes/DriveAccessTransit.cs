@@ -653,27 +653,21 @@ namespace Tasha.V4Modes
 
         private IZone SelectAccessStation(Random random, Pair<IZone[], float[]> accessData)
         {
-            var rand = random.NextDouble();
+            var rand = (float)random.NextDouble();
             var utils = accessData.Second;
             var runningTotal = 0.0f;
             for(int i = 0; i < utils.Length; i++)
             {
-                if(!float.IsNaN(utils[i]))
+                runningTotal += utils[i];
+                if(runningTotal >= rand)
                 {
-                    runningTotal += utils[i];
-                    if(runningTotal >= rand)
-                    {
-                        return accessData.First[i];
-                    }
+                    return accessData.First[i];
                 }
             }
             // if we didn't find the right utility, just take the first one we can find
             for(int i = 0; i < utils.Length; i++)
             {
-                if(!float.IsNaN(utils[i]))
-                {
-                    return accessData.First[i];
-                }
+                return accessData.First[i];
             }
             return null;
         }
