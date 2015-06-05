@@ -306,6 +306,18 @@ namespace XTMF.Gui.UserControls
                             SelectFileForCurrentParameter();
                             e.Handled = true;
                             break;
+                        case Key.Z:
+                            Undo();
+                            e.Handled = true;
+                            break;
+                        case Key.Y:
+                            Redo();
+                            e.Handled = true;
+                            break;
+                        case Key.S:
+                            SaveRequested();
+                            e.Handled = true;
+                            break;
                     }
                 }
                 else
@@ -333,7 +345,17 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void Redo()
+        {
+            string error = null;
+            Session.Redo(ref error);
+        }
 
+        private void Undo()
+        {
+            string error = null;
+            Session.Undo(ref error);
+        }
 
         private void Close()
         {
@@ -519,6 +541,16 @@ namespace XTMF.Gui.UserControls
             {
                 MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public void UndoRequested()
+        {
+            Undo();
+        }
+
+        public void RedoRequested()
+        {
+            Redo();
         }
 
         public void CloneRequested(string clonedName)

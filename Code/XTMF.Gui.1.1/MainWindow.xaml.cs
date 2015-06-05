@@ -239,6 +239,8 @@ namespace XTMF.Gui
                 SaveAsMenu.Header = "Save _As";
                 SaveMenu.IsEnabled = false;
                 SaveAsMenu.IsEnabled = false;
+                UndoButton.IsEnabled = false;
+                RedoButton.IsEnabled = false;
             }
             else
             {
@@ -252,6 +254,8 @@ namespace XTMF.Gui
                 SaveAsMenu.Header = "Save " + name + " _As";
                 SaveMenu.IsEnabled = true;
                 SaveAsMenu.IsEnabled = true;
+                UndoButton.IsEnabled = true;
+                RedoButton.IsEnabled = true;
             }
         }
 
@@ -329,6 +333,36 @@ namespace XTMF.Gui
             else if(modelSystem != null)
             {
                 modelSystem.SaveRequested();
+            }
+        }
+
+        private void Undo_Click(object sender, RoutedEventArgs e)
+        {
+            var document = CurrentDocument;
+            var projectPage = document.Content as ProjectDisplay;
+            var modelSystem = document.Content as ModelSystemDisplay;
+            if(projectPage != null)
+            {
+                // TODO
+            }
+            else if(modelSystem != null)
+            {
+                modelSystem.UndoRequested();
+            }
+        }
+
+        private void Redo_Click(object sender, RoutedEventArgs e)
+        {
+            var document = CurrentDocument;
+            var projectPage = document.Content as ProjectDisplay;
+            var modelSystem = document.Content as ModelSystemDisplay;
+            if(projectPage != null)
+            {
+                // TODO
+            }
+            else if(modelSystem != null)
+            {
+                modelSystem.RedoRequested();
             }
         }
 
