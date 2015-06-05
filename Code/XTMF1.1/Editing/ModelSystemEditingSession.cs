@@ -143,7 +143,7 @@ namespace XTMF
                 XTMFRun run;
                 if(ModelSystemIndex >= 0)
                 {
-                    run = new XTMFRun(ProjectEditingSession.Project, ModelSystemIndex, Runtime.Configuration, runName);
+                    run = new XTMFRun(ProjectEditingSession.Project, ModelSystemIndex, ModelSystemModel.Root, Runtime.Configuration, runName);
                 }
                 else
                 {

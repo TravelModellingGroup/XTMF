@@ -61,13 +61,10 @@ namespace XTMF
 
         public string RunDirectory { get; private set; }
 
-        public XTMFRun(IProject project, int modelSystemIndex, IConfiguration config, string runName)
+        public XTMFRun(Project project, int modelSystemIndex, ModelSystemStructureModel root, Configuration config, string runName)
+            : this(project, root, config, runName)
         {
-            Project = project;
             ModelSystemIndex = modelSystemIndex;
-            Configuration = config;
-            RunName = runName;
-            RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
         }
 
         public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName)
