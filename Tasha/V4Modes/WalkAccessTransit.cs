@@ -30,9 +30,6 @@ namespace Tasha.V4Modes
         @"This module is designed to implement the Walk access transit mode for GTAModel V4.0+.")]
     public class WalkAccessTransit : ITashaMode, IIterationSensitive
     {
-        [RunParameter("Female Flag", 0f, "Added to the utility if the person is female.")]
-        public float FemaleFlag;
-
         [RunParameter("IntrazonalConstant", 0f, "The mode constant.")]
         public float IntrazonalConstant;
 
@@ -140,15 +137,6 @@ namespace Tasha.V4Modes
         [RunParameter("NonWorkerStudentBoardingFactor", 0f, "The factor applied to the boarding penalties.")]
         public float NonWorkerStudentBoardingFactor;
 
-        [RunParameter("Vehicle Type", "Auto", "The name of the type of vehicle to use.")]
-        public string VehicleTypeName;
-
-        [RunParameter("LogOfAgeFactor", 0f, "The factor applied to the log of age.")]
-        public float LogOfAgeFactor;
-
-        [RunParameter("LogOfAgeBase", (float)Math.E, "The base used for computing the log of age.")]
-        public float LogOfAgeBase;
-
         [RunParameter("InterRegionalTrip", 0.0f, "A constant applied to trips that go between regions.")]
         public float InterRegionalTrip;
 
@@ -183,8 +171,6 @@ namespace Tasha.V4Modes
         {
             get { return 0f; }
         }
-
-        private float[] AgeUtilLookup;
 
         public Tuple<byte, byte, byte> ProgressColour
         {
@@ -241,13 +227,6 @@ namespace Tasha.V4Modes
                     return float.NegativeInfinity;
                 }
             }
-            // Apply personal factors
-            if(p.Female)
-            {
-                v += FemaleFlag;
-            }
-            var age = p.Age;
-            v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
             //Apply trip purpose factors
             switch(trip.Purpose)
             {
@@ -467,11 +446,6 @@ namespace Tasha.V4Modes
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
             // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
-            AgeUtilLookup = new float[16];
-            for(int i = 0; i < AgeUtilLookup.Length; i++)
-            {
-                AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
-            }
             for(int i = 0; i < TimePeriodConstants.Length; i++)
             {
                 TimePeriodConstants[i].BuildMatrix();
