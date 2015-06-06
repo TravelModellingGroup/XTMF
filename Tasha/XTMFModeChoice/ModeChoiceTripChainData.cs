@@ -150,7 +150,7 @@ namespace Tasha.XTMFModeChoice
             for(int i = 0; i < PossibleAssignments.Count; i++)
             {
                 var assignment = PossibleAssignments[i];
-                int vehicleType = IndexOf(modes[assignment.PickedModes[0]].RequiresVehicle, vehicleTypes);
+                int vehicleType = vehicleTypes.IndexOf(modes[assignment.PickedModes[0]].RequiresVehicle);
                 var otherU = BestPossibleAssignmentForVehicleType[vehicleType + 1] != null ? BestPossibleAssignmentForVehicleType[vehicleType + 1].U : float.NegativeInfinity;
                 if(assignment.U > otherU)
                 {
@@ -264,19 +264,6 @@ namespace Tasha.XTMFModeChoice
                     currentTrip = trips[level];
                 }
             }
-        }
-
-        private int IndexOf<T>(T iVehicleType, List<T> vehicleTypes) where T : class
-        {
-            var length = vehicleTypes.Count;
-            for(int i = 0; i < length; i++)
-            {
-                if(iVehicleType == vehicleTypes[i])
-                {
-                    return i;
-                }
-            }
-            return -1;
         }
     }
 }
