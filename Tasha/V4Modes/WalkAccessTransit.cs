@@ -152,6 +152,9 @@ namespace Tasha.V4Modes
         [RunParameter("InterRegionalTrip", 0.0f, "A constant applied to trips that go between regions.")]
         public float InterRegionalTrip;
 
+        [RunParameter("NoTIVTTPenalty", 0.0f, "The penalty to apply if there is no in vehicle travel time for the trip.")]
+        public float NoTIVTTPenalty;
+
         private ITripComponentData Network;
 
         [Parameter("Feasible", 1f, "Is the mode feasible?(1)")]
@@ -223,6 +226,10 @@ namespace Tasha.V4Modes
                 float ivtt, walk, wait, boarding, cost;
                 if(Network.GetAllData(o, d, trip.TripStartTime, out ivtt, out walk, out wait, out boarding, out cost))
                 {
+                    if(ivtt <= 0)
+                    {
+                        v += NoTIVTTPenalty;
+                    }
                     v += ivtt * timeFactor
                         + walk * walkBeta
                         + wait * waitBeta
