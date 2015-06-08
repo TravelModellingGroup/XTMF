@@ -35,6 +35,11 @@ namespace XTMF
         private ModelSystemModel ModelSystem;
         private List<ILinkedParameter> RealLinkedParameters;
 
+        public List<ILinkedParameter> GetRealLinkedParameters()
+        {
+            return RealLinkedParameters.ToList();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public LinkedParametersModel(ModelSystemEditingSession session, ModelSystemModel modelSystem, List<ILinkedParameter> realLinkedParameters)

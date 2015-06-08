@@ -69,7 +69,7 @@ namespace XTMF
 
         public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName)
         {
-            Project = project;
+            Project = project.CreateCloneProject();
             ModelSystemStructureModelRoot = root;
             Configuration = configuration;
             RunName = runName;

@@ -161,6 +161,17 @@ namespace XTMF
             return new ModelSystemEditingSession(Runtime, this, runFileName);
         }
 
+        /// <summary>
+        /// Create a cloned project of the given project
+        /// </summary>
+        /// <param name="project">The project to clone</param>
+        /// <returns>An exact copy of the project, if it is saved it will overwrite</returns>
+        internal Project CreateCloneProject(Project project)
+        {
+            return project.CreateCloneProject();
+        }
+
+
 
         /// <summary>
         /// Move the model systems inside of a project.
