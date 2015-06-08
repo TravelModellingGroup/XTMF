@@ -494,7 +494,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
             {
                 for(int i = 1; i < Population.Length; i++)
                 {
-                    if(bestValue < Population[i].BestValue)
+                    if(Population[i].BestValue > bestValue)
                     {
                         bestValue = Population[i].BestValue;
                         bestIndex = i;
@@ -505,7 +505,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
             {
                 for(int i = 1; i < Population.Length; i++)
                 {
-                    if(bestValue > Population[i].BestValue)
+                    if(Population[i].BestValue < bestValue)
                     {
                         bestValue = Population[i].BestValue;
                         bestIndex = i;
