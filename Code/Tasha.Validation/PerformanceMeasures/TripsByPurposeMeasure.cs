@@ -35,9 +35,7 @@ namespace Tasha.Validation.PerformanceMeasures
                        "whether or not he/she wants to look at expansion factors or just frequencies. "
         )]
     public class TripsByPurposeMeasure : IPostHousehold
-    {
-        [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
-        public bool ExpandedTrips;
+    {        
 
         [SubModelInformation(Required = true, Description = "Folder name in Output Directory where you want to save the files")]
         public FileLocation ResultsFolder;
@@ -86,18 +84,10 @@ namespace Tasha.Validation.PerformanceMeasures
             // only run on the last iteration
             var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
             if(iteration == Root.Iterations - 1)
-            {
-                float amountToAddPerTrip;
-                if(ExpandedTrips)
-                {
-                    amountToAddPerTrip = household.ExpansionFactor;
-                }
-                else
-                {
-                    amountToAddPerTrip = 1;
-                }
+            {                               
                 foreach(var person in household.Persons)
                 {
+                    float amountToAddPerTrip = person.ExpansionFactor; 
                     if(person.Age >= MinAge)
                     {
                         foreach(var tripChain in person.TripChains)
@@ -109,12 +99,15 @@ namespace Tasha.Validation.PerformanceMeasures
                                 if(OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                                 {
                                     var tripStartTime = trip.ActivityStartTime;
-                                    if(tripStartTime >= StartTime && tripStartTime < EndTime)
+                                    if (trip.Mode != null)
                                     {
-                                        lock (this)
+                                        if (tripStartTime >= StartTime && tripStartTime < EndTime)
                                         {
-                                            AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
-                                            AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
+                                            lock (this)
+                                            {
+                                                AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
+                                                AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
+                                            }
                                         }
                                     }
                                 }

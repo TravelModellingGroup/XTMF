@@ -35,9 +35,7 @@ using System.Threading;
 namespace Tasha.Validation.PerformanceMeasures
 {
     public class TripLengthMeasure : IPostHousehold
-    {
-        [RunParameter("Expanded Trips?", true, "Did you want to look at expanded trips (false = number of non-expanded trips")]
-        public bool ExpandedTrips;
+    {        
 
         [RunParameter("Min Age", 11, "The minimum age to record the results for.")]
         public int MinAge;
@@ -79,25 +77,20 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 foreach (var person in household.Persons)
                 {
-                    if (ExpandedTrips)
-                    {
-                        expFactor = person.ExpansionFactor;
-                    }
-                    else
-                    {
-                        expFactor = 1.0f;
-                    }
-
+                    expFactor = person.ExpansionFactor;                    
                     if (person.Age >= MinAge)
                     {
                         foreach (var tripChain in person.TripChains)
                         {
                             foreach (var trip in tripChain.Trips)
-                            {
+                            {                                     
                                 if (trip.Mode != null)
                                 {
-                                    var tripDistance = distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
-                                    AddToResults(trip.Purpose, tripDistance * 0.001f, expFactor);
+                                    lock (this)
+                                    {
+                                        var tripDistance = distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
+                                        AddToResults(trip.Purpose, tripDistance * 0.001f, expFactor);
+                                    }
                                 }
                             }
                         }

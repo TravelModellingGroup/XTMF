@@ -50,7 +50,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
             public float ReturnData()
             {
-                return RespectiveGlobalAverage.AquireResource<IDataSource<float>>().GiveData();
+                return RespectiveGlobalAverage.AquireResource<float>();
             }
 
             public string Name
