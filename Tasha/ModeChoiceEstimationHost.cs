@@ -75,7 +75,7 @@ namespace Tasha
         public bool StartFromPreviousBest;
 
         [RunParameter( "Total Generations", 300, "How many generations should we process?" )]
-        public int TotalIterations;
+        public int TotalIterations { get; set; }
 
         [RunParameter( "Validate Parameter Names", false, "Should we throw an error if one of the parameter names does not actually belong to a mode?" )]
         public bool ValidateParameterNames;
@@ -221,7 +221,7 @@ namespace Tasha
         public void Start()
         {
             this.CurrentIteration = 0;
-            this.Iterations = -1;
+            this.TotalIterations = -1;
             this.BuildHouseholdData();
             using ( this.ResultQueue = new MessageQueue<ResultMessage>() )
             {
@@ -233,7 +233,7 @@ namespace Tasha
                 for ( int generation = this.CurrentIteration; generation < this.TotalIterations; generation++ )
                 {
                     // now that we have a population we need to go and send out the processing requests
-                    this.Iterations = generation;
+                    this.TotalIterations = generation;
                     int processed = 0;
                     this.CurrentIteration = generation;
                     var lastResultProcessed = DateTime.Now;
@@ -292,7 +292,7 @@ namespace Tasha
 
         public override string ToString()
         {
-            return String.Format( "Generation {0} of {1}", this.Iterations, this.TotalIterations );
+            return String.Format( "Generation {0} of {1}", this.TotalIterations, this.TotalIterations );
         }
 
         protected ParameterSetting[] CrossGenes(ParameterSetting[] baseSet, ParameterSetting[] spouse)
@@ -1077,12 +1077,6 @@ namespace Tasha
         }
 
         public int HouseholdIterations
-        {
-            get;
-            set;
-        }
-
-        public int Iterations
         {
             get;
             set;

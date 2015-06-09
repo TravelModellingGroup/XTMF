@@ -35,7 +35,7 @@ namespace Tasha.Validation.PerformanceMeasures
                        "whether or not he/she wants to look at expansion factors or just frequencies. "
         )]
     public class TripsByPurposeMeasure : IPostHousehold
-    {        
+    {
 
         [SubModelInformation(Required = true, Description = "Folder name in Output Directory where you want to save the files")]
         public FileLocation ResultsFolder;
@@ -83,8 +83,8 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             // only run on the last iteration
             var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
-            if(iteration == Root.Iterations - 1)
-            {                               
+            if(iteration == Root.TotalIterations - 1)
+            {
                 foreach(var person in household.Persons)
                 {
                     float amountToAddPerTrip = person.ExpansionFactor; 
@@ -102,12 +102,11 @@ namespace Tasha.Validation.PerformanceMeasures
                                     if (trip.Mode != null)
                                     {
                                         if (tripStartTime >= StartTime && tripStartTime < EndTime)
+                                    {
+                                        lock (this)
                                         {
-                                            lock (this)
-                                            {
-                                                AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
-                                                AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
-                                            }
+                                            AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
+                                            AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
                                         }
                                     }
                                 }
@@ -116,6 +115,7 @@ namespace Tasha.Validation.PerformanceMeasures
                     }
                 }
             }
+        }
         }
 
         private void AddToSummary(ITrip trip, Dictionary<Activity, float> summaryDictionary, float occurance)
@@ -147,7 +147,7 @@ namespace Tasha.Validation.PerformanceMeasures
             SummaryTripCount.OrderBy(k => k.Key);
 
             // only run on the last iteration
-            if(iteration == Root.Iterations - 1)
+            if(iteration == Root.TotalIterations - 1)
             {
                 Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
                 var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");

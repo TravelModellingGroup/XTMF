@@ -143,7 +143,11 @@ namespace XTMF
                 XTMFRun run;
                 if(ModelSystemIndex >= 0)
                 {
-                    run = new XTMFRun(ProjectEditingSession.Project, ModelSystemIndex, Runtime.Configuration, runName);
+                    Project cloneProject = ProjectEditingSession.CreateCloneProject(ProjectEditingSession.Project);
+                    cloneProject.ModelSystemStructure[ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
+                    cloneProject.ModelSystemDescriptions[ModelSystemIndex] = ModelSystemModel.Description;
+                    cloneProject.LinkedParameters[ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
+                    run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel.Root, Runtime.Configuration, runName);
                 }
                 else
                 {

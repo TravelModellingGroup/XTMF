@@ -170,6 +170,11 @@ namespace Tasha.Network
                 return true;
             }
 
+            internal void ResetIterations()
+            {
+                TimesLoaded = 0;
+            }
+
             public string Name { get; set; }
 
             public float Progress
@@ -359,6 +364,17 @@ namespace Tasha.Network
             this.ZoneArray = zoneArray;
             if(!this.Loaded)
             {
+                var iterationModel = Root as IIterativeModel;
+                if(iterationModel != null)
+                {
+                    if(iterationModel.CurrentIteration == 0)
+                    {
+                        for(int i = 0; i < TimePeriods.Length; i++)
+                        {
+                            TimePeriods[i].ResetIterations();
+                        }
+                    }
+                }
                 // since we are doing more CPU work here we can load it in parallel
                 for(int i = 0; i < TimePeriods.Length; i++)
                 {

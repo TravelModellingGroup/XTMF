@@ -54,7 +54,7 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem x:Name="SaveMenu" Header="_Save" Click="SaveMenu_Click" IsEnabled="False">
+                <MenuItem x:Name="SaveMenu" Header="_Save (Ctrl+S)" Click="SaveMenu_Click" IsEnabled="False">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
@@ -64,8 +64,8 @@
                 <MenuItem Header="E_xit" Click="Exit_Click" />
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem x:Name="UndoButton" Header="_Undo" Command="Undo" IsEnabled="False" />
-                <MenuItem x:Name="RedoButton" Header="_Redo" Command="Redo" IsEnabled="False"/>
+                <MenuItem x:Name="UndoButton" Header="_Undo (Ctrl+Z)" Click="Undo_Click" IsEnabled="False" />
+                <MenuItem x:Name="RedoButton" Header="_Redo (Ctrl+Y)" Click="Redo_Click" IsEnabled="False"/>
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Start Window" Click="ShowStart_Click" />

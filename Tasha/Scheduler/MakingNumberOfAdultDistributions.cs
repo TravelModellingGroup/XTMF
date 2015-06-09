@@ -107,7 +107,7 @@ namespace Tasha.Scheduler
         public string InputBaseDirectory { get; set; }
 
         [RunParameter("Number of Iterations", 1, "How many iterations do you want?")]
-        public int Iterations { get; set; }
+        public int TotalIterations { get; set; }
 
         [RunParameter("JointMarketInflation", 1f, "Inflate observed joint market activities to generate more episodes")]
         public float JointMarketInflation { get; set; }
@@ -233,13 +233,13 @@ namespace Tasha.Scheduler
             {
                 foreach ( var module in this.PostHousehold )
                 {
-                    module.Load( this.Iterations );
+                    module.Load( this.TotalIterations );
                 }
             }
 
-            this.IterationPercentage = 1f / this.Iterations;
+            this.IterationPercentage = 1f / this.TotalIterations;
 
-            for ( int i = 0; i < this.Iterations; i++ )
+            for ( int i = 0; i < this.TotalIterations; i++ )
             {
                 this.CurrentHousehold = 0;
                 this.CompletedIterationPercentage = i * this.IterationPercentage;

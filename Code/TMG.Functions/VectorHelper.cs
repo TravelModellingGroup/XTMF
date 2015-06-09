@@ -658,6 +658,36 @@ namespace TMG.Functions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void VectorAdd(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, float[] third, int thirdIndex, int length)
+        {
+            if((destIndex | firstIndex | secondIndex | thirdIndex) == 0)
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    (new Vector<float>(first, i) + new Vector<float>(second, i) + new Vector<float>(third, i)).CopyTo(destination, i);
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    destination[i] = first[i] + second[i] + third[i];
+                }
+            }
+            else
+            {
+                for(int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    (new Vector<float>(first, i + firstIndex) + new Vector<float>(second, i + secondIndex) + new Vector<float>(third, i + thirdIndex)).CopyTo(destination, i + destIndex);
+                }
+                // copy the remainder
+                for(int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    destination[i + destIndex] = first[i + firstIndex] + second[i + secondIndex] + third[i + thirdIndex];
+                }
+            }
+        }
+
+
         /// <summary>
         /// 
         /// </summary>

@@ -382,6 +382,15 @@ namespace XTMF
         {
             if(this.IsCollection)
             {
+                return CreateCollectionMember(CreateModuleName(newType.Name), newType);
+            }
+            return null;
+        }
+
+        public IModelSystemStructure CreateCollectionMember(string name, Type newType)
+        {
+            if(this.IsCollection)
+            {
                 if(this.Children == null)
                 {
                     this.Children = new List<IModelSystemStructure>();
@@ -392,7 +401,7 @@ namespace XTMF
                 p.Type = newType;
                 p.ParentFieldType = innerType;
                 p.ParentFieldName = this.ParentFieldName;
-                p.Name = CreateModuleName(newType.Name);
+                p.Name = name;
                 return p;
             }
             return null;

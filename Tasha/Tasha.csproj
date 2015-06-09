@@ -181,6 +181,7 @@
     <Compile Include="DataExtraction\SaveAsCSVMatrix.cs" />
     <Compile Include="DataExtraction\SqlServerDataSource.cs" />
     <Compile Include="DataExtraction\ZoneSystemSource.cs" />
+    <Compile Include="Data\IdentityMatrix.cs" />
     <Compile Include="Data\NormalizeOD.cs" />
     <Compile Include="Data\SubtractODRates.cs" />
     <Compile Include="Data\AddRates.cs" />
@@ -204,6 +205,7 @@
     <Compile Include="Data\UnloadResourceIPostIteration.cs" />
     <Compile Include="Data\ZoneInformation.cs" />
     <Compile Include="Data\ZoneODInformation.cs" />
+    <Compile Include="EMME\CreateEmmeBinaryMatrixWithPassenger.cs" />
     <Compile Include="EMME\CreateHOVEmmeBinaryMatrix.cs" />
     <Compile Include="EMME\CreateEmmeBinaryMatrix.cs" />
     <Compile Include="Estimation\AccessStation\AccessStationChoiceEstimationModelSystemTemplate.cs" />

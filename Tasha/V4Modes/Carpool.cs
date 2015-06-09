@@ -31,11 +31,11 @@ namespace Tasha.V4Modes
         [RunParameter("Constant", 0f, "The mode constant.")]
         public float Constant;
 
-        [RunParameter("Female Flag", 0f, "Added to the utility if the person is female.")]
-        public float FemaleFlag;
-
         [RunParameter("IntrazonalConstant", 0f, "The mode constant.")]
         public float IntrazonalConstant;
+
+        [RunParameter("IntraRegional", 0.0f, "A dummy applied to non-intrazonal trips within the same region")]
+        public float IntraRegionalFlag;
 
         [RunParameter("IntrazonalTripDistanceFactor", 0f, "The factor to apply to the intrazonal trip distance.")]
         public float IntrazonalTripDistanceFactor;
@@ -137,18 +137,23 @@ namespace Tasha.V4Modes
         [RunParameter("Variance Scale", 1.0, "The factor applied to the error term.")]
         public double VarianceScale { get; set; }
 
+        [SubModelInformation(Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
         public double CalculateV(ITrip trip)
         {
             // compute the non human factors
             var zoneSystem = Root.ZoneSystem;
             var zoneArray = zoneSystem.ZoneArray;
-            var o = zoneArray.GetFlatIndex(trip.OriginalZone.ZoneNumber);
-            var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
+            IZone originalZone = trip.OriginalZone;
+            IZone destinationZone = trip.DestinationZone;
+            var o = zoneArray.GetFlatIndex(originalZone.ZoneNumber);
+            var d = zoneArray.GetFlatIndex(destinationZone.ZoneNumber);
             var p = trip.TripChain.Person;
             float timeFactor, constant, costFactor;
             GetPersonVariables(p, out timeFactor, out constant, out costFactor);
             float v = constant;
-
+            var startTime = trip.TripStartTime;
             // if Intrazonal
             if(o == d)
             {
@@ -158,15 +163,13 @@ namespace Tasha.V4Modes
             else
             {
                 // if not intrazonal
-                var startTime = trip.TripStartTime;
                 float aivtt, cost;
                 Network.GetAllData(o, d, startTime, out aivtt, out cost);
                 v += timeFactor * aivtt + costFactor * cost;
-            }
-            // Apply personal factors
-            if(p.Female)
-            {
-                v += FemaleFlag;
+                if(originalZone.RegionNumber == destinationZone.RegionNumber)
+                {
+                    v += IntraRegionalFlag;
+                }
             }
             //Apply trip purpose factors
             switch(trip.Purpose)
@@ -178,7 +181,19 @@ namespace Tasha.V4Modes
                     v += OtherFlag;
                     break;
             }
-            return (double)v;
+            return (double)(v + GetPlanningDistrictConstant(trip.ActivityStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict));
+        }
+
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if(startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
         }
 
         private void GetPersonVariables(ITashaPerson person, out float time, out float constant, out float cost)
@@ -321,6 +336,10 @@ namespace Tasha.V4Modes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
+            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                TimePeriodConstants[i].BuildMatrix();
+            }
             ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
             GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
             SalesCost = SalesCostFactor * ProfessionalTimeFactor;

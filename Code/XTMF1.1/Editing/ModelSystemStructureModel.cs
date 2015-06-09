@@ -148,8 +148,14 @@ namespace XTMF
                     {
                         return false;
                     }
-
-                    RealModelSystemStructure.Add(name == null ? CreateNameFromType(type) : name, type);
+                    if(RealModelSystemStructure.IsCollection)
+                    {
+                        RealModelSystemStructure.Add(RealModelSystemStructure.CreateCollectionMember(name == null ? CreateNameFromType(type) : name, type));
+                    }
+                    else
+                    {
+                        RealModelSystemStructure.Add(name == null ? CreateNameFromType(type) : name, type);
+                    }
                     data.Index = RealModelSystemStructure.Children.Count - 1;
                     data.StructureInQuestion = RealModelSystemStructure.Children[data.Index] as ModelSystemStructure;
                     if(Children == null)

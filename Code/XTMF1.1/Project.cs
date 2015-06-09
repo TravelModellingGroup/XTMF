@@ -92,6 +92,25 @@ namespace XTMF
             return Save(ref error);
         }
 
+        /// <summary>
+        /// This constructo
+        /// </summary>
+        private Project(Project toClone)
+        {
+            Name = toClone.Name;
+            ModelSystemStructure = toClone.ModelSystemStructure.ToList();
+            LinkedParameters = toClone.LinkedParameters.ToList();
+            ModelSystemDescriptions = toClone.ModelSystemDescriptions.ToList();
+            DirectoryLocation = toClone.DirectoryLocation;
+            Configuration = toClone.Configuration;
+            IsLoaded = true;
+        }
+
+        internal Project CreateCloneProject()
+        {
+            return new Project(this);
+        }
+
         internal bool RemoveModelSystem(int index, ref string error)
         {
             ModelSystemDescriptions.RemoveAt(index);

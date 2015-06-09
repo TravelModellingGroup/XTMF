@@ -100,6 +100,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.BeginInvoke(new Action(() =>
                 {
                     MainWindow.Us.SetWindowName(this, "Run - " + runName);
+                    RunNameLabel.Text = runName;
                 }));
             Run = session.Run(runName, ref error);
             ProgressReports = Run.Configuration.ProgressReports;

@@ -76,7 +76,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {            
             var houseData = household["ModeChoiceData"] as ModeChoiceHouseholdData;            
 
-            if (iteration == Root.Iterations - 1 && houseData != null)
+            if (iteration == Root.TotalIterations - 1 && houseData != null)
             {
                 lock (this)
                 {
@@ -129,7 +129,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void IterationFinished(int iteration)
         {
-            if (iteration == Root.Iterations - 1)
+            if (iteration == Root.TotalIterations - 1)
             {
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 lock (this)

@@ -172,6 +172,11 @@ namespace Tasha.Network
                 }
                 return true;
             }
+
+            internal void ResetIterations()
+            {
+                TimesLoaded = 0;
+            }
         }
 
         [SubModelInformation(Required = false, Description = "The data for each time period for this network")]
@@ -225,6 +230,17 @@ namespace Tasha.Network
             this.ZoneArray = zoneArray;
             if(!this.Loaded)
             {
+                var iterationModel = Root as IIterativeModel;
+                if(iterationModel != null)
+                {
+                    if(iterationModel.CurrentIteration == 0)
+                    {
+                        for(int i = 0; i < TimePeriods.Length; i++)
+                        {
+                            TimePeriods[i].ResetIterations();
+                        }
+                    }
+                }
                 for(int i = 0; i < this.TimePeriods.Length; i++)
                 {
                     this.TimePeriods[i].LoadData(zoneArray);

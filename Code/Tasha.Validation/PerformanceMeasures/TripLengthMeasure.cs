@@ -73,7 +73,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             var distances = this.Root.ZoneSystem.Distances;
             float expFactor;
-            if (iteration == Root.Iterations - 1)
+            if (iteration == Root.TotalIterations - 1)
             {
                 foreach (var person in household.Persons)
                 {

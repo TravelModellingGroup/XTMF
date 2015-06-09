@@ -209,7 +209,7 @@ namespace Tasha.Validation.ModeChoice
                     writer.Write(',');
                     writer.WriteLine(counts[i]);
                 }
-                if(iteration >= Root.Iterations - 1)
+                if(iteration >= Root.TotalIterations - 1)
                 {
                     writer.WriteLine();
                     writer.Write("Iterations");
