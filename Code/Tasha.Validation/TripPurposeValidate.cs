@@ -86,7 +86,7 @@ namespace Tasha.Validation
         public void Execute(ITashaHousehold household, int iteration)
         {
             // only run on the last iteration
-            if(iteration == Root.Iterations - 1)
+            if(iteration == Root.TotalIterations - 1)
             {
                 lock (this)
                 {
@@ -155,7 +155,7 @@ namespace Tasha.Validation
         public void IterationFinished(int iteration)
         {
             // only run on the last iteration
-            if(iteration == Root.Iterations - 1)
+            if(iteration == Root.TotalIterations - 1)
             {
                 var dir = Path.GetDirectoryName(FileName);
                 if(dir != null)
@@ -211,7 +211,7 @@ namespace Tasha.Validation
 
         public void IterationStarting(int iteration)
         {
-            if(iteration == Root.Iterations - 1)
+            if(iteration == Root.TotalIterations - 1)
             {
                 if(SaveByPD)
                 {

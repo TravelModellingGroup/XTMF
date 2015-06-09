@@ -84,7 +84,7 @@ namespace Tasha.Estimation.AccessStation
         [DoNotAutomate]
         public IDataLoader<ITashaHousehold> HouseholdLoader { get;set; }
 
-        public int Iterations { get;set; }
+        public int TotalIterations { get;set; }
 
         [DoNotAutomate]
         public ITashaModeChoice ModeChoice { get;set; }

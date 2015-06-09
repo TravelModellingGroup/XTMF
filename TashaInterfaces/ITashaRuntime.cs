@@ -38,7 +38,7 @@ namespace Tasha.Common
         [SubModelInformation( Description = "The model that will load our household", Required = true )]
         IDataLoader<ITashaHousehold> HouseholdLoader { get; set; }
 
-        int Iterations { get; set; }
+        int TotalIterations { get; set; }
 
         [SubModelInformation( Description = "The ModeChoice Module", Required = false )]
         ITashaModeChoice ModeChoice { get; set; }

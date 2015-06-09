@@ -120,7 +120,7 @@ namespace Tasha.Scheduler
         public string InputBaseDirectory { get; set; }
 
         [RunParameter("Number of Iterations", 1, "How many iterations do you want?")]
-        public int Iterations { get; set; }
+        public int TotalIterations { get; set; }
 
         [DoNotAutomate]
         public ITashaModeChoice ModeChoice { get; set; }
@@ -231,13 +231,13 @@ namespace Tasha.Scheduler
             {
                 foreach(var module in PostHousehold)
                 {
-                    module.Load(Iterations);
+                    module.Load(TotalIterations);
                 }
             }
 
-            IterationPercentage = 1f / Iterations;
+            IterationPercentage = 1f / TotalIterations;
 
-            for(int i = 0; i < Iterations; i++)
+            for(int i = 0; i < TotalIterations; i++)
             {
                 CurrentHousehold = 0;
                 CompletedIterationPercentage = i * IterationPercentage;
@@ -516,7 +516,7 @@ namespace Tasha.Scheduler
             StoreResults(household.ExpansionFactor, eventCount);
 
             Interlocked.Increment(ref CurrentHousehold);
-            Progress = ((float)CurrentHousehold / NumberOfHouseholds) / Iterations + CompletedIterationPercentage;
+            Progress = ((float)CurrentHousehold / NumberOfHouseholds) / TotalIterations + CompletedIterationPercentage;
             household.Recycle();
         }
 

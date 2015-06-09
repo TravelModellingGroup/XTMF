@@ -74,7 +74,7 @@ namespace Tasha.Validation
             set;
         }
 
-        public int Iterations
+        public int TotalIterations
         {
             get;
             set;

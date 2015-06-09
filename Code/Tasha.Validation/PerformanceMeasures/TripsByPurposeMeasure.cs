@@ -85,7 +85,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             // only run on the last iteration
             var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
-            if(iteration == Root.Iterations - 1)
+            if(iteration == Root.TotalIterations - 1)
             {
                 float amountToAddPerTrip;
                 if(ExpandedTrips)
@@ -154,7 +154,7 @@ namespace Tasha.Validation.PerformanceMeasures
             SummaryTripCount.OrderBy(k => k.Key);
 
             // only run on the last iteration
-            if(iteration == Root.Iterations - 1)
+            if(iteration == Root.TotalIterations - 1)
             {
                 Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
                 var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");

@@ -49,7 +49,7 @@ namespace Tasha.Validation.PerformanceMeasures
         public void Execute(ITashaHousehold household, int iteration)
         {
             float expFactor;
-            if (iteration == Root.Iterations - 1)
+            if (iteration == Root.TotalIterations - 1)
             {
                 foreach (var person in household.Persons)
                 {

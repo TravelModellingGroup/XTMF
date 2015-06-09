@@ -31,7 +31,7 @@ using XTMF;
 namespace Tasha
 {
     [ModuleInformation(Description = "This is the base for all Tasha Application Runs")]
-    public class TashaRuntime : ITashaRuntime
+    public class TashaRuntime : ITashaRuntime, IIterativeModel
     {
         private IConfiguration XTMFConfiguration;
 
@@ -93,7 +93,9 @@ namespace Tasha
         public string InputBaseDirectory { get; set; }
 
         [RunParameter("Iterations", 3, "The number of complete iterations Tasha should do.")]
-        public int Iterations { get; set; }
+        public int TotalIterations { get; set; }
+
+        int ITashaRuntime.TotalIterations {  get { return TotalIterations; } set { } }
 
         [SubModelInformation(Description = "The ModeChoice Module", Required = false)]
         public ITashaModeChoice ModeChoice { get; set; }
@@ -163,6 +165,7 @@ namespace Tasha
 
         [SubModelInformation(Description = "The model that will load all of our zones", Required = true)]
         public IZoneSystem ZoneSystem { get; set; }
+        public int CurrentIteration { get; private set; }
 
         public ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime)
         {
@@ -234,19 +237,19 @@ namespace Tasha
                     module.Start();
                 }
             }
-            IterationPercentage = 1f / Iterations;
+            IterationPercentage = 1f / TotalIterations;
             if(PostScheduler != null)
             {
                 foreach(var module in PostScheduler)
                 {
-                    module.Load(Iterations);
+                    module.Load(TotalIterations);
                 }
             }
             if(PostHousehold != null)
             {
                 foreach(var module in PostHousehold)
                 {
-                    module.Load(Iterations);
+                    module.Load(TotalIterations);
                 }
             }
 
@@ -265,11 +268,12 @@ namespace Tasha
                 ModeChoice.LoadOneTimeLocalData();
             }
 
-            for(int i = 0; i < Iterations; i++)
+            for(int i = 0; i < TotalIterations; i++)
             {
                 if(!_ExitRequested)
                 {
                     CurrentHousehold = 0;
+                    CurrentIteration = i;
                     CompletedIterationPercentage = i * IterationPercentage;
                     if(LoadAllHouseholds)
                     {
@@ -611,14 +615,14 @@ namespace Tasha
             {
                 LoadNetworkData(i);
             }
-            _Status = () => "Processing pre-iteration logic for iteration " + (i + 1).ToString() + " of " + Iterations.ToString();
+            _Status = () => "Processing pre-iteration logic for iteration " + (i + 1).ToString() + " of " + TotalIterations.ToString();
             RunPreIterationModules(i);
             RunStartIteration(i);
             RunIterationSensitiveStart(i);
-            _Progress = () => (Math.Min(((float)CurrentHousehold / NumberOfHouseholds), 1.0f) / Iterations + CompletedIterationPercentage);
+            _Progress = () => (Math.Min(((float)CurrentHousehold / NumberOfHouseholds), 1.0f) / TotalIterations + CompletedIterationPercentage);
             if(!SkipLoadingHouseholds)
             {
-                _Status = () => "Processing households for iteration " + (i + 1).ToString() + " of " + Iterations.ToString();
+                _Status = () => "Processing households for iteration " + (i + 1).ToString() + " of " + TotalIterations.ToString();
                 if(Parallel)
                 {
                     RunParallel(i);
@@ -630,7 +634,7 @@ namespace Tasha
             }
             RunIterationSensitiveEnd(i);
             UnloadNetworkData();
-            _Status = () => "Processing post-iteration logic for iteration " + (i + 1).ToString() + " of " + Iterations.ToString();
+            _Status = () => "Processing post-iteration logic for iteration " + (i + 1).ToString() + " of " + TotalIterations.ToString();
             RunFinishedIteration(i);
             RunPostIteration(i);
         }
@@ -642,7 +646,7 @@ namespace Tasha
                 var sensitive = mode as IIterationSensitive;
                 if(sensitive != null)
                 {
-                    sensitive.IterationStarting(i, Iterations);
+                    sensitive.IterationStarting(i, TotalIterations);
                 }
             }
         }
@@ -654,7 +658,7 @@ namespace Tasha
                 var sensitive = mode as IIterationSensitive;
                 if(sensitive != null)
                 {
-                    sensitive.IterationEnding(i, Iterations);
+                    sensitive.IterationEnding(i, TotalIterations);
                 }
             }
         }
@@ -665,7 +669,7 @@ namespace Tasha
             {
                 foreach(var module in PostIteration)
                 {
-                    module.Execute(i, Iterations);
+                    module.Execute(i, TotalIterations);
                 }
             }
         }
@@ -676,7 +680,7 @@ namespace Tasha
             {
                 if(!_ExitRequested)
                 {
-                    ModeChoice.IterationFinished(i, Iterations);
+                    ModeChoice.IterationFinished(i, TotalIterations);
                 }
             }
             if(PostScheduler != null)
@@ -721,7 +725,7 @@ namespace Tasha
             {
                 if(!_ExitRequested)
                 {
-                    ModeChoice.IterationStarted(i, Iterations);
+                    ModeChoice.IterationStarted(i, TotalIterations);
                 }
             }
             if(PostScheduler != null)
@@ -754,7 +758,7 @@ namespace Tasha
                 {
                     if(!_ExitRequested)
                     {
-                        module.Execute(i, Iterations);
+                        module.Execute(i, TotalIterations);
                     }
                 }
             }
@@ -764,7 +768,7 @@ namespace Tasha
         {
             if(NetworkData != null)
             {
-                _Status = () => "Loading Network Data for iteration " + (iteration + 1).ToString() + " of " + Iterations;
+                _Status = () => "Loading Network Data for iteration " + (iteration + 1).ToString() + " of " + TotalIterations;
                 foreach(var network in NetworkData)
                 {
                     if(!_ExitRequested)
