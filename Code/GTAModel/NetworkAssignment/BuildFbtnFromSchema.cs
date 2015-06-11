@@ -56,6 +56,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("Virtual Node Domain", 100000, "All created virtual nodes will have IDs higher than this number. This tool will never override and existing node.")]
         public int VirtualNodeDomain;
 
+        [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
+        public bool StationConnectorFlag;
+
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         private const string _ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
@@ -72,13 +75,14 @@ namespace TMG.GTAModel.NetworkAssignment
                                         this.TransferModeId,
                                         this.SegmentFareAttribute,
                                         this.LinkFareAttribute,
-                                        this.VirtualNodeDomain);
+                                        this.VirtualNodeDomain,
+                                        this.StationConnectorFlag);
 
             /*
             
             def __call__(self, XMLSchemaFile, xtmf_BaseScenarioNumber, NewScenarioNumber,
                  TransferModeId, SegmentFareAttributeId, LinkFareAttributeId, 
-                 VirtualNodeDomain):
+                 VirtualNodeDomain, StationConnectorFlag):
             */
 
             var result = "";
