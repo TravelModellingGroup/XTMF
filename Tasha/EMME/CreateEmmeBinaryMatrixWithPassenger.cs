@@ -130,7 +130,7 @@ namespace Tasha.EMME
                                 }
                                 access = false;
                             }
-                            else
+                            else if(IsThisModeOneWeShouldCount(modeChosen))
                             {
                                 var originIndex = GetFlatIndex(trips[k].OriginalZone);
                                 var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
@@ -259,7 +259,7 @@ namespace Tasha.EMME
         /// </summary>
         /// <param name="trip"></param>
         /// <returns></returns>
-        private bool UsesMode(ITashaMode mode)
+        private bool IsThisModeOneWeShouldCount(ITashaMode mode)
         {
             for(int i = 0; i < Modes.Length; i++)
             {

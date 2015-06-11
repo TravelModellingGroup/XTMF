@@ -132,7 +132,7 @@ namespace Tasha.EMME
                                 }
                                 access = false;
                             }
-                            else
+                            else if(UsesMode(modeChosen))
                             {
                                 var originIndex = GetFlatIndex(trips[k].OriginalZone);
                                 var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
