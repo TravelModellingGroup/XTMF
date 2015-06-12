@@ -102,7 +102,7 @@ namespace Tasha.Validation.Scheduler
                     {
                         if(Array.IndexOf(Activities, trips[k].Purpose) >= 0)
                         {
-                            var activityStartTime = trips[j].ActivityStartTime;
+                            var activityStartTime = trips[k].ActivityStartTime;
                             if(activityStartTime >= StartTime && activityStartTime < EndTime)
                             {
                                 AddToMatrix(trips[k], expFactor);
