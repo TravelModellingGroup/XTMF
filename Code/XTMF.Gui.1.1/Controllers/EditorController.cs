@@ -64,5 +64,10 @@ namespace XTMF.Gui.Controllers
         {
             return ( Keyboard.IsKeyDown( Key.LeftCtrl ) | Keyboard.IsKeyDown( Key.RightCtrl ) );
         }
+
+        internal static bool IsShiftDown()
+        {
+            return (Keyboard.IsKeyDown(Key.LeftShift) | Keyboard.IsKeyDown(Key.RightShift));
+        }
     }
 }

@@ -339,9 +339,20 @@ namespace XTMF
             var real = RealModelSystemStructure.Children[start];
             var model = Children[start];
             RealModelSystemStructure.Children.RemoveAt(start);
-            Children.RemoveAt(start);
             RealModelSystemStructure.Children.Insert(dest, real);
-            Children.Insert(dest, model);
+            Children.Move(start, dest);
+        }
+
+        public bool MoveModeInParent(int deltaPosition, ref string error)
+        {
+            ModelSystemStructureModel parent = Session.GetParent(this);
+            if(!parent.IsCollection)
+            {
+                error = "You can only move the children of a collection!";
+                return false;
+            }
+            var ourIndex = parent.Children.IndexOf(this);
+            return parent.MoveChild(ourIndex, ourIndex + deltaPosition, ref error);
         }
 
         public bool MoveChild(int originalPosition, int newPosition, ref string error)

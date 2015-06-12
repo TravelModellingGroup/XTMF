@@ -265,6 +265,31 @@ namespace XTMF.Gui.UserControls
             return ret;
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+            if(e.Handled == false)
+            {
+                switch(e.Key)
+                {
+                    case Key.Down:
+                        if(Controllers.EditorController.IsShiftDown())
+                        {
+                            MoveCurrentModule(1);
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.Up:
+                        if(Controllers.EditorController.IsShiftDown())
+                        {
+                            MoveCurrentModule(-1);
+                            e.Handled = true;
+                        }
+                        break;
+                }
+            }
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -473,6 +498,7 @@ namespace XTMF.Gui.UserControls
             if(!e.Handled)
             {
                 var shiftDown = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift);
+                var ctrlDown = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control);
                 e.Handled = true;
                 switch(e.Key)
                 {
@@ -482,7 +508,14 @@ namespace XTMF.Gui.UserControls
                     case Key.Up:
                         if(shiftDown)
                         {
-                            MoveFocusNextModule(true);
+                            if(ctrlDown)
+                            {
+                                MoveCurrentModule(-1);
+                            }
+                            else
+                            {
+                                MoveFocusNextModule(true);
+                            }
                         }
                         else
                         {
@@ -492,7 +525,14 @@ namespace XTMF.Gui.UserControls
                     case Key.Down:
                         if(shiftDown)
                         {
-                            MoveFocusNextModule(false);
+                            if(ctrlDown)
+                            {
+                                MoveCurrentModule(1);
+                            }
+                            else
+                            {
+                                MoveFocusNextModule(false);
+                            }
                         }
                         else
                         {
@@ -608,6 +648,20 @@ namespace XTMF.Gui.UserControls
             else
             {
                 throw new InvalidAsynchronousStateException("The current module could not be found!");
+            }
+        }
+
+        private void MoveCurrentModule(int deltaPosition)
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if(selected != null)
+            {
+                string error = null;
+                if(!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
+                {
+                    //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Media.SystemSounds.Beep.Play();
+                }
             }
         }
 

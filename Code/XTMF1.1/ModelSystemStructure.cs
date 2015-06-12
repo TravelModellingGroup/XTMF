@@ -378,6 +378,11 @@ namespace XTMF
             return ModelSystemStructure.CheckForRootModule(modelSystemRoot, this, requiredRootType) as ModelSystemStructure;
         }
 
+        internal ModelSystemStructure GetParent(ModelSystemStructure realModelSystemStructure)
+        {
+            return ModelSystemStructure.GetParent(realModelSystemStructure, this) as ModelSystemStructure;
+        }
+
         public IModelSystemStructure CreateCollectionMember(Type newType)
         {
             if(this.IsCollection)
