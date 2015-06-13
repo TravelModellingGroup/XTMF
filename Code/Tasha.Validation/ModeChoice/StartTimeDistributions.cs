@@ -50,8 +50,6 @@ namespace Tasha.Validation.ModeChoice
         private ITashaMode[] Modes;
         public void Execute(ITashaHousehold household, int iteration)
         {
-            bool taken = false;
-            WriteLock.Enter(ref taken);
             var persons = household.Persons;
             for(int i = 0; i < persons.Length; i++)
             {
@@ -70,13 +68,16 @@ namespace Tasha.Validation.ModeChoice
                             var tripModeIndex = GetTripModeIndex(tripChain[k].Mode);
                             if(tripModeIndex >= 0)
                             {
-                                array[tripStartIndex][tripModeIndex] += expansionFactor;
+                                var row = array[tripStartIndex];
+                                lock (array[tripStartIndex])
+                                {
+                                    row[tripModeIndex] += expansionFactor;
+                                }
                             }
                         }
                     }
                 }
             }
-            if(taken) WriteLock.Exit(true);
         }
 
         private int GetTripModeIndex(ITashaMode mode)
@@ -94,16 +95,22 @@ namespace Tasha.Validation.ModeChoice
         private float[][] GetPurposeCount(Activity purpose)
         {
             float[][] ret;
-            if(TimeBin.TryGetValue(purpose, out ret))
+            if(!TimeBin.TryGetValue(purpose, out ret))
             {
-                return ret;
+                lock (TimeBin)
+                {
+                    Thread.MemoryBarrier();
+                    if(!TimeBin.TryGetValue(purpose, out ret))
+                    {
+                        ret = new float[NumberOfTimeBins][];
+                        for(int i = 0; i < ret.Length; i++)
+                        {
+                            ret[i] = new float[Modes.Length];
+                        }
+                        TimeBin.Add(purpose, ret);
+                    }
+                }
             }
-            ret = new float[NumberOfTimeBins][];
-            for(int i = 0; i < ret.Length; i++)
-            {
-                ret[i] = new float[Modes.Length];
-            }
-            TimeBin.Add(purpose, ret);
             return ret;
         }
 

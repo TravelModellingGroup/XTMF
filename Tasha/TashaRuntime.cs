@@ -787,7 +787,7 @@ namespace Tasha
                 NumberOfHouseholds = hhlds.Length;
                 if(hhlds == null) return;
                 Console.WriteLine(StartingHouseholds);
-                System.Threading.Tasks.Parallel.For(0, hhlds.Length,
+                System.Threading.Tasks.Parallel.For(0, hhlds.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                    delegate (int i)
                 {
                     ITashaHousehold hhld = hhlds[i];
@@ -798,7 +798,8 @@ namespace Tasha
             else
             {
                 Console.WriteLine(StartingHouseholds);
-                System.Threading.Tasks.Parallel.ForEach(HouseholdLoader, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (ITashaHousehold household)
+                System.Threading.Tasks.Parallel.ForEach(HouseholdLoader, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                    delegate (ITashaHousehold household)
                 {
                     Run(iteration, household);
                 });

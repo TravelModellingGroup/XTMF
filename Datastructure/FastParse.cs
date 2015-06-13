@@ -16,6 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System;
+
 namespace Datastructure
 {
     public static class FastParse
@@ -23,21 +25,21 @@ namespace Datastructure
         public static float ParseFixedFloat(string line, int offset, int length)
         {
             int start = offset + length;
-            while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' ) )
+            while(start > 0 && ((line[start - 1] >= '0' & line[start - 1] <= '9') | line[start - 1] == '.'))
             {
                 start--;
             }
-            return ParseFloat( line, start, offset + length );
+            return ParseFloat(line, start, offset + length);
         }
 
         public static int ParseFixedInt(string line, int offset, int length)
         {
             int start = offset + length;
-            while ( start > 0 && ( line[start - 1] >= '0' & line[start - 1] <= '9' ) )
+            while(start > 0 && (line[start - 1] >= '0' & line[start - 1] <= '9'))
             {
                 start--;
             }
-            return ParseInt( line, start, offset + length );
+            return ParseInt(line, start, offset + length);
         }
 
         /// <summary>
@@ -50,29 +52,47 @@ namespace Datastructure
         public static float ParseFloat(string str, int indexFrom, int indexTo)
         {
             int ival = 0;
-            float fval = 0;
-            float multiplyer = 0.1f;
+            int dval = 0;
+            int multiplyer = 0;
             int i;
             char c;
-            for ( i = indexFrom; i < indexTo; i++ )
+            double dmul = 0.0f;
+            unsafe
             {
-                if ( ( c = str[i] ) == '.' )
+                fixed (char* p = str)
                 {
-                    break;
+                    for(i = indexFrom; i < indexTo; i++)
+                    {
+                        if((c = p[i]) == '.')
+                        {
+                            break;
+                        }
+                        // Same as multiplying by 10
+                        ival = (ival << 1) + (ival << 3);
+                        ival += c - '0';
+                    }
+                    multiplyer = indexTo - (++i) + 1;
+                    for(; i <= indexTo; i++)
+                    {
+                        int k = (p[i] - '0');
+                        dval = (dval << 1) + (dval << 3);
+                        dval += k;
+                    }
                 }
-                // Same as multiplying by 10
-                ival = ( ival << 1 ) + ( ival << 3 );
-                ival += c - '0';
             }
-            for ( i++; i < indexTo; i++ )
+            // return ival + (float)(dval * Math.Pow(10.0, -multiplyer));
+            if(DivLookup.Length > multiplyer)
             {
-                int k = ( str[i] - '0' );
-                fval += k * multiplyer;
-                multiplyer *= 0.1f;
+                return ival + (dval * DivLookup[multiplyer]);
             }
-            fval += ival;
-            return fval;
+            else
+            {
+                return ival + (float)(dval * Math.Pow(10.0, -multiplyer));
+            }
         }
+
+        static float[] DivLookup = new float[] {1.0f, 0.1f, 0.01f, 0.001f, 0.0001f, 0.00001f, 0.000001f, 0.0000001f, 0.00000001f, 0.000000001f, 0.0000000001f,
+        0.00000000001f, 0.000000000001f, 0.0000000000001f, 0.00000000000001f};
 
         /// <summary>
         /// Use this to parse an integer out of a string
@@ -84,11 +104,11 @@ namespace Datastructure
         public static int ParseInt(string str, int indexFrom, int indexTo)
         {
             int value = 0;
-            for ( int i = indexFrom; i < indexTo; i++ )
+            for(int i = indexFrom; i < indexTo; i++)
             {
-                if ( str[i] == ' ' ) continue;
+                if(str[i] == ' ') continue;
                 // Same as multiplying by 10
-                value = ( value << 1 ) + ( value << 3 );
+                value = (value << 1) + (value << 3);
                 value += str[i] - '0';
             }
             return value;
