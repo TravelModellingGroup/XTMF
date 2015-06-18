@@ -155,7 +155,7 @@ namespace TMG.Emme
         /// <returns>A limited precision non scientific number in a string</returns>
         public string ToEmmeFloat(float number)
         {
-            StringBuilder builder = new StringBuilder();
+            /*StringBuilder builder = new StringBuilder();
             builder.Append((int)number);
             number = number - (int)number;
             if(number > 0)
@@ -173,7 +173,8 @@ namespace TMG.Emme
                     }
                 }
             }
-            return builder.ToString();
+            return builder.ToString();*/
+            return Math.Round(number, 6).ToString();
         }
 
         /// <summary>
