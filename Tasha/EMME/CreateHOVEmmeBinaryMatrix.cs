@@ -87,8 +87,6 @@ namespace Tasha.EMME
                     for(int k = 0; k < trips.Count; k++)
                     {
                         var startTime = trips[k].TripStartTime;
-                        if(startTime >= StartTime & startTime < EndTime)
-                        {
                             var modeChosen = trips[k].Mode;
                             int accessModeIndex = -1;
                             if(Passenger.Mode == modeChosen)
@@ -105,17 +103,17 @@ namespace Tasha.EMME
                                 var driverOnJoint = driverTripChain.JointTrip;
                                 float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
                                 // subtract out the old data
-                                AddToMatrix(-driverExpansionFactor, driverOnJoint, driverOrigin, driverDestination);
+                                AddToMatrix(startTime, -driverExpansionFactor, driverOnJoint, driverOrigin, driverDestination);
                                 // add in our 3 trip leg data
                                 if(driverOrigin != passengerOrigin)
                                 {
                                     // this really is driver on joint
-                                    AddToMatrix(driverExpansionFactor, driverOnJoint, driverOrigin, passengerOrigin);
+                                    AddToMatrix(startTime, driverExpansionFactor, driverOnJoint, driverOrigin, passengerOrigin);
                                 }
-                                AddToMatrix(driverExpansionFactor, true, passengerOrigin, passengerDestination);
+                                AddToMatrix(startTime, driverExpansionFactor, true, passengerOrigin, passengerDestination);
                                 if(passengerDestination != driverDestination)
                                 {
-                                    AddToMatrix(driverExpansionFactor, driverOnJoint, passengerDestination, driverDestination);
+                                    AddToMatrix(startTime, driverExpansionFactor, driverOnJoint, passengerDestination, driverDestination);
                                 }
                             }
                             else if((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
@@ -125,10 +123,7 @@ namespace Tasha.EMME
                                 {
                                     var originIndex = GetFlatIndex(origin);
                                     var destinationIndex = GetFlatIndex(destination);
-                                    bool gotLock = false;
-                                    WriteLock.Enter(ref gotLock);
-                                    Matrix[0][originIndex][destinationIndex] += expFactor;
-                                    if(gotLock) WriteLock.Exit(true);
+                                    AddToMatrix(startTime, expFactor, false, originIndex, destinationIndex);
                                 }
                                 access = false;
                             }
@@ -136,21 +131,23 @@ namespace Tasha.EMME
                             {
                                 var originIndex = GetFlatIndex(trips[k].OriginalZone);
                                 var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
-                                AddToMatrix(expFactor, jointTour, originIndex, destinationIndex);
+                                AddToMatrix(startTime, expFactor, jointTour, originIndex, destinationIndex);
                             }
                         }
                     }
-                }
             }
         }
 
-        private void AddToMatrix(float expFactor, bool jointTrip, int originIndex, int destinationIndex)
+        private void AddToMatrix(Time startTime, float expFactor, bool jointTrip, int originIndex, int destinationIndex)
         {
-            var row = Matrix[jointTrip ? 1 : 0][originIndex];
-            bool gotLock = false;
-            WriteLock.Enter(ref gotLock);
-            row[destinationIndex] += expFactor;
-            if(gotLock) WriteLock.Exit(true);
+            if(startTime >= StartTime & startTime < EndTime)
+            {
+                var row = Matrix[jointTrip ? 1 : 0][originIndex];
+                bool gotLock = false;
+                WriteLock.Enter(ref gotLock);
+                row[destinationIndex] += expFactor;
+                if(gotLock) WriteLock.Exit(true);
+            }
         }
 
         public sealed class ModeLink : IModule

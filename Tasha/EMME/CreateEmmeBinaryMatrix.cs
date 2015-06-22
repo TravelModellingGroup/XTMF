@@ -71,52 +71,38 @@ namespace Tasha.EMME
                     for(int k = 0; k < trips.Count; k++)
                     {
                         var startTime = trips[k].TripStartTime;
-                        if(startTime >= StartTime & startTime < EndTime)
+                        var modesChosen = trips[k].ModesChosen;
+                        int times = 0;
+                        for(int l = 0; l < modesChosen.Length; l++)
                         {
-                            var modesChosen = trips[k].ModesChosen;
-                            int times = 0;
-                            for(int l = 0; l < modesChosen.Length; l++)
+                            if(UsesMode(modesChosen[l]))
                             {
-                                if(UsesMode(modesChosen[l]))
+                                times++;
+                            }
+                        }
+
+                        if(times > 0)
+                        {
+                            AddToMatrix(expFactor, startTime, times, trips[k].OriginalZone, trips[k].DestinationZone);
+                        }
+                        for(int l = 0; l < AccessModes.Length; l++)
+                        {
+                            times = 0;
+                            for(int m = 0; m < modesChosen.Length; m++)
+                            {
+                                if(UsesAccessMode(modesChosen[m]))
                                 {
                                     times++;
                                 }
                             }
-
                             if(times > 0)
                             {
-                                var originIndex = ZoneSystem.GetFlatIndex(trips[k].OriginalZone.ZoneNumber);
-                                var destinationIndex = ZoneSystem.GetFlatIndex(trips[k].DestinationZone.ZoneNumber);
-                                var row = Matrix[originIndex];
-                                bool gotLock = false;
-                                WriteLock.Enter(ref gotLock);
-                                row[destinationIndex] += expFactor * times;
-                                if(gotLock) WriteLock.Exit(true);
-                            }
-                            for(int l = 0; l < AccessModes.Length; l++)
-                            {
-                                times = 0;
-                                for(int m = 0; m < modesChosen.Length; m++)
+                                IZone origin, destination;
+                                if(AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
                                 {
-                                    if(UsesAccessMode(modesChosen[m]))
-                                    {
-                                        times++;
-                                    }
+                                    AddToMatrix(expFactor, startTime, times, origin, destination);
                                 }
-                                if(times > 0)
-                                {
-                                    IZone origin, destination;
-                                    if(AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
-                                    {
-                                        var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
-                                        var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
-                                        bool gotLock = false;
-                                        WriteLock.Enter(ref gotLock);
-                                        Matrix[originIndex][destinationIndex] += expFactor * times;
-                                        if(gotLock) WriteLock.Exit(true);
-                                    }
-                                    access = false;
-                                }
+                                access = false;
                             }
                         }
                     }
@@ -124,6 +110,19 @@ namespace Tasha.EMME
             }
         }
 
+        private void AddToMatrix(float expFactor, Time startTime, int times, IZone origin, IZone destination)
+        {
+            if(startTime >= StartTime & startTime < EndTime)
+            {
+                var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
+                var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
+                var expandedTimes = expFactor * times;
+                bool gotLock = false;
+                WriteLock.Enter(ref gotLock);
+                Matrix[originIndex][destinationIndex] += expandedTimes;
+                if(gotLock) WriteLock.Exit(true);
+            }
+        }
 
         public sealed class ModeLink : IModule
         {
