@@ -261,6 +261,7 @@
     <Compile Include="PopulationSynthesis\ApplyOccupationRates.cs" />
     <Compile Include="PopulationSynthesis\AssignSchoolZonesFromResourceProbabilities.cs" />
     <Compile Include="PopulationSynthesis\AssignWorkZonesFromResource.cs" />
+    <Compile Include="PopulationSynthesis\EliminateJobsInHomeAndExternal.cs" />
     <Compile Include="PopulationSynthesis\ExtractHouseholdData.cs" />
     <Compile Include="PopulationSynthesis\ExtractPersonData.cs" />
     <Compile Include="PopulationSynthesis\PoRPoS.cs" />
