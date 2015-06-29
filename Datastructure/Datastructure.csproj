@@ -91,6 +91,7 @@
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TBuild|AnyCPU'">
     <OutputPath>..\..\..\..\..\..\..\Documents\XTMF32\Modules\</OutputPath>
