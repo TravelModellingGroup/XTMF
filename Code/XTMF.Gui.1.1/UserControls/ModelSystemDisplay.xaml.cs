@@ -347,6 +347,10 @@ namespace XTMF.Gui.UserControls
                             CopyCurrentModule();
                             e.Handled = true;
                             break;
+                        case Key.V:
+                            PasteCurrentModule();
+                            e.Handled = true;
+                            break;
                     }
                 }
                 else
@@ -603,6 +607,19 @@ namespace XTMF.Gui.UserControls
             if(selected != null)
             {
                 selected.CopyModule();
+            }
+        }
+
+        private void PasteCurrentModule()
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if(selected != null)
+            {
+                string error = null;
+                if(!selected.Paste(Clipboard.GetText(), ref error))
+                {
+                    MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -926,6 +943,11 @@ namespace XTMF.Gui.UserControls
         private void CopyModule_Click(object sender, RoutedEventArgs e)
         {
             CopyCurrentModule();
+        }
+
+        private void PasteModule_Click(object sender, RoutedEventArgs e)
+        {
+            PasteCurrentModule();
         }
     }
 }

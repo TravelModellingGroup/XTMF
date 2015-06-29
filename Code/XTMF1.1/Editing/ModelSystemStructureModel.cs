@@ -182,6 +182,191 @@ namespace XTMF
                 ref error);
         }
 
+        public bool Paste(string buffer, ref string error)
+        {
+            ModelSystemStructure copiedStructure;
+            List<TempLinkedParameter> linkedParameters;
+            // Get the data
+            using (MemoryStream backing = new MemoryStream())
+            {
+                StreamWriter writer = new StreamWriter(backing);
+                writer.Write(buffer);
+                writer.Flush();
+                backing.Position = 0;
+
+                try
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(backing);
+                    copiedStructure = GetModelSystemStructureFromXML(doc["CopiedModule"]["CopiedModules"]);
+                    linkedParameters = GetLinkedParametersFromXML(doc["CopiedModule"]["LinkedParameters"]);
+                }
+                catch
+                {
+                    error = "Unable to decode the copy buffer.";
+                    return false;
+                }
+            }
+            // validate the modules contained
+            if(!IsAssignable(Session.ModelSystemModel.Root.RealModelSystemStructure,
+                IsCollection ? RealModelSystemStructure : Session.GetParent(this).RealModelSystemStructure, copiedStructure))
+            {
+                error = "The copied model system is not pasteable at this location.";
+                return false;
+            }
+            var oldReal = RealModelSystemStructure;
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                (ref string e) =>
+            {
+                if(IsCollection)
+                {
+                    RealModelSystemStructure.Children.Add(copiedStructure);
+                    UpdateChildren();
+                }
+                else
+                {
+                    RealModelSystemStructure = copiedStructure;
+                    UpdateAll();
+                }
+                return true;
+            },
+                  (ref string e) =>
+            {
+                if(IsCollection)
+                {
+                    RealModelSystemStructure.Children.Remove(copiedStructure);
+                    UpdateChildren();
+                }
+                else
+                {
+                    RealModelSystemStructure = oldReal;
+                    UpdateAll();
+                }
+                return true;
+            },
+                    (ref string e) =>
+            {
+                if(IsCollection)
+                {
+                    RealModelSystemStructure.Children.Add(copiedStructure);
+                    UpdateChildren();
+                }
+                else
+                {
+                    RealModelSystemStructure = copiedStructure;
+                    UpdateAll();
+                }
+                return true;
+            }), ref error);
+        }
+
+        private void UpdateAll()
+        {
+            UpdateChildren();
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+        }
+
+        private bool IsAssignable(ModelSystemStructure rootStructure, ModelSystemStructure parentStructure, ModelSystemStructure copyBuffer)
+        {
+            // This will update what module we are using for the root as per the Re-rootable extension for XTMF
+            try
+            {
+                var parent = parentStructure == null ? typeof(IModelSystemTemplate) : parentStructure.Type;
+                if(copyBuffer.IsCollection)
+                {
+                    // Make sure that we are doing collection to collection and that they are of the right types
+                    if(!this.IsCollection || !this.RealModelSystemStructure.ParentFieldType.IsAssignableFrom(copyBuffer.ParentFieldType))
+                    {
+                        return false;
+                    }
+                    // now make sure that every new element is alright with the parent and root
+                    var parentType = this.RealModelSystemStructure.ParentFieldType;
+                    var arguements = parentType.IsArray ? parentType.GetElementType() : parentType.GetGenericArguments()[0];
+                    foreach(var member in copyBuffer.Children)
+                    {
+                        var t = member.Type;
+                        if(arguements.IsAssignableFrom(t) && (parent == null || ModelSystemStructure.CheckForParent(parent, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) != null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    var t = copyBuffer.Type;
+                    rootStructure = ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) as ModelSystemStructure;
+                    if(this.IsCollection)
+                    {
+                        var parentType = this.RealModelSystemStructure.ParentFieldType;
+
+                        var arguements = parentType.IsArray ? parentType.GetElementType() : parentType.GetGenericArguments()[0];
+                        if(arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parent, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, this.RealModelSystemStructure, t) != null)
+                        {
+                            return true;
+                        }
+
+                    }
+                    else
+                    {
+                        if(this.RealModelSystemStructure.ParentFieldType.IsAssignableFrom(t) &&
+                            (parent == null || ModelSystemStructure.CheckForParent(parent, t))
+                            && ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) != null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return false;
+            }
+            return false;
+        }
+
+        private class TempLinkedParameter
+        {
+            internal string Name;
+            internal string Value;
+            internal List<string> Paths;
+
+            public TempLinkedParameter()
+            {
+                Paths = new List<string>();
+            }
+        }
+
+        private List<TempLinkedParameter> GetLinkedParametersFromXML(XmlNode linkedParameterNode)
+        {
+            List<TempLinkedParameter> ret = new List<TempLinkedParameter>();
+            foreach(XmlNode child in linkedParameterNode.ChildNodes)
+            {
+                if(child.Name == "LinkedParameter")
+                {
+                    var nextLp = new TempLinkedParameter()
+                    {
+                        Name = child.Attributes["Name"].InnerText,
+                        Value = child.Attributes["Value"].InnerText
+                    };
+                    foreach(XmlNode link in child.ChildNodes)
+                    {
+                        nextLp.Paths.Add(link.Attributes["Path"].InnerText);
+                    }
+                    ret.Add(nextLp);
+                }
+            }
+            return ret;
+        }
+
+        private ModelSystemStructure GetModelSystemStructureFromXML(XmlNode rootMSChild)
+        {
+            return ModelSystemStructure.Load(rootMSChild, Session.Configuration);
+        }
+
+
+
         /// <summary>
         /// Return a representation of this module
         /// </summary>
@@ -193,6 +378,7 @@ namespace XTMF
                 using (XmlTextWriter writer = new XmlTextWriter(backing, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
+                    writer.WriteStartElement("CopiedModule");
                     writer.WriteStartElement("CopiedModules");
                     RealModelSystemStructure.Save(writer);
                     writer.WriteEndElement();
@@ -214,6 +400,7 @@ namespace XTMF
                         }
                         writer.WriteEndElement();
                     }
+                    writer.WriteEndElement();
                     writer.WriteEndElement();
                     writer.Flush();
                     backing.Position = 0;
@@ -424,10 +611,20 @@ namespace XTMF
 
         public ObservableCollection<ModelSystemStructureModel> Children { get; private set; }
 
-        private static ObservableCollection<ModelSystemStructureModel> CreateChildren(ModelSystemEditingSession session, ModelSystemStructure realModelSystemStructure)
+        private ObservableCollection<ModelSystemStructureModel> CreateChildren(ModelSystemEditingSession session, ModelSystemStructure realModelSystemStructure)
         {
             if(realModelSystemStructure.Children == null) return null;
-            var ret = new ObservableCollection<ModelSystemStructureModel>();
+
+            ObservableCollection<ModelSystemStructureModel> ret;
+            if(Children == null)
+            {
+                ret = new ObservableCollection<ModelSystemStructureModel>();
+            }
+            else
+            {
+                ret = Children;
+                ret.Clear();
+            }
             for(int i = 0; i < realModelSystemStructure.Children.Count; i++)
             {
                 ret.Add(new ModelSystemStructureModel(session, realModelSystemStructure.Children[i] as ModelSystemStructure));

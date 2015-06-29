@@ -166,5 +166,10 @@ namespace XTMF.Gui.Models
         {
             Clipboard.SetText(BaseModel.CopyModule());
         }
+
+        internal bool Paste(string toPaste, ref string error)
+        {
+            return BaseModel.Paste(toPaste, ref error);
+        }
     }
 }
