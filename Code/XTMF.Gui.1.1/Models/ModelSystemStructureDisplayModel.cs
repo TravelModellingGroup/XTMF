@@ -50,7 +50,7 @@ namespace XTMF.Gui.Models
         {
             BaseModel = baseModel;
             BaseChildren = baseModel.Children;
-            Children = BaseChildren == null ? null
+            Children = BaseChildren == null ? new ObservableCollection<ModelSystemStructureDisplayModel>()
                 : new ObservableCollection<ModelSystemStructureDisplayModel>(
                 from child in baseModel.Children
                 select new ModelSystemStructureDisplayModel(child));

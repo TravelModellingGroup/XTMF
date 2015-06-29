@@ -706,11 +706,14 @@ namespace XTMF.Gui.UserControls
             if(selected != null)
             {
                 string error = null;
+                // do this so we don't lose our place
+                MoveFocusNext(true);
                 if(!ModelSystem.Remove(selected.BaseModel, ref error))
                 {
                     throw new Exception(error);
                 }
                 UpdateParameters(selected.BaseModel.Parameters);
+                Keyboard.Focus(ModuleDisplay);
             }
         }
 

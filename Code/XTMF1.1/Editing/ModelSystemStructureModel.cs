@@ -504,6 +504,7 @@ namespace XTMF
                     }
                     data.Index = index;
                     data.StructureInQuestion = RealModelSystemStructure.Children[data.Index] as ModelSystemStructure;
+                    data.ModelInQuestion = Children[data.Index];
                     RealModelSystemStructure.Children.RemoveAt(data.Index);
                     Children.RemoveAt(data.Index);
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
@@ -511,8 +512,8 @@ namespace XTMF
                 },
                 (ref string e) =>
                 {
-                    Children.Insert(data.Index, data.ModelInQuestion);
                     RealModelSystemStructure.Children.Insert(data.Index, data.StructureInQuestion);
+                    Children.Insert(data.Index, data.ModelInQuestion);
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
                     return true;
                 },
