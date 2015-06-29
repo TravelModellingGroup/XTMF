@@ -46,6 +46,15 @@
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
                 <TreeView.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
                             <MenuItem.Icon>
                                 <Image>

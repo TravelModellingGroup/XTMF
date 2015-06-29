@@ -20,8 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using XTMF.Editing;
 namespace XTMF
 {
@@ -179,6 +181,111 @@ namespace XTMF
                 }),
                 ref error);
         }
+
+        /// <summary>
+        /// Return a representation of this module
+        /// </summary>
+        public string CopyModule()
+        {
+            var children = GetAllChildren();
+            using (MemoryStream backing = new MemoryStream())
+            {
+                using (XmlTextWriter writer = new XmlTextWriter(backing, Encoding.Unicode))
+                {
+                    writer.Formatting = Formatting.Indented;
+                    writer.WriteStartElement("CopiedModules");
+                    RealModelSystemStructure.Save(writer);
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("LinkedParameters");
+                    foreach(var linkedParameter in GetLinkedParameters(children))
+                    {
+                        writer.WriteStartElement("LinkedParamter");
+                        writer.WriteAttributeString("Name", linkedParameter.Name);
+                        writer.WriteAttributeString("Value", linkedParameter.GetValue());
+                        foreach(var link in linkedParameter.GetParameters())
+                        {
+                            var match = children.FirstOrDefault(m => m.RealModelSystemStructure == link.RealParameter.BelongsTo);
+                            if(match != null)
+                            {
+                                writer.WriteStartElement("Parameter");
+                                writer.WriteAttributeString("Path", LookupName(link, this));
+                                writer.WriteEndElement();
+                            }
+                        }
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
+                    writer.Flush();
+                    backing.Position = 0;
+                    using (var reader = new StreamReader(backing))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+        }
+
+        private string LookupName(ParameterModel reference, ModelSystemStructureModel current)
+        {
+            var param = current.Parameters;
+            if(param != null && param.Parameters != null)
+            {
+                int index = param.Parameters.IndexOf(reference);
+                if(index >= 0)
+                {
+                    return current.Parameters.Parameters[index].Name;
+                }
+            }
+            var childrenList = current.Children;
+            if(childrenList != null)
+            {
+                for(int i = 0; i < childrenList.Count; i++)
+                {
+                    var res = LookupName(reference, childrenList[i]);
+                    if(res != null)
+                    {
+                        // make sure to use an escape character before the . to avoid making the mistake of reading it as another index
+                        return string.Concat(current.IsCollection ? i.ToString()
+                            : childrenList[i].ParentFieldName.Replace(".", "\\."), '.', res);
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        /// <summary>
+        /// Get all of the referenced linked parameters
+        /// </summary>
+        /// <returns>A list of the linked parameters referenced by any of the modules in this subtree</returns>
+        private List<LinkedParameterModel> GetLinkedParameters(List<ModelSystemStructureModel> children)
+        {
+            var linkedParameters = Session.ModelSystemModel.LinkedParameters;
+            return (from lp in linkedParameters.LinkedParameters
+                    where children.Any(child => lp.HasContainedModule(child))
+                    select lp).ToList();
+        }
+
+        private List<ModelSystemStructureModel> GetAllChildren()
+        {
+            var ret = new List<ModelSystemStructureModel>();
+            GetAllChildren(ret, this);
+            return ret;
+        }
+
+        private void GetAllChildren(List<ModelSystemStructureModel> list, ModelSystemStructureModel root)
+        {
+            list.Add(root);
+            var children = root.Children;
+            if(children != null)
+            {
+                foreach(var child in children)
+                {
+                    GetAllChildren(list, child);
+                }
+            }
+        }
+
 
         /// <summary>
         /// Removes a collection member at the given index

@@ -343,6 +343,10 @@ namespace XTMF.Gui.UserControls
                             SaveRequested();
                             e.Handled = true;
                             break;
+                        case Key.C:
+                            CopyCurrentModule();
+                            e.Handled = true;
+                            break;
                     }
                 }
                 else
@@ -591,6 +595,15 @@ namespace XTMF.Gui.UserControls
         public void RedoRequested()
         {
             Redo();
+        }
+
+        private void CopyCurrentModule()
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if(selected != null)
+            {
+                selected.CopyModule();
+            }
         }
 
         public void CloneRequested(string clonedName)
@@ -908,6 +921,11 @@ namespace XTMF.Gui.UserControls
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             SelectFileForCurrentParameter();
+        }
+
+        private void CopyModule_Click(object sender, RoutedEventArgs e)
+        {
+            CopyCurrentModule();
         }
     }
 }

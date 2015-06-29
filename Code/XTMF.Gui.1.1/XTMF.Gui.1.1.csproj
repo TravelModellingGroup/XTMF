@@ -429,9 +429,6 @@
     <Resource Include="Resources\Settings.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\underpassbg.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\XTMF_corner_splash.png" />
   </ItemGroup>
   <ItemGroup>

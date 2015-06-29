@@ -140,6 +140,7 @@ namespace XTMF
             var ret = new LinkedParameter( original.Name );
             var oldParameters = original.Parameters;
             var parameters = ret.Parameters;
+            ret.Value = original.Value;
             for ( int i = 0; i < oldParameters.Count; i++ )
             {
                 parameters.Add( oldParameters[i] );

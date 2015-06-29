@@ -252,6 +252,17 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Check to see if this linked parameter has a reference to the given module.
+        /// </summary>
+        /// <param name="child">The module to test against</param>
+        /// <returns>If the given module is referenced</returns>
+        internal bool HasContainedModule(ModelSystemStructureModel child)
+        {
+            return RealLinkedParameter.Parameters.Any(p => p.BelongsTo == child.RealModelSystemStructure);
+        }
+
+
+        /// <summary>
         /// This will set the value of the linked parameter and all contained parameter to the given value
         /// </summary>
         /// <param name="newValue">The value to set it to.</param>

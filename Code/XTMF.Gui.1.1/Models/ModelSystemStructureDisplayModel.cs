@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using System.Collections.Specialized;
+using System.Windows.Forms;
 
 namespace XTMF.Gui.Models
 {
@@ -159,6 +160,11 @@ namespace XTMF.Gui.Models
         internal ObservableCollection<ParameterModel> GetParameters()
         {
             return BaseModel.Parameters.GetParameters();
+        }
+
+        internal void CopyModule()
+        {
+            Clipboard.SetText(BaseModel.CopyModule());
         }
     }
 }
