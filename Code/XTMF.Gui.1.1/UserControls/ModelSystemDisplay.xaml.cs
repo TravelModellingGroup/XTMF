@@ -273,14 +273,14 @@ namespace XTMF.Gui.UserControls
                 switch(e.Key)
                 {
                     case Key.Down:
-                        if(Controllers.EditorController.IsShiftDown())
+                        if(Controllers.EditorController.IsShiftDown() && Controllers.EditorController.IsControlDown())
                         {
                             MoveCurrentModule(1);
                             e.Handled = true;
                         }
                         break;
                     case Key.Up:
-                        if(Controllers.EditorController.IsShiftDown())
+                        if(Controllers.EditorController.IsShiftDown() && Controllers.EditorController.IsControlDown())
                         {
                             MoveCurrentModule(-1);
                             e.Handled = true;
