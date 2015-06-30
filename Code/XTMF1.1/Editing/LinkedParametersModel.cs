@@ -165,5 +165,38 @@ namespace XTMF
         /// </summary>
         /// <returns>Number of Linked parameters</returns>
         public int Count { get { return this.LinkedParameters.Count; } }
+
+        /// <summary>
+        /// Add a new linked parameter without a command.  Only do this in another
+        /// command where you will clean up afterwards.
+        /// </summary>
+        /// <param name="name">The name of the new linked parameter</param>
+        /// <param name="value">The value to assign to it.</param>
+        /// <returns>The newly created linked parameter</returns>
+        internal LinkedParameterModel AddWithoutCommand(string name, string value)
+        {
+            LinkedParameter linkedParameter = new LinkedParameter(name);
+            LinkedParameterModel newModel = new LinkedParameterModel(linkedParameter, Session, ModelSystem);
+            AddWithoutCommand(newModel);
+            string error = null;
+            newModel.SetWithoutCommand(value, ref error);
+            return newModel;
+        }
+
+        internal void AddWithoutCommand(LinkedParameterModel linkedParameter)
+        {
+            RealLinkedParameters.Add(linkedParameter.RealLinkedParameter);
+            LinkedParameters.Add(linkedParameter);
+        }
+
+        internal void RemoveWithoutCommand(LinkedParameterModel newLP)
+        {
+            var index = LinkedParameters.IndexOf(newLP);
+            if(index >= 0)
+            {
+                LinkedParameters.RemoveAt(index);
+                RealLinkedParameters.RemoveAt(index);
+            }
+        }
     }
 }

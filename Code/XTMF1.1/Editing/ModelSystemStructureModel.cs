@@ -214,19 +214,51 @@ namespace XTMF
                 error = "The copied model system is not pasteable at this location.";
                 return false;
             }
+            List<LinkedParameterModel> newLinkedParameters = new List<LinkedParameterModel>();
+            var additions = new List<Tuple<ParameterModel, LinkedParameterModel>>();
             var oldReal = RealModelSystemStructure;
             return Session.RunCommand(XTMFCommand.CreateCommand(
                 (ref string e) =>
             {
+                ModelSystemStructureModel beingAdded;
                 if(IsCollection)
                 {
-                    RealModelSystemStructure.Children.Add(copiedStructure);
+                    RealModelSystemStructure.Add(copiedStructure);
                     UpdateChildren();
+                    beingAdded = Children[Children.Count - 1];
                 }
                 else
                 {
                     RealModelSystemStructure = copiedStructure;
                     UpdateAll();
+                    beingAdded = this;
+                }
+                var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
+                var realLinkedParameters = linkedParameterModel.GetLinkedParameters();
+                var missing = from lp in linkedParameters
+                              where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
+                              select lp;
+                var matching = linkedParameters.Join(realLinkedParameters, (p) => p.Name, (p) => p.Name, (t, r) => new { Real = r, Temp = t });
+                // add links for the ones we've matched
+                foreach(var lp in matching)
+                {
+                    foreach(var containedParameters in GetParametersFromTemp(lp.Temp, beingAdded))
+                    {
+                        lp.Real.AddParameterWithoutCommand(containedParameters);
+                        containedParameters.SignalIsLinkedChanged();
+                        additions.Add(new Tuple<ParameterModel, LinkedParameterModel>(containedParameters, lp.Real));
+                    }
+                }
+                // add links for the ones that didn't match
+                foreach(var missingLp in missing)
+                {
+                    var newLP = linkedParameterModel.AddWithoutCommand(missingLp.Name, missingLp.Value);
+                    newLinkedParameters.Add(newLP);
+                    foreach(var containedParameters in GetParametersFromTemp(missingLp, beingAdded))
+                    {
+                        newLP.AddParameterWithoutCommand(containedParameters);
+                        containedParameters.SignalIsLinkedChanged();
+                    }
                 }
                 return true;
             },
@@ -242,6 +274,15 @@ namespace XTMF
                     RealModelSystemStructure = oldReal;
                     UpdateAll();
                 }
+                var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
+                foreach(var newLP in newLinkedParameters)
+                {
+                    linkedParameterModel.RemoveWithoutCommand(newLP);
+                }
+                foreach(var addition in additions)
+                {
+                    addition.Item2.RemoveParameterWithoutCommand(addition.Item1);
+                }
                 return true;
             },
                     (ref string e) =>
@@ -256,9 +297,117 @@ namespace XTMF
                     RealModelSystemStructure = copiedStructure;
                     UpdateAll();
                 }
+                var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
+                foreach(var newLP in newLinkedParameters)
+                {
+                    linkedParameterModel.AddWithoutCommand(newLP);
+                }
+                foreach(var addition in additions)
+                {
+                    addition.Item2.AddParameterWithoutCommand(addition.Item1);
+                }
                 return true;
             }), ref error);
         }
+
+        private List<ParameterModel> GetParametersFromTemp(TempLinkedParameter temp, ModelSystemStructureModel root)
+        {
+            return (from path in temp.Paths
+                   select GetParametersFromTemp(path, root)).ToList();
+        }
+
+        private ParameterModel GetParametersFromTemp(string path, ModelSystemStructureModel root)
+        {
+            return GetParameterFromLink(ParseLinkedParameterName(path), 0, root);
+
+        }
+
+        private ParameterModel GetParameterFromLink(string[] variableLink, int index, ModelSystemStructureModel current)
+        {
+            if(index == variableLink.Length - 1)
+            {
+                // search the parameters
+                var parameters = current.Parameters;
+                foreach(var p in parameters.Parameters)
+                {
+                    if(p.Name == variableLink[index])
+                    {
+                        return p;
+                    }
+                }
+            }
+            else
+            {
+                var descList = current.Children;
+                if(descList == null)
+                {
+                    return null;
+                }
+                if(current.IsCollection)
+                {
+                    int collectionIndex;
+                    if(int.TryParse(variableLink[index], out collectionIndex))
+                    {
+                        if(collectionIndex >= 0 && collectionIndex < descList.Count)
+                        {
+                            return GetParameterFromLink(variableLink, index + 1, descList[collectionIndex]);
+                        }
+                        return null;
+                    }
+                }
+                else
+                {
+                    foreach(var sub in descList)
+                    {
+                        if(sub.ParentFieldName == variableLink[index])
+                        {
+                            return GetParameterFromLink(variableLink, index + 1, sub);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private string[] ParseLinkedParameterName(string variableLink)
+        {
+            List<string> ret = new List<string>();
+            bool escape = false;
+            var length = variableLink.Length;
+            StringBuilder builder = new StringBuilder(length);
+            for(int i = 0; i < length; i++)
+            {
+                var c = variableLink[i];
+                // check to see if we need to add in the escape
+                if(escape & c != '.')
+                {
+                    builder.Append('\\');
+                }
+                // check to see if we need to move onto the next part
+                if(escape == false & c == '.')
+                {
+                    ret.Add(builder.ToString());
+                    builder.Clear();
+                    escape = false;
+                }
+                else if(c != '\\')
+                {
+                    builder.Append(c);
+                    escape = false;
+                }
+                else
+                {
+                    escape = true;
+                }
+            }
+            if(escape)
+            {
+                builder.Append('\\');
+            }
+            ret.Add(builder.ToString());
+            return ret.ToArray();
+        }
+
 
         private void UpdateAll()
         {
@@ -385,7 +534,7 @@ namespace XTMF
                     writer.WriteStartElement("LinkedParameters");
                     foreach(var linkedParameter in GetLinkedParameters(children))
                     {
-                        writer.WriteStartElement("LinkedParamter");
+                        writer.WriteStartElement("LinkedParameter");
                         writer.WriteAttributeString("Name", linkedParameter.Name);
                         writer.WriteAttributeString("Value", linkedParameter.GetValue());
                         foreach(var link in linkedParameter.GetParameters())
@@ -620,15 +769,55 @@ namespace XTMF
             if(Children == null)
             {
                 ret = new ObservableCollection<ModelSystemStructureModel>();
+                for(int i = 0; i < realModelSystemStructure.Children.Count; i++)
+                {
+                    ret.Add(new ModelSystemStructureModel(session, realModelSystemStructure.Children[i] as ModelSystemStructure));
+                }
             }
             else
             {
                 ret = Children;
-                ret.Clear();
-            }
-            for(int i = 0; i < realModelSystemStructure.Children.Count; i++)
-            {
-                ret.Add(new ModelSystemStructureModel(session, realModelSystemStructure.Children[i] as ModelSystemStructure));
+                if(realModelSystemStructure.Children == null)
+                {
+                    ret.Clear();
+                }
+                else
+                {
+                    // remove children
+                    var removedChildren = (from child in Children
+                                           where !realModelSystemStructure.Children.Any(r => r == child.RealModelSystemStructure)
+                                           select child).ToArray();
+                    // new children go to the end
+                    var newChildren = (from child in realModelSystemStructure.Children
+                                       where !Children.Any(c => c.RealModelSystemStructure == child)
+                                       select child).ToArray();
+
+                    foreach(var child in removedChildren)
+                    {
+                        ret.Remove(child);
+                    }
+                    foreach(var child in newChildren)
+                    {
+                        ret.Add(new ModelSystemStructureModel(session, child as ModelSystemStructure));
+                    }
+                    bool repeat = false;
+                    do
+                    {
+                        // now search for children that have moved indexes after adds and deleted have been performed
+                        var indexes = (from child in Children
+                                       select realModelSystemStructure.Children.IndexOf(child.RealModelSystemStructure)).ToArray();
+                        for(int i = 0; i < indexes.Length; i++)
+                        {
+                            // if a child has moved
+                            if(indexes[i] != i)
+                            {
+                                Children.Move(i, indexes[i]);
+                                repeat = true;
+                                break;
+                            }
+                        }
+                    } while(repeat);
+                }
             }
             return ret;
         }

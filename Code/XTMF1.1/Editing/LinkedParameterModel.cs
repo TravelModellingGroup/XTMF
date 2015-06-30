@@ -251,6 +251,17 @@ namespace XTMF
                 ), ref error);
         }
 
+        internal void AddParameterWithoutCommand(ParameterModel parameterModel)
+        {
+            NoCommandAdd(parameterModel, ParameterModels.Count);
+        }
+
+        internal void RemoveParameterWithoutCommand(ParameterModel parameterToRemove)
+        {
+            NoCommandRemove(parameterToRemove);
+        }
+
+
         /// <summary>
         /// Check to see if this linked parameter has a reference to the given module.
         /// </summary>

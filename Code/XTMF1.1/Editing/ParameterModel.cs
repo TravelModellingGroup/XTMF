@@ -90,7 +90,10 @@ namespace XTMF
             }
         }
 
-
+        internal void SignalIsLinkedChanged()
+        {
+            ModelHelper.PropertyChanged(PropertyChanged, this, "IsLinked");
+        }
 
         /// <summary>
         /// Update the value from the real parameter without issuing a command.

@@ -100,6 +100,7 @@ namespace XTMF.Gui.Models
                         throw new NotImplementedException("An unknown action was performed!");
                     }
             }
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
         }
 
         private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
