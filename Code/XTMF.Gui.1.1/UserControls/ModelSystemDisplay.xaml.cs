@@ -351,6 +351,10 @@ namespace XTMF.Gui.UserControls
                             PasteCurrentModule();
                             e.Handled = true;
                             break;
+                        case Key.Q:
+                            ShowQuickParameters();
+                            e.Handled = true;
+                            break;
                     }
                 }
                 else
@@ -376,6 +380,11 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+        }
+
+        private void ShowQuickParameters()
+        {
+            ParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
         }
 
         private void Redo()

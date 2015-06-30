@@ -90,6 +90,8 @@ namespace XTMF
             }
         }
 
+        public bool QuickParameter { get { return RealParameter.QuickParameter; } }
+
         internal void SignalIsLinkedChanged()
         {
             ModelHelper.PropertyChanged(PropertyChanged, this, "IsLinked");
