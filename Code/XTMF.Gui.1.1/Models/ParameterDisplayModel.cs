@@ -96,6 +96,18 @@ namespace XTMF.Gui.Models
             }
         }
 
+        public bool QuickParameter
+        {
+            get
+            {
+                return RealParameter.QuickParameter;
+            }
+            set
+            {
+                RealParameter.QuickParameter = value;
+            }
+        }
+
         /// <summary>
         /// Create the display model from the parameter model.
         /// </summary>

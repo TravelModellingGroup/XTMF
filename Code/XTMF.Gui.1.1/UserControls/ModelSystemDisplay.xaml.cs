@@ -473,9 +473,7 @@ namespace XTMF.Gui.UserControls
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            var box = sender as TextBox;
-            BindingExpression be = box.GetBindingExpression(CheckBox.IsCheckedProperty);
-            be.UpdateSource();
+            
         }
 
         private void TextBox_SourceUpdated(object sender, DataTransferEventArgs e)
