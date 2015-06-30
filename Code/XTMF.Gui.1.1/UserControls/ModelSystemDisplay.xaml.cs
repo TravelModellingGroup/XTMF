@@ -690,7 +690,7 @@ namespace XTMF.Gui.UserControls
                 if(!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
                 {
                     //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
-                    System.Media.SystemSounds.Beep.Play();
+                    System.Media.SystemSounds.Asterisk.Play();
                 }
             }
         }
