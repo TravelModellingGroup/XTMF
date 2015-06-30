@@ -383,7 +383,7 @@ namespace XTMF
             return ModelSystemModel.GetModelFor(currentModule.RealModelSystemStructure.GetRoot(ModelSystemModel.Root.RealModelSystemStructure));
         }
 
-        internal ModelSystemStructureModel GetParent(ModelSystemStructureModel currentModule)
+        public ModelSystemStructureModel GetParent(ModelSystemStructureModel currentModule)
         {
             return ModelSystemModel.GetModelFor(currentModule.RealModelSystemStructure.GetParent(ModelSystemModel.Root.RealModelSystemStructure));
         }

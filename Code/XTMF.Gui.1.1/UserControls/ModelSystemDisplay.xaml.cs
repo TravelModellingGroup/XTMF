@@ -707,7 +707,15 @@ namespace XTMF.Gui.UserControls
             {
                 string error = null;
                 // do this so we don't lose our place
-                MoveFocusNext(true);
+                var parent = Session.GetParent(selected.BaseModel);
+                if(parent.Children.IndexOf(selected.BaseModel) < parent.Children.Count - 1)
+                {
+                    MoveFocusNext(false);
+                }
+                else
+                {
+                    MoveFocusNext(true);
+                }
                 if(!ModelSystem.Remove(selected.BaseModel, ref error))
                 {
                     throw new Exception(error);
