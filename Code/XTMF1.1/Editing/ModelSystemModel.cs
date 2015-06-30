@@ -196,12 +196,14 @@ namespace XTMF
             {
                 ModelSystem.ModelSystemStructure = ClonedModelSystemRoot;
                 ModelSystem.Description = Description;
+                ModelSystem.LinkedParameters = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
                 return ModelSystem.Save(ref error);
             }
             else if(ModelSystemIndex >= 0)
             {
                 Project.ModelSystemStructure[ModelSystemIndex] = ClonedModelSystemRoot;
                 Project.ModelSystemDescriptions[ModelSystemIndex] = Description;
+                Project.LinkedParameters[ModelSystemIndex] = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
                 return Project.Save(ref error);
             }
             else

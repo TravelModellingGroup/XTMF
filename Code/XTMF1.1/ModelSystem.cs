@@ -91,7 +91,7 @@ namespace XTMF
         /// <summary>
         ///
         /// </summary>
-        public List<ILinkedParameter> LinkedParameters { get; private set; }
+        public List<ILinkedParameter> LinkedParameters { get; set; }
 
         /// <summary>
         /// The structure that defines this model system
