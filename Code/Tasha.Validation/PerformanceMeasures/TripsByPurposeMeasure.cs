@@ -32,7 +32,7 @@ namespace Tasha.Validation.PerformanceMeasures
         Description = "A Performance Measure that counts and records " +
                        "the amount of trips created for each trip purpose." +
                        "\nNote: The Expanded trips parameter lets the user choose " +
-                       "whether or not he/she wants to look at expansion factors or just frequencies. "
+                       "whether or not he/she wants to look at expansion factors or just frequelncies. "
         )]
     public class TripsByPurposeMeasure : IPostHousehold
     {

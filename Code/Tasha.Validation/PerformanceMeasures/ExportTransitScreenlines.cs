@@ -27,9 +27,9 @@ using XTMF;
 namespace TMG.Emme.Tools.Analysis.Traffic
 {
 
-    public class ExportScreenlineResults : IEmmeTool
+    public class ExportTransitScreenlines : IEmmeTool
     {
-        private const string ToolName = "tmg.analysis.traffic.export_screenline_results";
+        private const string ToolName = "tmg.analysis.transit.export_transit_screenline_results";
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -45,12 +45,18 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
         public string AlternateCountpostAttributeFlag;
 
+        [RunParameter("LineFilterExpression", "", typeof(string), "The line filter in the correct EMME format")]
+        public string lineFilter;
+
+        [RunParameter("RepresentativeHourFactor", "2.04", typeof(string),"The representative hour factor for the screenlines")]
+        public string RepresentativeHourFactor;
 
         [SubModelInformation(Required = true, Description = "The location to save the results to")]
         public FileLocation SaveTo;
 
         [SubModelInformation(Required = true, Description = "The location for the definition file for screenlines")]
         public FileLocation ScreenlineDefinitions;
+
 
         public bool Execute(Controller controller)
         {
@@ -64,7 +70,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 
         private string GetParameters()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo));
+            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo), AddQuotes(lineFilter), AddQuotes(RepresentativeHourFactor));
         }
 
         private static string AddQuotes(string toQuote)

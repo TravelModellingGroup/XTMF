@@ -35,22 +35,22 @@ namespace Tasha.Validation.PerformanceMeasures
     public class GlobalWeightedAverages : ISelfContainedModule
     {
         [SubModelInformation(Required = true, Description = "Results in .CSV format")]
-        public FileLocation GlobalAverageResults;
+        public FileLocation MatrixOutputResults;
 
-        [SubModelInformation(Required = false, Description = "The different links to consider")]
-        public AverageOfInterest[] AveragesToConsider;
+        [SubModelInformation(Required = false, Description = "The different Matrix results to write out")]
+        public MatrixResultOutputs[] MatrixCalcOutputs;
 
-        public sealed class AverageOfInterest : XTMF.IModule
+        public sealed class MatrixResultOutputs : XTMF.IModule
         {
             [RunParameter("Label", "WeightedAverageTotalTransitTime", "The appropriate label for global average")]
             public string Label;  
             
-            [SubModelInformation(Required = true, Description = "Resource that returns the summation of the respective global average")]
-            public IResource RespectiveGlobalAverage;
+            [SubModelInformation(Required = true, Description = "Resource that returns the summation of the respective result matrix")]
+            public IResource SummationOfResult;
 
             public float ReturnData()
             {
-                return RespectiveGlobalAverage.AquireResource<float>();
+                return SummationOfResult.AquireResource<float>();
             }
 
             public string Name
@@ -72,9 +72,9 @@ namespace Tasha.Validation.PerformanceMeasures
 
             public bool RuntimeValidation(ref string error)
             {
-                if(!RespectiveGlobalAverage.CheckResourceType<float>())
+                if(!SummationOfResult.CheckResourceType<float>())
                 {
-                    error = "In '" + Name + "' the RespectiveGlobalAverage was not of type float!";
+                    error = "In '" + Name + "' the SummationfOfResult was not of type float!";
                     return false;
                 }
 
@@ -84,10 +84,10 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void Start()
         {
-            using (StreamWriter writer = new StreamWriter(GlobalAverageResults))
+            using (StreamWriter writer = new StreamWriter(MatrixOutputResults))
             {
                 writer.WriteLine("Global Average,Value");
-                foreach(var average in AveragesToConsider)
+                foreach(var average in MatrixCalcOutputs)
                 {
                     writer.WriteLine("{0},{1}", average.Label, average.ReturnData());
                 }

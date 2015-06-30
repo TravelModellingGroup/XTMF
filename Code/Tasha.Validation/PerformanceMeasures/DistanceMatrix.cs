@@ -37,7 +37,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = true, Description = "Where to save the distance matrices.")]
         public FileLocation ResultsFile;
 
-        [RunParameter("Cost per km", 0.153, "Per km cost for auto assignment used in this model run")]
+        [RunParameter("Cost per km", 0.153f, "Per km cost for auto assignment used in this model run")]
         public float CostPerKm;
 
         [SubModelInformation(Required = true, Description = "The different boarding penalties to apply.")]

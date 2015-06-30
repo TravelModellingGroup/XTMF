@@ -40,6 +40,9 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("Scenario Numbers", "1", typeof(NumberList), "A comma separated list of scenario numbers to execute this against.")]
         public NumberList ScenarioNumbers;
 
+        [RunParameter("Transit Flag", false, "Report the transit volumes on this link in addition to the Auto Volumes.")]
+        public bool TransitFlag;
+
         [SubModelInformation(Required = false, Description = "The different links to consider")]
         public LinksToConsider[] LinksConsidered;
    
@@ -84,7 +87,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
             var linkString = "\"" + string.Join(";", LinksConsidered.Select(b => b.ReturnFilter(controller))) + "\"";
-            return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" ";
+            return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" " + TransitFlag.ToString();
         }
 
         public bool Execute(Controller controller)
