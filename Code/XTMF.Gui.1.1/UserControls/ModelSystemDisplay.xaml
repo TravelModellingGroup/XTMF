@@ -46,6 +46,24 @@
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
                 <TreeView.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Paste (Ctrl+V)" Click="PasteModule_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/PasteHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
                             <MenuItem.Icon>
                                 <Image>
@@ -164,7 +182,7 @@
                                                 <ColumnDefinition Width="AUTO"/>
                                                 <ColumnDefinition Width="AUTO"/>
                                             </Grid.ColumnDefinitions>
-                                            <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding TempQuick}" ToolTip="Quick Parameter"
+                                            <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
                                             <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                             <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 

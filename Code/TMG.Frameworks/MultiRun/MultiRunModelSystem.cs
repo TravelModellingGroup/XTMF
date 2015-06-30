@@ -354,7 +354,7 @@ namespace TMG.Frameworks.MultiRun
                     }
                     return;
                 }
-                catch (IOException)
+                catch
                 {
                     Thread.Sleep(200);
                 }

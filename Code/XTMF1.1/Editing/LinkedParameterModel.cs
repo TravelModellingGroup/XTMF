@@ -251,6 +251,28 @@ namespace XTMF
                 ), ref error);
         }
 
+        internal void AddParameterWithoutCommand(ParameterModel parameterModel)
+        {
+            NoCommandAdd(parameterModel, ParameterModels.Count);
+        }
+
+        internal void RemoveParameterWithoutCommand(ParameterModel parameterToRemove)
+        {
+            NoCommandRemove(parameterToRemove);
+        }
+
+
+        /// <summary>
+        /// Check to see if this linked parameter has a reference to the given module.
+        /// </summary>
+        /// <param name="child">The module to test against</param>
+        /// <returns>If the given module is referenced</returns>
+        internal bool HasContainedModule(ModelSystemStructureModel child)
+        {
+            return RealLinkedParameter.Parameters.Any(p => p.BelongsTo == child.RealModelSystemStructure);
+        }
+
+
         /// <summary>
         /// This will set the value of the linked parameter and all contained parameter to the given value
         /// </summary>

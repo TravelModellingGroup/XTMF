@@ -188,9 +188,8 @@ namespace TMG.GTAModel.NetworkAssignment
                     var convertedO = flatZones[o].ZoneNumber;
                     for(int d = 0; d < numberOfZones; d++)
                     {
-                        ToEmmeFloat(tally[o][d], strBuilder);
-                        build.AppendFormat("{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
-                            convertedO, flatZones[d].ZoneNumber, strBuilder);
+                        build.AppendFormat("{0,-4:G} {1,-4:G} {2,-6:G}\r\n",
+                            convertedO, flatZones[d].ZoneNumber, mc.ToEmmeFloat(tally[o][d]));
                     }
                 });
                 for(int i = 0; i < numberOfZones; i++)
@@ -215,33 +214,6 @@ namespace TMG.GTAModel.NetworkAssignment
                 if(useTempFile)
                 {
                     File.Delete(outputFileName);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Process floats to work with emme
-        /// </summary>
-        /// <param name="number">The float you want to send</param>
-        /// <returns>A limited precision non scientific number in a string</returns>
-        private void ToEmmeFloat(float number, StringBuilder builder)
-        {
-            builder.Clear();
-            builder.Append((int)number);
-            number = number - (int)number;
-            if(number > 0)
-            {
-                var integerSize = builder.Length;
-                builder.Append('.');
-                for(int i = integerSize; i < 4; i++)
-                {
-                    number = number * 10;
-                    builder.Append((int)number);
-                    number = number - (int)number;
-                    if(number == 0)
-                    {
-                        break;
-                    }
                 }
             }
         }

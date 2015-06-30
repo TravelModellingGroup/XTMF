@@ -181,6 +181,7 @@
     <Compile Include="DataExtraction\SaveAsCSVMatrix.cs" />
     <Compile Include="DataExtraction\SqlServerDataSource.cs" />
     <Compile Include="DataExtraction\ZoneSystemSource.cs" />
+    <Compile Include="Data\CreateSparseTriIndexFloatFromSparseTwinIndexes.cs" />
     <Compile Include="Data\IdentityMatrix.cs" />
     <Compile Include="Data\NormalizeOD.cs" />
     <Compile Include="Data\SubtractODRates.cs" />
@@ -220,6 +221,7 @@
     <Compile Include="Estimation\PoRPoW\PoRPoWMST.cs" />
     <Compile Include="Estimation\TestParameterSignificance.cs" />
     <Compile Include="Estimation\TransformTripsToIncludeAccessMode.cs" />
+    <Compile Include="Estimation\TriplyConstrainedGravityModelEstimation.cs" />
     <Compile Include="Estimation\V4AirportModel2014\AiportModeSplitFitnessFunction.cs" />
     <Compile Include="Estimation\V4AirportModel2014\AirportDistributionFitnessFunction.cs" />
     <Compile Include="External\ExternalTripChainLoader.cs" />
@@ -261,6 +263,7 @@
     <Compile Include="PopulationSynthesis\ApplyOccupationRates.cs" />
     <Compile Include="PopulationSynthesis\AssignSchoolZonesFromResourceProbabilities.cs" />
     <Compile Include="PopulationSynthesis\AssignWorkZonesFromResource.cs" />
+    <Compile Include="PopulationSynthesis\EliminateJobsInHomeAndExternal.cs" />
     <Compile Include="PopulationSynthesis\ExtractHouseholdData.cs" />
     <Compile Include="PopulationSynthesis\ExtractPersonData.cs" />
     <Compile Include="PopulationSynthesis\PoRPoS.cs" />

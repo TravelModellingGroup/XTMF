@@ -23,7 +23,7 @@ namespace Datastructure
 {
     public sealed class SparseTwinIndex<T>
     {
-        internal SparseIndexing Indexes;
+        public SparseIndexing Indexes { get; private set; }
 
         private T[][] Data;
 

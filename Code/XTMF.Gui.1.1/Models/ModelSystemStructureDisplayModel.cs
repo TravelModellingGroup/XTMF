@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using System.Collections.Specialized;
+using System.Windows.Forms;
 
 namespace XTMF.Gui.Models
 {
@@ -49,7 +50,7 @@ namespace XTMF.Gui.Models
         {
             BaseModel = baseModel;
             BaseChildren = baseModel.Children;
-            Children = BaseChildren == null ? null
+            Children = BaseChildren == null ? new ObservableCollection<ModelSystemStructureDisplayModel>()
                 : new ObservableCollection<ModelSystemStructureDisplayModel>(
                 from child in baseModel.Children
                 select new ModelSystemStructureDisplayModel(child));
@@ -99,6 +100,7 @@ namespace XTMF.Gui.Models
                         throw new NotImplementedException("An unknown action was performed!");
                     }
             }
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
         }
 
         private void BaseModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -159,6 +161,16 @@ namespace XTMF.Gui.Models
         internal ObservableCollection<ParameterModel> GetParameters()
         {
             return BaseModel.Parameters.GetParameters();
+        }
+
+        internal void CopyModule()
+        {
+            Clipboard.SetText(BaseModel.CopyModule());
+        }
+
+        internal bool Paste(string toPaste, ref string error)
+        {
+            return BaseModel.Paste(toPaste, ref error);
         }
     }
 }

@@ -273,14 +273,14 @@ namespace XTMF.Gui.UserControls
                 switch(e.Key)
                 {
                     case Key.Down:
-                        if(Controllers.EditorController.IsShiftDown())
+                        if(Controllers.EditorController.IsShiftDown() && Controllers.EditorController.IsControlDown())
                         {
                             MoveCurrentModule(1);
                             e.Handled = true;
                         }
                         break;
                     case Key.Up:
-                        if(Controllers.EditorController.IsShiftDown())
+                        if(Controllers.EditorController.IsShiftDown() && Controllers.EditorController.IsControlDown())
                         {
                             MoveCurrentModule(-1);
                             e.Handled = true;
@@ -343,6 +343,18 @@ namespace XTMF.Gui.UserControls
                             SaveRequested();
                             e.Handled = true;
                             break;
+                        case Key.C:
+                            CopyCurrentModule();
+                            e.Handled = true;
+                            break;
+                        case Key.V:
+                            PasteCurrentModule();
+                            e.Handled = true;
+                            break;
+                        case Key.Q:
+                            ShowQuickParameters();
+                            e.Handled = true;
+                            break;
                     }
                 }
                 else
@@ -368,6 +380,11 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+        }
+
+        private void ShowQuickParameters()
+        {
+            ParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
         }
 
         private void Redo()
@@ -456,9 +473,7 @@ namespace XTMF.Gui.UserControls
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            var box = sender as TextBox;
-            BindingExpression be = box.GetBindingExpression(CheckBox.IsCheckedProperty);
-            be.UpdateSource();
+            
         }
 
         private void TextBox_SourceUpdated(object sender, DataTransferEventArgs e)
@@ -593,6 +608,28 @@ namespace XTMF.Gui.UserControls
             Redo();
         }
 
+        private void CopyCurrentModule()
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if(selected != null)
+            {
+                selected.CopyModule();
+            }
+        }
+
+        private void PasteCurrentModule()
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if(selected != null)
+            {
+                string error = null;
+                if(!selected.Paste(Clipboard.GetText(), ref error))
+                {
+                    MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         public void CloneRequested(string clonedName)
         {
 
@@ -660,7 +697,7 @@ namespace XTMF.Gui.UserControls
                 if(!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
                 {
                     //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
-                    System.Media.SystemSounds.Beep.Play();
+                    System.Media.SystemSounds.Asterisk.Play();
                 }
             }
         }
@@ -676,11 +713,22 @@ namespace XTMF.Gui.UserControls
             if(selected != null)
             {
                 string error = null;
+                // do this so we don't lose our place
+                var parent = Session.GetParent(selected.BaseModel);
+                if(parent.Children.IndexOf(selected.BaseModel) < parent.Children.Count - 1)
+                {
+                    MoveFocusNext(false);
+                }
+                else
+                {
+                    MoveFocusNext(true);
+                }
                 if(!ModelSystem.Remove(selected.BaseModel, ref error))
                 {
                     throw new Exception(error);
                 }
                 UpdateParameters(selected.BaseModel.Parameters);
+                Keyboard.Focus(ModuleDisplay);
             }
         }
 
@@ -908,6 +956,16 @@ namespace XTMF.Gui.UserControls
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             SelectFileForCurrentParameter();
+        }
+
+        private void CopyModule_Click(object sender, RoutedEventArgs e)
+        {
+            CopyCurrentModule();
+        }
+
+        private void PasteModule_Click(object sender, RoutedEventArgs e)
+        {
+            PasteCurrentModule();
         }
     }
 }

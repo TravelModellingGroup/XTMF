@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace XTMF
 {
@@ -196,18 +197,50 @@ namespace XTMF
             {
                 ModelSystem.ModelSystemStructure = ClonedModelSystemRoot;
                 ModelSystem.Description = Description;
+                ModelSystem.LinkedParameters = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
                 return ModelSystem.Save(ref error);
             }
             else if(ModelSystemIndex >= 0)
             {
                 Project.ModelSystemStructure[ModelSystemIndex] = ClonedModelSystemRoot;
                 Project.ModelSystemDescriptions[ModelSystemIndex] = Description;
+                Project.LinkedParameters[ModelSystemIndex] = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
                 return Project.Save(ref error);
             }
             else
             {
                 error = "You can not save over previous runs!";
                 return false;
+            }
+        }
+
+        public ObservableCollection<ParameterModel> GetQuickParameters()
+        {
+            ObservableCollection<ParameterModel> quickParameters = new ObservableCollection<ParameterModel>();
+            AddQuickParameters(quickParameters, Root);
+            return quickParameters;
+        }
+
+        private void AddQuickParameters(ObservableCollection<ParameterModel> quickParameters, ModelSystemStructureModel current)
+        {
+            var parameters = current.Parameters.Parameters;
+            if(parameters != null)
+            {
+                foreach(var p in parameters)
+                {
+                    if(p.QuickParameter)
+                    {
+                        quickParameters.Add(p);
+                    }
+                }
+            }
+            var children = current.Children;
+            if(children != null)
+            {
+                foreach(var child in children)
+                {
+                    AddQuickParameters(quickParameters, child);
+                }
             }
         }
 

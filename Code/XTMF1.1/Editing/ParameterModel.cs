@@ -90,7 +90,26 @@ namespace XTMF
             }
         }
 
+        public bool QuickParameter
+        {
+            get
+            {
+                return RealParameter.QuickParameter;
+            }
+            set
+            {
+                if(RealParameter.QuickParameter != value)
+                {
+                    RealParameter.QuickParameter = value;
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                }
+            }
+        }
 
+        internal void SignalIsLinkedChanged()
+        {
+            ModelHelper.PropertyChanged(PropertyChanged, this, "IsLinked");
+        }
 
         /// <summary>
         /// Update the value from the real parameter without issuing a command.

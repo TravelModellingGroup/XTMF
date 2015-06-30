@@ -157,6 +157,7 @@ namespace TMG.Emme
         {
             StringBuilder builder = new StringBuilder();
             builder.Append((int)number);
+            number = (float)Math.Round(number, 6);
             number = number - (int)number;
             if(number > 0)
             {

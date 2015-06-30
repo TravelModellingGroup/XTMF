@@ -81,12 +81,10 @@ namespace Tasha.EMME
                     }
                     var trips = tripChains[j].Trips;
                     // check to see if we should be running access or egress for this person on their trip chain
-                    bool access = true;
+                    bool initialAccessTrip = true;
                     for(int k = 0; k < trips.Count; k++)
                     {
                         var startTime = trips[k].TripStartTime;
-                        if(startTime >= StartTime & startTime < EndTime)
-                        {
                             int accessModeIndex = -1;
                             var modeChosen = trips[k].Mode;
                             if(Passenger.Mode == modeChosen)
@@ -105,41 +103,40 @@ namespace Tasha.EMME
                                 // subtract out the old data
                                 if(IsDriverAlreadyOnRoad(driversTrip))
                                 {
-                                    AddToMatrix(-driverExpansionFactor, driverOrigin, driverDestination);
+                                    AddToMatrix(startTime, -driverExpansionFactor, driverOrigin, driverDestination);
                                 }
                                 // add in our 3 trip leg data
                                 if(driverOrigin != passengerOrigin)
                                 {
                                     // this really is driver on joint
-                                    AddToMatrix(driverExpansionFactor, driverOrigin, passengerOrigin);
+                                    AddToMatrix(startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
                                 }
-                                AddToMatrix(driverExpansionFactor, passengerOrigin, passengerDestination);
+                                AddToMatrix(startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
                                 if(passengerDestination != driverDestination)
                                 {
-                                    AddToMatrix(driverExpansionFactor, passengerDestination, driverDestination);
+                                    AddToMatrix(startTime, driverExpansionFactor, passengerDestination, driverDestination);
                                 }
                             }
                             else if((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
                             {
                                 IZone origin, destination;
-                                if(AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
+                                if(AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out origin, out destination))
                                 {
                                     var originIndex = GetFlatIndex(origin);
                                     var destinationIndex = GetFlatIndex(destination);
-                                    AddToMatrix(expFactor, originIndex, destinationIndex);
+                                    AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
                                 }
-                                access = false;
+                                initialAccessTrip = false;
                             }
                             else if(IsThisModeOneWeShouldCount(modeChosen))
                             {
                                 var originIndex = GetFlatIndex(trips[k].OriginalZone);
                                 var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
-                                AddToMatrix(expFactor, originIndex, destinationIndex);
+                                AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
                             }
                         }
                     }
                 }
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -151,13 +148,16 @@ namespace Tasha.EMME
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddToMatrix(float expFactor, int originIndex, int destinationIndex)
+        private void AddToMatrix(Time startTime, float expFactor, int originIndex, int destinationIndex)
         {
-            var row = Matrix[originIndex];
-            bool gotLock = false;
-            WriteLock.Enter(ref gotLock);
-            row[destinationIndex] += expFactor;
-            if(gotLock) WriteLock.Exit(true);
+            if(startTime >= StartTime & startTime < EndTime)
+            {
+                var row = Matrix[originIndex];
+                bool gotLock = false;
+                WriteLock.Enter(ref gotLock);
+                row[destinationIndex] += expFactor;
+                if(gotLock) WriteLock.Exit(true);
+            }
         }
 
         public sealed class ModeLink : IModule
@@ -214,9 +214,9 @@ namespace Tasha.EMME
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool access, out IZone origin, out IZone destination)
+            public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool initialTrip, out IZone origin, out IZone destination)
             {
-                if(CountAccess ^ (!access))
+                if(CountAccess ^ (!initialTrip))
                 {
                     origin = trip.OriginalZone;
                     destination = chain[AccessZoneTagName] as IZone;
