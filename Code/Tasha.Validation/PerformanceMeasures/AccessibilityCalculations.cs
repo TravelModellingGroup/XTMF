@@ -55,7 +55,7 @@ namespace Tasha.Validation.PerformanceMeasures
         public IResource AutoTimeMatrix;
 
         [SubModelInformation(Required = true, Description = "The transit IVTT matrix")]
-        public IResource TransitIVTTMatrix;
+        public IResource TransitIVTTMatrix; 
 
         [SubModelInformation(Required = true, Description = "The resource that will add all three transit time matrices")]
         public IResource TotalTransitTimeMatrix;
@@ -84,7 +84,7 @@ namespace Tasha.Validation.PerformanceMeasures
             float[] analyzedZonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
                                            select (float)z.Population).ToArray();
 
-            float analizedpopulationSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
+            float analyzedpopulationSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
                                            where PopZoneRange.Contains(z.ZoneNumber)
                                             select z.Population).Sum();
 
@@ -93,7 +93,7 @@ namespace Tasha.Validation.PerformanceMeasures
                                    select employmentByZone[zoneSystem.GetFlatIndex(z.ZoneNumber)]).Sum();
 
             float NIAsum = NIApop.Sum();
-            var normalDenominator = 1.0f / (analizedpopulationSum * employmentSum);
+            var normalDenominator = 1.0f / (analyzedpopulationSum * employmentSum);
             var niaDenominator = 1.0f / (NIAsum * employmentSum);            
 
             using(StreamWriter writer = new StreamWriter(ResultsFile))

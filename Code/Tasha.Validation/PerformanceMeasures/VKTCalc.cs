@@ -42,7 +42,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         [RunParameter("Cost per Km", 0.153f, "What is the cost per km used in this model system?")]
         public float CostPerKm;
-
+        
         [SubModelInformation(Required = false, Description = "The different time periods you wish to calculate VKTs for")]
         public VKTPerTimePeriod[] TimePeriods;
 

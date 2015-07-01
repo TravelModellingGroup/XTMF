@@ -27,9 +27,9 @@ using XTMF;
 namespace TMG.Emme.Tools.Analysis.Traffic
 {
 
-    public class ExportScreenlineResults : IEmmeTool
+    public class ExportStationBoardingsAlightings : IEmmeTool
     {
-        private const string ToolName = "tmg.analysis.traffic.export_screenline_results";
+        private const string ToolName = "tmg.analysis.transit.export_station_boarding_alighting";
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -37,20 +37,14 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
         [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
-        public int ScenarioNumber;
-
-        [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
-        public string CountpostAttributeFlag;
-
-        [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
-        public string AlternateCountpostAttributeFlag;
-
+        public int ScenarioNumber;                                      
 
         [SubModelInformation(Required = true, Description = "The location to save the results to")]
-        public FileLocation SaveTo;
+        public FileLocation ResultsFile;
 
-        [SubModelInformation(Required = true, Description = "The location for the definition file for screenlines")]
-        public FileLocation ScreenlineDefinitions;
+        [SubModelInformation(Required = true, Description = "The location for the definition file for station nodes")]
+        public FileLocation StationNodeFile;
+
 
         public bool Execute(Controller controller)
         {
@@ -64,7 +58,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 
         private string GetParameters()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo));
+            return string.Join(" ", ScenarioNumber, AddQuotes(ResultsFile), AddQuotes(StationNodeFile));
         }
 
         private static string AddQuotes(string toQuote)
@@ -73,12 +67,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         }
 
         public bool RuntimeValidation(ref string error)
-        {
-            if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
-                || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
-            {
-                return false;
-            }
+        {            
             return true;
         }
 

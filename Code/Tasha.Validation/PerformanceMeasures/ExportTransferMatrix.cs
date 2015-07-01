@@ -27,30 +27,32 @@ using XTMF;
 namespace TMG.Emme.Tools.Analysis.Traffic
 {
 
-    public class ExportScreenlineResults : IEmmeTool
+    public class ExportOperatorTransferMatrix : IEmmeTool
     {
-        private const string ToolName = "tmg.analysis.traffic.export_screenline_results";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_operator_transfer_matrix";
         public string Name { get; set; }
 
         public float Progress { get; set; }
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
+        [RunParameter("Scenario Number", 1, "The scenario to interact with")]
         public int ScenarioNumber;
 
-        [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
-        public string CountpostAttributeFlag;
+        [RunParameter("Export Transfer Matrix Flag", true, "Did you want to export the transfer matrix?")]
+        public bool ExportTransferMatrixFlag;
 
-        [RunParameter("AlternateCountpostAttributeFlag", "@stn2", typeof(string), "The alternate attribute name to use for identifying countposts.")]
-        public string AlternateCountpostAttributeFlag;
+        [RunParameter("Export walk all way matrix flag", false, "Did you want to export the walk all way matrix?")]
+        public bool ExportWalkAllWayMatrixFlag;
 
+        [SubModelInformation(Required = false, Description = "The location to save the transfer matrix to")]
+        public FileLocation TransferMatrixFile;
 
-        [SubModelInformation(Required = true, Description = "The location to save the results to")]
-        public FileLocation SaveTo;
+        [RunParameter("Aggregation Partition for the Walk all way matrix (None if not required)", "None", "The aggregation partition for the walk all way matrix")]
+        public string xtmf_AggregationParition;
 
-        [SubModelInformation(Required = true, Description = "The location for the definition file for screenlines")]
-        public FileLocation ScreenlineDefinitions;
+        [SubModelInformation(Required = false, Description = "The location to save the walk all way matrix to")]
+        public FileLocation WalkAllWayMatrixFile;                                                                           
 
         public bool Execute(Controller controller)
         {
@@ -64,7 +66,17 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 
         private string GetParameters()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo));
+            if (ExportWalkAllWayMatrixFlag)
+            {
+                return string.Join(" ", ScenarioNumber, ExportTransferMatrixFlag.ToString(), ExportWalkAllWayMatrixFlag.ToString(),
+                    AddQuotes(TransferMatrixFile.GetFilePath()), AddQuotes(xtmf_AggregationParition), AddQuotes(WalkAllWayMatrixFile));
+            }
+            else
+            {
+                return string.Join(" ", ScenarioNumber, ExportTransferMatrixFlag.ToString(), ExportWalkAllWayMatrixFlag.ToString(),
+                    AddQuotes(TransferMatrixFile.GetFilePath()), AddQuotes(xtmf_AggregationParition), "none");
+            }
+            
         }
 
         private static string AddQuotes(string toQuote)
@@ -73,12 +85,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         }
 
         public bool RuntimeValidation(ref string error)
-        {
-            if (ErrorIfBlank(CountpostAttributeFlag, "CountpostAttributeFlag", ref error)
-                || ErrorIfBlank(AlternateCountpostAttributeFlag, "AlternateCountpostAttributeFlag", ref error))
-            {
-                return false;
-            }
+        {            
             return true;
         }
 
