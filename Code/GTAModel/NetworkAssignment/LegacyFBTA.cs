@@ -26,7 +26,7 @@ using XTMF;
 
 namespace TMG.GTAModel.NetworkAssignment
 {
-    [ModuleInformation( Name = "Legacy Fare-Based Transit Assignment",
+    [ModuleInformation(Name = "Legacy Fare-Based Transit Assignment",
                         Description = @"Executes a <b>fare-based transit assignment</b> (FBTA) as described
                             in the GTAModel Version 3 documentation: Using special functions
                             on centroid connectors and transit time functions. This requires
@@ -36,53 +36,53 @@ namespace TMG.GTAModel.NetworkAssignment
                             assignment procedure by using a fare perception of '0'.
                             This Tool executes an Extended Transit Assignment, which allows
                             for subsequent analyses; such as those that can be found in
-                            TMG2.Assignment.TransitAnalysis." )]
+                            TMG2.Assignment.TransitAnalysis.")]
     public class LegacyFBTA : IEmmeTool
     {
         private const string _ToolName = "tmg.assignment.transit.V3_FBTA";
         private const string _OldToolName = "TMG2.Assignment.TransitAssignment.LegacyFBTA";
         private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
         private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
-        [Parameter( "Boarding Parameter", 1.0f, "The perception factor for boarding penalties." )]
+        [Parameter("Boarding Parameter", 1.0f, "The perception factor for boarding penalties.")]
         public float BoardingPerception;
 
-        [RunParameter( "Demand File Name", "", "Should we save the demand after tallying?  If so what should we name the file? (Blank will use a temporary file)" )]
+        [RunParameter("Demand File Name", "", "Should we save the demand after tallying?  If so what should we name the file? (Blank will use a temporary file)")]
         public string DemandFileName;
 
-        [RunParameter( "Demand Matrix Number", 0, "The number of the full matrix to save the transit demand in. If it already exists, it will be overwritten. Set to 0 to use a scalar matrix of '0'" )]
+        [RunParameter("Demand Matrix Number", 0, "The number of the full matrix to save the transit demand in. If it already exists, it will be overwritten. Set to 0 to use a scalar matrix of '0'")]
         public int DemandMatrixNumber;
 
-        [Parameter( "Fare Perception", 0.0f, "The time-value-of-money for converting fares to generalized cost. Set to 0.0 to disable fare-based impedance." )]
+        [Parameter("Fare Perception", 0.0f, "The time-value-of-money for converting fares to generalized cost. Set to 0.0 to disable fare-based impedance.")]
         public float FarePerception;
 
-        [Parameter( "In-vehicle Perception", 1.0f, "The perception factor for in-vehicle time." )]
+        [Parameter("In-vehicle Perception", 1.0f, "The perception factor for in-vehicle time.")]
         public float InVehiclePerception;
 
-        [RunParameter( "Modes", "blmstuvwy", "The string of modes to assign." )]
+        [RunParameter("Modes", "blmstuvwy", "The string of modes to assign.")]
         public string Modes;
 
         [RootModule]
         public ITravelDemandModel Root;
 
-        [RunParameter( "Scenario Number", 0, "The number of the scenario in which to run the assignment" )]
+        [RunParameter("Scenario Number", 0, "The number of the scenario in which to run the assignment")]
         public int ScenarioNumber;
 
-        [SubModelInformation( Description = "Optional Tallies for exporting transit demand data. Must be empty for scalar assignment, and vice-versa.", Required = false )]
+        [SubModelInformation(Description = "Optional Tallies for exporting transit demand data. Must be empty for scalar assignment, and vice-versa.", Required = false)]
         public List<IModeAggregationTally> Tallies;
 
-        [Parameter( "Use Additive Demand", false, "Set to true to add this assignment's volumes to those of a previous assignment. The default setting of false indicates a new assignment." )]
+        [Parameter("Use Additive Demand", false, "Set to true to add this assignment's volumes to those of a previous assignment. The default setting of false indicates a new assignment.")]
         public bool UseAdditiveDemand;
 
-        [Parameter( "Wait Factor", 0.5f, "The wait time factor used to estimate waiting time at stops. This should never change from 0.5" )]
+        [Parameter("Wait Factor", 0.5f, "The wait time factor used to estimate waiting time at stops. This should never change from 0.5")]
         public float WaitFactor;
 
-        [Parameter( "Wait Perception", 2.0f, "The perception factor for waiting time." )]
+        [Parameter("Wait Perception", 2.0f, "The perception factor for waiting time.")]
         public float WaitPerception;
 
-        [Parameter( "Walk Perception", 2.0f, "The perception factor for walking (auxiliary transit) time." )]
+        [Parameter("Walk Perception", 2.0f, "The perception factor for walking (auxiliary transit) time.")]
         public float WalkPerception;
 
-        [Parameter( "Walk Speed", 6.0f, "Walking speed, in km/hr" )]
+        [Parameter("Walk Speed", 6.0f, "Walking speed, in km/hr")]
         public float WalkSpeed;
 
         /*
@@ -90,7 +90,7 @@ namespace TMG.GTAModel.NetworkAssignment
                  WalkPerception, InVehiclePerception, BoardingPerception, FarePerception, \
                  UseAdditiveDemand, WaitFactor
         */
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public string Name
         {
@@ -112,19 +112,23 @@ namespace TMG.GTAModel.NetworkAssignment
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if ( mc == null )
-                throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
+            if(mc == null)
+                throw new XTMFRuntimeException("Controller is not a modeller controller!");
 
-            if ( this.DemandMatrixNumber != 0 )
+            if(this.DemandMatrixNumber != 0)
             {
-                PassMatrixIntoEmme( mc );
+                // if false then there were no records saved and we need to skip the assignment.
+                if(!PassMatrixIntoEmme(mc))
+                {
+                    return true;
+                }
             }
 
             //Setup space-delimited args for the Emme tool
             var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
+            sb.AppendFormat("{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
                 ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, WalkPerception,
-                InVehiclePerception, BoardingPerception, FarePerception, UseAdditiveDemand, WaitFactor );
+                InVehiclePerception, BoardingPerception, FarePerception, UseAdditiveDemand, WaitFactor);
             string result = null;
             if(mc.CheckToolExists(_ToolName))
             {
@@ -138,31 +142,29 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( ( this.Tallies == null || this.Tallies.Count == 0 ) && this.DemandMatrixNumber != 0 )
+            if((this.Tallies == null || this.Tallies.Count == 0) && this.DemandMatrixNumber != 0)
             {
                 //There are no Tallies, and a scalar is not being assigned
                 error = "No Tallies were found, but a scalar matrix was not selected! Please either add a Tally or change the" +
                     " Demand Matrix Number to 0";
-
                 return false;
             }
-
             return true;
         }
 
         private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
         {
-            if ( modeIndex == current )
+            if(modeIndex == current)
             {
                 return node.Result;
             }
             current++;
-            if ( node.Children != null )
+            if(node.Children != null)
             {
-                for ( int i = 0; i < node.Children.Length; i++ )
+                for(int i = 0; i < node.Children.Length; i++)
                 {
-                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
-                    if ( temp != null )
+                    float[][] temp = GetResult(node.Children[i], modeIndex, ref current);
+                    if(temp != null)
                     {
                         return temp;
                     }
@@ -171,46 +173,60 @@ namespace TMG.GTAModel.NetworkAssignment
             return null;
         }
 
-        private void PassMatrixIntoEmme(ModellerController mc)
+        private bool PassMatrixIntoEmme(ModellerController mc)
         {
             var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
             // Load the data from the flows and save it to our temporary file
-            var useTempFile = String.IsNullOrWhiteSpace( this.DemandFileName );
+            var useTempFile = String.IsNullOrWhiteSpace(this.DemandFileName);
             string outputFileName = useTempFile ? Path.GetTempFileName() : this.DemandFileName;
             float[][] tally = new float[numberOfZones][];
-            for ( int i = 0; i < numberOfZones; i++ )
+            for(int i = 0; i < numberOfZones; i++)
             {
                 tally[i] = new float[numberOfZones];
             }
-            for ( int i = Tallies.Count - 1; i >= 0; i-- )
+            for(int i = Tallies.Count - 1; i >= 0; i--)
             {
-                Tallies[i].IncludeTally( tally );
+                Tallies[i].IncludeTally(tally);
             }
-            var dir = Path.GetDirectoryName( outputFileName );
-            if ( !String.IsNullOrWhiteSpace( dir ) && !Directory.Exists( dir ) )
+            var dir = Path.GetDirectoryName(outputFileName);
+            if(!String.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
             {
-                Directory.CreateDirectory( dir );
+                Directory.CreateDirectory(dir);
             }
-            using ( StreamWriter writer = new StreamWriter( outputFileName ) )
+            using (StreamWriter writer = new StreamWriter(outputFileName))
             {
-                writer.WriteLine( "t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", this.DemandMatrixNumber );
+                writer.WriteLine("t matrices\r\na matrix=mf{0} name=FBTADemand default=0 descr=generated", this.DemandMatrixNumber);
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
-                Parallel.For( 0, numberOfZones, delegate(int o)
+                bool any = false;
+                Parallel.For(0, numberOfZones, delegate (int o)
                 {
                     var build = builders[o] = new StringBuilder();
-                    var strBuilder = new StringBuilder( 10 );
+                    var strBuilder = new StringBuilder(10);
                     var convertedO = flatZones[o].ZoneNumber;
-                    for ( int d = 0; d < numberOfZones; d++ )
+                    var localAny = false;
+                    for(int d = 0; d < numberOfZones; d++)
                     {
-                        this.ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
-                            convertedO, flatZones[d].ZoneNumber, strBuilder );
+                        var result = tally[o][d];
+                        if(result > 0)
+                        {
+                            this.ToEmmeFloat(result, strBuilder);
+                            build.AppendFormat("{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                                convertedO, flatZones[d].ZoneNumber, strBuilder);
+                        }
                     }
-                } );
-                for ( int i = 0; i < numberOfZones; i++ )
+                    if(localAny)
+                    {
+                        any = true;
+                    }
+                });
+                if(!any)
                 {
-                    writer.Write( builders[i] );
+                    return false;
+                }
+                for(int i = 0; i < numberOfZones; i++)
+                {
+                    writer.Write(builders[i]);
                 }
             }
 
@@ -227,11 +243,12 @@ namespace TMG.GTAModel.NetworkAssignment
             }
             finally
             {
-                if ( useTempFile )
+                if(useTempFile)
                 {
-                    File.Delete( outputFileName );
+                    File.Delete(outputFileName);
                 }
             }
+            return true;
         }
 
         /// <summary>
@@ -242,18 +259,18 @@ namespace TMG.GTAModel.NetworkAssignment
         private void ToEmmeFloat(float number, StringBuilder builder)
         {
             builder.Clear();
-            builder.Append( (int)number );
+            builder.Append((int)number);
             number = number - (int)number;
-            if ( number > 0 )
+            if(number > 0)
             {
                 var integerSize = builder.Length;
-                builder.Append( '.' );
-                for ( int i = integerSize; i < 4; i++ )
+                builder.Append('.');
+                for(int i = integerSize; i < 4; i++)
                 {
                     number = number * 10;
-                    builder.Append( (int)number );
+                    builder.Append((int)number);
                     number = number - (int)number;
-                    if ( number == 0 )
+                    if(number == 0)
                     {
                         break;
                     }

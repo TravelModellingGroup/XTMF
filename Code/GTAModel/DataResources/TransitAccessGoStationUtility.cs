@@ -467,7 +467,7 @@ namespace TMG.GTAModel.DataResources
             {
                 // you are not allowed to egress from the station you originally accessed
                 float egressGeneralTime = ComputeWeightedTimeWithoutRail( egressZones[i], destination );
-                var goTime = this.GoTransitNetwork.TravelTime( interchange, egressZones[i], this.TimeOfDay ).ToMinutes();
+                var goTime = this.GoTransitNetwork.InVehicleTravelTime( interchange, egressZones[i], this.TimeOfDay ).ToMinutes();
                 if ( goTime <= 0 )
                 {
                     continue;
