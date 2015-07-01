@@ -96,7 +96,7 @@ namespace XTMF
                 );
         }
 
-        internal LinkedParameterModel GetContained(ParameterModel parameterModel)
+        public LinkedParameterModel GetContained(ParameterModel parameterModel)
         {
             return this.LinkedParameters.FirstOrDefault((model) => model.Contains(parameterModel));
         }

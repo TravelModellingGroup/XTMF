@@ -22,7 +22,7 @@
         xmlns:my="clr-namespace:XTMF.Gui"
         Title="Open" Height="400" Width="660" ShowInTaskbar="False"
         WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner">
-    <Grid Background="{StaticResource ControlBackgroundBrush}">
+    <Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
@@ -30,7 +30,7 @@
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" />
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ListView x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      Background="{StaticResource ControlBackgroundBrush}"
+                      Background="{StaticResource WindowBackgroundBrush}"
                       GotFocus="Display_GotFocus">
                 <ListView.Resources>
                     <Style TargetType="{x:Type ListViewItem}">

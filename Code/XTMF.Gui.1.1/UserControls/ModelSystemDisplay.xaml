@@ -262,11 +262,20 @@
                             </MenuItem.Icon>
                         </MenuItem>
                         <Separator />
-                        <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
+                        <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
                                         <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
                                     </Image.Source>
                                 </Image>
                             </MenuItem.Icon>

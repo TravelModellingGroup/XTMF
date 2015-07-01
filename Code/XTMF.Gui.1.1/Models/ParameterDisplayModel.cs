@@ -40,7 +40,12 @@ namespace XTMF.Gui.Models
 
         private void RealParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            ModelHelper.PropertyChanged(PropertyChanged, this, e.PropertyName);
+            var property = e.PropertyName;
+            if(e.PropertyName == "IsLinked")
+            {
+                property = "LinkedParameterVisibility";
+            }
+            ModelHelper.PropertyChanged(PropertyChanged, this, property);
         }
 
         ~ParameterDisplayModel()
@@ -116,6 +121,27 @@ namespace XTMF.Gui.Models
         internal static ObservableCollection<ParameterDisplayModel> CreateParameters(IOrderedEnumerable<ParameterModel> parameterModel)
         {
             return new ObservableCollection<ParameterDisplayModel>(parameterModel.Select(p => new ParameterDisplayModel(p)));
+        }
+
+        internal bool AddToLinkedParameter(LinkedParameterModel newLP, ref string error)
+        {
+            return newLP.AddParameter(RealParameter, ref error);
+        }
+
+        internal LinkedParameterModel GetLinkedParameter()
+        {
+            return RealParameter.GetLinkedParameter();
+        }
+
+        internal bool RemoveLinkedParameter(ref string error)
+        {
+            var lp = GetLinkedParameter();
+            if(lp == null)
+            {
+                error = "This parameter is not in contained in a linked parameter";
+                return false;
+            }
+            return lp.RemoveParameter(RealParameter, ref error);
         }
     }
 }

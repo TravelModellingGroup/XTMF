@@ -189,11 +189,37 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-        private void ShowLinkedParameterDialog()
+        private void ShowLinkedParameterDialog(bool assign = false)
         {
-            var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters);
+            var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters, assign);
             linkedParameterDialog.Owner = GetWindow();
-            linkedParameterDialog.ShowDialog();
+            if(linkedParameterDialog.ShowDialog() == true && assign)
+            {
+                // assign the selected linked parameter
+                var newLP = linkedParameterDialog.SelectedLinkParameter;
+                var displayParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+                if(displayParameter != null)
+                {
+                    string error = null;
+                    if(!displayParameter.AddToLinkedParameter(newLP, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Failed to set to Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        private void RemoveFromLinkedParameter()
+        {
+            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            if(currentParameter != null)
+            {
+                string error = null;
+                if(!currentParameter.RemoveLinkedParameter(ref error))
+                {
+                    MessageBox.Show(GetWindow(), error, "Failed to remove from Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void SelectReplacement()
@@ -554,6 +580,13 @@ namespace XTMF.Gui.UserControls
                             MoveFocusNext(false);
                         }
                         break;
+                    case Key.L:
+                        if(ctrlDown)
+                        {
+                            ShowLinkedParameterDialog(true);
+                            e.Handled = true;
+                        }
+                        break;
                     default:
                         e.Handled = false;
                         break;
@@ -786,6 +819,16 @@ namespace XTMF.Gui.UserControls
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)
         {
             ShowLinkedParameterDialog();
+        }
+
+        private void AssignLinkedParameters_Click(object sender, RoutedEventArgs e)
+        {
+            ShowLinkedParameterDialog(true);
+        }
+
+        private void RemoveLinkedParameters_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveFromLinkedParameter();
         }
 
         private void CopyParameterName()

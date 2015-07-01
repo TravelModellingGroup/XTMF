@@ -47,6 +47,8 @@ namespace XTMF.Gui.Models
             }
         }
 
+        public LinkedParameterModel LinkedParameter { get { return RealLinkedParameter; } }
+
         public LinkedParameterDisplayModel(LinkedParameterModel realLinkedParameter)
         {
             RealLinkedParameter = realLinkedParameter;

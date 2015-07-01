@@ -189,6 +189,16 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Get the linked parameter model that contains this parameter.
+        /// </summary>
+        /// <returns>The linked parameter model, null if this parameter is not contained.</returns>
+        public LinkedParameterModel GetLinkedParameter()
+        {
+            return Session.ModelSystemModel.LinkedParameters.GetContained(this);
+        }
+
+
+        /// <summary>
         /// Set the parameter to the default value
         /// </summary>
         /// <param name="error">If there is an error this will contain a message</param>

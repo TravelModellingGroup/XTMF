@@ -118,9 +118,9 @@ namespace XTMF
 
         public List<ParameterModel> GetParameters()
         {
-            lock (this.ParameterModelsLock)
+            lock (ParameterModelsLock)
             {
-                var models = this.ParameterModels;
+                var models = ParameterModels;
                 return models != null ? models.ToList() : new List<ParameterModel>();
             }
         }
@@ -134,9 +134,9 @@ namespace XTMF
 
         internal bool Contains(ParameterModel toCheck)
         {
-            lock (this.ParameterModelsLock)
+            lock (ParameterModelsLock)
             {
-                return this.ParameterModels.Contains(toCheck);
+                return ParameterModels.Contains(toCheck);
             }
         }
 
@@ -149,11 +149,12 @@ namespace XTMF
         public bool AddParameter(ParameterModel toAdd, ref string error)
         {
             LinkedParameterChange change = new LinkedParameterChange();
+            var originalValue = toAdd.Value;
             return Session.RunCommand(XTMFCommand.CreateCommand(
                 // do
                 (ref string e) =>
                 {
-                    if(this.ParameterModels.Contains(toAdd))
+                    if(ParameterModels.Contains(toAdd))
                     {
                         e = "The parameter was already contained in the linked parameter!";
                         return false;
@@ -163,17 +164,22 @@ namespace XTMF
                     {
                         change.OriginalIndex = change.OriginalContainedIn.NoCommandRemove(toAdd);
                     }
-                    this.NoCommandAdd(toAdd, (change.Index = this.ParameterModels.Count));
+                    NoCommandAdd(toAdd, (change.Index = ParameterModels.Count));
                     return true;
                 },
                 // undo
                 (ref string e) =>
                 {
+                    NoCommandRemove(toAdd);
                     if(change.OriginalContainedIn != null)
                     {
                         change.OriginalContainedIn.NoCommandAdd(toAdd, change.OriginalIndex);
                     }
-                    this.NoCommandRemove(toAdd);
+                    else
+                    {
+                        // if it isn't part of another linked parameter just add the value back
+                        toAdd.SetValue(originalValue, ref e);
+                    }
                     return true;
                 },
                 // redo
@@ -183,7 +189,7 @@ namespace XTMF
                     {
                         change.OriginalContainedIn.NoCommandRemove(toAdd);
                     }
-                    this.NoCommandAdd(toAdd, change.Index);
+                    NoCommandAdd(toAdd, change.Index);
                     return true;
                 }
                 ), ref error);
@@ -191,22 +197,26 @@ namespace XTMF
 
         private void NoCommandAdd(ParameterModel toAdd, int index)
         {
-            lock (this.ParameterModelsLock)
+            lock (ParameterModelsLock)
             {
                 string error = null;
-                this.ParameterModels.Insert(index, toAdd);
-                this.RealLinkedParameter.Add(toAdd.RealParameter, ref error);
+                ParameterModels.Insert(index, toAdd);
+                RealLinkedParameter.Add(toAdd.RealParameter, ref error);
+                toAdd.UpdateValueFromReal();
+                toAdd.SignalIsLinkedChanged();
             }
         }
 
         private int NoCommandRemove(ParameterModel toRemove)
         {
-            lock (this.ParameterModelsLock)
+            lock (ParameterModelsLock)
             {
-                var index = this.ParameterModels.IndexOf(toRemove);
+                var index = ParameterModels.IndexOf(toRemove);
                 string error = null;
-                this.ParameterModels.RemoveAt(index);
-                this.RealLinkedParameter.Remove(toRemove.RealParameter, ref error);
+                ParameterModels.RemoveAt(index);
+                RealLinkedParameter.Remove(toRemove.RealParameter, ref error);
+                toRemove.UpdateValueFromReal();
+                toRemove.SignalIsLinkedChanged();
                 return index;
             }
         }
@@ -225,27 +235,27 @@ namespace XTMF
                 (ref string e) =>
                 {
                     // we need this outer lock to make sure that it doesn't change while we are checking to make sure that it is contained
-                    lock (this.ParameterModelsLock)
+                    lock (ParameterModelsLock)
                     {
-                        if(!this.ParameterModels.Contains(toRemove))
+                        if(!ParameterModels.Contains(toRemove))
                         {
                             e = "The parameter does not exist inside of the linked parameter!";
                             return false;
                         }
-                        change.Index = this.NoCommandRemove(toRemove);
+                        change.Index = NoCommandRemove(toRemove);
                     }
                     return true;
                 },
                 // undo
                 (ref string e) =>
                 {
-                    this.NoCommandAdd(toRemove, change.Index);
+                    NoCommandAdd(toRemove, change.Index);
                     return true;
                 },
                 // redo
                 (ref string e) =>
                 {
-                    this.NoCommandRemove(toRemove);
+                    NoCommandRemove(toRemove);
                     return true;
                 }
                 ), ref error);
@@ -281,7 +291,7 @@ namespace XTMF
         /// <returns>True if successful, false in case of failure.</returns>
         public bool SetValue(string newValue, ref string error)
         {
-            string oldValue = this.RealLinkedParameter.Value;
+            string oldValue = RealLinkedParameter.Value;
             return Session.RunCommand(
                 XTMFCommand.CreateCommand(
                     // do
@@ -310,20 +320,20 @@ namespace XTMF
         /// <returns>True if successful, false if there is an error.</returns>
         internal bool SetWithoutCommand(string newValue, ref string error)
         {
-            lock (this.ParameterModelsLock)
+            lock (ParameterModelsLock)
             {
-                foreach(var parameter in this.ParameterModels)
+                foreach(var parameter in ParameterModels)
                 {
                     if(!ArbitraryParameterParser.Check(parameter.RealParameter.Type, newValue, ref error))
                     {
                         return false;
                     }
                 }
-                if(!this.RealLinkedParameter.SetValue(newValue, ref error))
+                if(!RealLinkedParameter.SetValue(newValue, ref error))
                 {
                     return false;
                 }
-                foreach(var parameter in this.ParameterModels)
+                foreach(var parameter in ParameterModels)
                 {
                     parameter.UpdateValueFromReal();
                 }
@@ -337,7 +347,7 @@ namespace XTMF
         /// <returns></returns>
         public string GetValue()
         {
-            return this.RealLinkedParameter.Value;
+            return RealLinkedParameter.Value;
         }
     }
 }
