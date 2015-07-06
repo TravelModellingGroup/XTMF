@@ -119,7 +119,7 @@ namespace TMG.GTAModel.DataResources
 
         public void LoadData()
         {
-            if ( this.Data == null | this.LastIteration != this.Root.CurrentIteration )
+            if(this.Data == null | this.LastIteration != this.Root.CurrentIteration)
             {
                 this.LastIteration = this.Root.CurrentIteration;
                 var zoneArray = this.Root.ZoneSystem.ZoneArray;
@@ -129,18 +129,18 @@ namespace TMG.GTAModel.DataResources
                 SparseTwinIndex<Tuple<IZone[], IZone[], float[]>> data = null;
                 // these will be flagged to true if we needed to load a network
                 bool loadedGo = false, loadedTransit = false, loadedPremiumTransit = false;
-                Parallel.Invoke( () =>
+                Parallel.Invoke(() =>
                     {
-                        accessZones = GetAccessZones( zoneArray );
+                        accessZones = GetAccessZones(zoneArray);
                         data = zoneArray.CreateSquareTwinArray<Tuple<IZone[], IZone[], float[]>>();
                     },
                     () =>
                     {
-                        LoadStationData( zoneArray, out parking, out trains );
+                        LoadStationData(zoneArray, out parking, out trains);
                     },
                     () =>
                     {
-                        if ( !this.GoTransitNetwork.Loaded )
+                        if(!this.GoTransitNetwork.Loaded)
                         {
                             this.GoTransitNetwork.LoadData();
                             loadedGo = true;
@@ -148,7 +148,7 @@ namespace TMG.GTAModel.DataResources
                     },
                     () =>
                     {
-                        if ( !this.TransitNetwork.Loaded )
+                        if(!this.TransitNetwork.Loaded)
                         {
                             this.TransitNetwork.LoadData();
                             loadedTransit = true;
@@ -156,70 +156,70 @@ namespace TMG.GTAModel.DataResources
                     },
                     () =>
                     {
-                        if ( !this.PremiumTransitNetwork.Loaded )
+                        if(!this.PremiumTransitNetwork.Loaded)
                         {
                             this.PremiumTransitNetwork.LoadData();
                             loadedPremiumTransit = true;
                         }
-                    } );
+                    });
                 var flatData = data.GetFlatData();
-                Console.WriteLine( "Computing TAG Access station utilities." );
+                Console.WriteLine("Computing TAG Access station utilities.");
                 Stopwatch watch = Stopwatch.StartNew();
                 float[][] egressUtility = new float[accessZones.Length][];
                 int[][] egressZones = new int[accessZones.Length][];
                 float[][] egressTime = new float[accessZones.Length][];
-                for ( int i = 0; i < egressUtility.Length; i++ )
+                for(int i = 0; i < egressUtility.Length; i++)
                 {
                     egressUtility[i] = new float[zones.Length];
                     egressTime[i] = new float[zones.Length];
                     egressZones[i] = new int[zones.Length];
                 }
                 // compute the egress data
-                Parallel.For( 0, accessZones.Length, (int i) =>
+                Parallel.For(0, accessZones.Length, (int i) =>
                     {
                         var interchange = accessZones[i];
-                        for ( int j = 0; j < zones.Length; j++ )
+                        for(int j = 0; j < zones.Length; j++)
                         {
                             // you also don't need to compute the access station choices for destinations that are access stations
-                            if ( zones[j].RegionNumber <= 0 )
+                            if(zones[j].RegionNumber <= 0)
                             {
                                 egressTime[i][j] = float.NaN;
                                 egressUtility[i][j] = float.NaN;
                                 egressZones[i][j] = -1;
                             }
-                            ComputeEgressStation( interchange, i, j, accessZones, trains, parking, zones, out egressUtility[i][j], out egressTime[i][j], out egressZones[i][j] );
+                            ComputeEgressStation(interchange, i, j, accessZones, trains, parking, zones, out egressUtility[i][j], out egressTime[i][j], out egressZones[i][j]);
                         }
-                    } );
+                    });
                 // using the egress data compute access stations
-                Parallel.For( 0, zones.Length, (int o) =>
+                Parallel.For(0, zones.Length, (int o) =>
                 {
                     // There is no need to compute drive access subway when you are starting at an access station
                     int regionO = zones[o].RegionNumber;
-                    if ( regionO == 0 | accessZones.Contains( o ) ) return;
+                    if(regionO == 0 | accessZones.Contains(o)) return;
                     // for the rest of the zones though, compute it to all destinations
-                    for ( int d = 0; d < zones.Length; d++ )
+                    for(int d = 0; d < zones.Length; d++)
                     {
                         // you also don't need to compute the access station choices for destinations that are access stations
                         var regionD = zones[d].RegionNumber;
-                        if ( regionD == 0 | accessZones.Contains( d ) ) continue;
-                        if ( ( regionO == 1 ) | ( regionO != regionD ) )
+                        if(regionD == 0 | accessZones.Contains(d)) continue;
+                        if((regionO == 1) | (regionO != regionD))
                         {
-                            ComputeUtility( o, d, zones, accessZones, egressUtility, egressTime, egressZones, flatData );
+                            ComputeUtility(o, d, zones, accessZones, egressUtility, egressTime, egressZones, flatData);
                         }
                     }
-                } );
+                });
                 watch.Stop();
-                Console.WriteLine( "It took " + watch.ElapsedMilliseconds + "ms to compute the TAG access stations." );
+                Console.WriteLine("It took " + watch.ElapsedMilliseconds + "ms to compute the TAG access stations.");
                 // if we loaded the data make sure to unload it
-                if ( loadedGo )
+                if(loadedGo)
                 {
                     this.GoTransitNetwork.UnloadData();
                 }
-                if ( loadedTransit )
+                if(loadedTransit)
                 {
                     this.TransitNetwork.UnloadData();
                 }
-                if ( loadedPremiumTransit )
+                if(loadedPremiumTransit)
                 {
                     this.PremiumTransitNetwork.UnloadData();
                 }
@@ -239,10 +239,10 @@ namespace TMG.GTAModel.DataResources
             var numberOfZones = zones.GetFlatData().Length;
             p = new float[numberOfZones];
             t = new float[numberOfZones];
-            foreach ( var point in this.StationInformationReader.Read() )
+            foreach(var point in this.StationInformationReader.Read())
             {
-                var index = zones.GetFlatIndex( point.O );
-                if ( index >= 0 )
+                var index = zones.GetFlatIndex(point.O);
+                if(index >= 0)
                 {
                     p[index] = point.D;
                     t[index] = point.Data;
@@ -260,17 +260,17 @@ namespace TMG.GTAModel.DataResources
         private int[] GetAccessZones(SparseArray<IZone> zoneArray)
         {
             List<int> accessIndexes = new List<int>();
-            foreach ( var rangeSet in this.StationZoneRange )
+            foreach(var rangeSet in this.StationZoneRange)
             {
-                for ( int i = rangeSet.Start; i <= rangeSet.Stop; i++ )
+                for(int i = rangeSet.Start; i <= rangeSet.Stop; i++)
                 {
                     //get the flat space index of the zone
-                    var index = zoneArray.GetFlatIndex( i );
+                    var index = zoneArray.GetFlatIndex(i);
                     // make sure that the zone actually exists
-                    if ( index >= 0 )
+                    if(index >= 0)
                     {
                         // if it does then add it to our possible access stations
-                        accessIndexes.Add( index );
+                        accessIndexes.Add(index);
                     }
                 }
             }
@@ -296,38 +296,38 @@ namespace TMG.GTAModel.DataResources
             IZone[] resultEgressZones = null;
             int soFar = 0;
             // compute the base access station utilities
-            for ( int i = 0; i < flatAccessZones.Length; i++ )
+            for(int i = 0; i < flatAccessZones.Length; i++)
             {
                 float result, distance;
                 IZone egressZone;
-                if ( ComputeUtility( o, d, zones, flatAccessZones[i], i, flatAccessZones, ( distances == null | soFar < this.MaximumAccessStations
-                    ? float.MaxValue : distances[distances.Length - 1] ), egressUtility, egressTime, egressZones, out result, out distance, out egressZone )
+                if(ComputeUtility(o, d, zones, flatAccessZones[i], i, flatAccessZones, (distances == null | soFar < this.MaximumAccessStations
+                    ? float.MaxValue : distances[distances.Length - 1]), egressUtility, egressTime, egressZones, out result, out distance, out egressZone)
                     /*& ( result >= this.MinimumStationUtility )*/ )
                 {
-                    if ( odData == null )
+                    if(odData == null)
                     {
                         distances = new float[this.MaximumAccessStations];
-                        for ( int j = 0; j < distances.Length; j++ )
+                        for(int j = 0; j < distances.Length; j++)
                         {
                             distances[j] = float.MaxValue;
                         }
-                        odData = new Tuple<IZone[], IZone[], float[]>( resultZones = new IZone[this.MaximumAccessStations], resultEgressZones = new IZone[this.MaximumAccessStations], results = new float[this.MaximumAccessStations] );
+                        odData = new Tuple<IZone[], IZone[], float[]>(resultZones = new IZone[this.MaximumAccessStations], resultEgressZones = new IZone[this.MaximumAccessStations], results = new float[this.MaximumAccessStations]);
                     }
                     // if we have extra room or if this access station is closest than the farthest station we have accepted
-                    if ( ( soFar < this.MaximumAccessStations ) | ( distance < distances[results.Length - 1] ) )
+                    if((soFar < this.MaximumAccessStations) | (distance < distances[results.Length - 1]))
                     {
-                        Insert( zones, flatAccessZones, results, distances, resultZones, resultEgressZones, i, egressZone, result, distance );
+                        Insert(zones, flatAccessZones, results, distances, resultZones, resultEgressZones, i, egressZone, result, distance);
                         soFar++;
                     }
                 }
             }
             // now we can compute the higher level station utilities
-            if ( results != null )
+            if(results != null)
             {
                 // now raise everything to the e to save processing time later
-                for ( int i = 0; i < results.Length; i++ )
+                for(int i = 0; i < results.Length; i++)
                 {
-                    results[i] = (float)Math.Exp( results[i] );
+                    results[i] = (float)Math.Exp(results[i]);
                 }
             }
             // save the OD data into the data bank
@@ -349,13 +349,13 @@ namespace TMG.GTAModel.DataResources
             IZone[] resultZones, IZone[] egressZones, int currentAccessStationIndex, IZone egressZone, float result, float distance)
         {
             // then we need to insert it in properly
-            for ( int currentPosition = 0; currentPosition < distances.Length; currentPosition++ )
+            for(int currentPosition = 0; currentPosition < distances.Length; currentPosition++)
             {
                 // if this is where we should be insert it here
-                if ( distance < distances[currentPosition] )
+                if(distance < distances[currentPosition])
                 {
                     // first push everything back
-                    for ( int pushToIndex = distances.Length - 1; pushToIndex > currentPosition; pushToIndex-- )
+                    for(int pushToIndex = distances.Length - 1; pushToIndex > currentPosition; pushToIndex--)
                     {
                         distances[pushToIndex] = distances[pushToIndex - 1];
                         resultZones[pushToIndex] = resultZones[pushToIndex - 1];
@@ -387,18 +387,18 @@ namespace TMG.GTAModel.DataResources
             int[][] selectedEgressZones, out float result, out float distance, out IZone egressZone)
         {
             float accessTravelTime;
-            float v = ComputeAccessUtility( o, interchange, out accessTravelTime );
+            float v = ComputeAccessUtility(o, interchange, out accessTravelTime);
             // our total travel time / distance is the egress time plus the time it takes to get to the station to begin with
             distance = egressTime[accessStationIndex][d] + accessTravelTime;
-            if ( egressTime[accessStationIndex][d] == 0 )
+            if(egressTime[accessStationIndex][d] == 0)
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' the egress time between zone " + zones[egressZones[accessStationIndex]].ZoneNumber + " and " + zones[d].ZoneNumber + " was equal to 0!" );
+                throw new XTMFRuntimeException("In '" + this.Name + "' the egress time between zone " + zones[egressZones[accessStationIndex]].ZoneNumber + " and " + zones[d].ZoneNumber + " was equal to 0!");
             }
-            if ( distance < this.ComputeWeightedTimeWithoutRail( o, d ) )
+            if(distance < this.ComputeWeightedTimeWithoutRail(o, d))
             {
                 var egressUtil = egressUtility[accessStationIndex][d];
                 // Step 1, compute the egress station, and the utility from access station to egress to destination
-                if ( distance < maxDistance & !float.IsNaN( v ) & !float.IsNaN( egressUtil ) )
+                if(distance < maxDistance & !float.IsNaN(v) & !float.IsNaN(egressUtil))
                 {
                     egressZone = zones[selectedEgressZones[accessStationIndex][d]];
                     // Step 2, compute the utility going from origin to access station
@@ -424,9 +424,9 @@ namespace TMG.GTAModel.DataResources
             Time ivtt, boarding, wait, walk;
             float cost;
             // figure out which data to use
-            if ( !this.PremiumTransitNetwork.GetAllData( origin, interchange, this.TimeOfDay, out ivtt, out walk, out wait, out boarding, out cost ) | ivtt <= Time.Zero )
+            if(!this.PremiumTransitNetwork.GetAllData(origin, interchange, this.TimeOfDay, out ivtt, out walk, out wait, out boarding, out cost) | ivtt <= Time.Zero)
             {
-                if ( !this.TransitNetwork.GetAllData( origin, interchange, this.TimeOfDay, out ivtt, out walk, out wait, out boarding, out cost ) | walk <= Time.Zero )
+                if(!this.TransitNetwork.GetAllData(origin, interchange, this.TimeOfDay, out ivtt, out walk, out wait, out boarding, out cost) | walk <= Time.Zero)
                 {
                     weightedTravelTime = float.NaN;
                     return float.NaN;
@@ -455,28 +455,32 @@ namespace TMG.GTAModel.DataResources
         /// <param name="egressUtility">The utility of taking the given egress station</param>
         /// <param name="egressZone">The egress station to use for this access station</param>
         /// <returns>If we were successful in finding an egress station for this access station.</returns>
-        private bool ComputeEgressStation(int interchange, int interchangeIndex, int destination, int[] egressZones, float[] trains, float[] parking, IZone[] zones, out float egressUtility, out float egressTime, out int egressZone)
+        private bool ComputeEgressStation(int interchange, int interchangeIndex, int destination, int[] egressZones, float[] trains, float[] parking, IZone[] zones,
+            out float egressUtility, out float egressTime, out int egressZone)
         {
             int bestZone = -1;
             // Set the best utility initially to the time it takes to go from the access station to the destination
             // if we can't find an egress station better than this the Access -> Egress pair isn't valid
-            float maxEgressTime = this.ComputeWeightedTimeWithoutRail( interchange, destination );
+            float maxEgressTime = this.ComputeWeightedTimeWithoutRail(interchange, destination);
             float bestTravelTime = float.MaxValue;
-
-            for ( int i = 0; i < egressZones.Length; i++ )
+            if(float.IsNaN(maxEgressTime))
+            {
+                maxEgressTime = 200f;
+            }
+            for(int i = 0; i < egressZones.Length; i++)
             {
                 // you are not allowed to egress from the station you originally accessed
-                float egressGeneralTime = ComputeWeightedTimeWithoutRail( egressZones[i], destination );
-                var goTime = this.GoTransitNetwork.InVehicleTravelTime( interchange, egressZones[i], this.TimeOfDay ).ToMinutes();
-                if ( goTime <= 0 )
+                float egressGeneralTime = ComputeWeightedTimeWithoutRail(egressZones[i], destination);
+                var goTime = this.GoTransitNetwork.InVehicleTravelTime(interchange, egressZones[i], this.TimeOfDay).ToMinutes();
+                if(goTime <= 0)
                 {
                     continue;
                 }
-                if ( !float.IsNaN( egressGeneralTime ) & ( egressGeneralTime <= maxEgressTime ) )
+                if(!float.IsNaN(egressGeneralTime) & (egressGeneralTime <= maxEgressTime))
                 {
                     // Now add on the go transit time
                     egressGeneralTime += goTime;
-                    if ( egressGeneralTime < bestTravelTime )
+                    if(egressGeneralTime < bestTravelTime)
                     {
                         bestZone = egressZones[i];
                         bestTravelTime = egressGeneralTime;
@@ -484,17 +488,17 @@ namespace TMG.GTAModel.DataResources
                 }
             }
             // If there is no egress station we are invalid
-            if ( ( bestZone < 0 ) | ( bestZone == interchange ) )
+            if((bestZone < 0) | (bestZone == interchange))
             {
                 egressUtility = float.NaN;
                 egressZone = -1;
                 egressTime = float.NaN;
                 return false;
             }
-            egressUtility = ComputeEgressStationUtility( interchange, bestZone, destination )
+            egressUtility = ComputeEgressStationUtility(interchange, bestZone, destination)
                 + this.TrainsFactor * trains[interchange];
             egressZone = bestZone;
-            egressTime = this.ComputeWeightedTimeWithoutRail( bestZone, destination );
+            egressTime = this.ComputeWeightedTimeWithoutRail(bestZone, destination);
             return true;
         }
 
@@ -509,12 +513,9 @@ namespace TMG.GTAModel.DataResources
         {
             Time ivtt, wait, walk, boardings;
             float cost;
-            if ( !this.PremiumTransitNetwork.GetAllData( origin, destination, this.TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost ) | ivtt <= Time.Zero )
+            if(!this.TransitNetwork.GetAllData(origin, destination, this.TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost) | walk <= Time.Zero)
             {
-                if ( !this.TransitNetwork.GetAllData( origin, destination, this.TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost ) | walk <= Time.Zero )
-                {
-                    return float.NaN;
-                }
+                return float.NaN;
             }
             return ivtt.ToMinutes()
                     + this.EgressWaitPerception * wait.ToMinutes()
@@ -531,10 +532,10 @@ namespace TMG.GTAModel.DataResources
         /// <returns>The weighted time it takes to get to the destination from this access station.</returns>
         private float ComputeEgressGeneralTime(int interchange, int egress, int destination)
         {
-            var goIvtt = this.GoTransitNetwork.InVehicleTravelTime( interchange, egress, this.TimeOfDay ).ToMinutes();
+            var goIvtt = this.GoTransitNetwork.InVehicleTravelTime(interchange, egress, this.TimeOfDay).ToMinutes();
             float withoutGo;
             // don't bother to compute the weighted travel time if there is no 
-            if ( goIvtt > 0 && !float.IsNaN( ( withoutGo = ComputeWeightedTimeWithoutRail( egress, destination ) ) ) )
+            if(goIvtt > 0 && !float.IsNaN((withoutGo = ComputeWeightedTimeWithoutRail(egress, destination))))
             {
                 return goIvtt + withoutGo;
             }
@@ -552,20 +553,19 @@ namespace TMG.GTAModel.DataResources
         {
             Time ivtt, wait, walk, boardings;
             float cost;
-            var goIvtt = this.GoTransitNetwork.InVehicleTravelTime( interchange, egress, this.TimeOfDay );
-            var goWalk = this.GoTransitNetwork.WalkTime( interchange, egress, this.TimeOfDay );
-            var goCost = this.GoTransitNetwork.TravelCost( interchange, egress, this.TimeOfDay );
-            if ( this.TransitNetwork.GetAllData( egress, destination, this.TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost ) )
+            var goIvtt = this.GoTransitNetwork.InVehicleTravelTime(interchange, egress, this.TimeOfDay);
+            var goCost = this.GoTransitNetwork.TravelCost(interchange, egress, this.TimeOfDay);
+            if(this.TransitNetwork.GetAllData(egress, destination, this.TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost))
             {
-                if ( ivtt <= Time.Zero )
+                if(ivtt <= Time.Zero)
                 {
                     cost = 0f;
                 }
-                return this.IvttFactor * ( goIvtt + ivtt ).ToMinutes()
+                return this.IvttFactor * (goIvtt + ivtt).ToMinutes()
                     + this.WaitTimeFactor * wait.ToMinutes()
-                    + this.WalkTimeFactor * ( goWalk + walk ).ToMinutes()
+                    + this.WalkTimeFactor * (walk).ToMinutes()
                     + this.BoardingFactor * boardings.ToMinutes()
-                    + this.CostFactor * ( cost + goCost );
+                    + this.CostFactor * (cost + goCost);
             }
             return float.NaN;
         }
@@ -590,33 +590,33 @@ namespace TMG.GTAModel.DataResources
         public bool RuntimeValidation(ref string error)
         {
             //search through the networks and load in the data based on their names
-            foreach ( var network in this.Root.NetworkData )
+            foreach(var network in this.Root.NetworkData)
             {
-                if ( network.NetworkType == this.TransitNetworkString )
+                if(network.NetworkType == this.TransitNetworkString)
                 {
                     this.TransitNetwork = network as ITripComponentData;
                 }
-                if ( network.NetworkType == this.GoTransitNetworkString )
+                if(network.NetworkType == this.GoTransitNetworkString)
                 {
                     this.GoTransitNetwork = network as ITripComponentData;
                 }
-                if ( network.NetworkType == this.PremiumTransitNetworkString )
+                if(network.NetworkType == this.PremiumTransitNetworkString)
                 {
                     this.PremiumTransitNetwork = network as ITripComponentData;
                 }
             }
             // Make sure the networks we require are available
-            if ( this.PremiumTransitNetwork == null )
+            if(this.PremiumTransitNetwork == null)
             {
                 error = "In '" + this.Name + "' a premium transit network named '" + this.PremiumTransitNetworkString + "' could not be found.";
                 return false;
             }
-            if ( this.TransitNetwork == null )
+            if(this.TransitNetwork == null)
             {
                 error = "In '" + this.Name + "' a transit network named '" + this.TransitNetworkString + "' could not be found.";
                 return false;
             }
-            if ( this.GoTransitNetwork == null )
+            if(this.GoTransitNetwork == null)
             {
                 error = "In '" + this.Name + "' a go transit network named '" + this.GoTransitNetworkString + "' could not be found.";
                 return false;

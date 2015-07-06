@@ -464,7 +464,10 @@ namespace TMG.GTAModel.DataResources
                 // if we can't find an egress station better than this the Access -> Egress pair isn't valid
                 float maxEgressTime = this.ComputeWeightedTimeWithoutRail( interchange, destination );
                 float bestTravelTime = float.MaxValue;
-
+                if(float.IsNaN(maxEgressTime))
+                {
+                    maxEgressTime = 200f;
+                }
                 for ( int i = 0; i < egressZones.Length; i++ )
                 {
                     // you are not allowed to egress from the station you originally accessed
@@ -555,7 +558,6 @@ namespace TMG.GTAModel.DataResources
             float cost;
 
             var goIvtt = this.GoTransitNetwork.InVehicleTravelTime( interchange, egress, this.TimeOfDay );
-            var goWalk = this.GoTransitNetwork.WalkTime( interchange, egress, this.TimeOfDay );
             var goCost = this.GoTransitNetwork.TravelCost( interchange, egress, this.TimeOfDay );
             if ( this.TransitNetwork.GetAllData( egress, destination, this.TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost ) )
             {
@@ -565,7 +567,7 @@ namespace TMG.GTAModel.DataResources
                 }
                 return this.IvttFactor * ( goIvtt + ivtt ).ToMinutes()
                     + this.WaitTimeFactor * wait.ToMinutes()
-                    + this.WalkTimeFactor * ( goWalk + walk ).ToMinutes()
+                    + this.WalkTimeFactor * walk.ToMinutes()
                     + this.BoardingFactor * boardings.ToMinutes()
                     + this.TransitCostFactor * cost;
             }
