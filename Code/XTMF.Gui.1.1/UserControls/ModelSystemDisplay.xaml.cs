@@ -586,6 +586,10 @@ namespace XTMF.Gui.UserControls
                             ShowLinkedParameterDialog(true);
                             e.Handled = true;
                         }
+                        else
+                        {
+                            e.Handled = false;
+                        }
                         break;
                     default:
                         e.Handled = false;
