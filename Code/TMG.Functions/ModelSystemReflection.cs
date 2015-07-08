@@ -88,11 +88,27 @@ namespace TMG.Functions
         {
             string error = null;
             object trueValue;
+            if(parameter == null)
+            {
+                throw new XTMFRuntimeException("The parameter was null!");
+            }
             var currentStructure = parameter.BelongsTo;
+            if(currentStructure == null)
+            {
+                throw new XTMFRuntimeException("The parameter doesn't belong to any module!");
+            }
+            if(value == null)
+            {
+                throw new XTMFRuntimeException("The value was null!");
+            }
+            if(currentStructure.Module == null)
+            {
+                throw new XTMFRuntimeException("The currentstructure.Module was null!");
+            }
             if((trueValue = ArbitraryParameterParser.ArbitraryParameterParse(parameter.Type, value, ref error)) != null)
             {
                 parameter.Value = trueValue;
-                var type = currentStructure.GetType();
+                var type = currentStructure.Module.GetType();
                 if(parameter.OnField)
                 {
                     var field = type.GetField(parameter.VariableName);
