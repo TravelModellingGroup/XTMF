@@ -162,7 +162,9 @@ namespace TMG.Frameworks.MultiRun
             TryAddBatchCommand("changeparameter", ChangeParameter, true);
             TryAddBatchCommand("delete", DeleteFiles, true);
             TryAddBatchCommand("write", WriteToFile, true);
+            TryAddBatchCommand("unload", UnloadResource, true);
         }
+
 
         /// <summary>
         /// Tries to add a batch command, this will fail if there is already a command with the same name
@@ -312,6 +314,22 @@ namespace TMG.Frameworks.MultiRun
                 string parameterName = GetAttributeOrError(command, "ParameterPath", "The attribute 'ParameterPath' was not found!");
                 ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
             }
+        }
+
+        private void UnloadResource(XmlNode command)
+        {
+            string path = GetAttributeOrError(command, "Path", "We were unable to find an attribute called 'Path'!");
+            IModelSystemStructure referencedModule = null;
+            if(!ModelSystemReflection.GetModelSystemStructureFromPath(ChildStructure, path, ref referencedModule))
+            {
+                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find the child with the path '" + path + "'!");
+            }
+            var mod = referencedModule.Module as IResource;
+            if(mod == null)
+            {
+                throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource! Only resources can be unloaded!");
+            }
+            mod.ReleaseResource();
         }
 
 
