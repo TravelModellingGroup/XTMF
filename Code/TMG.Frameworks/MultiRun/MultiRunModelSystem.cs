@@ -160,6 +160,7 @@ namespace TMG.Frameworks.MultiRun
             // Add all of the basic commands to our dictionary for the execution engine
             TryAddBatchCommand("copy", CopyFiles, true);
             TryAddBatchCommand("changeparameter", ChangeParameter, true);
+            TryAddBatchCommand("changelinkedparameter", ChangeLinkedParameter, true);
             TryAddBatchCommand("delete", DeleteFiles, true);
             TryAddBatchCommand("write", WriteToFile, true);
             TryAddBatchCommand("unload", UnloadResource, true);
@@ -316,6 +317,25 @@ namespace TMG.Frameworks.MultiRun
             }
         }
 
+        private void ChangeLinkedParameter(XmlNode command)
+        {
+            string name = GetAttributeOrError(command, "Name", "The attribute 'Name' was not found!");
+            string value = GetAttributeOrError(command, "Value", "The attribute 'Value' was not found!");
+            var project = Config.ProjectRepository.ActiveProject;
+            var modelSystemIndex = project.ModelSystemStructure.IndexOf(ModelSystemReflection.BuildModelStructureChain(Config, this)[0]);
+            var ourLinkedParameters = project.LinkedParameters[modelSystemIndex];
+            foreach(var lp in ourLinkedParameters)
+            {
+                if(lp.Name == Name)
+                {
+                    foreach(var parameter in lp.Parameters)
+                    {
+                        ModelSystemReflection.AssignValue(parameter, value);
+                    }
+                }
+            }
+        }
+
         private void UnloadResource(XmlNode command)
         {
             string path = GetAttributeOrError(command, "Path", "We were unable to find an attribute called 'Path'!");
@@ -324,12 +344,30 @@ namespace TMG.Frameworks.MultiRun
             {
                 throw new XTMFRuntimeException("In '" + Name + "' we were unable to find the child with the path '" + path + "'!");
             }
-            var mod = referencedModule.Module as IResource;
-            if(mod == null)
+            if(referencedModule.IsCollection)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource! Only resources can be unloaded!");
+                var children = referencedModule.Children;
+                if(children != null)
+                {
+                    foreach(var child in children)
+                    {
+                        var res = child as IResource;
+                        if(res != null)
+                        {
+                            res.ReleaseResource();
+                        }
+                    }
+                }
             }
-            mod.ReleaseResource();
+            else
+            {
+                var mod = referencedModule.Module as IResource;
+                if(mod == null)
+                {
+                    throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource! Only resources can be unloaded!");
+                }
+                mod.ReleaseResource();
+            }
         }
 
 

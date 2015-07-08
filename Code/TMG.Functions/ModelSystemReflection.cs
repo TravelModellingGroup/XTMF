@@ -72,29 +72,8 @@ namespace TMG.Functions
                 {
                     if(parameters[i].Name == variableName)
                     {
-                        string error = null;
-                        object trueValue;
-                        if((trueValue = ArbitraryParameterParser.ArbitraryParameterParse(parameters[i].Type, value, ref error)) != null)
-                        {
-                            parameters[i].Value = trueValue;
-                            var type = currentStructure.Module.GetType();
-                            if(parameters[i].OnField)
-                            {
-                                var field = type.GetField(parameters[i].VariableName);
-                                field.SetValue(currentStructure.Module, trueValue);
-                                any = true;
-                            }
-                            else
-                            {
-                                var field = type.GetProperty(parameters[i].VariableName);
-                                field.SetValue(currentStructure.Module, trueValue, null);
-                                any = true;
-                            }
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException("We were unable to assign the value of '" + value + "' to the parameter " + parameters[i].Name);
-                        }
+                        AssignValue(parameters[i], value);
+                        any = true;
                     }
                 }
             }
@@ -102,6 +81,32 @@ namespace TMG.Functions
             {
                 throw new XTMFRuntimeException("Unable to find a parameter named '" + variableName
                     + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!\r\nFull Path:'"+ fullPath + "'");
+            }
+        }
+
+        public static void AssignValue(IModuleParameter parameter, string value)
+        {
+            string error = null;
+            object trueValue;
+            var currentStructure = parameter.BelongsTo;
+            if((trueValue = ArbitraryParameterParser.ArbitraryParameterParse(parameter.Type, value, ref error)) != null)
+            {
+                parameter.Value = trueValue;
+                var type = currentStructure.GetType();
+                if(parameter.OnField)
+                {
+                    var field = type.GetField(parameter.VariableName);
+                    field.SetValue(currentStructure.Module, trueValue);
+                }
+                else
+                {
+                    var field = type.GetProperty(parameter.VariableName);
+                    field.SetValue(currentStructure.Module, trueValue, null);
+                }
+            }
+            else
+            {
+                throw new XTMFRuntimeException("We were unable to assign the value of '" + value + "' to the parameter " + parameter.Name);
             }
         }
 
