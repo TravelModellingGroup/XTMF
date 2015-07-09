@@ -30,7 +30,7 @@ namespace XTMF.Gui.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ParameterModel RealParameter;
+        internal readonly ParameterModel RealParameter;
 
         public ParameterDisplayModel(ParameterModel realParameter)
         {

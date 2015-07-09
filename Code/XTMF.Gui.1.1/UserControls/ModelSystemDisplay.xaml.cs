@@ -851,8 +851,10 @@ namespace XTMF.Gui.UserControls
             if(currentParameter != null && currentModule != null)
             {
                 var currentRoot = Session.GetRoot(currentModule.BaseModel);
-                var inputDirectory = GetInputDirectory(currentRoot);
-                var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value);
+                ParameterModel inputParameter = null;
+                var inputDirectory = GetInputDirectory(currentRoot, out inputParameter);
+                var isInputParameter = inputParameter == currentParameter.RealParameter;
+                var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value, isInputParameter);
                 if(openDirectory)
                 {
                     pathToFile = System.IO.Path.GetDirectoryName(pathToFile);
@@ -875,7 +877,8 @@ namespace XTMF.Gui.UserControls
             if(currentParameter != null && currentModule != null)
             {
                 var currentRoot = Session.GetRoot(currentModule.BaseModel);
-                var inputDirectory = GetInputDirectory(currentRoot);
+                ParameterModel _;
+                var inputDirectory = GetInputDirectory(currentRoot, out _);
                 if(inputDirectory != null)
                 {
                     string fileName = this.OpenFile();
@@ -911,7 +914,7 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
-        private string GetInputDirectory(ModelSystemStructureModel root)
+        private string GetInputDirectory(ModelSystemStructureModel root, out ParameterModel parameter)
         {
             var inputDir = root.Type.GetProperty("InputBaseDirectory");
             var attributes = inputDir.GetCustomAttributes(typeof(ParameterAttribute), true);
@@ -923,14 +926,16 @@ namespace XTMF.Gui.UserControls
                 {
                     if(parameters[i].Name == parameterName)
                     {
+                        parameter = parameters[i];
                         return parameters[i].Value.ToString();
                     }
                 }
             }
+            parameter = null;
             return null;
         }
 
-        private string GetRelativePath(string inputDirectory, string parameterValue)
+        private string GetRelativePath(string inputDirectory, string parameterValue, bool isInputParameter)
         {
             var parameterRooted = System.IO.Path.IsPathRooted(parameterValue);
             var inputDirectoryRooted = System.IO.Path.IsPathRooted(inputDirectory);
@@ -943,7 +948,7 @@ namespace XTMF.Gui.UserControls
                 return RemoveRelativeDirectories(System.IO.Path.Combine(inputDirectory, parameterValue));
             }
             return RemoveRelativeDirectories(System.IO.Path.Combine(Session.Configuration.ProjectDirectory, "AProject",
-            "RunDirectory", inputDirectory, parameterValue));
+            "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
         }
 
         private string RemoveRelativeDirectories(string path)
