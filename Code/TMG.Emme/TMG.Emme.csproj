@@ -132,6 +132,7 @@
     <Compile Include="EmmeTool.cs" />
     <Compile Include="Tools\Analysis\Traffic\ExportCountpostResults.cs" />
     <Compile Include="Tools\Analysis\Traffic\ExportScreenlineResults.cs" />
+    <Compile Include="Tools\Analysis\Transit\ExtractTransitODVectors.cs" />
     <Compile Include="Tools\ApplyBatchLineEdits.cs" />
     <Compile Include="Tools\ExportEmmeWorksheet.cs" />
     <Compile Include="Tools\FullNetworkSetGenerator.cs" />
