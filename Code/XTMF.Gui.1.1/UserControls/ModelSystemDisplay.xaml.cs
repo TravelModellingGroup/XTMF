@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -499,7 +500,7 @@ namespace XTMF.Gui.UserControls
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void TextBox_SourceUpdated(object sender, DataTransferEventArgs e)
@@ -626,13 +627,37 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        object SaveLock = new object();
+
         public void SaveRequested()
         {
             string error = null;
-            if(!Session.Save(ref error))
-            {
-                MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            Monitor.Enter(SaveLock);
+            MainWindow.SetStatusText("Saving...");
+            Task.Run(async () =>
+                {
+                    try
+                    {
+                        var watch = Stopwatch.StartNew();
+                        if(!Session.Save(ref error))
+                        {
+                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        watch.Stop();
+                        var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
+                        if(displayTimeRemaining > 0)
+                        {
+                            MainWindow.SetStatusText("Saved");
+                            await Task.Delay(displayTimeRemaining);
+                        }
+                        MainWindow.SetStatusText("Ready");
+                    }
+                    finally
+                    {
+                        Monitor.Exit(SaveLock);
+                    }
+                });
+
         }
 
         public void UndoRequested()

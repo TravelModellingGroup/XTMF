@@ -137,7 +137,19 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveLinkedParameter_Clicked(object obj)
         {
-
+            var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
+            if(selectedLinkedParameter != null)
+            {
+                string error = null;
+                var index = LinkedParameters.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
+                if(!LinkedParameters.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
+                {
+                    MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
+                items.RemoveAt(index);
+            }
         }
     }
 }
