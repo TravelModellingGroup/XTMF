@@ -168,7 +168,7 @@ namespace XTMF
             var rootRequirement = GetRootRequirement(t);
             if(rootRequirement == null)
             {
-                return start;
+                rootRequirement = typeof(IModelSystemTemplate);
             }
             else if(start == objective)
             {
@@ -370,12 +370,7 @@ namespace XTMF
 
         internal ModelSystemStructure GetRoot(ModelSystemStructure modelSystemRoot)
         {
-            var requiredRootType = ModelSystemStructure.GetRootRequirement(Type);
-            if(requiredRootType == null)
-            {
-                requiredRootType = typeof(IModelSystemTemplate);
-            }
-            return ModelSystemStructure.CheckForRootModule(modelSystemRoot, this, requiredRootType) as ModelSystemStructure;
+            return ModelSystemStructure.CheckForRootModule(modelSystemRoot, this, Type) as ModelSystemStructure;
         }
 
         internal ModelSystemStructure GetParent(ModelSystemStructure realModelSystemStructure)
@@ -726,6 +721,11 @@ namespace XTMF
         {
             if(start == objective)
             {
+                if(result == null && objective.Type != null && rootRequirement.IsAssignableFrom(objective.Type))
+                {
+                    // if there is no result yet check to see if we can match the root request
+                    result = start;
+                }
                 return true;
             }
             IList<IModelSystemStructure> childrenList = start.Children;
