@@ -38,6 +38,19 @@ namespace XTMF.Gui.UserControls
                 return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
             };
             AssignMode = assignLinkedParameter;
+            Display.SelectionChanged += Display_SelectionChanged;
+        }
+
+        private void Display_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
+            if(selectedLinkedParameter != null)
+            {
+                var containedParameters = from parameter in selectedLinkedParameter.LinkedParameter.GetParameters()
+                                          select new { Name = parameter.Name, ModuleName = parameter.BelongsTo.Name };
+//ContainedParameterDisplay.ItemsSource = new ObservableCollection();
+
+            }
         }
 
         private void SetupLinkedParameters(LinkedParametersModel linkedParameters)

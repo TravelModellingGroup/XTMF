@@ -106,6 +106,8 @@ namespace XTMF
             }
         }
 
+        public IModelSystemStructure BelongsTo { get { return RealParameter.BelongsTo; } }
+
         internal void SignalIsLinkedChanged()
         {
             ModelHelper.PropertyChanged(PropertyChanged, this, "IsLinked");

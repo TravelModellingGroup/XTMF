@@ -255,9 +255,10 @@ namespace TMG.Frameworks.MultiRun
                     }
                 }
             }
-            catch (IOException)
+            catch (IOException e)
             {
-                return false;
+                throw new XTMFRuntimeException("Failed to copy '" + origin + "' to '" + destination + "'!\r\nThe CWD is" + Directory.GetCurrentDirectory()
+                    + "\r\n" + e.Message);
             }
             return true;
         }
@@ -285,7 +286,7 @@ namespace TMG.Frameworks.MultiRun
             foreach(FileInfo file in files)
             {
                 string temppath = Path.Combine(destinationDirectory, file.Name);
-                file.CopyTo(temppath, false);
+                file.CopyTo(temppath, true);
             }
 
             // If copying subdirectories, copy them and their contents to new location.

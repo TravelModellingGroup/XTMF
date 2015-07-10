@@ -85,7 +85,39 @@
             </Grid>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
             <Grid Grid.Column="2">
-
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="AUTO" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" />
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ListView x:Name="ContainedParameterDisplay"  Background="{StaticResource WindowBackgroundBrush}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListView.Resources>
+                            <Style TargetType="{x:Type ListViewItem}">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            </Style>
+                        </ListView.Resources>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <my:BorderIconButton Margin="4" Header="{Binding Name, Mode=OneTime}" ShadowColour="{StaticResource ControlHeaderColour}"
+                                                     Text="{Binding ModuleName, Mode=OneTime}"
+                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px">
+                                    <my:BorderIconButton.Style>
+                                        <Style TargetType="my:BorderIconButton">
+                                            <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                        </Style>
+                                    </my:BorderIconButton.Style>
+                                </my:BorderIconButton>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </ScrollViewer>
             </Grid>
         </Grid>
     </Grid>
