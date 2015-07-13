@@ -136,6 +136,7 @@
     <Compile Include="Tools\ApplyBatchLineEdits.cs" />
     <Compile Include="Tools\ExportEmmeWorksheet.cs" />
     <Compile Include="Tools\FullNetworkSetGenerator.cs" />
+    <Compile Include="Tools\ImportScenarios.cs" />
     <Compile Include="TransitLines.cs" />
     <Compile Include="Utilities\ChainExecutionDuringEmme.cs" />
     <Compile Include="Utilities\ConvertMatrixToBinary.cs" />
