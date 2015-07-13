@@ -132,6 +132,11 @@ namespace TMG.Tasha
 
         protected virtual void Dispose(bool all)
         {
+            Unload();
+        }
+
+        public void Unload()
+        {
             if(Reader != null)
             {
                 Reader.Close();
@@ -145,6 +150,10 @@ namespace TMG.Tasha
             if(PlaceOfResidencePlaceOfWork != null)
             {
                 PlaceOfResidencePlaceOfWork.Unload();
+            }
+            if(TripchainLoader != null)
+            {
+                TripchainLoader.Unload();
             }
         }
 

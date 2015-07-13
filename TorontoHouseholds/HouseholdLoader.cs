@@ -233,6 +233,10 @@ namespace TMG.Tasha
                     finally
                     {
                         BlockingBuffer.CompleteAdding();
+                        if(RefreshHouseholdData)
+                        {
+                            Unload();
+                        }
                     }
                 });
             foreach(var h in BlockingBuffer.GetConsumingEnumerable())
@@ -270,6 +274,17 @@ namespace TMG.Tasha
                 }
                 NeedsReset = false;
             }
+        }
+
+        private void Unload()
+        {
+            PersonLoader.Unload();
+            if(Reader != null)
+            {
+                Reader.Close();
+                Reader = null;
+            }
+            NeedsReset = false;
         }
 
         /// <summary>
@@ -657,6 +672,9 @@ namespace TMG.Tasha
             return h;
         }
         private StreamWriter TripDump;
+
+        [RunParameter("Refresh Household Data", false, "Resets the household data so that you can load a different population between runs in the multi-run framework.  Otherwise leave this as false.")]
+        public bool RefreshHouseholdData;
 
         private void SaveHouseholdTrips(Household h)
         {

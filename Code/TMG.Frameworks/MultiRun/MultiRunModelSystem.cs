@@ -353,21 +353,36 @@ namespace TMG.Frameworks.MultiRun
                     foreach(var child in children)
                     {
                         var res = child as IResource;
+                        var dataSource = child as IDataSource;
                         if(res != null)
                         {
                             res.ReleaseResource();
+                        }
+                        else if(dataSource != null)
+                        {
+                            dataSource.UnloadData();
                         }
                     }
                 }
             }
             else
             {
-                var mod = referencedModule.Module as IResource;
-                if(mod == null)
+                var res = referencedModule.Module as IResource;
+                var dataSource = referencedModule.Module as IDataSource;
+                if(res == null)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource! Only resources can be unloaded!");
+                    res.ReleaseResource();
+                    
                 }
-                mod.ReleaseResource();
+                else if(true)
+                {
+                    dataSource.UnloadData();
+                }
+                else
+                {
+                    throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource or data source! Only resources or data sources can be unloaded!");
+                }
+                
             }
         }
 

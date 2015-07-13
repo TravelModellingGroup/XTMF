@@ -23,5 +23,7 @@ namespace XTMF
         bool Load(Given data);
 
         void Reset();
+
+        void Unload();
     }
 }

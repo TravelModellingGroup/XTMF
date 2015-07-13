@@ -326,7 +326,12 @@ namespace TMG.Tasha
 
         protected virtual void Dispose(bool all)
         {
-            if ( Reader != null )
+            Unload();
+        }
+
+        public void Unload()
+        {
+            if(Reader != null)
             {
                 Reader.Dispose();
                 Reader = null;
