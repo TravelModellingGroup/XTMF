@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -68,7 +68,7 @@ namespace XTMF
                 var oldType = RealModelSystemStructure.Type;
                 if(oldType != value)
                 {
-                    var oldChildren = Children;
+                    var oldChildren = Children.ToList();
                     var oldParameters = Parameters;
                     var oldDirty = IsDirty;
                     XTMFCommand.XTMFCommandMethod apply = (ref string e) =>
@@ -94,15 +94,15 @@ namespace XTMF
                     {
                         // undo
                         RealModelSystemStructure.Type = oldType;
-                        Children = oldChildren;
                         if(Children != null)
                         {
                             // move the old children back into place
-                            for(int i = 0; i < Children.Count; i++)
+                            for(int i = 0; i < oldChildren.Count; i++)
                             {
-                                RealModelSystemStructure.Children[i] = Children[i].RealModelSystemStructure;
+                                RealModelSystemStructure.Children[i] = oldChildren[i].RealModelSystemStructure;
                             }
                         }
+                        UpdateChildren();
                         Parameters = oldParameters;
                         Dirty = oldDirty;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
@@ -263,7 +263,25 @@ namespace XTMF
                 }
                 else
                 {
-                    RealModelSystemStructure = copiedStructure;
+                    var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
+                    // if we are the root of the model system
+                    if(modelSystemRoot == RealModelSystemStructure)
+                    {
+                        copiedStructure.Required = RealModelSystemStructure.Required;
+                        copiedStructure.ParentFieldType = RealModelSystemStructure.ParentFieldType;
+                        copiedStructure.ParentFieldName = RealModelSystemStructure.ParentFieldName;
+                        Session.ModelSystemModel.Root.RealModelSystemStructure = copiedStructure;
+                    }
+                    else
+                    {
+                        var parent = ModelSystemStructure.GetParent(modelSystemRoot, RealModelSystemStructure);
+                        var index = parent.Children.IndexOf(RealModelSystemStructure);
+                        copiedStructure.Required = RealModelSystemStructure.Required;
+                        copiedStructure.ParentFieldType = RealModelSystemStructure.ParentFieldType;
+                        copiedStructure.ParentFieldName = RealModelSystemStructure.ParentFieldName;
+                        RealModelSystemStructure = copiedStructure;
+                        parent.Children[index] = copiedStructure;
+                    }
                     UpdateAll();
                     beingAdded = this;
                 }
@@ -315,7 +333,20 @@ namespace XTMF
                 }
                 else
                 {
-                    RealModelSystemStructure = oldReal;
+                    var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
+                    // if we are the root of the model system
+                    if(modelSystemRoot == RealModelSystemStructure)
+                    {
+                        RealModelSystemStructure = oldReal;
+                        Session.ModelSystemModel.Root.RealModelSystemStructure = oldReal;
+                    }
+                    else
+                    {
+                        var parent = ModelSystemStructure.GetParent(Session.ModelSystemModel.Root.RealModelSystemStructure, RealModelSystemStructure);
+                        var index = parent.Children.IndexOf(RealModelSystemStructure);
+                        RealModelSystemStructure = oldReal;
+                        parent.Children[index] = RealModelSystemStructure;
+                    }
                     UpdateAll();
                 }
                 var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
@@ -348,7 +379,20 @@ namespace XTMF
                 }
                 else
                 {
-                    RealModelSystemStructure = copiedStructure;
+                    var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
+                    // if we are the root of the model system
+                    if(modelSystemRoot == RealModelSystemStructure)
+                    {
+                        RealModelSystemStructure = copiedStructure;
+                        Session.ModelSystemModel.Root.RealModelSystemStructure = RealModelSystemStructure;
+                    }
+                    else
+                    {
+                        var parent = ModelSystemStructure.GetParent(Session.ModelSystemModel.Root.RealModelSystemStructure, RealModelSystemStructure);
+                        var index = parent.Children.IndexOf(RealModelSystemStructure);
+                        RealModelSystemStructure = copiedStructure;
+                        parent.Children[index] = RealModelSystemStructure;
+                    }
                     UpdateAll();
                 }
                 var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
@@ -472,6 +516,10 @@ namespace XTMF
         private void UpdateAll()
         {
             UpdateChildren();
+            if(!IsCollection)
+            {
+                Parameters.Update();
+            }
             ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
             ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
             ModelHelper.PropertyChanged(PropertyChanged, this, "Description");

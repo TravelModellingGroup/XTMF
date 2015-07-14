@@ -73,5 +73,20 @@ namespace XTMF
             //return this.Parameters != null ? this.Parameters.ToList() : new List<ParameterModel>();
             return this.Parameters != null ? this.Parameters.ToObservableCollection() : new ObservableCollection<ParameterModel>();
         }
+
+        internal void Update()
+        {
+            var parameters = Parameters;
+            var modelSystemStructure = ModelSystemStructure;
+            if(modelSystemStructure.RealModelSystemStructure.Parameters == null) return;
+            var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters.Parameters;
+            if(realParameters == null) return;
+            Parameters.Clear();
+            for(int i = 0; i < realParameters.Count; i++)
+            {
+                parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session));
+            }
+            ModelHelper.PropertyChanged(PropertyChanged, this, "Parameters");
+        }
     }
 }
