@@ -24,7 +24,7 @@
              xmlns:my="clr-namespace:XTMF.Gui"
                 WindowStyle="ToolWindow"
                 WindowStartupLocation="CenterOwner"
-                Title="Linked Parameter Editor" Height="480" Width="640">
+                Title="Linked Parameter Editor" Height="480" Width="750">
     <Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
@@ -36,18 +36,16 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <my:BorderIconButton Grid.Column="0" Header="New" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
+            <my:BorderIconButton Grid.Column="0" Header="New"  HighlightColour="{StaticResource AddingYellow}" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
                                  Icon="/XTMF.Gui;component/Resources/Plus.png" Margin="2"/>
             <my:BorderIconButton Grid.Column="1" Header="Remove" HighlightColour="{StaticResource WarningRed}" Text="Remove Current Parameter" Clicked="RemoveLinkedParameter_Clicked"
-                                 Icon="/XTMF.Gui;component/Images/Delete.png" Margin="2"/>
-            <my:BorderIconButton Grid.Column="2" Header="Select" HighlightColour="{StaticResource WarningRed}" Text="Create new Linked Parameter" Clicked="RemoveLinkedParameter_Clicked"
                                  Icon="/XTMF.Gui;component/Images/Delete.png" Margin="2"/>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="330" />
+                <ColumnDefinition Width="*" MinWidth="325" />
                 <ColumnDefinition Width="AUTO" />
-                <ColumnDefinition Width="*" MinWidth="200"/>
+                <ColumnDefinition Width="2*" MinWidth="200"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
@@ -92,7 +90,7 @@
                 <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" />
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <ListView x:Name="ContainedParameterDisplay"  Background="{StaticResource WindowBackgroundBrush}"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
                         <ListView.Resources>
                             <Style TargetType="{x:Type ListViewItem}">
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
@@ -100,20 +98,28 @@
                         </ListView.Resources>
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" />
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                
+                                </StackPanel>
                             </ItemsPanelTemplate>
                         </ListView.ItemsPanel>
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <my:BorderIconButton Margin="4" Header="{Binding Name, Mode=OneTime}" ShadowColour="{StaticResource ControlHeaderColour}"
-                                                     Text="{Binding ModuleName, Mode=OneTime}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px">
-                                    <my:BorderIconButton.Style>
-                                        <Style TargetType="my:BorderIconButton">
-                                            <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                        </Style>
-                                    </my:BorderIconButton.Style>
-                                </my:BorderIconButton>
+                                <Border BorderBrush="White" BorderThickness="1" Margin="2" HorizontalAlignment="Stretch">
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="AUTO" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="AUTO" />
+                                            <RowDefinition Height="AUTO" />
+                                        </Grid.RowDefinitions>
+                                        <CheckBox Grid.Column="0" Checked="CheckBox_Checked" VerticalAlignment="Center" IsChecked="True" />
+                                        <TextBlock Grid.Column="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
+                                        <TextBlock Grid.Column="1" Grid.Row="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
