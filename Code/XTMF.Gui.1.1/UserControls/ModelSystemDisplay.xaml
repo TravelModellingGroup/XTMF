@@ -240,17 +240,19 @@
                             </MenuItem.Icon>
                         </MenuItem>
                         <Separator />
-                        <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/OpenFile.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
+                        <MenuItem Header="Open">
+                            <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
+                                <MenuItem.Icon>
+                                    <Image>
+                                        <Image.Source>
+                                            <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/OpenFile.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                        </Image.Source>
+                                    </Image>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Open File With" Click="OpenWith_Click" />
+                            <MenuItem Header="Open File Location" Click="OpenFolder_Click" />
                         </MenuItem>
-                        <MenuItem Header="Open File With" Click="OpenWith_Click" />
-                        <MenuItem Header="Open File Location" Click="OpenFolder_Click" />
                         <Separator />
                         <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
                             <MenuItem.Icon>
