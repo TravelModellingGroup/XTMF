@@ -1161,19 +1161,28 @@ namespace XTMF
 
         private static void LoadModule(IModelSystemStructure modelSystemStructure, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
-            if(modelSystemStructure.Children != null && !modelSystemStructure.IsCollection)
+            if(!modelSystemStructure.IsCollection)
             {
-                var parentFieldNameAttribute = child.Attributes["ParentFieldName"];
-                if(parentFieldNameAttribute != null)
+                if(modelSystemStructure.Children != null)
                 {
-                    for(int i = 0; i < modelSystemStructure.Children.Count; i++)
+                    var parentFieldNameAttribute = child.Attributes["ParentFieldName"];
+                    if(parentFieldNameAttribute != null)
                     {
-                        if(modelSystemStructure.Children[i].ParentFieldName == parentFieldNameAttribute.InnerText)
+                        for(int i = 0; i < modelSystemStructure.Children.Count; i++)
                         {
-                            Load(modelSystemStructure.Children[i], modelSystemStructure, child, config, lookUp);
+                            if(modelSystemStructure.Children[i].ParentFieldName == parentFieldNameAttribute.InnerText)
+                            {
+                                Load(modelSystemStructure.Children[i], modelSystemStructure, child, config, lookUp);
+                            }
                         }
                     }
                 }
+            }
+            else
+            {
+                // In the rare case that we are starting with a collection add to the end.
+                modelSystemStructure.Children.Add(new ModelSystemStructure(config));
+                Load(modelSystemStructure.Children[modelSystemStructure.Children.Count - 1], modelSystemStructure, child, config, lookUp);
             }
         }
 
@@ -1243,6 +1252,12 @@ namespace XTMF
                     var child = list[i];
                     if(child.LocalName == "Module")
                     {
+                        Load(root, null, list[i], config, lookUp);
+                    }
+                    else if(child.LocalName == "Collection")
+                    {
+                        root.IsCollection = true;
+                        root.Children = new List<IModelSystemStructure>();
                         Load(root, null, list[i], config, lookUp);
                     }
                 }

@@ -207,12 +207,32 @@ namespace XTMF
                     return false;
                 }
             }
-            // validate the modules contained
-            if(!IsAssignable(Session.ModelSystemModel.Root.RealModelSystemStructure,
-                IsCollection ? RealModelSystemStructure : Session.GetParent(this).RealModelSystemStructure, copiedStructure))
+            if(copiedStructure.IsCollection)
             {
-                error = "The copied model system is not pasteable at this location.";
-                return false;
+                if(!IsCollection)
+                {
+                    error = "The copied model system is not pasteable at this location.";
+                    return false;
+                }
+                foreach(var child in copiedStructure.Children)
+                {
+                    if(!IsAssignable(Session.ModelSystemModel.Root.RealModelSystemStructure,
+                        IsCollection ? RealModelSystemStructure : Session.GetParent(this).RealModelSystemStructure, child as ModelSystemStructure))
+                    {
+                        error = "The copied model system is not pasteable at this location.";
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                // validate the modules contained
+                if(!IsAssignable(Session.ModelSystemModel.Root.RealModelSystemStructure,
+                    IsCollection ? RealModelSystemStructure : Session.GetParent(this).RealModelSystemStructure, copiedStructure))
+                {
+                    error = "The copied model system is not pasteable at this location.";
+                    return false;
+                }
             }
             List<LinkedParameterModel> newLinkedParameters = new List<LinkedParameterModel>();
             var additions = new List<Tuple<ParameterModel, LinkedParameterModel>>();
@@ -221,11 +241,25 @@ namespace XTMF
                 (ref string e) =>
             {
                 ModelSystemStructureModel beingAdded;
+                int indexOffset = 0;
                 if(IsCollection)
                 {
-                    RealModelSystemStructure.Add(copiedStructure);
-                    UpdateChildren();
-                    beingAdded = Children[Children.Count - 1];
+                    if(copiedStructure.IsCollection)
+                    {
+                        indexOffset = RealModelSystemStructure.Children != null ? RealModelSystemStructure.Children.Count : 0;
+                        foreach(var child in copiedStructure.Children)
+                        {
+                            RealModelSystemStructure.Add(child);
+                        }
+                        UpdateChildren();
+                        beingAdded = this;
+                    }
+                    else
+                    {
+                        RealModelSystemStructure.Add(copiedStructure);
+                        UpdateChildren();
+                        beingAdded = Children[Children.Count - 1];
+                    }
                 }
                 else
                 {
@@ -242,7 +276,7 @@ namespace XTMF
                 // add links for the ones we've matched
                 foreach(var lp in matching)
                 {
-                    foreach(var containedParameters in GetParametersFromTemp(lp.Temp, beingAdded))
+                    foreach(var containedParameters in GetParametersFromTemp(lp.Temp, beingAdded, indexOffset))
                     {
                         lp.Real.AddParameterWithoutCommand(containedParameters);
                         containedParameters.SignalIsLinkedChanged();
@@ -254,7 +288,7 @@ namespace XTMF
                 {
                     var newLP = linkedParameterModel.AddWithoutCommand(missingLp.Name, missingLp.Value);
                     newLinkedParameters.Add(newLP);
-                    foreach(var containedParameters in GetParametersFromTemp(missingLp, beingAdded))
+                    foreach(var containedParameters in GetParametersFromTemp(missingLp, beingAdded, indexOffset))
                     {
                         newLP.AddParameterWithoutCommand(containedParameters);
                         containedParameters.SignalIsLinkedChanged();
@@ -266,7 +300,17 @@ namespace XTMF
             {
                 if(IsCollection)
                 {
-                    RealModelSystemStructure.Children.Remove(copiedStructure);
+                    if(copiedStructure.IsCollection)
+                    {
+                        foreach(var child in copiedStructure.Children)
+                        {
+                            RealModelSystemStructure.Children.Remove(child);
+                        }
+                    }
+                    else
+                    {
+                        RealModelSystemStructure.Children.Remove(copiedStructure);
+                    }
                     UpdateChildren();
                 }
                 else
@@ -289,7 +333,17 @@ namespace XTMF
             {
                 if(IsCollection)
                 {
-                    RealModelSystemStructure.Children.Add(copiedStructure);
+                    if(copiedStructure.IsCollection)
+                    {
+                        foreach(var child in copiedStructure.Children)
+                        {
+                            RealModelSystemStructure.Add(child);
+                        }
+                    }
+                    else
+                    {
+                        RealModelSystemStructure.Add(copiedStructure);
+                    }
                     UpdateChildren();
                 }
                 else
@@ -310,19 +364,18 @@ namespace XTMF
             }), ref error);
         }
 
-        private List<ParameterModel> GetParametersFromTemp(TempLinkedParameter temp, ModelSystemStructureModel root)
+        private List<ParameterModel> GetParametersFromTemp(TempLinkedParameter temp, ModelSystemStructureModel root, int indexOffset)
         {
             return (from path in temp.Paths
-                   select GetParametersFromTemp(path, root)).ToList();
+                   select GetParametersFromTemp(path, root, indexOffset)).ToList();
         }
 
-        private ParameterModel GetParametersFromTemp(string path, ModelSystemStructureModel root)
+        private ParameterModel GetParametersFromTemp(string path, ModelSystemStructureModel root, int indexOffset)
         {
-            return GetParameterFromLink(ParseLinkedParameterName(path), 0, root);
-
+            return GetParameterFromLink(ParseLinkedParameterName(path), 0, root, indexOffset);
         }
 
-        private ParameterModel GetParameterFromLink(string[] variableLink, int index, ModelSystemStructureModel current)
+        private ParameterModel GetParameterFromLink(string[] variableLink, int index, ModelSystemStructureModel current, int indexOffset)
         {
             if(index == variableLink.Length - 1)
             {
@@ -348,9 +401,16 @@ namespace XTMF
                     int collectionIndex;
                     if(int.TryParse(variableLink[index], out collectionIndex))
                     {
+                        // if we are at the first index we need to look at the index offset.
+                        // This is needed if we are copying a collection, thus the indexes will
+                        // not be starting at the 0th position in the new model system structure.
+                        if(index == 0)
+                        {
+                            collectionIndex += indexOffset;
+                        }
                         if(collectionIndex >= 0 && collectionIndex < descList.Count)
                         {
-                            return GetParameterFromLink(variableLink, index + 1, descList[collectionIndex]);
+                            return GetParameterFromLink(variableLink, index + 1, descList[collectionIndex], indexOffset);
                         }
                         return null;
                     }
@@ -361,7 +421,7 @@ namespace XTMF
                     {
                         if(sub.ParentFieldName == variableLink[index])
                         {
-                            return GetParameterFromLink(variableLink, index + 1, sub);
+                            return GetParameterFromLink(variableLink, index + 1, sub, 0);
                         }
                     }
                 }

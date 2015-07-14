@@ -82,7 +82,10 @@ namespace XTMF.Gui.Models
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     {
-                        Children.RemoveAt(e.OldStartingIndex);
+                        if(Children.Count > 0)
+                        {
+                            Children.RemoveAt(e.OldStartingIndex);
+                        }
                     }
                     break;
                 case NotifyCollectionChangedAction.Replace:
