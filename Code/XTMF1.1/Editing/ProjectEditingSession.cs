@@ -292,5 +292,16 @@ namespace XTMF
                 temp(this, new EventArgs());
             }
         }
+
+        public bool DeleteProject(ref string error)
+        {
+            var ret = Runtime.ProjectController.DeleteProject(Project, ref error);
+            if(ret)
+            {
+                CloseAllModelSystemEditingSessions();
+                Dispose();
+            }
+            return ret;
+        }
     }
 }

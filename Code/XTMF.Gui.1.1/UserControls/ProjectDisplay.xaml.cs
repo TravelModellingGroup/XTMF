@@ -354,14 +354,39 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private Window GetWindow()
+        {
+            var current = this as DependencyObject;
+            while(current != null && !(current is Window))
+            {
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return current as Window;
+        }
+
         private void DeleteProject_Clicked(object obj)
         {
-
+            if(MessageBox.Show(GetWindow(),
+                "Are you sure you want to delete the project?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+            {
+                string error = null;
+                if(!Session.DeleteProject(ref error))
+                {
+                    MessageBox.Show(GetWindow(), error, "Unable to Delete", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    return;
+                }
+                Close();
+            }
         }
 
         private void CloneProject_Clicked(object obj)
         {
 
+        }
+
+        private void ImportModelSystem_Clicked(object obj)
+        {
+            
         }
     }
 }
