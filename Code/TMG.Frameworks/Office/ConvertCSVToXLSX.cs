@@ -25,6 +25,7 @@ using XTMF;
 using TMG.Input;
 using Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace TMG.Frameworks.Office
 {
@@ -78,20 +79,17 @@ namespace TMG.Frameworks.Office
                 workbooks = excel.Workbooks;
                 foreach(var toConvert in FilesToConvert)
                 {
-                    Workbook workbook = null;
-                    try
+
+                    var inPath = toConvert.InputFile.GetFilePath();
+                    if(Directory.Exists(inPath))
                     {
-                        workbook = workbooks.Open(toConvert.InputFile.GetFilePath());
-                        workbook.SaveAs(toConvert.OutputFile.GetFilePath(), XlFileFormat.xlWorkbookDefault);
+                        SaveDirectory(workbooks, new DirectoryInfo(inPath), new DirectoryInfo(toConvert.OutputFile.GetFilePath()));
                     }
-                    finally
+                    else
                     {
-                        if(workbook != null)
-                        {
-                            workbook.Close();
-                            Marshal.FinalReleaseComObject(workbook);
-                        }
+                        SaveWorkbook(workbooks, inPath, toConvert.OutputFile.GetFilePath());
                     }
+
                 }
             }
             finally
@@ -103,6 +101,40 @@ namespace TMG.Frameworks.Office
                 }
                 excel.Quit();
                 Marshal.FinalReleaseComObject(excel);
+            }
+        }
+
+        private void SaveDirectory(Workbooks workbooks, DirectoryInfo currentInputDirectory, DirectoryInfo currentOutputDirectory)
+        {
+            foreach(var subDir in currentInputDirectory.GetDirectories())
+            {
+                SaveDirectory(workbooks, subDir, currentOutputDirectory.CreateSubdirectory(subDir.Name));
+            }
+            foreach(var file in currentInputDirectory.GetFiles( "*.csv", SearchOption.TopDirectoryOnly))
+            {
+                if(!currentOutputDirectory.Exists)
+                {
+                    currentOutputDirectory.Create();
+                }
+                SaveWorkbook(workbooks, file.FullName, Path.Combine(currentOutputDirectory.FullName, Path.GetFileNameWithoutExtension(file.Name) + ".xlsx"));
+            }
+        }
+
+        private static void SaveWorkbook(Workbooks workbooks, string inPath, string outPath)
+        {
+            Workbook workbook = null;
+            try
+            {
+                workbook = workbooks.Open(inPath);
+                workbook.SaveAs(outPath, XlFileFormat.xlWorkbookDefault);
+            }
+            finally
+            {
+                if(workbook != null)
+                {
+                    workbook.Close();
+                    Marshal.FinalReleaseComObject(workbook);
+                }
             }
         }
     }
