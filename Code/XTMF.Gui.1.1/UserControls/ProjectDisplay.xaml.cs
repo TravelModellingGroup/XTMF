@@ -390,17 +390,22 @@ namespace XTMF.Gui.UserControls
             var openMS = new OpenWindow();
             using(var modelSystemSession = openMS.OpenModelSystem(xtmf))
             {
-                if(modelSystemSession == null)
+                var loading = openMS.LoadTask;
+                if(loading != null)
                 {
-                    return;
+                    loading.Wait();
+                    if(modelSystemSession == null)
+                    {
+                        return;
+                    }
+                    string error = null;
+                    if(!Session.AddModelSystem(modelSystemSession.ModelSystemModel, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        return;
+                    }
+                    Model.RefreshModelSystems();
                 }
-                string error = null;
-                if(!Session.AddModelSystem(modelSystemSession.ModelSystemModel, ref error))
-                {
-                    MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                    return;
-                }
-                Model.RefreshModelSystems();
             }
         }
     }
