@@ -151,7 +151,7 @@ namespace Tasha.StationAccess
 
                 int[] stationZones = GetStationZones(stationRanges, capacity, zones);
                 var flatCapacityFactor = CapacityFactor.GetFlatData();
-                if(AutoFromOriginToAccessStation == null)
+                if(AutoFromOriginToAccessStation == null || TransitFromAccessStationToDestination.Length != stationZones.Length * zones.Length)
                 {
                     TransitFromAccessStationToDestination = new float[stationZones.Length * zones.Length];
                     AutoFromOriginToAccessStation = new float[stationZones.Length * zones.Length];
@@ -288,7 +288,7 @@ namespace Tasha.StationAccess
             {
                 Console.WriteLine("Loading Station Access Choice...");
             }
-            if(!ReloadZoneSystem && FirstLoad == true)
+            if(ReloadZoneSystem || FirstLoad == true)
             {
                 LoadMode();
                 LoadStationCapacity();
