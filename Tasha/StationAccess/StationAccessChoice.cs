@@ -279,13 +279,16 @@ namespace Tasha.StationAccess
         [RunParameter("Notify Status", false, "Should we identify when we are loading and finishing the caching of station utilities?")]
         public bool NotifiyStatus;
 
+        [RunParameter("Reload ZoneSystem", false, "Set this to true if you are using the Multi-run system and the zone system changes between runs.")]
+        public bool ReloadZoneSystem;
+
         public void Load()
         {
             if(NotifiyStatus)
             {
                 Console.WriteLine("Loading Station Access Choice...");
             }
-            if(FirstLoad == true)
+            if(!ReloadZoneSystem && FirstLoad == true)
             {
                 LoadMode();
                 LoadStationCapacity();
