@@ -352,8 +352,9 @@ namespace TMG.Frameworks.MultiRun
                 {
                     foreach(var child in children)
                     {
-                        var res = child as IResource;
-                        var dataSource = child as IDataSource;
+                        var mod = child.Module;
+                        var res = mod as IResource;
+                        var dataSource = mod as IDataSource;
                         if(res != null)
                         {
                             res.ReleaseResource();
@@ -369,12 +370,11 @@ namespace TMG.Frameworks.MultiRun
             {
                 var res = referencedModule.Module as IResource;
                 var dataSource = referencedModule.Module as IDataSource;
-                if(res == null)
+                if(res != null)
                 {
                     res.ReleaseResource();
-                    
                 }
-                else if(true)
+                else if(dataSource != null)
                 {
                     dataSource.UnloadData();
                 }
@@ -382,7 +382,7 @@ namespace TMG.Frameworks.MultiRun
                 {
                     throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource or data source! Only resources or data sources can be unloaded!");
                 }
-                
+
             }
         }
 

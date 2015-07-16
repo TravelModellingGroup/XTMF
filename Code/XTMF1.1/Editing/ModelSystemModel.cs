@@ -41,7 +41,7 @@ namespace XTMF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ModelSystem ModelSystem;
+        internal ModelSystem ModelSystem { get; private set; }
 
         internal ModelSystemStructure ClonedModelSystemRoot { get; private set; }
 

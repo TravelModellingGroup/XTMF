@@ -52,6 +52,9 @@ add in the current progress reported by the currently executing module."
 
         bool Exit;
 
+        [RunParameter("Release", true, "Should we release the resources after finishing?")]
+        public bool Release;
+
         public bool ExitRequest()
         {
             this.Exit = true;
@@ -77,7 +80,10 @@ add in the current progress reported by the currently executing module."
         {
             this.Exit = false;
             ExecuteToRun();
-            ReleaseResources();
+            if(Release)
+            {
+                ReleaseResources();
+            }
         }
 
         private void ReleaseResources()

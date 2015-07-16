@@ -18,6 +18,7 @@
 */
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
@@ -87,6 +88,22 @@ namespace TMG.Functions
                 {
                     writer.WriteLine(zoneLines[i]);
                 }
+            }
+        }
+
+        public static void SaveVector(SparseArray<float> data, string saveTo)
+        {
+            var flatData = data.GetFlatData();
+            var indexes = data.ValidIndexArray().Select(index => index.ToString()).ToArray();
+            using (StreamWriter writer = new StreamWriter(saveTo))
+            {
+                writer.WriteLine("Zone,Value");
+                for(int i = 0; i < flatData.Length; i++)
+                {
+                    writer.Write(indexes[i]);
+                    writer.Write(',');
+                    writer.WriteLine(flatData[i]);
+                }    
             }
         }
 

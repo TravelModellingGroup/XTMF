@@ -130,7 +130,7 @@ namespace XTMF.Gui.UserControls
                 });
             }
 
-            private void RefreshModelSystems()
+            internal void RefreshModelSystems()
             {
                 if(ContainedModelSystems == null)
                 {
@@ -386,7 +386,22 @@ namespace XTMF.Gui.UserControls
 
         private void ImportModelSystem_Clicked(object obj)
         {
-            
+            var xtmf = Session.GetRuntime();
+            var openMS = new OpenWindow();
+            using(var modelSystemSession = openMS.OpenModelSystem(xtmf))
+            {
+                if(modelSystemSession == null)
+                {
+                    return;
+                }
+                string error = null;
+                if(!Session.AddModelSystem(modelSystemSession.ModelSystemModel, ref error))
+                {
+                    MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    return;
+                }
+                Model.RefreshModelSystems();
+            }
         }
     }
 }

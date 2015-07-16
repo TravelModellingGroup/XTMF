@@ -92,6 +92,17 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// Add a model system to the project
+        /// </summary>
+        /// <param name="modelSystemModel">Add the contained model system to the project.</param>
+        /// <param name="error">An error message in case of failure</param>
+        /// <returns>True if the model system was added successfully</returns>
+        public bool AddModelSystem(ModelSystemModel modelSystemModel, ref string error)
+        {
+            return AddModelSystem(modelSystemModel.ModelSystem, ref error);
+        }
+
 
 
         /// <summary>
@@ -302,6 +313,11 @@ namespace XTMF
                 Dispose();
             }
             return ret;
+        }
+
+        public XTMFRuntime GetRuntime()
+        {
+            return Runtime;
         }
     }
 }
