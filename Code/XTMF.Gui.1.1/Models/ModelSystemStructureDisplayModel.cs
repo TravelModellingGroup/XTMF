@@ -128,6 +128,7 @@ namespace XTMF.Gui.Models
                 if(e.PropertyName == "Type")
                 {
                     ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                    ModelHelper.PropertyChanged(ev, this, "HighlightColour");
                 }
             }
         }
@@ -137,6 +138,22 @@ namespace XTMF.Gui.Models
         public string Description { get { return BaseModel.Description; } }
 
         public Color BackgroundColour
+        {
+            get
+            {
+                if(BaseModel.IsCollection)
+                {
+                    return AddingYellow;
+                }
+                if(BaseModel.Type == null)
+                {
+                    return (BaseModel.IsOptional) ? OptionalGreen : WarningRed;
+                }
+                return Color.FromRgb(0x30, 0x30, 0x30);
+            }
+        }
+
+        public Color HighlightColour
         {
             get
             {

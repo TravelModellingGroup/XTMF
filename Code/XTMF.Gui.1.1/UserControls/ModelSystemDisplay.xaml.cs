@@ -650,10 +650,14 @@ namespace XTMF.Gui.UserControls
                             MainWindow.SetStatusText("Saved");
                             await Task.Delay(displayTimeRemaining);
                         }
-                        MainWindow.SetStatusText("Ready");
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     finally
                     {
+                        MainWindow.SetStatusText("Ready");
                         Monitor.Exit(SaveLock);
                     }
                 });

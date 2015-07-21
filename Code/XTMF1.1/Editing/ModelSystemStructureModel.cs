@@ -68,7 +68,7 @@ namespace XTMF
                 var oldType = RealModelSystemStructure.Type;
                 if(oldType != value)
                 {
-                    var oldChildren = Children.ToList();
+                    var oldChildren = Children == null ? null : Children.ToList();
                     var oldParameters = Parameters;
                     var oldDirty = IsDirty;
                     XTMFCommand.XTMFCommandMethod apply = (ref string e) =>

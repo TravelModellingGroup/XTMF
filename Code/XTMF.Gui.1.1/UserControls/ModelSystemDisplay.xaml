@@ -110,7 +110,7 @@
                                      Header="{Binding Name}"
                                      Text="{Binding Description}"
                                      ShadowColour="{Binding BackgroundColour}"
-                                     HighlightColour="Green"
+                                     HighlightColour="{Binding HighlightColour}"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}"
                                     Margin="4"

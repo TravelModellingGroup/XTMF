@@ -281,19 +281,19 @@ namespace XTMF.Gui
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
-            ColorAnimation fadeInAnimation;
+            ColorAnimation fadeOutAnimation;
             if(!IsHitTestVisible) return;
             MouseDownInside = false;
             BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
             if(IsFocused || Selected)
             {
-                fadeInAnimation = new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                fadeOutAnimation = new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
             }
             else
             {
-                fadeInAnimation = new ColorAnimation(ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                fadeOutAnimation = new ColorAnimation(ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
             }
-            BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
+            BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeOutAnimation);
             e.Handled = true;
             MouseInside = false;
             base.OnMouseLeave(e);
