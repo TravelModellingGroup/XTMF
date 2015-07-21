@@ -34,30 +34,11 @@ namespace TMG.Emme.Tools
         [RunParameter("Scenario Number", 0, "The scenario number to export.")]
         public int ScenarioNumber;
 
+        [RunParameter("Worksheet Path", "", "The path to save the worksheet to.")]
+        public string WorksheetPath;
 
-        public class TableExport : XTMF.IModule
-        {
-            [SubModelInformation(Required = true, Description = "The location to save this worksheet to.")]
-            public FileLocation OutputLocation;
-
-            [RunParameter("Worksheet Path", "", "The path to save the worksheet to.")]
-            public string WorksheetPath;
-
-            public string Name { get; set; }
-
-            public float Progress { get; set; }
-
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-            public bool RuntimeValidation(ref string error)
-            {
-                return true;
-            }
-        }
-
-        [SubModelInformation(Description = "The worksheets to export.")]
-        public TableExport[] ToExport;
-
+        [SubModelInformation(Required = true, Description = "The location to save this worksheet to.")]
+        public FileLocation OutputLocation;
 
         public string Name { get; set; }
 
@@ -77,13 +58,7 @@ namespace TMG.Emme.Tools
 
         private string GetArguments()
         {
-            return string.Join(" ", ScenarioNumber, BuildList(e => e.WorksheetPath), BuildList(e => e.OutputLocation));
-        }
-
-        private string BuildList(Func<TableExport, string> getValue)
-        {
-            return AddQuotes(string.Join(",", from export in ToExport
-                                              select getValue(export)));
+            return string.Join(" ", ScenarioNumber, AddQuotes(WorksheetPath), AddQuotes(OutputLocation));
         }
 
         private static string AddQuotes(string toQuote)
