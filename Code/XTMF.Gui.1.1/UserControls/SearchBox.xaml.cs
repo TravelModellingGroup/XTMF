@@ -63,14 +63,21 @@ namespace XTMF.Gui
                 // If we see an escape and we have a filter, erase the filter and handle the event
                 if (e.Key == Key.Escape)
                 {
-                    if ( !string.IsNullOrWhiteSpace(_Filter) )
-                    {
-                        Filter = string.Empty;
-                        e.Handled = true;
-                    }
+                    e.Handled = ClearFilter();
                 }
             }
+            ClearFilterButton.IsEnabled = (!string.IsNullOrWhiteSpace(_Filter));
             base.OnKeyDown(e);
+        }
+
+        private bool ClearFilter()
+        {
+            if(!string.IsNullOrWhiteSpace(_Filter))
+            {
+                Filter = string.Empty;
+                return true;
+            }
+            return false;
         }
 
         private void Search_KeyDown(object sender, KeyEventArgs e)
@@ -86,6 +93,11 @@ namespace XTMF.Gui
             {
                 changed(Filter);
             }
+        }
+
+        private void ClearFilter_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ClearFilter();
         }
     }
 }

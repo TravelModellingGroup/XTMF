@@ -125,11 +125,7 @@ namespace XTMF.Gui
                 switch(e.Key)
                 {
                     case Key.Escape:
-                        if(!string.IsNullOrEmpty(Box.Text))
-                        {
-                            Box.Text = string.Empty;
-                            e.Handled = true;
-                        }
+                        e.Handled = ClearFilter();
                         break;
                 }
 
@@ -137,11 +133,27 @@ namespace XTMF.Gui
             base.OnKeyDown(e);
         }
 
+        private bool ClearFilter()
+        {
+            if(!string.IsNullOrWhiteSpace(Box.Text))
+            {
+                Box.Text = string.Empty;
+                return true;
+            }
+            return false;
+        }
+
+        private void ClearFilter_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ClearFilter();
+        }
+
         private ICollectionView ItemsSource;
 
         private void Box_TextChanged(object sender, TextChangedEventArgs e)
         {
             RefreshFilter();
+            ClearFilterButton.Visibility = !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         internal void RefreshFilter()

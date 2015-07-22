@@ -23,6 +23,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d" Focusable="True"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <my:HintedTextBox Grid.Row="0" x:Name="Box" HintText="Search..." TextChanged="Box_TextChanged" />
+             d:DesignHeight="20" d:DesignWidth="200">
+    <Grid Height="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="AUTO" />
+        </Grid.ColumnDefinitions>
+        <my:HintedTextBox Grid.Column="0" x:Name="Box" HintText="Search..." TextChanged="Box_TextChanged" />
+        <Button Grid.Column="1" x:Name="ClearFilterButton" Visibility="Collapsed" Click="ClearFilter_Click" Background="White" BorderThickness="0" ToolTip="Clear Selection (Esc)">
+            <Image Source="pack://application:,,,/XTMF.Gui;component/Images/delete.png" />
+        </Button>
+    </Grid>
 </UserControl>
