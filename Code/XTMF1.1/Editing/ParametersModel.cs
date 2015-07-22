@@ -81,7 +81,14 @@ namespace XTMF
             if(modelSystemStructure.RealModelSystemStructure.Parameters == null) return;
             var realParameters = modelSystemStructure.RealModelSystemStructure.Parameters.Parameters;
             if(realParameters == null) return;
-            Parameters.Clear();
+            if(Parameters != null)
+            {
+                Parameters.Clear();
+            }
+            else
+            {
+                Parameters = parameters = new List<ParameterModel>(realParameters.Count);
+            }
             for(int i = 0; i < realParameters.Count; i++)
             {
                 parameters.Add(new ParameterModel(realParameters[i] as ModuleParameter, Session));
