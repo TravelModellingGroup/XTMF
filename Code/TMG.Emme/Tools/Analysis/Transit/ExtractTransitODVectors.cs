@@ -48,7 +48,7 @@ namespace TMG.Emme.Tools.Analysis.Transit
         [RunParameter("Auto OD Matrix Number", 0, "The auto OD demand matrix.")]
         public int AutoODMatrixId;
 
-        private const string ToolName = "tmg.analysis.transit.extract_transit_OD_vectors";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_transit_OD_vectors";
 
         public string Name { get; set; }
 
