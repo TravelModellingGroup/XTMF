@@ -325,15 +325,21 @@ namespace TMG.Frameworks.MultiRun
             var project = Config.ProjectRepository.ActiveProject;
             var modelSystemIndex = project.ModelSystemStructure.IndexOf(ModelSystemReflection.BuildModelStructureChain(Config, this)[0]);
             var ourLinkedParameters = project.LinkedParameters[modelSystemIndex];
+            bool any = false;
             foreach(var lp in ourLinkedParameters)
             {
-                if(lp.Name == Name)
+                if(lp.Name == name)
                 {
+                    any = true;
                     foreach(var parameter in lp.Parameters)
                     {
                         ModelSystemReflection.AssignValue(parameter, value);
                     }
                 }
+            }
+            if(!any)
+            {
+                throw new XTMFRuntimeException("In '" + Name + "' a linked parameter '" + name + "' was not found in order to assign it the value of '" + value + "'.");
             }
         }
 
