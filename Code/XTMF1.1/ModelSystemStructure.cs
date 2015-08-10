@@ -168,7 +168,7 @@ namespace XTMF
             var rootRequirement = GetRootRequirement(t);
             if(rootRequirement == null)
             {
-                return start;
+                rootRequirement = typeof(IModelSystemTemplate);
             }
             else if(start == objective)
             {
@@ -370,12 +370,7 @@ namespace XTMF
 
         internal ModelSystemStructure GetRoot(ModelSystemStructure modelSystemRoot)
         {
-            var requiredRootType = ModelSystemStructure.GetRootRequirement(Type);
-            if(requiredRootType == null)
-            {
-                requiredRootType = typeof(IModelSystemTemplate);
-            }
-            return ModelSystemStructure.CheckForRootModule(modelSystemRoot, this, requiredRootType) as ModelSystemStructure;
+            return ModelSystemStructure.CheckForRootModule(modelSystemRoot, this, Type) as ModelSystemStructure;
         }
 
         internal ModelSystemStructure GetParent(ModelSystemStructure realModelSystemStructure)
@@ -726,6 +721,11 @@ namespace XTMF
         {
             if(start == objective)
             {
+                if(result == null && objective.Type != null && rootRequirement.IsAssignableFrom(objective.Type))
+                {
+                    // if there is no result yet check to see if we can match the root request
+                    result = start;
+                }
                 return true;
             }
             IList<IModelSystemStructure> childrenList = start.Children;
@@ -1161,19 +1161,28 @@ namespace XTMF
 
         private static void LoadModule(IModelSystemStructure modelSystemStructure, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
-            if(modelSystemStructure.Children != null && !modelSystemStructure.IsCollection)
+            if(!modelSystemStructure.IsCollection)
             {
-                var parentFieldNameAttribute = child.Attributes["ParentFieldName"];
-                if(parentFieldNameAttribute != null)
+                if(modelSystemStructure.Children != null)
                 {
-                    for(int i = 0; i < modelSystemStructure.Children.Count; i++)
+                    var parentFieldNameAttribute = child.Attributes["ParentFieldName"];
+                    if(parentFieldNameAttribute != null)
                     {
-                        if(modelSystemStructure.Children[i].ParentFieldName == parentFieldNameAttribute.InnerText)
+                        for(int i = 0; i < modelSystemStructure.Children.Count; i++)
                         {
-                            Load(modelSystemStructure.Children[i], modelSystemStructure, child, config, lookUp);
+                            if(modelSystemStructure.Children[i].ParentFieldName == parentFieldNameAttribute.InnerText)
+                            {
+                                Load(modelSystemStructure.Children[i], modelSystemStructure, child, config, lookUp);
+                            }
                         }
                     }
                 }
+            }
+            else
+            {
+                // In the rare case that we are starting with a collection add to the end.
+                modelSystemStructure.Children.Add(new ModelSystemStructure(config));
+                Load(modelSystemStructure.Children[modelSystemStructure.Children.Count - 1], modelSystemStructure, child, config, lookUp);
             }
         }
 
@@ -1243,6 +1252,12 @@ namespace XTMF
                     var child = list[i];
                     if(child.LocalName == "Module")
                     {
+                        Load(root, null, list[i], config, lookUp);
+                    }
+                    else if(child.LocalName == "Collection")
+                    {
+                        root.IsCollection = true;
+                        root.Children = new List<IModelSystemStructure>();
                         Load(root, null, list[i], config, lookUp);
                     }
                 }

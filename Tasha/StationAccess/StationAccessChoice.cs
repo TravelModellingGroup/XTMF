@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -131,8 +131,6 @@ namespace Tasha.StationAccess
             internal float[] TransitFromAccessStationToDestination;
             internal float[] TransitFromDestinationToAccessStation;
 
-            private IZone[] zones;
-
 
             internal void Load(RangeSet stationRanges, RangeSet spatialZones, SparseArray<float> capacity, int[] closestStation)
             {
@@ -146,12 +144,10 @@ namespace Tasha.StationAccess
                 ITripComponentData transitNetwork = GetNetwork(TransitNetworkName) as ITripComponentData;
                 EnsureNetworks(autoNetwork, transitNetwork);
                 var zoneArray = Root.ZoneSystem.ZoneArray;
-                zones = zoneArray.GetFlatData();
-
-
+                IZone[] zones = zoneArray.GetFlatData();
                 int[] stationZones = GetStationZones(stationRanges, capacity, zones);
                 var flatCapacityFactor = CapacityFactor.GetFlatData();
-                if(AutoFromOriginToAccessStation == null)
+                if(AutoFromOriginToAccessStation == null || TransitFromAccessStationToDestination.Length != stationZones.Length * zones.Length)
                 {
                     TransitFromAccessStationToDestination = new float[stationZones.Length * zones.Length];
                     AutoFromOriginToAccessStation = new float[stationZones.Length * zones.Length];
@@ -279,19 +275,22 @@ namespace Tasha.StationAccess
         [RunParameter("Notify Status", false, "Should we identify when we are loading and finishing the caching of station utilities?")]
         public bool NotifiyStatus;
 
+        [RunParameter("Reload ZoneSystem", false, "Set this to true if you are using the Multi-run system and the zone system changes between runs.")]
+        public bool ReloadZoneSystem;
+
         public void Load()
         {
             if(NotifiyStatus)
             {
                 Console.WriteLine("Loading Station Access Choice...");
             }
-            if(FirstLoad == true)
+            if(ReloadZoneSystem || FirstLoad == true)
             {
+                zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 LoadMode();
                 LoadStationCapacity();
                 GetAccessZones();
                 AssignClosestStations();
-                zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 FirstLoad = false;
             }
             LoadTimePeriods();

@@ -130,7 +130,7 @@ namespace XTMF.Gui.UserControls
                 });
             }
 
-            private void RefreshModelSystems()
+            internal void RefreshModelSystems()
             {
                 if(ContainedModelSystems == null)
                 {
@@ -354,14 +354,59 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private Window GetWindow()
+        {
+            var current = this as DependencyObject;
+            while(current != null && !(current is Window))
+            {
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return current as Window;
+        }
+
         private void DeleteProject_Clicked(object obj)
         {
-
+            if(MessageBox.Show(GetWindow(),
+                "Are you sure you want to delete the project?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+            {
+                string error = null;
+                if(!Session.DeleteProject(ref error))
+                {
+                    MessageBox.Show(GetWindow(), error, "Unable to Delete", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    return;
+                }
+                Close();
+            }
         }
 
         private void CloneProject_Clicked(object obj)
         {
 
+        }
+
+        private void ImportModelSystem_Clicked(object obj)
+        {
+            var xtmf = Session.GetRuntime();
+            var openMS = new OpenWindow();
+            using(var modelSystemSession = openMS.OpenModelSystem(xtmf))
+            {
+                var loading = openMS.LoadTask;
+                if(loading != null)
+                {
+                    loading.Wait();
+                    if(modelSystemSession == null)
+                    {
+                        return;
+                    }
+                    string error = null;
+                    if(!Session.AddModelSystem(modelSystemSession.ModelSystemModel, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        return;
+                    }
+                    Model.RefreshModelSystems();
+                }
+            }
         }
     }
 }

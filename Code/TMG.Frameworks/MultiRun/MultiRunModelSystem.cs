@@ -255,9 +255,10 @@ namespace TMG.Frameworks.MultiRun
                     }
                 }
             }
-            catch (IOException)
+            catch (IOException e)
             {
-                return false;
+                throw new XTMFRuntimeException("Failed to copy '" + origin + "' to '" + destination + "'!\r\nThe CWD is" + Directory.GetCurrentDirectory()
+                    + "\r\n" + e.Message);
             }
             return true;
         }
@@ -285,7 +286,7 @@ namespace TMG.Frameworks.MultiRun
             foreach(FileInfo file in files)
             {
                 string temppath = Path.Combine(destinationDirectory, file.Name);
-                file.CopyTo(temppath, false);
+                file.CopyTo(temppath, true);
             }
 
             // If copying subdirectories, copy them and their contents to new location.
@@ -324,15 +325,21 @@ namespace TMG.Frameworks.MultiRun
             var project = Config.ProjectRepository.ActiveProject;
             var modelSystemIndex = project.ModelSystemStructure.IndexOf(ModelSystemReflection.BuildModelStructureChain(Config, this)[0]);
             var ourLinkedParameters = project.LinkedParameters[modelSystemIndex];
+            bool any = false;
             foreach(var lp in ourLinkedParameters)
             {
-                if(lp.Name == Name)
+                if(lp.Name == name)
                 {
+                    any = true;
                     foreach(var parameter in lp.Parameters)
                     {
                         ModelSystemReflection.AssignValue(parameter, value);
                     }
                 }
+            }
+            if(!any)
+            {
+                throw new XTMFRuntimeException("In '" + Name + "' a linked parameter '" + name + "' was not found in order to assign it the value of '" + value + "'.");
             }
         }
 
@@ -351,22 +358,37 @@ namespace TMG.Frameworks.MultiRun
                 {
                     foreach(var child in children)
                     {
-                        var res = child as IResource;
+                        var mod = child.Module;
+                        var res = mod as IResource;
+                        var dataSource = mod as IDataSource;
                         if(res != null)
                         {
                             res.ReleaseResource();
+                        }
+                        else if(dataSource != null)
+                        {
+                            dataSource.UnloadData();
                         }
                     }
                 }
             }
             else
             {
-                var mod = referencedModule.Module as IResource;
-                if(mod == null)
+                var res = referencedModule.Module as IResource;
+                var dataSource = referencedModule.Module as IDataSource;
+                if(res != null)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource! Only resources can be unloaded!");
+                    res.ReleaseResource();
                 }
-                mod.ReleaseResource();
+                else if(dataSource != null)
+                {
+                    dataSource.UnloadData();
+                }
+                else
+                {
+                    throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource or data source! Only resources or data sources can be unloaded!");
+                }
+
             }
         }
 

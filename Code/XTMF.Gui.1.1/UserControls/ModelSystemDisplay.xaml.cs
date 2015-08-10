@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -499,7 +500,7 @@ namespace XTMF.Gui.UserControls
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void TextBox_SourceUpdated(object sender, DataTransferEventArgs e)
@@ -626,13 +627,41 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        object SaveLock = new object();
+
         public void SaveRequested()
         {
             string error = null;
-            if(!Session.Save(ref error))
-            {
-                MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            Monitor.Enter(SaveLock);
+            MainWindow.SetStatusText("Saving...");
+            Task.Run(async () =>
+                {
+                    try
+                    {
+                        var watch = Stopwatch.StartNew();
+                        if(!Session.Save(ref error))
+                        {
+                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        watch.Stop();
+                        var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
+                        if(displayTimeRemaining > 0)
+                        {
+                            MainWindow.SetStatusText("Saved");
+                            await Task.Delay(displayTimeRemaining);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    finally
+                    {
+                        MainWindow.SetStatusText("Ready");
+                        Monitor.Exit(SaveLock);
+                    }
+                });
+
         }
 
         public void UndoRequested()
@@ -851,8 +880,10 @@ namespace XTMF.Gui.UserControls
             if(currentParameter != null && currentModule != null)
             {
                 var currentRoot = Session.GetRoot(currentModule.BaseModel);
-                var inputDirectory = GetInputDirectory(currentRoot);
-                var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value);
+                ParameterModel inputParameter = null;
+                var inputDirectory = GetInputDirectory(currentRoot, out inputParameter);
+                var isInputParameter = inputParameter == currentParameter.RealParameter;
+                var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value, isInputParameter);
                 if(openDirectory)
                 {
                     pathToFile = System.IO.Path.GetDirectoryName(pathToFile);
@@ -875,7 +906,8 @@ namespace XTMF.Gui.UserControls
             if(currentParameter != null && currentModule != null)
             {
                 var currentRoot = Session.GetRoot(currentModule.BaseModel);
-                var inputDirectory = GetInputDirectory(currentRoot);
+                ParameterModel _;
+                var inputDirectory = GetInputDirectory(currentRoot, out _);
                 if(inputDirectory != null)
                 {
                     string fileName = this.OpenFile();
@@ -911,7 +943,7 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
-        private string GetInputDirectory(ModelSystemStructureModel root)
+        private string GetInputDirectory(ModelSystemStructureModel root, out ParameterModel parameter)
         {
             var inputDir = root.Type.GetProperty("InputBaseDirectory");
             var attributes = inputDir.GetCustomAttributes(typeof(ParameterAttribute), true);
@@ -923,14 +955,16 @@ namespace XTMF.Gui.UserControls
                 {
                     if(parameters[i].Name == parameterName)
                     {
+                        parameter = parameters[i];
                         return parameters[i].Value.ToString();
                     }
                 }
             }
+            parameter = null;
             return null;
         }
 
-        private string GetRelativePath(string inputDirectory, string parameterValue)
+        private string GetRelativePath(string inputDirectory, string parameterValue, bool isInputParameter)
         {
             var parameterRooted = System.IO.Path.IsPathRooted(parameterValue);
             var inputDirectoryRooted = System.IO.Path.IsPathRooted(inputDirectory);
@@ -943,7 +977,7 @@ namespace XTMF.Gui.UserControls
                 return RemoveRelativeDirectories(System.IO.Path.Combine(inputDirectory, parameterValue));
             }
             return RemoveRelativeDirectories(System.IO.Path.Combine(Session.Configuration.ProjectDirectory, "AProject",
-            "RunDirectory", inputDirectory, parameterValue));
+            "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
         }
 
         private string RemoveRelativeDirectories(string path)

@@ -119,7 +119,7 @@ namespace Tasha.StationAccess
                         }
                     });
                 var capacity = Parent.Capacity.GetFlatData();
-                if(CapacityFactors == null)
+                if(CapacityFactors == null || iteration == 0)
                 {
                     CapacityFactors = new float[accessStationCounts.Length];
                     for(int i = 0; i < CapacityFactors.Length; i++)

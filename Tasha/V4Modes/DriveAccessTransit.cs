@@ -697,6 +697,10 @@ namespace Tasha.V4Modes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
+            if(iterationNumber == 0)
+            {
+                StationIndexLookup = null;
+            }
             if(!AccessStationChoiceLoaded | UnloadAccessStationModelEachIteration)
             {
                 AccessStationModel.Load();

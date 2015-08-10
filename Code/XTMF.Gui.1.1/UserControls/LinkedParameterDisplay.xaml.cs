@@ -1,4 +1,22 @@
-﻿using System;
+﻿/*
+    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -38,6 +56,25 @@ namespace XTMF.Gui.UserControls
                 return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
             };
             AssignMode = assignLinkedParameter;
+            Display.SelectionChanged += Display_SelectionChanged;
+        }
+
+        class ParameterDisplay
+        {
+            public string ParameterName { get; set; }
+            public string ModuleName { get; set; }
+        }
+
+        private void Display_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
+            if(selectedLinkedParameter != null)
+            {
+                var containedParameters = from parameter in selectedLinkedParameter.LinkedParameter.GetParameters()
+                                          select new ParameterDisplay(){ ParameterName = parameter.Name, ModuleName = parameter.BelongsTo.Name };
+                ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>(containedParameters);
+
+            }
         }
 
         private void SetupLinkedParameters(LinkedParametersModel linkedParameters)
@@ -136,6 +173,23 @@ namespace XTMF.Gui.UserControls
         }
 
         private void RemoveLinkedParameter_Clicked(object obj)
+        {
+            var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
+            if(selectedLinkedParameter != null)
+            {
+                string error = null;
+                var index = LinkedParameters.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
+                if(!LinkedParameters.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
+                {
+                    MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
+                items.RemoveAt(index);
+            }
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
 
         }

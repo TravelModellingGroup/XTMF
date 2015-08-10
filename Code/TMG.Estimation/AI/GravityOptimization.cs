@@ -18,9 +18,11 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMG.Input;
 using XTMF;
 
 namespace TMG.Estimation.AI
@@ -40,9 +42,13 @@ namespace TMG.Estimation.AI
         [RunParameter("Increase of Energy", 0.001f, "The amount of energy to increase a particle if it doesn't hit its best value")]
         public float IncreaseOfEnergy;
 
+        [SubModelInformation(Required = false, Description = "Save the changes to stars for each generation.")]
+        public FileLocation StarLog;
+
         private struct Particle
         {
             internal float[] Position;
+            internal float[] Velocity;
             internal float BestFitness;
             internal float CurrentFitness;
             internal float[] WeightToStars;
@@ -50,8 +56,12 @@ namespace TMG.Estimation.AI
             internal int GenerationsSinceBestObserved;
         }
 
+
+        internal int CurrentStarNumber = 1;
+
         private struct Star
         {
+            internal int StarNumber;
             internal float[] Position;
             internal float PreviousMass;
             internal float CurrentMass;
@@ -95,7 +105,7 @@ namespace TMG.Estimation.AI
             internal int Index;
             internal float Fitness;
 
-            public ParticleCompare (int index, float fitness)
+            public ParticleCompare(int index, float fitness)
             {
                 Index = index;
                 Fitness = fitness;
@@ -146,6 +156,7 @@ namespace TMG.Estimation.AI
                 Stars[i].CurrentMass = 0.0f;
                 Stars[i].PreviousMass = 0.0f;
                 Stars[i].Living = true;
+                Stars[i].StarNumber = CurrentStarNumber++;
             }
             ComputeParticleWeight();
             UpdateMass();
@@ -196,46 +207,109 @@ namespace TMG.Estimation.AI
             // The stars will have already been made so now we can compute our attraction to the stars
             bool starsChanged;
             UpdateStars(out starsChanged);
+            if(StarLog != null)
+            {
+                SaveStarState();
+            }
             if(starsChanged)
             {
                 // Update the weight to the stars given the stars could have been destroyed
                 ComputeParticleWeight();
             }
-            MoveParticles();
+            MoveParticles(ConfineToBounds);
             // at the end just convert the particles to jobs
             return GenerateJobs();
         }
 
-        private void MoveParticles()
+        private void SaveStarState()
+        {
+            var generation = Root.CurrentIteration;
+            var exists = File.Exists(StarLog);
+            using (StreamWriter writer = new StreamWriter(StarLog, true))
+            {
+                if(!exists)
+                {
+                    writer.Write("Generation,Star,Mass");
+                    foreach(var parameter in Parameters)
+                    {
+                        foreach(var name in parameter.Names)
+                        {
+                            writer.Write(',');
+                            writer.Write(name);
+                        }
+                    }
+                    writer.WriteLine();
+                }
+                for(int i = 0; i < Stars.Length; i++)
+                {
+                    writer.Write(generation);
+                    writer.Write(',');
+                    writer.Write(Stars[i].StarNumber);
+                    writer.Write(',');
+                    writer.Write(Stars[i].CurrentMass);
+                    var position = Stars[i].Position;
+                    for(int j = 0; j < position.Length; j++)
+                    {
+                        for(int k = 0; k < Parameters[j].Names.Length; k++)
+                        {
+                            writer.Write(',');
+                            writer.Write(Stars[i].Position[j]);
+                        }
+                    }
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        private void MoveParticles(bool confineToBounds)
         {
             for(int i = 0; i < Particles.Length; i++)
             {
                 var starRandom = (float)Random.NextDouble();
                 float[] position = Particles[i].Position;
+                float[] veclocity = Particles[i].Velocity;
                 for(int j = 0; j < position.Length; j++)
                 {
+                    var currentPull = 0.0f;
                     for(int k = 0; k < Stars.Length; k++)
                     {
                         if(Stars[k].Living)
                         {
-                            var newPosition = position[j] + starRandom * (Stars[k].Position[j] - position[j]) * Particles[i].WeightToStars[k] * StarWeight;
-                            if(float.IsNaN(newPosition) | float.IsInfinity(newPosition))
-                            {
-                                Console.WriteLine();
-                            }
-                            position[j] = newPosition;
+                            currentPull += starRandom * (Stars[k].Position[j] - position[j]) * Particles[i].WeightToStars[k] * StarWeight;
                         }
                     }
-                    position[j] += (((float)Random.NextDouble()) * 2.0f - 1.0f) * Particles[i].Energy * RandomWeight * Parameters[j].Size;
+                    currentPull += (((float)Random.NextDouble()) * 2.0f - 1.0f) * Particles[i].Energy * RandomWeight * Parameters[j].Size;
+                    currentPull = currentPull * (1.0f - ParticleMomentum) + veclocity[j] * ParticleMomentum;
+                    position[j] += currentPull;
+                    veclocity[j] = currentPull;
+                    if(confineToBounds)
+                    {
+                        if(position[j] > Parameters[j].Maximum)
+                        {
+                            position[j] = Parameters[j].Maximum;
+                            veclocity[j] = -veclocity[j];
+                        }
+                        else if(position[j] < Parameters[j].Minimum)
+                        {
+                            position[j] = Parameters[j].Minimum;
+                            veclocity[j] = -veclocity[j];
+                        }
+                    }
                 }
             }
         }
+
+        [RunParameter("Confine To Bounds", true, "Limit the search to the given bounds as defined by the parameters.")]
+        public bool ConfineToBounds;
 
         [RunParameter("StarWeight", 2.3f, "The weight applied by a star to the particle's position.")]
         public float StarWeight;
 
         [RunParameter("RandomWeight", 0.001f, "The weight applied to each parameter in a particle at each iteration.")]
         public float RandomWeight;
+
+        [RunParameter("Particle Momentum", 0.3f, "The momentum to carry for the particle between generations.")]
+        public float ParticleMomentum;
 
         private void UpdateStars(out bool starsChanged)
         {
@@ -296,6 +370,7 @@ namespace TMG.Estimation.AI
                             Array.Copy(particlePosition, Stars[unlivingIndex].Position, particlePosition.Length);
                             Stars[unlivingIndex].Fitness = fitness;
                             Stars[unlivingIndex].Living = true;
+                            Stars[unlivingIndex].StarNumber = CurrentStarNumber++;
                             DestroyStarsThatAreTooClose(unlivingIndex);
                             i = -1;
                             ComputeParticleWeight();
@@ -332,6 +407,8 @@ namespace TMG.Estimation.AI
         {
             float[] fitnessToStar = new float[Stars.Length];
             float[] weightToStar = new float[Stars.Length];
+            float totalFitness = 0.0f;
+            float totalWeight = 0.0f;
             for(int i = 0; i < Particles.Length; i++)
             {
                 var fitness = Particles[i].CurrentFitness;
@@ -339,8 +416,8 @@ namespace TMG.Estimation.AI
                 for(int j = 0; j < weightRow.Length; j++)
                 {
                     float weight = weightRow[j];
-                    fitnessToStar[j] += fitness * weight;
-                    weightToStar[j] += weight;
+                    totalFitness += fitnessToStar[j] += fitness * weight;
+                    totalWeight += weightToStar[j] += weight;
                 }
             }
             int best = -1;
@@ -353,13 +430,20 @@ namespace TMG.Estimation.AI
                 }
             }
             var previousFactor = PreviousMassAverageWeight;
-            var nextFactor = 1.0f - previousFactor;
+            var nextFactor = Degeneration - previousFactor;
             for(int i = 0; i < Stars.Length; i++)
             {
                 if(Stars[i].Living)
                 {
-                    Stars[i].CurrentMass = Stars[i].PreviousMass * previousFactor 
-                        + (Maximize ? (fitnessToStar[i] / fitnessToStar[best]) : fitnessToStar[best] / fitnessToStar[i]) * nextFactor;
+                    Stars[i].CurrentMass = Stars[i].PreviousMass * previousFactor;
+                    if(Maximize)
+                    {
+                        Stars[i].CurrentMass += (fitnessToStar[i] / totalFitness) * nextFactor;
+                    }
+                    else
+                    {
+                        Stars[i].CurrentMass += ((totalFitness - fitnessToStar[i]) / totalFitness) * nextFactor;
+                    }
                     // only update if there is a difference
                     if(float.IsInfinity(Stars[i].CurrentMass) | float.IsNaN(Stars[i].CurrentMass))
                     {
@@ -447,6 +531,9 @@ namespace TMG.Estimation.AI
         [RunParameter("Previous Mass Average Weight", 0.5f, "The weight to use for computing the next mass for the stars. This value will be applied to the previous iterations mass and (1-it) will be applied to the current generation")]
         public float PreviousMassAverageWeight;
 
+        [RunParameter("Star Degeneration", 0.5f, "The rate at which a star that does not gain mass dies out.")]
+        public float Degeneration;
+
         [RunParameter("DistanceFactor", -2.0f, "The exponential factor to apply to the distance to get the 'inverse relationship' between the attractiveness of the star given its distance to the particle.")]
         public float DistanceFactor;
 
@@ -471,12 +558,15 @@ namespace TMG.Estimation.AI
                 Particles[p].Energy = 0;
                 Particles[p].CurrentFitness = Maximize ? float.MinValue : float.MaxValue;
                 Particles[p].BestFitness = Maximize ? float.MinValue : float.MaxValue;
-                var row = Particles[p].Position = new float[Parameters.Length];
+                Particles[p].Position = new float[Parameters.Length];
+                Particles[p].Velocity = new float[Parameters.Length];
                 Particles[p].WeightToStars = new float[NumberOfStars];
                 // we do this after to help memory locality
-                for(int i = 0; i < row.Length; i++)
+                for(int i = 0; i < Particles[p].Position.Length; i++)
                 {
-                    row[i] = ((float)Random.NextDouble() * Parameters[i].Size) - Parameters[i].Minimum;
+                    Particles[p].Position[i] = ((float)Random.NextDouble() * Parameters[i].Size) + Parameters[i].Minimum;
+                    // a random number between -1 and 1
+                    Particles[p].Velocity[i] = (float)Random.NextDouble() * 2.0f - 1.0f;
                 }
             }
             return GenerateJobs();
