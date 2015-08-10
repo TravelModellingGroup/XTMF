@@ -74,14 +74,13 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = zoneSystem.GetFlatData();
-            var popByZone = zones.Select(z => z.Population).ToArray();
             var NIApop = NIAData.AquireResource<SparseArray<float>>().GetFlatData();
             var employmentByZone = EmploymentData.AquireResource<SparseArray<float>>().GetFlatData();            
             var AutoTimes = AutoTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var TransitIVTT = TransitIVTTMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var TotalTransitTimes = TotalTransitTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();            
 
-            float[] analyzedZonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
+            float[] zonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
                                            select (float)z.Population).ToArray();
 
             float analyzedpopulationSum = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()
@@ -98,7 +97,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
             using(StreamWriter writer = new StreamWriter(ResultsFile))
             {
-                CalculateAccessibility(zones, employmentByZone, AutoTimes, TransitIVTT, TotalTransitTimes, analyzedZonePopulation, false);
+                CalculateAccessibility(zones, employmentByZone, AutoTimes, TransitIVTT, TotalTransitTimes, zonePopulation, false);
                 writer.WriteLine("Analyzed Population Accessibility");                
                 WriteToFile(normalDenominator, writer);
                 writer.WriteLine();
@@ -110,6 +109,10 @@ namespace Tasha.Validation.PerformanceMeasures
                 CalculateAccessibility(zones, employmentByZone, AutoTimes, TransitIVTT, TotalTransitTimes, NIApop, true);
                 writer.WriteLine("NIA Zone Accessibility");
                 WriteToFile(niaDenominator, writer);
+
+                AutoAccessibilityResults.Clear();
+                TransitIVTTAccessibilityResults.Clear();
+                TransitAccessibilityResults.Clear();
 
             }
         }
@@ -142,13 +145,13 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
         private void CalculateAccessibility(IZone[] zones, float[] employmentByZone, float[][] AutoTimes, float[][] TransitIVTT, 
-            float[][] TotalTransitTimes, float[] analyzedZonePopulation, bool NIAcalc)
+            float[][] TotalTransitTimes, float[] zonePopulation, bool NIAcalc)
         {
             float accessiblePopulation;
 
             foreach (var accessTime in AccessibilityTimes)
             {
-                for (int i = 0; i < analyzedZonePopulation.Length; i++)
+                for (int i = 0; i < zonePopulation.Length; i++)
                 {
                     if (PopZoneRange.Contains(zones[i].ZoneNumber) || NIAcalc)
                     {
@@ -158,17 +161,17 @@ namespace Tasha.Validation.PerformanceMeasures
                             {
                                 if (AutoTimes[i][j] < accessTime)
                                 {
-                                    accessiblePopulation = (analyzedZonePopulation[i] * employmentByZone[j]);
+                                    accessiblePopulation = (zonePopulation[i] * employmentByZone[j]);
                                     AddToResults(accessiblePopulation, accessTime, AutoAccessibilityResults);
                                 }
                                 if (TransitIVTT[i][j] < accessTime)
                                 {
-                                    accessiblePopulation = analyzedZonePopulation[i] * employmentByZone[j];
+                                    accessiblePopulation = zonePopulation[i] * employmentByZone[j];
                                     AddToResults(accessiblePopulation, accessTime, TransitIVTTAccessibilityResults);
                                 }
                                 if (TotalTransitTimes[i][j] < accessTime)
                                 {
-                                    accessiblePopulation = analyzedZonePopulation[i] * employmentByZone[j];
+                                    accessiblePopulation = zonePopulation[i] * employmentByZone[j];
                                     AddToResults(accessiblePopulation, accessTime, TransitAccessibilityResults);
                                 }
                             }
