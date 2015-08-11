@@ -24,7 +24,7 @@ using XTMF;
 namespace TMG.GTAModel.Generation
 {
     [ModuleInformation( Description
-        = "This module is designed to at runtime generate a full set of TMG.GTAModel.Generation.PoRPoWGeneration and preload their data."
+        = "This module is designed to at runtime generate a full set of TMG.GTAModel.Generation.PoRPoWGeneration and pre-load their data."
         + "  This class will then remove itself from the demographic category list."
         + "  Demographic indexes are based on the Durham Model." )]
     public class BuildPoRPoWGeneration : DemographicCategoryGeneration
@@ -47,7 +47,7 @@ namespace TMG.GTAModel.Generation
         [SubModelInformation( Description = "Used to gather the work at home rates", Required = true )]
         public IDataSource<SparseTriIndex<float>> LoadWorkAtHomeRates;
 
-        [RunParameter( "Min Attraction", 0f, "The minimum ammount of attraction." )]
+        [RunParameter( "Min Attraction", 0f, "The minimum amount of attraction." )]
         public float MinAttraction;
 
         [ParentModel]
