@@ -41,8 +41,15 @@ namespace XTMF.Gui.UserControls
         private ModelSystemStructureModel SelectedModule;
         private ModelSystemEditingSession ModelSystemSession;
 
-        public class Model(internal Type type) : INotifyPropertyChanged
+        public class Model : INotifyPropertyChanged
         {
+            internal Type type;
+
+            public Model(Type type)
+            {
+                this.type = type;
+            }
+
             public string Name { get { return type.Name; } }
 
             public string Text { get { return type.FullName; } }

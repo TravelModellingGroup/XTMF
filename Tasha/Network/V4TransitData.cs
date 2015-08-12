@@ -233,8 +233,8 @@ namespace Tasha.Network
         [SubModelInformation(Required = false, Description = "The data for each time period for this network")]
         public TimePeriodNetworkData[] TimePeriods;
 
-        private void GetData(int flatO, int flatD, Time time, out float travelTime, out float cost, out float walkTime, out float waitTime,
-            out float boardingTime)
+        private void GetData(int flatO, int flatD, Time time, out float travelTime, out float walkTime, out float waitTime,
+            out float boardingTime, out float cost)
         {
             for(int i = 0; i < this.TimePeriods.Length; i++)
             {

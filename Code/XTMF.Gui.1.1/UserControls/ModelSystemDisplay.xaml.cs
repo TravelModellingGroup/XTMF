@@ -236,7 +236,8 @@ namespace XTMF.Gui.UserControls
                 findReplacement.Owner = GetWindow();
                 if(findReplacement.ShowDialog() == true)
                 {
-                    if((var selectedType = findReplacement.SelectedType) != null)
+                    var selectedType = findReplacement.SelectedType;
+                    if (selectedType != null)
                     {
                         if(selectedModule.BaseModel.IsCollection)
                         {
