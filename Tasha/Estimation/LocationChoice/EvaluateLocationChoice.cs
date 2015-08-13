@@ -18,14 +18,11 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using Tasha.Common;
 using XTMF;
 using TMG.Estimation;
 using Tasha.Scheduler;
-using Tasha.Common;
 using TMG.Input;
 using Datastructure;
 using TMG;

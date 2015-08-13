@@ -358,8 +358,6 @@ namespace Datastructure
 
         private bool GetTransformedIndexes(ref int o, ref int d)
         {
-            int min;
-            int max;
             SparseSet oSet;
             if(Indexes.Indexes == null) return false;
             if(TansformO(Indexes.Indexes, ref o, out oSet))

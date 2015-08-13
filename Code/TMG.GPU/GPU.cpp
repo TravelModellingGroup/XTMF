@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU General Public License
 	along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 	*/
-// This is the main DLL file.
+	// This is the main DLL file.
 
 #include "stdafx.h"
 
@@ -365,16 +365,16 @@ namespace TMG
 		void ReleaseDefines(D3D_SHADER_MACRO** defines, array<String^>^ DefineNames, array<String^>^ DefineValues)
 		{
 			// Guard against null
-			if (*defines == NULL) 
+			if (*defines == NULL)
 				return;
 			int i;
 			auto length = DefineNames->Length;
 			for (i = 0; i < length; i++)
 			{
-				delete[] (*defines[i]).Name;
-				delete[] (*defines[i]).Definition;
+				delete[](*defines[i]).Name;
+				delete[](*defines[i]).Definition;
 			}
-			delete[] *defines;
+			delete[] * defines;
 			*defines = NULL;
 		}
 
@@ -399,7 +399,7 @@ namespace TMG
 			}
 			csm[i] = 0;
 			D3D_SHADER_MACRO* defines = NULL;
-			if (DefineNames != nullptr & DefineValues != nullptr)
+			if ((DefineNames != nullptr) & (DefineValues != nullptr))
 			{
 				CreateDefines(defines, DefineNames, DefineValues);
 			}

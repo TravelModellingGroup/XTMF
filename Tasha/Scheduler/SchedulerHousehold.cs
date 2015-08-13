@@ -890,7 +890,6 @@ namespace Tasha.Scheduler
             for(int i = 0; i < freq; i++)
             {
                 var attempt = 0;
-                bool success = false;
                 while(attempt < Scheduler.EpisodeSchedulingAttempts)
                 {
                     attempt++;
@@ -910,7 +909,6 @@ namespace Tasha.Scheduler
                         new TimeWindow(startTimeB, startTimeB + durationB), Activity.WorkBasedBusiness, person);
                     if(workSchedule.Insert(businessEpisode, random))
                     {
-                        success = true;
                         break;
                     }
                 }

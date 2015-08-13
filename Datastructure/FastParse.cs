@@ -56,7 +56,6 @@ namespace Datastructure
             int multiplyer = 0;
             int i;
             char c;
-            double dmul = 0.0f;
             unsafe
             {
                 fixed (char* p = str)

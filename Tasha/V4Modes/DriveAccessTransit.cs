@@ -665,9 +665,12 @@ namespace Tasha.V4Modes
                 }
             }
             // if we didn't find the right utility, just take the first one we can find
-            for(int i = 0; i < utils.Length; i++)
+            for (int i = 0; i < utils.Length; i++)
             {
-                return accessData.First[i];
+                if (utils[i] > 0)
+                {
+                    return accessData.First[i];
+                }
             }
             return null;
         }

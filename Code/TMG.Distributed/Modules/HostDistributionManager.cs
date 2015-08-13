@@ -366,7 +366,7 @@ namespace TMG.Distributed.Modules
             Dispose(true);
         }
 
-        protected void Dispose(bool managed)
+        protected virtual void Dispose(bool managed)
         {
             if(managed)
             {

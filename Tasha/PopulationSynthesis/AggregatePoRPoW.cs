@@ -17,15 +17,12 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
 using Datastructure;
 using System.Threading.Tasks;
 using TMG.Input;
-using TMG.Functions;
 using TMG.Functions;
 
 namespace Tasha.PopulationSynthesis

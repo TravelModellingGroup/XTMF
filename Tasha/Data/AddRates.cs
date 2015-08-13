@@ -17,13 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
-using TMG.Functions;
 using TMG.Functions;
 namespace Tasha.Data
 {

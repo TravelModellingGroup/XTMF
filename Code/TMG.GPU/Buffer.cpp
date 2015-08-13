@@ -47,18 +47,22 @@ namespace TMG
 			pin_ptr<T> pin = &localBuffer[0];
 			if (buffer->Constant)
 			{
-				gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeBufferLocation, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-				T *data = (T*)mappedResource.pData;
-				memcpy(data + destIndex, pin + srcIndex, length * sizeof(T));
-				gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeBufferLocation, 0);
+				if (SUCCEEDED(gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeBufferLocation, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+				{
+					T *data = (T*)mappedResource.pData;
+					memcpy(data + destIndex, pin + srcIndex, length * sizeof(T));
+					gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeBufferLocation, 0);
+				}
 			}
 			else
 			{
-				gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeStagingBuffer, 0, D3D11_MAP_WRITE, 0, &mappedResource);
-				T *data = (T*)mappedResource.pData;
-				memcpy(data + destIndex, pin + srcIndex, length * sizeof(T));
-				gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeStagingBuffer, 0);
-				gpuContext->g_pD3DContext->CopyResource((ID3D11Buffer*)buffer->NativeBufferLocation, (ID3D11Buffer*)buffer->NativeStagingBuffer);
+				if (SUCCEEDED(gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeStagingBuffer, 0, D3D11_MAP_WRITE, 0, &mappedResource)))
+				{
+					T *data = (T*)mappedResource.pData;
+					memcpy(data + destIndex, pin + srcIndex, length * sizeof(T));
+					gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeStagingBuffer, 0);
+					gpuContext->g_pD3DContext->CopyResource((ID3D11Buffer*)buffer->NativeBufferLocation, (ID3D11Buffer*)buffer->NativeStagingBuffer);
+				}
 			}
 		}
 
@@ -83,10 +87,12 @@ namespace TMG
 			}
 			pin_ptr<T> pin = &localBuffer[0];
 			gpuContext->g_pD3DContext->CopyResource((ID3D11Buffer*)buffer->NativeStagingBuffer, (ID3D11Buffer*)buffer->NativeBufferLocation);
-			gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeStagingBuffer, 0, D3D11_MAP_READ, 0, &mappedResource);
-			T *data = (T*)mappedResource.pData;
-			memcpy(pin + destIndex, data + srcIndex, length * sizeof(T));
-			gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeStagingBuffer, 0);
+			if (SUCCEEDED(gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeStagingBuffer, 0, D3D11_MAP_READ, 0, &mappedResource)))
+			{
+				T *data = (T*)mappedResource.pData;
+				memcpy(pin + destIndex, data + srcIndex, length * sizeof(T));
+				gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeStagingBuffer, 0);
+			}
 		}
 
 		void GPU::Read(GPUBuffer^ buffer, array<Byte>^ localBuffer)
@@ -177,18 +183,22 @@ namespace TMG
 			auto totalMemoryToWipe = (endingIndex - startingIndex) * buffer->ElementSize;
 			if (buffer->Constant)
 			{
-				gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeBufferLocation, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-				byte *data = (byte*)mappedResource.pData;
-				memset(data + startingMemoryLocation, 0, totalMemoryToWipe);
-				gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeBufferLocation, 0);
+				if (SUCCEEDED(gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeBufferLocation, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+				{
+					byte *data = (byte*)mappedResource.pData;
+					memset(data + startingMemoryLocation, 0, totalMemoryToWipe);
+					gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeBufferLocation, 0);
+				}
 			}
 			else
 			{
-				gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeStagingBuffer, 0, D3D11_MAP_WRITE, 0, &mappedResource);
-				byte *data = (byte*)mappedResource.pData;
-				memset(data + startingMemoryLocation, 0, totalMemoryToWipe);
-				gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeStagingBuffer, 0);
-				gpuContext->g_pD3DContext->CopyResource((ID3D11Buffer*)buffer->NativeBufferLocation, (ID3D11Buffer*)buffer->NativeStagingBuffer);
+				if (SUCCEEDED(gpuContext->g_pD3DContext->Map((ID3D11Buffer*)buffer->NativeStagingBuffer, 0, D3D11_MAP_WRITE, 0, &mappedResource)))
+				{
+					byte *data = (byte*)mappedResource.pData;
+					memset(data + startingMemoryLocation, 0, totalMemoryToWipe);
+					gpuContext->g_pD3DContext->Unmap((ID3D11Buffer*)buffer->NativeStagingBuffer, 0);
+					gpuContext->g_pD3DContext->CopyResource((ID3D11Buffer*)buffer->NativeBufferLocation, (ID3D11Buffer*)buffer->NativeStagingBuffer);
+				}
 			}
 		}
 	}

@@ -19,14 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Datastructure;
 using XTMF;
 using TMG;
 using TMG.Estimation;
 using System.Threading.Tasks;
 using TMG.Input;
-using TMG.Functions;
 using TMG.Functions;
 using System.IO;
 
