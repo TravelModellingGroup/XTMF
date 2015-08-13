@@ -115,9 +115,9 @@ namespace TMG.Functions
                     var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
                     if(catByOrigin <= 0) continue;
                     int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
-                    var sumAF = TMG.Functions.VectorHelper.VectorMultiplyAndSum(friction, index, dStar, 0, numberOfZones);
+                    var sumAF = VectorHelper.VectorMultiplyAndSum(friction, index, dStar, 0, numberOfZones);
                     if(sumAF <= 0) continue;
-                    TMG.Functions.VectorHelper.VectorMultiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAF, localTotals, 0, numberOfZones);
+                    VectorHelper.VectorMultiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAF, localTotals, 0, numberOfZones);
                 }
                 return localTotals;
             },
@@ -125,7 +125,7 @@ namespace TMG.Functions
             {
                 lock (columnTotals)
                 {
-                    TMG.Functions.VectorHelper.VectorAdd(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
+                    VectorHelper.VectorAdd(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
                 }
             });
         }
@@ -168,10 +168,10 @@ namespace TMG.Functions
         private static bool VectorBalance(float[] ret, float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon, int categories)
         {
             bool balanced = true;
-            TMG.Functions.VectorHelper.VectorDivide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
-            TMG.Functions.VectorHelper.VectorMultiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
-            TMG.Functions.VectorHelper.ReplaceIfNotFinite(destinationStar, 0, 1.0f, destinationStar.Length);
-            balanced = !TMG.Functions.VectorHelper.AnyGreaterThan(columnTotals, 0, epsilon, columnTotals.Length);
+            VectorHelper.VectorDivide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
+            VectorHelper.VectorMultiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
+            VectorHelper.ReplaceIfNotFinite(destinationStar, 0, 1.0f, destinationStar.Length);
+            balanced = !VectorHelper.AnyGreaterThan(columnTotals, 0, epsilon, columnTotals.Length);
             return balanced;
         }
     }

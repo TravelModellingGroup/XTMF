@@ -58,11 +58,11 @@ namespace Tasha.Data
             var otherData = resource.GetFlatData();
             var ourResource = resource.CreateSimilarArray<float>();
             var data = ourResource.GetFlatData();
-            if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
                 for(int i = 0; i < data.Length; i++)
                 {
-                    TMG.Functions.VectorHelper.VectorMultiply(data[i], 0, otherData[i], 0, Factor, data[i].Length);
+                    VectorHelper.VectorMultiply(data[i], 0, otherData[i], 0, Factor, data[i].Length);
                 }
             }
             else

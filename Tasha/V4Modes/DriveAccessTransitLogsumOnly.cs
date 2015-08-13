@@ -319,16 +319,16 @@ namespace Tasha.V4Modes
             var utils = accessData.Second;
             var totalUtil = 0.0f;
             bool any = false;
-            if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
-                totalUtil = TMG.Functions.VectorHelper.VectorSum(utils, 0, utils.Length);
+                totalUtil = VectorHelper.VectorSum(utils, 0, utils.Length);
                 if(totalUtil <= 0)
                 {
                     dependentUtility = float.NaN;
                     return false;
                 }
                 dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
-                TMG.Functions.VectorHelper.VectorMultiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
+                VectorHelper.VectorMultiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
             }
             else
             {

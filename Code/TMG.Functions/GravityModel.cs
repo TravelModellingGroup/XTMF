@@ -128,12 +128,12 @@ namespace TMG.Functions
             var flatAttractionStar = AttractionsStar.GetFlatData();
             int length = flatAttractions.Length;
             float ep = (float)Epsilon;
-            if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
+            if(VectorHelper.IsHardwareAccelerated)
             {
-                TMG.Functions.VectorHelper.VectorDivide(columnTotals, 0, flatAttractions, 0, columnTotals, 0, columnTotals.Length);
-                TMG.Functions.VectorHelper.VectorMultiply(flatAttractionStar, 0, flatAttractionStar, 0, columnTotals, 0, flatAttractionStar.Length);
-                TMG.Functions.VectorHelper.ReplaceIfNotFinite(flatAttractionStar, 0, 1.0f, flatAttractionStar.Length);
-                balanced = !TMG.Functions.VectorHelper.AnyGreaterThan(columnTotals, 0, ep, columnTotals.Length);
+                VectorHelper.VectorDivide(columnTotals, 0, flatAttractions, 0, columnTotals, 0, columnTotals.Length);
+                VectorHelper.VectorMultiply(flatAttractionStar, 0, flatAttractionStar, 0, columnTotals, 0, flatAttractionStar.Length);
+                VectorHelper.ReplaceIfNotFinite(flatAttractionStar, 0, 1.0f, flatAttractionStar.Length);
+                balanced = !VectorHelper.AnyGreaterThan(columnTotals, 0, ep, columnTotals.Length);
             }
             else
             {
@@ -240,14 +240,14 @@ namespace TMG.Functions
                         var flatAStar = AttractionsStar.GetFlatData();
                         var flatAttractions = Attractions.GetFlatData();
                         var flatFrictionRow = flatFriction[flatOrigin];
-                        var sumAF = TMG.Functions.VectorHelper.VectorMultiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, flatFriction.Length);
+                        var sumAF = VectorHelper.VectorMultiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, flatFriction.Length);
                         sumAF = (flatProductions[flatOrigin] / sumAF);
                         if(float.IsInfinity(sumAF) | float.IsNaN(sumAF))
                         {
                             // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
                             sumAF = 0f;
                         }
-                        TMG.Functions.VectorHelper.VectorMultiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, flatFriction.Length);
+                        VectorHelper.VectorMultiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, flatFriction.Length);
                     }
                     return localTotals;
                 },
@@ -255,7 +255,7 @@ namespace TMG.Functions
                 {
                     lock (columnTotals)
                     {
-                        TMG.Functions.VectorHelper.VectorAdd(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
+                        VectorHelper.VectorAdd(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
                     }
                 });
         }

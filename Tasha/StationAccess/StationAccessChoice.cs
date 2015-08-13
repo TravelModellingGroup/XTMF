@@ -394,13 +394,13 @@ namespace Tasha.StationAccess
                 var firstDestination = zoneArray.GetFlatIndex(first.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondOrigin = zoneArray.GetFlatIndex(second.OriginalZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
-                if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
+                if(VectorHelper.IsHardwareAccelerated)
                 {
-                    TMG.Functions.VectorHelper.VectorMultiply(utilities, 0, firstTimePeriod.AutoFromOriginToAccessStation, firstOrigin,
+                    VectorHelper.VectorMultiply(utilities, 0, firstTimePeriod.AutoFromOriginToAccessStation, firstOrigin,
                         firstTimePeriod.TransitFromAccessStationToDestination, firstDestination,
                         secondTimePeriod.TransitFromDestinationToAccessStation, secondOrigin,
                         secondTimePeriod.AutoFromAccessStationToDestination, secondDestination, utilities.Length);
-                    TMG.Functions.VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
+                    VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
                 }
                 else
                 {
