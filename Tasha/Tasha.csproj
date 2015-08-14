@@ -184,6 +184,7 @@
     <Compile Include="Data\ConvertPDDataToZones.cs" />
     <Compile Include="Data\CreateSparseTriIndexFloatFromSparseTwinIndexes.cs" />
     <Compile Include="Data\IdentityMatrix.cs" />
+    <Compile Include="Data\NormalizeByRow.cs" />
     <Compile Include="Data\NormalizeOD.cs" />
     <Compile Include="Data\SubtractODRates.cs" />
     <Compile Include="Data\AddRates.cs" />
