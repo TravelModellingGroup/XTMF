@@ -63,8 +63,11 @@ namespace TMG.GTAModel.Input
             }
             catch ( IOException e )
             {
-                s.Close();
-                throw new XTMFRuntimeException( e.Message );
+                if (s != null)
+                {
+                    s.Close();
+                }
+                throw;
             }
 
             if ( s.Length < ( numberOfZones * numberOfZones ) * 4 )
