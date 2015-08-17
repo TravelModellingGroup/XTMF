@@ -134,14 +134,6 @@ namespace TMG.GTAModel
                         loadedFriction = true;
                     }
                     UpdateData( ret.GetFlatData(), p, catSet, productionSet, attractionSet, zones.GetFlatData(), subsetIndex, loadedFriction );
-                    if ( this.Transpose )
-                    {
-                        TransposeMatrix( ret );
-                    }
-                    if (!String.IsNullOrWhiteSpace(this.SaveFrictionFileName))
-                    {
-                        this.SaveFriction(ret.GetFlatData());
-                    }
                     yield return ret;
                 }
             }
@@ -216,28 +208,15 @@ namespace TMG.GTAModel
             mpd.CompleteBlend();
         }
 
-        private static void TransposeMatrix(SparseTwinIndex<float> ret)
+        private static void TransposeMatrix(float[][] flatData)
         {
-            var flatData = ret.GetFlatData();
-            var length = flatData.Length;
-            for ( int i = 0; i < length; i++ )
+            for ( int i = 0; i < flatData.Length; i++ )
             {
                 for ( int j = 0; j < i; j++ )
                 {
                     var temp = flatData[i][j];
                     flatData[i][j] = flatData[j][i];
                     flatData[j][i] = temp;
-                }
-            }
-        }
-
-        private void CheckSaveFriction(float[][] friction)
-        {
-            if ( !this.Transpose )
-            {
-                if ( !String.IsNullOrWhiteSpace( this.SaveFrictionFileName ) )
-                {
-                    SaveFriction( friction );
                 }
             }
         }
@@ -467,7 +446,14 @@ namespace TMG.GTAModel
                 // now that we have the new factor we update the demand
                 UpdateDemand( flatRet, zones, numberOfZones, loadedFriction, i, factor );
             }
-            this.CheckSaveFriction( flatRet );
+            if(Transpose)
+            {
+                TransposeMatrix(flatRet);   
+            }
+            if (!String.IsNullOrWhiteSpace(this.SaveFrictionFileName))
+            {
+                this.SaveFriction(flatRet);
+            }
         }
 
         private void UpdateDemand(float[][] flatRet, IZone[] zones, int numberOfZones, bool loadedFriction, int i, float factor)
