@@ -871,7 +871,7 @@ namespace XTMF
 
         private ObservableCollection<ModelSystemStructureModel> CreateChildren(ModelSystemEditingSession session, ModelSystemStructure realModelSystemStructure)
         {
-            if(realModelSystemStructure.Children == null) return null;
+            if(realModelSystemStructure.Children == null) return new ObservableCollection<ModelSystemStructureModel>();
 
             ObservableCollection<ModelSystemStructureModel> ret;
             if(Children == null)
