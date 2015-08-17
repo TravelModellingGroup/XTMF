@@ -137,10 +137,10 @@ namespace TMG.GTAModel
                     if ( this.Transpose )
                     {
                         TransposeMatrix( ret );
-                        if ( !String.IsNullOrWhiteSpace( this.SaveFrictionFileName ) )
-                        {
-                            this.SaveFriction( ret.GetFlatData() );
-                        }
+                    }
+                    if (!String.IsNullOrWhiteSpace(this.SaveFrictionFileName))
+                    {
+                        this.SaveFriction(ret.GetFlatData());
                     }
                     yield return ret;
                 }
