@@ -47,7 +47,7 @@ namespace Tasha.V4Modes
         /// </summary>
         public byte ModeChoiceArrIndex { get; set; }
 
-        [RunParameter( "Mode Name", "Rideshare", "The name of the mode" )]
+        [RunParameter( "Mode Name", "RideShare", "The name of the mode" )]
         public string ModeName { get; set; }
 
         /// <summary>
