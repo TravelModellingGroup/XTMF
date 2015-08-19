@@ -39,6 +39,9 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         [RunParameter("Scenario Number", "1", typeof(int), "The scenario to interact with")]
         public int ScenarioNumber;
 
+        [RunParameter("Export Pedestrians", false, "Export pedestrians instead of transit lines.")]
+        public bool ExportPedestrians;
+
         [RunParameter("CountpostAttributeFlag", "@stn1", typeof(string), "The attribute name to use for identifying countposts.")]
         public string CountpostAttributeFlag;
 
@@ -70,7 +73,14 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 
         private string GetParameters()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(CountpostAttributeFlag), AddQuotes(AlternateCountpostAttributeFlag), AddQuotes(ScreenlineDefinitions), AddQuotes(SaveTo), AddQuotes(lineFilter), AddQuotes(RepresentativeHourFactor));
+            return string.Join(" ", ScenarioNumber,
+                AddQuotes(CountpostAttributeFlag),
+                AddQuotes(AlternateCountpostAttributeFlag),
+                AddQuotes(ScreenlineDefinitions),
+                AddQuotes(SaveTo),
+                AddQuotes(lineFilter),
+                AddQuotes(RepresentativeHourFactor),
+                ExportPedestrians ? "true" : "false");
         }
 
         private static string AddQuotes(string toQuote)
