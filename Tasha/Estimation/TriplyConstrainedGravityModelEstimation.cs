@@ -30,7 +30,7 @@ using TMG;
 namespace Tasha.Estimation
 {
 
-    public class TriplyConstrainedGravityModelEstimation : ITravelDemandModel
+    public class TriplyConstrainedGravityModelEstimation : ITravelDemandModel, IResourceSource
     {
         [RootModule]
         public IEstimationClientModelSystem Root;
@@ -60,6 +60,9 @@ namespace Tasha.Estimation
             get; set;
         }
 
+        [SubModelInformation(Description = "A list of resources to use in this model system.")]
+        public List<IResource> Resources { get; set; }
+        
 
         public IResource TruthData;
         public IResource ModelData;
