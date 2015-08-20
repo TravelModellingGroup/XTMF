@@ -28,6 +28,7 @@ using System.Threading;
 using TMG.Input;
 using Datastructure;
 using System.IO;
+using TMG.Functions;
 
 namespace Tasha.Estimation.AccessStation
 {
@@ -65,66 +66,66 @@ namespace Tasha.Estimation.AccessStation
         {
             get
             {
-                return new Tuple<byte, byte, byte>( 50, 150, 50 );
+                return new Tuple<byte, byte, byte>(50, 150, 50);
             }
         }
 
         [SubModelInformation(Required = true, Description = "The zone system the model is in.")]
         public IZoneSystem ZoneSystem { get; set; }
 
-        public List<ITashaMode> AllModes { get;set; }
+        public List<ITashaMode> AllModes { get; set; }
 
         [DoNotAutomate]
-        public ITashaMode AutoMode { get;set; }
+        public ITashaMode AutoMode { get; set; }
 
         [DoNotAutomate]
-        public IVehicleType AutoType { get;set; } 
-        public Time EndOfDay { get;set; }
+        public IVehicleType AutoType { get; set; }
+        public Time EndOfDay { get; set; }
 
         [DoNotAutomate]
-        public IDataLoader<ITashaHousehold> HouseholdLoader { get;set; }
+        public IDataLoader<ITashaHousehold> HouseholdLoader { get; set; }
 
-        public int TotalIterations { get;set; }
-
-        [DoNotAutomate]
-        public ITashaModeChoice ModeChoice { get;set; }
+        public int TotalIterations { get; set; }
 
         [DoNotAutomate]
-        public List<ITashaMode> NonSharedModes { get;set; }
+        public ITashaModeChoice ModeChoice { get; set; }
 
         [DoNotAutomate]
-        public List<ITashaMode> OtherModes { get;set; }
-
-        public bool Parallel { get;set; }
+        public List<ITashaMode> NonSharedModes { get; set; }
 
         [DoNotAutomate]
-        public List<IPostHousehold> PostHousehold { get;set; }
+        public List<ITashaMode> OtherModes { get; set; }
+
+        public bool Parallel { get; set; }
 
         [DoNotAutomate]
-        public List<IPostIteration> PostIteration { get;set; }
+        public List<IPostHousehold> PostHousehold { get; set; }
 
         [DoNotAutomate]
-        public List<ISelfContainedModule> PostRun { get;set; }
+        public List<IPostIteration> PostIteration { get; set; }
 
         [DoNotAutomate]
-        public List<IPostScheduler> PostScheduler { get;set; }
+        public List<ISelfContainedModule> PostRun { get; set; }
 
         [DoNotAutomate]
-        public List<IPreIteration> PreIteration { get;set; }
+        public List<IPostScheduler> PostScheduler { get; set; }
 
         [DoNotAutomate]
-        public List<ISelfContainedModule> PreRun { get;set; }
-
-        public int RandomSeed { get;set; }
-
-        public List<ISharedMode> SharedModes { get;set; }
-
-        public Time StartOfDay { get;set; }
+        public List<IPreIteration> PreIteration { get; set; }
 
         [DoNotAutomate]
-        public List<IVehicleType> VehicleTypes { get;set; }
+        public List<ISelfContainedModule> PreRun { get; set; }
 
-        public List<IResource> Resources { get;set; }
+        public int RandomSeed { get; set; }
+
+        public List<ISharedMode> SharedModes { get; set; }
+
+        public Time StartOfDay { get; set; }
+
+        [DoNotAutomate]
+        public List<IVehicleType> VehicleTypes { get; set; }
+
+        public List<IResource> Resources { get; set; }
 
         public bool ExitRequest()
         {
@@ -142,10 +143,10 @@ namespace Tasha.Estimation.AccessStation
 
         public void Start()
         {
-            if ( FirstLoad )
+            if (FirstLoad)
             {
                 this.ZoneSystem.LoadData();
-                foreach ( var network in this.NetworkData )
+                foreach (var network in this.NetworkData)
                 {
                     network.LoadData();
                 }
@@ -156,24 +157,24 @@ namespace Tasha.Estimation.AccessStation
             this.AccessStationChoiceModel.Load();
             var tours = this.TourLoader.ToArray();
 
-            float result = this.ComputeError( tours );
+            float result = this.ComputeError(tours);
             this.Completed = 0;
             this._Progress = () => Completed / tours.Length;
             this.Root.RetrieveValue = () =>
                 {
                     return result;
                 };
-            if ( ConfusionMatrix != null )
+            if (ConfusionMatrix != null)
             {
-                ProduceConfusionMatrix( tours );
+                ProduceConfusionMatrix(tours);
             }
             this._Progress = () => 1.0f;
         }
 
         private float ComputeError(ITripChain[] tours)
         {
-            return ( from tour in tours.AsParallel()
-                     select ComputeError( tour ) ).Sum();
+            return (from tour in tours.AsParallel()
+                    select ComputeError(tour)).Sum();
         }
 
         [Parameter("Access Station Tag", "AccessStation", "The name of the tag to attach to the trip chains that contains the access station zone.")]
@@ -187,37 +188,44 @@ namespace Tasha.Estimation.AccessStation
             var zoneSystem = ZoneSystem.ZoneArray;
             var zones = zoneSystem.GetFlatData();
             var results = new float[zones.Length * zones.Length];
-            for ( int t = 0; t < tours.Length; t++ )
+            for (int t = 0; t < tours.Length; t++)
             {
                 var tour = tours[t];
                 var observedAccessStation = tour[this.AccessStationTag] as IZone;
-                var result = this.AccessStationChoiceModel.ProduceResult( tour );
-                var observedOffset = zoneSystem.GetFlatIndex( observedAccessStation.ZoneNumber ) * zones.Length;
-                if ( result != null )
+                var result = this.AccessStationChoiceModel.ProduceResult(tour);
+                var observedOffset = zoneSystem.GetFlatIndex(observedAccessStation.ZoneNumber);
+                if (result != null)
                 {
-                    if ( Normalize( result ) )
+                    if (Normalize(result))
                     {
-                        for ( int i = 0; i < result.First.Length && result.First[i] != null; i++ )
+                        for (int i = 0; i < result.First.Length && result.First[i] != null; i++)
                         {
                             var value = result.Second[i];
-                            var jIndex = zoneSystem.GetFlatIndex( result.First[i].ZoneNumber );
-                            results[observedOffset + jIndex] += value;
+                            var recallOffset = zoneSystem.GetFlatIndex(result.First[i].ZoneNumber) * zones.Length;
+                            results[recallOffset + observedOffset] += value;
                         }
                     }
                 }
             }
-            TMG.Functions.SaveData.SaveMatrix( zones, results, ConfusionMatrix );
+            TMG.Functions.SaveData.SaveMatrix(zones, results, ConfusionMatrix);
         }
 
         private bool Normalize(Pair<IZone[], float[]> result)
         {
             var utils = result.Second;
-            var total = utils.Sum();
-            if ( total <= 0 ) return false;
-            // convert utils to probability
-            for (int i = 0; i < utils.Length; i++ )
+            var total = VectorHelper.IsHardwareAccelerated ? VectorHelper.VectorSum(utils, 0, utils.Length) : utils.Sum();
+            if (total <= 0) return false;
+            // convert utilities to probability
+            if (VectorHelper.IsHardwareAccelerated)
             {
-                utils[i] /= total;
+                VectorHelper.VectorMultiply(utils, 0, utils, 0, 1.0f / total, utils.Length);
+            }
+            else
+            {
+                for (int i = 0; i < utils.Length; i++)
+                {
+                    utils[i] /= total;
+                }
             }
             return true;
         }
@@ -225,26 +233,26 @@ namespace Tasha.Estimation.AccessStation
         private float ComputeError(ITripChain tour)
         {
             var observedAccessStation = tour[this.AccessStationTag] as IZone;
-            var result = this.AccessStationChoiceModel.ProduceResult( tour );
+            var result = this.AccessStationChoiceModel.ProduceResult(tour);
             float correct = 0.0f;
-            if ( result != null )
+            if (result != null)
             {
                 var total = 0.0f;
                 int correctIndex = -1;
-                for ( int i = 0; i < result.First.Length; i++ )
+                for (int i = 0; i < result.First.Length; i++)
                 {
-                    if ( result.First[i] == null ) break;
-                    if ( result.First[i] == observedAccessStation ) correctIndex = i;
+                    if (result.First[i] == null) break;
+                    if (result.First[i] == observedAccessStation) correctIndex = i;
                     var value = result.Second[i];
                     total += result.Second[i];
                 }
-                if ( total > 0 & correctIndex >= 0 )
+                if ((total > 0) & (correctIndex >= 0))
                 {
                     correct = result.Second[correctIndex] / total;
                 }
             }
             // we finished another
-            Interlocked.Increment( ref this.Completed );
+            Interlocked.Increment(ref this.Completed);
             var error = 1.0f - correct;
             // use squared error
             return error * error;
