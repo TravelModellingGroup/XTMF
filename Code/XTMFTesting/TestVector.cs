@@ -190,5 +190,27 @@ namespace XTMF.Testing
             Assert.AreEqual(1.0f, result[result.Length - 2], "Positive Infinity wasn't change to 1!");
             Assert.AreEqual(1.0f, result[result.Length - 3], "Negative Infinity wasn't change to 1!");
         }
+
+        [TestMethod]
+        public void TestReplaceIfLessThanMinimum()
+        {
+            var temp = new float[0x100];
+            for (int i = 0; i < temp.Length; i++)
+            {
+                temp[i] = 0.01f * i;
+            }
+            VectorHelper.ReplaceIfLessThanOrNotFinite(temp, 0, 0.0f, 0.2f, temp.Length);
+            for (int i = 0; i < temp.Length; i++)
+            {
+                if(0.01f * i < 0.2f)
+                {
+                    Assert.AreEqual(0.0f, temp[i]);
+                }
+                else
+                {
+                    Assert.AreEqual(0.01f * i, temp[i], 0.001f);
+                }
+            }
+        }
     }
 }
