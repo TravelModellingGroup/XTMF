@@ -195,20 +195,21 @@ namespace XTMF.Testing
         public void TestReplaceIfLessThanMinimum()
         {
             var temp = new float[0x100];
+            const float incrementFactor = 0.015f;
             for (int i = 0; i < temp.Length; i++)
             {
-                temp[i] = 0.01f * i;
+                temp[i] = incrementFactor * i;
             }
             VectorHelper.ReplaceIfLessThanOrNotFinite(temp, 0, 0.0f, 0.2f, temp.Length);
             for (int i = 0; i < temp.Length; i++)
             {
-                if(0.01f * i < 0.2f)
+                if(incrementFactor * i < 0.2f)
                 {
                     Assert.AreEqual(0.0f, temp[i]);
                 }
                 else
                 {
-                    Assert.AreEqual(0.01f * i, temp[i], 0.001f);
+                    Assert.AreEqual(incrementFactor * i, temp[i], 0.001f);
                 }
             }
         }

@@ -757,7 +757,8 @@ namespace TMG.Functions
         {
             //If it is greater than the maximum value it is infinite, if it is not equal to itself it is NaN
             return Vector.ConditionalSelect(
-                Vector.BitwiseAnd(Vector.BitwiseAnd(Vector.LessThanOrEqual(Vector.Abs(baseValues), MaxFloat), Vector.Equals(baseValues, baseValues)),Vector.GreaterThanOrEqual(baseValues, minimumV)),
+                Vector.BitwiseAnd(Vector.BitwiseAnd(Vector.LessThanOrEqual(Vector.Abs(baseValues), MaxFloat),
+                Vector.GreaterThanOrEqual(baseValues, baseValues)),Vector.GreaterThanOrEqual(baseValues, minimumV)),
                 baseValues, alternateValues
                 );
         }
