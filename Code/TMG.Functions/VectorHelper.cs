@@ -740,7 +740,7 @@ namespace TMG.Functions
             Vector<float> max = new Vector<float>(float.MaxValue);
             //If it is greater than the maximum value it is infinite, if it is not equal to itself it is NaN
             return Vector.ConditionalSelect(
-                Vector.BitwiseAnd(Vector.LessThanOrEqual(Vector.Abs(baseValues), max), Vector.Equals(baseValues, baseValues)),
+                Vector.BitwiseAnd(Vector.LessThanOrEqual(Vector.Abs(baseValues), max), Vector.GreaterThanOrEqual(baseValues, baseValues)),
                 baseValues, alternateValues
                 );
         }
