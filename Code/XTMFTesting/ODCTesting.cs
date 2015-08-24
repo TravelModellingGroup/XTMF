@@ -298,7 +298,7 @@ namespace XTMF.Testing
                     {
                         if ( storedData[i][j][k] != data[i][j][k] )
                         {
-                            if ( Math.Round( storedData[i][j][k], 3 ) != Math.Round( data[i][j][k], 3 ) )
+                            if ( Math.Round( storedData[i][j][k], 5 ) != Math.Round( data[i][j][k], 5 ) )
                             {
                                 Assert.Fail( "The data differs at index " + i + ":" + j + ":" + k + " (" + storedData[i][j][k] + " / " + data[i][j][k] + ")" );
                             }

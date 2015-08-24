@@ -60,22 +60,21 @@ namespace Datastructure
             {
                 fixed (char* p = str)
                 {
+                    int noPoint = 1;
                     for(i = indexFrom; i < indexTo; i++)
                     {
                         if((c = p[i]) == '.')
                         {
+                            noPoint = 0;
                             break;
                         }
-                        // Same as multiplying by 10
-                        ival = (ival << 1) + (ival << 3);
-                        ival += c - '0';
+                        // Same as multiplying by 10 and add our new value
+                        ival = (ival << 1) + (ival << 3) + (c - '0');
                     }
-                    multiplyer = indexTo - (++i);
+                    multiplyer = indexTo - (++i) + noPoint;
                     for(; i < indexTo; i++)
                     {
-                        int k = (p[i] - '0');
-                        dval = (dval << 1) + (dval << 3);
-                        dval += k;
+                        dval = (dval << 1) + (dval << 3) + (p[i] - '0');
                     }
                 }
             }
