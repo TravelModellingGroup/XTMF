@@ -385,11 +385,6 @@ namespace Tasha.StationAccess
             if(GetTripsFirst(data, out first, out second))
             {
                 if(first == null | second == null) return null;
-                if(first.OriginalZone.ZoneNumber >= 1000 && first.OriginalZone.ZoneNumber < 2000
-                    && first.DestinationZone.ZoneNumber < 1000)
-                {
-                    Console.WriteLine();
-                }
                 TimePeriod firstTimePeriod = GetTimePeriod(first);
                 TimePeriod secondTimePeriod = GetTimePeriod(second);
                 if(firstTimePeriod == null | secondTimePeriod == null) return null;
