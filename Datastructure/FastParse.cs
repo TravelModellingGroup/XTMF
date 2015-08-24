@@ -70,8 +70,8 @@ namespace Datastructure
                         ival = (ival << 1) + (ival << 3);
                         ival += c - '0';
                     }
-                    multiplyer = indexTo - (++i) + 1;
-                    for(; i <= indexTo; i++)
+                    multiplyer = indexTo - (++i);
+                    for(; i < indexTo; i++)
                     {
                         int k = (p[i] - '0');
                         dval = (dval << 1) + (dval << 3);
