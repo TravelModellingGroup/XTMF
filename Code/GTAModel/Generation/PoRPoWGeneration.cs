@@ -216,7 +216,7 @@ namespace TMG.GTAModel.Generation
                 {
                     for(int age = aSet.Start; age <= aSet.Stop; age++)
                     {
-                        var catFactor = ageRates[zoneNumber, age] * empRates[age, emp] * occRates[age, emp, occ]
+                        var catFactor = ageRates[zones[i].ZoneNumber, age] * empRates[age, emp] * occRates[age, emp, occ]
                             * ApplyMobilityProbability(emp, occ, ncars, age, dlicRate);
                         var nonExternalWorkers = zonePopulation * catFactor * (1 - ExternalRates[zoneNumber, age, emp]);
                         var wah = nonExternalWorkers * WorkAtHomeRates[zoneNumber, age, emp];
