@@ -471,6 +471,7 @@ namespace TMG.GTAModel
                     {
                         this.InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
                     }
+                    // we don't apply any factors here since they have already been taken into account
                 } );
             }
             else
