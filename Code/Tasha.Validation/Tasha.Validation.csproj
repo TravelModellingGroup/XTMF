@@ -118,6 +118,7 @@
     <Compile Include="PerformanceMeasures\VKTCalc.cs" />
     <Compile Include="PopulationSynthesis\SocialValidation.cs" />
     <Compile Include="PopulationSynthesis\ValidateOccupationResidence.cs" />
+    <Compile Include="PoRPoW\ExtractPoRPoSAssignments.cs" />
     <Compile Include="PoRPoW\ExtractPoRPoWAssignments.cs" />
     <Compile Include="PoRPoW\LinkageDistanceHistogram.cs" />
     <Compile Include="PoRPoW\PostSchedulePoRPoWAssignments.cs" />
