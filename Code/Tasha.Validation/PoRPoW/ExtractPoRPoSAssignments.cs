@@ -56,6 +56,9 @@ namespace Tasha.Validation.PoRPoW
         [RunParameter("Highschool Ages", "15-18", typeof(RangeSet), "The ages that go to a highschool.")]
         public RangeSet HighschoolAges;
 
+        [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
+        public int MinimumAge;
+
         SpinLock WriteLock = new SpinLock(false);
         Dictionary<int, Dictionary<StudentStatus, float[][]>> Data = new Dictionary<int, Dictionary<StudentStatus, float[][]>>();
         public void Execute(ITashaHousehold household, int iteration)
@@ -64,27 +67,29 @@ namespace Tasha.Validation.PoRPoW
             var homeIndex = zoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
             foreach(var person in household.Persons)
             {
-                var expansionFactor = person.ExpansionFactor;
-                // if this person is not a student we can just continue
-                if(person.StudentStatus == StudentStatus.NotStudent)
+                if(person.Age >= MinimumAge)
                 {
-                    continue;
-                }
-                var gradeTeir = GetGradeTier(person.Age);
-                Dictionary<StudentStatus, float[][]> teirDictionary;
-                if(Data.TryGetValue(gradeTeir, out teirDictionary))
-                {
-                    float[][] studentData;
-                    if(teirDictionary.TryGetValue(person.StudentStatus, out studentData))
+                    var expansionFactor = person.ExpansionFactor;
+                    // if this person is not a student we can just continue
+                    if (person.StudentStatus != StudentStatus.NotStudent)
                     {
-                        var schoolZones = zoneSystem.GetFlatIndex(person.SchoolZone.ZoneNumber);
-                        if(schoolZones >= 0)
+                        var gradeTeir = GetGradeTier(person.Age);
+                        Dictionary<StudentStatus, float[][]> teirDictionary;
+                        if (Data.TryGetValue(gradeTeir, out teirDictionary))
                         {
-                            var row = studentData[homeIndex];
-                            bool taken = false;
-                            WriteLock.Enter(ref taken);
-                            row[schoolZones] += expansionFactor;
-                            if(taken) WriteLock.Exit(true);
+                            float[][] studentData;
+                            if (teirDictionary.TryGetValue(person.StudentStatus, out studentData))
+                            {
+                                var schoolZones = zoneSystem.GetFlatIndex(person.SchoolZone.ZoneNumber);
+                                if (schoolZones >= 0)
+                                {
+                                    var row = studentData[homeIndex];
+                                    bool taken = false;
+                                    WriteLock.Enter(ref taken);
+                                    row[schoolZones] += expansionFactor;
+                                    if (taken) WriteLock.Exit(true);
+                                }
+                            }
                         }
                     }
                 }
