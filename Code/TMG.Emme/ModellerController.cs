@@ -131,7 +131,7 @@ namespace TMG.Emme
         /// <param name="PerformanceAnalysis"></param>
         public ModellerController(string projectFile, bool PerformanceAnalysis = false, string userInitials = "XTMF")
         {
-            if(!projectFile.EndsWith(".emp") | !File.Exists(projectFile))
+            if (!projectFile.EndsWith(".emp") | !File.Exists(projectFile))
             {
                 throw new XTMFRuntimeException(this.AddQuotes(projectFile) + " is not an existing Emme project file (*.emp)");
             }
@@ -141,11 +141,13 @@ namespace TMG.Emme
 
             // Get the path of the Python executable
             string emmePath = Environment.GetEnvironmentVariable("EMMEPATH");
-            if(String.IsNullOrWhiteSpace(emmePath))
+            if (String.IsNullOrWhiteSpace(emmePath))
             {
                 throw new XTMFRuntimeException("Please make sure that EMMEPATH is on the system environment variables!");
             }
-            string pythonPath = this.AddQuotes(Path.Combine(emmePath, Path.Combine(this.FindPython(emmePath), @"python.exe")));
+            string pythonDirectory = Path.Combine(emmePath, this.FindPython(emmePath));
+            string pythonPath = this.AddQuotes(Path.Combine(pythonDirectory, @"python.exe"));
+            string pythonLib = Path.Combine(pythonDirectory, "Lib");
 
             // Get the path of ModellerBridge
             // Learn where the modules are stored so we can find the python script
@@ -175,13 +177,15 @@ namespace TMG.Emme
             // When creating this process, we can not start in our own window because we are re-directing the I/O
             // and windows won't allow us to have a window and take its standard I/O streams at the same time
             this.Emme = new Process();
-            this.Emme.StartInfo.FileName = pythonPath;
-            this.Emme.StartInfo.Arguments = "-u " + argumentString;
+            var startInfo = new ProcessStartInfo(pythonPath, "-u " + argumentString);
+            startInfo.EnvironmentVariables["PATH"] += ";" + pythonLib;
+            this.Emme.StartInfo = startInfo;
             this.Emme.StartInfo.CreateNoWindow = true;
             this.Emme.StartInfo.UseShellExecute = false;
             this.Emme.StartInfo.RedirectStandardInput = true;
             this.Emme.StartInfo.RedirectStandardOutput = true;
             this.Emme.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
             //Start the new process
             try
             {
@@ -238,11 +242,11 @@ namespace TMG.Emme
             try
             {
                 string toPrint;
-                while(true)
+                while (true)
                 {
                     BinaryReader reader = new BinaryReader(PipeFromEmme);
                     int result = reader.ReadInt32();
-                    switch(result)
+                    switch (result)
                     {
                         case ModellerController.SignalStart:
                             {
@@ -282,7 +286,7 @@ namespace TMG.Emme
                         case ModellerController.SignalProgressReport:
                             {
                                 var progress = reader.ReadSingle();
-                                if(updateProgress != null)
+                                if (updateProgress != null)
                                 {
                                     updateProgress(progress);
                                 }
@@ -371,19 +375,19 @@ namespace TMG.Emme
         {
             lock (this)
             {
-                if(this.FromEmme != null)
+                if (this.FromEmme != null)
                 {
                     this.FromEmme.Close();
                     this.FromEmme = null;
                 }
 
-                if(PipeFromEmme != null)
+                if (PipeFromEmme != null)
                 {
                     PipeFromEmme.Dispose();
                     PipeFromEmme = null;
                 }
 
-                if(this.ToEmme != null)
+                if (this.ToEmme != null)
                 {
                     // Send our termination message first
                     try
@@ -406,13 +410,17 @@ namespace TMG.Emme
 
         private string FindPython(string emmePath)
         {
-            foreach(var dir in Directory.GetDirectories(emmePath))
+            if (!Directory.Exists(emmePath))
+            {
+                throw new XTMFRuntimeException("We were unable to find an EMME installation in the directory named '" + emmePath + "'!\r\nIf you have just installed EMME please reboot your system.");
+            }
+            foreach (var dir in Directory.GetDirectories(emmePath))
             {
                 var localName = Path.GetFileName(dir);
-                if(localName.StartsWith("Python"))
+                if (localName.StartsWith("Python"))
                 {
                     var remainder = localName.Substring("Python".Length);
-                    if(remainder.Length > 0 && char.IsDigit(remainder[0]))
+                    if (remainder.Length > 0 && char.IsDigit(remainder[0]))
                     {
                         return localName;
                     }
