@@ -73,8 +73,9 @@ namespace XTMF.Testing.Editing
                 Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
                 Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
                 var linkedParameterList = linkedParameters.GetLinkedParameters();
-                Assert.IsTrue( linkedParameters.RemoveLinkedParameter( linkedParameterList[0], ref error ), "We were unable to delete the linked parameter!" );
-                Assert.IsFalse( linkedParameters.RemoveLinkedParameter( linkedParameterList[0], ref error ), "We were able to delete the linked parameter for a second time!" );
+                var zeroElement = linkedParameterList[0];
+                Assert.IsTrue( linkedParameters.RemoveLinkedParameter(zeroElement , ref error ), "We were unable to delete the linked parameter!" );
+                Assert.IsFalse( linkedParameters.RemoveLinkedParameter( zeroElement, ref error ), "We were able to delete the linked parameter for a second time!" );
                 Assert.AreEqual( 0, linkedParameters.Count, "A linked parameter remained after deleting the only one!" );
                 Assert.IsTrue( session.Undo( ref error ) );
                 Assert.AreEqual( 1, linkedParameters.Count, "After undoing the linked parameter was not added back!" );
