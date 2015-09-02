@@ -34,8 +34,8 @@ namespace TMG.Emme.Tools
         [RunParameter("Scenario Number", 0, "The scenario number to export.")]
         public int ScenarioNumber;
 
-        [RunParameter("Worksheet Path", "", "The path to save the worksheet to.")]
-        public string WorksheetPath;
+        [SubModelInformation(Required = true, Description = "The path to the worksheet to load.")]
+        public FileLocation WorksheetPath;
 
         [SubModelInformation(Required = true, Description = "The location to save this worksheet to.")]
         public FileLocation OutputLocation;
