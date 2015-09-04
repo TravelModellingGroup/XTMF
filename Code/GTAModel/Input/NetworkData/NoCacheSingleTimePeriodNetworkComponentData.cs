@@ -296,22 +296,38 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public bool GetAllData(IZone origin, IZone destination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost)
         {
-            throw new NotImplementedException();
+            var o = ZoneArray.GetFlatIndex(origin.ZoneNumber);
+            var d = ZoneArray.GetFlatIndex(destination.ZoneNumber);
+            return GetAllData(o, d, time, out ivtt, out walk, out wait, out boarding, out cost);
         }
 
         public bool GetAllData(int flatOrigin, int flatDestination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost)
         {
-            throw new NotImplementedException();
+            var zoneIndex = (flatOrigin * Zones.Length + flatDestination) * (int)DataTypes.NumberOfDataTypes;
+            ivtt = Data[zoneIndex + (int)DataTypes.TravelTime];
+            walk = Data[zoneIndex + (int)DataTypes.WalkTime];
+            wait = Data[zoneIndex + (int)DataTypes.WaitTime];
+            boarding = Data[zoneIndex + (int)DataTypes.BoardingTime];
+            cost = Data[zoneIndex + (int)DataTypes.Cost];
+            return true;
         }
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
-            throw new NotImplementedException();
+            float fTime;
+            var o = ZoneArray.GetFlatIndex(start.ZoneNumber);
+            var d = ZoneArray.GetFlatIndex(end.ZoneNumber);
+            var result = GetAllData(o, d, time, out fTime, out cost);
+            ivtt = Time.FromMinutes(fTime);
+            return result;
         }
 
         public bool GetAllData(int start, int end, Time time, out float ivtt, out float cost)
         {
-            throw new NotImplementedException();
+            var zoneIndex = (start * Zones.Length + end) * (int)DataTypes.NumberOfDataTypes;
+            ivtt = Data[zoneIndex + (int)DataTypes.TravelTime];
+            cost = Data[zoneIndex + (int)DataTypes.Cost];
+            return true;
         }
     }
 }

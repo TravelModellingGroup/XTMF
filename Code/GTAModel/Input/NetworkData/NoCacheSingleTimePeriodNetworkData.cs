@@ -207,12 +207,20 @@ namespace TMG.GTAModel.Input.NetworkData
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
-            throw new NotImplementedException();
+            float fTime;
+            var o = ZoneArray.GetFlatIndex(start.ZoneNumber);
+            var d = ZoneArray.GetFlatIndex(end.ZoneNumber);
+            var result = GetAllData(o, d, time, out fTime, out cost);
+            ivtt = Time.FromMinutes(fTime);
+            return result;
         }
 
         public bool GetAllData(int start, int end, Time time, out float ivtt, out float cost)
         {
-            throw new NotImplementedException();
+            var zoneIndex = (start * Zones.Length + end) * (int)DataTypes.NumberOfDataTypes;
+            ivtt = Data[zoneIndex + (int)DataTypes.TravelTime];
+            cost = Data[zoneIndex + (int)DataTypes.Cost];
+            return true;
         }
     }
 }

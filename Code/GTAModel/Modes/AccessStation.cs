@@ -389,30 +389,29 @@ namespace TMG.GTAModel.Modes
 
         private static float ComputeSubV(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float ivttWeight, float walkWeight, float waitWeight, float boardingWeight, float costWeight)
         {
-            Time ivtt, walk, wait, boarding;
+            float ivtt, walk, wait, boarding;
             float cost;
             data.GetAllData( flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost );
-            return ivttWeight * ivtt.ToMinutes()
-                + walkWeight * walk.ToMinutes()
-                + waitWeight * wait.ToMinutes()
-                + boardingWeight * boarding.ToMinutes()
+            return ivttWeight * ivtt
+                + walkWeight * walk
+                + waitWeight * wait
+                + boardingWeight * boarding
                 + costWeight * cost;
         }
 
         private static bool ComputeThird(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float walkTime, float waitTime, out float result)
         {
-            Time ivtt, walk, wait, boarding;
+            float ivtt, walk, wait, boarding;
             float cost;
             data.GetAllData( flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost );
-            var walkInMinutes = walk.ToMinutes();
-            if ( walkInMinutes <= 0 )
+            if ( walk <= 0 )
             {
                 result = float.PositiveInfinity;
                 return false;
             }
-            result = walkInMinutes * walkTime
-                    + wait.ToMinutes() * waitTime
-                    + ivtt.ToMinutes();
+            result = walk * walkTime
+                    + wait * waitTime
+                    + ivtt;
             return true;
         }
 

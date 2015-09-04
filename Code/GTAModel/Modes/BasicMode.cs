@@ -165,22 +165,20 @@ be based off of this module."
             if ( this.AdvancedNetworkData == null )
             {
                 // This is a simple mode such as Auto
-                v += this.IVTT * this.NetworkData.TravelTime( origin, destination, time ).ToMinutes();
-                v += this.TravelCost * this.NetworkData.TravelCost( origin, destination, time );
+                float ivtt, cost;
+                NetworkData.GetAllData(origin, destination, time, out ivtt, out cost);
+                v += IVTT * ivtt + TravelCost * cost;
             }
             else
             {
                 // Then we have trip component data
-                Time ivtt, walk, wait, boarding;
-                float cost;
+                float ivtt, walk, wait, boarding, cost;
                 this.AdvancedNetworkData.GetAllData( origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost );
-                var ivttMinutes = ivtt.ToMinutes();
-                var walkMinutes = walk.ToMinutes();
-                v += this.IVTT * ivttMinutes
-                + this.Walk * walkMinutes
-                + ( ( walkMinutes > 0 ) & ( ivttMinutes <= 0 ) ? this.AdjacentZone : 0f )
-                + this.Wait * this.AdvancedNetworkData.WaitTime( origin, destination, time ).ToMinutes()
-                + this.Boarding * this.AdvancedNetworkData.BoardingTime( origin, destination, time ).ToMinutes()
+                v += this.IVTT * ivtt
+                + this.Walk * walk
+                + ( ( walk > 0 ) & ( ivtt <= 0 ) ? this.AdjacentZone : 0f )
+                + this.Wait * wait
+                + this.Boarding * boarding
                 + this.TravelCost * cost;
             }
             return v;
@@ -196,13 +194,22 @@ be based off of this module."
             var zoneArray = this.Root.ZoneSystem.ZoneArray;
             var origin = zoneArray.GetFlatIndex( originZone.ZoneNumber );
             var destination = zoneArray.GetFlatIndex( destinationZone.ZoneNumber );
-            return ( this.CurrentlyFeasible > 0 )
-                &&
-                ( this.AdvancedNetworkData == null ?
-                this.NetworkData.ValidOD( origin, destination, time ) && ( !this.CheckPositiveIVTT || this.NetworkData.TravelTime( origin, destination, time ).ToMinutes() > 0 )
-                : this.AdvancedNetworkData.ValidOD( origin, destination, time )
-                && ( ( !this.CheckPositiveIVTT || this.AdvancedNetworkData.InVehicleTravelTime( origin, destination, time ).ToMinutes() > 0 ) )
-                && ( ( !this.CheckPositiveWalk || this.AdvancedNetworkData.WalkTime( origin, destination, time ).ToMinutes() > 0 ) ) );
+            if(CurrentlyFeasible <= 0)
+            {
+                return false;
+            }
+            if(AdvancedNetworkData == null)
+            {
+                return this.NetworkData.ValidOD(origin, destination, time) && (!this.CheckPositiveIVTT || this.NetworkData.TravelTime(origin, destination, time).ToMinutes() > 0);
+            }
+            else
+            {
+                float ivtt, cost;
+                AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out cost);
+                return this.AdvancedNetworkData.ValidOD(origin, destination, time)
+                && ((!this.CheckPositiveIVTT || ivtt > 0))
+                && ((!this.CheckPositiveWalk || cost > 0));
+            }
         }
 
         public virtual bool RuntimeValidation(ref string error)

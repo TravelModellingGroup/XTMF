@@ -23,6 +23,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace TMG.Functions
 {
@@ -38,9 +40,9 @@ namespace TMG.Functions
                 () =>
                 {
                     var dir = Path.GetDirectoryName(fileName);
-                    if(!String.IsNullOrWhiteSpace(dir))
+                    if (!String.IsNullOrWhiteSpace(dir))
                     {
-                        if(!Directory.Exists(dir))
+                        if (!Directory.Exists(dir))
                         {
                             Directory.CreateDirectory(dir);
                         }
@@ -50,7 +52,7 @@ namespace TMG.Functions
                 {
                     header = new StringBuilder();
                     header.Append("Zones O\\D");
-                    for(int i = 0; i < zones.Length; i++)
+                    for (int i = 0; i < zones.Length; i++)
                     {
                         header.Append(',');
                         header.Append(zones[i]);
@@ -63,9 +65,9 @@ namespace TMG.Functions
                         zoneLines[i] = new StringBuilder();
                         zoneLines[i].Append(zones[i]);
                         var row = data[i];
-                        if(row == null)
+                        if (row == null)
                         {
-                            for(int j = 0; j < zones.Length; j++)
+                            for (int j = 0; j < zones.Length; j++)
                             {
                                 zoneLines[i].Append(',');
                                 zoneLines[i].Append('0');
@@ -73,7 +75,7 @@ namespace TMG.Functions
                         }
                         else
                         {
-                            for(int j = 0; j < zones.Length; j++)
+                            for (int j = 0; j < zones.Length; j++)
                             {
                                 zoneLines[i].Append(',');
                                 zoneLines[i].Append(row[j]);
@@ -84,7 +86,7 @@ namespace TMG.Functions
             using (StreamWriter writer = new StreamWriter(fileName))
             {
                 writer.WriteLine(header);
-                for(int i = 0; i < zoneLines.Length; i++)
+                for (int i = 0; i < zoneLines.Length; i++)
                 {
                     writer.WriteLine(zoneLines[i]);
                 }
@@ -98,12 +100,12 @@ namespace TMG.Functions
             using (StreamWriter writer = new StreamWriter(saveTo))
             {
                 writer.WriteLine("Zone,Value");
-                for(int i = 0; i < flatData.Length; i++)
+                for (int i = 0; i < flatData.Length; i++)
                 {
                     writer.Write(indexes[i]);
                     writer.Write(',');
                     writer.WriteLine(flatData[i]);
-                }    
+                }
             }
         }
 
@@ -112,9 +114,9 @@ namespace TMG.Functions
             using (StreamWriter writer = new StreamWriter(saveLocation))
             {
                 writer.WriteLine("Origin,Destination,Data");
-                foreach(var o in matrix.ValidIndexes())
+                foreach (var o in matrix.ValidIndexes())
                 {
-                    foreach(var d in matrix.ValidIndexes(o))
+                    foreach (var d in matrix.ValidIndexes(o))
                     {
                         writer.Write(o);
                         writer.Write(',');
@@ -126,64 +128,93 @@ namespace TMG.Functions
             }
         }
 
+        private struct SaveTask
+        {
+            internal int RowNumber;
+            internal string Text;
+        }
+
         public static void SaveMatrix(IZone[] zones, float[][] data, string fileName)
         {
-            StringBuilder header = null;
             StringBuilder[] zoneLines = new StringBuilder[zones.Length];
-            Parallel.Invoke(
-                () =>
+            var dir = Path.GetDirectoryName(fileName);
+            if (!String.IsNullOrWhiteSpace(dir))
+            {
+                if (!Directory.Exists(dir))
                 {
-                    var dir = Path.GetDirectoryName(fileName);
-                    if(!String.IsNullOrWhiteSpace(dir))
-                    {
-                        if(!Directory.Exists(dir))
-                        {
-                            Directory.CreateDirectory(dir);
-                        }
-                    }
-                },
-                () =>
-                {
-                    header = new StringBuilder();
-                    header.Append("Zones O\\D");
-                    for(int i = 0; i < zones.Length; i++)
-                    {
-                        header.Append(',');
-                        header.Append(zones[i].ZoneNumber);
-                    }
-                },
-                () =>
-                {
-                    Parallel.For(0, zones.Length, (int i) =>
-                    {
-                        zoneLines[i] = new StringBuilder();
-                        zoneLines[i].Append(zones[i].ZoneNumber);
-                        var row = data[i];
-                        if(row == null)
-                        {
-                            for(int j = 0; j < zones.Length; j++)
-                            {
-                                zoneLines[i].Append(',');
-                                zoneLines[i].Append('0');
-                            }
-                        }
-                        else
-                        {
-                            for(int j = 0; j < zones.Length; j++)
-                            {
-                                zoneLines[i].Append(',');
-                                zoneLines[i].Append(row[j]);
-                            }
-                        }
-                    });
-                });
+                    Directory.CreateDirectory(dir);
+                }
+            }
             using (StreamWriter writer = new StreamWriter(fileName))
             {
-                writer.WriteLine(header);
-                for(int i = 0; i < zoneLines.Length; i++)
+                BlockingCollection<SaveTask> toWrite = new BlockingCollection<SaveTask>();
+                var saveTask = Task.Run(() =>
                 {
-                    writer.WriteLine(zoneLines[i]);
+                    int nextRow = 0;
+                    SortedList<int, SaveTask> backlog = new SortedList<int, SaveTask>();
+                    foreach (var newTask in toWrite.GetConsumingEnumerable())
+                    {
+                        var task = newTask;
+                        do
+                        {
+                            string currentString = task.Text;
+                            int currentRow = task.RowNumber;
+                            if (nextRow == currentRow)
+                            {
+                                writer.WriteLine(currentString);
+                                nextRow++;
+                            }
+                            else
+                            {
+                                backlog.Add(currentRow, new SaveTask() { RowNumber = currentRow, Text = currentString });
+                                break;
+                            }
+                            if (backlog.Count == 0)
+                            {
+                                break;
+                            }
+                            if(backlog.TryGetValue(nextRow, out task))
+                            {
+                                backlog.Remove(nextRow);
+                                continue;
+                            }
+                        } while (false);
+                    }
+                });
+                var stringBuilder = new StringBuilder();
+                stringBuilder.Append("Zones O\\D");
+                for (int i = 0; i < zones.Length; i++)
+                {
+                    stringBuilder.Append(',');
+                    stringBuilder.Append(zones[i].ZoneNumber);
                 }
+                toWrite.Add(new SaveTask() { RowNumber = 0, Text = stringBuilder.ToString() });
+                Parallel.For(0, zones.Length,()=> new StringBuilder(),
+                    (int i, ParallelLoopState _, StringBuilder strBuilder) =>
+                {
+                    strBuilder.Clear();
+                    strBuilder.Append(zones[i].ZoneNumber);
+                    var row = data[i];
+                    if (row == null)
+                    {
+                        for (int j = 0; j < zones.Length; j++)
+                        {
+                            strBuilder.Append(",0");
+                        }
+                    }
+                    else
+                    {
+                        for (int j = 0; j < row.Length; j++)
+                        {
+                            strBuilder.Append(',');
+                            strBuilder.Append(row[j]);
+                        }
+                    }
+                    toWrite.Add(new SaveTask() { RowNumber = i + 1, Text = strBuilder.ToString() });
+                    return strBuilder;
+                }, (StringBuilder _) => { });
+                toWrite.CompleteAdding();
+                saveTask.Wait();
             }
         }
 
@@ -191,7 +222,7 @@ namespace TMG.Functions
         {
             StringBuilder header = null;
             StringBuilder[] zoneLines = new StringBuilder[zones.Length];
-            if(data.Length != zones.Length * zones.Length)
+            if (data.Length != zones.Length * zones.Length)
             {
                 throw new ArgumentException("The data must be a square matrix in size to the zones!", "data");
             }
@@ -199,9 +230,9 @@ namespace TMG.Functions
                 () =>
                 {
                     var dir = Path.GetDirectoryName(fileName);
-                    if(!String.IsNullOrWhiteSpace(dir))
+                    if (!String.IsNullOrWhiteSpace(dir))
                     {
-                        if(!Directory.Exists(dir))
+                        if (!Directory.Exists(dir))
                         {
                             Directory.CreateDirectory(dir);
                         }
@@ -211,7 +242,7 @@ namespace TMG.Functions
                 {
                     header = new StringBuilder();
                     header.Append("Zones O\\D");
-                    for(int i = 0; i < zones.Length; i++)
+                    for (int i = 0; i < zones.Length; i++)
                     {
                         header.Append(',');
                         header.Append(zones[i].ZoneNumber);
@@ -224,7 +255,7 @@ namespace TMG.Functions
                         zoneLines[i] = new StringBuilder();
                         zoneLines[i].Append(zones[i].ZoneNumber);
                         var iOffset = i * zones.Length;
-                        for(int j = 0; j < zones.Length; j++)
+                        for (int j = 0; j < zones.Length; j++)
                         {
                             zoneLines[i].Append(',');
                             zoneLines[i].Append(data[iOffset + j]);
@@ -234,7 +265,7 @@ namespace TMG.Functions
             using (StreamWriter writer = new StreamWriter(fileName))
             {
                 writer.WriteLine(header);
-                for(int i = 0; i < zoneLines.Length; i++)
+                for (int i = 0; i < zoneLines.Length; i++)
                 {
                     writer.WriteLine(zoneLines[i]);
                 }
