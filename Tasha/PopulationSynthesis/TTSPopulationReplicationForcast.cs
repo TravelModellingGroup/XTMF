@@ -49,18 +49,24 @@ namespace Tasha.PopulationSynthesis
         internal class ExpandedHousehold
         {
             internal ITashaHousehold Household;
+            internal float ExpansionFactor;
+            private float OriginalExpansionFactor;
 
             public ExpandedHousehold(ITashaHousehold household)
             {
                 Household = household;
-                ExpansionFactor = household.ExpansionFactor;
+                OriginalExpansionFactor = ExpansionFactor = household.ExpansionFactor;
+                // Normalize person expansion factors
+                var inv = 1.0f / ExpansionFactor;
+                foreach(var person in household.Persons)
+                {
+                    person.ExpansionFactor *= inv;
+                }
             }
-
-            internal float ExpansionFactor;
 
             internal void ResetExpansion()
             {
-                ExpansionFactor = Household.ExpansionFactor;
+                ExpansionFactor = OriginalExpansionFactor;
             }
         }
 
@@ -376,7 +382,7 @@ namespace Tasha.PopulationSynthesis
             using (var writer = new StreamWriter(PersonFile))
             {
                 householdID = 1;
-                writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone");
+                writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone,ExpansionFactor");
                 for(int i = 0; i < results.Length; i++)
                 {
                     var households = pds[i].Households;
@@ -523,7 +529,8 @@ namespace Tasha.PopulationSynthesis
                             {
                                 writer.Write('0');
                             }
-                            writer.WriteLine();
+                            writer.Write(',');
+                            writer.WriteLine(persons[j].ExpansionFactor);
                         }
                         householdID++;
                     }
