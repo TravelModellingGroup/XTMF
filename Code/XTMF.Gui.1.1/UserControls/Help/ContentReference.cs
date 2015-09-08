@@ -53,7 +53,7 @@ namespace XTMF.Gui.UserControls.Help
         /// <summary>
         /// The type of module that this will represent
         /// </summary>
-        private Type Module;
+        internal Type Module;
 
         /// <summary>
         /// Create a reference to a module

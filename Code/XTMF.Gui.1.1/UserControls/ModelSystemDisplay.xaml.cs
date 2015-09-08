@@ -718,7 +718,11 @@ namespace XTMF.Gui.UserControls
 
         private void ShowDocumentation()
         {
-            Controllers.ModelSystemEditingController.HelpRequested(ModuleDisplay.SelectedItem as ModelSystemStructureModel);
+            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if (selectedModule != null)
+            {
+                MainWindow.Us.LaunchHelpWindow(selectedModule.BaseModel);
+            }
         }
 
         private void Module_Clicked(object sender, RoutedEventArgs e)

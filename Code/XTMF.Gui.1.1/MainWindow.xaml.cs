@@ -167,7 +167,7 @@ namespace XTMF.Gui
                             Owner = this
                         };
                     }));
-                        Dispatcher.BeginInvoke(new Action(() =>
+                    Dispatcher.BeginInvoke(new Action(() =>
                     {
                         progressing.ShowDialog();
                     }));
@@ -534,12 +534,25 @@ namespace XTMF.Gui
             }
         }
 
-        private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="getHelpFor"></param>
+        public void LaunchHelpWindow(ModelSystemStructureModel getHelpFor = null)
         {
             var helpUI = new UserControls.Help.HelpDialog(EditorController.Runtime.Configuration);
-            var document = AddNewWindow("Help",helpUI);
+            if (getHelpFor != null)
+            {
+                helpUI.SelectModuleContent(getHelpFor);
+            }
+            var document = AddNewWindow("Help", helpUI);
             document.IsSelected = true;
             Keyboard.Focus(helpUI);
+        }
+
+        private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchHelpWindow();
         }
     }
 }

@@ -31,6 +31,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
+using System.Threading;
 using System.Text.RegularExpressions;
 
 namespace XTMF.Gui.UserControls.Help
@@ -45,6 +46,8 @@ namespace XTMF.Gui.UserControls.Help
         /// </summary>
         private IConfiguration Config;
 
+        private SpinLock FullyLoaded = new SpinLock(false);
+
         public HelpDialog(IConfiguration xtmfConfiguration)
         {
             DataContext = this;
@@ -53,12 +56,12 @@ namespace XTMF.Gui.UserControls.Help
             InitializeComponent();
             SearchBox.TextChanged += SearchBox_TextChanged;
             SearchBox.PreviewKeyDown += SearchBox_PreviewKeyDown;
-            UpdateSearch();
+            UpdateSearch(true);
         }
 
         private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Escape)
+            if (e.Key == Key.Escape)
             {
                 e.Handled = true;
                 SearchBox.Text = String.Empty;
@@ -67,16 +70,21 @@ namespace XTMF.Gui.UserControls.Help
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            UpdateSearch();
+            UpdateSearch(true);
         }
 
-        private void UpdateSearch()
+        private void UpdateSearch(bool async)
         {
             //search
             try
             {
-                Regex searchFor = new Regex(SearchBox.Text, RegexOptions.IgnoreCase);
-                Task.Run(() =>
+                string text = null;
+                Dispatcher.Invoke(() =>
+                {
+                    text = SearchBox.Text;
+                });
+                Regex searchFor = new Regex(text, RegexOptions.IgnoreCase);
+                var loadTask = Task.Run(() =>
                 {
                     try
                     {
@@ -86,7 +94,7 @@ namespace XTMF.Gui.UserControls.Help
                         Dispatcher.BeginInvoke(new Action(() =>
                         {
                             SearchedItems.Clear();
-                            foreach(var result in results)
+                            foreach (var result in results)
                             {
                                 SearchedItems.Add(result);
                             }
@@ -100,14 +108,17 @@ namespace XTMF.Gui.UserControls.Help
                         }));
                     }
                 });
+                if (!async)
+                {
+                    loadTask.Wait();
+                }
             }
             catch
             {
-
             }
         }
 
-        public BindingList<ContentReference> SearchedItems { get; private set;}
+        public BindingList<ContentReference> SearchedItems { get; private set; }
 
 
         public ContentReference CurrentContent
@@ -125,7 +136,7 @@ namespace XTMF.Gui.UserControls.Help
             var us = d as HelpDialog;
             var newContent = e.NewValue as ContentReference;
             us.ContentPresenter.Children.Clear();
-            if(newContent != null && newContent.Content != null)
+            if (newContent != null && newContent.Content != null)
             {
                 us.ContentPresenter.Children.Add(newContent.Content);
             }
@@ -134,6 +145,46 @@ namespace XTMF.Gui.UserControls.Help
         private void ResultBox_Selected(object sender, RoutedEventArgs e)
         {
             CurrentContent = ResultBox.SelectedItem as ContentReference;
+        }
+
+        public void SelectModuleContent(ModelSystemStructureModel module)
+        {
+            Task.Run(() =>
+           {
+               if (module != null)
+               {
+                   var type = module.Type;
+                   var selectCorrectDocument = Task.Run(() =>
+                   {
+                       UpdateSearch(false);
+                       Dispatcher.BeginInvoke(new Action(() =>
+                      {
+                          var foundElement = SearchedItems.FirstOrDefault(element => element.Module == type);
+                          if (foundElement != null)
+                          {
+                              ResultBox.SelectedItem = foundElement;
+                          }
+                      }));
+                   });
+                   OperationProgressing progressing = null;
+                   Dispatcher.Invoke(new Action(() =>
+                   {
+                       progressing = new OperationProgressing()
+                       {
+                           Owner = MainWindow.Us
+                       };
+                   }));
+                   Dispatcher.BeginInvoke(new Action(() =>
+                   {
+                       progressing.ShowDialog();
+                   }));
+                   selectCorrectDocument.Wait();
+                   Dispatcher.BeginInvoke(new Action(() =>
+                   {
+                       progressing.Close();
+                   }));
+               }
+           });
         }
     }
 }
