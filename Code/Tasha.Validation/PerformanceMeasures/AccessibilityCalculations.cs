@@ -151,6 +151,9 @@ namespace Tasha.Validation.PerformanceMeasures
 
             foreach (var accessTime in AccessibilityTimes)
             {
+                AddToResults(0, accessTime, AutoAccessibilityResults);
+                AddToResults(0, accessTime, TransitIVTTAccessibilityResults);
+                AddToResults(0, accessTime, TransitAccessibilityResults);
                 for (int i = 0; i < zonePopulation.Length; i++)
                 {
                     if (PopZoneRange.Contains(zones[i].ZoneNumber) || NIAcalc)
