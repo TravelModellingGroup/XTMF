@@ -178,7 +178,8 @@ namespace TMG.Functions
                                 backlog.Remove(nextRow);
                                 continue;
                             }
-                        } while (false);
+                            break;
+                        } while (true);
                     }
                 });
                 var stringBuilder = new StringBuilder();
