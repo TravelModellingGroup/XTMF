@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,7 +62,7 @@ namespace TMG.Emme.Tools
 
         private string GetArguments()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(WorksheetPath), AddQuotes(OutputLocation), AddQuotes(FileName));
+            return string.Join(" ", ScenarioNumber, AddQuotes(Path.GetFullPath(WorksheetPath)), AddQuotes(Path.GetFullPath(OutputLocation)), AddQuotes(FileName));
         }
 
         private static string AddQuotes(string toQuote)
