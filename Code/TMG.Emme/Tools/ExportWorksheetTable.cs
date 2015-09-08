@@ -40,6 +40,9 @@ namespace TMG.Emme.Tools
         [SubModelInformation(Required = true, Description = "The location to save this worksheet to.")]
         public FileLocation OutputLocation;
 
+        [RunParameter("File Name", "", "Optional parameter to set file names different from default.")]
+        public String FileName;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -58,7 +61,7 @@ namespace TMG.Emme.Tools
 
         private string GetArguments()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(WorksheetPath), AddQuotes(OutputLocation));
+            return string.Join(" ", ScenarioNumber, AddQuotes(WorksheetPath), AddQuotes(OutputLocation), AddQuotes(FileName));
         }
 
         private static string AddQuotes(string toQuote)
