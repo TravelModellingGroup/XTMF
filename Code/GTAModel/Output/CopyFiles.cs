@@ -58,15 +58,16 @@ namespace TMG.GTAModel.Output
         {
             for ( int i = 0; i < this.Operations.Count; i++ )
             {
-                if ( !( this.Operations[i].Copy() | this.IgnoreCopyErrors ) )
+                string error = null;
+                if ( !( this.Operations[i].Copy(ref error) | this.IgnoreCopyErrors ) )
                 {
                     throw new XTMFRuntimeException( "We failed to copy the file '"
                         + this.Operations[i].Source.GetFilePath() + "' to '" + this.Operations[i].Destination.GetFilePath()
-                        + "'.  Please make sure that both paths exist, or in the case of a network drive are online!" );
+                        + "'.  Please make sure that both paths exist, or in the case of a network drive are online!\r\n" + (error != null ? error : string.Empty) );
                 }
             }
         }
-
+        
         [ModuleInformation(
             Description = @"This module provides the information in order to copy between a source to the destination.  It will work for both files and directories.
 If a directory with the same name exists already, it will be deleted before the copy begins." )]
@@ -87,7 +88,7 @@ If a directory with the same name exists already, it will be deleted before the 
 
             public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
 
-            public bool Copy()
+            public bool Copy(ref string error)
             {
                 try
                 {
@@ -126,8 +127,9 @@ If a directory with the same name exists already, it will be deleted before the 
                         }
                     }
                 }
-                catch ( IOException )
+                catch ( IOException e)
                 {
+                    error = e.Message;
                     return false;
                 }
                 return true;
@@ -161,7 +163,7 @@ If a directory with the same name exists already, it will be deleted before the 
                 foreach ( FileInfo file in files )
                 {
                     string temppath = Path.Combine( destinationDirectory, file.Name );
-                    file.CopyTo( temppath, false );
+                    file.CopyTo( temppath, true );
                 }
 
                 // If copying subdirectories, copy them and their contents to new location.
