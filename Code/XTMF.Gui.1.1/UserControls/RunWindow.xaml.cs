@@ -90,6 +90,7 @@ namespace XTMF.Gui.UserControls
             if (vis != null && testWindow != trueWindow)
             {
                 var topLeft = vis.PointToScreen(new Point());
+                // Since the string request dialog isn't shown yet we need to use some defaults as width and height are not available.
                 req.Left = topLeft.X + ((vis.ActualWidth - StringRequest.DefaultWidth) / 2);
                 req.Top = topLeft.Y + ((vis.ActualHeight - StringRequest.DefaultHeight) / 2);
             }
@@ -111,9 +112,7 @@ namespace XTMF.Gui.UserControls
         private bool ValidateName(string arg)
         {
             return !String.IsNullOrEmpty(arg) &&
-                !(from c in System.IO.Path.GetInvalidFileNameChars()
-                  where arg.Contains(c)
-                  select c).Any();
+                System.IO.Path.GetInvalidFileNameChars().Any(c => arg.Contains(c));
         }
 
         private void StartRun(ModelSystemEditingSession session, string runName)
