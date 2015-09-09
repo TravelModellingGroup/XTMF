@@ -18,8 +18,12 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -68,6 +72,101 @@ namespace XTMF.Gui.UserControls
             ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
         }
 
+        public sealed class ConsoleOutputController : INotifyPropertyChanged, IDisposable
+        {
+            public string ConsoleOutput { get; set; }
+
+            MemoryStream memoryStream = new MemoryStream();
+            StreamWriter Writer;
+            internal volatile bool Done = false;
+
+            public ConsoleOutputController(RunWindow page)
+            {
+                var previousConsole = Console.Out;
+                Writer = new StreamWriter(memoryStream, System.Text.Encoding.Unicode);
+                page.OldCaret = 0;
+                Console.SetOut(Writer);
+                new Task(() =>
+                {
+                    try
+                    {
+                        var lastPosition = 0L;
+                        StreamReader reader = new StreamReader(memoryStream, System.Text.Encoding.Unicode);
+                        while (true)
+                        {
+                            Thread.Sleep(60);
+                            Writer.Flush();
+                            var currentPosition = Writer.BaseStream.Position;
+                            if (currentPosition > lastPosition)
+                            {
+                                var buff = new char[(currentPosition - lastPosition) / sizeof(char)];
+                                memoryStream.Position = lastPosition;
+                                int length = reader.ReadBlock(buff, 0, buff.Length);
+                                lastPosition = currentPosition;
+                                if (length > 0)
+                                {
+                                    page.Dispatcher.Invoke(new Action(() =>
+                                    {
+                                        page.OldCaret = page.ConsoleOutput.CaretIndex;
+                                    }));
+                                    ConsoleOutput = ConsoleOutput + new string(buff, 0, length);
+                                    var e = PropertyChanged;
+                                    if (e != null)
+                                    {
+                                        e(this, new PropertyChangedEventArgs("ConsoleOutput"));
+                                    }
+                                }
+                            }
+                            if (this.Done)
+                            {
+                                Writer.Dispose();
+                                Writer = null;
+                                return;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        Console.SetOut(previousConsole);
+                    }
+                }, TaskCreationOptions.LongRunning).Start();
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public void Dispose()
+            {
+                if (this.Writer != null)
+                {
+                    this.Writer.Dispose();
+                    this.Writer = null;
+                }
+                if (this.memoryStream != null)
+                {
+                    this.memoryStream.Dispose();
+                    this.memoryStream = null;
+                }
+                this.ConsoleOutput = null;
+            }
+        }
+
+        int ConsoleLength = 0;
+        int OldCaret = 0;
+        private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var newTextLength = this.ConsoleOutput.Text.Length;
+            if (this.OldCaret >= this.ConsoleLength)
+            {
+                this.ConsoleScrollViewer.ScrollToEnd();
+                this.ConsoleOutput.CaretIndex = newTextLength;
+            }
+            else
+            {
+                this.ConsoleOutput.CaretIndex = this.OldCaret;
+            }
+            this.ConsoleLength = newTextLength;
+        }
+
         private static Window GetWindow(DependencyObject current)
         {
             while (current != null && !(current is Window))
@@ -112,7 +211,7 @@ namespace XTMF.Gui.UserControls
         private bool ValidateName(string arg)
         {
             return !String.IsNullOrEmpty(arg) &&
-                System.IO.Path.GetInvalidFileNameChars().Any(c => arg.Contains(c));
+                !System.IO.Path.GetInvalidFileNameChars().Any(c => arg.Contains(c));
         }
 
         private void StartRun(ModelSystemEditingSession session, string runName)
@@ -144,6 +243,8 @@ namespace XTMF.Gui.UserControls
                     TaskbarInformation = new TaskbarItemInfo();
                 }
             }
+            this.ConsoleOutput.DataContext = new ConsoleOutputController(this);
+            this.ConsoleBorder.DataContext = this.ConsoleOutput.DataContext;
             StartRunAsync();
             Timer.Start();
         }

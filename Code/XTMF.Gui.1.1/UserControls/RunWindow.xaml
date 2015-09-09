@@ -94,5 +94,23 @@
                 </ScrollViewer>
             </Border>
         </Grid>
+        <Border x:Name="ConsoleBorder" Margin="5" Grid.Row="2" BorderBrush="White" BorderThickness="2" VerticalAlignment="Stretch" Background="{StaticResource ResourceKey=ControlBackgroundBrush}"
+                Visibility="Visible">
+            <Grid VerticalAlignment="Stretch" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="AUTO" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Console Output" Background="{StaticResource ResourceKey=ControlHeaderBrush}" Foreground="White" FontSize="14" />
+                <ScrollViewer x:Name="ConsoleScrollViewer" Grid.Row="1" 
+                              HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible"
+                              VerticalAlignment="Stretch" Height="200">
+                    <TextBox x:Name="ConsoleOutput" Background="{StaticResource ResourceKey=ControlBackgroundBrush}" Foreground="White"
+                         TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
+                         Width="550" TextChanged="ConsoleOutput_TextChanged"
+                             IsReadOnly="True" IsReadOnlyCaretVisible="True"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>
