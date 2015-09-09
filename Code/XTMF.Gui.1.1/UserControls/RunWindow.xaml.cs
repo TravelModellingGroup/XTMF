@@ -68,14 +68,36 @@ namespace XTMF.Gui.UserControls
             ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
         }
 
-        public RunWindow(ModelSystemEditingSession session)
+        private static Window GetWindow(DependencyObject current)
+        {
+            while (current != null && !(current is Window))
+            {
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return current as Window;
+        }
+
+        public RunWindow(ModelSystemEditingSession session, DependencyObject callingControl)
         {
             InitializeComponent();
             Session = session;
             session.SessionClosed += Session_SessionClosed;
             var runName = "Run Name";
             StringRequest req = new StringRequest("Run Name", ValidateName);
-            if(req.ShowDialog() == true)
+            var trueWindow = Window.GetWindow(callingControl);
+            var testWindow = GetWindow(callingControl);
+            var vis = callingControl as UserControl;
+            if (vis != null && testWindow != trueWindow)
+            {
+                var topLeft = vis.PointToScreen(new Point());
+                req.Left = topLeft.X + ((vis.ActualWidth - StringRequest.DefaultWidth) / 2);
+                req.Top = topLeft.Y + ((vis.ActualHeight - StringRequest.DefaultHeight) / 2);
+            }
+            else
+            {
+                req.Owner = trueWindow;
+            }
+            if (req.ShowDialog() == true)
             {
                 runName = req.Answer;
                 StartRun(session, runName);

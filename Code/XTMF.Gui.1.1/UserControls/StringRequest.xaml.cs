@@ -38,6 +38,16 @@ namespace XTMF.Gui.UserControls
     {
         private Func<string, bool> Validation;
 
+        /// <summary>
+        /// The default width of this control
+        /// </summary>
+        internal const double DefaultWidth = 300.0;
+
+        /// <summary>
+        /// The default hight of this control
+        /// </summary>
+        internal const double DefaultHeight = 75.0;
+
         public StringRequest()
         {
             InitializeComponent();

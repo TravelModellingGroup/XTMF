@@ -285,7 +285,7 @@ namespace XTMF.Gui
                     RunMenu.IsEnabled = true;
                     _CurrentRun = () =>
                     {
-                        RunWindow window = new RunWindow(session);
+                        RunWindow window = new RunWindow(session, document.Content as DependencyObject);
                         var doc = AddNewWindow("New Run", window);
                         doc.CanClose = true;
                         doc.IsSelected = true;
