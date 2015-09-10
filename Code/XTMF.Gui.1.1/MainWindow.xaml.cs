@@ -490,6 +490,16 @@ namespace XTMF.Gui
             ExecuteRun();
         }
 
+        private void RunRemoteMenu_Click(object sender, RoutedEventArgs e)
+        {
+            var remoteWindow = new LaunchRemoteClientWindow();
+            var doc = AddNewWindow("Launch Remote Client", remoteWindow );
+            remoteWindow.RequestClose += (ignored) => doc.Close();
+            doc.IsSelected = true;
+            Keyboard.Focus(remoteWindow);
+            remoteWindow.Focus();
+        }
+
         public void ExecuteRun()
         {
             if(_CurrentRun != null)

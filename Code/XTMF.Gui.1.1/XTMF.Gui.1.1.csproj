@@ -155,6 +155,9 @@
       <DependentUpon>HelpDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\HintedTextBox.cs" />
+    <Compile Include="UserControls\LaunchRemoteClientWindow.xaml.cs">
+      <DependentUpon>LaunchRemoteClientWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\LinkedParameterDisplay.xaml.cs">
       <DependentUpon>LinkedParameterDisplay.xaml</DependentUpon>
     </Compile>
@@ -242,6 +245,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\Help\HelpDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\LaunchRemoteClientWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
