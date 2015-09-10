@@ -174,7 +174,11 @@ namespace XTMF.Gui.Models
         {
             get
             {
-                return this.BaseModel.Type;
+                return BaseModel.Type;
+            }
+            set
+            {
+                BaseModel.Type = value;
             }
         }
 

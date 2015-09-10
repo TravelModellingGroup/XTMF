@@ -107,10 +107,10 @@
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
                         <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
-                                     Header="{Binding Name}"
-                                     Text="{Binding Description}"
-                                     ShadowColour="{Binding BackgroundColour}"
-                                     HighlightColour="{Binding HighlightColour}"
+                                     Header="{Binding Name, Mode=OneWay}"
+                                     Text="{Binding Description, Mode=OneWay}"
+                                     ShadowColour="{Binding BackgroundColour, Mode=OneWay}"
+                                     HighlightColour="{Binding HighlightColour, Mode=OneWay}"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}"
                                     Margin="4"

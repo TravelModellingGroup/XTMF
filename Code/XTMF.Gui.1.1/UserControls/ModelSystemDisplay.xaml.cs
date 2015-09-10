@@ -249,7 +249,7 @@ namespace XTMF.Gui.UserControls
                         }
                         else
                         {
-                            selectedModule.BaseModel.Type = selectedType;
+                            selectedModule.Type = selectedType;
                         }
                         UpdateParameters(selectedModule.BaseModel.Parameters);
                     }
