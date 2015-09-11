@@ -99,7 +99,7 @@ namespace XTMF.Gui.UserControls
             public void RefreshPastRuns(ProjectEditingSession session)
             {
 
-                if(PreviousRuns == null)
+                if (PreviousRuns == null)
                 {
                     PreviousRuns = new List<PreviousRun>();
                 }
@@ -112,7 +112,7 @@ namespace XTMF.Gui.UserControls
 
                     var list = new List<PreviousRun>();
                     PreviousRuns.Clear();
-                    foreach(var pastRun in session.GetPreviousRuns())
+                    foreach (var pastRun in session.GetPreviousRuns())
                     {
                         DirectoryInfo info = new DirectoryInfo(pastRun);
                         list.Add(new PreviousRun()
@@ -132,7 +132,7 @@ namespace XTMF.Gui.UserControls
 
             internal void RefreshModelSystems()
             {
-                if(ContainedModelSystems == null)
+                if (ContainedModelSystems == null)
                 {
                     ContainedModelSystems = new List<ContainedModelSystemModel>();
                 }
@@ -261,9 +261,9 @@ namespace XTMF.Gui.UserControls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if(e.Handled == false && Controllers.EditorController.IsControlDown())
+            if (e.Handled == false && Controllers.EditorController.IsControlDown())
             {
-                switch(e.Key)
+                switch (e.Key)
                 {
                     case Key.W:
                         Close();
@@ -277,9 +277,9 @@ namespace XTMF.Gui.UserControls
         private void Close()
         {
             var e = RequestClose;
-            if(e != null)
+            if (e != null)
             {
-                if(MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -297,10 +297,10 @@ namespace XTMF.Gui.UserControls
         private void LoadModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
-            if(selected != null)
+            if (selected != null)
             {
                 var invoke = InitiateModelSystemEditingSession;
-                if(invoke != null)
+                if (invoke != null)
                 {
                     var index = selected.RealIndex;
                     invoke(Session.EditModelSystem(index));
@@ -312,14 +312,14 @@ namespace XTMF.Gui.UserControls
         private void PastRunDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
-            if(selected != null)
+            if (selected != null)
             {
                 var invoke = InitiateModelSystemEditingSession;
-                if(invoke != null)
+                if (invoke != null)
                 {
                     string error = null;
                     var newSession = Session.LoadPreviousRun(selected.Path, ref error);
-                    if(newSession != null)
+                    if (newSession != null)
                     {
                         invoke(newSession);
                     }
@@ -343,7 +343,7 @@ namespace XTMF.Gui.UserControls
             var directoryName = System.IO.Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
             try
             {
-                if(Project != null && System.IO.Directory.Exists(directoryName))
+                if (Project != null && System.IO.Directory.Exists(directoryName))
                 {
                     System.Diagnostics.Process.Start(directoryName);
                 }
@@ -357,7 +357,7 @@ namespace XTMF.Gui.UserControls
         private Window GetWindow()
         {
             var current = this as DependencyObject;
-            while(current != null && !(current is Window))
+            while (current != null && !(current is Window))
             {
                 current = VisualTreeHelper.GetParent(current);
             }
@@ -366,11 +366,11 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteProject_Clicked(object obj)
         {
-            if(MessageBox.Show(GetWindow(),
+            if (MessageBox.Show(GetWindow(),
                 "Are you sure you want to delete the project?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
                 string error = null;
-                if(!Session.DeleteProject(ref error))
+                if (!Session.DeleteProject(ref error))
                 {
                     MessageBox.Show(GetWindow(), error, "Unable to Delete", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     return;
@@ -388,23 +388,26 @@ namespace XTMF.Gui.UserControls
         {
             var xtmf = Session.GetRuntime();
             var openMS = new OpenWindow();
-            using(var modelSystemSession = openMS.OpenModelSystem(xtmf))
+            using (var modelSystemSession = openMS.OpenModelSystem(xtmf))
             {
                 var loading = openMS.LoadTask;
-                if(loading != null)
+                if (loading != null)
                 {
                     loading.Wait();
-                    if(modelSystemSession == null)
+                    using (var realSession = openMS.ModelSystemSession)
                     {
-                        return;
+                        if (realSession == null)
+                        {
+                            return;
+                        }
+                        string error = null;
+                        if (!Session.AddModelSystem(realSession.ModelSystemModel, ref error))
+                        {
+                            MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                            return;
+                        }
+                        Model.RefreshModelSystems();
                     }
-                    string error = null;
-                    if(!Session.AddModelSystem(modelSystemSession.ModelSystemModel, ref error))
-                    {
-                        MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                        return;
-                    }
-                    Model.RefreshModelSystems();
                 }
             }
         }
