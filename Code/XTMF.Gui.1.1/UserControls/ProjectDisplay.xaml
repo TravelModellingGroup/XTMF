@@ -55,7 +55,8 @@
                     <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" />
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                         <ListBox x:Name="ModelSystemDisplay" Background="Transparent"
-                                 SelectionChanged="ModelSystemDisplay_SelectionChanged">
+                                 SelectionChanged="ModelSystemDisplay_SelectionChanged"
+                                 Keyboard.KeyDown="ModelSystemDisplay_KeyDown">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
@@ -63,8 +64,18 @@
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" Header="{Binding Name}"
-                                                         Text="{Binding Description}" Width="300" Margin="5"/>
+                                    <my:BorderIconButton x:Name="DisplayButton" Icon="/XTMF.Gui;component/Resources/Settings.png"
+                                                         Header="{Binding Name, Mode=OneWay}"
+                                                         Selected="{Binding IsSelected, Mode=OneWay}"
+                                                         Text="{Binding Description, Mode=OneWay}"
+                                                         Width="300" Margin="5" Clicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked" />
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
+                                            <Setter TargetName="DisplayButton" Property="BorderBrush" Value="{DynamicResource ResourceKey=AnimatedFocusBrush}" />
+                                            <Setter TargetName="DisplayButton" Property="BorderThickness" Value="2" />
+                                            <Setter TargetName="DisplayButton" Property="Margin" Value="2" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

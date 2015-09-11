@@ -65,6 +65,23 @@ namespace XTMF.Gui.UserControls
 
                 public int RealIndex { get; private set; }
 
+                private bool _IsSelected = false;
+                public bool IsSelected
+                {
+                    get
+                    {
+                        return _IsSelected;
+                    }
+                    set
+                    {
+                        if(_IsSelected != value)
+                        {
+                            _IsSelected = value;
+                            ModelHelper.PropertyChanged(PropertyChanged, this, "IsSelected");
+                        }
+                    }
+                }
+
                 public ContainedModelSystemModel(IModelSystemStructure ms, IProject project)
                 {
                     Root = ms;
@@ -195,6 +212,13 @@ namespace XTMF.Gui.UserControls
         public ProjectDisplay()
         {
             InitializeComponent();
+            Loaded += ProjectDisplay_Loaded;
+        }
+
+        private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus(FilterModelSystemsBox);
+            FilterModelSystemsBox.Focus();
         }
 
         private static void OnProjectChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
@@ -289,9 +313,39 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void ModelSystemButton_Clicked(object obj)
+        {
+            var button = obj as BorderIconButton;
+            if(button != null)
+            {
+                LoadModelSystem();
+            }
+        }
+
+        private void ModelSystemDisplay_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(!e.Handled)
+            {
+                if(e.Key == Key.Enter)
+                {
+                    LoadModelSystem();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void DisplayButton_RightClicked(object obj)
+        {
+            var button = obj as BorderIconButton;
+            if (button != null)
+            {
+                
+            }
+        }
+
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            LoadModelSystem();
+            
         }
 
         private void LoadModelSystem()
