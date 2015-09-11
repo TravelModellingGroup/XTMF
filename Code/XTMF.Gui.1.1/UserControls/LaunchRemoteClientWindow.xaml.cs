@@ -45,6 +45,13 @@ namespace XTMF.Gui.UserControls
         public LaunchRemoteClientWindow()
         {
             InitializeComponent();
+            Loaded += LaunchRemoteClientWindow_Loaded;
+        }
+
+        private void LaunchRemoteClientWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus(Server);
+            Server.Focus();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
