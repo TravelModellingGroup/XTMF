@@ -423,8 +423,7 @@ namespace XTMF.Gui
         {
             var us = source as BorderIconButton;
             var value = (Color)e.NewValue;
-            if(!us.IsConstructing && us.BorderOutline != null && us.BorderOutline.Background != null
-                && !us.IsFocused && !us.MouseInside)
+            if(!us.IsConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
             {
                 var brush = (us.BorderOutline.Background as SolidColorBrush);
                 if(brush != null)
@@ -436,7 +435,7 @@ namespace XTMF.Gui
                         {
                             brush.Color = value;
                             us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                            ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, value, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+                            ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
                             us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                         }
                     }
@@ -452,8 +451,7 @@ namespace XTMF.Gui
         {
             var us = source as BorderIconButton;
             var value = (Color)e.NewValue;
-            if(!us.IsConstructing && us.BorderOutline != null && us.BorderOutline.Background != null
-                && !us.IsFocused && !us.MouseInside)
+            if(!us.IsConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
             {
                 var brush = (us.BorderOutline.Background as SolidColorBrush);
                 if(brush != null)
@@ -463,7 +461,7 @@ namespace XTMF.Gui
                     {
                         brush.Color = value;
                         us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                        ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, value, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+                        ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
                         us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                     }
                 }
