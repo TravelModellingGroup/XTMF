@@ -59,7 +59,7 @@
                                  Keyboard.KeyDown="ModelSystemDisplay_KeyDown">
                             <ListBox.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Rename Model System (F2)">
+                                    <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
                                         <MenuItem.Icon>
                                             <Image>
                                                 <Image.Source>

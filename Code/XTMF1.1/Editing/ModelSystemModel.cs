@@ -248,9 +248,9 @@ namespace XTMF
         /// Change the name of the model system
         /// </summary>
         /// <param name="error">The reason why changing the name failed.</param>
-        public bool ChangeModelSystemName(ref string error)
+        public bool ChangeModelSystemName(string newName, ref string error)
         {
-            throw new NotImplementedException();
+            return Root.SetName(newName, ref error);
         }
 
         public bool Remove(ModelSystemStructureModel selected, ref string error)

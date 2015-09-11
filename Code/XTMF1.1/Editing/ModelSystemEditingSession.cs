@@ -100,6 +100,11 @@ namespace XTMF
             ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, modelSystemIndex);
         }
 
+        internal bool IsEditing(IModelSystemStructure root)
+        {
+            return (EditingProject && this.ProjectEditingSession.Project.ModelSystemStructure[ModelSystemIndex] == root);
+        }
+
         /// <summary>
         /// Create a model editing session for a previous run.  This will be read-only!
         /// </summary>

@@ -57,9 +57,9 @@ namespace XTMF
         {
             lock (this.EditingSessions)
             {
-                for(int i = 0; i < EditingSessions.Length; i++)
+                for (int i = 0; i < EditingSessions.Length; i++)
                 {
-                    if(EditingSessions[i].Session != null)
+                    if (EditingSessions[i].Session != null)
                     {
                         EditingSessions[i].Session.Dispose();
                     }
@@ -75,13 +75,13 @@ namespace XTMF
         /// <returns>True if the model system was added successfully</returns>
         public bool AddModelSystem(ModelSystem modelSystem, ref string error)
         {
-            if(modelSystem == null)
+            if (modelSystem == null)
             {
                 throw new ArgumentNullException("modelSystem");
             }
             lock (EditingSessionsLock)
             {
-                if(!this.Project.AddModelSystem(modelSystem, ref error))
+                if (!this.Project.AddModelSystem(modelSystem, ref error))
                 {
                     return false;
                 }
@@ -90,6 +90,29 @@ namespace XTMF
                 EditingSessions = temp;
                 return true;
             }
+        }
+
+        public bool RenameModelSystem(IModelSystemStructure root, string newName, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                var index = Project.ModelSystemStructure.IndexOf(root);
+                if (index < 0)
+                {
+                    error = "The model system was not found within the project!";
+                    return false;
+                }
+                // check to see if the model system is being edited, if it is send a command to that session
+                var editingSession = EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
+                if (editingSession.Session != null)
+                {
+                    editingSession.Session.ModelSystemModel.ChangeModelSystemName(newName, ref error);
+                }
+                //In any case we need to save this change so everything updates accordingly
+                Project.ModelSystemStructure[index].Name = newName;
+                Project.Save(ref error);
+            }
+            return true;
         }
 
         /// <summary>
@@ -115,17 +138,17 @@ namespace XTMF
         {
             lock (EditingSessionsLock)
             {
-                if(index < 0 | index >= this.Project.ModelSystemStructure.Count)
+                if (index < 0 | index >= this.Project.ModelSystemStructure.Count)
                 {
                     error = "The index is invalid.";
                     return false;
                 }
-                if(EditingSessions[index].Session != null)
+                if (EditingSessions[index].Session != null)
                 {
                     error = "Unable to remove the model system. It is currently being edited.";
                     return false;
                 }
-                if(!this.Project.RemoveModelSystem(index, ref error))
+                if (!this.Project.RemoveModelSystem(index, ref error))
                 {
                     return false;
                 }
@@ -158,13 +181,13 @@ namespace XTMF
         public ModelSystemEditingSession LoadPreviousRun(string path, ref string error)
         {
             DirectoryInfo info = new DirectoryInfo(path);
-            if(!info.Exists)
+            if (!info.Exists)
             {
                 error = "There is no directory with the name '" + path + "'!";
                 return null;
             }
             var runFileName = Path.Combine(path, "RunParameters.xml");
-            if(!File.Exists(runFileName))
+            if (!File.Exists(runFileName))
             {
                 error = "There is no file containing run parameters in the directory '" + path + "'!";
                 return null;
@@ -195,25 +218,25 @@ namespace XTMF
         {
             lock (EditingSessionsLock)
             {
-                if(currentIndex < 0 | currentIndex >= EditingSessions.Length)
+                if (currentIndex < 0 | currentIndex >= EditingSessions.Length)
                 {
                     error = "The model system to move is out of range!";
                     return false;
                 }
-                if(newIndex < 0 | newIndex >= EditingSessions.Length)
+                if (newIndex < 0 | newIndex >= EditingSessions.Length)
                 {
                     error = "The new position is out of range!";
                     return false;
                 }
                 // if they are the same then success (we don't want to shortcut though if invalid data is given though)
-                if(currentIndex == newIndex) return true;
-                if(!this.Project.MoveModelSystems(currentIndex, newIndex, ref error))
+                if (currentIndex == newIndex) return true;
+                if (!this.Project.MoveModelSystems(currentIndex, newIndex, ref error))
                 {
                     return false;
                 }
                 // move the indexes around
                 var temp = EditingSessions[currentIndex];
-                if(currentIndex < newIndex)
+                if (currentIndex < newIndex)
                 {
                     // move everything up
                     Array.Copy(EditingSessions, currentIndex + 1, EditingSessions, currentIndex, newIndex - currentIndex);
@@ -248,12 +271,12 @@ namespace XTMF
             lock (this.EditingSessionsLock)
             {
                 // Make sure that we have a valid index. This needs to be inside of EditingSessionLock
-                if(this.Project.ModelSystemStructure.Count < modelSystemIndex | modelSystemIndex < 0)
+                if (this.Project.ModelSystemStructure.Count < modelSystemIndex | modelSystemIndex < 0)
                 {
                     throw new ArgumentOutOfRangeException("modelSystemIndex");
                 }
                 // if the session doesn't exist create it
-                if(this.EditingSessions[modelSystemIndex].Session == null)
+                if (this.EditingSessions[modelSystemIndex].Session == null)
                 {
                     this.EditingSessions[modelSystemIndex].Session = new ModelSystemEditingSession(Runtime, this, modelSystemIndex);
                 }
@@ -266,12 +289,12 @@ namespace XTMF
         internal void ModelSystemEditingSessionClosed(ModelSystemEditingSession modelSystemEditingSession, int modelSystemIndex)
         {
             // ensure this model system is not a past run
-            if(modelSystemIndex >= 0)
+            if (modelSystemIndex >= 0)
             {
                 lock (EditingSessionsLock)
                 {
                     this.EditingSessions[modelSystemIndex].References--;
-                    if(this.EditingSessions[modelSystemIndex].References <= 0)
+                    if (this.EditingSessions[modelSystemIndex].References <= 0)
                     {
                         this.EditingSessions[modelSystemIndex].References = 0;
                         this.EditingSessions[modelSystemIndex].Session = null;
@@ -298,7 +321,7 @@ namespace XTMF
         {
             CloseAllModelSystemEditingSessions();
             var temp = SessionClosed;
-            if(temp != null)
+            if (temp != null)
             {
                 temp(this, new EventArgs());
             }
@@ -307,7 +330,7 @@ namespace XTMF
         public bool DeleteProject(ref string error)
         {
             var ret = Runtime.ProjectController.DeleteProject(Project, ref error);
-            if(ret)
+            if (ret)
             {
                 CloseAllModelSystemEditingSessions();
                 Dispose();

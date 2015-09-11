@@ -87,6 +87,13 @@ namespace XTMF.Gui.UserControls
                     Root = ms;
                     RealIndex = project.ModelSystemStructure.IndexOf(ms);
                 }
+
+                internal bool SetName(ProjectEditingSession session, string newName, ref string error)
+                {
+                    var ret = session.RenameModelSystem(Root, newName, ref error);
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                    return ret;
+                }
             }
 
             public class PreviousRun : INotifyPropertyChanged
@@ -487,6 +494,31 @@ namespace XTMF.Gui.UserControls
                     Model.RefreshModelSystems();
                 }
             }
+        }
+
+        private void RenameModelSystem()
+        {
+            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected != null)
+            {
+                var container = ModelSystemDisplay.ItemContainerGenerator.ContainerFromItem(selected) as ListBoxItem;
+                var layer = AdornerLayer.GetAdornerLayer(container);
+                var adorn = new TextboxAdorner("Rename", (result) =>
+                {
+                    string error = null;
+                    if (!selected.SetName(Session, result, ref error))
+                    {
+                        MessageBox.Show(error, "Unable to Rename Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }, container, selected.Name);
+                layer.Add(adorn);
+                adorn.Focus();
+            }
+        }
+
+        private void RenameModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            RenameModelSystem();
         }
     }
 }
