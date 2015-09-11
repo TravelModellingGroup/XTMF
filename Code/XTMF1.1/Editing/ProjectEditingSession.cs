@@ -92,6 +92,13 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// Renames the model system within the project
+        /// </summary>
+        /// <param name="root">The root structure of the model system to rename</param>
+        /// <param name="newName">The name to set this model system to.</param>
+        /// <param name="error">An error message that describes why this operation has failed.</param>
+        /// <returns>True if the model system was renamed, if not the error will describe why not.</returns>
         public bool RenameModelSystem(IModelSystemStructure root, string newName, ref string error)
         {
             lock (EditingSessionsLock)
