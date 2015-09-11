@@ -74,7 +74,7 @@ namespace XTMF.Gui.UserControls
                     }
                     set
                     {
-                        if(_IsSelected != value)
+                        if (_IsSelected != value)
                         {
                             _IsSelected = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "IsSelected");
@@ -316,7 +316,7 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemButton_Clicked(object obj)
         {
             var button = obj as BorderIconButton;
-            if(button != null)
+            if (button != null)
             {
                 LoadModelSystem();
             }
@@ -324,9 +324,9 @@ namespace XTMF.Gui.UserControls
 
         private void ModelSystemDisplay_KeyDown(object sender, KeyEventArgs e)
         {
-            if(!e.Handled)
+            if (!e.Handled)
             {
-                if(e.Key == Key.Enter)
+                if (e.Key == Key.Enter)
                 {
                     LoadModelSystem();
                     e.Handled = true;
@@ -339,13 +339,18 @@ namespace XTMF.Gui.UserControls
             var button = obj as BorderIconButton;
             if (button != null)
             {
-                
+                var contextMenu = button.ContextMenu;
+                if (contextMenu != null)
+                {
+                    contextMenu.PlacementTarget = button;
+                    contextMenu.IsOpen = true;
+                }
             }
         }
 
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+
         }
 
         private void LoadModelSystem()
@@ -462,6 +467,24 @@ namespace XTMF.Gui.UserControls
                         }
                         Model.RefreshModelSystems();
                     }
+                }
+            }
+        }
+
+        private void DeleteModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected != null)
+            {
+                int index = selected.RealIndex;
+                string error = null;
+                if (!Session.RemoveModelSystem(index, ref error))
+                {
+                    MessageBox.Show(error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    Model.RefreshModelSystems();
                 }
             }
         }

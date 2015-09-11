@@ -57,6 +57,37 @@
                         <ListBox x:Name="ModelSystemDisplay" Background="Transparent"
                                  SelectionChanged="ModelSystemDisplay_SelectionChanged"
                                  Keyboard.KeyDown="ModelSystemDisplay_KeyDown">
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Rename Model System (F2)">
+                                        <MenuItem.Icon>
+                                            <Image>
+                                                <Image.Source>
+                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                </Image.Source>
+                                            </Image>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
+                                        <MenuItem.Icon>
+                                            <Image>
+                                                <Image.Source>
+                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                </Image.Source>
+                                            </Image>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Save Model System As">
+                                        <MenuItem.Icon>
+                                            <Image>
+                                                <Image.Source>
+                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/SaveHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                </Image.Source>
+                                            </Image>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
@@ -68,7 +99,9 @@
                                                          Header="{Binding Name, Mode=OneWay}"
                                                          Selected="{Binding IsSelected, Mode=OneWay}"
                                                          Text="{Binding Description, Mode=OneWay}"
-                                                         Width="300" Margin="5" Clicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked" />
+                                                         Width="300" Margin="5" Clicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
+                                                         ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}, Path=ContextMenu}"
+                                                         />
                                     <DataTemplate.Triggers>
                                         <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
                                             <Setter TargetName="DisplayButton" Property="BorderBrush" Value="{DynamicResource ResourceKey=AnimatedFocusBrush}" />
