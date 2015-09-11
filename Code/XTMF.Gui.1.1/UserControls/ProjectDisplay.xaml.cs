@@ -485,13 +485,17 @@ namespace XTMF.Gui.UserControls
             {
                 int index = selected.RealIndex;
                 string error = null;
-                if (!Session.RemoveModelSystem(index, ref error))
+                if (MessageBox.Show("Are you sure you wish to delete '" + selected.Name + "'?  This can not be undone!", "Confirm Delete!",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    MessageBox.Show(error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    Model.RefreshModelSystems();
+                    if (!Session.RemoveModelSystem(index, ref error))
+                    {
+                        MessageBox.Show(error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Model.RefreshModelSystems();
+                    }
                 }
             }
         }
