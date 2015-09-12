@@ -56,7 +56,7 @@
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                         <ListBox x:Name="ModelSystemDisplay" Background="Transparent"
                                  SelectionChanged="ModelSystemDisplay_SelectionChanged"
-                                 Keyboard.KeyDown="ModelSystemDisplay_KeyDown">
+                                 Keyboard.KeyUp="ModelSystemDisplay_KeyUp">
                             <ListBox.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
