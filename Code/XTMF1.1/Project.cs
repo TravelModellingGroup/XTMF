@@ -97,13 +97,21 @@ namespace XTMF
         /// </summary>
         private Project(Project toClone)
         {
+            IsLoaded = true;
             Name = toClone.Name;
-            ModelSystemStructure = toClone.ModelSystemStructure.ToList();
-            LinkedParameters = toClone.LinkedParameters.ToList();
-            ModelSystemDescriptions = toClone.ModelSystemDescriptions.ToList();
+            var numberOfModelSystems = toClone.ModelSystemStructure.Count;
+            ModelSystemStructure = new List<IModelSystemStructure>(numberOfModelSystems);
+            LinkedParameters = new List<List<ILinkedParameter>>(numberOfModelSystems);
             DirectoryLocation = toClone.DirectoryLocation;
             Configuration = toClone.Configuration;
-            IsLoaded = true;
+            for (int i = 0; i < numberOfModelSystems; i++)
+            {
+                List<ILinkedParameter> lp;
+                var mss = toClone.CloneModelSystemStructure(out lp, i);
+                ModelSystemStructure.Add(mss);
+                LinkedParameters.Add(lp);
+            }
+            ModelSystemDescriptions = toClone.ModelSystemDescriptions.ToList();
         }
 
         internal Project CreateCloneProject()

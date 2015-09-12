@@ -52,16 +52,16 @@ namespace XTMF
         /// <param name="project">The project to edit</param>
         public ProjectEditingSession EditProject(Project project)
         {
-            if(project == null)
+            if (project == null)
             {
                 throw new ArgumentNullException("project");
             }
             lock (this.EditingSessionLock)
             {
                 // First check to see if a session is already open
-                for(int i = 0; i < this.EditingSessions.Count; i++)
+                for (int i = 0; i < this.EditingSessions.Count; i++)
                 {
-                    if(this.EditingSessions[i].Project == project)
+                    if (this.EditingSessions[i].Project == project)
                     {
                         this.ReferenceCount[i]++;
                         return this.EditingSessions[i];
@@ -76,6 +76,43 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Create a clone of the given project with the given name.
+        /// </summary>
+        /// <param name="toClone">The project to clone</param>
+        /// <param name="name">The name to give the clone</param>
+        /// <param name="error">A description of the error</param>
+        /// <returns>True if the clone succeeded,</returns>
+        internal bool CloneProject(Project toClone, string name, ref string error)
+        {
+            if (!Project.ValidateProjectName(name))
+            {
+                error = "The project name was invalid!";
+                return false;
+            }
+            lock (EditingSessionLock)
+            {
+                var repository = Runtime.Configuration.ProjectRepository;
+                // Make sure the name is unique
+                if ((from project in this.Runtime.Configuration.ProjectRepository.Projects
+                     where project.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                     select project as Project).Any())
+                {
+                    error = "A project with that name already existed!";
+                    return false;
+                }
+                var clonedProject = toClone.CreateCloneProject();
+                clonedProject.Name = name;
+                // if we are able to save, add it to the project repository
+                if (clonedProject.Save(ref error))
+                {
+                    repository.AddProject(clonedProject);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Rename the given project
         /// </summary>
         /// <param name="project">The project to rename</param>
@@ -84,9 +121,9 @@ namespace XTMF
         /// <returns>True if the rename succeeded, false otherwise.</returns>
         internal bool RenameProject(Project project, string newName, ref string error)
         {
-            lock(EditingSessionLock)
+            lock (EditingSessionLock)
             {
-                if(!Runtime.Configuration.ProjectRepository.RenameProject(project, newName))
+                if (!Runtime.Configuration.ProjectRepository.RenameProject(project, newName))
                 {
                     error = "The project name was invalid!";
                     return false;
@@ -101,29 +138,28 @@ namespace XTMF
         /// <param name="session">The session to remove a reference to.</param>
         internal void RemoveEditingReference(ProjectEditingSession session)
         {
-            if(session == null)
+            if (session == null)
             {
                 throw new ArgumentNullException("session");
             }
             lock (this.EditingSessionLock)
             {
                 var index = this.EditingSessions.IndexOf(session);
-                if(index < 0)
+                if (index >= 0)
                 {
-                    throw new ArgumentException("The session does not exist!", "session");
-                }
-                this.ReferenceCount[index]--;
-                if(this.ReferenceCount[index] <= 0)
-                {
-                    this.EditingSessions.RemoveAt(index);
-                    this.ReferenceCount.RemoveAt(index);
+                    this.ReferenceCount[index]--;
+                    if (this.ReferenceCount[index] <= 0)
+                    {
+                        this.EditingSessions.RemoveAt(index);
+                        this.ReferenceCount.RemoveAt(index);
+                    }
                 }
             }
         }
 
         private bool ValidateProjectName(string name, ref string error)
         {
-            if(String.IsNullOrWhiteSpace(name) || !this.Runtime.Configuration.ProjectRepository.ValidateProjectName(name))
+            if (String.IsNullOrWhiteSpace(name) || !this.Runtime.Configuration.ProjectRepository.ValidateProjectName(name))
             {
                 error = "The name is invalid.";
                 return false;
@@ -144,7 +180,7 @@ namespace XTMF
                 var loadedProject = (from project in this.Runtime.Configuration.ProjectRepository.Projects
                                      where project.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                                      select project as Project).FirstOrDefault();
-                if(loadedProject == null)
+                if (loadedProject == null)
                 {
                     error = "No project with that name was loaded";
                 }
@@ -163,12 +199,12 @@ namespace XTMF
             lock (EditingSessionLock)
             {
                 Project alreadyLoaded;
-                if((alreadyLoaded = this.Load(name, ref error)) != null)
+                if ((alreadyLoaded = this.Load(name, ref error)) != null)
                 {
                     return alreadyLoaded;
                 }
                 error = null;
-                if(!ValidateProjectName(name, ref error))
+                if (!ValidateProjectName(name, ref error))
                 {
                     return null;
                 }
@@ -186,7 +222,7 @@ namespace XTMF
         /// <returns>The session to edit the project.</returns>
         public ProjectEditingSession EditProject(Project project, ref string error)
         {
-            if(project == null)
+            if (project == null)
             {
                 throw new ArgumentNullException("project");
             }
@@ -194,7 +230,7 @@ namespace XTMF
             {
                 // check to see if it already exists
                 int index;
-                if((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
+                if ((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
                 {
                     this.ReferenceCount[index]++;
                     return this.EditingSessions[index];
@@ -210,9 +246,9 @@ namespace XTMF
         private static int IndexOf<T>(IList<T> data, Predicate<T> condition)
         {
             var enumerator = data.GetEnumerator();
-            for(int i = 0; enumerator.MoveNext(); i++)
+            for (int i = 0; enumerator.MoveNext(); i++)
             {
-                if(condition(enumerator.Current))
+                if (condition(enumerator.Current))
                 {
                     return i;
                 }
@@ -230,7 +266,7 @@ namespace XTMF
         {
             Project project;
             string ignore = null;
-            if((project = this.Load(name, ref ignore)) != null)
+            if ((project = this.Load(name, ref ignore)) != null)
             {
                 return this.DeleteProject(project, ref error);
             }
@@ -249,7 +285,7 @@ namespace XTMF
             lock (EditingSessionLock)
             {
                 int index;
-                if((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
+                if ((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
                 {
                     error = "You can not delete a project while it is being edited.";
                     return false;

@@ -58,9 +58,23 @@ namespace XTMF
         /// <returns>True if the rename was successful, otherwise error will describe why it failed.</returns>
         public bool ReameProject(string newName, ref string error)
         {
-            lock(EditingSessionsLock)
+            lock (EditingSessionsLock)
             {
                 return Runtime.ProjectController.RenameProject(Project, newName, ref error);
+            }
+        }
+
+        /// <summary>
+        /// Create a cloned project with the given name
+        /// </summary>
+        /// <param name="name">The name of the cloned project</param>
+        /// <param name="error">A description of the error</param>
+        /// <returns>True if the clone succeeds, false otherwise</returns>
+        public bool CloneProjectAs(string name, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                return Runtime.ProjectController.CloneProject(Project, name, ref error);
             }
         }
 
@@ -391,13 +405,9 @@ namespace XTMF
 
         public bool DeleteProject(ref string error)
         {
-            var ret = Runtime.ProjectController.DeleteProject(Project, ref error);
-            if (ret)
-            {
-                CloseAllModelSystemEditingSessions();
-                Dispose();
-            }
-            return ret;
+            CloseAllModelSystemEditingSessions();
+            Dispose();
+            return Runtime.ProjectController.DeleteProject(Project, ref error);
         }
 
         public XTMFRuntime GetRuntime()
