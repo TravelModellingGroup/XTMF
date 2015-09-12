@@ -250,5 +250,10 @@ namespace XTMF
                         select project as Project).ToList();
             }
         }
+
+        internal bool ValidateProjectName(string name)
+        {
+            return Project.ValidateProjectName(name);
+        }
     }
 }

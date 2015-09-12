@@ -123,6 +123,42 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Clone the given model system with a new name
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public bool CloneModelSystemAs(IModelSystemStructure root, string name, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                var index = Project.ModelSystemStructure.IndexOf(root);
+                if (index < 0)
+                {
+                    error = "The model system was not found within the project!";
+                    return false;
+                }
+                // If it is currently being edited, save that version
+                var editingSession = EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
+                if (editingSession.Session != null)
+                {
+                    return editingSession.Session.SaveAsModelSystem(name, ref error);
+                }
+                else
+                {
+                    List<ILinkedParameter> lp;
+                    var ms = Runtime.ModelSystemController.LoadOrCreate(name);
+                    ms.Name = name;
+                    ms.Description = Project.ModelSystemDescriptions[index];
+                    ms.ModelSystemStructure = Project.CloneModelSystemStructure(out lp, index);
+                    ms.LinkedParameters = lp;
+                    return ms.Save(ref error);
+                }
+            }
+        }
+
+        /// <summary>
         /// Add a model system to the project
         /// </summary>
         /// <param name="modelSystemModel">Add the contained model system to the project.</param>
@@ -131,6 +167,11 @@ namespace XTMF
         public bool AddModelSystem(ModelSystemModel modelSystemModel, ref string error)
         {
             return AddModelSystem(modelSystemModel.ModelSystem, ref error);
+        }
+
+        internal IModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> lp, int modelSystemIndex)
+        {
+            return Project.CloneModelSystemStructure(out lp, modelSystemIndex);
         }
 
 
@@ -348,6 +389,11 @@ namespace XTMF
         public XTMFRuntime GetRuntime()
         {
             return Runtime;
+        }
+
+        public bool ValidateModelSystemName(string name)
+        {
+            return Runtime.ProjectController.ValidateProjectName(name);
         }
     }
 }

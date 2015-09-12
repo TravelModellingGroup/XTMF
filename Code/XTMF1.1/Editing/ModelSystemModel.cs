@@ -151,7 +151,6 @@ namespace XTMF
             }
         }
 
-
         private string _Description;
 
         /// <summary>

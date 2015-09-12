@@ -94,6 +94,11 @@ namespace XTMF.Gui.UserControls
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
                     return ret;
                 }
+
+                internal bool CloneModelSystem(ProjectEditingSession session, string name, ref string error)
+                {
+                    return session.CloneModelSystemAs(Root, name, ref error);
+                }
             }
 
             public class PreviousRun : INotifyPropertyChanged
@@ -523,6 +528,27 @@ namespace XTMF.Gui.UserControls
         private void RenameModelSystem_Click(object sender, RoutedEventArgs e)
         {
             RenameModelSystem();
+        }
+
+        private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected != null)
+            {
+                StringRequest sr = new StringRequest("", (newName) =>
+                {
+                    return Session.ValidateModelSystemName(newName);
+                });
+                sr.Owner = GetWindow();
+                if(sr.ShowDialog() == true)
+                {
+                    string error = null;
+                    if(!selected.CloneModelSystem(Session, sr.Answer, ref error))
+                    {
+                        MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
         }
     }
 }

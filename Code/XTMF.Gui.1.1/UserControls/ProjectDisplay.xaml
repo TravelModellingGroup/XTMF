@@ -77,7 +77,7 @@
                                             </Image>
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="Save Model System As">
+                                    <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
                                         <MenuItem.Icon>
                                             <Image>
                                                 <Image.Source>
