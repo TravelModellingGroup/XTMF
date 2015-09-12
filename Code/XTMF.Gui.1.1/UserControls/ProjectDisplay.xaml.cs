@@ -404,11 +404,6 @@ namespace XTMF.Gui.UserControls
             Model.RefreshPastRuns(Session);
         }
 
-        private void RenameProject_Clicked(object obj)
-        {
-
-        }
-
         private void OpenProjectFolder_Clicked(object obj)
         {
             var directoryName = System.IO.Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
@@ -421,7 +416,7 @@ namespace XTMF.Gui.UserControls
             }
             catch
             {
-                MessageBox.Show(MainWindow.Us, "Unable to Open", "We were unable to open the project directory '" + directoryName + "'!");
+                MessageBox.Show(MainWindow.Us, "We were unable to open the project directory '" + directoryName + "'!", "Unable to Open");
             }
         }
 
@@ -443,7 +438,7 @@ namespace XTMF.Gui.UserControls
                 string error = null;
                 if (!Session.DeleteProject(ref error))
                 {
-                    MessageBox.Show(GetWindow(), error, "Unable to Delete", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     return;
                 }
                 Close();
@@ -547,6 +542,23 @@ namespace XTMF.Gui.UserControls
                     {
                         MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
+                }
+            }
+        }
+
+        private void RenameProject_Clicked(object obj)
+        {
+            StringRequest sr = new StringRequest("", (newName) =>
+            {
+                return Session.ValidateModelSystemName(newName);
+            });
+            sr.Owner = GetWindow();
+            if (sr.ShowDialog() == true)
+            {
+                string error = null;
+                if (!Session.ReameProject(sr.Answer, ref error))
+                {
+                    MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

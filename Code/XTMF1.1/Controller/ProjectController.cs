@@ -76,6 +76,26 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Rename the given project
+        /// </summary>
+        /// <param name="project">The project to rename</param>
+        /// <param name="newName">The name to save this project as</param>
+        /// <param name="error">A description of why this operation has failed</param>
+        /// <returns>True if the rename succeeded, false otherwise.</returns>
+        internal bool RenameProject(Project project, string newName, ref string error)
+        {
+            lock(EditingSessionLock)
+            {
+                if(!Runtime.Configuration.ProjectRepository.RenameProject(project, newName))
+                {
+                    error = "The project name was invalid!";
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Remove a reference that a session is being edited
         /// </summary>
         /// <param name="session">The session to remove a reference to.</param>

@@ -51,6 +51,20 @@ namespace XTMF
         public event EventHandler SessionClosed;
 
         /// <summary>
+        /// Attempt to rename the project.  This name must be unique.
+        /// </summary>
+        /// <param name="newName">The name to save the project as</param>
+        /// <param name="error">The reason the call failed</param>
+        /// <returns>True if the rename was successful, otherwise error will describe why it failed.</returns>
+        public bool ReameProject(string newName, ref string error)
+        {
+            lock(EditingSessionsLock)
+            {
+                return Runtime.ProjectController.RenameProject(Project, newName, ref error);
+            }
+        }
+
+        /// <summary>
         /// Closes all of the model system editing sessions for this project
         /// </summary>
         private void CloseAllModelSystemEditingSessions()
