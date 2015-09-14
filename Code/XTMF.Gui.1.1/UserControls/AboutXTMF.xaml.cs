@@ -67,7 +67,14 @@ namespace XTMF.Gui.UserControls
 
         private void TextBlock_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("http://tmg.utoronto.ca/Default.aspx");
+            if (sender == TMGUrl)
+            {
+                Process.Start("http://tmg.utoronto.ca/Default.aspx");
+            }
+            else
+            {
+                Process.Start("http://github.com/TravelModellingGroup/XTMF");
+            }
         }
     }
 }
