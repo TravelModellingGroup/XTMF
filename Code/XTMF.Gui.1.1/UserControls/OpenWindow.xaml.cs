@@ -51,7 +51,7 @@ namespace XTMF.Gui.UserControls
                 }
                 set
                 {
-                    if(_CurrentName != value)
+                    if (_CurrentName != value)
                     {
                         _CurrentName = value;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "CurrentName");
@@ -68,7 +68,7 @@ namespace XTMF.Gui.UserControls
                 }
                 set
                 {
-                    if(_CurrentText != value)
+                    if (_CurrentText != value)
                     {
                         _CurrentText = value;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "CurrentText");
@@ -103,11 +103,11 @@ namespace XTMF.Gui.UserControls
                     }
                     set
                     {
-                        if(_IsSelected != value)
+                        if (_IsSelected != value)
                         {
                             _IsSelected = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "IsSelected");
-                            if(value)
+                            if (value)
                             {
                                 Root.CurrentName = Name;
                                 Root.CurrentText = Text;
@@ -126,7 +126,7 @@ namespace XTMF.Gui.UserControls
                 Data.Clear();
                 Task.Factory.StartNew(() =>
                 {
-                    foreach(var project in projects)
+                    foreach (var project in projects)
                     {
                         Data.Add(new ModelElement(project.Name, project.Description, project, this));
                     }
@@ -139,7 +139,7 @@ namespace XTMF.Gui.UserControls
                 Data.Clear();
                 Task.Factory.StartNew(() =>
                 {
-                    foreach(var modelSystem in modelSystems)
+                    foreach (var modelSystem in modelSystems)
                     {
                         Data.Add(new ModelElement(modelSystem.Name, modelSystem.Description, modelSystem, this));
                     }
@@ -205,11 +205,11 @@ namespace XTMF.Gui.UserControls
         private void Select()
         {
             var index = Display.SelectedIndex;
-            if(index < 0) return;
+            if (index < 0) return;
             IsEnabled = false;
 
             var result = InternalModel.Data[InternalModel.Data.IndexOf((Model.ModelElement)Display.SelectedItem)].Data;
-            if(result is Project)
+            if (result is Project)
             {
                 MainWindow.SetStatusText("Loading Project...");
             }
@@ -219,7 +219,7 @@ namespace XTMF.Gui.UserControls
             }
             LoadTask = Task.Factory.StartNew(() =>
                 {
-                    if(result is Project)
+                    if (result is Project)
                     {
                         ProjectSession = PEditSession = Runtime.ProjectController.EditProject(result as Project);
                     }
@@ -229,6 +229,40 @@ namespace XTMF.Gui.UserControls
                     }
                 });
             Close();
+        }
+
+        private void Remove_Click(object sender, RoutedEventArgs e)
+        {
+            var index = Display.SelectedIndex;
+            if (index < 0) return;
+            IsEnabled = false;
+
+            var result = InternalModel.Data[InternalModel.Data.IndexOf((Model.ModelElement)Display.SelectedItem)].Data;
+            string error = null;
+            if (result is Project)
+            {
+                if (MessageBox.Show(Window.GetWindow(this),
+                "Are you sure you want to delete the project '" + (result as Project).Name + "' ?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                {
+                    if (!Runtime.ProjectController.DeleteProject(result as Project, ref error))
+                    {
+                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
+                }
+                Close();
+            }
+            else
+            {
+                if (MessageBox.Show(Window.GetWindow(this),
+                "Are you sure you want to delete the model system '" + (result as ModelSystem).Name + "'?", "Delete Model System", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                {
+                    if (!Runtime.ModelSystemController.Delete(result as ModelSystem))
+                    {
+                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
+                }
+                Close();
+            }
         }
 
         internal ProjectEditingSession ProjectSession;
@@ -250,9 +284,9 @@ namespace XTMF.Gui.UserControls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if(e.Handled == false)
+            if (e.Handled == false)
             {
-                if(e.Key == Key.Enter)
+                if (e.Key == Key.Enter)
                 {
                     Select();
                 }
@@ -262,7 +296,7 @@ namespace XTMF.Gui.UserControls
         protected override void OnKeyUp(KeyEventArgs e)
         {
             base.OnKeyUp(e);
-            if(e.Handled == false && e.Key == Key.Escape)
+            if (e.Handled == false && e.Key == Key.Escape)
             {
                 e.Handled = true;
                 Close();
@@ -276,10 +310,10 @@ namespace XTMF.Gui.UserControls
 
         private void Display_GotFocus(object sender, RoutedEventArgs e)
         {
-            if(Display.SelectedItem == null)
+            if (Display.SelectedItem == null)
             {
                 var numberOfItems = Display.Items.Count;
-                if(numberOfItems >= 0)
+                if (numberOfItems >= 0)
                 {
                     Display.SelectedIndex = 0;
                 }

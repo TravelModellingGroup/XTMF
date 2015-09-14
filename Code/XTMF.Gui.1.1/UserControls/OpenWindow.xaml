@@ -32,6 +32,19 @@
             <ListView x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       Background="{StaticResource WindowBackgroundBrush}"
                       GotFocus="Display_GotFocus">
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Remove (Del)" Click="Remove_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </ListView.ContextMenu>
                 <ListView.Resources>
                     <Style TargetType="{x:Type ListViewItem}">
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
