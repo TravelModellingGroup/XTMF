@@ -65,6 +65,7 @@ namespace XTMF
             : this(project, root, config, runName)
         {
             ModelSystemIndex = modelSystemIndex;
+            Project.ModelSystemStructure[ModelSystemIndex] = root.RealModelSystemStructure;
         }
 
         public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName)
