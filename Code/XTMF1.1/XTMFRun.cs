@@ -72,7 +72,7 @@ namespace XTMF
         {
             Project = project.CreateCloneProject();
             ModelSystemStructureModelRoot = root;
-            Configuration = configuration;
+            Configuration = new XTMF.RunProxy.ConfigurationProxy(configuration, Project);
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
         }
@@ -247,7 +247,7 @@ namespace XTMF
                 }
                 else
                 {
-                    MST = ((Project)Project).CreateModelSystem(ref error, ModelSystemStructureModelRoot.RealModelSystemStructure);
+                    MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
                     MSTStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
                 }
             }
@@ -294,7 +294,14 @@ namespace XTMF
                 CleanUpModelSystem(MSTStructure);
                 MSTStructure = null;
                 MST = null;
-                ((Configuration as Configuration)).ModelSystemExited();
+                if(Configuration is Configuration)
+                {
+                    ((Configuration as Configuration)).ModelSystemExited();
+                }
+                else
+                {
+                    ((Configuration as RunProxy.ConfigurationProxy)).ModelSystemExited();
+                }
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();

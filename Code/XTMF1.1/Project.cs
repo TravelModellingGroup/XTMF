@@ -261,15 +261,26 @@ namespace XTMF
         public IModelSystemTemplate CreateModelSystem(ref string error, int modelSystemIndex)
         {
             // Pre-Validate the structure
+            if (modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
+            {
+                throw new XTMFRuntimeException("The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
+                ModelSystemStructure.Count);
+            }
+            return CreateModelSystem(ref error, Configuration, ModelSystemStructure[modelSystemIndex]);
+        }
+
+        public IModelSystemTemplate CreateModelSystem(ref string error, IConfiguration configuration, int modelSystemIndex)
+        {
+            // Pre-Validate the structure
             if(modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
             {
                 throw new XTMFRuntimeException("The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
                 ModelSystemStructure.Count);
             }
-            return CreateModelSystem(ref error, ModelSystemStructure[modelSystemIndex]);
+            return CreateModelSystem(ref error, configuration, ModelSystemStructure[modelSystemIndex]);
         }
 
-        public IModelSystemTemplate CreateModelSystem(ref string error, IModelSystemStructure modelSystemStructure)
+        public IModelSystemTemplate CreateModelSystem(ref string error, IConfiguration configuration, IModelSystemStructure modelSystemStructure)
         {
             if(!modelSystemStructure.Validate(ref error))
             {
@@ -277,8 +288,7 @@ namespace XTMF
             }
 
             IModelSystemTemplate modelSystem = null;
-            IConfiguration proxy = new XTMF.RunProxy.ConfigurationProxy(Configuration as Configuration, this);
-            if(CreateModule(proxy, modelSystemStructure, modelSystemStructure, ref error))
+            if(CreateModule(configuration, modelSystemStructure, modelSystemStructure, ref error))
             {
                 modelSystem = modelSystemStructure.Module as IModelSystemTemplate;
             }

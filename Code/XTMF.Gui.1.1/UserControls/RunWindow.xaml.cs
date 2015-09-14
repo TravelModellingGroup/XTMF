@@ -224,6 +224,10 @@ namespace XTMF.Gui.UserControls
                 }));
             Run = session.Run(runName, ref error);
             ProgressReports = Run.Configuration.ProgressReports;
+            ProgressReports.ListChanged += new ListChangedEventHandler(ProgressReports_ListChanged);
+            ProgressReports.BeforeRemove += new EventHandler<ListChangedEventArgs>(ProgressReports_BeforeRemove);
+            SubProgressBars.ListChanged += new ListChangedEventHandler(SubProgressBars_ListChanged);
+            SubProgressBars.BeforeRemove += new EventHandler<ListChangedEventArgs>(SubProgressBars_BeforeRemove);
             Run.RunComplete += Run_RunComplete;
             Run.RunStarted += Run_RunStarted;
             Run.RuntimeError += Run_RuntimeError;
@@ -286,8 +290,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 TaskbarInformation.ProgressValue = ((progress / 10000));
                             }
-                            int subProgressBarLength = SubProgressBars.Count;
-                            for (int i = 0; i < subProgressBarLength; i++)
+                            for (int i = 0; i < SubProgressBars.Count; i++)
                             {
                                 try
                                 {
@@ -447,6 +450,79 @@ namespace XTMF.Gui.UserControls
         private void ContinueButton_Clicked(object obj)
         {
             MainWindow.Us.CloseWindow(this);
+        }
+
+        private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)
+        {
+            this.SubProgressBars.RemoveAt(e.NewIndex);
+        }
+
+        private void ProgressReports_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            if (e.ListChangedType == ListChangedType.ItemAdded)
+            {
+                var toAdd = this.ProgressReports[e.NewIndex];
+                this.Dispatcher.Invoke(new Action(delegate ()
+                {
+                    this.AdditionDetailsPanelBorder.Visibility = System.Windows.Visibility.Visible;
+                    this.AdditionDetailsPanelBorder.Height = double.NaN;
+                    var progressBar = new TMGProgressBar()
+                    {
+                        Background = new SolidColorBrush(Color.FromArgb((byte)0x22, (byte)0x22, (byte)0x22, (byte)0x22)),
+                        Maximum = 10000,
+                        Minimum = 0,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Height = 15
+                    };
+                    if (toAdd.Colour != null)
+                    {
+                        progressBar.SetForgroundColor(Color.FromRgb(toAdd.Colour.Item1, toAdd.Colour.Item2, toAdd.Colour.Item3));
+                    }
+                    this.SubProgressBars.Add(new SubProgress()
+                    {
+                        Name = new Label() { Content = toAdd.Name, Foreground = Brushes.White },
+                        ProgressBar = progressBar
+                    });
+                }));
+            }
+            else if (e.ListChangedType == ListChangedType.ItemDeleted)
+            {
+                if (this.ProgressReports.Count == 0)
+                {
+                    this.Dispatcher.Invoke(new Action(delegate ()
+                    {
+                        this.AdditionDetailsPanelBorder.Visibility = System.Windows.Visibility.Collapsed;
+                        this.AdditionDetailsPanelBorder.Height = 0;
+                    }));
+                }
+            }
+        }
+
+        private void SubProgressBars_AddingNew(object sender, AddingNewEventArgs e)
+        {
+        }
+
+        private void SubProgressBars_BeforeRemove(object sender, ListChangedEventArgs e)
+        {
+            lock (this)
+            {
+                this.Dispatcher.Invoke(new Action(delegate ()
+                {
+                    var toRemove = this.SubProgressBars[e.NewIndex];
+                    this.AdditionDetailsPanel.Remove(toRemove.Name);
+                    this.AdditionDetailsPanel.Remove(toRemove.ProgressBar);
+                }));
+            }
+        }
+
+        private void SubProgressBars_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            if (e.ListChangedType == ListChangedType.ItemAdded)
+            {
+                var toAdd = this.SubProgressBars[e.NewIndex];
+                this.AdditionDetailsPanel.Add(toAdd.Name);
+                this.AdditionDetailsPanel.Add(toAdd.ProgressBar);
+            }
         }
     }
 }

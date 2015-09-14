@@ -36,10 +36,32 @@ namespace XTMF.RunProxy
         /// </summary>
         private Configuration RealConfiguration;
 
+        private class ProgressReport : IProgressReport
+        {
+            public Tuple<byte, byte, byte> Colour
+            {
+                get;
+                set;
+            }
+
+            public Func<float> GetProgress
+            {
+                get;
+                internal set;
+            }
+
+            public string Name
+            {
+                get;
+                internal set;
+            }
+        }
+
         public ConfigurationProxy(Configuration realConfig, IProject activeProject)
         {
             RealConfiguration = realConfig;
             ProjectRepository = new ProjectRepositoryProxy(RealConfiguration.ProjectRepository, activeProject);
+            ProgressReports = new BindingListWithRemoving<IProgressReport>();
         }
 
         public string ConfigurationDirectory
@@ -88,35 +110,43 @@ namespace XTMF.RunProxy
             private set;
         }
 
-        public string ProjectDirectory
-        {
-            get
-            {
-                return RealConfiguration.ProjectDirectory;
-            }
-        }
-
-        public IProjectRepository ProjectRepository
-        {
-            get;
-            private set;
-        }
-
-        public event Action OnModelSystemExit;
-
         public void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> Color = null)
         {
-            throw new NotImplementedException();
+            lock (this)
+            {
+                foreach (var report in this.ProgressReports)
+                {
+                    if (report.Name == name)
+                    {
+                        report.Colour = Color;
+                        return;
+                    }
+                }
+                this.ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = Color });
+            }
         }
 
         public void DeleteAllProgressReport()
         {
-            throw new NotImplementedException();
+            lock (this)
+            {
+                this.ProgressReports.Clear();
+            }
         }
 
         public void DeleteProgressReport(string name)
         {
-            throw new NotImplementedException();
+            lock (this)
+            {
+                for (int i = 0; i < this.ProgressReports.Count; i++)
+                {
+                    if (this.ProgressReports[i].Name == name)
+                    {
+                        this.ProgressReports.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
         }
 
         public bool InstallModule(string moduleFileName)
@@ -147,6 +177,42 @@ namespace XTMF.RunProxy
         public void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> Color)
         {
             throw new NotImplementedException();
+        }
+
+        public string ProjectDirectory
+        {
+            get
+            {
+                return RealConfiguration.ProjectDirectory;
+            }
+        }
+
+        public IProjectRepository ProjectRepository
+        {
+            get;
+            private set;
+        }
+
+        public event Action OnModelSystemExit;
+
+        internal void ModelSystemExited()
+        {
+            if (this.OnModelSystemExit != null)
+            {
+                try
+                {
+                    this.OnModelSystemExit();
+                }
+                catch
+                {
+                }
+                var dels = this.OnModelSystemExit.GetInvocationList();
+                foreach (Delegate d in dels)
+                {
+                    this.OnModelSystemExit -= (Action)d;
+                }
+                this.OnModelSystemExit = null;
+            }
         }
     }
 }
