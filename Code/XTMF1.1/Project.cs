@@ -93,6 +93,22 @@ namespace XTMF
             return Save(ref error);
         }
 
+        internal bool AddModelSystem(int index, string newName, ref string error)
+        {
+            List<ILinkedParameter> linkedParameters;
+            var clone = CloneModelSystemStructure(out linkedParameters, index);
+            if (clone == null)
+            {
+                error = "Unable to clone the model system.";
+                return false;
+            }
+            clone.Name = newName;
+            ModelSystemStructure.Add(clone);
+            ModelSystemDescriptions.Add(ModelSystemDescriptions[index]);
+            LinkedParameters.Add(linkedParameters);
+            return Save(ref error);
+        }
+
         /// <summary>
         /// This constructo
         /// </summary>

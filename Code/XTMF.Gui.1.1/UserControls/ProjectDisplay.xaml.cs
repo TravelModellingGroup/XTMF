@@ -99,6 +99,11 @@ namespace XTMF.Gui.UserControls
                 {
                     return session.CloneModelSystemAs(Root, name, ref error);
                 }
+
+                internal bool CloneModelSystemToProject(ProjectEditingSession session, string name, ref string error)
+                {
+                    return session.CloneModelSystemToProjectAs(Root, name, ref error);
+                }
             }
 
             public class PreviousRun : INotifyPropertyChanged
@@ -543,10 +548,10 @@ namespace XTMF.Gui.UserControls
                     return Session.ValidateModelSystemName(newName);
                 });
                 sr.Owner = GetWindow();
-                if(sr.ShowDialog() == true)
+                if (sr.ShowDialog() == true)
                 {
                     string error = null;
-                    if(!selected.CloneModelSystem(Session, sr.Answer, ref error))
+                    if (!selected.CloneModelSystem(Session, sr.Answer, ref error))
                     {
                         MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
@@ -584,6 +589,31 @@ namespace XTMF.Gui.UserControls
                 if (!Session.CloneProjectAs(sr.Answer, ref error))
                 {
                     MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void CloneModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected != null)
+            {
+                StringRequest sr = new StringRequest("Cloned Model System's Name?", (newName) =>
+                {
+                    return Session.ValidateModelSystemName(newName);
+                });
+                sr.Owner = GetWindow();
+                if (sr.ShowDialog() == true)
+                {
+                    string error = null;
+                    if (!selected.CloneModelSystemToProject(Session, sr.Answer, ref error))
+                    {
+                        MessageBox.Show(error, "Unable to Clone Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Model.RefreshModelSystems();
+                    }
                 }
             }
         }

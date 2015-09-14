@@ -243,6 +243,27 @@ namespace XTMF
             }
         }
 
+        public bool CloneModelSystemToProjectAs(IModelSystemStructure root, string name, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                var index = Project.ModelSystemStructure.IndexOf(root);
+                if (index < 0)
+                {
+                    error = "The model system was not found within the project!";
+                    return false;
+                }
+                if (Project.AddModelSystem(index, name, ref error))
+                {
+                    var temp = new SessionData[EditingSessions.Length + 1];
+                    Array.Copy(EditingSessions, temp, EditingSessions.Length);
+                    EditingSessions = temp;
+                    return true;
+                }
+                return false;
+            }
+        }
+
         internal IModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> lp, int modelSystemIndex)
         {
             return Project.CloneModelSystemStructure(out lp, modelSystemIndex);

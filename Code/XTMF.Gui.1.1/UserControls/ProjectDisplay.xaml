@@ -86,6 +86,15 @@
                                             </Image>
                                         </MenuItem.Icon>
                                     </MenuItem>
+                                    <MenuItem Header="Clone Model System As" Click="CloneModelSystem_Click">
+                                        <MenuItem.Icon>
+                                            <Image>
+                                                <Image.Source>
+                                                    <BitmapImage UriSource="/XTMF.Gui;component/Images/CopyFolderHSx64.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                </Image.Source>
+                                            </Image>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                             <ListBox.ItemsPanel>
