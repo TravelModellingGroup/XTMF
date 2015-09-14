@@ -121,26 +121,29 @@ namespace XTMF.Gui
                         progressing.Close();
                     }));
                 }
-
-                var projectSession = open.ProjectSession;
-                if(projectSession != null)
-                {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        var display = new ProjectDisplay()
-                        {
-                            Session = projectSession,
-                        };
-                        display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession);
-                        var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, () => { projectSession.Dispose(); });
-                        doc.IsSelected = true;
-                        display.RequestClose += (ignored) => doc.Close();
-                        display.Focus();
-                        SetStatusText("Ready");
-                    }
-                    ));
-                }
+                EditProject(open.ProjectSession);
             });
+        }
+
+        private void EditProject(ProjectEditingSession projectSession)
+        {
+            if (projectSession != null)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    var display = new ProjectDisplay()
+                    {
+                        Session = projectSession,
+                    };
+                    display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession);
+                    var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, () => { projectSession.Dispose(); });
+                    doc.IsSelected = true;
+                    display.RequestClose += (ignored) => doc.Close();
+                    display.Focus();
+                    SetStatusText("Ready");
+                }
+                ));
+            }
         }
 
         private void OpenModelSystem_Click(object sender, RoutedEventArgs e)
@@ -389,7 +392,14 @@ namespace XTMF.Gui
 
         public void NewProject()
         {
-
+            StringRequest req = new StringRequest("Project Name", ValidateName) { Owner = this };
+            if (req.ShowDialog() == true)
+            {
+                var name = req.Answer;
+                string error = null;
+                var ms = EditorController.Runtime.ProjectController.LoadOrCreate(name, ref error);
+                EditProject(EditorController.Runtime.ProjectController.EditProject(ms));
+            }
         }
 
         private bool ValidateName(string name)
@@ -563,6 +573,11 @@ namespace XTMF.Gui
         private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
         {
             LaunchHelpWindow();
+        }
+
+        private void NewProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            NewProject();
         }
     }
 }

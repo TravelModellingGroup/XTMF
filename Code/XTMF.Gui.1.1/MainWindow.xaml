@@ -36,7 +36,7 @@
         <Menu Grid.Row="0">
             <MenuItem Header="_File">
                 <MenuItem Header="_New">
-                    <MenuItem x:Name="NewProjectButton" Header="_Project" />
+                    <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
                     <MenuItem x:Name="NewModelSystemButton" Header="_Model System" Click="NewModelSystemButton_Click" />
                 </MenuItem>
                 <MenuItem x:Name="OpenMenuItem" Header="_Open">
