@@ -315,10 +315,33 @@ namespace XTMF
 
         private void SendRuntimeError(Exception errorMessage)
         {
+            SaveErrorMessage(errorMessage);
             var alert = RuntimeError;
             if(alert != null)
             {
                 alert(errorMessage);
+            }
+        }
+
+        private static System.Exception GetTopRootException(System.Exception value)
+        {
+            if (value == null) return null;
+            var agg = value as AggregateException;
+            if (agg != null)
+            {
+                return GetTopRootException(agg.InnerException);
+            }
+            return value;
+        }
+
+        private void SaveErrorMessage(Exception errorMessage)
+        {
+            using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
+            {
+                var realExeption = GetTopRootException(errorMessage);
+                writer.WriteLine(realExeption.Message);
+                writer.WriteLine();
+                writer.WriteLine(realExeption.StackTrace);
             }
         }
 
