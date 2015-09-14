@@ -467,12 +467,20 @@ namespace XTMF.Gui.UserControls
                             return;
                         }
                         string error = null;
-                        if (!Session.AddModelSystem(realSession.ModelSystemModel, ref error))
+                        StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
                         {
-                            MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                            return;
+                            return Session.ValidateModelSystemName(newName);
+                        });
+                        sr.Owner = GetWindow();
+                        if (sr.ShowDialog() == true)
+                        {
+                            if (!Session.AddModelSystem(realSession.ModelSystemModel, sr.Answer, ref error))
+                            {
+                                MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                                return;
+                            }
+                            Model.RefreshModelSystems();
                         }
-                        Model.RefreshModelSystems();
                     }
                 }
             }

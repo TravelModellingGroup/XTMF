@@ -73,7 +73,7 @@ namespace XTMF
             RemoteProject = remoteProject;
         }
 
-        internal bool AddModelSystem(ModelSystem modelSystem, ref string error)
+        internal bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
         {
             if(modelSystem == null)
             {
@@ -86,6 +86,7 @@ namespace XTMF
                 error = "Unable to clone the model system.";
                 return false;
             }
+            clone.Name = newName;
             ModelSystemStructure.Add(clone);
             ModelSystemDescriptions.Add(modelSystem.Description);
             LinkedParameters.Add(linkedParameters);

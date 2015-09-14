@@ -109,7 +109,7 @@ namespace XTMF
             }
             lock (EditingSessionsLock)
             {
-                if (!this.Project.AddModelSystem(modelSystem, ref error))
+                if (!this.Project.AddModelSystem(modelSystem, modelSystem.Name, ref error))
                 {
                     return false;
                 }
@@ -118,6 +118,63 @@ namespace XTMF
                 EditingSessions = temp;
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Add a model system to the project
+        /// </summary>
+        /// <param name="modelSystem">The model system to add to the project</param>
+        /// <param name="newName">The name to use for this new model system</param>
+        /// <param name="error">An error message in case of failure</param>
+        /// <returns>True if the model system was added successfully</returns>
+        public bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
+        {
+            if (modelSystem == null)
+            {
+                throw new ArgumentNullException("modelSystem");
+            }
+            lock (EditingSessionsLock)
+            {
+                if (!this.Project.AddModelSystem(modelSystem, newName, ref error))
+                {
+                    return false;
+                }
+                var temp = new SessionData[EditingSessions.Length + 1];
+                Array.Copy(EditingSessions, temp, EditingSessions.Length);
+                EditingSessions = temp;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Add a model system to the project
+        /// </summary>
+        /// <param name="modelSystem">The model system to add to the project</param>
+        /// <param name="error">An error message in case of failure</param>
+        /// <returns>True if the model system was added successfully</returns>
+        public bool AddModelSystem(ModelSystemModel modelSystem, ref string error)
+        {
+            if (modelSystem == null)
+            {
+                throw new ArgumentNullException("modelSystem");
+            }
+            return AddModelSystem(modelSystem.ModelSystem, ref error);
+        }
+
+        /// <summary>
+        /// Add a model system to the project
+        /// </summary>
+        /// <param name="modelSystem">The model system to add to the project</param>
+        /// <param name="newName">The name to use for this new model system</param>
+        /// <param name="error">An error message in case of failure</param>
+        /// <returns>True if the model system was added successfully</returns>
+        public bool AddModelSystem(ModelSystemModel modelSystem, string newName, ref string error)
+        {
+            if (modelSystem == null)
+            {
+                throw new ArgumentNullException("modelSystem");
+            }
+            return AddModelSystem(modelSystem.ModelSystem, newName, ref error);
         }
 
         /// <summary>
@@ -184,17 +241,6 @@ namespace XTMF
                     return ms.Save(ref error);
                 }
             }
-        }
-
-        /// <summary>
-        /// Add a model system to the project
-        /// </summary>
-        /// <param name="modelSystemModel">Add the contained model system to the project.</param>
-        /// <param name="error">An error message in case of failure</param>
-        /// <returns>True if the model system was added successfully</returns>
-        public bool AddModelSystem(ModelSystemModel modelSystemModel, ref string error)
-        {
-            return AddModelSystem(modelSystemModel.ModelSystem, ref error);
         }
 
         internal IModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> lp, int modelSystemIndex)
