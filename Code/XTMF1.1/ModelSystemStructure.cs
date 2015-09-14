@@ -166,17 +166,17 @@ namespace XTMF
         {
             IModelSystemStructure result = null;
             var rootRequirement = GetRootRequirement(t);
-            if(rootRequirement == null)
+            if (start == objective)
             {
-                rootRequirement = typeof(IModelSystemTemplate);
-            }
-            else if(start == objective)
-            {
-                if(rootRequirement.IsAssignableFrom(start.Type))
+                if (typeof(IModelSystemTemplate).IsAssignableFrom(t))
                 {
                     return start;
                 }
                 return null;
+            }
+            else if(rootRequirement == null)
+            {
+                rootRequirement = typeof(IModelSystemTemplate);
             }
             CheckForRootModule(start, objective, rootRequirement, ref result);
             return result;

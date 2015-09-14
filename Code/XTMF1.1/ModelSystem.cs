@@ -392,6 +392,7 @@ namespace XTMF
                 catch
                 {
                     Description = string.Empty;
+                    ModelSystemStructure.ParentFieldType = typeof(IModelSystemTemplate);
                 }
             }
         }
