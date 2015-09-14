@@ -234,10 +234,10 @@ namespace XTMF.Gui.UserControls
             Timer = new DispatcherTimer();
             Timer.Interval = TimeSpan.FromMilliseconds(1000 / 30);
             Timer.Tick += new EventHandler(Timer_Tick);
-            if(Environment.OSVersion.Platform == PlatformID.Win32NT)
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 var major = Environment.OSVersion.Version.Major;
-                if(major > 6 || (major >= 6 && Environment.OSVersion.Version.Minor >= 1))
+                if (major > 6 || (major >= 6 && Environment.OSVersion.Version.Minor >= 1))
                 {
                     Windows7OrAbove = true;
                     TaskbarInformation = new TaskbarItemInfo();
@@ -253,18 +253,18 @@ namespace XTMF.Gui.UserControls
         {
             try
             {
-                if(IsActive)
+                if (IsActive)
                 {
-                    if(Run != null)
+                    if (Run != null)
                     {
-                        if(!(IsFinished))
+                        if (!(IsFinished))
                         {
                             float progress = 1;
                             Tuple<byte, byte, byte> colour = ErrorColour;
                             try
                             {
                                 var status = Run.PollStatusMessage(); ;
-                                if(status != null)
+                                if (status != null)
                                 {
                                     StatusLabel.Text = status;
                                 }
@@ -275,26 +275,26 @@ namespace XTMF.Gui.UserControls
                             { }
                             progress = progress * 10000;
 
-                            if(progress > 10000) progress = 10000;
-                            if(progress < 0) progress = 0;
-                            if(colour != null)
+                            if (progress > 10000) progress = 10000;
+                            if (progress < 0) progress = 0;
+                            if (colour != null)
                             {
                                 ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
                             }
                             ProgressBar.Value = progress;
-                            if(Windows7OrAbove)
+                            if (Windows7OrAbove)
                             {
                                 TaskbarInformation.ProgressValue = ((progress / 10000));
                             }
                             int subProgressBarLength = SubProgressBars.Count;
-                            for(int i = 0; i < subProgressBarLength; i++)
+                            for (int i = 0; i < subProgressBarLength; i++)
                             {
                                 try
                                 {
                                     progress = ProgressReports[i].GetProgress();
                                     progress = progress * 10000;
-                                    if(progress > 10000) progress = 10000;
-                                    if(progress < 0) progress = 0;
+                                    if (progress > 10000) progress = 10000;
+                                    if (progress < 0) progress = 0;
                                     SubProgressBars[i].ProgressBar.Value = progress;
                                 }
                                 catch
@@ -304,7 +304,7 @@ namespace XTMF.Gui.UserControls
                             var elapsedTime = (DateTime.Now - StartTime);
                             int days = elapsedTime.Days;
                             elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
-                            if(days < 1)
+                            if (days < 1)
                             {
                                 ElapsedTimeLabel.Content = string.Format("Elapsed Time: {0:g}", elapsedTime);
                             }
@@ -336,12 +336,12 @@ namespace XTMF.Gui.UserControls
 
         private void ShowErrorMessage(string header, string message)
         {
-            (new ErrorWindow() { ErrorMessage = header + "\r\n" + message}).ShowDialog();
+            (new ErrorWindow() { Owner = GetWindow(this), ErrorMessage = header + "\r\n" + message }).ShowDialog();
         }
 
         private void ShowErrorMessage(string v, Exception error)
         {
-            (new ErrorWindow() { Exception = error }).ShowDialog();
+            (new ErrorWindow() { Owner = GetWindow(this), Exception = error }).ShowDialog();
         }
 
         private void Run_ValidationStarting()
@@ -371,7 +371,7 @@ namespace XTMF.Gui.UserControls
         private Exception GetInnermostError(Exception error)
         {
             var ret = error;
-            while(ret.InnerException != null)
+            while (ret.InnerException != null)
             {
                 ret = ret.InnerException;
             }
@@ -383,7 +383,7 @@ namespace XTMF.Gui.UserControls
             IsFinished = true;
             ContinueButton.IsEnabled = true;
             CancelButton.IsEnabled = false;
-            if(WasCanceled)
+            if (WasCanceled)
             {
                 StatusLabel.Text = "Run Canceled";
             }
@@ -429,7 +429,7 @@ namespace XTMF.Gui.UserControls
 
         private void OpenDirectoryButton_Clicked(object obj)
         {
-            if(System.IO.Directory.Exists(RunDirectory))
+            if (System.IO.Directory.Exists(RunDirectory))
             {
                 System.Diagnostics.Process.Start(RunDirectory);
             }
