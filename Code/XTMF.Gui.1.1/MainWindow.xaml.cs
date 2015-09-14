@@ -386,6 +386,7 @@ namespace XTMF.Gui
             {
                 var name = req.Answer;
                 var ms = EditorController.Runtime.ModelSystemController.LoadOrCreate(name);
+                ms.ModelSystemStructure.Name = req.Answer;
                 EditModelSystem(EditorController.Runtime.ModelSystemController.EditModelSystem(ms));
             }
         }

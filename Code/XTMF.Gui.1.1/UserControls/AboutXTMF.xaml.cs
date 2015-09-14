@@ -49,7 +49,7 @@ namespace XTMF.Gui.UserControls
 
         private string GetVersionText()
         {
-            var assemblyLocation = Assembly.GetEntryAssembly().CodeBase.Replace("file:///", "");
+            var assemblyLocation = Assembly.GetEntryAssembly().Location;
             var licenseFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "license.txt");
             var versionFile = IOPath.Combine(IOPath.GetDirectoryName(assemblyLocation), "version.txt");
             try

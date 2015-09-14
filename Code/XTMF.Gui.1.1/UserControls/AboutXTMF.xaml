@@ -40,8 +40,8 @@
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="AUTO" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Version: " Foreground="Black" />
-            <TextBlock Grid.Column="1" x:Name="VersionBlock" Foreground="Black" />
+            <TextBlock Grid.Column="0" Text="Version: " Foreground="White" />
+            <TextBlock Grid.Column="1" x:Name="VersionBlock" Foreground="White" />
         </Grid>
         <TextBlock Grid.Row="3" Foreground="White" Text="Created by the Travel Modelling Group" />
         <TextBlock Grid.Row="4" Foreground="White" Text="This software is Open-Source, copyrighted under the GPLv3 License." />
