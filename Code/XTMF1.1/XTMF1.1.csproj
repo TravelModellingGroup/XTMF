@@ -30,7 +30,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '32Bit|AnyCPU'">
     <OutputPath>bin\32Bit\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -41,6 +42,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '64Bit|AnyCPU'">
     <OutputPath>bin\64Bit\</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
+    <Optimize>true</Optimize>
+    <DefineConstants>
+    </DefineConstants>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
