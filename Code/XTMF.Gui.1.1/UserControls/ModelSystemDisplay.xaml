@@ -43,7 +43,8 @@
             <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
             <TreeView Grid.Row="1" Background="{StaticResource ControlBackgroundBrush}" 
                   x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}" SelectedItemChanged="ModuleDisplay_SelectedItemChanged"
-                      KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle">
+                      KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
+                      PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
                 <TreeView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
@@ -113,6 +114,7 @@
                                      HighlightColour="{Binding HighlightColour, Mode=OneWay}"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}"
+                                    RightClicked="DisplayButton_RightClicked"
                                     Margin="4"
                                     KeyboardNavigation.TabNavigation="Continue"
                                     KeyboardNavigation.IsTabStop="false" IsTabStop="False" Width="275" Focusable="False" x:Name="DisplayButton">

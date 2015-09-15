@@ -152,7 +152,7 @@ namespace XTMF
                     cloneProject.ModelSystemStructure[ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
                     cloneProject.ModelSystemDescriptions[ModelSystemIndex] = ModelSystemModel.Description;
                     cloneProject.LinkedParameters[ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-                    run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel.Root, Runtime.Configuration, runName);
+                    run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName);
                 }
                 else
                 {

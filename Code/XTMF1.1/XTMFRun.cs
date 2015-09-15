@@ -20,6 +20,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace XTMF
 {
@@ -61,17 +62,25 @@ namespace XTMF
 
         public string RunDirectory { get; private set; }
 
-        public XTMFRun(Project project, int modelSystemIndex, ModelSystemStructureModel root, Configuration config, string runName)
-            : this(project, root, config, runName)
+        public XTMFRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName)
         {
+            Project = project;
+            ModelSystemStructureModelRoot = root.Root;
+            Configuration = new XTMF.RunProxy.ConfigurationProxy(config, Project);
+            RunName = runName;
+            RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
             ModelSystemIndex = modelSystemIndex;
-            Project.ModelSystemStructure[ModelSystemIndex] = root.RealModelSystemStructure;
+            Project.ModelSystemStructure[ModelSystemIndex] = root.ClonedModelSystemRoot;
+            Project.LinkedParameters[ModelSystemIndex] = root.LinkedParameters.GetRealLinkedParameters();
         }
 
         public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName)
         {
-            Project = project.CreateCloneProject();
+            // we don't make a clone for this type of run
+            Project = project;
             ModelSystemStructureModelRoot = root;
+            var index = project.ModelSystemStructure.IndexOf(root.RealModelSystemStructure);
+            if(index >= 0)
             Configuration = new XTMF.RunProxy.ConfigurationProxy(configuration, Project);
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);

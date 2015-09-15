@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -1067,6 +1068,39 @@ namespace XTMF.Gui.UserControls
                     QuickParameterFilterBox.Display = QuickParameterDisplay;
                     QuickParameterFilterBox.Filter = FilterParameters;
                     QuickParameterFilterBox.RefreshFilter();
+                }
+            }
+        }
+
+        private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem treeViewItem = VisualUpwardSearch(e.OriginalSource as DependencyObject);
+
+            if (treeViewItem != null)
+            {
+                treeViewItem.Focus();
+                e.Handled = true;
+            }
+        }
+
+        static TreeViewItem VisualUpwardSearch(DependencyObject source)
+        {
+            while (source != null && !(source is TreeViewItem))
+                source = VisualTreeHelper.GetParent(source);
+
+            return source as TreeViewItem;
+        }
+
+        private void DisplayButton_RightClicked(object obj)
+        {
+            var button = obj as BorderIconButton;
+            if (button != null)
+            {
+                var menu = button.ContextMenu;
+                if (menu != null)
+                {
+                    menu.PlacementTarget = button;
+                    menu.IsOpen = true;
                 }
             }
         }
