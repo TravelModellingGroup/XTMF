@@ -884,7 +884,7 @@ namespace XTMF.Gui.UserControls
 
         private void OpenParameterFileLocation(bool openWith, bool openDirectory)
         {
-            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            var currentParameter = ( ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
             var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if(currentParameter != null && currentModule != null)
             {
@@ -993,20 +993,20 @@ namespace XTMF.Gui.UserControls
         {
             var parts = path.Split('\\', '/');
             StringBuilder finalPath = new StringBuilder();
-            int lastReal = 0;
+            Stack<string> currentlyOn = new Stack<string>();
             for(int i = 0; i < parts.Length; i++)
             {
                 if(parts[i] == "..")
                 {
-                    if(lastReal > 0)
+                    // make sure we don't go too far back
+                    if(currentlyOn.Count <= 0)
                     {
-                        var removeLength = parts[--lastReal].Length + 1;
-                        finalPath.Remove(finalPath.Length - removeLength, removeLength);
+                        return null;
                     }
-                    else
-                    {
-                        finalPath.Remove(0, finalPath.Length);
-                    }
+                    var previousString = currentlyOn.Pop();
+                    var removeLength = previousString.Length + 1;
+                    finalPath.Remove(finalPath.Length - removeLength, removeLength);
+                    
                 }
                 else if(parts[i] == ".")
                 {
@@ -1016,7 +1016,7 @@ namespace XTMF.Gui.UserControls
                 {
                     finalPath.Append(parts[i]);
                     finalPath.Append(System.IO.Path.DirectorySeparatorChar);
-                    lastReal++;
+                    currentlyOn.Push(parts[i]);
                 }
             }
             return finalPath.ToString(0, finalPath.Length - 1);
