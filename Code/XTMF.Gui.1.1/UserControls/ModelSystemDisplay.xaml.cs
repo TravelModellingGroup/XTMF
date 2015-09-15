@@ -1104,5 +1104,15 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        private void MoveUp_Click(object sender, RoutedEventArgs e)
+        {
+            MoveCurrentModule(-1);
+        }
+
+        private void MoveDown_Click(object sender, RoutedEventArgs e)
+        {
+            MoveCurrentModule(1);
+        }
     }
 }
