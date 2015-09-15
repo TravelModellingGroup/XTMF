@@ -255,6 +255,7 @@ namespace Tasha.External
                             currentPerson = new Person()
                             {
                                 Household = households[zoneSystem.GetFlatIndex( homeZone )],
+                                ExpansionFactor = expFactor
                             };
                             currentChain = new TripChain()
                             {
