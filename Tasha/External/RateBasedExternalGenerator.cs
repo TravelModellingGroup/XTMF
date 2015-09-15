@@ -24,6 +24,8 @@ using Datastructure;
 using Tasha.Common;
 using TMG;
 using XTMF;
+using TMG.Input;
+using TMG.Functions;
 
 namespace Tasha.External
 {
@@ -56,6 +58,9 @@ namespace Tasha.External
 
         public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
 
+        [SubModelInformation(Required = false, Description = "Save the results of this generation to file.")]
+        public FileLocation SaveResults;
+
         public void IncludeTally(float[][] currentTally)
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
@@ -63,59 +68,81 @@ namespace Tasha.External
             var tripChains = BaseYearTrips.AquireResource<List<ITripChain>>();
             var basePopulation = BaseYearPopulation.AquireResource<SparseArray<float>>().GetFlatData();
             var ratio = new float[zones.Length];
-            for ( int i = 0; i < ratio.Length; i++ )
+            for (int i = 0; i < ratio.Length; i++)
             {
                 ratio[i] = zones[i].Population / basePopulation[i];
-                if ( float.IsInfinity( ratio[i] ) | float.IsNaN( ratio[i] ) )
+                if (float.IsInfinity(ratio[i]) | float.IsNaN(ratio[i]))
                 {
                     ratio[i] = 1;
                 }
             }
-            for ( int i = 0; i < tripChains.Count; i++ )
+            // Use the current tally if we don't care to save the results.
+            // Otherwise we should create a replica so we can save those results then
+            // recombine them at the end
+            var tallyToUse = currentTally;
+            if (SaveResults != null)
+            {
+                tallyToUse = new float[currentTally.Length][];
+                for (int i = 0; i < tallyToUse.Length; i++)
+                {
+                    tallyToUse[i] = new float[currentTally[i].Length];
+                }
+            }
+            for (int i = 0; i < tripChains.Count; i++)
             {
                 var chain = tripChains[i];
-                if ( ( chain.StartTime >= StartTime ) | ( chain.EndTime < EndTime ) )
+                if ((chain.StartTime >= StartTime) | (chain.EndTime < EndTime))
                 {
                     var person = chain.Person;
-                    var homeZone = zoneSystem.GetFlatIndex( person.Household.HomeZone.ZoneNumber );
+                    var homeZone = zoneSystem.GetFlatIndex(person.Household.HomeZone.ZoneNumber);
                     var expansionFactor = person.ExpansionFactor * ratio[homeZone];
-                    foreach ( var trip in chain.Trips )
+                    foreach (var trip in chain.Trips)
                     {
-                        if ( trip.Mode != Mode )
+                        if (trip.Mode != Mode)
                         {
                             continue;
                         }
                         var tripStart = trip.TripStartTime;
-                        if ( ( tripStart >= StartTime ) & ( tripStart < EndTime ) )
+                        if ((tripStart >= StartTime) & (tripStart < EndTime))
                         {
-                            currentTally[zoneSystem.GetFlatIndex( trip.OriginalZone.ZoneNumber )][zoneSystem.GetFlatIndex( trip.DestinationZone.ZoneNumber )]
+                            tallyToUse[zoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber)][zoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber)]
                                 += expansionFactor;
                         }
                     }
+                }
+            }
+            if (SaveResults != null)
+            {
+                // save the results then combine them into the current tally
+                SaveData.SaveMatrix(zoneSystem.GetFlatData(), tallyToUse, SaveResults);
+                // now that the data is saved we need to recombine the data
+                for (int i = 0; i < tallyToUse.Length; i++)
+                {
+                    VectorHelper.VectorAdd(currentTally[i], 0, currentTally[i], 0, tallyToUse[i], 0, tallyToUse[i].Length);
                 }
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !BaseYearTrips.CheckResourceType<List<ITripChain>>() )
+            if (!BaseYearTrips.CheckResourceType<List<ITripChain>>())
             {
                 error = "In '" + this.Name + "' the resource for Base Year Trips was not of type List<ITripChain>!";
                 return false;
             }
-            if ( !BaseYearPopulation.CheckResourceType<SparseArray<float>>() )
+            if (!BaseYearPopulation.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + this.Name + "' the resource for Base Year Population was not of type SparseArray<float>!";
                 return false;
             }
-            foreach ( var mode in this.Root.AllModes )
+            foreach (var mode in this.Root.AllModes)
             {
-                if ( ModeName == mode.ModeName )
+                if (ModeName == mode.ModeName)
                 {
                     Mode = mode;
                 }
             }
-            if ( Mode == null )
+            if (Mode == null)
             {
                 error = "In '" + this.Name + "' we were unable to find a mode with the name '" + ModeName + "'!";
                 return false;
