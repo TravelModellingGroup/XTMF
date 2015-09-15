@@ -412,7 +412,10 @@ namespace XTMF.Gui.UserControls
 
         private void ShowQuickParameters()
         {
-            ParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
+            QuickParameterTab.Focus();
+            QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
+            QuickParameterDisplay.Focus();
+            Keyboard.Focus(QuickParameterDisplay);
         }
 
         private void Redo()
@@ -1052,6 +1055,17 @@ namespace XTMF.Gui.UserControls
         private void PasteModule_Click(object sender, RoutedEventArgs e)
         {
             PasteCurrentModule();
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source == ParameterTabControl)
+            {
+                if (ParameterTabControl.SelectedItem == QuickParameterTab)
+                {
+                    QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
+                }
+            }
         }
     }
 }
