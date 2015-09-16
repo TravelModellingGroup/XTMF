@@ -199,8 +199,8 @@ namespace XTMF.Gui.UserControls
             {
                 // assign the selected linked parameter
                 var newLP = linkedParameterDialog.SelectedLinkParameter;
-                var displayParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
-                if(displayParameter != null)
+                var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+                if (displayParameter != null)
                 {
                     string error = null;
                     if(!displayParameter.AddToLinkedParameter(newLP, ref error))
@@ -213,7 +213,7 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveFromLinkedParameter()
         {
-            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
             if(currentParameter != null)
             {
                 string error = null;
@@ -875,7 +875,7 @@ namespace XTMF.Gui.UserControls
 
         private void CopyParameterName()
         {
-            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
             if(currentParameter != null)
             {
                 Clipboard.SetText(currentParameter.Name);
@@ -910,7 +910,7 @@ namespace XTMF.Gui.UserControls
 
         private void SelectFileForCurrentParameter()
         {
-            var currentParameter = ParameterDisplay.SelectedItem as ParameterDisplayModel;
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
             var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if(currentParameter != null && currentModule != null)
             {
