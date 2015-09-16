@@ -182,6 +182,8 @@ namespace XTMF.Gui.Models
             }
         }
 
+        public bool IsCollection { get { return BaseModel.IsCollection; } }
+
         internal ObservableCollection<ParameterModel> GetParameters()
         {
             return BaseModel.Parameters.GetParameters();
