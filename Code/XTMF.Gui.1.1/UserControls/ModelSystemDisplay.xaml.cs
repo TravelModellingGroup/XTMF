@@ -701,11 +701,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public void CloneRequested(string clonedName)
-        {
-
-        }
-
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             var module = (e.NewValue as ModelSystemStructureDisplayModel);
