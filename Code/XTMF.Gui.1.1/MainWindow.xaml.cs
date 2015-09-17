@@ -280,12 +280,14 @@ namespace XTMF.Gui
         {
             var modelSystem = document.Content as ModelSystemDisplay;
             RunMenu.IsEnabled = false;
+            RunLabel.IsEnabled = false;
             if(modelSystem != null)
             {
                 var session = modelSystem.Session;
                 if(session.CanRun)
                 {
                     RunMenu.IsEnabled = true;
+                    RunLabel.IsEnabled = true;
                     _CurrentRun = () =>
                     {
                         RunWindow window = new RunWindow(session, document.Content as DependencyObject);
@@ -501,6 +503,11 @@ namespace XTMF.Gui
             ExecuteRun();
         }
 
+        private void RunModel_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ExecuteRun();
+        }
+
         private void RunRemoteMenu_Click(object sender, RoutedEventArgs e)
         {
             var remoteWindow = new LaunchRemoteClientWindow();
@@ -579,6 +586,11 @@ namespace XTMF.Gui
         private void NewProjectButton_Click(object sender, RoutedEventArgs e)
         {
             NewProject();
+        }
+
+        private void Label_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
