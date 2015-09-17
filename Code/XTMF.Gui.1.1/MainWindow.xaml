@@ -48,17 +48,6 @@
                 </MenuItem>
                 <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="False" />
                 <Separator Background="{StaticResource ControlBackgroundBrush}" />
-                <MenuItem x:Name="RunMenu" Header="_Run (F5)" Click="RunMenu_Click" IsEnabled="False">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client (Shift+F5)" Click="RunRemoteMenu_Click">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator />
                 <MenuItem x:Name="SaveMenu" Header="_Save (Ctrl+S)" Click="SaveMenu_Click" IsEnabled="False">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
@@ -71,6 +60,18 @@
             <MenuItem Header="_Edit">
                 <MenuItem x:Name="UndoButton" Header="_Undo (Ctrl+Z)" Click="Undo_Click" IsEnabled="False" />
                 <MenuItem x:Name="RedoButton" Header="_Redo (Ctrl+Y)" Click="Redo_Click" IsEnabled="False"/>
+            </MenuItem>
+            <MenuItem Header="_Run">
+                <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click" IsEnabled="False">
+                    <MenuItem.Icon>
+                        <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client (Shift+F5)" Click="RunRemoteMenu_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Start Window" Click="ShowStart_Click" />
