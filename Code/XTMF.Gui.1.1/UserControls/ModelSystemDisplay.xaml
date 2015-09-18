@@ -149,7 +149,7 @@
         </Grid>
         <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
         <TabControl x:Name="ParameterTabControl" Grid.Column="2" Background="{StaticResource ControlBackgroundBrush}" Style="{StaticResource XTMFTabControl}" SelectionChanged="TabControl_SelectionChanged">
-            <TabItem Header="Module Parameters" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
+            <TabItem Header="Module Parameters (Ctrl+P)" x:Name="ModuleParameterTab" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
                 <Grid HorizontalAlignment="Stretch" Background="{StaticResource ControlBackgroundBrush}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />

@@ -333,7 +333,8 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.P:
-                            ParameterFilterBox.Focus();
+                            ModuleParameterTab.Focus();
+                            Keyboard.Focus(ParameterFilterBox);
                             e.Handled = true;
                             break;
                         case Key.E:
