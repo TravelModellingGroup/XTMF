@@ -118,7 +118,7 @@ namespace Tasha.Scheduler
             data.JointMarketProject = jointMarketProject;
         }
 
-        internal static void GeneratePersonSchedules(this ITashaHousehold household, Random random, int householdIterations)
+        internal static void GeneratePersonSchedules(this ITashaHousehold household, Random random, int householdIterations, Time minimumAtHomeTime)
         {
             var data = (household["SData"] as SchedHouseholdData);
             // Generate each person's schedule
@@ -140,7 +140,7 @@ namespace Tasha.Scheduler
             household.CleanupSchedules();
 
             // Add in the trip chains here for each person
-            household.BuildChains(householdIterations);
+            household.BuildChains(householdIterations, minimumAtHomeTime);
         }
 
         /// <summary>

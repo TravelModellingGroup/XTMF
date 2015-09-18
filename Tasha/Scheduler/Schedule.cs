@@ -76,7 +76,7 @@ namespace Tasha.Scheduler
         /// </summary>
         public abstract bool ForcedEpisodeInsert(Episode ep);
 
-        public abstract void GenerateTrips(ITashaHousehold household, int householdIterations);
+        public abstract void GenerateTrips(ITashaHousehold household, int householdIterations, Time minimumAtHomeTime);
 
         public Time GetFirstEpisodeStartTime()
         {

@@ -192,6 +192,9 @@ namespace Tasha.Scheduler
         [RunParameter( "SecondaryWork Threshold", "19:00", typeof( Time ), "The latest secondary work can start at" )]
         public Time SecondaryWorkThresholdDateTime;
 
+        [RunParameter("Minimum At Home Time", "15 minutes", typeof(Time), "The minimum amount of time to spend at home between trips in order to separate chains.")]
+        public Time MinimumTimeAtHomeBetweenActivities;
+
         [RunParameter( "#Start Time Quanta", 96, "The number of start time quanta for the distributions" )]
         public int StartTimeQuantaLocal;
 
@@ -317,7 +320,7 @@ namespace Tasha.Scheduler
             }
             System.Threading.Interlocked.Increment( ref SchedulingSuccess );
             // Now that we have the individual projects, create the individual schedules
-            h.GeneratePersonSchedules(r, HouseholdIterations);
+            h.GeneratePersonSchedules(r, HouseholdIterations, MinimumTimeAtHomeBetweenActivities);
             JoinTripChains( h );
         }
 

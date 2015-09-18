@@ -98,11 +98,11 @@ namespace Tasha.Scheduler
         /// turn household activities into trip chains
         /// </summary>
         /// <param name="household"></param>
-        internal static void BuildChains(this ITashaHousehold household, int householdIterations)
+        internal static void BuildChains(this ITashaHousehold household, int householdIterations, Time minimumAtHomeTime)
         {
             foreach ( var person in household.Persons )
             {
-                BuildPersonChain( person, household.HomeZone, householdIterations );
+                BuildPersonChain( person, household.HomeZone, householdIterations, minimumAtHomeTime );
             }
         }
 
@@ -321,14 +321,14 @@ namespace Tasha.Scheduler
             data.Schedule.InsertWorkSchedule( data.WorkSchedule.Schedule, random );
         }
 
-        private static void BuildPersonChain(ITashaPerson person, IZone home, int householdIterations)
+        private static void BuildPersonChain(ITashaPerson person, IZone home, int householdIterations, Time minimumAtHomeTime)
         {
             if ( person.TripChains == null )
             {
                 throw new XTMFRuntimeException( "A Person's trip chains must be initialized during construction." );
             }
             var pdata = person["SData"] as SchedulerPersonData;
-            pdata.Schedule.GenerateTrips( person.Household, householdIterations );
+            pdata.Schedule.GenerateTrips( person.Household, householdIterations, minimumAtHomeTime );
         }
     }
 

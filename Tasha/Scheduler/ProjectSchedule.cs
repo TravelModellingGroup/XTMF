@@ -88,7 +88,7 @@ namespace Tasha.Scheduler
             throw new NotImplementedException();
         }
 
-        public override void GenerateTrips(ITashaHousehold household, int householdIteration)
+        public override void GenerateTrips(ITashaHousehold household, int householdIteration, Time minimumAtHomeTime)
         {
             throw new NotImplementedException();
         }

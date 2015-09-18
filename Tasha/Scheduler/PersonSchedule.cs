@@ -65,7 +65,7 @@ namespace Tasha.Scheduler
             throw new NotImplementedException();
         }
 
-        public override void GenerateTrips(ITashaHousehold household, int householdIterations)
+        public override void GenerateTrips(ITashaHousehold household, int householdIterations, Time minimumAtHomeTime)
         {
             /*
              * Now we need to generate the trips.
@@ -105,7 +105,7 @@ namespace Tasha.Scheduler
                         Episodes[i - 1].EndTime);
                     Time toNext = Scheduler.TravelTime(Owner, homeZone, Episodes[i].Zone,
                         Episodes[i].StartTime);
-                    if(toHome + toNext < Episodes[i].StartTime - Episodes[i - 1].EndTime)
+                    if(toHome + toNext + minimumAtHomeTime < Episodes[i].StartTime - Episodes[i - 1].EndTime)
                     {
                         // Set a course, for home
                         SchedulerHomeTrip toHomeTrip = SchedulerHomeTrip.GetTrip(householdIterations);
