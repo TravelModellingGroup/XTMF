@@ -214,14 +214,18 @@ namespace Tasha.Scheduler
 
                             //instantiate a temporary individual market episode on the heap space and store pointer in p_marketEpisode
 
-                            Episode MarketEpisode = new ActivityEpisode(0, new TimeWindow(startTime, startTime + duration), Activity.Market, person);
-
+                            var window = new TimeWindow(startTime, startTime + duration);
+                            Episode marketEpisode = new ActivityEpisode(0, window, Activity.Market, person);
+                            if(window.EndTime > Time.EndOfDay)
+                            {
+                                Console.WriteLine();
+                            }
                             Project workProject = person.GetWorkProject();
                             Schedule workProjSchedule = workProject.Schedule;
                             Project schoolProject = person.GetSchoolProject();
                             Schedule schoolProjSchedule = schoolProject.Schedule;
 
-                            Time overlap = workProjSchedule.CheckOverlap(MarketEpisode) + schoolProjSchedule.CheckOverlap(MarketEpisode);
+                            Time overlap = workProjSchedule.CheckOverlap(marketEpisode) + schoolProjSchedule.CheckOverlap(marketEpisode);
 
                             float percentOverlap = overlap / duration;
 
@@ -230,7 +234,7 @@ namespace Tasha.Scheduler
                                 Project marketProject = person.GetMarketProject();
                                 Schedule marketSchedule = marketProject.Schedule;
 
-                                if(marketSchedule.Insert(MarketEpisode, random))
+                                if(marketSchedule.Insert(marketEpisode, random))
                                 {
                                     //inserted ok
                                     success = true;

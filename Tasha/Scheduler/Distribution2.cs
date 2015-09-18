@@ -63,23 +63,14 @@ namespace Tasha.Scheduler
         public static bool GetRandomStartDurationTimeFrequency(int distribution, Time tstart, int min, int max, Random random, out Time startTime)
         {
             int start = TimeOfDayToDistribution( tstart );
-
-            //tempvar
-            Time dTemp = DistributionToDuration( max );
-
             float[][] pdf = Distributions[distribution].Durations;
-
             if ( start == Scheduler.StartTimeQuanta ) start = 0;
-
             float rand = (float)random.NextDouble();
-
             float pdfFactor = 0.0f;
-
             for ( int i = min; i <= max; ++i )
             {
                 pdfFactor += pdf[start][i];
             }
-
             if ( pdfFactor == 0 )
             {
                 startTime = Time.Zero;
@@ -108,7 +99,7 @@ namespace Tasha.Scheduler
                 }
             }
             // if we get here, it was the last one but off due to rounding errors
-            startTime = Distribution.DistributionToTimeOfDay( max );
+            startTime = Distribution.DistributionToDuration( max );
             return true;
         }
 
