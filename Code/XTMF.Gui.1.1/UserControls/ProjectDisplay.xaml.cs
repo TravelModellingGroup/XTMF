@@ -459,6 +459,7 @@ namespace XTMF.Gui.UserControls
         {
             var xtmf = Session.GetRuntime();
             var openMS = new OpenWindow();
+            openMS.Owner = GetWindow();
             using (var modelSystemSession = openMS.OpenModelSystem(xtmf))
             {
                 var loading = openMS.LoadTask;
