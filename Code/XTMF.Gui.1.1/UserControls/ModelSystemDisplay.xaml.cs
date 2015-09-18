@@ -383,6 +383,7 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.Q:
                             ShowQuickParameters();
+                            Keyboard.Focus(QuickParameterFilterBox);
                             e.Handled = true;
                             break;
                     }
