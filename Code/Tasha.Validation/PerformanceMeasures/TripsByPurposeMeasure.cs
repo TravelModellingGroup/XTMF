@@ -83,30 +83,31 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             // only run on the last iteration
             var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
-            if(iteration == Root.TotalIterations - 1)
+            if (iteration == Root.TotalIterations - 1)
             {
-                foreach(var person in household.Persons)
+                foreach (var person in household.Persons)
                 {
-                    float amountToAddPerTrip = person.ExpansionFactor; 
-                    if(person.Age >= MinAge)
+                    float amountToAddPerTrip = person.ExpansionFactor;
+                    if (person.Age >= MinAge)
                     {
-                        foreach(var tripChain in person.TripChains)
+                        foreach (var tripChain in person.TripChains)
                         {
-                            foreach(var trip in tripChain.Trips)
+                            foreach (var trip in tripChain.Trips)
                             {
                                 IZone originalZone = trip.OriginalZone;
                                 IZone destinationZone = trip.DestinationZone;
-                                if(OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
+                                if (OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                                 {
                                     var tripStartTime = trip.ActivityStartTime;
                                     if (trip.Mode != null)
                                     {
                                         if (tripStartTime >= StartTime && tripStartTime < EndTime)
-                                    {
-                                        lock (this)
                                         {
-                                            AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
-                                            AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
+                                            lock (this)
+                                            {
+                                                AddTripToDictionary(PurposeDictionary, amountToAddPerTrip, trip, homeZoneIndex);
+                                                AddToSummary(trip, SummaryTripCount, amountToAddPerTrip);
+                                            }
                                         }
                                     }
                                 }
@@ -116,13 +117,12 @@ namespace Tasha.Validation.PerformanceMeasures
                 }
             }
         }
-        }
 
         private void AddToSummary(ITrip trip, Dictionary<Activity, float> summaryDictionary, float occurance)
         {
             float value;
             var purpose = trip.Purpose;
-            if(!summaryDictionary.TryGetValue(purpose, out value))
+            if (!summaryDictionary.TryGetValue(purpose, out value))
             {
                 value = 0;
             }
@@ -133,7 +133,7 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             float[] value;
             var purpose = trip.Purpose;
-            if(!dictionary.TryGetValue(purpose, out value))
+            if (!dictionary.TryGetValue(purpose, out value))
             {
                 dictionary.Add(trip.Purpose, (value = new float[Root.ZoneSystem.ZoneArray.GetFlatData().Length]));
             }
@@ -147,17 +147,17 @@ namespace Tasha.Validation.PerformanceMeasures
             SummaryTripCount.OrderBy(k => k.Key);
 
             // only run on the last iteration
-            if(iteration == Root.TotalIterations - 1)
+            if (iteration == Root.TotalIterations - 1)
             {
                 Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
                 var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");
                 using (StreamWriter Writer = new StreamWriter(filePath))
                 {
                     Writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
-                    foreach(var pair in PurposeDictionary.OrderBy(k => k.Key))
+                    foreach (var pair in PurposeDictionary.OrderBy(k => k.Key))
                     {
                         var format = pair.Key.ToString() + ",{0},{1}";
-                        for(int i = 0; i < PurposeDictionary[pair.Key].Length; i++)
+                        for (int i = 0; i < PurposeDictionary[pair.Key].Length; i++)
                         {
                             Writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[pair.Key][i]);
                         }
@@ -169,7 +169,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 using (StreamWriter Writer = new StreamWriter(summaryFilePath))
                 {
                     Writer.WriteLine("Purpose, Number of Occurrences");
-                    foreach(var pair in SummaryTripCount.OrderBy(k => k.Key))
+                    foreach (var pair in SummaryTripCount.OrderBy(k => k.Key))
                     {
                         Writer.WriteLine("{0}, {1}", pair.Key.ToString(), pair.Value);
                     }
