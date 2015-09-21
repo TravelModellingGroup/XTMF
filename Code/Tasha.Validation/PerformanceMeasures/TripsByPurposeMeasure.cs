@@ -79,6 +79,9 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
         public RangeSet DestinationZones;
 
+        [RunParameter("Trip Start Time", true, "Set to true to get the trip's start time.  Setting this to false will give the activity start times.")]
+        public bool TripStartTime;
+
         public void Execute(ITashaHousehold household, int iteration)
         {
             // only run on the last iteration
@@ -98,7 +101,7 @@ namespace Tasha.Validation.PerformanceMeasures
                                 IZone destinationZone = trip.DestinationZone;
                                 if (OriginZones.Contains(originalZone.ZoneNumber) && DestinationZones.Contains(destinationZone.ZoneNumber))
                                 {
-                                    var tripStartTime = trip.ActivityStartTime;
+                                    var tripStartTime = TripStartTime ? trip.TripStartTime : trip.ActivityStartTime;
                                     if (trip.Mode != null)
                                     {
                                         if (tripStartTime >= StartTime && tripStartTime < EndTime)
