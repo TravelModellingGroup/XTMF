@@ -41,10 +41,10 @@ namespace Tasha.Validation
     {
         public Dictionary<KeyValuePair<Activity, int>, List<int>> DurationsDict = new Dictionary<KeyValuePair<Activity, int>, List<int>>();
 
-        [RunParameter( "Output Directory", "OutputDirectory", "The directory that will contain the results" )]
+        [RunParameter("Output Directory", "OutputDirectory", "The directory that will contain the results")]
         public string OutputDirectory;
 
-        [RunParameter( "Real data?", false, "Are you running this on the real data?" )]
+        [RunParameter("Real data?", false, "Are you running this on the real data?")]
         public bool RealData;
 
         [RootModule]
@@ -64,37 +64,37 @@ namespace Tasha.Validation
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 32, 76, 169 ); }
+            get { return new Tuple<byte, byte, byte>(32, 76, 169); }
         }
 
         public void Execute(ITashaHousehold household, int iteration)
         {
-            lock ( this )
+            lock (this)
             {
-                foreach ( var person in household.Persons )
+                foreach (var person in household.Persons)
                 {
-                    foreach ( var tripChain in person.TripChains )
+                    foreach (var tripChain in person.TripChains)
                     {
                         var chain = tripChain.Trips;
-                        for ( int i = 0; i < ( chain.Count - 1 ); i++ )
+                        for (int i = 0; i < (chain.Count - 1); i++)
                         {
                             var thisTrip = chain[i];
                             var nextTrip = chain[i + 1];
                             var currentMode = thisTrip.Mode;
                             thisTrip.Mode = Root.AutoMode;
                             var hours = thisTrip.ActivityStartTime.Hours;
-                            var duration = (int)( ( nextTrip.TripStartTime - thisTrip.ActivityStartTime ).ToMinutes() );
+                            var duration = (int)((nextTrip.TripStartTime - thisTrip.ActivityStartTime).ToMinutes());
 
-                            KeyValuePair<Activity, int> bob = new KeyValuePair<Activity, int>( thisTrip.Purpose, hours );
+                            KeyValuePair<Activity, int> bob = new KeyValuePair<Activity, int>(thisTrip.Purpose, hours);
                             List<int> ourList;
-                            if ( DurationsDict.TryGetValue( bob, out ourList ) )
+                            if (DurationsDict.TryGetValue(bob, out ourList))
                             {
-                                ourList.Add( duration );
+                                ourList.Add(duration);
                             }
                             else
                             {
                                 ourList = new List<int>();
-                                ourList.Add( duration );
+                                ourList.Add(duration);
                                 DurationsDict[bob] = ourList;
                             }
 
@@ -110,38 +110,46 @@ namespace Tasha.Validation
             Dictionary<Activity, StreamWriter> writerDict = new Dictionary<Activity, StreamWriter>();
             try
             {
-                foreach ( var pair in DurationsDict )
+                if (!Directory.Exists(OutputDirectory))
+                {
+                    Directory.CreateDirectory(OutputDirectory);
+                }
+                foreach (var pair in DurationsDict)
                 {
                     string fileName;
                     var purpose = pair.Key.Key;
                     var hour = pair.Key.Value;
                     var averageDur = pair.Value.Average();
-                    if ( !writerDict.ContainsKey( purpose ) )
+                    var stdDev = GetStdDev(pair.Value, averageDur);
+                    //standard deviation 
+                    if (!writerDict.ContainsKey(purpose))
                     {
-                        if ( RealData )
+                        if (RealData)
                         {
-                            fileName = Path.Combine( OutputDirectory, purpose.ToString() + "DurationsData.csv" );
+                            fileName = Path.Combine(OutputDirectory, purpose.ToString() + "DurationsData.csv");
                         }
                         else
                         {
-                            fileName = Path.Combine( OutputDirectory, purpose.ToString() + "DurationsTasha.csv" );
+                            fileName = Path.Combine(OutputDirectory, purpose.ToString() + "DurationsTasha.csv");
                         }
-                        writerDict[purpose] = new StreamWriter( fileName );
-                        writerDict[purpose].WriteLine( "Start Times, Durations" );
+                        writerDict[purpose] = new StreamWriter(fileName);
+                        writerDict[purpose].WriteLine("Start Times,AverageDuration(Minutes),StdDev(Minutes)");
                     }
-                    writerDict[purpose].WriteLine( "{0}, {1}", hour, averageDur );
+                    writerDict[purpose].WriteLine("{0},{1},{2}", hour, averageDur, stdDev);
                 }
-            }
-            catch
-            {
             }
             finally
             {
-                foreach ( var pair in writerDict )
+                foreach (var pair in writerDict)
                 {
                     pair.Value.Close();
                 }
             }
+        }
+
+        private double GetStdDev(List<int> value, double averageDur)
+        {
+            return value.Average(v => Math.Abs(averageDur - v));
         }
 
         public void Load(int maxIterations)

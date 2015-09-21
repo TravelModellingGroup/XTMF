@@ -124,6 +124,7 @@
     <Compile Include="PoRPoW\PostSchedulePoRPoWAssignments.cs" />
     <Compile Include="Scheduler\ExtractTripPurposes.cs" />
     <Compile Include="Scheduler\PrintMissedWorkEpisodes.cs" />
+    <Compile Include="Scheduler\TripChainSizeVSDailyTrips.cs" />
     <Compile Include="School\ProduceStudentMatrix.cs" />
     <Compile Include="PerformanceMeasures\TripLengthMeasure.cs" />
     <Compile Include="PerformanceMeasures\DistanceMatrix.cs" />
