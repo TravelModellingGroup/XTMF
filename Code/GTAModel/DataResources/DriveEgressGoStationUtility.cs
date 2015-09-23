@@ -325,7 +325,7 @@ namespace TMG.GTAModel.DataResources
                         {
                             distances[j] = float.MaxValue;
                         }
-                        odData = new Tuple<IZone[], IZone[], float[]>( resultZones = new IZone[this.MaximumAccessStations], resultEgressZones = new IZone[this.MaximumAccessStations], results = new float[this.MaximumAccessStations] );
+                        odData = new Tuple<IZone[], IZone[], float[]>( resultEgressZones = new IZone[this.MaximumAccessStations], resultZones = new IZone[this.MaximumAccessStations], results = new float[this.MaximumAccessStations] );
                     }
                     // if we have extra room or if this access station is closest than the farthest station we have accepted
                     if ( ( soFar < this.MaximumAccessStations ) | ( distance < distances[results.Length - 1] ) )
@@ -448,7 +448,7 @@ namespace TMG.GTAModel.DataResources
         /// Compute which egress station to use
         /// </summary>
         /// <param name="interchange">The access zone to start from, flat</param>
-        /// <param name="origin">The destination zone that we need to get to, flat</param>
+        /// <param name="origin">The zone that the egress trip is starting at</param>
         /// <param name="parking">The amount of parking available</param>
         /// <param name="egressZones">The list of all possible egress zones, flat</param>
         /// <param name="egressUtility">The utility of taking the given egress station</param>
@@ -462,6 +462,7 @@ namespace TMG.GTAModel.DataResources
             {
                 // Set the best utility initially to the time it takes to go from the access station to the destination
                 // if we can't find an egress station better than this the Access -> Egress pair isn't valid
+                // This looks backwards however the parameters are reversed already
                 float maxEgressTime = this.ComputeWeightedTimeWithoutRail( interchange, origin );
                 float bestTravelTime = float.MaxValue;
 
@@ -469,7 +470,7 @@ namespace TMG.GTAModel.DataResources
                 {
                     // you are not allowed to egress from the station you originally accessed
                     float egressGeneralTime = ComputeWeightedTimeWithoutRail( egressZones[i], origin );
-                    var goTime = this.GoTransitNetwork.TravelTime( egressZones[i], interchange, this.TimeOfDay ).ToMinutes();
+                    var goTime = this.GoTransitNetwork.InVehicleTravelTime(egressZones[i], interchange, this.TimeOfDay ).ToMinutes();
                     if ( goTime <= 0 )
                     {
                         continue;

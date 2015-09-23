@@ -25,14 +25,6 @@ namespace TMG.Functions
 {
     public sealed class GravityModel
     {
-        // Dummy code to get the JIT to startup with SIMD
-        static Vector<float> _Unused;
-
-        static GravityModel()
-        {
-            _Unused = Vector<float>.One;
-        }
-
         private SparseArray<float> Attractions;
         private SparseArray<float> AttractionsStar;
         private float Epsilon;
@@ -133,7 +125,7 @@ namespace TMG.Functions
                 VectorHelper.VectorDivide(columnTotals, 0, flatAttractions, 0, columnTotals, 0, columnTotals.Length);
                 VectorHelper.VectorMultiply(flatAttractionStar, 0, flatAttractionStar, 0, columnTotals, 0, flatAttractionStar.Length);
                 VectorHelper.ReplaceIfNotFinite(flatAttractionStar, 0, 1.0f, flatAttractionStar.Length);
-                balanced = !VectorHelper.AnyGreaterThan(columnTotals, 0, ep, columnTotals.Length);
+                balanced = VectorHelper.VectorAreBoundedBy(columnTotals, 0, 1.0f, ep, columnTotals.Length);
             }
             else
             {

@@ -311,7 +311,7 @@ namespace TMG.GTAModel.DataResources
                         {
                             distances[j] = float.MaxValue;
                         }
-                        odData = new Tuple<IZone[], IZone[], float[]>( resultZones = new IZone[this.MaximumAccessStations], resultEgressZones = new IZone[this.MaximumAccessStations], results = new float[this.MaximumAccessStations] );
+                        odData = new Tuple<IZone[], IZone[], float[]>(resultEgressZones= new IZone[this.MaximumAccessStations], resultZones = new IZone[this.MaximumAccessStations], results = new float[this.MaximumAccessStations] );
                     }
                     // if we have extra room or if this access station is closest than the farthest station we have accepted
                     if ( ( soFar < this.MaximumAccessStations ) | ( distance < distances[results.Length - 1] ) )
@@ -467,7 +467,7 @@ namespace TMG.GTAModel.DataResources
             {
                 // you are not allowed to egress from the station you originally accessed
                 float egressGeneralTime = ComputeWeightedTimeWithoutRail( origin, egressZones[i] );
-                var goTime = this.GoTransitNetwork.TravelTime( egressZones[i], interchange, this.TimeOfDay ).ToMinutes();
+                var goTime = this.GoTransitNetwork.InVehicleTravelTime( egressZones[i], interchange, this.TimeOfDay ).ToMinutes();
                 if ( goTime <= 0 )
                 {
                     continue;

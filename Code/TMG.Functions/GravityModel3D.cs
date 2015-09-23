@@ -23,19 +23,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
-using System.Numerics;
 namespace TMG.Functions
 {
     public static class GravityModel3D
     {
-        // Dummy code to get the JIT to startup with SIMD
-        static Vector<float> _Unused;
-
-        static GravityModel3D()
-        {
-            _Unused = Vector<float>.One;
-        }
-
         public static float[] ProduceFlows(int maxIterations, float epsilon, float[] categoriesByOrigin, float[] destinations, float[] friction, int categories, int numberofZones)
         {
 
@@ -51,7 +42,7 @@ namespace TMG.Functions
             do
             {
                 Array.Clear(columnTotals, 0, columnTotals.Length);
-                if(Vector.IsHardwareAccelerated)
+                if(VectorHelper.IsHardwareAccelerated)
                 {
                     VectorApply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
                     balanced = Balance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
@@ -171,7 +162,7 @@ namespace TMG.Functions
             VectorHelper.VectorDivide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
             VectorHelper.VectorMultiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
             VectorHelper.ReplaceIfNotFinite(destinationStar, 0, 1.0f, destinationStar.Length);
-            balanced = !VectorHelper.AnyGreaterThan(columnTotals, 0, epsilon, columnTotals.Length);
+            balanced = VectorHelper.VectorAreBoundedBy(columnTotals, 0, 1.0f, epsilon, columnTotals.Length);
             return balanced;
         }
     }

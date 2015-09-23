@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using Datastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -214,10 +215,10 @@ namespace Tasha.Scheduler
 
         public void Start()
         {
-            for(int i = 0; i < ResultsArray.Length; i++)
+            for (int i = 0; i < ResultsArray.Length; i++)
             {
                 ResultsArray[i] = new float[StartTimeQuantums][];
-                for(int j = 0; j < ResultsArray[i].Length; j++)
+                for (int j = 0; j < ResultsArray[i].Length; j++)
                 {
                     ResultsArray[i][j] = new float[StartTimeQuantums + 1];
                 }
@@ -227,9 +228,9 @@ namespace Tasha.Scheduler
 
             ZoneSystem.LoadData();
 
-            if(PostHousehold != null)
+            if (PostHousehold != null)
             {
-                foreach(var module in PostHousehold)
+                foreach (var module in PostHousehold)
                 {
                     module.Load(TotalIterations);
                 }
@@ -237,7 +238,7 @@ namespace Tasha.Scheduler
 
             IterationPercentage = 1f / TotalIterations;
 
-            for(int i = 0; i < TotalIterations; i++)
+            for (int i = 0; i < TotalIterations; i++)
             {
                 CurrentHousehold = 0;
                 CompletedIterationPercentage = i * IterationPercentage;
@@ -245,9 +246,9 @@ namespace Tasha.Scheduler
                 RunIteration(i);
             }
 
-            if(PostRun != null)
+            if (PostRun != null)
             {
-                foreach(var module in PostRun)
+                foreach (var module in PostRun)
                 {
                     module.Start();
                 }
@@ -262,17 +263,17 @@ namespace Tasha.Scheduler
 
         private void AddStartTimeDuration(int[][][] eventCount, ITashaPerson person, int startTime, int duration, int id)
         {
-            if(id != -1)
+            if (id != -1)
             {
                 // check to see if we have an entry for this activity
-                if(eventCount[id] == null)
+                if (eventCount[id] == null)
                 {
                     // if we do not lock the array
                     lock (eventCount)
                     {
                         // check to see if it has already been fixed, if not create the array
                         Thread.MemoryBarrier();
-                        if(eventCount[id] == null)
+                        if (eventCount[id] == null)
                         {
                             eventCount[id] = new int[StartTimeQuantums][];
                         }
@@ -280,13 +281,13 @@ namespace Tasha.Scheduler
                     }
                 }
                 // check to see if we have an array for this start time
-                if(eventCount[id][startTime] == null)
+                if (eventCount[id][startTime] == null)
                 {
                     // basic if lock if for start time
                     lock (eventCount[id])
                     {
                         Thread.MemoryBarrier();
-                        if(eventCount[id][startTime] == null)
+                        if (eventCount[id][startTime] == null)
                         {
                             eventCount[id][startTime] = new int[StartTimeQuantums + 1];
                         }
@@ -311,9 +312,9 @@ namespace Tasha.Scheduler
             person.InitializePersonalProjects();
             var PersonData = person["SData"] as SchedulerPersonData;
 
-            foreach(var TripChain in person.TripChains)
+            foreach (var TripChain in person.TripChains)
             {
-                for(int j = 0; j < (TripChain.Trips.Count - 1); j++)
+                for (int j = 0; j < (TripChain.Trips.Count - 1); j++)
                 {
                     var ThisTrip = TripChain.Trips[j];
                     var NextTrip = TripChain.Trips[j + 1];
@@ -322,33 +323,33 @@ namespace Tasha.Scheduler
                     var startTime = ThisTrip.OriginalZone == null || ThisTrip.DestinationZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
                     var endTime = NextTrip.TripStartTime;
                     var duration = endTime - startTime;
-                    if(duration < Time.Zero)
+                    if (duration < Time.Zero)
                     {
                         endTime = Time.EndOfDay;
                     }
-                    if(endTime < startTime)
+                    if (endTime < startTime)
                     {
                         startTime = ThisTrip.TripStartTime;
                     }
 
-                    if(ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.SecondaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
+                    if (ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.SecondaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
                     {
                         var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, person);
                         NewEpisode.Zone = ThisTrip.DestinationZone;
-                        if(ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
+                        if (ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
                         {
-                            if(workStartTime == Time.Zero || NewEpisode.StartTime < workStartTime)
+                            if (workStartTime == Time.Zero || NewEpisode.StartTime < workStartTime)
                             {
                                 workStartTime = NewEpisode.StartTime;
                             }
-                            if(workEndTime == Time.Zero || NewEpisode.EndTime > workEndTime)
+                            if (workEndTime == Time.Zero || NewEpisode.EndTime > workEndTime)
                             {
                                 workEndTime = NewEpisode.EndTime;
                             }
                         }
                         PersonData.WorkSchedule.Schedule.Insert(NewEpisode, random);
                     }
-                    if(ThisTrip.Purpose == Activity.School)
+                    if (ThisTrip.Purpose == Activity.School)
                     {
                         var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, person);
                         NewEpisode.Zone = ThisTrip.DestinationZone;
@@ -360,12 +361,12 @@ namespace Tasha.Scheduler
 
         private void FirstPass(int[][][] eventCount, ref bool invalidHousehold, ITashaPerson person)
         {
-            foreach(var TripChain in person.TripChains)
+            foreach (var TripChain in person.TripChains)
             {
-                for(int j = 0; j < (TripChain.Trips.Count - 1); j++)
+                for (int j = 0; j < (TripChain.Trips.Count - 1); j++)
                 {
                     var ThisTrip = TripChain.Trips[j];
-                    if(IsMainWorkTrip(ThisTrip.Purpose))
+                    if (IsMainWorkTrip(ThisTrip.Purpose))
                     {
                         continue;
                     }
@@ -375,7 +376,7 @@ namespace Tasha.Scheduler
                         Time thisStartTime = ThisTrip.OriginalZone == null || ThisTrip.DestinationZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
                         int startTime = (int)Math.Round((thisStartTime.ToMinutes() / 15 - 16), 0);
                         var TripDuration = (int)((NextTrip.TripStartTime - thisStartTime).ToMinutes() / 15);
-                        if(!PreProcessTimes(person, ref startTime, ref TripDuration))
+                        if (!PreProcessTimes(person, ref startTime, ref TripDuration))
                         {
                             invalidHousehold = true;
                             return;
@@ -415,23 +416,23 @@ namespace Tasha.Scheduler
             int workEndBucket = (int)((workEndTime.ToMinutes() / 15) - 16);
             var chains = person.TripChains;
             var tripChains = chains.Count;
-            for(int j = 0; j < tripChains - 1; j++)
+            for (int j = 0; j < tripChains - 1; j++)
             {
                 var ThisTrip = chains[j].Trips[chains[j].Trips.Count - 1];
                 var NextTrip = chains[j + 1].Trips[0];
                 Time activityStartTime = ThisTrip.OriginalZone == null || ThisTrip.DestinationZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
                 int startTime = (int)(activityStartTime.ToMinutes() / 15 - 16);
                 var duration = (int)((NextTrip.TripStartTime - activityStartTime).ToMinutes() / 15);
-                if(!PreProcessTimes(person, ref startTime, ref duration))
+                if (!PreProcessTimes(person, ref startTime, ref duration))
                 {
                     return 0;
                 }
-                if((ThisTrip.Purpose == Activity.Home) | (ThisTrip.Purpose == Activity.ReturnFromWork))
+                if ((ThisTrip.Purpose == Activity.Home) | (ThisTrip.Purpose == Activity.ReturnFromWork))
                 {
-                    if(startTime >= workStartBucket && startTime + duration <= workEndBucket)
+                    if (startTime >= workStartBucket && startTime + duration <= workEndBucket)
                     {
                         var id = Distribution.GetDistributionID(person, Activity.ReturnFromWork);
-                        if(id != -1)
+                        if (id != -1)
                         {
                             AddStartTimeDuration(eventCount, person, startTime, duration, id);
                             lunchCount++;
@@ -444,19 +445,19 @@ namespace Tasha.Scheduler
 
         private bool PreProcessTimes(ITashaPerson person, ref int startTime, ref int duration)
         {
-            if(startTime < 0)
+            if (startTime < 0)
             {
                 startTime += StartTimeQuantums;
             }
-            if(startTime >= StartTimeQuantums)
+            if (startTime >= StartTimeQuantums)
             {
                 return false;
             }
-            if(duration <= 0)
+            if (duration <= 0)
             {
                 duration = 1;
             }
-            if(duration > StartTimeQuantums)
+            if (duration > StartTimeQuantums)
             {
                 throw new XTMFRuntimeException("There exists a duration longer than a day in hhld#" + person.Household.HouseholdId);
             }
@@ -471,11 +472,11 @@ namespace Tasha.Scheduler
             {
                 Writer.WriteLine("DistID, StartTime, Duration, ExpPersons");
 
-                for(int i = 0; i < ResultsArray.Length; i++)
+                for (int i = 0; i < ResultsArray.Length; i++)
                 {
-                    for(int j = 0; j < 96; j++)
+                    for (int j = 0; j < 96; j++)
                     {
-                        for(int t = 0; t < 97; t++)
+                        for (int t = 0; t < 97; t++)
                         {
                             Writer.WriteLine("{0},{1},{2},{3}", i, j, t, ResultsArray[i][j][t]);
                         }
@@ -493,7 +494,7 @@ namespace Tasha.Scheduler
             var numberOfPeople = household.Persons.Length;
             Time[] workStartTimes = new Time[numberOfPeople];
             Time[] workEndTimes = new Time[numberOfPeople];
-            for(int p = 0; p < numberOfPeople; p++)
+            for (int p = 0; p < numberOfPeople; p++)
             {
                 AssignEpisodes(household.Persons[p], ref workStartTimes[p], ref workEndTimes[p], null);
             }
@@ -509,7 +510,7 @@ namespace Tasha.Scheduler
 
 
             // check to see if we have an invalid household, if we do we do not add the data!
-            if(invalidHousehold)
+            if (invalidHousehold)
             {
                 return;
             }
@@ -522,14 +523,14 @@ namespace Tasha.Scheduler
 
         private void AddPimaryWorkEpisode(ITashaPerson person, int[][][] eventCount, Time workStartTime, Time workEndTime)
         {
-            if(workEndTime > Time.Zero)
+            if (workEndTime > Time.Zero)
             {
                 var id = Distribution.GetDistributionID(person, Activity.PrimaryWork);
-                if(id >= 0)
+                if (id >= 0)
                 {
                     int startTime = (int)(workStartTime.ToMinutes() / 15 - 16);
                     var duration = (int)((workEndTime - workStartTime).ToMinutes() / 15);
-                    if(duration >= 0)
+                    if (duration >= 0)
                     {
                         AddStartTimeDuration(eventCount, person, startTime, duration, id);
                     }
@@ -539,7 +540,7 @@ namespace Tasha.Scheduler
 
         private void RunIteration(int i)
         {
-            if(NetworkData != null)
+            if (NetworkData != null)
             {
                 System.Threading.Tasks.Parallel.ForEach(NetworkData,
                     delegate (INetworkData network)
@@ -548,17 +549,17 @@ namespace Tasha.Scheduler
                 });
             }
 
-            if(PostScheduler != null)
+            if (PostScheduler != null)
             {
-                foreach(var module in PostScheduler)
+                foreach (var module in PostScheduler)
                 {
                     module.IterationStarting(i);
                 }
             }
 
-            if(PostHousehold != null)
+            if (PostHousehold != null)
             {
-                foreach(var module in PostHousehold)
+                foreach (var module in PostHousehold)
                 {
                     module.IterationStarting(i);
                 }
@@ -566,25 +567,25 @@ namespace Tasha.Scheduler
 
             RunSerial(i);
 
-            if(NetworkData != null)
+            if (NetworkData != null)
             {
-                foreach(var network in NetworkData)
+                foreach (var network in NetworkData)
                 {
                     network.UnloadData();
                 }
             }
 
-            if(PostScheduler != null)
+            if (PostScheduler != null)
             {
-                foreach(var module in PostScheduler)
+                foreach (var module in PostScheduler)
                 {
                     module.IterationFinished(i);
                 }
             }
 
-            if(PostHousehold != null)
+            if (PostHousehold != null)
             {
-                foreach(var module in PostHousehold)
+                foreach (var module in PostHousehold)
                 {
                     module.IterationFinished(i);
                 }
@@ -599,25 +600,25 @@ namespace Tasha.Scheduler
 
             var households = HouseholdLoader.ToArray();
             NumberOfHouseholds = households.Length;
-            for(int i = 0; i < households.Length; i++)
+            for (int i = 0; i < households.Length; i++)
             {
                 ITashaHousehold household = households[i];
                 Run(iteration, household);
                 Progress = (float)i / households.Length;
             }
 
-            if(SmoothDurations)
+            if (SmoothDurations)
             {
                 System.Threading.Tasks.Parallel.For(0, ResultsArray.Length, (int id) =>
                 {
                     // for each start time smooth the distributions
-                    for(int start = 0; start < ResultsArray[id].Length; start++)
+                    for (int start = 0; start < ResultsArray[id].Length; start++)
                     {
                         var originalRow = ResultsArray[id][start];
                         var smoothedRow = new float[originalRow.Length];
-                        for(int i = 0; i < originalRow.Length; i++)
+                        for (int i = 0; i < originalRow.Length; i++)
                         {
-                            for(int j = 0; j < smoothedRow.Length; j++)
+                            for (int j = 0; j < smoothedRow.Length; j++)
                             {
                                 var distanceFactor = 1.0f / (Math.Abs(i - j) * DistanceFactor + 1.0f);
                                 smoothedRow[j] += originalRow[i] * distanceFactor;
@@ -627,8 +628,65 @@ namespace Tasha.Scheduler
                     }
                 });
             }
-
+            ModifyDurationsTimes();
             PrintResults();
+        }
+
+
+        public DistributionFactor[] ModificationFactors;
+
+        public sealed class DistributionFactor : XTMF.IModule
+        {
+            [RunParameter("ID Range", "", typeof(RangeSet), "The range of distributions to apply this factor to.")]
+            public RangeSet IDRange;
+
+            [RunParameter("Start Range", "", typeof(RangeSet), "The range of distribution start times to apply this factor to.")]
+            public RangeSet StartTimeRange;
+
+            [RunParameter("Duration Range", "", typeof(RangeSet), "The range of distribution duration times to apply this factor to.")]
+            public RangeSet DurationRange;
+
+            [RunParameter("Factor", 1.0f, "The factor to apply to the selected distributions.")]
+            public float Factor;
+
+            public string Name { get; set; }
+
+            public float Progress { get; set; }
+
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        private void ModifyDurationsTimes()
+        {
+            foreach (var mod in ModificationFactors)
+            {
+                foreach (var idRange in mod.IDRange)
+                {
+                    for (int id = idRange.Start; id <= idRange.Stop; id++)
+                    {
+                        var idRow = ResultsArray[id];
+                        foreach (var startTimeRange in mod.StartTimeRange)
+                        {
+                            for (int start = startTimeRange.Start; start <= startTimeRange.Stop; start++)
+                            {
+                                var startRow = idRow[start];
+                                foreach (var durationRange in mod.DurationRange)
+                                {
+                                    for (int dur = durationRange.Start; dur <= durationRange.Stop; dur++)
+                                    {
+                                        startRow[dur] *= mod.Factor;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void SimulateScheduler()
@@ -652,14 +710,14 @@ namespace Tasha.Scheduler
             System.Threading.Tasks.Parallel.For(0, NumberOfDistributionsLocal, delegate (int id)
             {
                 // if there is no data for this ID just continue
-                if(eventCount[id] == null) return;
-                for(int startTime = 0; startTime < StartTimeQuantums; startTime++)
+                if (eventCount[id] == null) return;
+                for (int startTime = 0; startTime < StartTimeQuantums; startTime++)
                 {
                     // get the data we want to store, if there is none, continue on to the next start time
                     var eventCountStartTimeArray = eventCount[id][startTime];
-                    if(eventCountStartTimeArray == null) continue;
+                    if (eventCountStartTimeArray == null) continue;
                     var resultStartTimeArray = ResultsArray[id][startTime];
-                    for(int duration = 0; duration < StartTimeQuantums + 1; duration++)
+                    for (int duration = 0; duration < StartTimeQuantums + 1; duration++)
                     {
                         // we do not need interlocks here since we are parallel in the distributions
                         resultStartTimeArray[duration] += expFactor * eventCountStartTimeArray[duration];

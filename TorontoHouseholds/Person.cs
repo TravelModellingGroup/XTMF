@@ -35,12 +35,12 @@ namespace Tasha.Common
         /// Creates a new person
         /// </summary>
         /// <param name="household">The household that this person belongs to, may not be null!</param>
-        /// <param name="id">The identifyer for this person</param>
+        /// <param name="id">The identifier for this person</param>
         /// <param name="age">The age of this person</param>
         /// <param name="employmentStatus">How this person is employed, if at all</param>
         /// <param name="studentStatus">If this person is a student, and if so what type of student</param>
         /// <param name="female">Is this person female</param>
-        /// <param name="licence">Does this person have a driver's licence</param>
+        /// <param name="licence">Does this person have a driver's license</param>
         public Person(ITashaHousehold household, int id, int age, Occupation occupation, TTSEmploymentStatus employmentStatus, StudentStatus studentStatus, bool license, bool female)
             : this()
         {
@@ -56,9 +56,8 @@ namespace Tasha.Common
 
         public Person()
         {
-            TripChains = new List<ITripChain>(5 );
-            AuxTripChains = new List<ITripChain>(2 );
-            PersonIterationData = new List<IPersonIterationData>(5 );
+            TripChains = new List<ITripChain>(5);
+            AuxTripChains = new List<ITripChain>(2);
         }
 
         /// <summary>
@@ -76,11 +75,11 @@ namespace Tasha.Common
 
         public bool Child
         {
-            get { return (Age >= 0 && Age <= 10 ); }
+            get { return (Age >= 0 && Age <= 10); }
         }
 
         /// <summary>
-        /// Is this person employeed, and if so how?
+        /// Is this person employed, and if so how?
         /// </summary>
         public TTSEmploymentStatus EmploymentStatus
         {
@@ -121,12 +120,12 @@ namespace Tasha.Common
         }
 
         /// <summary>
-        /// What is this person's Identifyer
+        /// What is this person's Identifier
         /// </summary>
         public int Id { get; set; }
 
         /// <summary>
-        /// Does this person have a driver's licence?
+        /// Does this person have a driver's license?
         /// </summary>
         public bool Licence
         {
@@ -183,7 +182,7 @@ namespace Tasha.Common
 
         public bool YoungAdult
         {
-            get { return (Age >= 16 && Age <= 19 ); }
+            get { return (Age >= 16 && Age <= 19); }
         }
 
         /// <summary>
@@ -191,7 +190,7 @@ namespace Tasha.Common
         /// </summary>
         public bool Youth
         {
-            get { return (Age >= 11 && Age <= 15 ); }
+            get { return (Age >= 11 && Age <= 15); }
         }
 
         public ITashaPerson Clone()
@@ -214,45 +213,17 @@ namespace Tasha.Common
             }
             TripChains.Clear();
             AuxTripChains.Clear();
-            for ( int i = 0; i < PersonIterationData.Count; i++)
-            {
-                if (PersonIterationData[i] != null )
-                {
-                    PersonIterationData[i].Recycle();
-                }
-            }
-            PersonIterationData.Clear();
-            if(People.Count < 100)
+            if (People.Count < 100)
             {
                 People.Add(this);
             }
         }
-
-        #region IPerson Members
 
         public List<ITripChain> AuxTripChains
         {
             get;
             set;
         }
-
-        public IPersonIterationData[] iterationData
-        {
-            get;
-            private set;
-        }
-
-        #endregion IPerson Members
-
-        #region IPerson Members
-
-        public IList<IPersonIterationData> PersonIterationData
-        {
-            get;
-            set;
-        }
-
-        #endregion IPerson Members
 
         internal static Person GetPerson()
         {

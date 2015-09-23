@@ -100,7 +100,6 @@ namespace Tasha.Common
         /// </summary>
         IZone SchoolZone { get; set; }
 
-        //List<ITripChain>[] AuxTripChainsPerIteration { get; set; }
         /// <summary>
         /// How this person is a student
         /// </summary>

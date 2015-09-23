@@ -553,7 +553,7 @@ namespace Tasha.Scheduler
                             var startRow = idRow[i];
                             foreach(var startTimeRange in mod.StartTimeRange)
                             {
-                                for(int start = startTimeRange.Start; start < startTimeRange.Stop; start++)
+                                for(int start = startTimeRange.Start; start <= startTimeRange.Stop; start++)
                                 {
                                     startRow[start] *= mod.Factor;
                                 }

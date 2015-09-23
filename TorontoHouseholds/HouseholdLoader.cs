@@ -183,7 +183,7 @@ namespace TMG.Tasha
         public IEnumerator<ITashaHousehold> GetEnumerator()
         {
             BlockingBuffer = new BlockingCollection<ITashaHousehold>(Environment.ProcessorCount * 4);
-            if(NeedsReset)
+            if (NeedsReset)
             {
                 Reset();
             }
@@ -194,14 +194,14 @@ namespace TMG.Tasha
                     try
                     {
                         EnsureReader();
-                        if(SkipBadHouseholds)
+                        if (SkipBadHouseholds)
                         {
                             do
                             {
                                 try
                                 {
                                     next = LoadNextHousehold();
-                                    if(next == null)
+                                    if (next == null)
                                     {
                                         break;
                                     }
@@ -211,19 +211,19 @@ namespace TMG.Tasha
                                 {
 
                                 }
-                            } while(true);
+                            } while (true);
                         }
                         else
                         {
                             do
                             {
                                 next = LoadNextHousehold();
-                                if(next == null)
+                                if (next == null)
                                 {
                                     break;
                                 }
                                 BlockingBuffer.Add(next);
-                            } while(true);
+                            } while (true);
                         }
                     }
                     catch (Exception e)
@@ -233,18 +233,18 @@ namespace TMG.Tasha
                     finally
                     {
                         BlockingBuffer.CompleteAdding();
-                        if(RefreshHouseholdData)
+                        if (RefreshHouseholdData)
                         {
                             Unload();
                         }
                     }
                 });
-            foreach(var h in BlockingBuffer.GetConsumingEnumerable())
+            foreach (var h in BlockingBuffer.GetConsumingEnumerable())
             {
                 yield return h;
             }
             parallelLoader.Wait();
-            if(terminalException != null)
+            if (terminalException != null)
             {
                 throw terminalException;
             }
@@ -263,10 +263,10 @@ namespace TMG.Tasha
             lock (this)
             {
                 PersonLoader.Reset();
-                if(Reader != null)
+                if (Reader != null)
                 {
                     Reader.Reset();
-                    if(ContainsHeader)
+                    if (ContainsHeader)
                     {
                         Reader.LoadLine();
                     }
@@ -279,7 +279,7 @@ namespace TMG.Tasha
         private void Unload()
         {
             PersonLoader.Unload();
-            if(Reader != null)
+            if (Reader != null)
             {
                 Reader.Close();
                 Reader = null;
@@ -297,83 +297,83 @@ namespace TMG.Tasha
         {
             JointTripGenerator.ObsMode = ObservedMode;
             var ibd = Root.InputBaseDirectory;
-            if(ibd == null)
+            if (ibd == null)
             {
                 error = "The model system's input base directory was null!";
                 return false;
             }
             AutoType = Root.AutoType;
 
-            if(SecondVehicleColumnNumber >= 0)
+            if (SecondVehicleColumnNumber >= 0)
             {
-                if(Root.VehicleTypes == null)
+                if (Root.VehicleTypes == null)
                 {
                     error = "In '" + Name + "' we were unable to get the alternative vehicle types for the secondary vehicle!";
                     return false;
                 }
-                foreach(var vt in Root.VehicleTypes)
+                foreach (var vt in Root.VehicleTypes)
                 {
-                    if(vt.VehicleName == SecondaryVehicleTypeName)
+                    if (vt.VehicleName == SecondaryVehicleTypeName)
                     {
                         SecondaryType = vt;
                         break;
                     }
                 }
 
-                if(SecondaryType == null)
+                if (SecondaryType == null)
                 {
                     error = "Could not find vehicle type '" + SecondaryVehicleTypeName + "'.";
                     return false;
                 }
             }
-            if(CalculateJointTrips && !string.IsNullOrWhiteSpace(RideshareModeName))
+            if (CalculateJointTrips && !string.IsNullOrWhiteSpace(RideshareModeName))
             {
                 bool found = false;
-                if(Root.SharedModes == null)
+                if (Root.SharedModes == null)
                 {
                     error = "In '" + Name + "' we were unable to access any Shared Modes inside of '" + Root.Name + "' Please either turn off rideshare's mode swap or fix the model system!";
                     return false;
                 }
-                foreach(var sharedMode in Root.SharedModes)
+                foreach (var sharedMode in Root.SharedModes)
                 {
-                    if(sharedMode.ModeName == RideshareModeName)
+                    if (sharedMode.ModeName == RideshareModeName)
                     {
                         Rideshare = sharedMode;
                         found = true;
                         break;
                     }
                 }
-                if(!found)
+                if (!found)
                 {
                     error = "In '" + Name + "' we were unable to find a shared mode called '" + RideshareModeName + "' to use for rideshare";
                     return false;
                 }
                 found = false;
-                foreach(var nonSharedMode in Root.NonSharedModes)
+                foreach (var nonSharedMode in Root.NonSharedModes)
                 {
-                    if(nonSharedMode.ModeName == AutoModeName)
+                    if (nonSharedMode.ModeName == AutoModeName)
                     {
                         AutoMode = nonSharedMode;
                         found = true;
                         break;
                     }
                 }
-                if(!found)
+                if (!found)
                 {
                     error = "In '" + Name + "' we were unable to find a non shared mode called '" + AutoModeName + "' to use replace with rideshare";
                     return false;
                 }
                 found = false;
-                foreach(var nonSharedMode in Root.AllModes)
+                foreach (var nonSharedMode in Root.AllModes)
                 {
-                    if(nonSharedMode.ModeName == PassengerModeName)
+                    if (nonSharedMode.ModeName == PassengerModeName)
                     {
                         PassengerMode = nonSharedMode;
                         found = true;
                         break;
                     }
                 }
-                if(!found)
+                if (!found)
                 {
                     error = "In '" + Name + "' we were unable to find a non shared mode called '" + PassengerModeName + "' to use replace with rideshare";
                     return false;
@@ -407,11 +407,11 @@ namespace TMG.Tasha
         private static bool AgeDifferenceLessThan(int span, IList<ITashaPerson> People)
         {
             int age = -1;
-            foreach(ITashaPerson p in People)
+            foreach (ITashaPerson p in People)
             {
-                if(p.Adult)
+                if (p.Adult)
                 {
-                    if(age == -1)
+                    if (age == -1)
                     {
                         age = p.Age;
                     }
@@ -426,7 +426,11 @@ namespace TMG.Tasha
 
         private static void AssertType(Household h)
         {
-            if(h.NumberOfChildren == 0)
+            if (h.Persons == null)
+            {
+                throw new XTMFRuntimeException("Persons was null #" + h.HouseholdId + ".");
+            }
+            if (h.NumberOfChildren == 0)
             {
                 GetTypeWithNoChildren(h);
             }
@@ -438,19 +442,19 @@ namespace TMG.Tasha
 
         private static void GetTypeWithChildren(Household h)
         {
-            if(h.NumberOfAdults == 1)
+            if (h.NumberOfAdults == 1)
             {
                 h.hhType = HouseholdType.LoneParentFamily;
             }
-            else if(h.NumberOfAdults == 2)
+            else if (h.NumberOfAdults == 2)
             {
-                if(h.Persons[0].Female == h.Persons[1].Female)
+                if (h.Persons[0].Female == h.Persons[1].Female)
                 {
                     h.hhType = HouseholdType.OtherFamily;
                 }
                 else
                 {
-                    if(AgeDifferenceLessThan(20, h.Persons))
+                    if (AgeDifferenceLessThan(20, h.Persons))
                     {
                         h.hhType = HouseholdType.CoupleWithChildren;
                     }
@@ -468,19 +472,19 @@ namespace TMG.Tasha
 
         private static void GetTypeWithNoChildren(Household h)
         {
-            if(h.NumberOfAdults == 1)
+            if (h.NumberOfAdults == 1)
             {
                 h.hhType = HouseholdType.OnePerson;
             }
-            else if(h.NumberOfAdults == 2)
+            else if (h.NumberOfAdults == 2)
             {
-                if(h.Persons[0].Female == h.Persons[1].Female)
+                if (h.Persons[0].Female == h.Persons[1].Female)
                 {
                     h.hhType = HouseholdType.TwoOrMorePerson;
                 }
                 else
                 {
-                    if(AgeDifferenceLessThan(20, h.Persons))
+                    if (AgeDifferenceLessThan(20, h.Persons))
                     {
                         h.hhType = HouseholdType.CoupleWithoutChildren;
                     }
@@ -498,14 +502,14 @@ namespace TMG.Tasha
 
         private void EnsureReader()
         {
-            if(Reader == null)
+            if (Reader == null)
             {
                 lock (this)
                 {
-                    if(Reader == null)
+                    if (Reader == null)
                     {
                         Reader = new CsvReader(System.IO.Path.Combine(Root.InputBaseDirectory, FileName));
-                        if(ContainsHeader)
+                        if (ContainsHeader)
                         {
                             Reader.LoadLine();
                         }
@@ -519,31 +523,31 @@ namespace TMG.Tasha
         {
             lock (this)
             {
-                if(Reader == null)
+                if (Reader == null)
                 {
                     Reader = new CsvReader(System.IO.Path.Combine(Root.InputBaseDirectory, FileName));
                 }
                 Reset();
-                if(ContainsHeader)
+                if (ContainsHeader)
                 {
                     Reader.LoadLine();
                 }
                 NeedsReset = true;
                 AllDataLoaded = Reader.EndOfFile;
-                while(LoadNextHousehold(list) && !AllDataLoaded) ;
+                while (LoadNextHousehold(list) && !AllDataLoaded) ;
             }
         }
 
         private bool LoadNextHousehold(IList<ITashaHousehold> list)
         {
-            if(SkipBadHouseholds)
+            if (SkipBadHouseholds)
             {
-                while(true)
+                while (true)
                 {
                     try
                     {
                         var h = LoadNextHousehold();
-                        if(h != null)
+                        if (h != null)
                         {
                             list.Add(h);
                         }
@@ -558,7 +562,7 @@ namespace TMG.Tasha
             else
             {
                 var h = LoadNextHousehold();
-                if(h != null)
+                if (h != null)
                 {
                     list.Add(h);
                 }
@@ -576,7 +580,7 @@ namespace TMG.Tasha
             do
             {
                 h = Household.MakeHousehold();
-                if(Reader.LoadLine() == 0)
+                if (Reader.LoadLine() == 0)
                 {
                     AllDataLoaded = true;
                     OutOfData = true;
@@ -588,10 +592,10 @@ namespace TMG.Tasha
                 h.HouseholdId = tempInt;
                 Reader.Get(out tempInt, ZoneCol);
                 h.HomeZone = Root.ZoneSystem.Get(tempInt);
-                if(h.HomeZone == null)
+                if (h.HomeZone == null)
                 {
                     Console.WriteLine("We were unable to find a household zone '" + tempInt.ToString() + "'");
-                    throw new XTMFRuntimeException("We were unable to find a household zone '" + tempInt.ToString() + "'");
+                    throw new XTMFRuntimeException("We were unable to find a household zone '" + tempInt.ToString() + "' for household #" + h.HouseholdId);
                 }
                 Reader.Get(out tempFloat, ExpansionFactorCol);
                 h.ExpansionFactor = tempFloat;
@@ -602,15 +606,15 @@ namespace TMG.Tasha
                 Reader.Get(out tempInt, CarsCol);
                 int numCars = tempInt;
                 var tempVehicles = new List<IVehicle>(numCars);
-                for(int i = 0; i < numCars; i++)
+                for (int i = 0; i < numCars; i++)
                 {
                     tempVehicles.Add(Vehicle.MakeVehicle(AutoType));
                 }
-                if(SecondVehicleColumnNumber >= 0)
+                if (SecondVehicleColumnNumber >= 0)
                 {
                     Reader.Get(out tempInt, SecondVehicleColumnNumber);
                     int numSecondaryVechiles = tempInt;
-                    for(int i = 0; i < numSecondaryVechiles; i++)
+                    for (int i = 0; i < numSecondaryVechiles; i++)
                     {
                         tempVehicles.Add(Vehicle.MakeVehicle(SecondaryType));
                     }
@@ -618,33 +622,33 @@ namespace TMG.Tasha
                 h.Vehicles = tempVehicles.ToArray();
                 PersonLoader.Load(h);
                 AssertType(h);
-                if(CalculateJointTrips)
+                if (CalculateJointTrips)
                 {
                     JointTripGenerator.Convert(h);
                 }
                 loadnext = false;
                 var persons = h.Persons;
-                for(int i = 0; i < persons.Length; i++)
+                for (int i = 0; i < persons.Length; i++)
                 {
                     var person = persons[i];
-                    if((MinAge != 0) & (person.Age < MinAge))
+                    if ((MinAge != 0) & (person.Age < MinAge))
                     {
                         loadnext = true;
                         break;
                     }
-                    if(person.ExpansionFactor <= 0)
+                    if (person.ExpansionFactor <= 0)
                     {
                         person.ExpansionFactor = h.ExpansionFactor;
                     }
                     var tripChains = person.TripChains;
-                    for(int j = 0; j < tripChains.Count; j++)
+                    for (int j = 0; j < tripChains.Count; j++)
                     {
                         var tc = person.TripChains[j];
-                        if((tc.Trips.Count == 1) | ((MaxNumberOfTripsInChain > 0) & (MaxNumberOfTripsInChain < tc.Trips.Count)))
+                        if ((tc.Trips.Count == 1) | ((MaxNumberOfTripsInChain > 0) & (MaxNumberOfTripsInChain < tc.Trips.Count)))
                         {
-                            if(!JustSkipSingleTripTripChainHouseholds)
+                            if (!JustSkipSingleTripTripChainHouseholds)
                             {
-                                if(tc.Trips.Count <= 1)
+                                if (tc.Trips.Count <= 1)
                                 {
                                     throw new XTMFRuntimeException("We found an invalid trip for Household '" + h.HouseholdId
                                         + "' Person '" + person.Id + "' From '" + tc.Trips[0].OriginalZone.ZoneNumber + "' To '"
@@ -655,17 +659,17 @@ namespace TMG.Tasha
                             break;
                         }
                     }
-                    if(loadnext)
+                    if (loadnext)
                     {
                         break;
                     }
                 }
-                if(loadnext)
+                if (loadnext)
                 {
                     h.Recycle();
                 }
-            } while(loadnext);
-            if(LoadedTripDump != null)
+            } while (loadnext);
+            if (LoadedTripDump != null)
             {
                 SaveHouseholdTrips(h);
             }
@@ -678,19 +682,19 @@ namespace TMG.Tasha
 
         private void SaveHouseholdTrips(Household h)
         {
-            if(TripDump == null)
+            if (TripDump == null)
             {
                 TripDump = new StreamWriter(LoadedTripDump);
                 TripDump.WriteLine("HouseholdID,PersonID,TripChain,TripNumber,StartTime,ObservedMode,OriginRegion,DesitinationRegion,OriginPD,DestinationPD,OriginZone,DestinationZone,Activity,Expansion Factor");
             }
             var writer = TripDump;
-            for(int i = 0; i < h.Persons.Length; i++)
+            for (int i = 0; i < h.Persons.Length; i++)
             {
                 var person = h.Persons[i] as Person;
-                for(int j = 0; j < person.TripChains.Count; j++)
+                for (int j = 0; j < person.TripChains.Count; j++)
                 {
                     var tc = person.TripChains[j] as TripChain;
-                    for(int k = 0; k < tc.Trips.Count; k++)
+                    for (int k = 0; k < tc.Trips.Count; k++)
                     {
                         var trip = tc.Trips[k] as Trip;
                         var obsMode = trip["ObservedMode"] as ITashaMode;
@@ -734,12 +738,12 @@ namespace TMG.Tasha
 
         public void Dispose()
         {
-            if(Reader != null)
+            if (Reader != null)
             {
                 Reader.Dispose();
                 Reader = null;
             }
-            if(TripDump != null)
+            if (TripDump != null)
             {
                 TripDump.Dispose();
                 TripDump = null;
