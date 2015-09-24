@@ -619,7 +619,17 @@ namespace TMG.Tasha
                         tempVehicles.Add(Vehicle.MakeVehicle(SecondaryType));
                     }
                 }
-                h.Vehicles = tempVehicles.ToArray();
+                if (h.Vehicles == null || h.Vehicles.Length != tempVehicles.Count)
+                {
+                    h.Vehicles = tempVehicles.ToArray();
+                }
+                else
+                {
+                    for (int i = 0; i < h.Vehicles.Length; i++)
+                    {
+                        h.Vehicles[i] = tempVehicles[i];
+                    }
+                }
                 PersonLoader.Load(h);
                 AssertType(h);
                 if (CalculateJointTrips)

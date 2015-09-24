@@ -162,7 +162,7 @@ namespace TMG.Tasha
             ITashaPerson[] personArray = household.Persons;
             if (personArray == null || personArray.Length != persons.Count)
             {
-                ((Household)household).Persons = persons.ToArray();
+                ((Household)household).Persons = personArray = persons.ToArray();
             }
             else
             {
