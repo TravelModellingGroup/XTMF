@@ -176,36 +176,12 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-        public RunWindow(ModelSystemEditingSession session, DependencyObject callingControl)
+        public RunWindow(ModelSystemEditingSession session, string runName)
         {
             InitializeComponent();
             Session = session;
             session.SessionClosed += Session_SessionClosed;
-            var runName = "Run Name";
-            StringRequest req = new StringRequest("Run Name", ValidateName);
-            var trueWindow = Window.GetWindow(callingControl);
-            var testWindow = GetWindow(callingControl);
-            var vis = callingControl as UserControl;
-            if (vis != null && testWindow != trueWindow)
-            {
-                var topLeft = vis.PointToScreen(new Point());
-                // Since the string request dialog isn't shown yet we need to use some defaults as width and height are not available.
-                req.Left = topLeft.X + ((vis.ActualWidth - StringRequest.DefaultWidth) / 2);
-                req.Top = topLeft.Y + ((vis.ActualHeight - StringRequest.DefaultHeight) / 2);
-            }
-            else
-            {
-                req.Owner = trueWindow;
-            }
-            if (req.ShowDialog() == true)
-            {
-                runName = req.Answer;
-                StartRun(session, runName);
-            }
-            else
-            {
-                MainWindow.Us.CloseWindow(this);
-            }
+            StartRun(session, runName);
         }
 
         private bool ValidateName(string arg)

@@ -100,7 +100,7 @@ namespace XTMF.Gui
             open.OpenProject(EditorController.Runtime);
             Task.Factory.StartNew(() =>
             {
-                if(open.LoadTask != null)
+                if (open.LoadTask != null)
                 {
                     OperationProgressing progressing = null;
                     Dispatcher.Invoke(new Action(() =>
@@ -160,7 +160,7 @@ namespace XTMF.Gui
             openWindow.OpenModelSystem(EditorController.Runtime);
             Task.Factory.StartNew(() =>
             {
-                if(openWindow.LoadTask != null)
+                if (openWindow.LoadTask != null)
                 {
                     OperationProgressing progressing = null;
                     Dispatcher.Invoke(new Action(() =>
@@ -181,7 +181,7 @@ namespace XTMF.Gui
                     }));
                 }
                 var session = openWindow.ModelSystemSession;
-                if(session != null)
+                if (session != null)
                 {
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -209,7 +209,7 @@ namespace XTMF.Gui
             {
                 //integrate into the main window
                 OpenPages.Remove(source as LayoutDocument);
-                if(OpenPages.Count <= 0)
+                if (OpenPages.Count <= 0)
                 {
                     Dispatcher.Invoke(new Action(() =>
                     {
@@ -220,7 +220,7 @@ namespace XTMF.Gui
                     }));
                 }
                 // run the default code
-                if(onClose != null)
+                if (onClose != null)
                 {
                     onClose();
                 }
@@ -236,7 +236,7 @@ namespace XTMF.Gui
 
         private void SetSaveButtons(string name)
         {
-            if(string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 SaveMenu.Header = "_Save";
                 SaveAsMenu.Header = "Save _As";
@@ -247,7 +247,7 @@ namespace XTMF.Gui
             }
             else
             {
-                if(name.Length > 20)
+                if (name.Length > 20)
                 {
                     name = name.Substring(0, 17) + "...";
                 }
@@ -265,7 +265,7 @@ namespace XTMF.Gui
         private void Document_IsActive(object sender, EventArgs e)
         {
             var document = sender as LayoutDocument;
-            if(document != null)
+            if (document != null)
             {
                 CurrentDocument = document;
                 SaveMenu.IsEnabled = false;
@@ -281,21 +281,41 @@ namespace XTMF.Gui
             var modelSystem = document.Content as ModelSystemDisplay;
             RunMenu.IsEnabled = false;
             RunLabel.IsEnabled = false;
-            if(modelSystem != null)
+            if (modelSystem != null)
             {
                 var session = modelSystem.Session;
-                if(session.CanRun)
+                if (session.CanRun)
                 {
                     RunMenu.IsEnabled = true;
                     RunLabel.IsEnabled = true;
                     _CurrentRun = () =>
                     {
-                        RunWindow window = new RunWindow(session, document.Content as DependencyObject);
-                        var doc = AddNewWindow("New Run", window);
-                        doc.CanClose = true;
-                        doc.IsSelected = true;
-                        Keyboard.Focus(window);
-                        window.Focus();
+                        var runName = "Run Name";
+                        StringRequest req = new StringRequest("Run Name", ValidateName);
+                        var trueWindow = Window.GetWindow(document.Content as DependencyObject);
+                        var testWindow = GetWindow(document.Content as DependencyObject);
+                        var vis = document.Content as UserControl;
+                        if (vis != null && testWindow != trueWindow)
+                        {
+                            var topLeft = vis.PointToScreen(new Point());
+                            // Since the string request dialog isn't shown yet we need to use some defaults as width and height are not available.
+                            req.Left = topLeft.X + ((vis.ActualWidth - StringRequest.DefaultWidth) / 2);
+                            req.Top = topLeft.Y + ((vis.ActualHeight - StringRequest.DefaultHeight) / 2);
+                        }
+                        else
+                        {
+                            req.Owner = trueWindow;
+                        }
+                        if (req.ShowDialog() == true)
+                        {
+                            runName = req.Answer;
+                            RunWindow window = new RunWindow(session, runName);
+                            var doc = AddNewWindow("New Run", window);
+                            doc.CanClose = true;
+                            doc.IsSelected = true;
+                            Keyboard.Focus(window);
+                            window.Focus();
+                        }
                     };
                 }
             }
@@ -310,12 +330,12 @@ namespace XTMF.Gui
             //Setup anything that needs to happen when we change focus
             var projectPage = document.Content as ProjectDisplay;
             var modelSystem = document.Content as ModelSystemDisplay;
-            if(projectPage != null)
+            if (projectPage != null)
             {
                 // you can't save a project (but we need to reset the menu)
                 SetSaveButtons(null);
             }
-            else if(modelSystem != null)
+            else if (modelSystem != null)
             {
                 var name = modelSystem.ModelSystemName;
                 SetSaveButtons(name);
@@ -331,11 +351,11 @@ namespace XTMF.Gui
             var document = CurrentDocument;
             var projectPage = document.Content as ProjectDisplay;
             var modelSystem = document.Content as ModelSystemDisplay;
-            if(projectPage != null)
+            if (projectPage != null)
             {
                 // TODO
             }
-            else if(modelSystem != null)
+            else if (modelSystem != null)
             {
                 modelSystem.SaveRequested();
             }
@@ -346,11 +366,11 @@ namespace XTMF.Gui
             var document = CurrentDocument;
             var projectPage = document.Content as ProjectDisplay;
             var modelSystem = document.Content as ModelSystemDisplay;
-            if(projectPage != null)
+            if (projectPage != null)
             {
                 // TODO
             }
-            else if(modelSystem != null)
+            else if (modelSystem != null)
             {
                 modelSystem.UndoRequested();
             }
@@ -361,11 +381,11 @@ namespace XTMF.Gui
             var document = CurrentDocument;
             var projectPage = document.Content as ProjectDisplay;
             var modelSystem = document.Content as ModelSystemDisplay;
-            if(projectPage != null)
+            if (projectPage != null)
             {
                 // TODO
             }
-            else if(modelSystem != null)
+            else if (modelSystem != null)
             {
                 modelSystem.RedoRequested();
             }
@@ -384,7 +404,7 @@ namespace XTMF.Gui
         public void NewModelSystem()
         {
             StringRequest req = new StringRequest("Model System Name", ValidateName);
-            if(req.ShowDialog() == true)
+            if (req.ShowDialog() == true)
             {
                 var name = req.Answer;
                 var ms = EditorController.Runtime.ModelSystemController.LoadOrCreate(name);
@@ -412,7 +432,7 @@ namespace XTMF.Gui
 
         private void EditModelSystem(ModelSystemEditingSession modelSystemSession)
         {
-            if(modelSystemSession != null)
+            if (modelSystemSession != null)
             {
                 var display = new ModelSystemDisplay()
                 {
@@ -447,7 +467,7 @@ namespace XTMF.Gui
         private void CloseMenu_Click(object sender, RoutedEventArgs e)
         {
             LayoutDocument activeDocument = OpenPages.FirstOrDefault(x => x.IsActive);
-            if(activeDocument != null)
+            if (activeDocument != null)
             {
                 activeDocument.Close();
             }
@@ -511,7 +531,7 @@ namespace XTMF.Gui
         private void RunRemoteMenu_Click(object sender, RoutedEventArgs e)
         {
             var remoteWindow = new LaunchRemoteClientWindow();
-            var doc = AddNewWindow("Launch Remote Client", remoteWindow );
+            var doc = AddNewWindow("Launch Remote Client", remoteWindow);
             remoteWindow.RequestClose += (ignored) => doc.Close();
             doc.IsSelected = true;
             Keyboard.Focus(remoteWindow);
@@ -520,7 +540,7 @@ namespace XTMF.Gui
 
         public void ExecuteRun()
         {
-            if(_CurrentRun != null)
+            if (_CurrentRun != null)
             {
                 _CurrentRun();
             }
@@ -530,9 +550,9 @@ namespace XTMF.Gui
         {
             var page = OpenPages.FirstOrDefault(p =>
             {
-                if(p.Content == window)
+                if (p.Content == window)
                 {
-                    if(!p.CanClose)
+                    if (!p.CanClose)
                     {
                         p.CanClose = true;
                     }
@@ -540,7 +560,7 @@ namespace XTMF.Gui
                 }
                 return false;
             });
-            if(page != null)
+            if (page != null)
             {
                 page.Close();
             }
@@ -550,13 +570,13 @@ namespace XTMF.Gui
         {
             var page = OpenPages.FirstOrDefault(p =>
             {
-                if(p.Content == window)
+                if (p.Content == window)
                 {
                     return true;
                 }
                 return false;
             });
-            if(page != null)
+            if (page != null)
             {
                 page.Title = newName;
             }
