@@ -53,11 +53,18 @@ namespace Tasha.EMME
 
         private SpinLock WriteLock = new SpinLock(false);
 
+        [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
+        public int MinimumAge;
+
         public void Execute(ITashaHousehold household, int iteration)
         {
             var persons = household.Persons;
             for(int i = 0; i < persons.Length; i++)
             {
+                if(persons[i].Age < MinimumAge)
+                {
+                    continue;
+                }
                 var expFactor = persons[i].ExpansionFactor;
                 var tripChains = persons[i].TripChains;
                 for(int j = 0; j < tripChains.Count; j++)
