@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
@@ -210,6 +211,7 @@ namespace TMG.GTAModel.NetworkAssignment
                         var result = tally[o][d];
                         if(result > 0)
                         {
+                            localAny = true;
                             this.ToEmmeFloat(result, strBuilder);
                             build.AppendFormat("{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
                                 convertedO, flatZones[d].ZoneNumber, strBuilder);
