@@ -361,6 +361,42 @@ namespace XTMF.Gui
             }
         }
 
+        private string OpenFile(string title)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.Title = title;
+            if (dialog.ShowDialog() == true)
+            {
+                return dialog.FileName;
+            }
+            return null;
+        }
+
+        private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            var fileName = OpenFile("Import Model System");
+            string error = null;
+            if (fileName != null)
+            {
+                var msName = System.IO.Path.GetFileName(fileName);
+                if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, false, ref error))
+                {
+                    switch (MessageBox.Show(this, error + "\r\nWould you like to overwrite?",
+                        "Unable to import", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No))
+                    {
+                        case MessageBoxResult.Yes:
+                            {
+                                if(!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true, ref error))
+                                {
+                                    MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
             var document = CurrentDocument;
@@ -606,11 +642,6 @@ namespace XTMF.Gui
         private void NewProjectButton_Click(object sender, RoutedEventArgs e)
         {
             NewProject();
-        }
-
-        private void Label_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-
         }
     }
 }

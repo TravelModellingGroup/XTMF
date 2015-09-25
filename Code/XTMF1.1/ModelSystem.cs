@@ -59,7 +59,7 @@ namespace XTMF
             Name = name;
             SetIsLoaded(false);
             LinkedParameters = new List<ILinkedParameter>();
-            if (name != null )
+            if (name != null)
             {
                 ReadDescription();
             }
@@ -138,28 +138,28 @@ namespace XTMF
                 using (XmlWriter writer = XmlWriter.Create(tempFileName, new XmlWriterSettings() { Indent = true, Encoding = Encoding.Unicode }))
                 {
                     writer.WriteStartDocument();
-                    writer.WriteStartElement("Root" );
+                    writer.WriteStartElement("Root");
                     writer.Flush();
                     ModelSystemStructure.Save(writer);
-                    if (Description != null )
+                    if (Description != null)
                     {
-                        writer.WriteStartElement("Description" );
+                        writer.WriteStartElement("Description");
                         writer.WriteString(Description);
                         writer.WriteEndElement();
                     }
-                    if (LinkedParameters != null )
+                    if (LinkedParameters != null)
                     {
                         foreach (var lp in LinkedParameters)
                         {
-                            writer.WriteStartElement("LinkedParameter" );
+                            writer.WriteStartElement("LinkedParameter");
                             writer.WriteAttributeString("Name", lp.Name);
-                            if (lp.Value != null )
+                            if (lp.Value != null)
                             {
                                 writer.WriteAttributeString("Value", lp.Value.ToString());
                             }
                             foreach (var reference in lp.Parameters)
                             {
-                                writer.WriteStartElement("Reference" );
+                                writer.WriteStartElement("Reference");
                                 writer.WriteAttributeString("Name", LookupName(reference));
                                 writer.WriteEndElement();
                             }
@@ -175,20 +175,20 @@ namespace XTMF
                 error = e.Message;
                 return false;
             }
-            File.Copy(tempFileName, fileName, true );
+            File.Copy(tempFileName, fileName, true);
             File.Delete(tempFileName);
             return true;
         }
 
         public bool Save(ref string error)
         {
-            string fileName = Path.Combine(Config.ModelSystemDirectory, Name + ".xml" );
+            string fileName = Path.Combine(Config.ModelSystemDirectory, Name + ".xml");
             return Save(fileName, ref error);
         }
 
         public override string ToString()
         {
-            if (ModelSystemStructure != null && ModelSystemStructure.Type != null )
+            if (ModelSystemStructure != null && ModelSystemStructure.Type != null)
             {
                 return string.Format("{0}:{1}", Name, ModelSystemStructure.Type.Name);
             }
@@ -202,7 +202,7 @@ namespace XTMF
         /// <returns>If an error was found</returns>
         public bool Validate(ref string error)
         {
-            if (ModelSystemStructure == null )
+            if (ModelSystemStructure == null)
             {
                 error = "No model system structure is present in this model system!";
                 return false;
@@ -238,7 +238,7 @@ namespace XTMF
 
         private IModuleParameter GetParameterFromLink(string[] variableLink, int index, IModelSystemStructure current)
         {
-            if (index == variableLink.Length - 1 )
+            if (index == variableLink.Length - 1)
             {
                 // search the parameters
                 var parameters = current.Parameters;
@@ -253,7 +253,7 @@ namespace XTMF
             else
             {
                 IList<IModelSystemStructure> descList = current.Children;
-                if (descList == null )
+                if (descList == null)
                 {
                     return null;
                 }
@@ -285,20 +285,20 @@ namespace XTMF
 
         private void Load(IConfiguration config, string name)
         {
-            if (name != null )
+            if (name != null)
             {
-                var fileName = Path.Combine(Config.ModelSystemDirectory, name + ".xml" );
-                if (LinkedParameters == null )
+                var fileName = Path.Combine(Config.ModelSystemDirectory, name + ".xml");
+                if (LinkedParameters == null)
                 {
                     LinkedParameters = new List<ILinkedParameter>();
                 }
-                ModelSystemStructure = XTMF.ModelSystemStructure.Load(fileName, config);
                 try
                 {
+                    ModelSystemStructure = XTMF.ModelSystemStructure.Load(fileName, config);
                     using (XmlReader reader = XmlReader.Create(fileName))
                     {
                         bool skipRead = false;
-                        while (!reader.EOF && (skipRead || reader.Read()) )
+                        while (!reader.EOF && (skipRead || reader.Read()))
                         {
                             skipRead = false;
                             if (reader.NodeType != XmlNodeType.Element) continue;
@@ -313,11 +313,11 @@ namespace XTMF
                                         {
                                             if (reader.NodeType == XmlNodeType.Attribute)
                                             {
-                                                if (reader.LocalName == "Name" )
+                                                if (reader.LocalName == "Name")
                                                 {
                                                     linkedParameterName = reader.ReadContentAsString();
                                                 }
-                                                else if (reader.LocalName == "Value" )
+                                                else if (reader.LocalName == "Value")
                                                 {
                                                     valueRepresentation = reader.ReadContentAsString();
                                                 }
@@ -338,20 +338,20 @@ namespace XTMF
                                             {
                                                 continue;
                                             }
-                                            if (reader.LocalName == "Reference" )
+                                            if (reader.LocalName == "Reference")
                                             {
                                                 string variableLink = null;
                                                 while (reader.MoveToNextAttribute())
                                                 {
-                                                    if (reader.Name == "Name" )
+                                                    if (reader.Name == "Name")
                                                     {
                                                         variableLink = reader.ReadContentAsString();
                                                     }
                                                 }
-                                                if (variableLink != null )
+                                                if (variableLink != null)
                                                 {
                                                     IModuleParameter param = GetParameterFromLink(variableLink);
-                                                    if (param != null )
+                                                    if (param != null)
                                                     {
                                                         // in any case if there is a type error, just throw it out
                                                         lp.Add(param, ref error);
@@ -392,7 +392,16 @@ namespace XTMF
                 catch
                 {
                     Description = string.Empty;
-                    ModelSystemStructure.ParentFieldType = typeof(IModelSystemTemplate);
+                    if (_ModelSystemStructure == null)
+                    {
+                        _ModelSystemStructure = new ModelSystemStructure(Config, Name, typeof(IModelSystemTemplate));
+                        _ModelSystemStructure.Required = true;
+                    }
+                    else
+                    {
+                        _ModelSystemStructure.ParentFieldType = typeof(IModelSystemTemplate);
+                        _ModelSystemStructure.Required = true;
+                    }
                 }
             }
         }
@@ -405,25 +414,25 @@ namespace XTMF
         private string LookupName(IModuleParameter reference, IModelSystemStructure current)
         {
             var param = current.Parameters;
-            if (param != null )
+            if (param != null)
             {
                 int index = param.Parameters.IndexOf(reference);
-                if (index >= 0 )
+                if (index >= 0)
                 {
                     return current.Parameters.Parameters[index].Name;
                 }
             }
             var childrenList = current.Children;
-            if (childrenList != null )
+            if (childrenList != null)
             {
-                for ( int i = 0; i < childrenList.Count; i++)
+                for (int i = 0; i < childrenList.Count; i++)
                 {
                     var res = LookupName(reference, childrenList[i]);
-                    if (res != null )
+                    if (res != null)
                     {
                         // make sure to use an escape character before the . to avoid making the mistake of reading it as another index
                         return string.Concat(current.IsCollection ? i.ToString()
-                            : childrenList[i].ParentFieldName.Replace(".", "\\." ), '.', res);
+                            : childrenList[i].ParentFieldName.Replace(".", "\\."), '.', res);
                     }
                 }
             }
@@ -436,22 +445,22 @@ namespace XTMF
             bool escape = false;
             var length = variableLink.Length;
             StringBuilder builder = new StringBuilder(length);
-            for ( int i = 0; i < length; i++)
+            for (int i = 0; i < length; i++)
             {
                 var c = variableLink[i];
                 // check to see if we need to add in the escape
-                if (escape & c != '.' )
+                if (escape & c != '.')
                 {
-                    builder.Append('\\' );
+                    builder.Append('\\');
                 }
                 // check to see if we need to move onto the next part
-                if (escape == false & c == '.' )
+                if (escape == false & c == '.')
                 {
                     ret.Add(builder.ToString());
                     builder.Clear();
                     escape = false;
                 }
-                else if (c != '\\' )
+                else if (c != '\\')
                 {
                     builder.Append(c);
                     escape = false;
@@ -463,7 +472,7 @@ namespace XTMF
             }
             if (escape)
             {
-                builder.Append('\\' );
+                builder.Append('\\');
             }
             ret.Add(builder.ToString());
             return ret.ToArray();
@@ -471,13 +480,13 @@ namespace XTMF
 
         private void ReadDescription()
         {
-            var fileName = Path.Combine(Config.ModelSystemDirectory, Name + ".xml" );
+            var fileName = Path.Combine(Config.ModelSystemDirectory, Name + ".xml");
             try
             {
                 using (XmlReader reader = XmlReader.Create(fileName))
                 {
                     bool skipRead = false;
-                    while (!reader.EOF && (skipRead || reader.Read()) )
+                    while (!reader.EOF && (skipRead || reader.Read()))
                     {
                         skipRead = false;
                         if (reader.NodeType != XmlNodeType.Element) continue;
