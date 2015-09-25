@@ -86,6 +86,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("Walk Speed", 6.0f, "Walking speed, in km/hr")]
         public float WalkSpeed;
 
+        [RunParameter("EMME Demand Matrix Name", "Demand", "A name to attach to the matrix.")]
+        public string DemandMatrixName;
+
         /*
         ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, \
                  WalkPerception, InVehiclePerception, BoardingPerception, FarePerception, \
@@ -197,7 +200,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
             using (StreamWriter writer = new StreamWriter(outputFileName))
             {
-                writer.WriteLine("t matrices\r\na matrix=mf{0} name=FBTADemand default=0 descr=generated", this.DemandMatrixNumber);
+                writer.WriteLine("t matrices\r\na matrix=mf{0} name={1} default=0 descr=generated", this.DemandMatrixNumber, DemandMatrixName.Replace(" ", ""));
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
                 bool any = false;
                 Parallel.For(0, numberOfZones, delegate (int o)
