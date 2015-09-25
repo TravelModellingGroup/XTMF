@@ -289,6 +289,15 @@
                                         </Image>
                                     </MenuItem.Icon>
                                 </MenuItem>
+                                <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
                             </ContextMenu>
                         </ListView.ContextMenu>
                     </ListView>
@@ -428,6 +437,15 @@
                                         <Image>
                                             <Image.Source>
                                                 <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
                                             </Image.Source>
                                         </Image>
                                     </MenuItem.Icon>

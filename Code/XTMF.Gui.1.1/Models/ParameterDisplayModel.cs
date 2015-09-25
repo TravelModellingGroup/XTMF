@@ -143,5 +143,10 @@ namespace XTMF.Gui.Models
             }
             return lp.RemoveParameter(RealParameter, ref error);
         }
+
+        internal bool ResetToDefault(ref string error)
+        {
+            return RealParameter.SetToDefault(ref error);
+        }
     }
 }
