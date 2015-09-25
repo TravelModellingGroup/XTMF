@@ -174,6 +174,10 @@ be based off of this module."
                 // Then we have trip component data
                 float ivtt, walk, wait, boarding, cost;
                 this.AdvancedNetworkData.GetAllData( origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost );
+                if(CheckPositiveWalk && walk <= 0)
+                {
+                    Console.WriteLine("Still Broken");
+                }
                 v += this.IVTT * ivtt
                 + this.Walk * walk
                 + ( ( walk > 0 ) & ( ivtt <= 0 ) ? this.AdjacentZone : 0f )
@@ -204,11 +208,11 @@ be based off of this module."
             }
             else
             {
-                float ivtt, cost;
-                AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out cost);
+                float ivtt, walk, wait, boarding, cost;
+                AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost);
                 return this.AdvancedNetworkData.ValidOD(origin, destination, time)
                 && ((!this.CheckPositiveIVTT || ivtt > 0))
-                && ((!this.CheckPositiveWalk || cost > 0));
+                && ((!this.CheckPositiveWalk || walk > 0));
             }
         }
 
