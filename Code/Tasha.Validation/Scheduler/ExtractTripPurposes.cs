@@ -66,6 +66,9 @@ namespace Tasha.Validation.Scheduler
         [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
         public int MinimumAge;
 
+        [RunParameter("Use Trip Start Times", true, "Use the start time of the trip instead of the activity.")]
+        public bool UseTripStartTime;
+
 
         public class ActivityLink : XTMF.IModule
         {
@@ -102,7 +105,7 @@ namespace Tasha.Validation.Scheduler
                     {
                         if(Array.IndexOf(Activities, trips[k].Purpose) >= 0)
                         {
-                            var activityStartTime = trips[k].ActivityStartTime;
+                            var activityStartTime = UseTripStartTime ? trips[k].TripStartTime : trips[k].ActivityStartTime;
                             if(activityStartTime >= StartTime && activityStartTime < EndTime)
                             {
                                 AddToMatrix(trips[k], expFactor);
