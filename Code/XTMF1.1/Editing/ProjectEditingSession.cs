@@ -243,6 +243,26 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// Clone the given model system with a new name
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="name"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public static bool CloneModelSystemAs(XTMFRuntime Runtime, IModelSystemStructure root, List<ILinkedParameter> linkedParameters, string description, string name, ref string error)
+        {
+            var ms = Runtime.ModelSystemController.LoadOrCreate(name);
+            ms.Name = name;
+            ms.Description = description;
+            ms.ModelSystemStructure = root;
+            ms.LinkedParameters = linkedParameters;
+            var ret = ms.Save(ref error);
+            // make sure we don't reuse any references
+            ms.Unload();
+            return ret;
+        }
+
         public bool CloneModelSystemToProjectAs(IModelSystemStructure root, string name, ref string error)
         {
             lock (EditingSessionsLock)

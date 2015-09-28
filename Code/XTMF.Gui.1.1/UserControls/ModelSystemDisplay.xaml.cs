@@ -370,7 +370,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.S:
-                            SaveRequested();
+                            SaveRequested(false);
                             e.Handled = true;
                             break;
                         case Key.C:
@@ -636,39 +636,55 @@ namespace XTMF.Gui.UserControls
 
         object SaveLock = new object();
 
-        public void SaveRequested()
+        public void SaveRequested(bool saveAs)
         {
             string error = null;
-            Monitor.Enter(SaveLock);
-            MainWindow.SetStatusText("Saving...");
-            Task.Run(async () =>
+            if (saveAs)
+            {
+                StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
                 {
-                    try
-                    {
-                        var watch = Stopwatch.StartNew();
-                        if (!Session.Save(ref error))
-                        {
-                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                        watch.Stop();
-                        var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
-                        if (displayTimeRemaining > 0)
-                        {
-                            MainWindow.SetStatusText("Saved");
-                            await Task.Delay(displayTimeRemaining);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    finally
-                    {
-                        MainWindow.SetStatusText("Ready");
-                        Monitor.Exit(SaveLock);
-                    }
+                    return Project.ValidateProjectName(newName);
                 });
-
+                if (sr.ShowDialog() == true)
+                {
+                    if (!Session.SaveAs(sr.Answer, ref error))
+                    {
+                        MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            else
+            {
+                Monitor.Enter(SaveLock);
+                MainWindow.SetStatusText("Saving...");
+                Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var watch = Stopwatch.StartNew();
+                            if (!Session.Save(ref error))
+                            {
+                                MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                            watch.Stop();
+                            var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
+                            if (displayTimeRemaining > 0)
+                            {
+                                MainWindow.SetStatusText("Saved");
+                                await Task.Delay(displayTimeRemaining);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        finally
+                        {
+                            MainWindow.SetStatusText("Ready");
+                            Monitor.Exit(SaveLock);
+                        }
+                    });
+            }
         }
 
         public void UndoRequested()

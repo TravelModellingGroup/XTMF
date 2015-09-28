@@ -89,11 +89,6 @@ namespace XTMF
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        public List<ILinkedParameter> LinkedParameters { get; set; }
-
-        /// <summary>
         /// The structure that defines this model system
         /// </summary>
         public IModelSystemStructure ModelSystemStructure
@@ -120,6 +115,32 @@ namespace XTMF
                 }
             }
         }
+
+        private List<ILinkedParameter> _LinkedParameters;
+        /// <summary>
+        ///
+        /// </summary>
+        public List<ILinkedParameter> LinkedParameters
+        {
+            get
+            {
+                lock (this)
+                {
+                    if(!IsLoaded)
+                    {
+                        Load(Config, Name);
+                        SetIsLoaded(true);
+                    }
+                    return _LinkedParameters;
+                }
+            }
+            internal set
+            {
+
+                _LinkedParameters = value;
+            }
+        }
+
 
         /// <summary>
         /// The name of the model system
@@ -288,9 +309,13 @@ namespace XTMF
             if (name != null)
             {
                 var fileName = Path.Combine(Config.ModelSystemDirectory, name + ".xml");
-                if (LinkedParameters == null)
+                if (_LinkedParameters == null)
                 {
-                    LinkedParameters = new List<ILinkedParameter>();
+                    _LinkedParameters = new List<ILinkedParameter>();
+                }
+                else
+                {
+                    _LinkedParameters.Clear();
                 }
                 try
                 {
@@ -326,7 +351,7 @@ namespace XTMF
                                         LinkedParameter lp = new LinkedParameter(linkedParameterName);
                                         string error = null;
                                         lp.SetValue(valueRepresentation, ref error);
-                                        LinkedParameters.Add(lp);
+                                        _LinkedParameters.Add(lp);
                                         skipRead = true;
                                         while (reader.Read())
                                         {
@@ -404,6 +429,13 @@ namespace XTMF
                     }
                 }
             }
+        }
+
+        internal void Unload()
+        {
+            IsLoaded = false;
+            _ModelSystemStructure = null;
+            LinkedParameters = null;
         }
 
         private string LookupName(IModuleParameter reference)

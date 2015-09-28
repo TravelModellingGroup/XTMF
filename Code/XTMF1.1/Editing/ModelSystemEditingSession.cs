@@ -287,6 +287,16 @@ namespace XTMF
             }
         }
 
+        public bool SaveAs(string modelSystemName, ref string error)
+        {
+            lock(SessionLock)
+            {
+                return ProjectEditingSession.CloneModelSystemAs(Runtime, ModelSystemModel.Root.RealModelSystemStructure,
+                    ModelSystemModel.LinkedParameters.GetRealLinkedParameters(),
+                    ModelSystemModel.Description, modelSystemName, ref error);
+            }
+        }
+
         /// <summary>
         /// Undo the last command
         /// </summary>

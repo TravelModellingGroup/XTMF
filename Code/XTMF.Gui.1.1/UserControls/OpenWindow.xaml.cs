@@ -84,6 +84,7 @@ namespace XTMF.Gui.UserControls
 
                 public ModelElement(string name, string text, object data, Model root)
                 {
+                    Root = root;
                     Name = name;
                     Text = text;
                     Data = data;
@@ -126,9 +127,12 @@ namespace XTMF.Gui.UserControls
                 Data.Clear();
                 Task.Factory.StartNew(() =>
                 {
-                    foreach (var project in projects)
+                    lock (Data)
                     {
-                        Data.Add(new ModelElement(project.Name, project.Description, project, this));
+                        foreach (var project in projects)
+                        {
+                            Data.Add(new ModelElement(project.Name, project.Description, project, this));
+                        }
                     }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Data");
                 });
@@ -139,9 +143,12 @@ namespace XTMF.Gui.UserControls
                 Data.Clear();
                 Task.Factory.StartNew(() =>
                 {
-                    foreach (var modelSystem in modelSystems)
+                    lock (Data)
                     {
-                        Data.Add(new ModelElement(modelSystem.Name, modelSystem.Description, modelSystem, this));
+                        foreach (var modelSystem in modelSystems)
+                        {
+                            Data.Add(new ModelElement(modelSystem.Name, modelSystem.Description, modelSystem, this));
+                        }
                     }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "Data");
                 });
@@ -169,7 +176,10 @@ namespace XTMF.Gui.UserControls
             MSEditSession = null;
             InternalModel.Initialize(runtime.ModelSystemController.GetModelSystems());
             DataContext = InternalModel;
-            Display.ItemsSource = InternalModel.Data;
+            lock (InternalModel.Data)
+            {
+                Display.ItemsSource = InternalModel.Data;
+            }
             FilterBox.Display = Display;
             FilterBox.Filter = Filter;
             ShowDialog();
@@ -182,7 +192,10 @@ namespace XTMF.Gui.UserControls
             PEditSession = null;
             InternalModel.Initialize(runtime.ProjectController.GetProjects());
             DataContext = InternalModel;
-            Display.ItemsSource = InternalModel.Data;
+            lock (InternalModel.Data)
+            {
+                Display.ItemsSource = InternalModel.Data;
+            }
             FilterBox.Display = Display;
             FilterBox.Filter = Filter;
             ShowDialog();

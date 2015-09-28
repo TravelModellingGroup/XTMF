@@ -53,7 +53,7 @@
                         <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="SaveAsMenu" Header="Save _As" Click="SaveAsMenu_Click" IsEnabled="False" />
+                <MenuItem x:Name="SaveAsMenu" Header="Save _As" Click="SaveAsMenu_Click"  IsEnabled="False" />
                 <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/Plus.png" Width="20" Height="20"/>

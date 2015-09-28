@@ -357,7 +357,22 @@ namespace XTMF.Gui
             }
             else if (modelSystem != null)
             {
-                modelSystem.SaveRequested();
+                modelSystem.SaveRequested(false);
+            }
+        }
+
+        private void SaveAsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            var document = CurrentDocument;
+            var projectPage = document.Content as ProjectDisplay;
+            var modelSystem = document.Content as ModelSystemDisplay;
+            if (projectPage != null)
+            {
+                // TODO
+            }
+            else if (modelSystem != null)
+            {
+                modelSystem.SaveRequested(true);
             }
         }
 
@@ -425,11 +440,6 @@ namespace XTMF.Gui
             {
                 modelSystem.RedoRequested();
             }
-        }
-
-        private void SaveAsMenu_Click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
