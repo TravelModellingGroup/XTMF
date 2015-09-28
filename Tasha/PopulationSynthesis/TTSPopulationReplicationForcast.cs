@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -449,7 +449,8 @@ namespace Tasha.PopulationSynthesis
                             }
                             var workZone = persons[j].EmploymentZone;
                             var schoolZone = persons[j].SchoolZone;
-                            if(!IsExternal(workZone))
+                            var personExpanded = persons[j].ExpansionFactor;
+                            if (!IsExternal(workZone))
                             {
                                 switch(persons[j].EmploymentStatus)
                                 {
@@ -457,20 +458,20 @@ namespace Tasha.PopulationSynthesis
                                         switch(persons[j].Occupation)
                                         {
                                             case Occupation.Professional:
-                                                workersPF[zone] += 1;
-                                                workersCatPF[zone][workerCategory] += 1;
+                                                workersPF[zone] += personExpanded;
+                                                workersCatPF[zone][workerCategory] += personExpanded;
                                                 break;
                                             case Occupation.Office:
-                                                workersGF[zone] += 1;
-                                                workersCatGF[zone][workerCategory] += 1;
+                                                workersGF[zone] += personExpanded;
+                                                workersCatGF[zone][workerCategory] += personExpanded;
                                                 break;
                                             case Occupation.Retail:
-                                                workersSF[zone] += 1;
-                                                workersCatSF[zone][workerCategory] += 1;
+                                                workersSF[zone] += personExpanded;
+                                                workersCatSF[zone][workerCategory] += personExpanded;
                                                 break;
                                             case Occupation.Manufacturing:
-                                                workersMF[zone] += 1;
-                                                workersCatMF[zone][workerCategory] += 1;
+                                                workersMF[zone] += personExpanded;
+                                                workersCatMF[zone][workerCategory] += personExpanded;
                                                 break;
                                         }
                                         break;
@@ -478,20 +479,20 @@ namespace Tasha.PopulationSynthesis
                                         switch(persons[j].Occupation)
                                         {
                                             case Occupation.Professional:
-                                                workersPP[zone] += 1;
-                                                workersCatPP[zone][workerCategory] += 1;
+                                                workersPP[zone] += personExpanded;
+                                                workersCatPP[zone][workerCategory] += personExpanded;
                                                 break;
                                             case Occupation.Office:
-                                                workersGP[zone] += 1;
-                                                workersCatGP[zone][workerCategory] += 1;
+                                                workersGP[zone] += personExpanded;
+                                                workersCatGP[zone][workerCategory] += personExpanded;
                                                 break;
                                             case Occupation.Retail:
-                                                workersSP[zone] += 1;
-                                                workersCatSP[zone][workerCategory] += 1;
+                                                workersSP[zone] += personExpanded;
+                                                workersCatSP[zone][workerCategory] += personExpanded;
                                                 break;
                                             case Occupation.Manufacturing:
-                                                workersMP[zone] += 1;
-                                                workersCatMP[zone][workerCategory] += 1;
+                                                workersMP[zone] += personExpanded;
+                                                workersCatMP[zone][workerCategory] += personExpanded;
                                                 break;
                                         }
                                         break;
