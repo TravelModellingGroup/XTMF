@@ -250,6 +250,10 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 [SubModelInformation(Description = "The constants to apply when traveling between given places")]
                 public ODConstant[] ODConstants;
 
+                [RunParameter("Same PD", 0.0f, "The constant applied if the zone of interest is the same as both the previous and next planning districts.")]
+                public float SamePD;
+                internal float expSamePD;
+
                 public string Name { get; set; }
 
                 public float Progress { get; set; }
@@ -304,9 +308,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public float TransitBoarding;
             [RunParameter("Cost", "0.0", typeof(float), "The weight applied for the cost from origin to zone to final destination.")]
             public float Cost;
-            [RunParameter("Same PD", 0.0f, "The constant applied if the zone of interest is the same as both the previous and next planning districts.")]
-            public float SamePD;
-            private float expSamePD;
             private int[][][][] PDCube;
 
             private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
@@ -365,7 +366,10 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         From[i] = new float[zones.Length * zones.Length];
                     }
                 }
-                expSamePD = (float)Math.Exp(SamePD);
+                foreach (var timePeriod in TimePeriod)
+                {
+                    timePeriod.expSamePD = (float)Math.Exp(timePeriod.SamePD);
+                }
                 // raise the constants to e^constant to save CPU time during the main phase
                 foreach (var timePeriod in TimePeriod)
                 {
@@ -448,12 +452,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             var pdindex = data[FlatZoneToPDCubeLookup[i]];
                             if (pdindex >= 0)
                             {
-                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].ODConstants[pdindex].ExpConstant * expSamePD
+                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].ODConstants[pdindex].ExpConstant * TimePeriod[index].expSamePD
                                     : TimePeriod[index].ODConstants[pdindex].ExpConstant;
                             }
                             else
                             {
-                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? expSamePD : 1.0f;
+                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].expSamePD : 1.0f;
                             }
                             calculationSpace[i] = odUtility;
                         }
@@ -512,12 +516,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                         if (pdindex >= 0)
                                         {
                                             odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ?
-                                                TimePeriod[index].ODConstants[pdindex].ExpConstant * expSamePD
+                                                TimePeriod[index].ODConstants[pdindex].ExpConstant * TimePeriod[index].expSamePD
                                                 : TimePeriod[index].ODConstants[pdindex].ExpConstant;
                                         }
                                         else
                                         {
-                                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? expSamePD : 1.0f;
+                                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].expSamePD : 1.0f;
                                         }
                                         total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextSizeOffset + i] * odUtility;
                                     }
