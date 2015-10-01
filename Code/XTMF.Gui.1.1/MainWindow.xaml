@@ -59,7 +59,13 @@
                         <Image Source="/XTMF.Gui;component/Resources/Plus.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <Separator />
+                <Separator Background="{StaticResource ControlBackgroundBrush}" />
+                <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
+                    <MenuItem.Icon>
+                        <Image Source="/XTMF.Gui;component/Resources/XTMF_refresh.png" Width="20" Height="20" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator Background="{StaticResource ControlBackgroundBrush}" />
                 <MenuItem Header="E_xit" Click="Exit_Click" />
             </MenuItem>
             <MenuItem Header="_Edit">
@@ -89,11 +95,6 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
-                <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/XTMF_refresh.png" Width="20" Height="20" />
-                    </MenuItem.Icon>
-                </MenuItem>
                 <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
             </MenuItem>
         </Menu>
