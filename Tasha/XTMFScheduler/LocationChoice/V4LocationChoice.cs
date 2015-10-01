@@ -129,6 +129,53 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 - (previous == null ? Time.StartOfDay : previous.EndTime - previous.Duration - (MaximumEpisodeDurationCompression * previous.OriginalDuration));
         }
 
+        public sealed class SpatialRegion : IModule
+        {
+            [RunParameter("PDRange", "1", typeof(RangeSet), "The planning districts that constitute this spatial segment.")]
+            public RangeSet Range;
+
+            [RunParameter("Constant", 0.0f, "The constant applied if the spacial category is met.")]
+            public float Constant;
+
+            public string Name { get; set; }
+
+            public float Progress { get; set; }
+
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
+        public sealed class ODConstant : IModule
+        {
+            [RunParameter("Previous PD Range", "1", typeof(RangeSet), "The planning districts for the previous zone.")]
+            public RangeSet Previous;
+
+            [RunParameter("Next PD Range", "1", typeof(RangeSet), "The planning districts for the next zone.")]
+            public RangeSet Next;
+
+            [RunParameter("Interest PD Range", "1", typeof(RangeSet), "The planning districts the zone we are interested in.")]
+            public RangeSet Interest;
+
+            [RunParameter("Constant", 0.0f, "The constant applied if the spacial category is met.")]
+            public float Constant;
+            internal float ExpConstant;
+
+            public string Name { get; set; }
+
+            public float Progress { get; set; }
+
+            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+        }
+
         public sealed class TimePeriod : IModule
         {
             [RootModule]
@@ -194,6 +241,30 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
+
+            public class TimePeriodParameters : XTMF.IModule
+            {
+                [SubModelInformation(Description = "The PD constants for this time period.")]
+                public SpatialRegion[] PDConstant;
+
+                [SubModelInformation(Description = "The constants to apply when traveling between given places")]
+                public ODConstant[] ODConstants;
+
+                public string Name { get; set; }
+
+                public float Progress { get; set; }
+
+                public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+
+                public bool RuntimeValidation(ref string error)
+                {
+                    return true;
+                }
+            }
+
+            [SubModelInformation(Description = "The parameters for this model by time period. There must be the same number of time periods as in the location choice model.")]
+            public TimePeriodParameters[] TimePeriod;
+
             /// <summary>
             /// To[timePeriod][o * #zones + d]
             /// </summary>
@@ -235,11 +306,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public float Cost;
             [RunParameter("Same PD", 0.0f, "The constant applied if the zone of interest is the same as both the previous and next planning districts.")]
             public float SamePD;
-
-            public SpatialRegion[] PDConstant;
-            public ODConstant[] ODConstants;
             private float expSamePD;
-            private int[][][] PDCube;
+            private int[][][][] PDCube;
 
             private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
             {
@@ -266,55 +334,16 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     + Math.Exp(ivtt * AutoTime + cost * Cost));
             }
 
-            public sealed class ODConstant : IModule
-            {
-                [RunParameter("Previous PD Range", "1", typeof(RangeSet), "The planning districts for the previous zone.")]
-                public RangeSet Previous;
-
-                [RunParameter("Next PD Range", "1", typeof(RangeSet), "The planning districts for the next zone.")]
-                public RangeSet Next;
-
-                [RunParameter("Interest PD Range", "1", typeof(RangeSet), "The planning districts the zone we are interested in.")]
-                public RangeSet Interest;
-
-                [RunParameter("Constant", 0.0f, "The constant applied if the spacial category is met.")]
-                public float Constant;
-                internal float ExpConstant;
-
-                public string Name { get; set; }
-
-                public float Progress { get; set; }
-
-                public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-                public bool RuntimeValidation(ref string error)
-                {
-                    return true;
-                }
-            }
-
-            public sealed class SpatialRegion : IModule
-            {
-                [RunParameter("PDRange", "1", typeof(RangeSet), "The planning districts that constitute this spatial segment.")]
-                public RangeSet Range;
-
-                [RunParameter("Constant", 0.0f, "The constant applied if the spacial category is met.")]
-                public float Constant;
-
-                public string Name { get; set; }
-
-                public float Progress { get; set; }
-
-                public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
-
-                public bool RuntimeValidation(ref string error)
-                {
-                    return true;
-                }
-            }
-
             public bool RuntimeValidation(ref string error)
             {
+                var parentTimePeriods = Parent.TimePeriods;
+                var ourTimePeriods = TimePeriod;
+                if (parentTimePeriods.Length != ourTimePeriods.Length)
+                {
+                    error = "In '" + Name + "' the number of time periods contained in the module is '" + TimePeriod.Length
+                        + "', the parent has '" + ourTimePeriods.Length + "'.  These must be the same to continue.";
+                    return false;
+                }
                 return true;
             }
 
@@ -324,14 +353,13 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             internal void Load()
             {
-                var timePeriods = Parent.TimePeriods;
                 zoneSystem = Root.ZoneSystem.ZoneArray;
                 zones = zoneSystem.GetFlatData();
                 if (To == null)
                 {
-                    To = new float[timePeriods.Length][];
-                    From = new float[timePeriods.Length][];
-                    for (int i = 0; i < timePeriods.Length; i++)
+                    To = new float[TimePeriod.Length][];
+                    From = new float[TimePeriod.Length][];
+                    for (int i = 0; i < TimePeriod.Length; i++)
                     {
                         To[i] = new float[zones.Length * zones.Length];
                         From[i] = new float[zones.Length * zones.Length];
@@ -339,9 +367,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 expSamePD = (float)Math.Exp(SamePD);
                 // raise the constants to e^constant to save CPU time during the main phase
-                for (int i = 0; i < ODConstants.Length; i++)
+                foreach (var timePeriod in TimePeriod)
                 {
-                    ODConstants[i].ExpConstant = (float)Math.Exp(ODConstants[i].Constant);
+                    for (int i = 0; i < timePeriod.ODConstants.Length; i++)
+                    {
+                        timePeriod.ODConstants[i].ExpConstant = (float)Math.Exp(timePeriod.ODConstants[i].Constant);
+                    }
                 }
                 var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
                 BuildPDCube(pds);
@@ -367,16 +398,20 @@ namespace Tasha.XTMFScheduler.LocationChoice
             {
                 var numberOfPds = pds.Count;
                 var pdIndex = pds.ValidIndexArray();
-                PDCube = new int[numberOfPds][][];
-                for (int i = 0; i < PDCube.Length; i++)
+                PDCube = new int[TimePeriod.Length][][][];
+                for (int timePeriod = 0; timePeriod < PDCube.Length; timePeriod++)
                 {
-                    PDCube[i] = new int[numberOfPds][];
-                    for (int j = 0; j < PDCube[i].Length; j++)
+                    PDCube[timePeriod] = new int[numberOfPds][][];
+                    for (int i = 0; i < PDCube[timePeriod].Length; i++)
                     {
-                        PDCube[i][j] = new int[numberOfPds];
-                        for (int k = 0; k < PDCube[i][j].Length; k++)
+                        PDCube[timePeriod][i] = new int[numberOfPds][];
+                        for (int j = 0; j < PDCube[timePeriod][i].Length; j++)
                         {
-                            PDCube[i][j][k] = GetODIndex(pdIndex[i], pdIndex[k], pdIndex[j]);
+                            PDCube[timePeriod][i][j] = new int[numberOfPds];
+                            for (int k = 0; k < PDCube[timePeriod][i][j].Length; k++)
+                            {
+                                PDCube[timePeriod][i][j][k] = GetODIndex(timePeriod, pdIndex[i], pdIndex[k], pdIndex[j]);
+                            }
                         }
                     }
                 }
@@ -397,7 +432,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var to = To[index];
                 var pIndex = FlatZoneToPDCubeLookup[p];
                 var nIndex = FlatZoneToPDCubeLookup[n];
-                var data = PDCube[pIndex][nIndex];
+                var data = PDCube[index][pIndex][nIndex];
                 int previousIndexOffset = p * size;
                 int nextSizeOffset = n * size;
                 float total = 0.0f;
@@ -413,7 +448,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             var pdindex = data[FlatZoneToPDCubeLookup[i]];
                             if (pdindex >= 0)
                             {
-                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? ODConstants[pdindex].ExpConstant * expSamePD : ODConstants[pdindex].ExpConstant;
+                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].ODConstants[pdindex].ExpConstant * expSamePD
+                                    : TimePeriod[index].ODConstants[pdindex].ExpConstant;
                             }
                             else
                             {
@@ -427,7 +463,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         for (int i = 0; i < calculationSpace.Length; i++)
                         {
                             var pdindex = data[FlatZoneToPDCubeLookup[i]];
-                            calculationSpace[i] = pdindex >= 0 ? ODConstants[pdindex].ExpConstant : 1f;
+                            calculationSpace[i] = pdindex >= 0 ? TimePeriod[index].ODConstants[pdindex].ExpConstant : 1f;
                         }
                     }
                     for (int i = 0; i <= calculationSpace.Length - Vector<float>.Count; i += Vector<float>.Count)
@@ -475,7 +511,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                         var pdindex = pData[FlatZoneToPDCubeLookup[i]];
                                         if (pdindex >= 0)
                                         {
-                                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? ODConstants[pdindex].ExpConstant * expSamePD : ODConstants[pdindex].ExpConstant;
+                                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ?
+                                                TimePeriod[index].ODConstants[pdindex].ExpConstant * expSamePD
+                                                : TimePeriod[index].ODConstants[pdindex].ExpConstant;
                                         }
                                         else
                                         {
@@ -499,7 +537,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                         var pdindex = pData[FlatZoneToPDCubeLookup[i]];
                                         if (pdindex >= 0)
                                         {
-                                            odUtility = ODConstants[pdindex].ExpConstant;
+                                            odUtility = TimePeriod[index].ODConstants[pdindex].ExpConstant;
                                         }
                                         total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextSizeOffset + i] * odUtility;
                                     }
@@ -536,11 +574,13 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 return null;
             }
 
-            private int GetODIndex(int pPD, int iPD, int nPD)
+            private int GetODIndex(int timePeriod, int pPD, int iPD, int nPD)
             {
-                for (int i = 0; i < ODConstants.Length; i++)
+                for (int i = 0; i < TimePeriod[timePeriod].ODConstants.Length; i++)
                 {
-                    if (ODConstants[i].Previous.Contains(pPD) && ODConstants[i].Interest.Contains(iPD) && ODConstants[i].Next.Contains(nPD))
+                    if (TimePeriod[timePeriod].ODConstants[i].Previous.Contains(pPD)
+                        && TimePeriod[timePeriod].ODConstants[i].Interest.Contains(iPD)
+                        && TimePeriod[timePeriod].ODConstants[i].Next.Contains(nPD))
                     {
                         return i;
                     }
@@ -602,21 +642,23 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
                         var iPD = zones[i].PlanningDistrict;
                         var nonTimeUtil = jUtil;
-                        for (int seg = 0; seg < PDConstant.Length; seg++)
-                        {
-                            if (PDConstant[seg].Range.Contains(jPD))
-                            {
-                                nonTimeUtil += PDConstant[seg].Constant;
-                                break;
-                            }
-                        }
+
                         nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for (int time = 0; time < times.Length; time++)
                         {
                             Time timeOfDay = times[time].StartTime;
+                            var nonExpPDConstant = 0.0f;
+                            for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                            {
+                                if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
+                                {
+                                    nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                    break;
+                                }
+                            }
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i * zones.Length + j] = nonTimeUtil * travelUtility;
+                            To[time][i * zones.Length + j] = nonTimeUtil * (float)Math.Exp(nonExpPDConstant) * travelUtility;
                             // compute from
                             From[time][j * zones.Length + i] = travelUtility;
                         }
@@ -659,21 +701,22 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         var iRegion = zones[i].RegionNumber;
                         var iPD = zones[i].PlanningDistrict;
                         var nonTimeUtil = jUtil;
-                        for (int seg = 0; seg < PDConstant.Length; seg++)
-                        {
-                            if (PDConstant[seg].Range.Contains(jPD))
-                            {
-                                nonTimeUtil += PDConstant[seg].Constant;
-                                break;
-                            }
-                        }
                         nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for (int time = 0; time < times.Length; time++)
                         {
                             Time timeOfDay = times[time].StartTime;
+                            var nonExpPDConstant = 0.0f;
+                            for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                            {
+                                if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
+                                {
+                                    nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                    break;
+                                }
+                            }
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i * zones.Length + j] = nonTimeUtil * travelUtility;
+                            To[time][i * zones.Length + j] = nonTimeUtil * nonExpPDConstant * travelUtility;
                             // compute from
                             From[time][j * zones.Length + i] = travelUtility;
                         }
@@ -715,21 +758,22 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     {
                         var iPD = zones[i].PlanningDistrict;
                         var nonTimeUtil = jUtil;
-                        for (int seg = 0; seg < PDConstant.Length; seg++)
-                        {
-                            if (PDConstant[seg].Range.Contains(jPD))
-                            {
-                                nonTimeUtil += PDConstant[seg].Constant;
-                                break;
-                            }
-                        }
                         nonTimeUtil = (float)Math.Exp(nonTimeUtil);
                         for (int time = 0; time < times.Length; time++)
                         {
                             Time timeOfDay = times[time].StartTime;
+                            var nonExpPDConstant = 0.0f;
+                            for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                            {
+                                if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
+                                {
+                                    nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                    break;
+                                }
+                            }
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i * zones.Length + j] = nonTimeUtil * travelUtility;
+                            To[time][i * zones.Length + j] = nonTimeUtil * nonExpPDConstant * travelUtility;
                             // compute from
                             From[time][j * zones.Length + i] = travelUtility;
                         }
