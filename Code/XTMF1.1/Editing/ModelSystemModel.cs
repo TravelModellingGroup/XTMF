@@ -136,6 +136,7 @@ namespace XTMF
             Name = Path.GetFileName(runFile);
             _Description = "Previous run";
             Root = new ModelSystemStructureModel(modelSystemEditingSession, runtime.ModelSystemController.LoadFromRunFile(runFile));
+            LinkedParameters = new LinkedParametersModel(modelSystemEditingSession, this, new List<ILinkedParameter>());
         }
 
         private bool _Dirty = false;
