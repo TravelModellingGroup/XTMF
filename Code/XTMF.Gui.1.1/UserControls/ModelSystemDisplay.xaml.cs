@@ -928,7 +928,17 @@ namespace XTMF.Gui.UserControls
                 }
                 try
                 {
-                    Process.Start(pathToFile);
+                    Process toRun = new Process();
+                    if (openWith)
+                    {
+                        toRun.StartInfo.FileName = "Rundll32.exe";
+                        toRun.StartInfo.Arguments = "Shell32.dll,OpenAs_RunDLL " + pathToFile;
+                    }
+                    else
+                    {
+                        toRun.StartInfo.FileName = pathToFile;
+                    }
+                    toRun.Start();
                 }
                 catch
                 {
