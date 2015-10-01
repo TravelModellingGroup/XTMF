@@ -725,6 +725,12 @@ namespace XTMF.Gui.UserControls
             if (module != null)
             {
                 UpdateParameters(module.BaseModel.Parameters);
+                Dispatcher.BeginInvoke(new Action(() =>
+               {
+                   ModuleParameterTab.Focus();
+                   Keyboard.Focus(ParameterFilterBox);
+                   ParameterFilterBox.Focus();
+               }));
             }
         }
 
