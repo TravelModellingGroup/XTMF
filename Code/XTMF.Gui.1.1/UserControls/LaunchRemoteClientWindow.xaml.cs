@@ -104,5 +104,43 @@ namespace XTMF.Gui.UserControls
         {
             return string.Concat("\"", address, "\"");
         }
+
+        private void Port_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if(!e.Handled)
+            {
+                if(e.Key == Key.Enter)
+                {
+                    e.Handled = true;
+                    if (!String.IsNullOrEmpty(Server.Text) && !String.IsNullOrEmpty(Port.Text))
+                    {
+                        Launch_Clicked(null);
+                    }
+                    else if (String.IsNullOrEmpty(Server.Text))
+                    {
+                        Keyboard.Focus(Server);
+                    }
+                }
+            }
+        }
+
+        private void Server_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                if (e.Key == Key.Enter)
+                {
+                    e.Handled = true;
+                    if (!String.IsNullOrEmpty(Server.Text) && !String.IsNullOrEmpty(Port.Text))
+                    {
+                        Launch_Clicked(null);
+                    }
+                    else if(String.IsNullOrEmpty(Port.Text))
+                    {
+                        Keyboard.Focus(Port);
+                    }
+                }
+            }
+        }
     }
 }
