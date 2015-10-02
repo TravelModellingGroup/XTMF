@@ -401,7 +401,7 @@ namespace XTMF.Gui
                     {
                         case MessageBoxResult.Yes:
                             {
-                                if(!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true, ref error))
+                                if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true, ref error))
                                 {
                                     MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK, MessageBoxImage.Error);
                                 }
@@ -488,7 +488,10 @@ namespace XTMF.Gui
                     Session = modelSystemSession,
                 };
 
-                var doc = AddNewWindow("Model System - " + modelSystemSession.ModelSystemModel.Name, display);
+                var titleBarName = modelSystemSession.EditingProject ?
+                     modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
+                    : "Model System - " + modelSystemSession.ModelSystemModel.Name;
+                var doc = AddNewWindow(titleBarName, display);
                 doc.Closed += (o, e) => { modelSystemSession.Dispose(); };
                 display.RequestClose += (ignored) => doc.Close();
                 doc.IsSelected = true;

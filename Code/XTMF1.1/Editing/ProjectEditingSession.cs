@@ -48,6 +48,8 @@ namespace XTMF
 
         private object EditingSessionsLock = new object();
 
+        public object Name { get { lock (EditingSessionsLock) { return Project.Name; } } }
+
         public event EventHandler SessionClosed;
 
         /// <summary>
