@@ -383,7 +383,6 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.Q:
                             ShowQuickParameters();
-                            Keyboard.Focus(QuickParameterFilterBox);
                             e.Handled = true;
                             break;
                     }
@@ -415,10 +414,13 @@ namespace XTMF.Gui.UserControls
 
         private void ShowQuickParameters()
         {
-            QuickParameterTab.Focus();
             QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
-            QuickParameterDisplay.Focus();
-            Keyboard.Focus(QuickParameterDisplay);
+            Dispatcher.BeginInvoke(new Action(() =>
+           {
+               ParameterTabControl.SelectedIndex = 1;
+               QuickParameterFilterBox.Focus();
+               Keyboard.Focus(QuickParameterFilterBox);
+           }));
         }
 
         private void Redo()
@@ -725,12 +727,10 @@ namespace XTMF.Gui.UserControls
             if (module != null)
             {
                 UpdateParameters(module.BaseModel.Parameters);
-                Dispatcher.BeginInvoke(new Action(() =>
-               {
-                   ModuleParameterTab.Focus();
-                   Keyboard.Focus(ParameterFilterBox);
-                   ParameterFilterBox.Focus();
-               }));
+                if (ParameterTabControl.SelectedIndex != 0)
+                {
+                    ParameterTabControl.SelectedIndex = 0;
+                }
             }
         }
 
