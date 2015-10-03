@@ -404,6 +404,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.F5:
+                            SaveCurrentlySelectedParameters();
                             MainWindow.Us.ExecuteRun();
                             e.Handled = true;
                             break;
@@ -544,6 +545,48 @@ namespace XTMF.Gui.UserControls
             textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
         }
 
+        private void SaveCurrentlySelectedParameters()
+        {
+            if(ParameterDisplay.IsKeyboardFocusWithin)
+            {
+                SaveCurrentlySelectedParameters(ParameterDisplay);
+            }
+            else if(QuickParameterDisplay.IsKeyboardFocusWithin)
+            {
+                SaveCurrentlySelectedParameters(QuickParameterDisplay);
+            }
+        }
+
+        private void SaveCurrentlySelectedParameters(ListView parameterDisplay)
+        {
+            var index = parameterDisplay.SelectedIndex;
+            if(index >= 0)
+            {
+                var container = parameterDisplay.ItemContainerGenerator.ContainerFromIndex(index);
+                var textBox = GetChildOfType<TextBox>(container);
+                if(textBox != null)
+                {
+                    BindingExpression be = textBox.GetBindingExpression(TextBox.TextProperty);
+                    be.UpdateSource();
+                }
+            }
+        }
+
+        public static T GetChildOfType<T>(DependencyObject depObj)
+                where T : DependencyObject
+        {
+            if (depObj == null) return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                var child = VisualTreeHelper.GetChild(depObj, i);
+
+                var result = (child as T) ?? GetChildOfType<T>(child);
+                if (result != null) return result;
+            }
+            return null;
+        }
+
         private void HintedTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!e.Handled)
@@ -641,6 +684,7 @@ namespace XTMF.Gui.UserControls
         public void SaveRequested(bool saveAs)
         {
             string error = null;
+            SaveCurrentlySelectedParameters();
             if (saveAs)
             {
                 StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
