@@ -48,6 +48,9 @@ namespace TMG.Emme.Tools
             + "For example if you import scenarios 1,3,4 and increment was set to 10, you would save them into scenarios 10,13,14.")]
         public int Increment;
 
+        [RunParameter("Overwrite Flag", false, "If true, existing scenarios with the same id will be overwritten.")]
+        public bool OverwriteFlag;
+
         [SubModelInformation(Required = true, Description = "The databank to read the scenarios from.")]
         public FileLocation OtherDatabank;
 
@@ -63,7 +66,7 @@ namespace TMG.Emme.Tools
 
         private string GetArguments()
         {
-            return string.Join(" ", GetScenarioNumbers(), Increment, AddQuotes(OtherDatabank.GetFilePath()));
+            return string.Join(" ", GetScenarioNumbers(), Increment, AddQuotes(OtherDatabank.GetFilePath()), OverwriteFlag);
         }
 
         private string GetScenarioNumbers()
