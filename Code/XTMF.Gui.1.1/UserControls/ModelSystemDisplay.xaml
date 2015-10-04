@@ -137,12 +137,13 @@
                             <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource SelectionBlue}"/>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource SelectionBlue}"/>
                         </Style.Resources>
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        <Setter Property="Visibility" Value="{Binding ModuleVisibility, Mode=TwoWay}" />
                         <Setter Property="KeyboardNavigation.TabNavigation" Value="Once" />
                         <Setter Property="KeyboardNavigation.IsTabStop" Value="True" />
                         <Setter Property="Focusable" Value="True" />
                         <Setter Property="BorderThickness" Value="0" />
                         <Setter Property="Background" Value="Transparent" />
-
                     </Style>
                 </TreeView.ItemContainerStyle>
             </TreeView>

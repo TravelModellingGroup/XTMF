@@ -25,6 +25,7 @@ using System.Text;
 using System.Windows.Media;
 using System.Collections.Specialized;
 using System.Windows.Forms;
+using System.Windows;
 
 namespace XTMF.Gui.Models
 {
@@ -184,6 +185,40 @@ namespace XTMF.Gui.Models
 
         public bool IsCollection { get { return BaseModel.IsCollection; } }
 
+        private bool _IsExpanded = false;
+        public bool IsExpanded
+        {
+            get
+            {
+                return _IsExpanded;
+            }
+            set
+            {
+                if(_IsExpanded != value)
+                {
+                    _IsExpanded = value;
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "IsExpanded");
+                }
+            }
+        }
+
+        private Visibility _ModuleVisibility;
+        public Visibility ModuleVisibility
+        {
+            get
+            {
+                return _ModuleVisibility;
+            }
+            set
+            {
+                if(_ModuleVisibility != value)
+                {
+                    _ModuleVisibility = value;
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "ModuleVisibility");
+                }
+            }
+        }
+
         internal ObservableCollection<ParameterModel> GetParameters()
         {
             return BaseModel.Parameters.GetParameters();
@@ -191,7 +226,7 @@ namespace XTMF.Gui.Models
 
         internal void CopyModule()
         {
-            Clipboard.SetText(BaseModel.CopyModule());
+            System.Windows.Clipboard.SetText(BaseModel.CopyModule());
         }
 
         internal bool Paste(string toPaste, ref string error)

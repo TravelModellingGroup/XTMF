@@ -86,31 +86,38 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, TreeViewItem previous = null)
+        private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, bool parentExpanded = true, bool parentVisible = false)
         {
             var children = module.Children;
-            var show = false;
-            var contianer = (previous == null ? ModuleDisplay.ItemContainerGenerator.ContainerFromItem(module) : previous.ItemContainerGenerator.ContainerFromItem(module)) as TreeViewItem;
+            var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            var childrenPassed = false;
             if (children != null)
             {
-                foreach (var child in children)
+                if (children.Count > 0)
                 {
-                    if (CheckFilterRec(child, filterText, contianer))
+                    foreach (var child in children)
                     {
-                        show = true;
+                        if (CheckFilterRec(child, filterText, module.IsExpanded, thisParentPassed | parentVisible))
+                        {
+                            childrenPassed = true;
+                        }
                     }
                 }
             }
-            if (!show)
+            var show = thisParentPassed | childrenPassed | parentVisible;
+            if (!String.IsNullOrWhiteSpace(filterText))
             {
-                show = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0;
+                module.IsExpanded = childrenPassed;
             }
-
-            if (contianer != null)
+            if (show)
             {
-                contianer.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+                module.ModuleVisibility = Visibility.Visible;
             }
-            return show;
+            else if (parentExpanded)
+            {
+                module.ModuleVisibility = Visibility.Collapsed;
+            }
+            return thisParentPassed | childrenPassed;
         }
 
         private UIElement GetCurrentlySelectedControl()
@@ -140,17 +147,28 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
+        static int FilterNumber = 0;
+
         public ModelSystemDisplay()
         {
             DataContext = this;
             InitializeComponent();
             FilterBox.Filter = (o, text) =>
-            {
-                var module = o as ModelSystemStructureDisplayModel;
-                bool ret = false;
-                ret = CheckFilterRec(module, text);
-                return ret;
-            };
+           {
+               var module = o as ModelSystemStructureDisplayModel;
+               Task.Run(() =>
+              {
+                  var ourNumber = Interlocked.Increment(ref FilterNumber);
+                  var waitTask = Task.Delay(200);
+                  waitTask.Wait();
+                  Thread.MemoryBarrier();
+                  if (ourNumber == FilterNumber)
+                  {
+                      CheckFilterRec(module, text);
+                  }
+              });
+               return true;
+           };
         }
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
@@ -547,11 +565,11 @@ namespace XTMF.Gui.UserControls
 
         private void SaveCurrentlySelectedParameters()
         {
-            if(ParameterDisplay.IsKeyboardFocusWithin)
+            if (ParameterDisplay.IsKeyboardFocusWithin)
             {
                 SaveCurrentlySelectedParameters(ParameterDisplay);
             }
-            else if(QuickParameterDisplay.IsKeyboardFocusWithin)
+            else if (QuickParameterDisplay.IsKeyboardFocusWithin)
             {
                 SaveCurrentlySelectedParameters(QuickParameterDisplay);
             }
@@ -560,11 +578,11 @@ namespace XTMF.Gui.UserControls
         private void SaveCurrentlySelectedParameters(ListView parameterDisplay)
         {
             var index = parameterDisplay.SelectedIndex;
-            if(index >= 0)
+            if (index >= 0)
             {
                 var container = parameterDisplay.ItemContainerGenerator.ContainerFromIndex(index);
                 var textBox = GetChildOfType<TextBox>(container);
-                if(textBox != null)
+                if (textBox != null)
                 {
                     BindingExpression be = textBox.GetBindingExpression(TextBox.TextProperty);
                     be.UpdateSource();
