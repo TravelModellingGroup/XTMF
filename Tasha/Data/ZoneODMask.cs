@@ -31,10 +31,20 @@ namespace Tasha.Data
 {
     [ModuleInformation(
         Description = ""
-        
+
         )]
     public class ZoneODMask : IDataSource<SparseTwinIndex<float>>
     {
+
+        public enum CombinationTypes
+        {
+            And = 0,
+            Or = 1,
+            Xor = 2
+        }
+
+        [RunParameter("Combination Type", CombinationTypes.And, "The type of combination of the masks to perform.  And, Or, Xor are the available options.")]
+        public CombinationTypes CombinationType;
 
         [RootModule]
         public ITravelDemandModel Root;
@@ -47,6 +57,9 @@ namespace Tasha.Data
 
         [RunParameter("Masked Value", 0.0f, "The value to set the elements that are masked to.")]
         public float MaskedValue;
+
+        [RunParameter("Exclude", false, "Should we include or exclude the selected range.")]
+        public bool Exclude;
 
         [SubModelInformation(Required = false, Description = "The zone OD resource to mask, only one of this or the data source should be selected.")]
         public IResource BaseDataResource;
@@ -80,24 +93,45 @@ namespace Tasha.Data
             float[][] toMask = GetToMaskData().GetFlatData();
             bool[] originMasks = CreateMask(OriginMaskRange);
             bool[] destinationMasks = CreateMask(DestinationMaskRange);
-            Parallel.For(0, originMasks.Length, (int i) =>
+            switch (CombinationType)
             {
-                if (!originMasks[i])
-                {
-                    for (int j = 0; j < data[i].Length; j++)
+                case CombinationTypes.And:
+                    Parallel.For(0, originMasks.Length, (int i) =>
                     {
-                        data[i][j] = MaskedValue;
-                    }
-                }
-                else
-                {
-                    var toMaskRow = toMask[i];
-                    for (int j = 0; j < data[i].Length; j++)
+
+                        var toMaskRow = toMask[i];
+                        for (int j = 0; j < data[i].Length; j++)
+                        {
+                            data[i][j] = Exclude != (originMasks[i] & destinationMasks[j]) ? toMaskRow[j] : MaskedValue;
+                        }
+
+                    });
+                    break;
+                case CombinationTypes.Or:
+                    Parallel.For(0, originMasks.Length, (int i) =>
                     {
-                        data[i][j] = destinationMasks[j] ? toMaskRow[j] : MaskedValue;
-                    }
-                }
-            });
+
+                        var toMaskRow = toMask[i];
+                        for (int j = 0; j < data[i].Length; j++)
+                        {
+                            data[i][j] = Exclude != (originMasks[i] | destinationMasks[j]) ? toMaskRow[j] : MaskedValue;
+                        }
+
+                    });
+                    break;
+                case CombinationTypes.Xor:
+                    Parallel.For(0, originMasks.Length, (int i) =>
+                    {
+
+                        var toMaskRow = toMask[i];
+                        for (int j = 0; j < data[i].Length; j++)
+                        {
+                            data[i][j] = Exclude != (originMasks[i] ^ destinationMasks[j]) ? toMaskRow[j] : MaskedValue;
+                        }
+
+                    });
+                    break;
+            }
             Data = matrix;
             Loaded = true;
         }
@@ -144,7 +178,7 @@ namespace Tasha.Data
                 error = "In '" + Name + "' only one of Base Data DataSource or Base Data Resource should be selected for!";
                 return false;
             }
-            if(BaseDataDataSource == null && BaseDataResource == null)
+            if (BaseDataDataSource == null && BaseDataResource == null)
             {
                 error = "In '" + Name + "' one of Base Data DataSource or Base Data Resource should be selected for!";
                 return false;
