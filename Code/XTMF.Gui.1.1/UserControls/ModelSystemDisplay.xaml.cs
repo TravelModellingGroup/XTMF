@@ -263,7 +263,7 @@ namespace XTMF.Gui.UserControls
                             string error = null;
                             if (!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
                             {
-                                throw new Exception(error);
+                                MessageBox.Show(GetWindow(), error, "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
                             }
                         }
                         else

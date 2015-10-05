@@ -417,18 +417,19 @@ namespace XTMF
         internal bool CheckPossibleModule(Type type, ModelSystemStructure topLevelModule, ref string error)
         {
             var rootRequirement = GetRootRequirement(type);
-            if(this.IsCollection)
+            var parent = GetParent(topLevelModule, this);
+            if (this.IsCollection)
             {
                 var arguements = this.ParentFieldType.IsArray ? this.ParentFieldType.GetElementType() : this.ParentFieldType.GetGenericArguments()[0];
-                if(!(arguements.IsAssignableFrom(type) && (CheckForParent(arguements, type)) && CheckForRootModule(topLevelModule, this, rootRequirement) != null))
+                if(!(arguements.IsAssignableFrom(type) && (CheckForParent(parent.Type, type)) && CheckForRootModule(topLevelModule, this, rootRequirement) != null))
                 {
                     if(!arguements.IsAssignableFrom(type))
                     {
                         error = "The type is not valid for the collection!";
                     }
-                    else if(!CheckForParent(arguements, type))
+                    else if(!CheckForParent(parent.Type, type))
                     {
-                        error = "This type requires a parent module which is unsupported for collections!";
+                        error = "This type requires a different parent type!";
                     }
                     else if(CheckForRootModule(topLevelModule, this, rootRequirement) == null)
                     {
@@ -439,7 +440,6 @@ namespace XTMF
             }
             else
             {
-                var parent = GetParent(topLevelModule, this);
                 if(!(this.ParentFieldType.IsAssignableFrom(type) && (parent == null || CheckForParent(parent.Type, type))
                         && CheckForRootModule(topLevelModule, this, rootRequirement) != null))
                 {

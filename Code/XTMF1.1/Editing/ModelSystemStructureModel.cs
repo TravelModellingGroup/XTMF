@@ -556,10 +556,9 @@ namespace XTMF
                     rootStructure = ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) as ModelSystemStructure;
                     if (this.IsCollection)
                     {
-                        var parentType = this.RealModelSystemStructure.ParentFieldType;
-
-                        var arguements = parentType.IsArray ? parentType.GetElementType() : parentType.GetGenericArguments()[0];
-                        if (arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parent, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, this.RealModelSystemStructure, t) != null)
+                        var parentType = Session.GetParent(this).Type;
+                        var arguements = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
+                        if (arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parentType, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, this.RealModelSystemStructure, t) != null)
                         {
                             return true;
                         }
@@ -1030,6 +1029,8 @@ namespace XTMF
         }
 
         private bool Dirty = false;
+
+        public Type ParentFieldType { get { return RealModelSystemStructure.ParentFieldType; } }
 
         /// <summary>
         /// Does the model system have changes that are not saved.
