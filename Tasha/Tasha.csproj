@@ -183,6 +183,7 @@
     <Compile Include="DataExtraction\ZoneSystemSource.cs" />
     <Compile Include="Data\ConvertPDDataToZones.cs" />
     <Compile Include="Data\CreateSparseTriIndexFloatFromSparseTwinIndexes.cs" />
+    <Compile Include="Data\FloatData.cs" />
     <Compile Include="Data\ZoneODMask.cs" />
     <Compile Include="Data\IdentityMatrix.cs" />
     <Compile Include="Data\NormalizeByRow.cs" />
