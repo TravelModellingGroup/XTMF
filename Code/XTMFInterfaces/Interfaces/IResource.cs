@@ -54,6 +54,12 @@ namespace XTMF
         void ReleaseResource();
 
         /// <summary>
+        /// Gets the raw data-source contained by this resource.
+        /// </summary>
+        /// <returns>The contained datasource</returns>
+        IDataSource GetDataSource();
+
+        /// <summary>
         /// Get the type that this resource holds
         /// </summary>
         /// <returns>The type that this resource holds</returns>

@@ -130,5 +130,10 @@ namespace Tasha.Common
         {
             return true;
         }
+
+        public IDataSource GetDataSource()
+        {
+            return DataSource;
+        }
     }
 }

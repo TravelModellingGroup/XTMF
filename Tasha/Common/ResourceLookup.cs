@@ -107,5 +107,10 @@ namespace Tasha.Common
             error = "In '" + this.Name + "' we were unable to find a resource in the closest resource source with the name '" + this.ResourceName + "'";
             return false;
         }
+
+        public IDataSource GetDataSource()
+        {
+            return LinkedResource.GetDataSource();
+        }
     }
 }
