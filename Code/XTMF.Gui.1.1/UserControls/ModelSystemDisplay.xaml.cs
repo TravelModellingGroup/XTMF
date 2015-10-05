@@ -86,7 +86,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, bool parentExpanded = true, bool parentVisible = false)
+        private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, bool parentExpanded = true, bool parentVisible = false, bool parentPassed = false)
         {
             var children = module.Children;
             var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0;
@@ -97,7 +97,7 @@ namespace XTMF.Gui.UserControls
                 {
                     foreach (var child in children)
                     {
-                        if (CheckFilterRec(child, filterText, module.IsExpanded, thisParentPassed | parentVisible))
+                        if (CheckFilterRec(child, filterText, module.IsExpanded, thisParentPassed | parentVisible,thisParentPassed | parentPassed))
                         {
                             childrenPassed = true;
                         }
@@ -109,11 +109,11 @@ namespace XTMF.Gui.UserControls
             {
                 module.IsExpanded = childrenPassed;
             }
-            if (show)
+            if (thisParentPassed | childrenPassed | parentPassed)
             {
                 module.ModuleVisibility = Visibility.Visible;
             }
-            else if (parentExpanded)
+            else
             {
                 module.ModuleVisibility = Visibility.Collapsed;
             }
@@ -159,7 +159,7 @@ namespace XTMF.Gui.UserControls
                Task.Run(() =>
               {
                   var ourNumber = Interlocked.Increment(ref FilterNumber);
-                  var waitTask = Task.Delay(200);
+                  var waitTask = Task.Delay(400);
                   waitTask.Wait();
                   Thread.MemoryBarrier();
                   if (ourNumber == FilterNumber)
