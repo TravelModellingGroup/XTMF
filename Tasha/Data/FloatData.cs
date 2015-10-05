@@ -26,7 +26,7 @@ using TMG;
 using TMG.Input;
 namespace Tasha.Data
 {
-    public class FloatData : IDataSource<float>
+    public class FloatData : ISetableDataSource<float>
     {
         [RootModule]
         public ITravelDemandModel Root;
@@ -70,6 +70,11 @@ namespace Tasha.Data
         public bool RuntimeValidation(ref string error)
         {
             return true;
+        }
+
+        public void SetData(float newValue)
+        {
+            Data = newValue;
         }
     }
 }
