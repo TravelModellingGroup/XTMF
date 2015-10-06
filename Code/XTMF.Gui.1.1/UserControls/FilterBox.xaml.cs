@@ -41,6 +41,7 @@ namespace XTMF.Gui
     {
         public FilterBox()
         {
+            UseItemSourceFilter = true;
             InitializeComponent();
         }
         public static readonly DependencyProperty FilterWatermarkProperty = DependencyProperty.Register("FilterWatermark", typeof(string), typeof(FilterBox),
@@ -57,7 +58,7 @@ namespace XTMF.Gui
             set { SetValue(FilterWatermarkProperty, value); }
         }
 
-        public bool UseItemSourceFilter { get; set; } = true;
+        public bool UseItemSourceFilter { get; set; }
 
         private Action Refresh;
         private Func<object, string, bool> _Filter;
