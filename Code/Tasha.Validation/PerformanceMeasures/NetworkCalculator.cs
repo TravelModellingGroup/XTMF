@@ -16,6 +16,16 @@ namespace Tasha.Validation.PerformanceMeasures
 {
     public class NetworkCalculator : IEmmeTool
     {
+
+        public enum DomainTypes
+        {
+            Link = 0,
+            Node = 1,
+            Transit_Line = 2,
+            Transit_Segment = 3
+
+        }
+
         private const string _ToolName = "tmg.XTMF_internal.xtmf_network_calculator";
 
         [RunParameter("Scenario Number", "1", "What scenario would you like to run this for?")]
@@ -33,6 +43,9 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("Transit Line Selection", "all", "What specific transit lines would you like to include in the calculation? Default=all")]
         public string Transit_Line_Selection;
 
+        [RunParameter("Domain", DomainTypes.Link, "What Emme domain type is the result? Options: Link, Node, Transit_Line, Transit_Segment")]
+        public DomainTypes Domain;
+
         [SubModelInformation(Required = true, Description = "Resource that will store the sum of the network calculation")]
         public IResource SumOfReport;
 
@@ -49,7 +62,12 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 if (float.TryParse(result, out value))
                 {
-                    ((ISetableDataSource<float>)SumOfReport.GetDataSource()).SetData(value);
+                    ISetableDataSource<float> dataSource = ((ISetableDataSource<float>)SumOfReport.GetDataSource());
+                    if (!dataSource.Loaded)
+                    {
+                        dataSource.LoadData();
+                    }
+                    dataSource.SetData(value);
                 }
                 return true;
             }
@@ -58,7 +76,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         private string GetParameters()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(Expression), AddQuotes(Node_Selection), AddQuotes(Link_Selection), AddQuotes(Transit_Line_Selection));
+            return string.Join(" ", ScenarioNumber, (int)Domain, AddQuotes(Expression), AddQuotes(Node_Selection), AddQuotes(Link_Selection), AddQuotes(Transit_Line_Selection));
         }
 
         private static string AddQuotes(string toQuote)
