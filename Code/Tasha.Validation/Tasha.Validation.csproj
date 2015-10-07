@@ -107,6 +107,7 @@
     <Compile Include="ModeChoice\ModeSplit.cs" />
     <Compile Include="ModeChoice\ZonalModeSplits.cs" />
     <Compile Include="PerformanceMeasures\AccessibilityCalculations.cs" />
+    <Compile Include="PerformanceMeasures\NetworkCalculator.cs" />
     <Compile Include="PerformanceMeasures\ExportStationBoardingsAlightings.cs" />
     <Compile Include="PerformanceMeasures\ExportTransferMatrix.cs" />
     <Compile Include="PerformanceMeasures\ExportTransitScreenlines.cs" />
