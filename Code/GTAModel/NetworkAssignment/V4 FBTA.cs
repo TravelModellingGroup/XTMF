@@ -25,14 +25,14 @@ using XTMF;
 
 namespace TMG.GTAModel.NetworkAssignment
 {
-    [ModuleInformation(Description = "Executes a congested transit assignment procedure "+
-                        "for GTAModel V4.0. "+
-                        "<br><br>Hard-coded assumptions: "+
-                        "<ul><li> Boarding penalties are assumed stored in <b>UT3</b></li>"+
-                        "<li> The congestion term is stored in <b>US3</b></li>"+
-                        "<li> In-vehicle time perception is 1.0</li>"+
-                        "<li> Unless specified, all available transit modes will be used.</li>"+
-                        "</ul>"+
+    [ModuleInformation(Description = "Executes a congested transit assignment procedure " +
+                        "for GTAModel V4.0. " +
+                        "<br><br>Hard-coded assumptions: " +
+                        "<ul><li> Boarding penalties are assumed stored in <b>UT3</b></li>" +
+                        "<li> The congestion term is stored in <b>US3</b></li>" +
+                        "<li> In-vehicle time perception is 1.0</li>" +
+                        "<li> Unless specified, all available transit modes will be used.</li>" +
+                        "</ul>" +
                         "<font color='red'>This tool is only compatible with Emme 4 and later versions</font>",
                         Name = "V4 Fare Based Transit Assignment (FBTA)")]
     public class V4FBTA : IEmmeTool
@@ -79,6 +79,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Congestion Matrix", 0, "The number of the FULL matrix in which to save transit congestion. Enter 0 to skip saving this matrix")]
         public int CongestionMatrixNumber;
 
+        [RunParameter("Impedance Matrix", 0, "The number of the FULL matrix in which to save the perceived travel times. Enter 0 to skip saving this matrix")]
+        public int ImpedanceMatrix;
+
         //-------------------------------------------
 
         [RunParameter("Effective Headway Slope", 0.5f, "")]
@@ -116,6 +119,9 @@ namespace TMG.GTAModel.NetworkAssignment
         public float RepresentativeHourFactor;
 
         //-------------------------------------------
+
+        [RunParameter("Use Boarding Levels", false, "Use boarding levels to ensure that every path must take a transit vehicle before arriving at their destination.")]
+        public bool UseBoardingLevels;
 
         [RunParameter("Iterations", 20, "Convergence criterion: The maximum number of iterations performed by the transit assignment.")]
         public int MaxIterations;
@@ -167,7 +173,7 @@ namespace TMG.GTAModel.NetworkAssignment
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if(mc == null)
+            if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
             var args = string.Join(" ", ScenarioNumber,
@@ -200,10 +206,11 @@ namespace TMG.GTAModel.NetworkAssignment
                                         mc.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
                                         string.Join(",", from ttf in TTF
-                                                         select ttf.TTFNumber.ToString() + ":" 
-                                                         + mc.ToEmmeFloat(ttf.CongestionPerception).ToString() + ":" 
-                                                         + mc.ToEmmeFloat(ttf.CongestionExponent))
-                                        );
+                                                         select ttf.TTFNumber.ToString() + ":"
+                                                         + mc.ToEmmeFloat(ttf.CongestionPerception).ToString() + ":"
+                                                         + mc.ToEmmeFloat(ttf.CongestionExponent)),
+                                        ImpedanceMatrix,
+                                        UseBoardingLevels);
 
             var result = "";
             return mc.Run(_ToolName, args, (p => Progress = p), ref result);
