@@ -323,6 +323,11 @@
     <Compile Include="V4Modes\DriveAccessTransitLogsumOnly.cs" />
     <Compile Include="V4Modes\DriveAccessTransit.cs" />
     <Compile Include="V4Modes\Passenger.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\AutoDrive.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\Carpool.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\DriveAccessTransit.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\Passenger.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\WalkAccessTransit.cs" />
     <Compile Include="V4Modes\Rideshare.cs" />
     <Compile Include="V4Modes\Schoolbus.cs" />
     <Compile Include="V4Modes\SpatialConstant.cs" />
