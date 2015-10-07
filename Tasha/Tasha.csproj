@@ -263,6 +263,7 @@
     <Compile Include="Network\NetworkDataSource.cs" />
     <Compile Include="Network\V4AutoNetwork.cs" />
     <Compile Include="Network\V4TransitData.cs" />
+    <Compile Include="PopulationSynthesis\PerceivedTimeAggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\AggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\ApplyOccupationRates.cs" />
     <Compile Include="PopulationSynthesis\AssignSchoolZonesFromResourceProbabilities.cs" />
@@ -313,6 +314,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scheduler\TravelEpisode.cs" />
     <Compile Include="StationAccess\ComputeStationCapacityFactor.cs" />
+    <Compile Include="StationAccess\PerceivedTimeStationAccessChoice.cs" />
     <Compile Include="StationAccess\StationAccessChoice.cs" />
     <Compile Include="TashaRuntime.cs" />
     <Compile Include="Utilities\BasicTravelDemandModel.cs" />
