@@ -281,6 +281,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Scheduler\ActivityDistribution.cs" />
+    <Compile Include="Scheduler\GenerationAdjustment.cs" />
     <Compile Include="Scheduler\MakingNumberOfAdultDistributions.cs" />
     <Compile Include="Scheduler\SchedulerHomeTrip.cs" />
     <Compile Include="Scheduler\LocationChoiceCacheMaker.cs" />
