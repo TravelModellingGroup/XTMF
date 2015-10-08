@@ -420,7 +420,12 @@ namespace XTMF.Gui.UserControls
 
         private void CancelButton_Clicked(object obj)
         {
-            WasCanceled = Run.ExitRequest();
+            //Are you sure?
+            if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
+                MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+            {
+                WasCanceled = Run.ExitRequest();
+            }
         }
 
         private void ContinueButton_Clicked(object obj)
