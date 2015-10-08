@@ -446,12 +446,14 @@ namespace XTMF.Gui.UserControls
         {
             string error = null;
             Session.Redo(ref error);
+            UpdateParameters();
         }
 
         private void Undo()
         {
             string error = null;
             Session.Undo(ref error);
+            UpdateParameters();
         }
 
         private void Close()
@@ -780,6 +782,19 @@ namespace XTMF.Gui.UserControls
                 {
                     MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                else
+                {
+                    UpdateParameters();
+                }
+            }
+        }
+
+        private void UpdateParameters()
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel; ;
+            if(selected != null)
+            {
+                UpdateParameters(selected.ParametersModel);
             }
         }
 
@@ -890,6 +905,7 @@ namespace XTMF.Gui.UserControls
                 Keyboard.Focus(ModuleDisplay);
             }
         }
+
 
         private void UpdateParameters(ParametersModel parameters)
         {

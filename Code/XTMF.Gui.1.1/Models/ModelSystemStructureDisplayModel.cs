@@ -219,6 +219,14 @@ namespace XTMF.Gui.Models
             }
         }
 
+        public ParametersModel ParametersModel
+        {
+            get
+            {
+                return BaseModel.Parameters;
+            }
+        }
+
         internal ObservableCollection<ParameterModel> GetParameters()
         {
             return BaseModel.Parameters.GetParameters();
