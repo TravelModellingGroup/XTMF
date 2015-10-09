@@ -220,7 +220,9 @@ namespace XTMF.Gui.UserControls
                 if (major > 6 || (major >= 6 && Environment.OSVersion.Version.Minor >= 1))
                 {
                     Windows7OrAbove = true;
-                    TaskbarInformation = new TaskbarItemInfo();
+                    MainWindow.Us.TaskbarItemInfo = TaskbarInformation = new TaskbarItemInfo();
+                    TaskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
+                    TaskbarInformation.ProgressValue = 0;
                 }
             }
             this.ConsoleOutput.DataContext = new ConsoleOutputController(this);
@@ -264,6 +266,7 @@ namespace XTMF.Gui.UserControls
                             ProgressBar.Value = progress;
                             if (Windows7OrAbove)
                             {
+                                TaskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
                                 TaskbarInformation.ProgressValue = ((progress / 10000));
                             }
                             for (int i = 0; i < SubProgressBars.Count; i++)
@@ -359,6 +362,15 @@ namespace XTMF.Gui.UserControls
 
         private void SetRunFinished()
         {
+            TaskbarInformation.ProgressState = WasCanceled ? TaskbarItemProgressState.Error : TaskbarItemProgressState.Indeterminate;
+            Task.Run(async () =>
+            {
+                await Task.Delay(3000);
+                await Dispatcher.BeginInvoke(new Action(() =>
+                {
+                  TaskbarInformation.ProgressState = TaskbarItemProgressState.None;
+                }));
+            });
             IsFinished = true;
             ContinueButton.IsEnabled = true;
             CancelButton.IsEnabled = false;
@@ -508,6 +520,10 @@ namespace XTMF.Gui.UserControls
 
         internal bool CloseRequested()
         {
+            if (IsFinished)
+            {
+                return true;
+            }
             //Are you sure?
             if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
                 MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
