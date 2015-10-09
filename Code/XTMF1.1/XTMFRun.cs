@@ -183,6 +183,7 @@ namespace XTMF
             {
                 OurRun();
             });
+            RunThread.IsBackground = false;
             RunThread.Start();
         }
 
