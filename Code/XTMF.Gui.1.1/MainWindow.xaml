@@ -78,7 +78,7 @@
                         <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client (Shift+F5)" Click="RunRemoteMenu_Click">
+                <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
