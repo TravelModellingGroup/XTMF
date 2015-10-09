@@ -188,20 +188,23 @@ namespace XTMF
 
         public void TerminateRun()
         {
-            if(RunThread != null)
+            Task.Run(() =>
             {
-                try
+                if (RunThread != null)
                 {
-                    if(RunThread.ThreadState != ThreadState.Running)
+                    try
                     {
-                        RunThread.Abort();
+                        if (RunThread.ThreadState != ThreadState.Running)
+                        {
+                            RunThread.Abort();
+                        }
+                    }
+                    catch
+                    {
+
                     }
                 }
-                catch
-                {
-
-                }
-            }
+            });
         }
 
         /// <summary>
