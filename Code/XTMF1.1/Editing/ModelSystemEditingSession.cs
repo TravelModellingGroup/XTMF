@@ -27,11 +27,6 @@ namespace XTMF
     public sealed class ModelSystemEditingSession : IDisposable
     {
         /// <summary>
-        /// The shared copy buffer
-        /// </summary>
-        private CopyBuffer CopyBuffer;
-
-        /// <summary>
         /// The command stack that contains commands that have been done will go on
         /// </summary>
         private EditingStack UndoStack = new EditingStack(100);
@@ -245,6 +240,32 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// Contains if the model system has changed since the last save.
+        /// </summary>
+        public bool HasChanged { get; set; }
+
+        /// <summary>
+        /// This will return true if closing a window will terminate this session.
+        /// </summary>
+        public bool CloseWillTerminate
+        {
+            get
+            {
+                lock (SessionLock)
+                {
+                    if (this.EditingModelSystem)
+                    {
+                        return Runtime.ModelSystemController.WillCloseTerminate(this);
+                    }
+                    else
+                    {
+                        return this.ProjectEditingSession.WillCloseTerminate(this.ModelSystemIndex);
+                    }
+                }
+            }
+        }
+
 
 
         /// <summary>
@@ -260,6 +281,7 @@ namespace XTMF
                 {
                     return false;
                 }
+                HasChanged = false;
                 return true;
             }
         }
@@ -275,6 +297,7 @@ namespace XTMF
                 }
                 if (command.Do(ref error))
                 {
+                    HasChanged = true;
                     if (command.CanUndo())
                     {
                         UndoStack.Add(command);
@@ -312,6 +335,7 @@ namespace XTMF
                     {
                         if (command.Undo(ref error))
                         {
+                            HasChanged = true;
                             RedoStack.Add(command);
                             return true;
                         }
@@ -338,6 +362,7 @@ namespace XTMF
                     {
                         if (command.Redo(ref error))
                         {
+                            HasChanged = true;
                             UndoStack.Add(command);
                             return true;
                         }

@@ -492,6 +492,10 @@ namespace XTMF.Gui
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name;
                 var doc = AddNewWindow(titleBarName, display);
+                doc.Closing += (o, e) =>
+                {
+                    e.Cancel = !display.CloseRequested();
+                };
                 doc.Closed += (o, e) => { modelSystemSession.Dispose(); };
                 display.RequestClose += (ignored) => doc.Close();
                 doc.IsSelected = true;

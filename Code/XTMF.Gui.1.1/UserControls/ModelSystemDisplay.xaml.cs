@@ -97,7 +97,7 @@ namespace XTMF.Gui.UserControls
                 {
                     foreach (var child in children)
                     {
-                        if (CheckFilterRec(child, filterText, module.IsExpanded, thisParentPassed | parentVisible,thisParentPassed | parentPassed))
+                        if (CheckFilterRec(child, filterText, module.IsExpanded, thisParentPassed | parentVisible, thisParentPassed | parentPassed))
                         {
                             childrenPassed = true;
                         }
@@ -461,14 +461,26 @@ namespace XTMF.Gui.UserControls
             var e = RequestClose;
             if (e != null)
             {
-                if (MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        e(this);
-                    }));
-                }
+                    e(this);
+                }));
             }
+        }
+
+        /// <summary>
+        /// Get permission from the user to close the window
+        /// </summary>
+        /// <returns>True if we have gained permission to close, false otherwise</returns>
+        internal bool CloseRequested()
+        {
+            if (!Session.CloseWillTerminate || !Session.HasChanged
+                || MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
+                "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+            {
+                return true;
+            }
+            return false;
         }
 
         public event Action<object> RequestClose;
@@ -792,7 +804,7 @@ namespace XTMF.Gui.UserControls
         private void UpdateParameters()
         {
             var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel; ;
-            if(selected != null)
+            if (selected != null)
             {
                 UpdateParameters(selected.ParametersModel);
             }

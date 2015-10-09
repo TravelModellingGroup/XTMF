@@ -341,6 +341,35 @@ namespace XTMF
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelSystemEditingSession"></param>
+        /// <returns></returns>
+        internal bool WillCloseTerminate(ModelSystemEditingSession modelSystemEditingSession)
+        {
+            if (modelSystemEditingSession == null)
+            {
+                throw new ArgumentNullException("modelSystemEditingSession");
+            }
+            bool terminate = false;
+            lock (EditingLock)
+            {
+                for (int i = 0; i < EditingSessions.Count; i++)
+                {
+                    if (EditingSessions[i] == modelSystemEditingSession)
+                    {
+                        if (References[i] <= 1)
+                        {
+                            terminate = true;
+                        }
+                        break;
+                    }
+                }
+            }
+            return terminate;
+        }
+
+        /// <summary>
         /// Release the given editing session
         /// </summary>
         /// <param name="modelSystemEditingSession">The session to release</param>

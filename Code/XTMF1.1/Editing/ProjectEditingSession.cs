@@ -468,6 +468,22 @@ namespace XTMF
             }
         }
 
+        internal bool WillCloseTerminate(int modelSystemIndex)
+        {
+            // ensure this model system is not a past run
+            if (modelSystemIndex >= 0)
+            {
+                lock (EditingSessionsLock)
+                {
+                    if (this.EditingSessions[modelSystemIndex].References <= 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Close the session and all model editing sessions connected to it.
         /// </summary>
