@@ -505,5 +505,18 @@ namespace XTMF.Gui.UserControls
                 this.AdditionDetailsPanel.Add(toAdd.ProgressBar);
             }
         }
+
+        internal bool CloseRequested()
+        {
+            //Are you sure?
+            if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
+                MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+            {
+                WasCanceled = Run.ExitRequest();
+                Run.TerminateRun();
+                return true;
+            }
+            return false;
+        }
     }
 }

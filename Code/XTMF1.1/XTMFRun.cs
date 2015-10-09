@@ -175,9 +175,33 @@ namespace XTMF
             return null;
         }
 
+        private Thread RunThread;
+
         public virtual void Start()
         {
-            new Task(() => OurRun(), TaskCreationOptions.LongRunning).Start();
+            RunThread = new Thread(() =>
+            {
+                OurRun();
+            });
+            RunThread.Start();
+        }
+
+        public void TerminateRun()
+        {
+            if(RunThread != null)
+            {
+                try
+                {
+                    if(RunThread.ThreadState != ThreadState.Running)
+                    {
+                        RunThread.Abort();
+                    }
+                }
+                catch
+                {
+
+                }
+            }
         }
 
         /// <summary>

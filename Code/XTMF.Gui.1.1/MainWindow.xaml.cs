@@ -50,12 +50,6 @@ namespace XTMF.Gui
             Us = this;
         }
 
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            EditorController.Unregister(this);
-            base.OnClosing(e);
-        }
-
         private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)
         {
             IsEnabled = false;
@@ -502,6 +496,34 @@ namespace XTMF.Gui
                 Keyboard.Focus(display);
                 display.Focus();
             }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            foreach(var document in OpenPages.Select(page => page.Content))
+            {
+                var modelSystemPage = document as ModelSystemDisplay;
+                var runPage = document as RunWindow;
+                if(modelSystemPage != null)
+                {
+                    if(!modelSystemPage.CloseRequested())
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+                if(runPage != null)
+                {
+                    if(!runPage.CloseRequested())
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+                
+            }
+            EditorController.Unregister(this);
+            base.OnClosing(e);
         }
 
         private void AboutXTMF_Click(object sender, RoutedEventArgs e)

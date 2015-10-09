@@ -474,6 +474,7 @@ namespace XTMF.Gui.UserControls
         /// <returns>True if we have gained permission to close, false otherwise</returns>
         internal bool CloseRequested()
         {
+            SaveCurrentlySelectedParameters();
             if (!Session.CloseWillTerminate || !Session.HasChanged
                 || MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
                 "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) == MessageBoxResult.OK)
