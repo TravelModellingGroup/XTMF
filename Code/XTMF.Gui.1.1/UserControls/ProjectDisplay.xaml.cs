@@ -299,9 +299,9 @@ namespace XTMF.Gui.UserControls
             FilterModelSystemsBox.Focus();
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyUp(e);
+            base.OnKeyDown(e);
             if (e.Handled == false && Controllers.EditorController.IsControlDown())
             {
                 switch (e.Key)
