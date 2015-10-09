@@ -376,7 +376,7 @@ namespace XTMF.Gui
             }
         }
 
-        private string OpenFile(string title)
+        public static string OpenFile(string title)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog();
             dialog.Title = title;

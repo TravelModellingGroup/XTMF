@@ -172,6 +172,7 @@ namespace XTMF.Gui.UserControls
 
         public ModelSystemEditingSession OpenModelSystem(XTMFRuntime runtime)
         {
+            ExportButton.IsEnabled = true;
             Runtime = runtime;
             MSEditSession = null;
             InternalModel.Initialize(runtime.ModelSystemController.GetModelSystems());
@@ -188,6 +189,7 @@ namespace XTMF.Gui.UserControls
 
         public ProjectEditingSession OpenProject(XTMFRuntime runtime)
         {
+            ExportButton.IsEnabled = false;
             Runtime = runtime;
             PEditSession = null;
             InternalModel.Initialize(runtime.ProjectController.GetProjects());
@@ -329,6 +331,23 @@ namespace XTMF.Gui.UserControls
                 if (numberOfItems >= 0)
                 {
                     Display.SelectedIndex = 0;
+                }
+            }
+        }
+
+        private void Export_Click(object sender, RoutedEventArgs e)
+        {
+            string fileName;
+            if (!String.IsNullOrWhiteSpace(fileName = MainWindow.OpenFile("")))
+            {
+                if (Display.SelectedItem == null)
+                {
+                    var modelSystem = (Display.SelectedItem as Model.ModelElement).Data as IModelSystem;
+                    string error = null;
+                    if (!Runtime.ModelSystemController.ExportModelSystem(modelSystem, fileName, ref error))
+                    {
+                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
                 }
             }
         }

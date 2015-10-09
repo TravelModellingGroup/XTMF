@@ -293,6 +293,26 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// Export the model system to the given file path
+        /// </summary>
+        /// <param name="modelSystem">The model system to export</param>
+        /// <param name="filePath">The path to save to.</param>
+        /// <param name="error">A description of the error if one occurs.</param>
+        /// <returns>True if successful, false otherwise.  An error will be reported if it fails.</returns>
+        public bool ExportModelSystem(IModelSystem modelSystem, string filePath, ref string error)
+        {
+            try
+            {
+                return modelSystem.Save(filePath, ref error);
+            }
+            catch(IOException e)
+            {
+                error = e.Message;
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Start a new editing session for the given model system
