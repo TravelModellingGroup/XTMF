@@ -319,7 +319,10 @@ namespace XTMF
             }
             catch (Exception e)
             {
-                SendRuntimeError(e);
+                if (!(e is ThreadAbortException))
+                {
+                    SendRuntimeError(e);
+                }
             }
             finally
             {

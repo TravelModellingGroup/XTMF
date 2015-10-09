@@ -305,6 +305,14 @@ namespace XTMF.Gui
                             runName = req.Answer;
                             RunWindow window = new RunWindow(session, runName);
                             var doc = AddNewWindow("New Run", window);
+                            doc.Closing += (o, e) =>
+                            {
+                                if (!window.CloseRequested())
+                                {
+                                    e.Cancel = true;
+                                    return;
+                                }
+                            };
                             doc.CanClose = true;
                             doc.IsSelected = true;
                             Keyboard.Focus(window);
