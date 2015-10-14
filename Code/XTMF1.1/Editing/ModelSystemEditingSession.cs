@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using XTMF.Editing;
@@ -80,6 +81,19 @@ namespace XTMF
             Runtime = runtime;
             ModelSystem = modelSystem;
             ModelSystemModel = new ModelSystemModel(this, modelSystem);
+            ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
+        }
+
+        private void ModelSystemModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if(sender == ModelSystemModel && e.PropertyName == "Name")
+            {
+                var changed = NameChanged;
+                if(changed != null)
+                {
+                    changed(this, e);
+                }
+            }
         }
 
         /// <summary>
@@ -93,6 +107,7 @@ namespace XTMF
             this.ProjectEditingSession = ProjectEditingSession;
             ModelSystemIndex = modelSystemIndex;
             ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, modelSystemIndex);
+            ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
         }
 
         internal bool IsEditing(IModelSystemStructure root)
@@ -266,6 +281,8 @@ namespace XTMF
             }
         }
 
+        public event PropertyChangedEventHandler NameChanged;
+
 
 
         /// <summary>
@@ -307,6 +324,14 @@ namespace XTMF
                     return true;
                 }
                 return false;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return ModelSystemModel.Name;
             }
         }
 

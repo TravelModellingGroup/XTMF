@@ -132,7 +132,16 @@ namespace XTMF.Gui
                     display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession);
                     var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, () => { projectSession.Dispose(); });
                     doc.IsSelected = true;
-                    display.RequestClose += (ignored) => doc.Close();
+                    PropertyChangedEventHandler onRename = (o, e) =>
+                    {
+                        doc.Title = "Project - " + projectSession.Project.Name;
+                    };
+                    projectSession.NameChanged += onRename;
+                    display.RequestClose += (ignored) =>
+                    {
+                        doc.Close();
+                        projectSession.NameChanged -= onRename;
+                    };
                     display.Focus();
                     SetStatusText("Ready");
                 }
@@ -494,9 +503,20 @@ namespace XTMF.Gui
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name;
                 var doc = AddNewWindow(titleBarName, display);
+                PropertyChangedEventHandler onRename = (o, e) =>
+                {
+                    doc.Title = modelSystemSession.EditingProject ?
+                     modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
+                    : "Model System - " + modelSystemSession.ModelSystemModel.Name; ;
+                };
+                modelSystemSession.NameChanged += onRename;
                 doc.Closing += (o, e) =>
                 {
                     e.Cancel = !display.CloseRequested();
+                    if(e.Cancel == false)
+                    {
+                        modelSystemSession.NameChanged -= onRename;
+                    }
                 };
                 doc.Closed += (o, e) => { modelSystemSession.Dispose(); };
                 display.RequestClose += (ignored) => doc.Close();

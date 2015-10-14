@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -48,9 +49,11 @@ namespace XTMF
 
         private object EditingSessionsLock = new object();
 
-        public object Name { get { lock (EditingSessionsLock) { return Project.Name; } } }
+        public string Name { get { lock (EditingSessionsLock) { return Project.Name; } } }
 
         public event EventHandler SessionClosed;
+
+        public event PropertyChangedEventHandler NameChanged;
 
         /// <summary>
         /// Attempt to rename the project.  This name must be unique.
@@ -62,7 +65,13 @@ namespace XTMF
         {
             lock (EditingSessionsLock)
             {
-                return Runtime.ProjectController.RenameProject(Project, newName, ref error);
+                var ret = Runtime.ProjectController.RenameProject(Project, newName, ref error);
+                var e = NameChanged;
+                if (ret && e != null)
+                {
+                    e(this, new PropertyChangedEventArgs(Name));
+                }
+                return ret;
             }
         }
 
