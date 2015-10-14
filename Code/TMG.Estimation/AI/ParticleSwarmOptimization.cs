@@ -207,12 +207,18 @@ namespace TMG.Estimation.AI
                     if(parameters[i].Current < (parameters[i].Minimum = temp[i].Minimum))
                     {
                         parameters[i].Current = temp[i].Minimum;
-                        Velocity[i] = -Velocity[i];
+                        if (us.Momentum > 0)
+                        {
+                            Velocity[i] = -Velocity[i];
+                        }
                     }
                     if(parameters[i].Current > (parameters[i].Maximum = temp[i].Maximum))
                     {
                         parameters[i].Current = temp[i].Maximum;
-                        Velocity[i] = -Velocity[i];
+                        if (us.Momentum > 0)
+                        {
+                            Velocity[i] = -Velocity[i];
+                        }
                     }
                 }
                 return (Job = job);
