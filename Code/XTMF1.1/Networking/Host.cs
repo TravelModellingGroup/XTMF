@@ -539,7 +539,13 @@ namespace XTMF.Networking
             {
                 // Request permission to use port 1447
                 GetFirewallPermissions();
-                TcpListener listener = new TcpListener( IPAddress.Any, 1447 );
+                var hostPort = 1447;
+                var config = Configuration as Configuration;
+                if(config != null)
+                {
+                    hostPort = config.HostPort;
+                }
+                TcpListener listener = new TcpListener( IPAddress.Any, hostPort);
                 listener.Start( 20 );
                 this.SetupComplete = true;
                 this.HostActive = true;

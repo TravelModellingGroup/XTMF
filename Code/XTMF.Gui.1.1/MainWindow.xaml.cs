@@ -681,6 +681,19 @@ namespace XTMF.Gui
             Keyboard.Focus(helpUI);
         }
 
+        private void LaunchSettingsPage()
+        {
+            var settingsPage = new UserControls.SettingsPage(EditorController.Runtime.Configuration);
+            var document = AddNewWindow("Settings", settingsPage);
+            document.Closing += (o, e)=>
+            {
+                var page = o as SettingsPage;
+                page.Close();
+            };
+            document.IsSelected = true;
+            Keyboard.Focus(settingsPage);
+        }
+
         private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
         {
             LaunchHelpWindow();
@@ -689,6 +702,11 @@ namespace XTMF.Gui
         private void NewProjectButton_Click(object sender, RoutedEventArgs e)
         {
             NewProject();
+        }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchSettingsPage();
         }
     }
 }

@@ -86,7 +86,16 @@
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Start Window" Click="ShowStart_Click" />
-                <MenuItem Header="_Documentation" Click="ShowDocumentation_Click" />
+                <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
+                    <MenuItem.Icon>
+                        <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/Help.png" Width="20" Height="20" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Settings" Click="Settings_Click">
+                    <MenuItem.Icon>
+                        <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" Width="20" Height="20" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="Search _Help"  Click="LaunchHelpWindow_Click">
