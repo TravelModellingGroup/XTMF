@@ -755,7 +755,10 @@ namespace XTMF.Gui.UserControls
                         }
                         catch (Exception e)
                         {
-                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                            Dispatcher.Invoke(() =>
+                           {
+                               MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                           });
                         }
                         finally
                         {

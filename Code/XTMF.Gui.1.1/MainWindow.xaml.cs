@@ -505,9 +505,12 @@ namespace XTMF.Gui
                 var doc = AddNewWindow(titleBarName, display);
                 PropertyChangedEventHandler onRename = (o, e) =>
                 {
-                    doc.Title = modelSystemSession.EditingProject ?
-                     modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
-                    : "Model System - " + modelSystemSession.ModelSystemModel.Name; ;
+                    Dispatcher.Invoke(() =>
+                   {
+                       doc.Title = modelSystemSession.EditingProject ?
+                        modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
+                       : "Model System - " + modelSystemSession.ModelSystemModel.Name; ;
+                   });
                 };
                 modelSystemSession.NameChanged += onRename;
                 doc.Closing += (o, e) =>
