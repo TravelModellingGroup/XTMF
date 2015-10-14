@@ -710,8 +710,7 @@ namespace XTMF.Gui
             var document = AddNewWindow("Settings", settingsPage);
             document.Closing += (o, e)=>
             {
-                var page = o as SettingsPage;
-                page.Close();
+                settingsPage.Close();
             };
             document.IsSelected = true;
             Keyboard.Focus(settingsPage);
