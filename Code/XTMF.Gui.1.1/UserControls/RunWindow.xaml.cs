@@ -235,7 +235,7 @@ namespace XTMF.Gui.UserControls
         {
             try
             {
-                lock(this)
+                lock (this)
                 {
                     if (IsActive)
                     {
@@ -528,10 +528,15 @@ namespace XTMF.Gui.UserControls
                 return true;
             }
             //Are you sure?
-            if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
+            var window = GetWindow(this);
+            if (window == null ?
+                (MessageBox.Show("Are you sure you want to cancel this run?", "Cancel run?",
                 MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
-            {
-                lock(this)
+                   :
+                (MessageBox.Show(window, "Are you sure you want to cancel this run?", "Cancel run?",
+                   MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes))
+               {
+                lock (this)
                 {
                     WasCanceled = true;
                     IsActive = false;

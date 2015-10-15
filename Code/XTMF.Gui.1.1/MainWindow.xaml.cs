@@ -516,7 +516,7 @@ namespace XTMF.Gui
                 doc.Closing += (o, e) =>
                 {
                     e.Cancel = !display.CloseRequested();
-                    if(e.Cancel == false)
+                    if (e.Cancel == false)
                     {
                         modelSystemSession.NameChanged -= onRename;
                     }
@@ -529,32 +529,53 @@ namespace XTMF.Gui
             }
         }
 
+        internal static void MakeWindowActive(UIElement switchTo)
+        {
+            var us = MainWindow.Us;
+            foreach (var page in us.OpenPages)
+            {
+                if (page.Content == switchTo)
+                {
+                    page.IsSelected = true;
+                    return;
+                }
+            }
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
-            foreach(var document in OpenPages.Select(page => page.Content))
+            foreach (var document in OpenPages.Select(page => page.Content))
             {
                 var modelSystemPage = document as ModelSystemDisplay;
                 var runPage = document as RunWindow;
-                if(modelSystemPage != null)
+                if (modelSystemPage != null)
                 {
-                    if(!modelSystemPage.CloseRequested())
+                    if (!modelSystemPage.CloseRequested())
                     {
                         e.Cancel = true;
                         return;
                     }
                 }
-                if(runPage != null)
+                if (runPage != null)
                 {
-                    if(!runPage.CloseRequested())
+                    if (!runPage.CloseRequested())
                     {
                         e.Cancel = true;
                         return;
                     }
                 }
-                
+
             }
             EditorController.Unregister(this);
             base.OnClosing(e);
+            if (!e.Cancel)
+            {
+                Task.Run(() =>
+               {
+                   Application.Current.Shutdown();
+                   Environment.Exit(0);
+               });
+            }
         }
 
         private void AboutXTMF_Click(object sender, RoutedEventArgs e)
@@ -708,7 +729,7 @@ namespace XTMF.Gui
         {
             var settingsPage = new UserControls.SettingsPage(EditorController.Runtime.Configuration);
             var document = AddNewWindow("Settings", settingsPage);
-            document.Closing += (o, e)=>
+            document.Closing += (o, e) =>
             {
                 settingsPage.Close();
             };
