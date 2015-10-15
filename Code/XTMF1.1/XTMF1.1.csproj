@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="Editing\ProjectExternallySavedEventArgs.cs" />
     <Compile Include="RunProxy\ConfigurationProxy.cs" />
     <Compile Include="Editing\CopyBuffer.cs" />
     <Compile Include="Editing\EditingStack.cs" />

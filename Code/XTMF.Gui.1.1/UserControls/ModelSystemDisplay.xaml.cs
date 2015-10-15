@@ -55,7 +55,36 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty ModelSystemNameProperty = DependencyProperty.Register("ModelSystemName", typeof(string), typeof(ModelSystemDisplay),
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public ModelSystemEditingSession Session { get; set; }
+        private ModelSystemEditingSession _Session;
+        public ModelSystemEditingSession Session
+        {
+            get
+            {
+                return _Session;
+            }
+            set
+            {
+                if(_Session != null)
+                {
+                    _Session.ProjectWasExternallySaved -= ProjectWasExternalSaved;
+                }
+                _Session = value;
+                if (value != null)
+                {
+                    value.ProjectWasExternallySaved += ProjectWasExternalSaved;
+                }
+            }
+        }
+
+        private void ProjectWasExternalSaved(object sender, EventArgs e)
+        {
+
+            // If the project was saved we need to reload in the new model system model
+            Dispatcher.Invoke(() =>
+           {
+               ModelSystem = _Session.ModelSystemModel;
+           });
+        }
 
         private ModelSystemStructureDisplayModel DisplayRoot;
 

@@ -48,6 +48,23 @@ namespace XTMF
         private EditingStack RedoStack = new EditingStack(100);
 
         /// <summary>
+        /// This event fires when the project containing this model system
+        /// was saved externally
+        /// </summary>
+        public event EventHandler ProjectWasExternallySaved;
+
+        internal void ProjectWasExternalSaved()
+        {
+            // we need to reload first so the GUI knows how to rebuild the display model.
+            Reload();
+            var e = ProjectWasExternallySaved;
+            if (e != null)
+            {
+                e(this, new EventArgs());
+            }
+        }
+
+        /// <summary>
         /// The runtime we are in
         /// </summary>
         private XTMFRuntime Runtime;
@@ -86,10 +103,10 @@ namespace XTMF
 
         private void ModelSystemModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if(sender == ModelSystemModel && e.PropertyName == "Name")
+            if (sender == ModelSystemModel && e.PropertyName == "Name")
             {
                 var changed = NameChanged;
-                if(changed != null)
+                if (changed != null)
                 {
                     changed(this, e);
                 }
@@ -106,7 +123,22 @@ namespace XTMF
             Runtime = runtime;
             this.ProjectEditingSession = ProjectEditingSession;
             ModelSystemIndex = modelSystemIndex;
-            ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, modelSystemIndex);
+            Reload();
+        }
+
+        /// <summary>
+        /// Rebuild the model system session by recreating the model system model
+        /// </summary>
+        private void Reload()
+        {
+            if (ModelSystemModel != null)
+            {
+                ModelSystemModel.PropertyChanged -= ModelSystemModel_PropertyChanged;
+                RedoStack.Clear();
+                UndoStack.Clear();
+                HasChanged = false;
+            }
+            ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, ModelSystemIndex);
             ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
         }
 
@@ -179,7 +211,7 @@ namespace XTMF
 
         internal bool SaveAsModelSystem(string name, ref string error)
         {
-            lock(SessionLock)
+            lock (SessionLock)
             {
                 List<ILinkedParameter> lp;
                 var ms = Runtime.ModelSystemController.LoadOrCreate(name);
@@ -337,7 +369,7 @@ namespace XTMF
 
         public bool SaveAs(string modelSystemName, ref string error)
         {
-            lock(SessionLock)
+            lock (SessionLock)
             {
                 return ProjectEditingSession.CloneModelSystemAs(Runtime, ModelSystemModel.Root.RealModelSystemStructure,
                     ModelSystemModel.LinkedParameters.GetRealLinkedParameters(),

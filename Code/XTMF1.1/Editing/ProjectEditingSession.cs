@@ -22,6 +22,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using XTMF.Editing;
 
 namespace XTMF
 {
@@ -40,6 +41,37 @@ namespace XTMF
             Project = project;
             Runtime = runtime;
             EditingSessions = new SessionData[Project.ModelSystemStructure.Count];
+            project.ExternallySaved += Project_ExternallySaved;
+        }
+
+        /// <summary>
+        /// The project externally saved by a cloned project!
+        /// </summary>
+        public event EventHandler ProjectWasExternallySaved;
+
+        internal void Project_ExternallySaved(object sender, ProjectExternallySavedEventArgs e)
+        {
+            if (Project == e.BaseProject)
+            {
+                // If our project was overwritten, dump everything and switch what the active project is.
+                lock (EditingSessionsLock)
+                {
+                    Project = e.CloneProject;
+                    for (int i = 0; i < EditingSessions.Length; i++)
+                    {
+                        var session = EditingSessions[i].Session;
+                        if (session != null)
+                        {
+                            session.ProjectWasExternalSaved();
+                        }
+                    }
+                }
+                var call = ProjectWasExternallySaved;
+                if (call != null)
+                {
+                    call(this, e);
+                }
+            }
         }
 
         /// <summary>
@@ -507,7 +539,7 @@ namespace XTMF
         /// <summary>
         /// Called internally when no references are left to the project editing session
         /// </summary>
-        internal void SessoinTerminated()
+        internal void SessionTerminated()
         {
             CloseAllModelSystemEditingSessions();
             var temp = SessionClosed;

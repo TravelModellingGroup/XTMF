@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using XTMF.Editing;
 using XTMF.Networking;
 
 namespace XTMF
@@ -57,6 +59,7 @@ namespace XTMF
         /// This will be set to true once everything is ready for this project
         /// </summary>
         private volatile bool IsLoaded = false;
+        private Project ClonedFrom;
 
         /// <summary>
         /// Create a new project
@@ -121,6 +124,7 @@ namespace XTMF
             LinkedParameters = new List<List<ILinkedParameter>>(numberOfModelSystems);
             DirectoryLocation = toClone.DirectoryLocation;
             Configuration = toClone.Configuration;
+            ClonedFrom = toClone;
             for (int i = 0; i < numberOfModelSystems; i++)
             {
                 List<ILinkedParameter> lp;
@@ -324,8 +328,25 @@ namespace XTMF
             {
                 Directory.CreateDirectory(dirName);
             }
-            return Save(Path.Combine(dirName, "Project.xml"), ref error);
+            var ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
+            if(ClonedFrom != null)
+            {
+                var e = ClonedFrom.ExternallySaved;
+                // swap the project that this was a clone of and replace the real project.
+                ((ProjectRepository)Configuration.ProjectRepository).ReplaceProjectFromClone(ClonedFrom, this);
+                if (e != null)
+                {
+                    e(ClonedFrom, new ProjectExternallySavedEventArgs(ClonedFrom, this));
+                }
+            }
+            return ret;
         }
+
+        /// <summary>
+        /// This event is invoked when a cloned project gets saved, overwriting this project.
+        /// When a running model system saves itself, this will trigger.
+        /// </summary>
+        public event EventHandler<ProjectExternallySavedEventArgs> ExternallySaved;
 
         public bool Save(string path, ref string error)
         {
