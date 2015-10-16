@@ -138,7 +138,9 @@ namespace TMG.Estimation
                                 for(int j = 0; j < Parameters[i].Names.Length; j++)
                                 {
                                     header.Append(',');
+                                    header.Append('"');
                                     header.Append(Parameters[i].Names[j]);
+                                    header.Append('"');
                                 }
                             }
                             writer.WriteLine(header.ToString());
