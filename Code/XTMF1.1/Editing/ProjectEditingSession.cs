@@ -56,7 +56,9 @@ namespace XTMF
                 // If our project was overwritten, dump everything and switch what the active project is.
                 lock (EditingSessionsLock)
                 {
+                    Project.ExternallySaved -= Project_ExternallySaved;
                     Project = e.CloneProject;
+                    Project.ExternallySaved += Project_ExternallySaved;
                     for (int i = 0; i < EditingSessions.Length; i++)
                     {
                         var session = EditingSessions[i].Session;
