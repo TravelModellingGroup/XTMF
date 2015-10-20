@@ -572,6 +572,21 @@ namespace XTMF.Gui
             {
                 Task.Run(() =>
                {
+                   if (LaunchUpdate)
+                   {
+                       string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                       try
+                       {
+                           Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), "\"" + path + "\"");
+                       }
+                       catch
+                       {
+                           Dispatcher.Invoke(() =>
+                          {
+                              MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
+                          });
+                       }
+                   }
                    Application.Current.Shutdown();
                    Environment.Exit(0);
                });
@@ -617,17 +632,11 @@ namespace XTMF.Gui
 
         private const string UpdateProgram = "XTMF.Update2.exe";
 
+        private bool LaunchUpdate = false;
+
         private void UpdateXTMF_Click(object sender, RoutedEventArgs e)
         {
-            string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            try
-            {
-                Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), "\"" + path + "\"");
-            }
-            catch
-            {
-                MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            LaunchUpdate = true;
             Close();
         }
 
