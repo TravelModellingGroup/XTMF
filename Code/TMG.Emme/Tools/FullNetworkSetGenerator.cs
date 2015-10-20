@@ -175,7 +175,7 @@ namespace TMG.Emme.Tools
 
         private static string GetFileLocationOrNone(FileLocation location)
         {
-            return location == null ? "None" : "\"" + location.GetFilePath() + "\"";
+            return location == null ? "None" : "\"" + Path.GetFullPath(location.GetFilePath()) + "\"";
         }
 
         private string ConvertTimeToSeconds(Time time)
