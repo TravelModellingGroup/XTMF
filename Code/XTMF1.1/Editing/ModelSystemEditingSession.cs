@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using XTMF.Editing;
@@ -26,11 +27,6 @@ namespace XTMF
 {
     public sealed class ModelSystemEditingSession : IDisposable
     {
-        /// <summary>
-        /// The shared copy buffer
-        /// </summary>
-        private CopyBuffer CopyBuffer;
-
         /// <summary>
         /// The command stack that contains commands that have been done will go on
         /// </summary>
@@ -50,6 +46,23 @@ namespace XTMF
         /// The command stack that commands that have been undone will go on
         /// </summary>
         private EditingStack RedoStack = new EditingStack(100);
+
+        /// <summary>
+        /// This event fires when the project containing this model system
+        /// was saved externally
+        /// </summary>
+        public event EventHandler ProjectWasExternallySaved;
+
+        internal void ProjectWasExternalSaved()
+        {
+            // we need to reload first so the GUI knows how to rebuild the display model.
+            Reload();
+            var e = ProjectWasExternallySaved;
+            if (e != null)
+            {
+                e(this, new EventArgs());
+            }
+        }
 
         /// <summary>
         /// The runtime we are in
@@ -85,6 +98,19 @@ namespace XTMF
             Runtime = runtime;
             ModelSystem = modelSystem;
             ModelSystemModel = new ModelSystemModel(this, modelSystem);
+            ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
+        }
+
+        private void ModelSystemModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender == ModelSystemModel && e.PropertyName == "Name")
+            {
+                var changed = NameChanged;
+                if (changed != null)
+                {
+                    changed(this, e);
+                }
+            }
         }
 
         /// <summary>
@@ -97,7 +123,23 @@ namespace XTMF
             Runtime = runtime;
             this.ProjectEditingSession = ProjectEditingSession;
             ModelSystemIndex = modelSystemIndex;
-            ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, modelSystemIndex);
+            Reload();
+        }
+
+        /// <summary>
+        /// Rebuild the model system session by recreating the model system model
+        /// </summary>
+        private void Reload()
+        {
+            if (ModelSystemModel != null)
+            {
+                ModelSystemModel.PropertyChanged -= ModelSystemModel_PropertyChanged;
+                RedoStack.Clear();
+                UndoStack.Clear();
+                HasChanged = false;
+            }
+            ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, ModelSystemIndex);
+            ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
         }
 
         internal bool IsEditing(IModelSystemStructure root)
@@ -169,7 +211,7 @@ namespace XTMF
 
         internal bool SaveAsModelSystem(string name, ref string error)
         {
-            lock(SessionLock)
+            lock (SessionLock)
             {
                 List<ILinkedParameter> lp;
                 var ms = Runtime.ModelSystemController.LoadOrCreate(name);
@@ -245,6 +287,34 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// Contains if the model system has changed since the last save.
+        /// </summary>
+        public bool HasChanged { get; set; }
+
+        /// <summary>
+        /// This will return true if closing a window will terminate this session.
+        /// </summary>
+        public bool CloseWillTerminate
+        {
+            get
+            {
+                lock (SessionLock)
+                {
+                    if (this.EditingModelSystem)
+                    {
+                        return Runtime.ModelSystemController.WillCloseTerminate(this);
+                    }
+                    else
+                    {
+                        return this.ProjectEditingSession.WillCloseTerminate(this.ModelSystemIndex);
+                    }
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler NameChanged;
+
 
 
         /// <summary>
@@ -260,6 +330,7 @@ namespace XTMF
                 {
                     return false;
                 }
+                HasChanged = false;
                 return true;
             }
         }
@@ -275,6 +346,7 @@ namespace XTMF
                 }
                 if (command.Do(ref error))
                 {
+                    HasChanged = true;
                     if (command.CanUndo())
                     {
                         UndoStack.Add(command);
@@ -287,9 +359,17 @@ namespace XTMF
             }
         }
 
+        public string Name
+        {
+            get
+            {
+                return ModelSystemModel.Name;
+            }
+        }
+
         public bool SaveAs(string modelSystemName, ref string error)
         {
-            lock(SessionLock)
+            lock (SessionLock)
             {
                 return ProjectEditingSession.CloneModelSystemAs(Runtime, ModelSystemModel.Root.RealModelSystemStructure,
                     ModelSystemModel.LinkedParameters.GetRealLinkedParameters(),
@@ -312,6 +392,7 @@ namespace XTMF
                     {
                         if (command.Undo(ref error))
                         {
+                            HasChanged = true;
                             RedoStack.Add(command);
                             return true;
                         }
@@ -338,6 +419,7 @@ namespace XTMF
                     {
                         if (command.Redo(ref error))
                         {
+                            HasChanged = true;
                             UndoStack.Add(command);
                             return true;
                         }

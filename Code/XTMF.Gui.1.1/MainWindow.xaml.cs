@@ -50,12 +50,6 @@ namespace XTMF.Gui
             Us = this;
         }
 
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            EditorController.Unregister(this);
-            base.OnClosing(e);
-        }
-
         private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)
         {
             IsEnabled = false;
@@ -138,7 +132,16 @@ namespace XTMF.Gui
                     display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession);
                     var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, () => { projectSession.Dispose(); });
                     doc.IsSelected = true;
-                    display.RequestClose += (ignored) => doc.Close();
+                    PropertyChangedEventHandler onRename = (o, e) =>
+                    {
+                        doc.Title = "Project - " + projectSession.Project.Name;
+                    };
+                    projectSession.NameChanged += onRename;
+                    display.RequestClose += (ignored) =>
+                    {
+                        doc.Close();
+                        projectSession.NameChanged -= onRename;
+                    };
                     display.Focus();
                     SetStatusText("Ready");
                 }
@@ -311,6 +314,14 @@ namespace XTMF.Gui
                             runName = req.Answer;
                             RunWindow window = new RunWindow(session, runName);
                             var doc = AddNewWindow("New Run", window);
+                            doc.Closing += (o, e) =>
+                            {
+                                if (!window.CloseRequested())
+                                {
+                                    e.Cancel = true;
+                                    return;
+                                }
+                            };
                             doc.CanClose = true;
                             doc.IsSelected = true;
                             Keyboard.Focus(window);
@@ -376,7 +387,7 @@ namespace XTMF.Gui
             }
         }
 
-        private string OpenFile(string title)
+        public static string OpenFile(string title)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog();
             dialog.Title = title;
@@ -492,11 +503,78 @@ namespace XTMF.Gui
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name;
                 var doc = AddNewWindow(titleBarName, display);
+                PropertyChangedEventHandler onRename = (o, e) =>
+                {
+                    Dispatcher.Invoke(() =>
+                   {
+                       doc.Title = modelSystemSession.EditingProject ?
+                        modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
+                       : "Model System - " + modelSystemSession.ModelSystemModel.Name; ;
+                   });
+                };
+                modelSystemSession.NameChanged += onRename;
+                doc.Closing += (o, e) =>
+                {
+                    e.Cancel = !display.CloseRequested();
+                    if (e.Cancel == false)
+                    {
+                        modelSystemSession.NameChanged -= onRename;
+                    }
+                };
                 doc.Closed += (o, e) => { modelSystemSession.Dispose(); };
                 display.RequestClose += (ignored) => doc.Close();
                 doc.IsSelected = true;
                 Keyboard.Focus(display);
                 display.Focus();
+            }
+        }
+
+        internal static void MakeWindowActive(UIElement switchTo)
+        {
+            var us = MainWindow.Us;
+            foreach (var page in us.OpenPages)
+            {
+                if (page.Content == switchTo)
+                {
+                    page.IsSelected = true;
+                    return;
+                }
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            foreach (var document in OpenPages.Select(page => page.Content))
+            {
+                var modelSystemPage = document as ModelSystemDisplay;
+                var runPage = document as RunWindow;
+                if (modelSystemPage != null)
+                {
+                    if (!modelSystemPage.CloseRequested())
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+                if (runPage != null)
+                {
+                    if (!runPage.CloseRequested())
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+
+            }
+            EditorController.Unregister(this);
+            base.OnClosing(e);
+            if (!e.Cancel)
+            {
+                Task.Run(() =>
+               {
+                   Application.Current.Shutdown();
+                   Environment.Exit(0);
+               });
             }
         }
 
@@ -647,6 +725,18 @@ namespace XTMF.Gui
             Keyboard.Focus(helpUI);
         }
 
+        private void LaunchSettingsPage()
+        {
+            var settingsPage = new UserControls.SettingsPage(EditorController.Runtime.Configuration);
+            var document = AddNewWindow("Settings", settingsPage);
+            document.Closing += (o, e) =>
+            {
+                settingsPage.Close();
+            };
+            document.IsSelected = true;
+            Keyboard.Focus(settingsPage);
+        }
+
         private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
         {
             LaunchHelpWindow();
@@ -655,6 +745,11 @@ namespace XTMF.Gui
         private void NewProjectButton_Click(object sender, RoutedEventArgs e)
         {
             NewProject();
+        }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            LaunchSettingsPage();
         }
     }
 }

@@ -186,6 +186,9 @@
     <Compile Include="UserControls\Selector.xaml.cs">
       <DependentUpon>Selector.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\StartWindow.xaml.cs">
       <DependentUpon>StartWindow.xaml</DependentUpon>
     </Compile>
@@ -288,6 +291,10 @@
     <Page Include="UserControls\Selector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\StartWindow.xaml">
       <SubType>Designer</SubType>

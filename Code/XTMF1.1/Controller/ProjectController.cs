@@ -150,6 +150,9 @@ namespace XTMF
                     this.ReferenceCount[index]--;
                     if (this.ReferenceCount[index] <= 0)
                     {
+                        // Make sure to remove this binding since it will hold memory
+                        this.EditingSessions[index].Project.ExternallySaved -= this.EditingSessions[index].Project_ExternallySaved;
+                        // now remove the references from our session 
                         this.EditingSessions.RemoveAt(index);
                         this.ReferenceCount.RemoveAt(index);
                     }

@@ -72,13 +72,17 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
             [RunParameter("Penalty", 0.0f, "The boarding penalty to apply for this filter.")]
             public float Penalty;
 
+            [RunParameter("In Vehicle Time Perception", 1.0f, "The perceived time ratio compared to true time.")]
+            public float IVTTPerception;
+
             internal string ReturnFilter(ModellerController controller)
             {
                 return Label.Replace('"', '\'') + ":" 
                     + (!String.IsNullOrWhiteSpace(LineFilter) ? "line=" + LineFilter.Replace('"', '\'') : "")
                     + (!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter) ? " and " : "")
                     + (!String.IsNullOrWhiteSpace(ModeFilter) ? "mode=" + (ModeFilter == "\"" ? "'" : ModeFilter) : "")
-                    + ": " + controller.ToEmmeFloat(Penalty).ToString();
+                    + ": " + controller.ToEmmeFloat(Penalty).ToString()
+                    + ": " + controller.ToEmmeFloat(IVTTPerception).ToString();
             }
 
             public bool RuntimeValidation(ref string error)

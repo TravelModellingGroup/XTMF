@@ -220,7 +220,9 @@ namespace XTMF.Gui.UserControls
                 if (major > 6 || (major >= 6 && Environment.OSVersion.Version.Minor >= 1))
                 {
                     Windows7OrAbove = true;
-                    TaskbarInformation = new TaskbarItemInfo();
+                    MainWindow.Us.TaskbarItemInfo = TaskbarInformation = new TaskbarItemInfo();
+                    TaskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
+                    TaskbarInformation.ProgressValue = 0;
                 }
             }
             this.ConsoleOutput.DataContext = new ConsoleOutputController(this);
@@ -233,69 +235,73 @@ namespace XTMF.Gui.UserControls
         {
             try
             {
-                if (IsActive)
+                lock (this)
                 {
-                    if (Run != null)
+                    if (IsActive)
                     {
-                        if (!(IsFinished))
+                        if (Run != null)
                         {
-                            float progress = 1;
-                            Tuple<byte, byte, byte> colour = ErrorColour;
-                            try
+                            if (!(IsFinished))
                             {
-                                var status = Run.PollStatusMessage(); ;
-                                if (status != null)
-                                {
-                                    StatusLabel.Text = status;
-                                }
-                                progress = Run.PollProgress();
-                                colour = Run.PollColour();
-                            }
-                            catch
-                            { }
-                            progress = progress * 10000;
-
-                            if (progress > 10000) progress = 10000;
-                            if (progress < 0) progress = 0;
-                            if (colour != null)
-                            {
-                                ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
-                            }
-                            ProgressBar.Value = progress;
-                            if (Windows7OrAbove)
-                            {
-                                TaskbarInformation.ProgressValue = ((progress / 10000));
-                            }
-                            for (int i = 0; i < SubProgressBars.Count; i++)
-                            {
+                                float progress = 1;
+                                Tuple<byte, byte, byte> colour = ErrorColour;
                                 try
                                 {
-                                    progress = ProgressReports[i].GetProgress();
-                                    progress = progress * 10000;
-                                    if (progress > 10000) progress = 10000;
-                                    if (progress < 0) progress = 0;
-                                    SubProgressBars[i].ProgressBar.Value = progress;
+                                    var status = Run.PollStatusMessage(); ;
+                                    if (status != null)
+                                    {
+                                        StatusLabel.Text = status;
+                                    }
+                                    progress = Run.PollProgress();
+                                    colour = Run.PollColour();
                                 }
                                 catch
+                                { }
+                                progress = progress * 10000;
+
+                                if (progress > 10000) progress = 10000;
+                                if (progress < 0) progress = 0;
+                                if (colour != null)
                                 {
+                                    ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
+                                }
+                                ProgressBar.Value = progress;
+                                if (Windows7OrAbove)
+                                {
+                                    TaskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
+                                    TaskbarInformation.ProgressValue = ((progress / 10000));
+                                }
+                                for (int i = 0; i < SubProgressBars.Count; i++)
+                                {
+                                    try
+                                    {
+                                        progress = ProgressReports[i].GetProgress();
+                                        progress = progress * 10000;
+                                        if (progress > 10000) progress = 10000;
+                                        if (progress < 0) progress = 0;
+                                        SubProgressBars[i].ProgressBar.Value = progress;
+                                    }
+                                    catch
+                                    {
+                                    }
+                                }
+                                var elapsedTime = (DateTime.Now - StartTime);
+                                int days = elapsedTime.Days;
+                                elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
+                                if (days < 1)
+                                {
+                                    ElapsedTimeLabel.Content = string.Format("Elapsed Time: {0:g}", elapsedTime);
+                                }
+                                else
+                                {
+                                    ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}", elapsedTime, days);
                                 }
                             }
-                            var elapsedTime = (DateTime.Now - StartTime);
-                            int days = elapsedTime.Days;
-                            elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
-                            if (days < 1)
-                            {
-                                ElapsedTimeLabel.Content = string.Format("Elapsed Time: {0:g}", elapsedTime);
-                            }
-                            else
-                            {
-                                ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}", elapsedTime, days);
-                            }
                         }
-                    }
-                    else
-                    {
-                        ProgressBar.Value = IsFinished ? 10000 : 0;
+                        else
+                        {
+                            ProgressBar.Value = IsFinished ? 10000 : 0;
+                        }
                     }
                 }
             }
@@ -359,6 +365,15 @@ namespace XTMF.Gui.UserControls
 
         private void SetRunFinished()
         {
+            TaskbarInformation.ProgressState = WasCanceled ? TaskbarItemProgressState.Error : TaskbarItemProgressState.Indeterminate;
+            Task.Run(async () =>
+            {
+                await Task.Delay(3000);
+                await Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    TaskbarInformation.ProgressState = TaskbarItemProgressState.None;
+                }));
+            });
             IsFinished = true;
             ContinueButton.IsEnabled = true;
             CancelButton.IsEnabled = false;
@@ -420,7 +435,12 @@ namespace XTMF.Gui.UserControls
 
         private void CancelButton_Clicked(object obj)
         {
-            WasCanceled = Run.ExitRequest();
+            //Are you sure?
+            if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
+                MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+            {
+                WasCanceled = Run.ExitRequest();
+            }
         }
 
         private void ContinueButton_Clicked(object obj)
@@ -499,6 +519,33 @@ namespace XTMF.Gui.UserControls
                 this.AdditionDetailsPanel.Add(toAdd.Name);
                 this.AdditionDetailsPanel.Add(toAdd.ProgressBar);
             }
+        }
+
+        internal bool CloseRequested()
+        {
+            if (IsFinished)
+            {
+                return true;
+            }
+            //Are you sure?
+            var window = GetWindow(this);
+            if (window == null ?
+                (MessageBox.Show("Are you sure you want to cancel this run?", "Cancel run?",
+                MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                   :
+                (MessageBox.Show(window, "Are you sure you want to cancel this run?", "Cancel run?",
+                   MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes))
+               {
+                lock (this)
+                {
+                    WasCanceled = true;
+                    IsActive = false;
+                    Timer.Stop();
+                    Run.TerminateRun();
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

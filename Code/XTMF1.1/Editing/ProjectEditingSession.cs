@@ -18,9 +18,11 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using XTMF.Editing;
 
 namespace XTMF
 {
@@ -39,6 +41,39 @@ namespace XTMF
             Project = project;
             Runtime = runtime;
             EditingSessions = new SessionData[Project.ModelSystemStructure.Count];
+            project.ExternallySaved += Project_ExternallySaved;
+        }
+
+        /// <summary>
+        /// The project externally saved by a cloned project!
+        /// </summary>
+        public event EventHandler ProjectWasExternallySaved;
+
+        internal void Project_ExternallySaved(object sender, ProjectExternallySavedEventArgs e)
+        {
+            if (Project == e.BaseProject)
+            {
+                // If our project was overwritten, dump everything and switch what the active project is.
+                lock (EditingSessionsLock)
+                {
+                    Project.ExternallySaved -= Project_ExternallySaved;
+                    Project = e.CloneProject;
+                    Project.ExternallySaved += Project_ExternallySaved;
+                    for (int i = 0; i < EditingSessions.Length; i++)
+                    {
+                        var session = EditingSessions[i].Session;
+                        if (session != null)
+                        {
+                            session.ProjectWasExternalSaved();
+                        }
+                    }
+                }
+                var call = ProjectWasExternallySaved;
+                if (call != null)
+                {
+                    call(this, e);
+                }
+            }
         }
 
         /// <summary>
@@ -48,9 +83,11 @@ namespace XTMF
 
         private object EditingSessionsLock = new object();
 
-        public object Name { get { lock (EditingSessionsLock) { return Project.Name; } } }
+        public string Name { get { lock (EditingSessionsLock) { return Project.Name; } } }
 
         public event EventHandler SessionClosed;
+
+        public event PropertyChangedEventHandler NameChanged;
 
         /// <summary>
         /// Attempt to rename the project.  This name must be unique.
@@ -62,7 +99,13 @@ namespace XTMF
         {
             lock (EditingSessionsLock)
             {
-                return Runtime.ProjectController.RenameProject(Project, newName, ref error);
+                var ret = Runtime.ProjectController.RenameProject(Project, newName, ref error);
+                var e = NameChanged;
+                if (ret && e != null)
+                {
+                    e(this, new PropertyChangedEventArgs(Name));
+                }
+                return ret;
             }
         }
 
@@ -468,6 +511,22 @@ namespace XTMF
             }
         }
 
+        internal bool WillCloseTerminate(int modelSystemIndex)
+        {
+            // ensure this model system is not a past run
+            if (modelSystemIndex >= 0)
+            {
+                lock (EditingSessionsLock)
+                {
+                    if (this.EditingSessions[modelSystemIndex].References <= 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Close the session and all model editing sessions connected to it.
         /// </summary>
@@ -482,7 +541,7 @@ namespace XTMF
         /// <summary>
         /// Called internally when no references are left to the project editing session
         /// </summary>
-        internal void SessoinTerminated()
+        internal void SessionTerminated()
         {
             CloseAllModelSystemEditingSessions();
             var temp = SessionClosed;

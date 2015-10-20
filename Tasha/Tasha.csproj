@@ -263,6 +263,7 @@
     <Compile Include="Network\NetworkDataSource.cs" />
     <Compile Include="Network\V4AutoNetwork.cs" />
     <Compile Include="Network\V4TransitData.cs" />
+    <Compile Include="PopulationSynthesis\PerceivedTimeAggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\AggregatePoRPoW.cs" />
     <Compile Include="PopulationSynthesis\ApplyOccupationRates.cs" />
     <Compile Include="PopulationSynthesis\AssignSchoolZonesFromResourceProbabilities.cs" />
@@ -280,6 +281,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Scheduler\ActivityDistribution.cs" />
+    <Compile Include="Scheduler\GenerationAdjustment.cs" />
     <Compile Include="Scheduler\MakingNumberOfAdultDistributions.cs" />
     <Compile Include="Scheduler\SchedulerHomeTrip.cs" />
     <Compile Include="Scheduler\LocationChoiceCacheMaker.cs" />
@@ -313,6 +315,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scheduler\TravelEpisode.cs" />
     <Compile Include="StationAccess\ComputeStationCapacityFactor.cs" />
+    <Compile Include="StationAccess\PerceivedTimeStationAccessChoice.cs" />
     <Compile Include="StationAccess\StationAccessChoice.cs" />
     <Compile Include="TashaRuntime.cs" />
     <Compile Include="Utilities\BasicTravelDemandModel.cs" />
@@ -323,6 +326,11 @@
     <Compile Include="V4Modes\DriveAccessTransitLogsumOnly.cs" />
     <Compile Include="V4Modes\DriveAccessTransit.cs" />
     <Compile Include="V4Modes\Passenger.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\AutoDrive.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\Carpool.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\DriveAccessTransit.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\Passenger.cs" />
+    <Compile Include="V4Modes\PerceivedTravelTimes\WalkAccessTransit.cs" />
     <Compile Include="V4Modes\Rideshare.cs" />
     <Compile Include="V4Modes\Schoolbus.cs" />
     <Compile Include="V4Modes\SpatialConstant.cs" />

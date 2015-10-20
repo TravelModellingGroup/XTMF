@@ -229,5 +229,23 @@ namespace XTMF
                 } );
             }
         }
+
+        /// <summary>
+        /// This should be called if an project's clone gets saved, effectively removing the old project
+        /// from existence.
+        /// </summary>
+        /// <param name="baseProject">The project to be replaced</param>
+        /// <param name="replaceWith">The project to replace it with</param>
+        internal void ReplaceProjectFromClone(Project baseProject, Project replaceWith)
+        {
+            lock(this)
+            {
+                var index = Projects.IndexOf(baseProject);
+                if(index >= 0)
+                {
+                    Projects[index] = replaceWith;
+                }
+            }
+        }
     }
 }

@@ -177,10 +177,25 @@ namespace XTMF
             }
         }
 
+        private string _Name;
         /// <summary>
         /// The name of the model system
         /// </summary>
-        public string Name { get; private set; }
+        public string Name
+        {
+            get
+            {
+                return _Name;
+            }
+            set
+            {
+                if(_Name != value)
+                {
+                    _Name = value;
+                    ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                }
+            }
+        }
 
         /// <summary>
         /// Save the changes into the real model system structure.
@@ -202,6 +217,7 @@ namespace XTMF
             }
             else if(ModelSystemIndex >= 0)
             {
+                Name = ClonedModelSystemRoot.Name;
                 Project.ModelSystemStructure[ModelSystemIndex] = ClonedModelSystemRoot;
                 Project.ModelSystemDescriptions[ModelSystemIndex] = Description;
                 Project.LinkedParameters[ModelSystemIndex] = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();

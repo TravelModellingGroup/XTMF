@@ -175,9 +175,37 @@ namespace XTMF
             return null;
         }
 
+        private Thread RunThread;
+
         public virtual void Start()
         {
-            new Task(() => OurRun(), TaskCreationOptions.LongRunning).Start();
+            RunThread = new Thread(() =>
+            {
+                OurRun();
+            });
+            RunThread.IsBackground = true;
+            RunThread.Start();
+        }
+
+        public void TerminateRun()
+        {
+            Task.Run(() =>
+            {
+                if (RunThread != null)
+                {
+                    try
+                    {
+                        if (RunThread.ThreadState != ThreadState.Running)
+                        {
+                            RunThread.Abort();
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -295,7 +323,10 @@ namespace XTMF
             }
             catch (Exception e)
             {
-                SendRuntimeError(e);
+                if (!(e is ThreadAbortException))
+                {
+                    SendRuntimeError(e);
+                }
             }
             finally
             {

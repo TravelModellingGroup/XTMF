@@ -114,89 +114,92 @@ namespace Tasha.Scheduler
         [DoNotAutomate]
         public static ITashaRuntime Tasha;
 
-        [RunParameter( "Activity Levels", "ActivityLevels.zfc", "The location of the activity level file" )]
+        [RunParameter("Activity Levels", "ActivityLevels.zfc", "The location of the activity level file")]
         public string ActivityLevelsLocal;
 
-        [RunParameter( "AdultDistributionFile", "AdultDistributions.zfc", "The file containing all of the adult distributions." )]
+        [RunParameter("AdultDistributionFile", "AdultDistributions.zfc", "The file containing all of the adult distributions.")]
         public string AdultDistributionsFileLocal;
 
         [DoNotAutomate]
         public ITashaMode AlternativeTravelMode;
 
-        [RunParameter( "Alternative Travel Mode", "Transit", "The mode to use if using a car is not feasible" )]
+        [RunParameter("Alternative Travel Mode", "Transit", "The mode to use if using a car is not feasible")]
         public string AlternativeTravelModeName;
 
         [DoNotAutomate]
         public ITashaMode AutoMode;
 
-        [RunParameter( "Max Attempts", 10, "The highest number of attempts to schedule an episode" )]
+        [RunParameter("Max Attempts", 10, "The highest number of attempts to schedule an episode")]
         public int EpisodeSchedulingAttemptsLocal;
 
-        [RunParameter( "Frequency Distribution File", "FrequencyDistributions.zfc", "The location of the frequency distribution file." )]
+        [RunParameter("Frequency Distribution File", "FrequencyDistributions.zfc", "The location of the frequency distribution file.")]
         public string FrequencyDistributionsFileLocal;
 
-        [RunParameter( "FullTimeActivity", "4:40", typeof( Time ), "The minimum amount time for activity to be concerned as full time activity" )]
+        [RunParameter("FullTimeActivity", "4:40", typeof(Time), "The minimum amount time for activity to be concerned as full time activity")]
         public Time FullTimeActivityDateTime;
 
-        [SubModelInformation( Description = "The location choice used by scheduler", Required = true )]
+        [SubModelInformation(Description = "The location choice used by scheduler", Required = true)]
         public ILocationChoiceModel LocationChoiceModelLocal;
 
-        [RunParameter( "Max Frequency", 10, "The highest frequency number." )]
+        [RunParameter("Max Frequency", 10, "The highest frequency number.")]
         public int MaxFrequencyLocal;
 
-        [RunParameter( "MaxPrimeWorkStartTimeForReturnHomeFromWork", "12:00", typeof( Time ), "The maximum time you can work and still have a return home from work trip." )]
+        [RunParameter("MaxPrimeWorkStartTimeForReturnHomeFromWork", "12:00", typeof(Time), "The maximum time you can work and still have a return home from work trip.")]
         public Time MaxPrimeWorkStartTimeForReturnHomeFromWorkDateTime;
 
-        [RunParameter( "Minimum Duration", "00:05", typeof( Time ), "The minimum time interval" )]
+        [RunParameter("Minimum Duration", "00:05", typeof(Time), "The minimum time interval")]
         public Time MinimumDurationDateTime;
 
-        [RunParameter( "Min Working Age", 11, "The youngest age a person is allowed to start working at." )]
+        [RunParameter("Min Working Age", 11, "The youngest age a person is allowed to start working at.")]
         public int MinimumWorkingAgeLocal;
 
-        [RunParameter( "MinPrimaryWorkDurationForReturnHomeFromWork", "2:00", typeof( Time ), "The length of time you need to work before you are allowed to make a return home from work trip." )]
+        [RunParameter("MinPrimaryWorkDurationForReturnHomeFromWork", "2:00", typeof(Time), "The length of time you need to work before you are allowed to make a return home from work trip.")]
         public Time MinPrimaryWorkDurationForReturnHomeFromWorkDateTime;
 
-        [RunParameter( "MinWorkingAge", 11, "The youngest a person is allowed to work at." )]
+        [RunParameter("MinWorkingAge", 11, "The youngest a person is allowed to work at.")]
         public int MinWorkingAgeLocal;
 
-        [RunParameter( "NumberOfAdultDistributions", 6, "The total number of distributions for adults." )]
+        [RunParameter("NumberOfAdultDistributions", 6, "The total number of distributions for adults.")]
         public int NumberOfAdultDistributionsLocal;
 
-        [RunParameter( "NumberOfAdultFrequencies", 9, "The total number of frequencies for adults." )]
+        [RunParameter("NumberOfAdultFrequencies", 9, "The total number of frequencies for adults.")]
         public int NumberOfAdultFrequenciesLocal;
 
-        [RunParameter( "#OfDistributions", 262, "The number of distributions" )]
+        [RunParameter("#OfDistributions", 262, "The number of distributions")]
         public int NumberOfDistributionsLocal;
 
-        [RunParameter( "PercentOverlapAllowed", 0.5f, "The amount of an activity that can be overlapped (0 to 1)." )]
+        [RunParameter("PercentOverlapAllowed", 0.5f, "The amount of an activity that can be overlapped (0 to 1).")]
         public float PercentOverlapAllowedLocal;
 
-        [RunParameter( "ReturnHomeFromWorkMaxEndTime", "15:00", typeof( Time ), "The latest that a return home from work trip can occur." )]
+        [RunParameter("ReturnHomeFromWorkMaxEndTime", "15:00", typeof(Time), "The latest that a return home from work trip can occur.")]
         public Time ReturnHomeFromWorkMaxEndTimeDateTime;
 
-        [RunParameter( "School AfterNoon End", "3:30 PM", typeof( Time ), "When does the Afternoon Session of School end? Also, end time for Full Day School event." )]
+        [RunParameter("School AfterNoon End", "3:30 PM", typeof(Time), "When does the Afternoon Session of School end? Also, end time for Full Day School event.")]
         public Time SchoolAfternoonEndDateTime;
 
-        [RunParameter( "School Afternoon Start", "12:15 PM", typeof( Time ), "When does the Afternoon Session of School Start?" )]
+        [RunParameter("School Afternoon Start", "12:15 PM", typeof(Time), "When does the Afternoon Session of School Start?")]
         public Time SchoolAfternoonStartDateTime;
 
-        [RunParameter( "School Morning End", "12:00 PM", typeof( Time ), "When does the Morning Session of School end?" )]
+        [RunParameter("School Morning End", "12:00 PM", typeof(Time), "When does the Morning Session of School end?")]
         public Time SchoolMorningEndDateTime;
 
-        [RunParameter( "School Morning Start", "8:45 AM", typeof( Time ), "When does school start in the Morning?" )]
+        [RunParameter("School Morning Start", "8:45 AM", typeof(Time), "When does school start in the Morning?")]
         public Time SchoolMorningStartDateTime;
 
-        [RunParameter( "SecondaryWorkMinStartTime", "15:00", typeof( Time ), "The earliest that a secondary work activity episode can occur." )]
+        [RunParameter("SecondaryWorkMinStartTime", "15:00", typeof(Time), "The earliest that a secondary work activity episode can occur.")]
         public Time SecondaryWorkMinStartTimeDateTime;
 
-        [RunParameter( "SecondaryWork Threshold", "19:00", typeof( Time ), "The latest secondary work can start at" )]
+        [RunParameter("SecondaryWork Threshold", "19:00", typeof(Time), "The latest secondary work can start at")]
         public Time SecondaryWorkThresholdDateTime;
 
         [RunParameter("Minimum At Home Time", "15 minutes", typeof(Time), "The minimum amount of time to spend at home between trips in order to separate chains.")]
         public Time MinimumTimeAtHomeBetweenActivities;
 
-        [RunParameter( "#Start Time Quanta", 96, "The number of start time quanta for the distributions" )]
+        [RunParameter("#Start Time Quanta", 96, "The number of start time quanta for the distributions")]
         public int StartTimeQuantaLocal;
+
+        [SubModelInformation(Description = "Adjustments to the generation rates to allow for spatial differences.")]
+        public GenerationAdjustment[] GenerationRateAdjustments;
 
         internal static int SchedulingFail = 0;
 
@@ -216,7 +219,7 @@ namespace Tasha.Scheduler
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+            get { return new Tuple<byte, byte, byte>(50, 150, 50); }
         }
 
         [RootModule]
@@ -227,36 +230,36 @@ namespace Tasha.Scheduler
         /// </summary>
         public void LoadOneTimeLocalData()
         {
-            if ( this.AlternativeTravelModeName != null && this.AlternativeTravelModeName != String.Empty )
+            if (this.AlternativeTravelModeName != null && this.AlternativeTravelModeName != String.Empty)
             {
                 var allModes = this.TashaRuntime.AllModes;
                 bool found = false;
-                foreach ( var mode in allModes )
+                foreach (var mode in allModes)
                 {
-                    if ( mode.ModeName == this.AlternativeTravelModeName )
+                    if (mode.ModeName == this.AlternativeTravelModeName)
                     {
                         this.AlternativeTravelMode = mode;
                         found = true;
                         break;
                     }
                 }
-                if ( !found )
+                if (!found)
                 {
-                    throw new XTMFRuntimeException( "Unable to find the Alternative Travel Mode called " + this.AlternativeTravelModeName );
+                    throw new XTMFRuntimeException("Unable to find the Alternative Travel Mode called " + this.AlternativeTravelModeName);
                 }
             }
             Scheduler.LocalScheduler = this;
             Scheduler.Tasha = this.TashaRuntime;
             Scheduler.MinimumWorkingAge = this.MinWorkingAgeLocal;
             Scheduler.EpisodeSchedulingAttempts = this.EpisodeSchedulingAttemptsLocal;
-            Scheduler.ActivityLevels = this.GetFullPath( this.ActivityLevelsLocal );
+            Scheduler.ActivityLevels = this.GetFullPath(this.ActivityLevelsLocal);
             Scheduler.SchoolMorningStart = this.SchoolMorningStartDateTime;
             Scheduler.SchoolMorningEnd = this.SchoolMorningEndDateTime;
             Scheduler.SchoolAfternoonStart = this.SchoolAfternoonStartDateTime;
             Scheduler.SchoolAfternoonEnd = this.SchoolAfternoonEndDateTime;
             Scheduler.SecondaryWorkThreshold = this.SecondaryWorkThresholdDateTime;
             Scheduler.StartTimeQuanta = this.StartTimeQuantaLocal;
-            Scheduler.StartTimeQuantaInterval = (short)( ( 24 * 60 ) / Scheduler.StartTimeQuanta );
+            Scheduler.StartTimeQuantaInterval = (short)((24 * 60) / Scheduler.StartTimeQuanta);
             Time.OneQuantum = this.MinimumDurationDateTime;
             Time.StartOfDay = new Time() { Hours = 4 };
             Time.EndOfDay = new Time() { Hours = 28 };
@@ -269,8 +272,8 @@ namespace Tasha.Scheduler
             Scheduler.LocationChoiceModel = this.LocationChoiceModelLocal;
             Scheduler.LocationChoiceModel.LoadLocationChoiceCache();
             //Distributions
-            Scheduler.AdultDistributionsFile = this.GetFullPath( this.AdultDistributionsFileLocal );
-            Scheduler.FrequencyDistributionsFile = this.GetFullPath( this.FrequencyDistributionsFileLocal );
+            Scheduler.AdultDistributionsFile = this.GetFullPath(this.AdultDistributionsFileLocal);
+            Scheduler.FrequencyDistributionsFile = this.GetFullPath(this.FrequencyDistributionsFileLocal);
             Scheduler.NumberOfDistributions = this.NumberOfDistributionsLocal;
             Scheduler.NumberOfAdultFrequencies = this.NumberOfAdultFrequenciesLocal;
             Scheduler.NumberOfAdultDistributions = this.NumberOfAdultDistributionsLocal;
@@ -310,18 +313,18 @@ namespace Tasha.Scheduler
         {
             Random r = new Random(h.HouseholdId * this.Seed);
             // Setup the data, no random is needed here
-            AddProjects( h );
+            AddProjects(h);
             // Generate the schedules for each type of project
-            if ( !h.GenerateProjectSchedules(r) )
+            if (!h.GenerateProjectSchedules(r, GenerationRateAdjustments))
             {
                 // If we were not able to generate a schedule
-                System.Threading.Interlocked.Increment( ref SchedulingFail );
+                System.Threading.Interlocked.Increment(ref SchedulingFail);
                 return;
             }
-            System.Threading.Interlocked.Increment( ref SchedulingSuccess );
+            System.Threading.Interlocked.Increment(ref SchedulingSuccess);
             // Now that we have the individual projects, create the individual schedules
             h.GeneratePersonSchedules(r, HouseholdIterations, MinimumTimeAtHomeBetweenActivities);
-            JoinTripChains( h );
+            JoinTripChains(h);
         }
 
         /// <summary>
@@ -344,13 +347,13 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         public Time TravelTime(ITashaPerson person, IZone origin, IZone destination, Time tashaTime)
         {
-            if ( this.AlternativeTravelMode == null || this.TashaRuntime.AutoType.CanUse( person ) )
+            if (this.AlternativeTravelMode == null || this.TashaRuntime.AutoType.CanUse(person))
             {
-                return this.TashaRuntime.AutoMode.TravelTime( origin, destination, tashaTime );
+                return this.TashaRuntime.AutoMode.TravelTime(origin, destination, tashaTime);
             }
             else
             {
-                return this.AlternativeTravelMode.TravelTime( origin, destination, tashaTime );
+                return this.AlternativeTravelMode.TravelTime(origin, destination, tashaTime);
             }
         }
 
@@ -358,33 +361,33 @@ namespace Tasha.Scheduler
         {
             int JointTourNumber = 1;
             // we don't need to look at the last person
-            for ( int person = 0; person < house.Persons.Length - 1; person++ )
+            for (int person = 0; person < house.Persons.Length - 1; person++)
             {
-                foreach ( var chain in house.Persons[person].TripChains )
+                foreach (var chain in house.Persons[person].TripChains)
                 {
-                    if ( chain.JointTrip )
+                    if (chain.JointTrip)
                     {
                         continue;
                     }
-                    for ( int otherPerson = person + 1; otherPerson < house.Persons.Length; otherPerson++ )
+                    for (int otherPerson = person + 1; otherPerson < house.Persons.Length; otherPerson++)
                     {
-                        foreach ( var otherChain in house.Persons[otherPerson].TripChains )
+                        foreach (var otherChain in house.Persons[otherPerson].TripChains)
                         {
-                            if ( otherChain.JointTrip )
+                            if (otherChain.JointTrip)
                             {
                                 continue;
                             }
-                            if ( AreTogether( chain, otherChain ) )
+                            if (AreTogether(chain, otherChain))
                             {
                                 int tourNum = JointTourNumber;
-                                if ( !chain.JointTrip )
+                                if (!chain.JointTrip)
                                 {
-                                    ( (SchedulerTripChain)chain ).JointTripID = ( (SchedulerTripChain)otherChain ).JointTripID = tourNum;
-                                    ( (SchedulerTripChain)chain ).JointTripRep = true;
+                                    ((SchedulerTripChain)chain).JointTripID = ((SchedulerTripChain)otherChain).JointTripID = tourNum;
+                                    ((SchedulerTripChain)chain).JointTripRep = true;
                                     JointTourNumber++;
                                 }
-                                ( (SchedulerTripChain)otherChain ).JointTripID = chain.JointTripID;
-                                ( (SchedulerTripChain)otherChain ).GetRepTripChain = chain;
+                                ((SchedulerTripChain)otherChain).JointTripID = chain.JointTripID;
+                                ((SchedulerTripChain)otherChain).GetRepTripChain = chain;
                             }
                         }
                     }
@@ -397,7 +400,7 @@ namespace Tasha.Scheduler
             // Get everything read to add projects to the household
             h.CreateHouseholdProjects();
             // Now that is setup, we can focus on the individual people
-            foreach ( ITashaPerson person in h.Persons )
+            foreach (ITashaPerson person in h.Persons)
             {
                 person.InitializePersonalProjects();
             }
@@ -406,31 +409,31 @@ namespace Tasha.Scheduler
         private static bool AreTogether(ITripChain f, ITripChain s)
         {
             bool success = true;
-            if ( f.Trips.Count != s.Trips.Count ) return false;
-            f.Trips.CoDo( s.Trips, delegate(ITrip first, ITrip second)
-            {
-                if ( success && !AreTogether( first, second ) )
-                {
-                    success = false;
-                }
-            } );
+            if (f.Trips.Count != s.Trips.Count) return false;
+            f.Trips.CoDo(s.Trips, delegate (ITrip first, ITrip second)
+           {
+               if (success && !AreTogether(first, second))
+               {
+                   success = false;
+               }
+           });
             return success;
         }
 
         private static bool AreTogether(ITrip f, ITrip s)
         {
-            return ( f.TripStartTime == s.TripStartTime )
-                 & ( f.Purpose == s.Purpose )
-                 & ( f.Purpose == Activity.JointOther | f.Purpose == Activity.JointMarket | f.Purpose == Activity.Home )
-                 & ( f.OriginalZone.ZoneNumber == s.OriginalZone.ZoneNumber )
-                 & ( f.DestinationZone.ZoneNumber == s.DestinationZone.ZoneNumber );
+            return (f.TripStartTime == s.TripStartTime)
+                 & (f.Purpose == s.Purpose)
+                 & (f.Purpose == Activity.JointOther | f.Purpose == Activity.JointMarket | f.Purpose == Activity.Home)
+                 & (f.OriginalZone.ZoneNumber == s.OriginalZone.ZoneNumber)
+                 & (f.DestinationZone.ZoneNumber == s.DestinationZone.ZoneNumber);
         }
 
         private string GetFullPath(string localPath)
         {
-            if ( !System.IO.Path.IsPathRooted( localPath ) )
+            if (!System.IO.Path.IsPathRooted(localPath))
             {
-                return System.IO.Path.Combine( this.TashaRuntime.InputBaseDirectory, localPath );
+                return System.IO.Path.Combine(this.TashaRuntime.InputBaseDirectory, localPath);
             }
             return localPath;
         }
@@ -440,7 +443,7 @@ namespace Tasha.Scheduler
         /// </summary>
         private void LoadDistributions()
         {
-            ActivityDistribution.LoadDistributions( this.ActivityLevelsLocal, this.TashaRuntime.ZoneSystem.ZoneArray );
+            ActivityDistribution.LoadDistributions(this.ActivityLevelsLocal, this.TashaRuntime.ZoneSystem.ZoneArray);
             Distribution.InitializeDistributions();
         }
 

@@ -38,14 +38,14 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         internal static bool GetStartTime(ITashaPerson person, Activity activity, Random random, out Time startTime)
         {
-            return Distribution.GetRandomStartTimeFrequency( Distribution.GetDistributionID( person, activity ),
-                                   1, 0, Scheduler.StartTimeQuanta - 1, random, out startTime );
+            return Distribution.GetRandomStartTimeFrequency(Distribution.GetDistributionID(person, activity),
+                                   1, 0, Scheduler.StartTimeQuanta - 1, random, out startTime);
         }
 
         internal static bool GetStartTime(ITashaPerson person, Activity activity, int frequency, Random random, out Time startTime)
         {
-            return Distribution.GetRandomStartTimeFrequency( Distribution.GetDistributionID( person, activity ),
-                                    frequency, 0, Scheduler.StartTimeQuanta - 1, random, out startTime );
+            return Distribution.GetRandomStartTimeFrequency(Distribution.GetDistributionID(person, activity),
+                                    frequency, 0, Scheduler.StartTimeQuanta - 1, random, out startTime);
         }
 
         /// <summary>
@@ -59,8 +59,8 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         internal static bool GetStartTime(ITashaPerson person, Activity activity, int frequency, Time startTime, Time endTime, Random random, out Time returnTime)
         {
-            return Distribution.GetRandomStartTimeFrequency( Distribution.GetDistributionID( person, activity ),
-                                   frequency, Distribution.TimeOfDayToDistribution( startTime ), Distribution.TimeOfDayToDistribution( endTime ), random, out returnTime );
+            return Distribution.GetRandomStartTimeFrequency(Distribution.GetDistributionID(person, activity),
+                                   frequency, Distribution.TimeOfDayToDistribution(startTime), Distribution.TimeOfDayToDistribution(endTime), random, out returnTime);
         }
 
         #endregion person start times
@@ -69,20 +69,20 @@ namespace Tasha.Scheduler
 
         internal static bool GetStartTime(ITashaHousehold household, Activity activity, Random random, out Time startTime)
         {
-            return Distribution.GetRandomStartTimeFrequency( Distribution.GetDistributionID( household, activity ),
-                                    1, 0, Scheduler.StartTimeQuanta - 1, random, out startTime );
+            return Distribution.GetRandomStartTimeFrequency(Distribution.GetDistributionID(household, activity),
+                                    1, 0, Scheduler.StartTimeQuanta - 1, random, out startTime);
         }
 
         internal static bool GetStartTime(ITashaHousehold household, Activity activity, int frequency, Random random, out Time startTime)
         {
-            return Distribution.GetRandomStartTimeFrequency( Distribution.GetDistributionID( household, activity ),
-                                    frequency, 0, Scheduler.StartTimeQuanta - 1, random, out startTime );
+            return Distribution.GetRandomStartTimeFrequency(Distribution.GetDistributionID(household, activity),
+                                    frequency, 0, Scheduler.StartTimeQuanta - 1, random, out startTime);
         }
 
         internal static bool GetStartTime(ITashaHousehold household, Activity activity, int frequency, Time startTime, Time endTime, Random random, out Time ourStartTime)
         {
-            return Distribution.GetRandomStartTimeFrequency( Distribution.GetDistributionID( household, activity ),
-                                    frequency, Distribution.TimeOfDayToDistribution( startTime ), Distribution.TimeOfDayToDistribution( endTime ), random, out ourStartTime );
+            return Distribution.GetRandomStartTimeFrequency(Distribution.GetDistributionID(household, activity),
+                                    frequency, Distribution.TimeOfDayToDistribution(startTime), Distribution.TimeOfDayToDistribution(endTime), random, out ourStartTime);
         }
 
         #endregion household start times
@@ -99,9 +99,9 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         internal static bool GetDuration(ITashaPerson person, Activity activity, Time startTime, Random random, out Time duration)
         {
-            int length = Scheduler.StartTimeQuanta - 1 - Distribution.TimeOfDayToDistribution( startTime );
+            int length = Scheduler.StartTimeQuanta - 1 - Distribution.TimeOfDayToDistribution(startTime);
 
-            return Distribution.GetRandomStartDurationTimeFrequency( Distribution.GetDistributionID( person, activity ), startTime, 0, length, random, out duration );
+            return Distribution.GetRandomStartDurationTimeFrequency(Distribution.GetDistributionID(person, activity), startTime, 0, length, random, out duration);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         internal static bool GetDuration(ITashaPerson person, Activity activity, Time startTime, Time maxDuration, Random random, out Time returnStartTime)
         {
-            return Distribution.GetRandomStartDurationTimeFrequency( Distribution.GetDistributionID( person, activity ), startTime, 0, Distribution.DurationToDistribution( maxDuration ), random, out returnStartTime );
+            return Distribution.GetRandomStartDurationTimeFrequency(Distribution.GetDistributionID(person, activity), startTime, 0, Distribution.DurationToDistribution(maxDuration), random, out returnStartTime);
         }
 
         #endregion person durations
@@ -123,68 +123,69 @@ namespace Tasha.Scheduler
 
         internal static bool GetDuration(ITashaHousehold household, Activity activity, Time startTime, Random random, out Time duration)
         {
-            int length = Scheduler.StartTimeQuanta - 1 - Distribution.TimeOfDayToDistribution( startTime );
+            int length = Scheduler.StartTimeQuanta - 1 - Distribution.TimeOfDayToDistribution(startTime);
 
-            return Distribution.GetRandomStartDurationTimeFrequency( Distribution.GetDistributionID( household, activity ), startTime, 0, length, random,
-                out duration );
+            return Distribution.GetRandomStartDurationTimeFrequency(Distribution.GetDistributionID(household, activity), startTime, 0, length, random,
+                out duration);
         }
 
         internal static bool GetDuration(ITashaHousehold household, Activity activity, Time startTime, Time maxDuration, Random random, out Time duration)
         {
-            return Distribution.GetRandomStartDurationTimeFrequency( Distribution.GetDistributionID( household, activity ), startTime, 0,
-                Distribution.DurationToDistribution( maxDuration ), random, out duration );
+            return Distribution.GetRandomStartDurationTimeFrequency(Distribution.GetDistributionID(household, activity), startTime, 0,
+                Distribution.DurationToDistribution(maxDuration), random, out duration);
         }
 
         #endregion household durations
 
         #region person frequency
 
-        public static int GetFrequency(ITashaPerson person, Activity activity, Random random)
+        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             int freq = 0;
-            var distID = Distribution.GetDistributionID( person, activity );
-            if ( distID < 0 )
+            var distID = Distribution.GetDistributionID(person, activity);
+            if (distID < 0)
             {
-                throw new XTMFRuntimeException( "We were unable to get the distribution ID number for a person doing a '" + activity.ToString()
+                throw new XTMFRuntimeException("We were unable to get the distribution ID number for a person doing a '" + activity.ToString()
                     + "' episode The person's householdID was " + person.Household.HouseholdId + ", personID was " + person.Id + ", was " + person.Age +
                     " years old, with employment status '" + person.EmploymentStatus.ToString() + "' occupation '" + person.Occupation.ToString() + "' Student Status '"
-                    + person.StudentStatus.ToString() + "'.  Their work zone is '" + ( person.EmploymentZone != null ? person.EmploymentZone.ZoneNumber.ToString() : "None" )
+                    + person.StudentStatus.ToString() + "'.  Their work zone is '" + (person.EmploymentZone != null ? person.EmploymentZone.ZoneNumber.ToString() : "None")
                     + "' and their school zone is '"
-                    + ( person.SchoolZone != null ? person.SchoolZone.ZoneNumber.ToString() : "None" ) + "'." );
+                    + (person.SchoolZone != null ? person.SchoolZone.ZoneNumber.ToString() : "None") + "'.");
             }
             freq = Distribution.GetRandomFrequencyValue(
-                0, Distribution.NumberOfFrequencies - 1, random, distID );
+                0, Distribution.NumberOfFrequencies - 1, random, distID, householdPD, generationAdjustments);
             return freq;
         }
 
-        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency)
+        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             int freq = 0;
             freq = Distribution.GetRandomFrequencyValue(
-                0, maxFrequency, random, Distribution.GetDistributionID( person, activity ) );
+                0, maxFrequency, random, Distribution.GetDistributionID(person, activity), householdPD, generationAdjustments);
             return freq;
         }
 
-        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency, Time startTime, Time endTime)
+        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency,
+            Time startTime, Time endTime, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             bool feasibleFreq = false;
             int freq = 0;
-            while ( !feasibleFreq )
+            while (!feasibleFreq)
             {
                 freq = Distribution.GetRandomFrequencyValue(
-                    0, maxFrequency, random, Distribution.GetDistributionID( person, activity ) );
-                if ( freq == 0 )
+                    0, maxFrequency, random, Distribution.GetDistributionID(person, activity), householdPD, generationAdjustments);
+                if (freq == 0)
                 {
                     break;
                 }
                 Time duration;
-                if ( !Distribution.GetRandomStartTimeFrequency(
-                Distribution.GetDistributionID( person, activity ), freq,
-                Distribution.TimeOfDayToDistribution( startTime ), Distribution.TimeOfDayToDistribution( endTime ), random, out duration ) )
+                if (!Distribution.GetRandomStartTimeFrequency(
+                Distribution.GetDistributionID(person, activity), freq,
+                Distribution.TimeOfDayToDistribution(startTime), Distribution.TimeOfDayToDistribution(endTime), random, out duration))
                 {
                     //a bad thing happens here
                 }
-                else if ( duration != Time.Zero )
+                else if (duration != Time.Zero)
                 {
                     feasibleFreq = true;
                 }
@@ -197,26 +198,26 @@ namespace Tasha.Scheduler
 
         #region household frequency
 
-        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random)
+        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             bool feasibleFreq = false;
             int freq = 0;
-            while ( !feasibleFreq )
+            while (!feasibleFreq)
             {
                 freq = Distribution.GetRandomFrequencyValue(
-                    0, Distribution.NumberOfFrequencies - 1, random, Distribution.GetDistributionID( household, activity ) );
-                if ( freq == 0 )
+                    0, Distribution.NumberOfFrequencies - 1, random, Distribution.GetDistributionID(household, activity), householdPD, generationAdjustments);
+                if (freq == 0)
                 {
                     feasibleFreq = true;
                 }
                 Time startTime;
-                if ( !Distribution.GetRandomStartTimeFrequency(
-                    Distribution.GetDistributionID( household, activity ), freq,
-                    0, Scheduler.StartTimeQuanta - 1, random, out startTime ) )
+                if (!Distribution.GetRandomStartTimeFrequency(
+                    Distribution.GetDistributionID(household, activity), freq,
+                    0, Scheduler.StartTimeQuanta - 1, random, out startTime))
                 {
                     //a bad thing happens here
                 }
-                else if ( startTime != Time.StartOfDay )
+                else if (startTime != Time.StartOfDay)
                 {
                     feasibleFreq = true;
                 }
@@ -225,26 +226,27 @@ namespace Tasha.Scheduler
             return freq;
         }
 
-        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random, int maxFreq)
+        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random, int maxFreq, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             bool feasibleFreq = false;
             int freq = maxFreq;
-            while ( !feasibleFreq )
+            while (!feasibleFreq)
             {
                 freq = Distribution.GetRandomFrequencyValue(
-                    0, Distribution.NumberOfFrequencies - 1, random, Distribution.GetDistributionID( household, activity ) );
-                if ( freq == 0 )
+                    0, Distribution.NumberOfFrequencies - 1, random, Distribution.GetDistributionID(household, activity),
+                    householdPD, generationAdjustments);
+                if (freq == 0)
                 {
                     feasibleFreq = true;
                 }
                 Time startTime;
-                if ( !Distribution.GetRandomStartTimeFrequency(
-                    Distribution.GetDistributionID( household, activity ), freq,
-                    0, Scheduler.StartTimeQuanta - 1, random, out startTime ) )
+                if (!Distribution.GetRandomStartTimeFrequency(
+                    Distribution.GetDistributionID(household, activity), freq,
+                    0, Scheduler.StartTimeQuanta - 1, random, out startTime))
                 {
                     // a bad thing happens here
                 }
-                else if ( startTime != Time.StartOfDay )
+                else if (startTime != Time.StartOfDay)
                 {
                     feasibleFreq = true;
                 }

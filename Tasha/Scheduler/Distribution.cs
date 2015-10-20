@@ -48,22 +48,22 @@ namespace Tasha.Scheduler
 
         internal static ITashaRuntime TashaRuntime;
 
-        internal static bool GenerateIndividualMarketActivity(ITashaPerson person, Random random)
+        internal static bool GenerateIndividualMarketActivity(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.Market ) ) > 0;
+                Distribution.GetDistributionID( person, Activity.Market ), householdPD, generationAdjustments ) > 0;
         }
 
-        internal static bool GenerateIndividualOtherActivity(ITashaPerson person, Random random)
+        internal static bool GenerateIndividualOtherActivity(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             return Distribution.GetRandomFrequencyValue( 0, 1, random,
-              Distribution.GetDistributionID( person, Activity.IndividualOther ) ) > 0;
+              Distribution.GetDistributionID( person, Activity.IndividualOther ), householdPD, generationAdjustments) > 0;
         }
 
-        internal static bool GeneratePrimaryWorkTrip(ITashaPerson person, Random random)
+        internal static bool GeneratePrimaryWorkTrip(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.PrimaryWork ) )
+                Distribution.GetDistributionID( person, Activity.PrimaryWork ), householdPD, generationAdjustments)
                 == 1;
         }
 
@@ -72,30 +72,30 @@ namespace Tasha.Scheduler
         /// </summary>
         /// <param name="person"></param>
         /// <returns></returns>
-        internal static bool GenerateReturnFromWorkTrip(ITashaPerson person, Random random)
+        internal static bool GenerateReturnFromWorkTrip(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             return Distribution.GetRandomFrequencyValue( 0, 1, random,
-               Distribution.GetDistributionID( person, Activity.ReturnFromWork ) )
+               Distribution.GetDistributionID( person, Activity.ReturnFromWork ), householdPD, generationAdjustments)
                 > 0;
         }
 
-        internal static bool GenerateSchoolActivity(ITashaPerson person, Random random)
+        internal static bool GenerateSchoolActivity(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.School ) ) > 0;
+                Distribution.GetDistributionID( person, Activity.School ), householdPD, generationAdjustments) > 0;
         }
 
-        internal static bool GenerateSecondaryWorkTrip(ITashaPerson person, Random random)
+        internal static bool GenerateSecondaryWorkTrip(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.SecondaryWork ) )
+                Distribution.GetDistributionID( person, Activity.SecondaryWork ), householdPD, generationAdjustments)
                 > 0;
         }
 
-        internal static bool GenerateWorkAtHomesActivity(ITashaPerson person, Random random)
+        internal static bool GenerateWorkAtHomesActivity(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             return Distribution.GetRandomFrequencyValue( 0, 1, random,
-            Distribution.GetDistributionID( person, Activity.WorkAtHomeBusiness ) )
+            Distribution.GetDistributionID( person, Activity.WorkAtHomeBusiness ), householdPD, generationAdjustments)
                 > 0;
         }
 
@@ -123,13 +123,14 @@ namespace Tasha.Scheduler
         /// <param name="max">The largest possible value (<= 10)</param>
         /// <param name="distributionID">Which distro to look for</param>
         /// <returns>[min,max] the value selected</returns>
-        internal static int GetRandomFrequencyValue(int min, int max, Random random, int distributionID)
+        internal static int GetRandomFrequencyValue(int min, int max, Random random, int distributionID, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
             if ( min == max ) return min;
             float rand = (float)random.NextDouble();
             float cdf = 0;
             float total = 0;
             DistributionInformation pdf = Distributions[distributionID];
+            float adjustment = GetGenerationAdjustment(generationAdjustments, distributionID, householdPD);
             if ( pdf == null || pdf.Frequency == null )
             {
                 throw new XTMFRuntimeException( "Unable to load PDF #" + distributionID + " from the Distribution Frequency File!" );
@@ -137,19 +138,34 @@ namespace Tasha.Scheduler
             // to start with just add
             for ( int i = min; i <= max; i++ )
             {
-                total += pdf.Frequency[i];
+                total += i == 0 ? pdf.Frequency[i] : pdf.Frequency[i] * adjustment;
             }
             rand = rand * total;
             for ( int i = min; i <= max; i++ )
             {
                 // we can just multiply now, faster than division
-                cdf += pdf.Frequency[i];
+                cdf += i == 0 ? pdf.Frequency[i] : pdf.Frequency[i] * adjustment;
                 if ( rand < cdf )
                 {
                     return i;
                 }
             }
             return 0;
+        }
+
+        private static float GetGenerationAdjustment(GenerationAdjustment[] generationAdjustments, int distributionID, int householdPD)
+        {
+            for (int i = 0; i < generationAdjustments.Length; i++)
+            {
+                if(generationAdjustments[i].DistributionIDs.Contains(distributionID))
+                {
+                    if(generationAdjustments[i].PlanningDistricts.Contains(householdPD))
+                    {
+                        return generationAdjustments[i].Factor;
+                    }
+                }
+            }
+            return 1.0f;
         }
 
         /// <summary>

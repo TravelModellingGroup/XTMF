@@ -55,7 +55,36 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty ModelSystemNameProperty = DependencyProperty.Register("ModelSystemName", typeof(string), typeof(ModelSystemDisplay),
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public ModelSystemEditingSession Session { get; set; }
+        private ModelSystemEditingSession _Session;
+        public ModelSystemEditingSession Session
+        {
+            get
+            {
+                return _Session;
+            }
+            set
+            {
+                if(_Session != null)
+                {
+                    _Session.ProjectWasExternallySaved -= ProjectWasExternalSaved;
+                }
+                _Session = value;
+                if (value != null)
+                {
+                    value.ProjectWasExternallySaved += ProjectWasExternalSaved;
+                }
+            }
+        }
+
+        private void ProjectWasExternalSaved(object sender, EventArgs e)
+        {
+
+            // If the project was saved we need to reload in the new model system model
+            Dispatcher.Invoke(() =>
+           {
+               ModelSystem = _Session.ModelSystemModel;
+           });
+        }
 
         private ModelSystemStructureDisplayModel DisplayRoot;
 
@@ -97,7 +126,7 @@ namespace XTMF.Gui.UserControls
                 {
                     foreach (var child in children)
                     {
-                        if (CheckFilterRec(child, filterText, module.IsExpanded, thisParentPassed | parentVisible,thisParentPassed | parentPassed))
+                        if (CheckFilterRec(child, filterText, module.IsExpanded, thisParentPassed | parentVisible, thisParentPassed | parentPassed))
                         {
                             childrenPassed = true;
                         }
@@ -446,12 +475,14 @@ namespace XTMF.Gui.UserControls
         {
             string error = null;
             Session.Redo(ref error);
+            UpdateParameters();
         }
 
         private void Undo()
         {
             string error = null;
             Session.Undo(ref error);
+            UpdateParameters();
         }
 
         private void Close()
@@ -459,14 +490,27 @@ namespace XTMF.Gui.UserControls
             var e = RequestClose;
             if (e != null)
             {
-                if (MessageBox.Show("Are you sure that you want to close this window?", "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        e(this);
-                    }));
-                }
+                    e(this);
+                }));
             }
+        }
+
+        /// <summary>
+        /// Get permission from the user to close the window
+        /// </summary>
+        /// <returns>True if we have gained permission to close, false otherwise</returns>
+        internal bool CloseRequested()
+        {
+            SaveCurrentlySelectedParameters();
+            if (!Session.CloseWillTerminate || !Session.HasChanged
+                || MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
+                "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+            {
+                return true;
+            }
+            return false;
         }
 
         public event Action<object> RequestClose;
@@ -740,7 +784,10 @@ namespace XTMF.Gui.UserControls
                         }
                         catch (Exception e)
                         {
-                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                            Dispatcher.Invoke(() =>
+                           {
+                               MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                           });
                         }
                         finally
                         {
@@ -780,6 +827,19 @@ namespace XTMF.Gui.UserControls
                 {
                     MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                else
+                {
+                    UpdateParameters();
+                }
+            }
+        }
+
+        private void UpdateParameters()
+        {
+            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel; ;
+            if (selected != null)
+            {
+                UpdateParameters(selected.ParametersModel);
             }
         }
 
@@ -890,6 +950,7 @@ namespace XTMF.Gui.UserControls
                 Keyboard.Focus(ModuleDisplay);
             }
         }
+
 
         private void UpdateParameters(ParametersModel parameters)
         {
