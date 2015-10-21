@@ -190,6 +190,7 @@ namespace Tasha.Estimation.LocationChoice
             }
             // reload all of the probabilities
             LocationChoice.LoadLocationChoiceCache();
+            ZoneSystem = RealRoot.ZoneSystem.ZoneArray;
         }
 
         public void Load(int maxIterations)
@@ -197,8 +198,17 @@ namespace Tasha.Estimation.LocationChoice
 
         }
 
+        private ITravelDemandModel RealRoot;
+
         public bool RuntimeValidation(ref string error)
         {
+            var realRoot = Root.MainClient as ITravelDemandModel;
+            if (realRoot == null)
+            {
+                error = "'" + Name + "' is unable to run because the model system that is being estimated is not based on an ITravelDemandModel!";
+                return false;
+            }
+            RealRoot = realRoot;
             return true;
         }
     }
