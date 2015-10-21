@@ -89,6 +89,22 @@ namespace Tasha.XTMFScheduler.LocationChoice
             return GetLocation(ep, random, (i > 0 ? episodes[i - 1] : null), null, startTime);
         }
 
+        public float[] GetLocationProbabilities(IEpisode ep)
+        {
+            var episodes = ep.ContainingSchedule.Episodes;
+            var startTime = ep.StartTime;
+            int i = 0;
+            for (; i < episodes.Length; i++)
+            {
+                if (episodes[i] == null) break;
+                if (startTime < episodes[i].StartTime)
+                {
+                    return GetLocationProbabilities(ep, (i == 0 ? null : episodes[i - 1]), episodes[i], startTime);
+                }
+            }
+            return GetLocationProbabilities(ep, (i > 0 ? episodes[i - 1] : null), null, startTime);
+        }
+
         [ThreadStatic]
         private static float[] CalculationSpace;
 
@@ -118,6 +134,32 @@ namespace Tasha.XTMFScheduler.LocationChoice
             }
             // if it isn't something that we understand just accept its previous zone
             return ep.Zone;
+        }
+
+        private float[] GetLocationProbabilities(IEpisode ep, IEpisode previous, IEpisode next, Time startTime)
+        {
+            var previousZone = GetZone(previous, ep);
+            var nextZone = GetZone(next, ep);
+            var calculationSpace = CalculationSpace;
+            if (calculationSpace == null)
+            {
+                CalculationSpace = calculationSpace = new float[Root.ZoneSystem.ZoneArray.Count];
+            }
+            Time availableTime = ComputeAvailableTime(previous, next);
+            switch (ep.ActivityType)
+            {
+                case Activity.Market:
+                case Activity.JointMarket:
+                    return MarketModel.GetLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
+                case Activity.JointOther:
+                case Activity.IndividualOther:
+                    return OtherModel.GetLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
+                case Activity.WorkBasedBusiness:
+                case Activity.SecondaryWork:
+                    return WorkBasedBusinessModel.GetLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
+            }
+            // if it isn't something that we understand just accept its previous zone
+            return calculationSpace;
         }
 
         [RunParameter("Maximum Episode Duration Compression", 0.5f, "The amount that the duration is allowed to be compressed from the original duration time (0 to 1 default is 0.5).")]
@@ -423,7 +465,40 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             protected abstract void CalculateUtilities();
 
-            internal IZone GetLocation(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace, Random random)
+
+            internal float[] GetLocationProbabilities(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace)
+            {
+                var total = CalculateLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
+                if(total <= 0.0f)
+                {
+                    return calculationSpace;
+                }
+                if (VectorHelper.IsHardwareAccelerated)
+                {
+                    VectorHelper.VectorMultiply(calculationSpace, 0, calculationSpace, 0, 1.0f / total, calculationSpace.Length);
+                }
+                else
+                {
+                    var ratio = 1.0f / total;
+                    for (int i = 0; i < calculationSpace.Length; i++)
+                    {
+                        calculationSpace[i] *= ratio;
+                    }
+                }
+                return calculationSpace;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="previousZone"></param>
+            /// <param name="ep"></param>
+            /// <param name="nextZone"></param>
+            /// <param name="startTime"></param>
+            /// <param name="availableTime"></param>
+            /// <param name="calculationSpace"></param>
+            /// <returns>The sum of the calculation space</returns>
+            private float CalculateLocationProbabilities(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace)
             {
                 var p = zoneSystem.GetFlatIndex(previousZone.ZoneNumber);
                 var n = zoneSystem.GetFlatIndex(nextZone.ZoneNumber);
@@ -440,7 +515,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 int previousIndexOffset = p * size;
                 int nextSizeOffset = n * size;
                 float total = 0.0f;
-                if (VectorHelper.IsHardwareAccelerated)
+                if (Vector.IsHardwareAccelerated)
                 {
                     Vector<float> availableTimeV = new Vector<float>(available);
                     Vector<float> totalV = Vector<float>.Zero;
@@ -554,6 +629,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         }
                     }
                 }
+                return total;
+            }
+
+            internal IZone GetLocation(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace, Random random)
+            {
+                var total = CalculateLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
                 if (total <= 0)
                 {
                     return null;

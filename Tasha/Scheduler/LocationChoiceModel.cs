@@ -241,6 +241,11 @@ namespace Tasha.Scheduler
             }
         }
 
+        public float[] GetLocationProbabilities(IEpisode ep)
+        {
+            throw new NotImplementedException();
+        }
+
         internal class LocationChoiceInformation
         {
             public float[][] Data;

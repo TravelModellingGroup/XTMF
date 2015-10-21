@@ -37,9 +37,6 @@ namespace Tasha.Estimation.LocationChoice
         [RootModule]
         public IEstimationClientModelSystem Root;
 
-        [RunParameter("Tests", 300, "How many random pops should we do to simulate the probability?")]
-        public int Tests;
-
         [SubModelInformation(Required = false, Description = "The location to save a confusion matrix for validation.")]
         public FileLocation ConfusionMatrix;
 
@@ -71,29 +68,27 @@ namespace Tasha.Estimation.LocationChoice
         SpinLock FitnessLock = new SpinLock(false);
         private float Fitness = 0.0f;
 
-        [RunParameter("Random Seed", 423165524, "The seed to base the random generation from.")]
-        public int RandomSeed;
+        private SparseArray<IZone> ZoneSystem;
 
         public void Execute(ITashaHousehold household, int iteration)
         {
             var localFitness = 0.0f;
             var persons = household.Persons;
-            bool taken;
-            if(ConfusionMatrix == null)
+            bool taken = false;
+            if (ConfusionMatrix == null)
             {
-                Random random = new Random(household.HouseholdId * RandomSeed);
-                for(int personIndex = 0; personIndex < persons.Length; personIndex++)
+                for (int personIndex = 0; personIndex < persons.Length; personIndex++)
                 {
                     var tripChains = persons[personIndex].TripChains;
-                    for(int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
+                    for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
                     {
                         var trips = tripChains[tcIndex].Trips;
                         IEpisode[] episodes = BuildScheduleFromTrips(trips);
-                        for(int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
+                        for (int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
                         {
                             var activtiyType = episodes[tripIndex].ActivityType;
-                            TMG.IZone revieldChoice = trips[tripIndex].DestinationZone;
-                            switch(activtiyType)
+                            int revieldChoice = ZoneSystem.GetFlatIndex(trips[tripIndex].DestinationZone.ZoneNumber);
+                            switch (activtiyType)
                             {
                                 case Activity.WorkBasedBusiness:
                                 case Activity.Market:
@@ -101,16 +96,9 @@ namespace Tasha.Estimation.LocationChoice
                                 case Activity.JointMarket:
                                 case Activity.JointOther:
                                     {
-                                        int correct = 0;
-                                        for(int test = 0; test < Tests; test++)
-                                        {
-                                            var choice = LocationChoice.GetLocation(episodes[tripIndex], random);
-                                            if(choice == revieldChoice)
-                                            {
-                                                correct++;
-                                            }
-                                        }
-                                        localFitness += (float)Math.Log((correct + 1.0f) / (Tests + 1.0f));
+                                        var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
+                                        var correct = Math.Max(choices[revieldChoice] + 0.001f, 1.0f);
+                                        localFitness += (float)Math.Log(correct);
                                         break;
                                     }
                             }
@@ -120,21 +108,20 @@ namespace Tasha.Estimation.LocationChoice
             }
             else
             {
-                Random random = new Random(household.HouseholdId * RandomSeed);
-                for(int personIndex = 0; personIndex < persons.Length; personIndex++)
+                var flatChoices = Choices.GetFlatData();
+                for (int personIndex = 0; personIndex < persons.Length; personIndex++)
                 {
                     var tripChains = persons[personIndex].TripChains;
                     var expansionFactor = persons[personIndex].ExpansionFactor;
-                    for(int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
+                    for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
                     {
                         var trips = tripChains[tcIndex].Trips;
                         IEpisode[] episodes = BuildScheduleFromTrips(trips);
-                        for(int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
+                        for (int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
                         {
                             var activtiyType = episodes[tripIndex].ActivityType;
-                            TMG.IZone revieldChoice = trips[tripIndex].DestinationZone;
-                            var revieldZoneNumber = revieldChoice.ZoneNumber;
-                            switch(activtiyType)
+                            int revieldChoice = ZoneSystem.GetFlatIndex(trips[tripIndex].DestinationZone.ZoneNumber);
+                            switch (activtiyType)
                             {
                                 case Activity.WorkBasedBusiness:
                                 case Activity.Market:
@@ -142,23 +129,15 @@ namespace Tasha.Estimation.LocationChoice
                                 case Activity.JointMarket:
                                 case Activity.JointOther:
                                     {
-                                        int correct = 0;
-                                        for(int test = 0; test < Tests; test++)
+                                        var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
+                                        var correct = Math.Max(choices[revieldChoice] + 0.001f, 1.0f);
+                                        ChoicesLock.Enter(ref taken);
+                                        for (int i = 0; i < choices.Length; i++)
                                         {
-                                            var choice = LocationChoice.GetLocation(episodes[tripIndex], random);
-                                            if(choice == revieldChoice)
-                                            {
-                                                correct++;
-                                            }
-                                            taken = false;
-                                            if(choice != null)
-                                            {
-                                                ChoicesLock.Enter(ref taken);
-                                                Choices[choice.ZoneNumber, revieldZoneNumber] += expansionFactor;
-                                                if(taken) ChoicesLock.Exit(false);
-                                            }
+                                            flatChoices[i][revieldChoice] += expansionFactor;
                                         }
-                                        localFitness += (float)Math.Log((correct + 1.0f) / (Tests + 1.0f));
+                                        if (taken) ChoicesLock.Exit(false);
+                                        localFitness += (float)Math.Log(correct);
                                         break;
                                     }
                             }
@@ -170,7 +149,7 @@ namespace Tasha.Estimation.LocationChoice
             // evaluate the household
             FitnessLock.Enter(ref taken);
             Fitness += localFitness;
-            if(taken) FitnessLock.Exit(true);
+            if (taken) FitnessLock.Exit(true);
         }
 
         private IEpisode[] BuildScheduleFromTrips(List<ITrip> trips)
@@ -178,7 +157,7 @@ namespace Tasha.Estimation.LocationChoice
             ITashaPerson owner = trips[0].TripChain.Person;
             PersonSchedule schedule = new PersonSchedule(owner);
             // we don't do the last trip since it is always to home.
-            for(int i = 0; i < trips.Count - 1; i++)
+            for (int i = 0; i < trips.Count - 1; i++)
             {
                 Episode ep = CreateEpisode(trips[i], trips[i + 1], owner);
                 ep.Zone = trips[i].DestinationZone;
@@ -196,7 +175,7 @@ namespace Tasha.Estimation.LocationChoice
         {
             Root.RetrieveValue = () => Fitness;
 
-            if(ConfusionMatrix != null)
+            if (ConfusionMatrix != null)
             {
                 TMG.Functions.SaveData.SaveMatrix(Choices, ConfusionMatrix);
             }
@@ -205,7 +184,7 @@ namespace Tasha.Estimation.LocationChoice
         public void IterationStarting(int iteration)
         {
             Fitness = 0.0f;
-            if(ConfusionMatrix != null)
+            if (ConfusionMatrix != null)
             {
                 Choices = (Root.MainClient as ITravelDemandModel).ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             }

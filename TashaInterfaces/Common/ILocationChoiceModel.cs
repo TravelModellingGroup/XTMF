@@ -32,5 +32,13 @@ namespace Tasha.Common
         void LoadLocationChoiceCache();
 
         IZone GetLocation(IEpisode ep, Random random);
+
+        /// <summary>
+        /// This method will return the probabilities of selecting each zone.  The array will be reused upon the next call of the location choice
+        /// model by the current thread.
+        /// </summary>
+        /// <param name="ep">The episode to find the probabilities of</param>
+        /// <returns>An array of probabilities for the episode</returns>
+        float[] GetLocationProbabilities(IEpisode ep);
     }
 }
