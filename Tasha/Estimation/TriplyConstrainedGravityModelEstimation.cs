@@ -62,7 +62,7 @@ namespace Tasha.Estimation
 
         [SubModelInformation(Description = "A list of resources to use in this model system.")]
         public List<IResource> Resources { get; set; }
-        
+
 
         public IResource TruthData;
         public IResource ModelData;
@@ -74,12 +74,12 @@ namespace Tasha.Estimation
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!TruthData.CheckResourceType<SparseTriIndex<float>>())
+            if (!TruthData.CheckResourceType<SparseTriIndex<float>>())
             {
                 error = "In '" + Name + "' TruthData is not a SparseTriIndex<float>!";
                 return false;
             }
-            if(!ModelData.CheckResourceType<SparseTriIndex<float>>())
+            if (!ModelData.CheckResourceType<SparseTriIndex<float>>())
             {
                 error = "In '" + Name + "' ModelData is not a SparseTriIndex<float>!";
                 return false;
@@ -87,31 +87,37 @@ namespace Tasha.Estimation
             return true;
         }
 
+        [RunParameter("Maximum Error", -20000.0f, "The maximum error that is allowed in a cell")]
+        public float MaximumError;
+
         bool first = true;
         /// <summary>
         /// The truth for each category
         /// </summary>
         float[] TotalTruth;
+        float[][] TotalTruthByZone;
         public void Start()
         {
-            if(!ZoneSystem.Loaded)
+            if (!ZoneSystem.Loaded)
             {
                 ZoneSystem.LoadData();
             }
             var truth = TruthData.AquireResource<SparseTriIndex<float>>().GetFlatData();
-            if(first)
+            if (first)
             {
                 TotalTruth = truth.Select(category => category.Sum(row => VectorHelper.VectorSum(row, 0, row.Length))).ToArray();
-                for(int category = 0; category < TotalTruth.Length; category++)
+                TotalTruthByZone = new float[TotalTruth.Length][];
+                for (int category = 0; category < TotalTruth.Length; category++)
                 {
                     //normalize the truth data
                     Parallel.For(0, truth[category].Length, (int i) =>
                     {
                         float[] truthRow = truth[category][i];
+                        TotalTruthByZone[category][i] = VectorHelper.VectorSum(truthRow, 0, truthRow.Length);
                         VectorHelper.VectorMultiply(truthRow, 0, truthRow, 0, 1.0f / TotalTruth[category], truthRow.Length);
                     });
                 }
-                for(int i = 0; i < NetworkData.Count; i++)
+                for (int i = 0; i < NetworkData.Count; i++)
                 {
                     NetworkData[i].LoadData();
                 }
@@ -121,7 +127,7 @@ namespace Tasha.Estimation
             ModelData.ReleaseResource();
             // Normalize the model data
             float[] modelTotalByCategory = model.Select(cateogry => cateogry.Sum(row => VectorHelper.VectorSum(row, 0, row.Length))).ToArray();
-            for(int category = 0; category < modelTotalByCategory.Length; category++)
+            for (int category = 0; category < modelTotalByCategory.Length; category++)
             {
                 //normalize the truth data
                 Parallel.For(0, model[category].Length, (int i) =>
@@ -131,24 +137,25 @@ namespace Tasha.Estimation
                     });
             }
             float fitness = 0.0f;
-            for(int category = 0; category < truth.Length; category++)
+            for (int category = 0; category < truth.Length; category++)
             {
-                Parallel.For(0, truth[category].Length, 
-                    ()=>
+                Parallel.For(0, truth[category].Length,
+                    () =>
                 {
                     return new float[truth[category].Length];
                 },
                 (int i, ParallelLoopState _, float[] errorForHomeZone) =>
                 {
-                    var truthVector = truth[category][i];
+                    var observedLinkagesForZone = TotalTruthByZone[category][i];
+                    var truthRow = truth[category][i];
                     var modelRow = model[category][i];
-                    for(int j = 0; j < truthVector.Length; j++)
+                    for (int j = 0; j < truthRow.Length; j++)
                     {
-                        errorForHomeZone[i] += truthVector[j] * (float)Math.Log(modelRow[j] + 1.0e-10f);
+                        errorForHomeZone[i] += observedLinkagesForZone * (truthRow[j] * (float)Math.Max(Math.Log(modelRow[j]), MaximumError));
                     }
                     return errorForHomeZone;
                 },
-                (float[] errorData)=>
+                (float[] errorData) =>
                 {
                     var sumOfError = errorData.Sum();
                     lock (this)
