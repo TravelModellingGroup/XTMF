@@ -469,7 +469,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             internal float[] GetLocationProbabilities(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace)
             {
                 var total = CalculateLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
-                if(total <= 0.0f)
+                if (total <= 0.0f)
                 {
                     return calculationSpace;
                 }
@@ -711,8 +711,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
                     var jPD = zones[j].PlanningDistrict;
-                    if (!Parent.ValidDestinationZones.Contains(zones[j].ZoneNumber)) return;
-                    var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
+                    var jUtil = (float)
+                    Math.Exp(
+                         (Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
                         + Math.Log(1 + gf[j]) * GeneralFullTime
                         + Math.Log(1 + gp[j]) * GeneralPartTime
@@ -720,30 +721,26 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         + Math.Log(1 + sp[j]) * RetailPartTime
                         + Math.Log(1 + mf[j]) * ManufacturingFullTime
                         + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                        + Math.Log(1 + zones[j].Population) * Population);
-
-                    for (int i = 0; i < zones.Length; i++)
+                        + Math.Log(1 + zones[j].Population) * Population));
+                    for (int time = 0; time < times.Length; time++)
                     {
-                        if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
-                        var iPD = zones[i].PlanningDistrict;
-                        var nonTimeUtil = jUtil;
-
-                        nonTimeUtil = (float)Math.Exp(nonTimeUtil);
-                        for (int time = 0; time < times.Length; time++)
+                        Time timeOfDay = times[time].StartTime;
+                        var nonExpPDConstant = 0.0f;
+                        for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
                         {
-                            Time timeOfDay = times[time].StartTime;
-                            var nonExpPDConstant = 0.0f;
-                            for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                            if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
                             {
-                                if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
-                                {
-                                    nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
-                                    break;
-                                }
+                                nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                break;
                             }
+                        }
+                        nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
+                        for (int i = 0; i < zones.Length; i++)
+                        {
+                            if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i * zones.Length + j] = nonTimeUtil * (float)Math.Exp(nonExpPDConstant) * travelUtility;
+                            To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
                             // compute from
                             From[time][j * zones.Length + i] = travelUtility;
                         }
@@ -771,7 +768,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
                     var jPD = zones[j].PlanningDistrict;
-                    var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
+                    var jUtil = (float)
+                    Math.Exp(
+                         (Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
                         + Math.Log(1 + gf[j]) * GeneralFullTime
                         + Math.Log(1 + gp[j]) * GeneralPartTime
@@ -779,29 +778,26 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         + Math.Log(1 + sp[j]) * RetailPartTime
                         + Math.Log(1 + mf[j]) * ManufacturingFullTime
                         + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                        + Math.Log(1 + zones[j].Population) * Population);
-
-                    for (int i = 0; i < zones.Length; i++)
+                        + Math.Log(1 + zones[j].Population) * Population));
+                    for (int time = 0; time < times.Length; time++)
                     {
-                        var iRegion = zones[i].RegionNumber;
-                        var iPD = zones[i].PlanningDistrict;
-                        var nonTimeUtil = jUtil;
-                        nonTimeUtil = (float)Math.Exp(nonTimeUtil);
-                        for (int time = 0; time < times.Length; time++)
+                        Time timeOfDay = times[time].StartTime;
+                        var nonExpPDConstant = 0.0f;
+                        for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
                         {
-                            Time timeOfDay = times[time].StartTime;
-                            var nonExpPDConstant = 0.0f;
-                            for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                            if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
                             {
-                                if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
-                                {
-                                    nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
-                                    break;
-                                }
+                                nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                break;
                             }
+                        }
+                        nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
+                        for (int i = 0; i < zones.Length; i++)
+                        {
+                            if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i * zones.Length + j] = nonTimeUtil * nonExpPDConstant * travelUtility;
+                            To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
                             // compute from
                             From[time][j * zones.Length + i] = travelUtility;
                         }
@@ -829,7 +825,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
                     var jPD = zones[j].PlanningDistrict;
-                    var jUtil = (float)(Math.Log(1 + pf[j]) * ProfessionalFullTime
+                    var jUtil = (float)
+                    Math.Exp(
+                         (Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
                         + Math.Log(1 + gf[j]) * GeneralFullTime
                         + Math.Log(1 + gp[j]) * GeneralPartTime
@@ -837,28 +835,26 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         + Math.Log(1 + sp[j]) * RetailPartTime
                         + Math.Log(1 + mf[j]) * ManufacturingFullTime
                         + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                        + Math.Log(1 + zones[j].Population) * Population);
-
-                    for (int i = 0; i < zones.Length; i++)
+                        + Math.Log(1 + zones[j].Population) * Population));
+                    for (int time = 0; time < times.Length; time++)
                     {
-                        var iPD = zones[i].PlanningDistrict;
-                        var nonTimeUtil = jUtil;
-                        nonTimeUtil = (float)Math.Exp(nonTimeUtil);
-                        for (int time = 0; time < times.Length; time++)
+                        Time timeOfDay = times[time].StartTime;
+                        var nonExpPDConstant = 0.0f;
+                        for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
                         {
-                            Time timeOfDay = times[time].StartTime;
-                            var nonExpPDConstant = 0.0f;
-                            for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                            if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
                             {
-                                if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
-                                {
-                                    nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
-                                    break;
-                                }
+                                nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                break;
                             }
+                        }
+                        nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
+                        for (int i = 0; i < zones.Length; i++)
+                        {
+                            if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
                             var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                             // compute to
-                            To[time][i * zones.Length + j] = nonTimeUtil * nonExpPDConstant * travelUtility;
+                            To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
                             // compute from
                             From[time][j * zones.Length + i] = travelUtility;
                         }
