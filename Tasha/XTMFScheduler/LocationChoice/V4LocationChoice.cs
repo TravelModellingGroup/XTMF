@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -415,6 +415,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                       TransitTime * ivtt
                     + TransitWalk * walk
                     + TransitWait * wait
+                    + TransitBoarding * boarding
                     + Cost * cost);
             }
 
@@ -441,15 +442,15 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 Parallel.For(0, zones2, (int index) =>
                 {
-
                     autoSpace[index] =
                         timePeriod.EstimationAIVTT[index] * AutoTime
                             + timePeriod.EstimationACOST[index] * Cost;
-                    transitSpace[index] = timePeriod.EstimationTIVTT[index] * TransitTime
+                    transitSpace[index] = 
+                          timePeriod.EstimationTIVTT[index] * TransitTime
                         + timePeriod.EstimationTWALK[index] * TransitWalk
                         + timePeriod.EstimationTWAIT[index] * TransitWait
                         + timePeriod.EstimationTBOARDING[index] * TransitBoarding
-                        + timePeriod.EstimationTFARE[index] * TransitBoarding;
+                        + timePeriod.EstimationTFARE[index] * Cost;
 
                 });
                 Parallel.For(0, zones2, (int index) =>
@@ -507,11 +508,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         timePeriod.ODConstants[i].ExpConstant = (float)Math.Exp(timePeriod.ODConstants[i].Constant);
                     }
                 }
-                var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
-                BuildPDCube(pds);
-                if (FlatZoneToPDCubeLookup == null)
+                if(!Parent.EstimationMode || PDCube == null)
                 {
-                    FlatZoneToPDCubeLookup = zones.Select(zone => pds.GetFlatIndex(zone.PlanningDistrict)).ToArray();
+                    var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
+                    BuildPDCube(pds);
+                    if (FlatZoneToPDCubeLookup == null)
+                    {
+                        FlatZoneToPDCubeLookup = zones.Select(zone => pds.GetFlatIndex(zone.PlanningDistrict)).ToArray();
+                    }
                 }
                 // now that we are done we can calculate our utilities
                 CalculateUtilities();
@@ -796,7 +800,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 for (int i = 0; i < TimePeriod.Length; i++)
                 {
                     jSum[i] = new float[zones.Length];
-                    for (int j = 0; j < jSum[i].Length; j++)
+                    Parallel.For(0, jSum[i].Length, (int j) =>
                     {
                         var jPD = zones[j].PlanningDistrict;
                         var jUtil = (float)
@@ -822,7 +826,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             }
                         }
                         nonExpPDConstant = jUtil * (float)Math.Exp(nonExpPDConstant);
-                    }
+                    });
                 }
                 if (Parent.EstimationMode)
                 {
@@ -898,7 +902,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 for (int i = 0; i < TimePeriod.Length; i++)
                 {
                     jSum[i] = new float[zones.Length];
-                    for (int j = 0; j < jSum[i].Length; j++)
+                    Parallel.For(0, jSum[i].Length, (int j) =>
                     {
                         var jPD = zones[j].PlanningDistrict;
                         var jUtil = (float)
@@ -924,7 +928,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             }
                         }
                         nonExpPDConstant = jUtil * (float)Math.Exp(nonExpPDConstant);
-                    }
+                    });
                 }
                 if (Parent.EstimationMode)
                 {
@@ -1000,7 +1004,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 for (int i = 0; i < TimePeriod.Length; i++)
                 {
                     jSum[i] = new float[zones.Length];
-                    for (int j = 0; j < jSum[i].Length; j++)
+                    Parallel.For(0, jSum[i].Length, (int j) =>
                     {
                         var jPD = zones[j].PlanningDistrict;
                         var jUtil = (float)
@@ -1026,7 +1030,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             }
                         }
                         nonExpPDConstant = jUtil * (float)Math.Exp(nonExpPDConstant);
-                    }
+                    });
                 }
                 if (Parent.EstimationMode)
                 {
@@ -1122,7 +1126,6 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
         public void LoadLocationChoiceCache()
         {
-            Console.WriteLine("Loading Location Choice...");
             for (int i = 0; i < TimePeriods.Length; i++)
             {
                 TimePeriods[i].Load();
@@ -1131,13 +1134,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
             {
                 ValidDestinations = Root.ZoneSystem.ZoneArray.GetFlatData().Select(zone => ValidDestinationZones.Contains(zone.ZoneNumber)).ToArray();
             }
-            Console.WriteLine("Loading Market...");
             MarketModel.Load();
-            Console.WriteLine("Loading Other...");
             OtherModel.Load();
-            Console.WriteLine("Loading Work Based Business...");
             WorkBasedBusinessModel.Load();
-            Console.WriteLine("Finished Loading Location Choice");
         }
 
         public bool RuntimeValidation(ref string error)
