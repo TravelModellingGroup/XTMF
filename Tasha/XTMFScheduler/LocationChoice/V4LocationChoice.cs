@@ -75,6 +75,9 @@ namespace Tasha.XTMFScheduler.LocationChoice
         [RunParameter("Transit Network Name", "Transit", "The name of the network to use for computing transit times.")]
         public string TransitNetworkName;
 
+        [RunParameter("Estimation Mode", false, "Enable this to improve performance when estimating a model.")]
+        public bool EstimationMode;
+
         public IZone GetLocation(IEpisode ep, Random random)
         {
             var episodes = ep.ContainingSchedule.Episodes;
@@ -240,22 +243,69 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
+
+
             public float[] RowTravelTimes;
             public float[] ColumnTravelTimes;
+            internal float[] EstimationAIVTT;
+            internal float[] EstimationACOST;
+            internal float[] EstimationTIVTT;
+            internal float[] EstimationTWALK;
+            internal float[] EstimationTWAIT;
+            internal float[] EstimationTBOARDING;
+            internal float[] EstimationTFARE;
+            internal float[] EstimationTempSpace;
+            internal float[] EstimationTempSpace2;
 
             public void Load()
             {
                 var size = Root.ZoneSystem.ZoneArray.Count;
+                var autoNetwork = Parent.AutoNetwork;
+                var transitNetwork = Parent.TransitNetwork;
+                // we only need to load in this data if we are
+                if (Parent.EstimationMode)
+                {
+                    if (EstimationAIVTT == null)
+                    {
+                        var odPairs = size * size;
+                        EstimationAIVTT = new float[odPairs];
+                        EstimationACOST = new float[odPairs];
+                        EstimationTIVTT = new float[odPairs];
+                        EstimationTWALK = new float[odPairs];
+                        EstimationTWAIT = new float[odPairs];
+                        EstimationTBOARDING = new float[odPairs];
+                        EstimationTFARE = new float[odPairs];
+                        Parallel.For(0, size, (int i) =>
+                        {
+                            var time = StartTime;
+                            int baseIndex = i * size;
+                            for (int j = 0; j < size; j++)
+                            {
+                                autoNetwork.GetAllData(i, j, time, out EstimationAIVTT[baseIndex + j], out EstimationACOST[baseIndex + j]);
+                                transitNetwork.GetAllData(i, j, time,
+                                    out EstimationTIVTT[baseIndex + j],
+                                    out EstimationTWALK[baseIndex + j],
+                                    out EstimationTWAIT[baseIndex + j],
+                                    out EstimationTBOARDING[baseIndex + j],
+                                    out EstimationTFARE[baseIndex + j]
+                                    );
+                            }
+                        });
+                    }
+                    if (RowTravelTimes != null)
+                    {
+                        return;
+                    }
+                }
                 var rowData = (RowTravelTimes == null || RowTravelTimes.Length != size * size) ? new float[size * size] : RowTravelTimes;
                 var columnData = (ColumnTravelTimes == null || ColumnTravelTimes.Length != size * size) ? new float[size * size] : ColumnTravelTimes;
-                var network = Parent.AutoNetwork;
                 Parallel.For(0, size, (int i) =>
                 {
                     var time = StartTime;
                     int startingIndex = i * size;
                     for (int j = 0; j < size; j++)
                     {
-                        var ijTime = network.TravelTime(i, j, time).ToMinutes();
+                        var ijTime = autoNetwork.TravelTime(i, j, time).ToMinutes();
                         rowData[startingIndex + j] = ijTime;
                         columnData[j * size + i] = ijTime;
                     }
@@ -377,6 +427,41 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 return (float)(GetTransitUtility(transitNetwork, i, j, time)
                     + Math.Exp(ivtt * AutoTime + cost * Cost));
+            }
+
+            internal float[] GenerateEstimationLogsums(TimePeriod timePeriod, IZone[] zones)
+            {
+                var zones2 = zones.Length * zones.Length;
+                float[] autoSpace = timePeriod.EstimationTempSpace;
+                float[] transitSpace = timePeriod.EstimationTempSpace2;
+                if (autoSpace == null)
+                {
+                    timePeriod.EstimationTempSpace = autoSpace = new float[zones2];
+                    timePeriod.EstimationTempSpace2 = transitSpace = new float[zones2];
+                }
+                Parallel.For(0, zones2, (int index) =>
+                {
+
+                    autoSpace[index] =
+                        timePeriod.EstimationAIVTT[index] * AutoTime
+                            + timePeriod.EstimationACOST[index] * Cost;
+                    transitSpace[index] = timePeriod.EstimationTIVTT[index] * TransitTime
+                        + timePeriod.EstimationTWALK[index] * TransitWalk
+                        + timePeriod.EstimationTWAIT[index] * TransitWait
+                        + timePeriod.EstimationTBOARDING[index] * TransitBoarding
+                        + timePeriod.EstimationTFARE[index] * TransitBoarding;
+
+                });
+                Parallel.For(0, zones2, (int index) =>
+                {
+                    autoSpace[index] = (float)(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index]));
+                });
+                return autoSpace;
+            }
+
+            internal float GetEstimationTravelLogsum(int index, TimePeriod timePeriod)
+            {
+                return timePeriod.EstimationTempSpace[index];
             }
 
             public bool RuntimeValidation(ref string error)
@@ -707,13 +792,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     throw new XTMFRuntimeException("The professional full-time employment data is not of the same size as the number of zones!");
                 }
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
+                float[][] jSum = new float[TimePeriod.Length][];
+                for (int i = 0; i < TimePeriod.Length; i++)
                 {
-                    var network = Parent.AutoNetwork;
-                    var transitNetwork = Parent.TransitNetwork;
-                    var times = Parent.TimePeriods;
-                    var jPD = zones[j].PlanningDistrict;
-                    var jUtil = (float)
+                    jSum[i] = new float[zones.Length];
+                    for (int j = 0; j < jSum[i].Length; j++)
+                    {
+                        var jPD = zones[j].PlanningDistrict;
+                        var jUtil = (float)
                     Math.Exp(
                          (Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
@@ -724,28 +810,70 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         + Math.Log(1 + mf[j]) * ManufacturingFullTime
                         + Math.Log(1 + mp[j]) * ManufacturingPartTime
                         + Math.Log(1 + zones[j].Population) * Population));
-                    for (int time = 0; time < times.Length; time++)
-                    {
-                        Time timeOfDay = times[time].StartTime;
+
+
                         var nonExpPDConstant = 0.0f;
-                        for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                        for (int seg = 0; seg < TimePeriod[i].PDConstant.Length; seg++)
                         {
-                            if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
+                            if (TimePeriod[i].PDConstant[seg].Range.Contains(jPD))
                             {
-                                nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                nonExpPDConstant += TimePeriod[i].PDConstant[seg].Constant;
                                 break;
                             }
                         }
-                        nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
-                        for (int i = 0; i < zones.Length; i++)
+                        nonExpPDConstant = jUtil * (float)Math.Exp(nonExpPDConstant);
+                    }
+                }
+                if (Parent.EstimationMode)
+                {
+                    for (int i = 0; i < Parent.TimePeriods.Length; i++)
+                    {
+                        GenerateEstimationLogsums(Parent.TimePeriods[i], zones);
+                    }
+                }
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
+                {
+                    if (Parent.ValidDestinations[i])
+                    {
+                        var numberOfZones = zones.Length;
+                        var network = Parent.AutoNetwork;
+                        var transitNetwork = Parent.TransitNetwork;
+                        var times = Parent.TimePeriods;
+                        for (int time = 0; time < times.Length; time++)
                         {
-                            if (Parent.ValidDestinations[i])
+                            Time timeOfDay = times[time].StartTime;
+                            if (Parent.EstimationMode)
                             {
-                                var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
-                                // compute to
-                                To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
-                                // compute from
-                                From[time][j * zones.Length + i] = travelUtility;
+                                unsafe
+                                {
+                                    fixed (float* to = To[time])
+                                    fixed (float* from = To[time])
+                                    fixed (float* logsumSpace = times[time].EstimationTempSpace)
+                                    {
+                                        for (int j = 0; j < zones.Length; j++)
+                                        {
+                                            var nonExpPDConstant = jSum[time][j];
+                                            var travelUtility = logsumSpace[i * zones.Length + j];
+                                            // compute to
+                                            to[i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                            // compute from
+                                            from[j * zones.Length + i] = travelUtility;
+                                        }
+                                    }
+                                }
+                            }
+
+                            else
+                            {
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j];
+                                    var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = travelUtility;
+                                }
                             }
                         }
                     }
@@ -766,13 +894,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var sp = Parent.RetailPartTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mf = Parent.ManufacturingFullTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mp = Parent.ManufacturingPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
+                float[][] jSum = new float[TimePeriod.Length][];
+                for (int i = 0; i < TimePeriod.Length; i++)
                 {
-                    var network = Parent.AutoNetwork;
-                    var transitNetwork = Parent.TransitNetwork;
-                    var times = Parent.TimePeriods;
-                    var jPD = zones[j].PlanningDistrict;
-                    var jUtil = (float)
+                    jSum[i] = new float[zones.Length];
+                    for (int j = 0; j < jSum[i].Length; j++)
+                    {
+                        var jPD = zones[j].PlanningDistrict;
+                        var jUtil = (float)
                     Math.Exp(
                          (Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
@@ -783,28 +912,70 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         + Math.Log(1 + mf[j]) * ManufacturingFullTime
                         + Math.Log(1 + mp[j]) * ManufacturingPartTime
                         + Math.Log(1 + zones[j].Population) * Population));
-                    for (int time = 0; time < times.Length; time++)
-                    {
-                        Time timeOfDay = times[time].StartTime;
+
+
                         var nonExpPDConstant = 0.0f;
-                        for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                        for (int seg = 0; seg < TimePeriod[i].PDConstant.Length; seg++)
                         {
-                            if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
+                            if (TimePeriod[i].PDConstant[seg].Range.Contains(jPD))
                             {
-                                nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                nonExpPDConstant += TimePeriod[i].PDConstant[seg].Constant;
                                 break;
                             }
                         }
-                        nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
-                        for (int i = 0; i < zones.Length; i++)
+                        nonExpPDConstant = jUtil * (float)Math.Exp(nonExpPDConstant);
+                    }
+                }
+                if (Parent.EstimationMode)
+                {
+                    for (int i = 0; i < Parent.TimePeriods.Length; i++)
+                    {
+                        GenerateEstimationLogsums(Parent.TimePeriods[i], zones);
+                    }
+                }
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
+                {
+                    if (Parent.ValidDestinations[i])
+                    {
+                        var numberOfZones = zones.Length;
+                        var network = Parent.AutoNetwork;
+                        var transitNetwork = Parent.TransitNetwork;
+                        var times = Parent.TimePeriods;
+                        for (int time = 0; time < times.Length; time++)
                         {
-                            if (Parent.ValidDestinations[i])
+                            Time timeOfDay = times[time].StartTime;
+                            if (Parent.EstimationMode)
                             {
-                                var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
-                                // compute to
-                                To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
-                                // compute from
-                                From[time][j * zones.Length + i] = travelUtility;
+                                unsafe
+                                {
+                                    fixed (float* to = To[time])
+                                    fixed (float* from = To[time])
+                                    fixed (float* logsumSpace = times[time].EstimationTempSpace)
+                                    {
+                                        for (int j = 0; j < zones.Length; j++)
+                                        {
+                                            var nonExpPDConstant = jSum[time][j];
+                                            var travelUtility = logsumSpace[i * zones.Length + j];
+                                            // compute to
+                                            to[i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                            // compute from
+                                            from[j * zones.Length + i] = travelUtility;
+                                        }
+                                    }
+                                }
+                            }
+
+                            else
+                            {
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j];
+                                    var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = travelUtility;
+                                }
                             }
                         }
                     }
@@ -825,13 +996,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var sp = Parent.RetailPartTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mf = Parent.ManufacturingFullTime.AquireResource<SparseArray<float>>().GetFlatData();
                 var mp = Parent.ManufacturingPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int j) =>
+                float[][] jSum = new float[TimePeriod.Length][];
+                for (int i = 0; i < TimePeriod.Length; i++)
                 {
-                    var network = Parent.AutoNetwork;
-                    var transitNetwork = Parent.TransitNetwork;
-                    var times = Parent.TimePeriods;
-                    var jPD = zones[j].PlanningDistrict;
-                    var jUtil = (float)
+                    jSum[i] = new float[zones.Length];
+                    for (int j = 0; j < jSum[i].Length; j++)
+                    {
+                        var jPD = zones[j].PlanningDistrict;
+                        var jUtil = (float)
                     Math.Exp(
                          (Math.Log(1 + pf[j]) * ProfessionalFullTime
                         + Math.Log(1 + pp[j]) * ProfessionalPartTime
@@ -842,28 +1014,70 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         + Math.Log(1 + mf[j]) * ManufacturingFullTime
                         + Math.Log(1 + mp[j]) * ManufacturingPartTime
                         + Math.Log(1 + zones[j].Population) * Population));
-                    for (int time = 0; time < times.Length; time++)
-                    {
-                        Time timeOfDay = times[time].StartTime;
+
+
                         var nonExpPDConstant = 0.0f;
-                        for (int seg = 0; seg < TimePeriod[time].PDConstant.Length; seg++)
+                        for (int seg = 0; seg < TimePeriod[i].PDConstant.Length; seg++)
                         {
-                            if (TimePeriod[time].PDConstant[seg].Range.Contains(jPD))
+                            if (TimePeriod[i].PDConstant[seg].Range.Contains(jPD))
                             {
-                                nonExpPDConstant += TimePeriod[time].PDConstant[seg].Constant;
+                                nonExpPDConstant += TimePeriod[i].PDConstant[seg].Constant;
                                 break;
                             }
                         }
-                        nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
-                        for (int i = 0; i < zones.Length; i++)
+                        nonExpPDConstant = jUtil * (float)Math.Exp(nonExpPDConstant);
+                    }
+                }
+                if (Parent.EstimationMode)
+                {
+                    for (int i = 0; i < Parent.TimePeriods.Length; i++)
+                    {
+                        GenerateEstimationLogsums(Parent.TimePeriods[i], zones);
+                    }
+                }
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
+                {
+                    if (Parent.ValidDestinations[i])
+                    {
+                        var numberOfZones = zones.Length;
+                        var network = Parent.AutoNetwork;
+                        var transitNetwork = Parent.TransitNetwork;
+                        var times = Parent.TimePeriods;
+                        for (int time = 0; time < times.Length; time++)
                         {
-                            if (Parent.ValidDestinations[i])
+                            Time timeOfDay = times[time].StartTime;
+                            if (Parent.EstimationMode)
                             {
-                                var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
-                                // compute to
-                                To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
-                                // compute from
-                                From[time][j * zones.Length + i] = travelUtility;
+                                unsafe
+                                {
+                                    fixed (float* to = To[time])
+                                    fixed (float* from = To[time])
+                                    fixed (float* logsumSpace = times[time].EstimationTempSpace)
+                                    {
+                                        for (int j = 0; j < zones.Length; j++)
+                                        {
+                                            var nonExpPDConstant = jSum[time][j];
+                                            var travelUtility = logsumSpace[i * zones.Length + j];
+                                            // compute to
+                                            to[i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                            // compute from
+                                            from[j * zones.Length + i] = travelUtility;
+                                        }
+                                    }
+                                }
+                            }
+
+                            else
+                            {
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j];
+                                    var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = travelUtility;
+                                }
                             }
                         }
                     }

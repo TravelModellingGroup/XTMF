@@ -97,7 +97,7 @@ namespace Tasha.Estimation.LocationChoice
                                 case Activity.JointOther:
                                     {
                                         var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
-                                        var correct = Math.Min(choices[revieldChoice] + 0.001f, 1.0f);
+                                        var correct = Math.Min(choices[revieldChoice] + 0.0001f, 1.0f);
                                         localFitness += (float)Math.Log(correct);
                                         break;
                                     }
