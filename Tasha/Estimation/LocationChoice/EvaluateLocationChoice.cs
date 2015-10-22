@@ -131,6 +131,7 @@ namespace Tasha.Estimation.LocationChoice
                                     {
                                         var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
                                         var correct = Math.Min(choices[revieldChoice] + 0.001f, 1.0f);
+                                        taken = false;
                                         ChoicesLock.Enter(ref taken);
                                         for (int i = 0; i < choices.Length; i++)
                                         {
