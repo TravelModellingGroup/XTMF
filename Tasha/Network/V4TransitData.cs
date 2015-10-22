@@ -83,15 +83,15 @@ namespace Tasha.Network
             {
                 var zones = zoneArray.GetFlatData();
                 this.NumberOfZones = zones.Length;
-                var dataSize = zones.Length * zones.Length * (int)DataTypes.NumberOfDataTypes;
+                var dataSize = zones.Length * zones.Length * NumberOfDataTypes;
                 // now that we have zones we can build our data
                 var data = Data == null || dataSize != Data.Length ? new float[dataSize] : Data;
                 //now we need to load in each type
-                LoadData(data, this.IvttReader, (int)DataTypes.TravelTime, zoneArray, TimesLoaded);
-                LoadData(data, this.CostReader, (int)DataTypes.Cost, zoneArray, TimesLoaded);
-                LoadData(data, this.WalkReader, (int)DataTypes.WalkTime, zoneArray, TimesLoaded);
-                LoadData(data, this.WaitReader, (int)DataTypes.WaitTime, zoneArray, TimesLoaded);
-                LoadData(data, this.BoardingReader, (int)DataTypes.BoardingTime, zoneArray, TimesLoaded);
+                LoadData(data, this.IvttReader, TravelTimeIndex, zoneArray, TimesLoaded);
+                LoadData(data, this.CostReader, CostIndex, zoneArray, TimesLoaded);
+                LoadData(data, this.WalkReader, WalkTimeIndex, zoneArray, TimesLoaded);
+                LoadData(data, this.WaitReader, WaitTimeIndex, zoneArray, TimesLoaded);
+                LoadData(data, this.BoardingReader, BoardingTimeIndex, zoneArray, TimesLoaded);
                 // increase the number of times that we have been loaded
                 TimesLoaded++;
                 // now store it
@@ -106,7 +106,6 @@ namespace Tasha.Network
                 }
                 var zones = zoneArray.GetFlatData();
                 var numberOfZones = zones.Length;
-                var dataTypes = (int)DataTypes.NumberOfDataTypes;
                 int previousPointO = -1;
                 int previousFlatO = -1;
                 if(timesLoaded == 0)
@@ -119,7 +118,7 @@ namespace Tasha.Network
                         {
                             previousPointO = point.O;
                             previousFlatO = o;
-                            var index = (o * numberOfZones + d) * dataTypes + dataTypeOffset;
+                            var index = (o * numberOfZones + d) * NumberOfDataTypes + dataTypeOffset;
                             data[index] = point.Data;
                         }
                     }
@@ -137,7 +136,7 @@ namespace Tasha.Network
                         {
                             previousPointO = point.O;
                             previousFlatO = o;
-                            var index = (o * numberOfZones + d) * dataTypes + dataTypeOffset;
+                            var index = (o * numberOfZones + d) * NumberOfDataTypes + dataTypeOffset;
                             data[index] = data[index] * previousFraction + point.Data * currentFraction;
                         }
                     }
@@ -154,12 +153,12 @@ namespace Tasha.Network
             {
                 travelTime = travelCost = walkTime = waitTime = boardingTime = 0;
                 if(time < this.StartTime | time >= this.EndTime) return false;
-                var index = (this.NumberOfZones * flatO + flatD) * ((int)DataTypes.NumberOfDataTypes);
-                travelTime = this.Data[index + (int)DataTypes.TravelTime];
-                waitTime = this.Data[index + (int)DataTypes.WaitTime];
-                walkTime = this.Data[index + (int)DataTypes.WalkTime];
-                travelCost = this.Data[index + (int)DataTypes.Cost];
-                boardingTime = this.Data[index + (int)DataTypes.BoardingTime];
+                var index = (this.NumberOfZones * flatO + flatD) * NumberOfDataTypes;
+                travelTime = this.Data[index + TravelTimeIndex];
+                waitTime = this.Data[index + WaitTimeIndex];
+                walkTime = this.Data[index + WalkTimeIndex];
+                travelCost = this.Data[index + CostIndex];
+                boardingTime = this.Data[index + BoardingTimeIndex];
                 return true;
             }
 
@@ -197,15 +196,14 @@ namespace Tasha.Network
             }
         }
 
-        private enum DataTypes
-        {
-            TravelTime = 0,
-            WaitTime = 1,
-            WalkTime = 2,
-            Cost = 3,
-            BoardingTime = 4,
-            NumberOfDataTypes = 5
-        }
+
+        internal const int TravelTimeIndex = 0;
+        internal const int WaitTimeIndex = 1;
+        internal const int WalkTimeIndex = 2;
+        internal const int CostIndex = 3;
+        internal const int BoardingTimeIndex = 4;
+        internal const int NumberOfDataTypes = 5;
+        
 
         public string Name
         {
