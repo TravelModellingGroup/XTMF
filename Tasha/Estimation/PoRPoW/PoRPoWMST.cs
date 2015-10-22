@@ -203,7 +203,7 @@ namespace Tasha.Estimation.PoRPoW
                         // for each destination
                         if(VectorHelper.IsHardwareAccelerated)
                         {
-                            currentError = VectorHelper.VectorSquareDiff(aggRow, 0, truthRow, 0, aggRow.Length);
+                            currentError = VectorHelper.SquareDiff(aggRow, 0, truthRow, 0, aggRow.Length);
                         }
                         else
                         {
@@ -307,7 +307,7 @@ namespace Tasha.Estimation.PoRPoW
                             // accelerated
                             if(VectorHelper.IsHardwareAccelerated)
                             {
-                                VectorHelper.VectorAdd(retRow, 0, retRow, 0, row, 0, row.Length);
+                                VectorHelper.Add(retRow, 0, retRow, 0, row, 0, row.Length);
                             }
                             else
                             {

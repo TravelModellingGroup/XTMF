@@ -118,7 +118,7 @@ namespace Tasha.External
                 // now that the data is saved we need to recombine the data
                 for (int i = 0; i < tallyToUse.Length; i++)
                 {
-                    VectorHelper.VectorAdd(currentTally[i], 0, currentTally[i], 0, tallyToUse[i], 0, tallyToUse[i].Length);
+                    VectorHelper.Add(currentTally[i], 0, currentTally[i], 0, tallyToUse[i], 0, tallyToUse[i].Length);
                 }
             }
         }

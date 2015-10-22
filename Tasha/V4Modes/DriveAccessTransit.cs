@@ -440,7 +440,7 @@ namespace Tasha.V4Modes
             GetPersonVariables(person, out constant, out ivttBeta, out walkBeta, out waitBeta, out boardingBeta, out costBeta);
             if(VectorHelper.IsHardwareAccelerated)
             {
-                totalUtil = VectorHelper.VectorSum(utils, 0, utils.Length);
+                totalUtil = VectorHelper.Sum(utils, 0, utils.Length);
             }
             else
             {
@@ -460,7 +460,7 @@ namespace Tasha.V4Modes
             // we still need to do this in order to reduce time for computing the selected access station
             if(VectorHelper.IsHardwareAccelerated)
             {
-                VectorHelper.VectorMultiply(utils, 0, utils, 0, totalUtil, utils.Length);
+                VectorHelper.Multiply(utils, 0, utils, 0, totalUtil, utils.Length);
             }
             else
             {

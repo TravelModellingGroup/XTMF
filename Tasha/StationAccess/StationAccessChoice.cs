@@ -396,7 +396,7 @@ namespace Tasha.StationAccess
                 var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
                 if(VectorHelper.IsHardwareAccelerated)
                 {
-                    VectorHelper.VectorMultiply(utilities, 0, firstTimePeriod.AutoFromOriginToAccessStation, firstOrigin,
+                    VectorHelper.Multiply(utilities, 0, firstTimePeriod.AutoFromOriginToAccessStation, firstOrigin,
                         firstTimePeriod.TransitFromAccessStationToDestination, firstDestination,
                         secondTimePeriod.TransitFromDestinationToAccessStation, secondOrigin,
                         secondTimePeriod.AutoFromAccessStationToDestination, secondDestination, utilities.Length);

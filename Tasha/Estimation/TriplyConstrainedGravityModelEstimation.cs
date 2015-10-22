@@ -105,16 +105,17 @@ namespace Tasha.Estimation
             var truth = TruthData.AquireResource<SparseTriIndex<float>>().GetFlatData();
             if (first)
             {
-                TotalTruth = truth.Select(category => category.Sum(row => VectorHelper.VectorSum(row, 0, row.Length))).ToArray();
+                TotalTruth = truth.Select(category => category.Sum(row => VectorHelper.Sum(row, 0, row.Length))).ToArray();
                 TotalTruthByZone = new float[TotalTruth.Length][];
                 for (int category = 0; category < TotalTruth.Length; category++)
                 {
+                    TotalTruthByZone[category] = new float[truth[category].Length];
                     //normalize the truth data
                     Parallel.For(0, truth[category].Length, (int i) =>
                     {
                         float[] truthRow = truth[category][i];
-                        TotalTruthByZone[category][i] = VectorHelper.VectorSum(truthRow, 0, truthRow.Length);
-                        VectorHelper.VectorMultiply(truthRow, 0, truthRow, 0, 1.0f / TotalTruth[category], truthRow.Length);
+                        TotalTruthByZone[category][i] = VectorHelper.Sum(truthRow, 0, truthRow.Length);
+                        VectorHelper.Multiply(truthRow, 0, truthRow, 0, 1.0f / TotalTruth[category], truthRow.Length);
                     });
                 }
                 for (int i = 0; i < NetworkData.Count; i++)
@@ -126,14 +127,14 @@ namespace Tasha.Estimation
             var model = ModelData.AquireResource<SparseTriIndex<float>>().GetFlatData();
             ModelData.ReleaseResource();
             // Normalize the model data
-            float[] modelTotalByCategory = model.Select(cateogry => cateogry.Sum(row => VectorHelper.VectorSum(row, 0, row.Length))).ToArray();
+            float[] modelTotalByCategory = model.Select(cateogry => cateogry.Sum(row => VectorHelper.Sum(row, 0, row.Length))).ToArray();
             for (int category = 0; category < modelTotalByCategory.Length; category++)
             {
                 //normalize the truth data
                 Parallel.For(0, model[category].Length, (int i) =>
                     {
                         float[] modelRow = model[category][i];
-                        VectorHelper.VectorMultiply(modelRow, 0, modelRow, 0, 1.0f / modelTotalByCategory[category], modelRow.Length);
+                        VectorHelper.Multiply(modelRow, 0, modelRow, 0, 1.0f / modelTotalByCategory[category], modelRow.Length);
                     });
             }
             float fitness = 0.0f;
@@ -149,15 +150,20 @@ namespace Tasha.Estimation
                     var observedLinkagesForZone = TotalTruthByZone[category][i];
                     var truthRow = truth[category][i];
                     var modelRow = model[category][i];
-                    for (int j = 0; j < truthRow.Length; j++)
+                    if (observedLinkagesForZone > 0.0f)
                     {
-                        errorForHomeZone[i] += observedLinkagesForZone * (truthRow[j] * (float)Math.Max(Math.Log(modelRow[j]), MaximumError));
+                        var local = 0.0f;
+                        for (int j = 0; j < truthRow.Length; j++)
+                        {
+                            local += (truthRow[j] * (float)Math.Max(Math.Log(modelRow[j]), MaximumError));
+                        }
+                        errorForHomeZone[i] += observedLinkagesForZone * local;
                     }
                     return errorForHomeZone;
                 },
                 (float[] errorData) =>
                 {
-                    var sumOfError = errorData.Sum();
+                    var sumOfError = VectorHelper.Sum(errorData, 0, errorData.Length);
                     lock (this)
                     {
                         fitness += sumOfError;
@@ -165,7 +171,7 @@ namespace Tasha.Estimation
                 });
 
             }
-            Root.RetrieveValue = () => TotalTruth.Sum() * fitness;
+            Root.RetrieveValue = () => VectorHelper.Sum(TotalTruth, 0, TotalTruth.Length) * fitness;
         }
     }
 

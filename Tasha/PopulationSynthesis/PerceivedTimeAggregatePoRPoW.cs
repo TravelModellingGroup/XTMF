@@ -362,7 +362,7 @@ namespace Tasha.PopulationSynthesis
             var ret = new float[employment.Length];
             if(VectorHelper.IsHardwareAccelerated)
             {
-                VectorHelper.VectorMultiply(ret, 0, employment, 0, balanceFactor, ret.Length);
+                VectorHelper.Multiply(ret, 0, employment, 0, balanceFactor, ret.Length);
             }
             else
             {
@@ -389,7 +389,7 @@ namespace Tasha.PopulationSynthesis
                 int WorkerCategoryOffset = workerCategory * pop.Length;
                 if(VectorHelper.IsHardwareAccelerated)
                 {
-                    VectorHelper.VectorMultiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
+                    VectorHelper.Multiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
                 }
                 else
                 {

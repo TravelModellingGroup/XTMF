@@ -123,7 +123,7 @@ namespace Tasha.Validation.Convergence
             {
                 for(int i = 0; i < first.Length; i++)
                 {
-                    diff += VectorHelper.VectorAbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
+                    diff += VectorHelper.AbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
                 }
             }
             else
@@ -155,7 +155,7 @@ namespace Tasha.Validation.Convergence
             {
                 for(int i = 0; i < first.Length; i++)
                 {
-                    diff = Math.Max(VectorHelper.VectorAbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
+                    diff = Math.Max(VectorHelper.AbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
                 }
             }
             else

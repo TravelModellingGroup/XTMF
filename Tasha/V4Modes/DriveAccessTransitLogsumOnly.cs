@@ -321,14 +321,14 @@ namespace Tasha.V4Modes
             bool any = false;
             if(VectorHelper.IsHardwareAccelerated)
             {
-                totalUtil = VectorHelper.VectorSum(utils, 0, utils.Length);
+                totalUtil = VectorHelper.Sum(utils, 0, utils.Length);
                 if(totalUtil <= 0)
                 {
                     dependentUtility = float.NaN;
                     return false;
                 }
                 dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
-                VectorHelper.VectorMultiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
+                VectorHelper.Multiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
             }
             else
             {

@@ -46,7 +46,7 @@ namespace XTMF.Testing
         public void TestSum()
         {
             float[] testArray = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
-            Assert.AreEqual(2.0f * testArray.Length, VectorHelper.VectorSum(testArray, 0, testArray.Length), 0.000001f);
+            Assert.AreEqual(2.0f * testArray.Length, VectorHelper.Sum(testArray, 0, testArray.Length), 0.000001f);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace XTMF.Testing
         {
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 4.0f).ToArray();
-            Assert.AreEqual(4.0f * first.Length, VectorHelper.VectorSquareDiff(first, 0, second, 0, first.Length), 0.000001f);
+            Assert.AreEqual(4.0f * first.Length, VectorHelper.SquareDiff(first, 0, second, 0, first.Length), 0.000001f);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace XTMF.Testing
         {
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 4.0f).ToArray();
-            VectorHelper.VectorMultiply(first, 0, first, 0, second, 0, first.Length);
+            VectorHelper.Multiply(first, 0, first, 0, second, 0, first.Length);
             for(int i = 0; i < first.Length; i++)
             {
                 Assert.AreEqual(8.0f, first[i], 0.000001f);
@@ -73,7 +73,7 @@ namespace XTMF.Testing
         public void TestVectorMultiply1V1S()
         {
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
-            VectorHelper.VectorMultiply(first, 0, first, 0, -1.0f, first.Length);
+            VectorHelper.Multiply(first, 0, first, 0, -1.0f, first.Length);
             for(int i = 0; i < first.Length; i++)
             {
                 Assert.AreEqual(-2.0f, first[i], 0.000001f);
@@ -87,7 +87,7 @@ namespace XTMF.Testing
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
             float[] third = Enumerable.Range(1, 100).Select(p => -1.0f).ToArray();
             float[] fourth = Enumerable.Range(1, 100).Select(p => 5.0f).ToArray();
-            VectorHelper.VectorMultiply(first, 0, first, 0, second, 0, third, 0, fourth, 0, first.Length);
+            VectorHelper.Multiply(first, 0, first, 0, second, 0, third, 0, fourth, 0, first.Length);
             for(int i = 0; i < first.Length; i++)
             {
                 Assert.AreEqual(-30.0f, first[i], 0.000001f);
@@ -99,7 +99,7 @@ namespace XTMF.Testing
         {
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
-            var total = VectorHelper.VectorMultiplyAndSum(first, 0, first, 0, second, 0, first.Length);
+            var total = VectorHelper.MultiplyAndSum(first, 0, first, 0, second, 0, first.Length);
             Assert.AreEqual(600.0f, total, 0.00001f);
             for(int i = 0; i < first.Length; i++)
             {
@@ -112,7 +112,7 @@ namespace XTMF.Testing
         {
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
-            var total = VectorHelper.VectorMultiplyAndSum(first, 0, second, 0, first.Length);
+            var total = VectorHelper.MultiplyAndSum(first, 0, second, 0, first.Length);
             Assert.AreEqual(600.0f, total, 0.00001f);
         }
 
@@ -122,7 +122,7 @@ namespace XTMF.Testing
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
             float[] third = Enumerable.Range(1, 100).Select(p => 5.0f).ToArray();
-            var total = VectorHelper.VectorMultiply3AndSum(first, 0, second, 0, third, 0, first.Length);
+            var total = VectorHelper.Multiply3AndSum(first, 0, second, 0, third, 0, first.Length);
             Assert.AreEqual(3000, total, 0.00001f);
         }
 
@@ -132,7 +132,7 @@ namespace XTMF.Testing
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
             float[] columnSum = Enumerable.Range(1, 100).Select(p => (float)p).ToArray();
-            VectorHelper.VectorMultiply2Scalar1AndColumnSum(first, 0, first, 0, second, 0, -1.0f, columnSum, 0, first.Length);
+            VectorHelper.Multiply2Scalar1AndColumnSum(first, 0, first, 0, second, 0, -1.0f, columnSum, 0, first.Length);
             for(int i = 0; i < first.Length; i++)
             {
                 Assert.AreEqual(-6.0f, first[i], 0.00001f);
@@ -147,7 +147,7 @@ namespace XTMF.Testing
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
             float[] third = Enumerable.Range(1, 100).Select(p => 7.0f).ToArray();
             float[] columnSum = Enumerable.Range(1, 100).Select(p => (float)p).ToArray();
-            VectorHelper.VectorMultiply3Scalar1AndColumnSum(first, 0, first, 0, second, 0, third, 0, -1.0f, columnSum, 0, first.Length);
+            VectorHelper.Multiply3Scalar1AndColumnSum(first, 0, first, 0, second, 0, third, 0, -1.0f, columnSum, 0, first.Length);
             for(int i = 0; i < first.Length; i++)
             {
                 Assert.AreEqual(-42.0f, first[i], 0.00001f);
@@ -160,7 +160,7 @@ namespace XTMF.Testing
         {
             float[] first = Enumerable.Range(1, 100).Select(p => 2.0f).ToArray();
             float[] second = Enumerable.Range(1, 100).Select(p => 3.0f).ToArray();
-            VectorHelper.VectorAdd(first, 0, first, 0, second, 0, first.Length);
+            VectorHelper.Add(first, 0, first, 0, second, 0, first.Length);
             for(int i = 0; i < first.Length; i++)
             {
                 Assert.AreEqual(5.0f, first[i], 0.00001f);

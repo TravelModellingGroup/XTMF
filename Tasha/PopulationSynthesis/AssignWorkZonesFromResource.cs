@@ -96,14 +96,14 @@ namespace Tasha.PopulationSynthesis
                         {
                             for(int originIndex = 0; originIndex < category.Length; originIndex++)
                             {
-                                var total = VectorHelper.VectorSum(category[originIndex], 0, category[originIndex].Length);
+                                var total = VectorHelper.Sum(category[originIndex], 0, category[originIndex].Length);
                                 // we do not greater than in case total is NaN, this will pass
                                 if(!(total > 0))
                                 {
                                     noProbabilityZones.Add(originIndex);
                                     continue;
                                 }
-                                VectorHelper.VectorMultiply(category[originIndex], 0, category[originIndex], 0, 1.0f / total, category[originIndex].Length);
+                                VectorHelper.Multiply(category[originIndex], 0, category[originIndex], 0, 1.0f / total, category[originIndex].Length);
                             }
                         }
                         else

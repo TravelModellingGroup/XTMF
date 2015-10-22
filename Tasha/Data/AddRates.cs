@@ -61,7 +61,7 @@ namespace Tasha.Data
             {
                 for(int j = 0; j < resources.Length; j++)
                 {
-                    VectorHelper.VectorAdd(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
+                    VectorHelper.Add(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
                 }
             }
             else

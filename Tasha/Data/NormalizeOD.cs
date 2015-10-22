@@ -61,11 +61,11 @@ namespace Tasha.Data
                 float sum = 0.0f;
                 for(int i = 0; i < firstRate.Length; i++)
                 {
-                    sum += VectorHelper.VectorSum(firstRate[i], 0, firstRate.Length);
+                    sum += VectorHelper.Sum(firstRate[i], 0, firstRate.Length);
                 }
                 for(int i = 0; i < flatData.Length; i++)
                 {
-                    VectorHelper.VectorMultiply(flatData[i], 0, firstRate[i], 0, 1.0f / sum, flatData[i].Length );
+                    VectorHelper.Multiply(flatData[i], 0, firstRate[i], 0, 1.0f / sum, flatData[i].Length );
                 }
             }
             else

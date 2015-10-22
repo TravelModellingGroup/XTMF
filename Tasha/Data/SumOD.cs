@@ -71,7 +71,7 @@ namespace Tasha.Data
                 var sum = 0.0f;
                 for(int i = 0; i < operateOnMe.Length; i++)
                 {
-                    sum += VectorHelper.VectorSum(operateOnMe[i], 0, operateOnMe[i].Length);
+                    sum += VectorHelper.Sum(operateOnMe[i], 0, operateOnMe[i].Length);
                 }
                 Data = sum;
             }

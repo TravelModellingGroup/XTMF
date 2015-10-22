@@ -73,7 +73,7 @@ the same size as the input data to normalize."
             // create inverse
             if (VectorHelper.IsHardwareAccelerated)
             {
-                VectorHelper.VectorDivide(ourTotalByRow, 0, totalToNormalizeTo, 0, ourTotalByRow, 0, ourTotalByRow.Length);
+                VectorHelper.Divide(ourTotalByRow, 0, totalToNormalizeTo, 0, ourTotalByRow, 0, ourTotalByRow.Length);
             }
             else
             {
@@ -93,7 +93,7 @@ the same size as the input data to normalize."
                 {
                     if (VectorHelper.IsHardwareAccelerated)
                     {
-                        VectorHelper.VectorMultiply(flatData[i], 0, ourMatrix[i], 0, ourTotalByRow[i], flatData[i].Length);
+                        VectorHelper.Multiply(flatData[i], 0, ourMatrix[i], 0, ourTotalByRow[i], flatData[i].Length);
                     }
                     else
                     {
@@ -124,7 +124,7 @@ the same size as the input data to normalize."
                 {
                     for (int i = 0; i < totalByRow.Length; i++)
                     {
-                        totalByRow[i] = VectorHelper.VectorSum(matrix[i], 0, matrix[i].Length);
+                        totalByRow[i] = VectorHelper.Sum(matrix[i], 0, matrix[i].Length);
                     }
                 }
                 else

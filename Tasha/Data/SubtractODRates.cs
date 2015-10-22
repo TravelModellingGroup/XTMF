@@ -64,7 +64,7 @@ namespace Tasha.Data
             {
                 for(int i = 0; i < flatData.Length; i++)
                 {
-                    VectorHelper.VectorSubtract(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
+                    VectorHelper.Subtract(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
                 }
             }
             else

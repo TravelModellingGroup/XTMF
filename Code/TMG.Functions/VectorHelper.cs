@@ -74,7 +74,7 @@ namespace TMG.Functions
         /// <param name="length">The number of elements to add</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorSum(float[] array, int startIndex, int length)
+        public static float Sum(float[] array, int startIndex, int length)
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
@@ -102,7 +102,7 @@ namespace TMG.Functions
         /// <param name="length">The number of elements to read</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorAbsDiffAverage(float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static float AbsDiffAverage(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
@@ -142,7 +142,7 @@ namespace TMG.Functions
         /// <param name="length">The number of elements to read</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorAbsDiffMax(float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static float AbsDiffMax(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             var remainderMax = 0.0f;
             var vectorMax = Vector<float>.Zero;
@@ -187,7 +187,7 @@ namespace TMG.Functions
         /// <param name="length">The number of elements to add</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorSquareDiff(float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static float SquareDiff(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
@@ -225,7 +225,7 @@ namespace TMG.Functions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorMultiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             if ((destIndex | firstIndex | secondIndex) == 0)
             {
@@ -258,7 +258,7 @@ namespace TMG.Functions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorDivide(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static void Divide(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             if ((destIndex | firstIndex | secondIndex) == 0)
             {
@@ -301,7 +301,7 @@ namespace TMG.Functions
         /// <param name="scalar">The value to multiply against</param>
         /// <param name="length">The number of elements to multiply</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorMultiply(float[] destination, int destIndex, float[] first, int firstIndex, float scalar, int length)
+        public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float scalar, int length)
         {
             Vector<float> scalarV = new Vector<float>(scalar);
             if ((destIndex | firstIndex) == 0)
@@ -349,7 +349,7 @@ namespace TMG.Functions
         /// <param name="fourthIndex"></param>
         /// <param name="length"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorMultiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex,
+        public static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex,
             float[] third, int thirdIndex, float[] fourth, int fourthIndex, int length)
         {
             if ((destIndex | firstIndex | secondIndex | thirdIndex | fourthIndex) == 0)
@@ -396,7 +396,7 @@ namespace TMG.Functions
         /// <param name="length">The amount of data to multiply</param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorMultiplyAndSum(float[] destination, int destIndex, float[] first, int firstIndex,
+        public static float MultiplyAndSum(float[] destination, int destIndex, float[] first, int firstIndex,
             float[] second, int secondIndex, int length)
         {
             var remainderSum = 0.0f;
@@ -444,7 +444,7 @@ namespace TMG.Functions
         /// <param name="length">The amount of data to multiply</param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorMultiplyAndSum(float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static float MultiplyAndSum(float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
@@ -487,7 +487,7 @@ namespace TMG.Functions
         /// <param name="length">The amount of data to multiply</param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float VectorMultiply3AndSum(float[] first, int firstIndex, float[] second, int secondIndex,
+        public static float Multiply3AndSum(float[] first, int firstIndex, float[] second, int secondIndex,
             float[] third, int thirdIndex, int length)
         {
             var remainderSum = 0.0f;
@@ -535,7 +535,7 @@ namespace TMG.Functions
         /// <param name="length">The amount of data to multiply</param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorMultiply2Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
+        public static void Multiply2Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
             float[] second, int secondIndex, float scalar, float[] columnSum, int columnIndex, int length)
         {
             Vector<float> scalarV = new Vector<float>(scalar);
@@ -583,7 +583,7 @@ namespace TMG.Functions
         /// <param name="length">The amount of data to multiply</param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorMultiply3Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
+        public static void Multiply3Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
             float[] second, int secondIndex, float[] third, int thirdIndex, float scalar, float[] columnSum, int columnIndex, int length)
         {
             Vector<float> scalarV = new Vector<float>(scalar);
@@ -630,7 +630,7 @@ namespace TMG.Functions
         /// <param name="secondIndex"></param>
         /// <param name="length"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorAdd(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static void Add(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             if ((destIndex | firstIndex | secondIndex) == 0)
             {
@@ -659,7 +659,7 @@ namespace TMG.Functions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorAdd(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, float[] third, int thirdIndex, int length)
+        public static void Add(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, float[] third, int thirdIndex, int length)
         {
             if ((destIndex | firstIndex | secondIndex | thirdIndex) == 0)
             {
@@ -699,7 +699,7 @@ namespace TMG.Functions
         /// <param name="secondIndex"></param>
         /// <param name="length"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void VectorSubtract(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        public static void Subtract(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
         {
             if ((destIndex | firstIndex | secondIndex) == 0)
             {
@@ -885,7 +885,7 @@ namespace TMG.Functions
         }
 
 
-        internal static bool VectorAreBoundedBy(float[] data, int dataIndex, float baseNumber, float maxVarriation, int length)
+        internal static bool AreBoundedBy(float[] data, int dataIndex, float baseNumber, float maxVarriation, int length)
         {
             var baseV = new Vector<float>(baseNumber);
             var maxmumVariationV = new Vector<float>(maxVarriation);

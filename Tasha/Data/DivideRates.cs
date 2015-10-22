@@ -63,7 +63,7 @@ namespace Tasha.Data
             var flat = data.GetFlatData();
             if(VectorHelper.IsHardwareAccelerated)
             {
-                VectorHelper.VectorDivide(flat, 0, flatFirst, 0, flatSecond, 0, flat.Length);
+                VectorHelper.Divide(flat, 0, flatFirst, 0, flatSecond, 0, flat.Length);
             }
             else
             {

@@ -475,7 +475,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 if (VectorHelper.IsHardwareAccelerated)
                 {
-                    VectorHelper.VectorMultiply(calculationSpace, 0, calculationSpace, 0, 1.0f / total, calculationSpace.Length);
+                    VectorHelper.Multiply(calculationSpace, 0, calculationSpace, 0, 1.0f / total, calculationSpace.Length);
                 }
                 else
                 {

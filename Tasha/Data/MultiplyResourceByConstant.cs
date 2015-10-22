@@ -59,7 +59,7 @@ namespace Tasha.Data
             var data = ourResource.GetFlatData();
             if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
             {
-                TMG.Functions.VectorHelper.VectorMultiply(data, 0, otherData, 0, Factor, data.Length);
+                TMG.Functions.VectorHelper.Multiply(data, 0, otherData, 0, Factor, data.Length);
             }
             else
             {

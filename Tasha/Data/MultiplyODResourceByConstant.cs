@@ -62,7 +62,7 @@ namespace Tasha.Data
             {
                 for(int i = 0; i < data.Length; i++)
                 {
-                    VectorHelper.VectorMultiply(data[i], 0, otherData[i], 0, Factor, data[i].Length);
+                    VectorHelper.Multiply(data[i], 0, otherData[i], 0, Factor, data[i].Length);
                 }
             }
             else
