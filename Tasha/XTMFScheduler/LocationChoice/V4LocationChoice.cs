@@ -38,6 +38,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
         [RunParameter("Valid Destination Zones", "1-6999", typeof(RangeSet), "The valid zones to use.")]
         public RangeSet ValidDestinationZones;
 
+        private bool[] ValidDestinations;
+
         [RootModule]
         public ITravelDemandModel Root;
 
@@ -737,12 +739,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
                         for (int i = 0; i < zones.Length; i++)
                         {
-                            if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
-                            var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
-                            // compute to
-                            To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
-                            // compute from
-                            From[time][j * zones.Length + i] = travelUtility;
+                            if (Parent.ValidDestinations[i])
+                            {
+                                var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                // compute to
+                                To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
+                                // compute from
+                                From[time][j * zones.Length + i] = travelUtility;
+                            }
                         }
                     }
                 });
@@ -794,12 +798,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
                         for (int i = 0; i < zones.Length; i++)
                         {
-                            if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
-                            var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
-                            // compute to
-                            To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
-                            // compute from
-                            From[time][j * zones.Length + i] = travelUtility;
+                            if (Parent.ValidDestinations[i])
+                            {
+                                var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                // compute to
+                                To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
+                                // compute from
+                                From[time][j * zones.Length + i] = travelUtility;
+                            }
                         }
                     }
                 });
@@ -851,12 +857,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         nonExpPDConstant = (float)Math.Exp(nonExpPDConstant);
                         for (int i = 0; i < zones.Length; i++)
                         {
-                            if (!Parent.ValidDestinationZones.Contains(zones[i].ZoneNumber)) continue;
-                            var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
-                            // compute to
-                            To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
-                            // compute from
-                            From[time][j * zones.Length + i] = travelUtility;
+                            if (Parent.ValidDestinations[i])
+                            {
+                                var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                // compute to
+                                To[time][i * zones.Length + j] = jUtil * nonExpPDConstant * travelUtility;
+                                // compute from
+                                From[time][j * zones.Length + i] = travelUtility;
+                            }
                         }
                     }
                 });
@@ -904,6 +912,10 @@ namespace Tasha.XTMFScheduler.LocationChoice
             for (int i = 0; i < TimePeriods.Length; i++)
             {
                 TimePeriods[i].Load();
+            }
+            if (ValidDestinations == null)
+            {
+                ValidDestinations = Root.ZoneSystem.ZoneArray.GetFlatData().Select(zone => ValidDestinationZones.Contains(zone.ZoneNumber)).ToArray();
             }
             Console.WriteLine("Loading Market...");
             MarketModel.Load();
