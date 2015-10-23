@@ -80,12 +80,13 @@ namespace TMG.Functions
             var acc = Vector<float>.Zero;
             int endIndex = startIndex + length;
             // copy everything we can do inside of a vector
-            for (int i = 0; i <= endIndex - Vector<float>.Count; i += Vector<float>.Count)
+            int i = startIndex;
+            for (; i <= endIndex - Vector<float>.Count; i += Vector<float>.Count)
             {
                 acc += new Vector<float>(array, i + startIndex);
             }
             // copy the remainder
-            for (int i = endIndex - (endIndex % Vector<float>.Count); i < endIndex; i++)
+            for (; i < endIndex; i++)
             {
                 remainderSum += array[i];
             }
