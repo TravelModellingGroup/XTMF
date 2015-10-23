@@ -393,6 +393,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public float Population;
             [RunParameter("Auto TravelTime", "0.0", typeof(float), "The weight applied for the travel time from origin to zone to final destination.")]
             public float AutoTime;
+            [RunParameter("Transit Constant", "0.0", typeof(float), "The alternative specific constant for transit.")]
+            private float TransitConstant;
             [RunParameter("Transit IVTT", "0.0", typeof(float), "The weight applied for the in vehicle travel time travel time from origin to zone to final destination.")]
             public float TransitTime;
             [RunParameter("Transit Walk", "0.0", typeof(float), "The weight applied for the walk time travel time from origin to zone to final destination.")]
@@ -413,7 +415,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     return 0f;
                 }
                 return Math.Exp(
-                      TransitTime * ivtt
+                      TransitConstant
+                    + TransitTime * ivtt
                     + TransitWalk * walk
                     + TransitWait * wait
                     + TransitBoarding * boarding
@@ -448,10 +451,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     var end = start + zones.Length;
                     Vector<float> VCost = new Vector<float>(Cost);
                     Vector<float> VAutoTime = new Vector<float>(AutoTime);
+                    Vector<float> VTransitConstant = new Vector<float>(TransitConstant);
                     Vector<float> VTransitTime = new Vector<float>(TransitTime);
                     Vector<float> VTransitWalk = new Vector<float>(TransitWalk);
                     Vector<float> VTransitWait = new Vector<float>(TransitWait);
                     Vector<float> VTransitBoarding = new Vector<float>(TransitBoarding);
+                    Vector<float> VNegativeInfinity = new Vector<float>(float.NegativeInfinity);
                     int index = start;
                     // copy everything we can do inside of a vector
                     for (; index <= end - Vector<float>.Count; index += Vector<float>.Count)
@@ -469,13 +474,13 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         var twait = new Vector<float>(timePeriod.EstimationTWAIT, index);
                         var tboarding = new Vector<float>(timePeriod.EstimationTBOARDING, index);
                         var tFare = new Vector<float>(timePeriod.EstimationTFARE, index);
-                        (
-                              tivtt * VTransitTime
+                        Vector.ConditionalSelect(Vector.GreaterThan(twalk, Vector<float>.Zero), (
+                             VTransitConstant
+                            + tivtt * VTransitTime
                             + twalk * VTransitWalk
                             + twait * VTransitWait
                             + tboarding * VTransitBoarding
-                            + tFare * VCost
-                        ).CopyTo(transitSpace, index);
+                            + tFare * VCost), VNegativeInfinity).CopyTo(transitSpace, index);
                     }
                     // copy the remainder
                     for (; index < end; index++)
@@ -483,12 +488,20 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         autoSpace[index] =
                               timePeriod.EstimationAIVTT[index] * AutoTime
                             + timePeriod.EstimationACOST[index] * Cost;
-                        transitSpace[index] =
-                              timePeriod.EstimationTIVTT[index] * TransitTime
-                            + timePeriod.EstimationTWALK[index] * TransitWalk
-                            + timePeriod.EstimationTWAIT[index] * TransitWait
-                            + timePeriod.EstimationTBOARDING[index] * TransitBoarding
-                            + timePeriod.EstimationTFARE[index] * Cost;
+                        if (timePeriod.EstimationTWALK[index] > 0)
+                        {
+                            transitSpace[index] =
+                                      TransitConstant
+                                    + timePeriod.EstimationTIVTT[index] * TransitTime
+                                    + timePeriod.EstimationTWALK[index] * TransitWalk
+                                    + timePeriod.EstimationTWAIT[index] * TransitWait
+                                    + timePeriod.EstimationTBOARDING[index] * TransitBoarding
+                                    + timePeriod.EstimationTFARE[index] * Cost;
+                        }
+                        else
+                        {
+                            transitSpace[index] = float.NegativeInfinity;
+                        }
                     }
                 });
                 Parallel.For(0, zones2, (int index) =>
@@ -514,6 +527,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             private SparseArray<IZone> zoneSystem;
             private IZone[] zones;
             private int[] FlatZoneToPDCubeLookup;
+
 
             internal void Load()
             {
