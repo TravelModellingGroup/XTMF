@@ -394,7 +394,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             [RunParameter("Auto TravelTime", "0.0", typeof(float), "The weight applied for the travel time from origin to zone to final destination.")]
             public float AutoTime;
             [RunParameter("Transit Constant", "0.0", typeof(float), "The alternative specific constant for transit.")]
-            private float TransitConstant;
+            public float TransitConstant;
             [RunParameter("Transit IVTT", "0.0", typeof(float), "The weight applied for the in vehicle travel time travel time from origin to zone to final destination.")]
             public float TransitTime;
             [RunParameter("Transit Walk", "0.0", typeof(float), "The weight applied for the walk time travel time from origin to zone to final destination.")]
