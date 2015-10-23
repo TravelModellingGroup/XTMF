@@ -85,9 +85,12 @@ namespace TMG.Functions
             int i = startIndex;
             for (; i <= endIndex - (Vector<float>.Count * 3); i += (Vector<float>.Count * 3))
             {
-                acc += new Vector<float>(array, i);
-                acc2 += new Vector<float>(array, i + Vector<float>.Count);
-                acc3 += new Vector<float>(array, i + Vector<float>.Count * 2);
+                var f = new Vector<float>(array, i);
+                var s = new Vector<float>(array, i + Vector<float>.Count);
+                var t = new Vector<float>(array, i + Vector<float>.Count * 2); ;
+                acc += f;
+                acc2 += s;
+                acc3 += t;
             }
             // copy the remainder
             for (; i < endIndex; i++)
