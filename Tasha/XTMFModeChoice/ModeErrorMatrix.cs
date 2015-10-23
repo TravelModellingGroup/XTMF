@@ -37,10 +37,14 @@ namespace Tasha.XTMFModeChoice
         [RunParameter("Household Iterations", 100, "The number of household iterations that we are expecting.")]
         public int HouseholdIterations;
 
-        public int[][] Observations;
+        SpinLock ObservationsLock = new SpinLock(false);
+        public float[][] Observations;
 
         [RunParameter("ObservedMode", "ObservedMode", "The name of the observed mode's attribute.")]
         public string ObservedMode;
+
+        [RunParameter("Report Expansion Factors", false, "When exporting the trips use expansion factors?")]
+        public bool ReportExpansionFactors;
 
         [RootModule]
         public ITashaRuntime TashaRuntime;
@@ -84,6 +88,7 @@ namespace Tasha.XTMFModeChoice
             for(int personIndex = 0; personIndex < householdData.PersonData.Length; personIndex++)
             {
                 var personData = householdData.PersonData[personIndex];
+                var expFactor = ReportExpansionFactors ? household.Persons[personIndex].ExpansionFactor : 1.0f;
                 for(int tripChainIndex = 0; tripChainIndex < personData.TripChainData.Length; tripChainIndex++)
                 {
                     var tripChainData = personData.TripChainData[tripChainIndex];
@@ -123,7 +128,11 @@ namespace Tasha.XTMFModeChoice
                                         var predMode = Modes.IndexOf(chosenModes[k]);
                                         if(predMode >= 0)
                                         {
-                                            Interlocked.Increment(ref Observations[realIndex][predMode]);
+                                            bool taken = false;
+                                            ObservationsLock.Enter(ref taken);
+                                            Thread.MemoryBarrier();
+                                            Observations[realIndex][predMode] += expFactor;
+                                            if (taken) ObservationsLock.Exit(true);
                                         }
                                         if(realIndex == predMode)
                                         {
@@ -192,9 +201,9 @@ namespace Tasha.XTMFModeChoice
         public void IterationFinished(int iteration)
         {
             var numModes = Modes.Count;
-            var correctTotal = 0;
-            var columnTotals = new int[numModes];
-            var total = 0;
+            var correctTotal = 0.0f;
+            var columnTotals = new float[numModes];
+            var total = 0.0f;
             using(StreamWriter writer = new StreamWriter(FileName))
             {
                 // print the header
@@ -208,7 +217,7 @@ namespace Tasha.XTMFModeChoice
                 // for each row
                 for(int j = 0; j < numModes; j++)
                 {
-                    int rowTotal = 0;
+                    float rowTotal = 0.0f;
                     writer.Write(Modes[j].ModeName);
                     for(int i = 0; i < numModes; i++)
                     {
@@ -245,7 +254,7 @@ namespace Tasha.XTMFModeChoice
                 // for each row
                 for(int j = 0; j < numModes; j++)
                 {
-                    int rowTotal = 0;
+                    float rowTotal = 0;
                     writer.Write(Modes[j].ModeName);
                     for(int i = 0; i < numModes; i++)
                     {
@@ -321,10 +330,10 @@ namespace Tasha.XTMFModeChoice
         {
             // Create the table
             var allModes = Modes = TashaRuntime.AllModes;
-            Observations = new int[allModes.Count][];
+            Observations = new float[allModes.Count][];
             for(int i = 0; i < Observations.Length; i++)
             {
-                Observations[i] = new int[allModes.Count];
+                Observations[i] = new float[allModes.Count];
             }
             BadTrips = new int[allModes.Count];
             BadTripsQueue = new ConcurrentQueue<BadTripEntry>();

@@ -68,8 +68,6 @@ namespace Tasha.Estimation.LocationChoice
         SpinLock FitnessLock = new SpinLock(false);
         private float Fitness = 0.0f;
 
-        private int NotInAlternatives = 0;
-
         private SparseArray<IZone> ZoneSystem;
 
         public void Execute(ITashaHousehold household, int iteration)
@@ -77,7 +75,6 @@ namespace Tasha.Estimation.LocationChoice
             var localFitness = 0.0f;
             var persons = household.Persons;
             bool taken = false;
-            int notInAlternatives = 0;
             if (ConfusionMatrix == null)
             {
                 for (int personIndex = 0; personIndex < persons.Length; personIndex++)
@@ -100,10 +97,6 @@ namespace Tasha.Estimation.LocationChoice
                                 case Activity.JointOther:
                                     {
                                         var choices = LocationChoice.GetLocationProbabilities(episodes[tripIndex]);
-                                        if(choices[revieldChoice] <= 0)
-                                        {
-                                            notInAlternatives++;
-                                        }
                                         var correct = Math.Min(choices[revieldChoice] + 0.0001f, 1.0f);
                                         localFitness += (float)Math.Log(correct);
                                         break;
@@ -112,7 +105,6 @@ namespace Tasha.Estimation.LocationChoice
                         }
                     }
                 }
-                Interlocked.Add(ref NotInAlternatives, notInAlternatives);
             }
             else
             {
@@ -188,8 +180,6 @@ namespace Tasha.Estimation.LocationChoice
             {
                 TMG.Functions.SaveData.SaveMatrix(Choices, ConfusionMatrix);
             }
-            Console.WriteLine(NotInAlternatives);
-            NotInAlternatives = 0;
         }
 
         public void IterationStarting(int iteration)
