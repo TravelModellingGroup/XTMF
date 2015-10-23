@@ -78,18 +78,23 @@ namespace TMG.Functions
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
+            var acc2 = Vector<float>.Zero;
+            var acc3 = Vector<float>.Zero;
             int endIndex = startIndex + length;
             // copy everything we can do inside of a vector
             int i = startIndex;
-            for (; i <= endIndex - Vector<float>.Count; i += Vector<float>.Count)
+            for (; i <= endIndex - (Vector<float>.Count * 3); i += (Vector<float>.Count * 3))
             {
-                acc += new Vector<float>(array, i + startIndex);
+                acc += new Vector<float>(array, i);
+                acc2 += new Vector<float>(array, i + Vector<float>.Count);
+                acc3 += new Vector<float>(array, i + Vector<float>.Count * 2);
             }
             // copy the remainder
             for (; i < endIndex; i++)
             {
                 remainderSum += array[i];
             }
+            acc = acc + acc2 + acc3;
             return remainderSum + Sum(ref acc);
         }
 
