@@ -482,7 +482,8 @@ namespace TMG.Functions
             if ((firstIndex | secondIndex) == 0)
             {
                 // copy everything we can do inside of a vector
-                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                int i = 0;
+                for (; i <= length - (Vector<float>.Count * 2); i += (Vector<float>.Count * 2))
                 {
                     var f = new Vector<float>(first, i);
                     var s = new Vector<float>(second, i);
@@ -492,7 +493,7 @@ namespace TMG.Functions
                     acc2 += (f2 * s2);
                 }
                 // copy the remainder
-                for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                for (; i < length; i++)
                 {
                     remainderSum += first[i] * second[i];
                 }
@@ -501,12 +502,13 @@ namespace TMG.Functions
             else
             {
                 // copy everything we can do inside of a vector
-                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                int i = 0;
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     acc += (new Vector<float>(first, i + firstIndex) * new Vector<float>(second, i + secondIndex));
                 }
                 // copy the remainder
-                for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                for (; i < length; i++)
                 {
                     remainderSum += first[i + firstIndex] * second[i + secondIndex];
                 }
@@ -603,14 +605,15 @@ namespace TMG.Functions
             else
             {
                 // copy everything we can do inside of a vector
-                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                int i = 0;
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var local = new Vector<float>(first, i + firstIndex) * new Vector<float>(second, i + secondIndex) * scalarV;
                     (new Vector<float>(columnSum, i + columnIndex) + local).CopyTo(columnSum, i + columnIndex);
                     local.CopyTo(destination, i + destIndex);
                 }
                 // copy the remainder
-                for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                for (; i < length; i++)
                 {
                     columnSum[i + columnIndex] += (destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * scalar);
                 }

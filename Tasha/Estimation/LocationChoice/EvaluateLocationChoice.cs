@@ -40,6 +40,15 @@ namespace Tasha.Estimation.LocationChoice
         [SubModelInformation(Required = false, Description = "The location to save a confusion matrix for validation.")]
         public FileLocation ConfusionMatrix;
 
+        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+        public FileLocation ObservedWorkOD;
+
+        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+        public FileLocation ObservedMarketOD;
+
+        [SubModelInformation(Required = false, Description = "The location to optionally save the extracted data")]
+        public FileLocation ObservedOtherOD;
+
         SparseTwinIndex<float> Choices;
 
         SpinLock ChoicesLock = new SpinLock(false);
@@ -120,6 +129,7 @@ namespace Tasha.Estimation.LocationChoice
                         for (int tripIndex = 0; tripIndex < trips.Count - 1; tripIndex++)
                         {
                             var activtiyType = episodes[tripIndex].ActivityType;
+                            int origin = ZoneSystem.GetFlatIndex(trips[tripIndex].OriginalZone.ZoneNumber);
                             int revieldChoice = ZoneSystem.GetFlatIndex(trips[tripIndex].DestinationZone.ZoneNumber);
                             switch (activtiyType)
                             {
@@ -137,6 +147,21 @@ namespace Tasha.Estimation.LocationChoice
                                         {
                                             flatChoices[i][revieldChoice] += expansionFactor;
                                         }
+                                        switch (activtiyType)
+                                        {
+                                            case Activity.WorkBasedBusiness:
+                                                AddIfExists(ObservedWork, origin, revieldChoice);
+                                                break;
+                                            case Activity.Market:
+                                            case Activity.JointMarket:
+                                                AddIfExists(ObservedMarket, origin, revieldChoice);
+                                                break;
+                                            case Activity.IndividualOther:
+                                            case Activity.JointOther:
+                                                AddIfExists(ObservedOther, origin, revieldChoice);
+                                                break;
+                                        }
+
                                         if (taken) ChoicesLock.Exit(false);
                                         localFitness += (float)Math.Log(correct);
                                         break;
@@ -151,6 +176,14 @@ namespace Tasha.Estimation.LocationChoice
             FitnessLock.Enter(ref taken);
             Fitness += localFitness;
             if (taken) FitnessLock.Exit(true);
+        }
+
+        private void AddIfExists(float[][] observedWork, int origin, int revieldChoice)
+        {
+            if (observedWork != null)
+            {
+                observedWork[origin][revieldChoice]++;
+            }
         }
 
         private IEpisode[] BuildScheduleFromTrips(List<ITrip> trips)
@@ -180,7 +213,24 @@ namespace Tasha.Estimation.LocationChoice
             {
                 TMG.Functions.SaveData.SaveMatrix(Choices, ConfusionMatrix);
             }
+            SaveIfExists(ObservedWork, ObservedWorkOD);
+            SaveIfExists(ObservedMarket, ObservedMarketOD);
+            SaveIfExists(ObservedOther, ObservedOtherOD);
         }
+
+        private void SaveIfExists(float[][] observedWork, FileLocation observedWorkOD)
+        {
+            if (observedWork != null)
+            {
+                TMG.Functions.SaveData.SaveMatrix(RealRoot.ZoneSystem.ZoneArray.GetFlatData()
+                    , observedWork, observedWorkOD);
+            }
+        }
+
+        private float[][] ObservedWork;
+        private float[][] ObservedMarket;
+        private float[][] ObservedOther;
+
 
         public void IterationStarting(int iteration)
         {
@@ -192,6 +242,26 @@ namespace Tasha.Estimation.LocationChoice
             // reload all of the probabilities
             LocationChoice.LoadLocationChoiceCache();
             ZoneSystem = RealRoot.ZoneSystem.ZoneArray;
+            CreateIfObserved(out ObservedWork, ObservedWorkOD);
+            CreateIfObserved(out ObservedMarket, ObservedMarketOD);
+            CreateIfObserved(out ObservedOther, ObservedOtherOD);
+        }
+
+        private void CreateIfObserved(out float[][] observedDataSet, FileLocation observedDatasetOutputLocation)
+        {
+            if (observedDatasetOutputLocation == null)
+            {
+                observedDataSet = null;
+            }
+            else
+            {
+                var zones = RealRoot.ZoneSystem.ZoneArray.GetFlatData().Length;
+                observedDataSet = new float[zones][];
+                for (int i = 0; i < observedDataSet.Length; i++)
+                {
+                    observedDataSet[i] = new float[zones];
+                }
+            }
         }
 
         public void Load(int maxIterations)
