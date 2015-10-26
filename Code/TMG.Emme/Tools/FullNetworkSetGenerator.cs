@@ -117,6 +117,7 @@ namespace TMG.Emme.Tools
             }
         }
 
+        [SubModelInformation(Required = true, Description = "Time periods to consider.")]
         public TimePeriodScenario[] TimePeriods;
 
         public enum Aggregation
@@ -128,23 +129,14 @@ namespace TMG.Emme.Tools
 
         private string GetParameters()
         {
-            /*xtmf_ScenarioNumber, Scen1UnNumber, Scen1UnDescription, Scen1Number,
-                 Scen1Description, Scen1Start, Scen1End, 
-                 Scen2UnNumber, Scen2UnDescription, Scen2Number, 
-                 Scen2Description, Scen2Start, Scen2End,
-                 Scen3UnNumber, Scen3UnDescription, Scen3Number, 
-                 Scen3Description, Scen3Start, Scen3End,
-                 Scen4UnNumber, Scen4UnDescription, Scen4Number, 
-                 Scen4Description, Scen4Start, Scen4End,
-                 Scen5UnNumber, Scen5UnDescription, Scen5Number, 
-                 Scen5Description, Scen5Start, Scen5End,
+            /*xtmf_ScenarioNumber, CustomScenarioSetString,
                  TransitServiceTableFile, AggTypeSelectionFile, AlternativeDataFile,BatchEditFile,
                  DefaultAgg, PublishFlag, OverwriteScenarioFlag, NodeFilterAttributeId,
                  StopFilterAttributeId, ConnectorFilterAttributeId, AttributeAggregatorString,
                  LineFilterExpression*/
             // times are in seconds
             return string.Join(" ", BaseScenarioNumber.ToString(),
-                                    GetTimePeriodScenarioParameters(),
+                                    "\"" + GetTimePeriodScenarioParameters() + "\"",
                                     GetFileLocationOrNone(TransitServiceTable),
                                     GetFileLocationOrNone(TransitAggreggationSelectionTable),
                                     GetFileLocationOrNone(TransitAlternativeTable),
@@ -162,11 +154,11 @@ namespace TMG.Emme.Tools
 
         private string GetTimePeriodScenarioParameters()
         {
-            return string.Join(" ", from period in TimePeriods
-                                    select string.Format("{0} \"{1}\" {2} \"{3}\" {4} {5} {6}",
+            return string.Join(",", from period in TimePeriods
+                                    select string.Format("{0}:{1}:{2}:{3}:{4}:{5}:{6}",
                                     period.UncleanedScenarioNumber.ToString(),
-                                    period.UncleanedDescription.Replace('\"', '\''),
                                     period.CleanedScenarioNumber.ToString(),
+                                    period.UncleanedDescription.Replace('\"', '\''),
                                     period.CleanedDescription.Replace('\"', '\''),
                                     ConvertTimeToSeconds(period.StartTime),
                                     ConvertTimeToSeconds(period.EndTime),
@@ -185,11 +177,6 @@ namespace TMG.Emme.Tools
 
         public bool RuntimeValidation(ref string error)
         {
-            if(TimePeriods.Length != 5)
-            {
-                error = "In '" + Name + "' you are required to have 5 timer periods at the moment!";
-                return false;
-            }
             return true;
         }
     }
