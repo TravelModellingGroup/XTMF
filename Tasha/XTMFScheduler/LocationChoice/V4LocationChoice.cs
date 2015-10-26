@@ -669,7 +669,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             unsafe
                             {
                                 fixed (float* to = To[time])
-                                fixed (float* from = To[time])
+                                fixed (float* from = From[time])
                                 fixed (float* logsumSpace = times[time].EstimationTempSpace)
                                 {
                                     for (int j = 0; j < zones.Length; j++)
@@ -749,15 +749,16 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 var nIndex = FlatZoneToPDCubeLookup[n];
                 var data = PDCube[index][pIndex][nIndex];
                 int previousIndexOffset = p * size;
-                int nextSizeOffset = n * size;
+                int nextIndexOffset = n * size;
                 float total = 0.0f;
                 if (Vector.IsHardwareAccelerated)
                 {
                     Vector<float> availableTimeV = new Vector<float>(available);
                     Vector<float> totalV = Vector<float>.Zero;
+                    int i = 0;
                     if (nIndex == pIndex)
                     {
-                        for (int i = 0; i < calculationSpace.Length; i++)
+                        for (i = 0; i < calculationSpace.Length; i++)
                         {
                             var odUtility = 1.0f;
                             var pdindex = data[FlatZoneToPDCubeLookup[i]];
@@ -775,29 +776,32 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     }
                     else
                     {
-                        for (int i = 0; i < calculationSpace.Length; i++)
+                        for (i = 0; i < calculationSpace.Length; i++)
                         {
                             var pdindex = data[FlatZoneToPDCubeLookup[i]];
                             calculationSpace[i] = pdindex >= 0 ? TimePeriod[index].ODConstants[pdindex].ExpConstant : 1f;
                         }
                     }
-                    for (int i = 0; i <= calculationSpace.Length - Vector<float>.Count; i += Vector<float>.Count)
+                    
+                    for (i = 0; i <= calculationSpace.Length - Vector<float>.Count; i += Vector<float>.Count)
                     {
-                        Vector<int> zeroMask = Vector.LessThanOrEqual(new Vector<float>(rowTimes, previousIndexOffset + i)
-                            + new Vector<float>(rowTimes, previousIndexOffset + i), availableTimeV);
+                        var timeTo = new Vector<float>(rowTimes, previousIndexOffset + i);
+                        var timeFrom = new Vector<float>(columnTimes, nextIndexOffset + i);
+                        var utilityTo = new Vector<float>(to, previousIndexOffset + i);
+                        var utilityFrom = new Vector<float>(from, nextIndexOffset + i);
                         Vector<float> calcV = new Vector<float>(calculationSpace, i);
+                        Vector<int> zeroMask = Vector.LessThanOrEqual(timeTo + timeFrom, availableTimeV);
                         calcV = Vector.AsVectorSingle(Vector.BitwiseAnd(Vector.AsVectorInt32(calcV), zeroMask))
-                            * new Vector<float>(to, previousIndexOffset + i)
-                            * new Vector<float>(nextSizeOffset + i);
+                            * utilityTo * utilityFrom;
                         calcV.CopyTo(calculationSpace, i);
                         totalV += calcV;
                     }
                     float remainderTotal = 0.0f;
-                    for (int i = calculationSpace.Length - (calculationSpace.Length % Vector<float>.Count); i < calculationSpace.Length; i++)
+                    for (; i < calculationSpace.Length; i++)
                     {
-                        if (rowTimes[previousIndexOffset + i] + columnTimes[nextSizeOffset + i] <= available)
+                        if (rowTimes[previousIndexOffset + i] + columnTimes[nextIndexOffset + i] <= available)
                         {
-                            remainderTotal += (calculationSpace[i] = to[previousIndexOffset + i] * from[nextSizeOffset + i] * calculationSpace[i]);
+                            remainderTotal += (calculationSpace[i] = to[previousIndexOffset + i] * from[nextIndexOffset + i] * calculationSpace[i]);
                         }
                         else
                         {
@@ -820,7 +824,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             {
                                 for (int i = 0; i < calculationSpace.Length; i++)
                                 {
-                                    if (pRowTimes[previousIndexOffset + i] + pColumnTimes[nextSizeOffset + i] <= available)
+                                    if (pRowTimes[previousIndexOffset + i] + pColumnTimes[nextIndexOffset + i] <= available)
                                     {
                                         var odUtility = 1.0f;
                                         var pdindex = pData[FlatZoneToPDCubeLookup[i]];
@@ -834,7 +838,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                         {
                                             odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].expSamePD : 1.0f;
                                         }
-                                        total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextSizeOffset + i] * odUtility;
+                                        total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextIndexOffset + i] * odUtility;
                                     }
                                     else
                                     {
@@ -846,7 +850,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             {
                                 for (int i = 0; i < calculationSpace.Length; i++)
                                 {
-                                    if (pRowTimes[previousIndexOffset + i] + pColumnTimes[nextSizeOffset + i] <= available)
+                                    if (pRowTimes[previousIndexOffset + i] + pColumnTimes[nextIndexOffset + i] <= available)
                                     {
                                         var odUtility = 1.0f;
                                         var pdindex = pData[FlatZoneToPDCubeLookup[i]];
@@ -854,7 +858,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                         {
                                             odUtility = TimePeriod[index].ODConstants[pdindex].ExpConstant;
                                         }
-                                        total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextSizeOffset + i] * odUtility;
+                                        total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextIndexOffset + i] * odUtility;
                                     }
                                     else
                                     {

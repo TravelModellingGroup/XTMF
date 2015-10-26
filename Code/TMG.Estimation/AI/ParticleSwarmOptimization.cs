@@ -92,7 +92,7 @@ namespace TMG.Estimation.AI
                 // initialize all of the velocities to [-1,1] since we work in relative parameter space
                 for(int i = 0; i < velocity.Length; i++)
                 {
-                    velocity[i] = (float)((random.NextDouble() * 2.0) - 1.0);
+                    velocity[i] = 0.0f; // (float)((random.NextDouble() * 2.0) - 1.0);
                 }
                 return velocity;
             }
