@@ -48,7 +48,10 @@ namespace TMG.Frameworks.Extensibility
 
         public void Start()
         {
-            Parallel.Invoke(RunInParallel.Select(run => new Action(() => { run.Start(); })).ToArray());
+            Parallel.ForEach(RunInParallel, (ISelfContainedModule item) =>
+            {
+                item.Start();
+            });
         }
     }
 
