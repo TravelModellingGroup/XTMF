@@ -830,6 +830,7 @@ namespace XTMF.Gui.UserControls
                 else
                 {
                     UpdateParameters();
+                    UpdateQuickParameters();
                 }
             }
         }
@@ -1232,12 +1233,17 @@ namespace XTMF.Gui.UserControls
             {
                 if (ParameterTabControl.SelectedItem == QuickParameterTab)
                 {
-                    QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
-                    QuickParameterFilterBox.Display = QuickParameterDisplay;
-                    QuickParameterFilterBox.Filter = FilterParameters;
-                    QuickParameterFilterBox.RefreshFilter();
+                    UpdateQuickParameters();
                 }
             }
+        }
+
+        private void UpdateQuickParameters()
+        {
+            QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
+            QuickParameterFilterBox.Display = QuickParameterDisplay;
+            QuickParameterFilterBox.Filter = FilterParameters;
+            QuickParameterFilterBox.RefreshFilter();
         }
 
         private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
