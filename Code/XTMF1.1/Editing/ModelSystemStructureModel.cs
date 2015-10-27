@@ -794,9 +794,14 @@ namespace XTMF
             return Session.RunCommand(XTMFCommand.CreateCommand(
                 (ref string e) =>
                 {
+                    if (RealModelSystemStructure.Children == null || RealModelSystemStructure.Children.Count <= 0)
+                    {
+                        e = "There were no modules to delete in the collection!";
+                        return false;
+                    }
                     oldRealChildren = RealModelSystemStructure.Children.ToList();
-                    oldChildren = Children.ToList();
                     RealModelSystemStructure.Children.Clear();
+                    oldChildren = Children.ToList();
                     Children.Clear();
                     return true;
                 },
@@ -807,9 +812,12 @@ namespace XTMF
                         Children.Add(child);
                     }
                     var realChildList = RealModelSystemStructure.Children;
-                    foreach (var child in oldRealChildren)
+                    if (oldRealChildren != null)
                     {
-                        realChildList.Add(child);
+                        foreach (var child in oldRealChildren)
+                        {
+                            realChildList.Add(child);
+                        }
                     }
                     return true;
                 },

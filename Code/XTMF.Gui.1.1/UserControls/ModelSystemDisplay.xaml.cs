@@ -944,7 +944,7 @@ namespace XTMF.Gui.UserControls
                 }
                 if (!ModelSystem.Remove(selected.BaseModel, ref error))
                 {
-                    throw new Exception(error);
+                    System.Media.SystemSounds.Asterisk.Play();
                 }
                 UpdateParameters(selected.BaseModel.Parameters);
                 Keyboard.Focus(ModuleDisplay);
