@@ -81,13 +81,11 @@
                             <Label Content="Projects" FontSize="18" Foreground="White" />
                             <Label Style="{StaticResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
                             <Label Style="{StaticResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
-                            <Label Style="{StaticResource HoverLabel}" Content="Recent Projects" Margin="0.25cm,0,0,0" FontSize="14" />
                         </StackPanel>
                         <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left">
                             <Label Content="Model Systems" FontSize="18" Foreground="White" />
                             <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
                             <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
-                            <Label Style="{StaticResource HoverLabel}" Content="Recent Model Systems" Margin="0.25cm,0,0,0"  FontSize="14" />
                         </StackPanel>
                     </Grid>
                 </Border>
