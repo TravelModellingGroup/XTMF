@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using XTMF;
 
@@ -48,10 +49,25 @@ namespace TMG.Frameworks.Extensibility
 
         public void Start()
         {
-            Parallel.ForEach(RunInParallel, (ISelfContainedModule item) =>
+            /* we are going to avoid using the thread-pool here
+             to make sure that all of these are running in parallel in case of deadlocks
+             or IO bound work */
+            Thread[] threads = new Thread[RunInParallel.Length];
+            for (int i = 0; i < threads.Length; i++)
             {
-                item.Start();
-            });
+                var avoidSharingI = i;
+                threads[i] = new Thread(() =>
+                {
+                    RunInParallel[avoidSharingI].Start();
+                });
+                threads[i].IsBackground = true;
+                threads[i].Start();
+            }
+            // after creating all of the threads wait until each one is complete before continuing
+            for (int i = 0; i < threads.Length; i++)
+            {
+                threads[i].Join();
+            }
         }
     }
 
