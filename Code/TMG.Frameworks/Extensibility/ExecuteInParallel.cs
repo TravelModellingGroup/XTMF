@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,12 +54,20 @@ namespace TMG.Frameworks.Extensibility
              to make sure that all of these are running in parallel in case of deadlocks
              or IO bound work */
             Thread[] threads = new Thread[RunInParallel.Length];
+            ConcurrentQueue<Exception> errorList = new ConcurrentQueue<Exception>();
             for (int i = 0; i < threads.Length; i++)
             {
                 var avoidSharingI = i;
                 threads[i] = new Thread(() =>
                 {
-                    RunInParallel[avoidSharingI].Start();
+                    try
+                    {
+                        RunInParallel[avoidSharingI].Start();
+                    }
+                    catch (Exception e)
+                    {
+                        errorList.Enqueue(e);
+                    }
                 });
                 threads[i].IsBackground = true;
                 threads[i].Start();
@@ -67,6 +76,10 @@ namespace TMG.Frameworks.Extensibility
             for (int i = 0; i < threads.Length; i++)
             {
                 threads[i].Join();
+            }
+            if (errorList.Count > 0)
+            {
+                throw new AggregateException(errorList.ToArray());
             }
         }
     }
