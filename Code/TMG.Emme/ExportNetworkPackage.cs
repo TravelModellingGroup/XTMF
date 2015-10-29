@@ -57,7 +57,7 @@ namespace TMG.Emme
                                         "\"" + Path.GetFullPath(this.ExportFile.GetFilePath()) + "\"",
                                         s);
 
-            Console.Write("Export network from scenario " + this.ScenarioNumber.ToString() + " to file " + this.ExportFile.GetFilePath());
+            Console.WriteLine("Export network from scenario " + this.ScenarioNumber.ToString() + " to file " + this.ExportFile.GetFilePath());
 
             var result = "";
             if(mc.CheckToolExists(_ToolName))
