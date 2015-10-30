@@ -41,7 +41,7 @@ namespace XTMF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool IsDirty { get;  private set; }
+        public bool IsDirty { get; private set; }
 
         public string Name { get; private set; }
 
@@ -55,7 +55,7 @@ namespace XTMF
             }
             private set
             {
-                if(_Value != value)
+                if (_Value != value)
                 {
                     IsDirty = true;
                     _Value = value;
@@ -98,10 +98,29 @@ namespace XTMF
             }
             set
             {
-                if(RealParameter.QuickParameter != value)
+                if (RealParameter.QuickParameter != value)
                 {
-                    RealParameter.QuickParameter = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                    var oldParameter = !value;
+                    string error = null;
+                    Session.RunCommand(XTMFCommand.CreateCommand(
+                        (ref string erro) =>
+                        {
+                            RealParameter.QuickParameter = value;
+                            ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                            return true;
+                        }, (ref string erro) =>
+                        {
+                            RealParameter.QuickParameter = !value;
+                            ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                            return true;
+                        }, (ref string erro) =>
+                         {
+                             RealParameter.QuickParameter = value;
+                             ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                             return true;
+                         }
+                        ), ref error);
+
                 }
             }
         }
@@ -143,11 +162,11 @@ namespace XTMF
                 {
                     // Check to see if we are in a linked parameter
                     change.ContainedIn = Session.ModelSystemModel.LinkedParameters.GetContained(this);
-                    if(change.ContainedIn == null)
+                    if (change.ContainedIn == null)
                     {
                         change.NewValue = newValue;
                         change.OldValue = _Value;
-                        if(!ArbitraryParameterParser.Check(RealParameter.Type, change.NewValue, ref e))
+                        if (!ArbitraryParameterParser.Check(RealParameter.Type, change.NewValue, ref e))
                         {
                             return false;
                         }
@@ -164,7 +183,7 @@ namespace XTMF
                 // undo
                 (ref string e) =>
                 {
-                    if(change.ContainedIn == null)
+                    if (change.ContainedIn == null)
                     {
                         Value = change.OldValue;
                     }
@@ -177,7 +196,7 @@ namespace XTMF
                 // redo
                 (ref string e) =>
                 {
-                    if(change.ContainedIn == null)
+                    if (change.ContainedIn == null)
                     {
                         Value = change.NewValue;
                     }
@@ -208,12 +227,12 @@ namespace XTMF
         public bool SetToDefault(ref string error)
         {
             var def = RealParameter.GetDefault();
-            if(def == null)
+            if (def == null)
             {
                 error = "We were unable to find a default value for this parameter.";
                 return false;
             }
-            if(Session.ModelSystemModel.LinkedParameters.GetContained(this) != null)
+            if (Session.ModelSystemModel.LinkedParameters.GetContained(this) != null)
             {
                 error = "You can not set a parameter that is inside of a linked parameter back to default";
                 return false;

@@ -238,6 +238,15 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
+        private void ToggleQuickParameter()
+        {
+            var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            if(displayParameter != null)
+            {
+                displayParameter.QuickParameter = !displayParameter.QuickParameter;
+            }
+        }
+
         private void ShowLinkedParameterDialog(bool assign = false)
         {
             var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters, assign);
@@ -721,12 +730,26 @@ namespace XTMF.Gui.UserControls
                             e.Handled = false;
                         }
                         break;
+                    case Key.T:
+                        {
+                            if(ctrlDown)
+                            {
+                                ToggleQuickParameter();
+                                e.Handled = true;
+                            }
+                            else
+                            {
+                                e.Handled = false;
+                            }
+                        }
+                        break;
                     default:
                         e.Handled = false;
                         break;
                 }
             }
         }
+
 
         private void MoveFocusNextModule(bool up)
         {
