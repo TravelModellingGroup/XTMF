@@ -50,20 +50,20 @@ namespace Tasha.Scheduler
 
         internal static bool GenerateIndividualMarketActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.Market ), householdPD, workPD, generationAdjustments ) > 0;
+            return Distribution.GetRandomFrequencyValue(0, 1, random,
+                Distribution.GetDistributionID(person, Activity.Market), householdPD, workPD, generationAdjustments) > 0;
         }
 
         internal static bool GenerateIndividualOtherActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue( 0, 1, random,
-              Distribution.GetDistributionID( person, Activity.IndividualOther ), householdPD, workPD, generationAdjustments) > 0;
+            return Distribution.GetRandomFrequencyValue(0, 1, random,
+              Distribution.GetDistributionID(person, Activity.IndividualOther), householdPD, workPD, generationAdjustments) > 0;
         }
 
         internal static bool GeneratePrimaryWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.PrimaryWork ), householdPD, workPD, generationAdjustments)
+            return Distribution.GetRandomFrequencyValue(0, 1, random,
+                Distribution.GetDistributionID(person, Activity.PrimaryWork), householdPD, workPD, generationAdjustments)
                 == 1;
         }
 
@@ -74,44 +74,44 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         internal static bool GenerateReturnFromWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue( 0, 1, random,
-               Distribution.GetDistributionID( person, Activity.ReturnFromWork ), householdPD, workPD, generationAdjustments)
+            return Distribution.GetRandomFrequencyValue(0, 1, random,
+               Distribution.GetDistributionID(person, Activity.ReturnFromWork), householdPD, workPD, generationAdjustments)
                 > 0;
         }
 
         internal static bool GenerateSchoolActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.School ), householdPD, workPD, generationAdjustments) > 0;
+            return Distribution.GetRandomFrequencyValue(0, 1, random,
+                Distribution.GetDistributionID(person, Activity.School), householdPD, workPD, generationAdjustments) > 0;
         }
 
         internal static bool GenerateSecondaryWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue( 0, 1, random,
-                Distribution.GetDistributionID( person, Activity.SecondaryWork ), householdPD, workPD, generationAdjustments)
+            return Distribution.GetRandomFrequencyValue(0, 1, random,
+                Distribution.GetDistributionID(person, Activity.SecondaryWork), householdPD, workPD, generationAdjustments)
                 > 0;
         }
 
         internal static bool GenerateWorkAtHomesActivity(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue( 0, 1, random,
-            Distribution.GetDistributionID( person, Activity.WorkAtHomeBusiness ), householdPD, householdPD, generationAdjustments)
+            return Distribution.GetRandomFrequencyValue(0, 1, random,
+            Distribution.GetDistributionID(person, Activity.WorkAtHomeBusiness), householdPD, householdPD, generationAdjustments)
                 > 0;
         }
 
         internal static int GetNumAdultsJointEpisode(ITashaHousehold household, Random random, Activity activity)
         {
             int numEpisodeAdults = 0;
-            if ( household.NumberOfAdults == 1 )
+            if (household.NumberOfAdults == 1)
             {
                 numEpisodeAdults = 1;
             }
             else
             {
-                if ( household.NumberOfAdults == 2 && household.NumberOfChildren == 0 )
+                if (household.NumberOfAdults == 2 && household.NumberOfChildren == 0)
                     numEpisodeAdults = 2;
                 else
-                    numEpisodeAdults = Distribution.GetRandomNumberAdults( household, activity, 0, household.NumberOfAdults, random );
+                    numEpisodeAdults = Distribution.GetRandomNumberAdults(household, activity, 0, household.NumberOfAdults, random);
             }
             return numEpisodeAdults;
         }
@@ -126,27 +126,27 @@ namespace Tasha.Scheduler
         internal static int GetRandomFrequencyValue(int min, int max, Random random, int distributionID, int householdPD, int workPD,
             GenerationAdjustment[] generationAdjustments)
         {
-            if ( min == max ) return min;
+            if (min == max) return min;
             float rand = (float)random.NextDouble();
             float cdf = 0;
             float total = 0;
             DistributionInformation pdf = Distributions[distributionID];
             float adjustment = GetGenerationAdjustment(generationAdjustments, distributionID, householdPD, workPD);
-            if ( pdf == null || pdf.Frequency == null )
+            if (pdf == null || pdf.Frequency == null)
             {
-                throw new XTMFRuntimeException( "Unable to load PDF #" + distributionID + " from the Distribution Frequency File!" );
+                throw new XTMFRuntimeException("Unable to load PDF #" + distributionID + " from the Distribution Frequency File!");
             }
             // to start with just add
-            for ( int i = min; i <= max; i++ )
+            for (int i = min; i <= max; i++)
             {
                 total += i == 0 ? pdf.Frequency[i] : pdf.Frequency[i] * adjustment;
             }
             rand = rand * total;
-            for ( int i = min; i <= max; i++ )
+            for (int i = min; i <= max; i++)
             {
                 // we can just multiply now, faster than division
                 cdf += i == 0 ? pdf.Frequency[i] : pdf.Frequency[i] * adjustment;
-                if ( rand < cdf )
+                if (rand < cdf)
                 {
                     return i;
                 }
@@ -158,9 +158,9 @@ namespace Tasha.Scheduler
         {
             for (int i = 0; i < generationAdjustments.Length; i++)
             {
-                if(generationAdjustments[i].DistributionIDs.Contains(distributionID))
+                if (generationAdjustments[i].DistributionIDs.Contains(distributionID))
                 {
-                    if(generationAdjustments[i].PlanningDistricts.Contains(householdPD))
+                    if (generationAdjustments[i].PlanningDistricts.Contains(householdPD))
                     {
                         if (generationAdjustments[i].WorkPlanningDistrict.Contains(workPD))
                         {
@@ -177,57 +177,54 @@ namespace Tasha.Scheduler
         /// </summary>
         internal static void InitializeDistributions()
         {
-            if ( Distributions == null )
-            {
-                int numberOfDistributions = Scheduler.NumberOfDistributions;
-                NumberOfFrequencies = Scheduler.MaxFrequency + 1;
-                int startTimeQuantums = Scheduler.StartTimeQuanta;
+            int numberOfDistributions = Scheduler.NumberOfDistributions;
+            NumberOfFrequencies = Scheduler.MaxFrequency + 1;
+            int startTimeQuantums = Scheduler.StartTimeQuanta;
 
-                NumAdultDistributions = Scheduler.NumberOfAdultDistributions;
-                NumAdultFrequencies = Scheduler.NumberOfAdultFrequencies;
+            NumAdultDistributions = Scheduler.NumberOfAdultDistributions;
+            NumAdultFrequencies = Scheduler.NumberOfAdultFrequencies;
 
-                AdultDistributions = new ZoneCache<AdultDistributionInformation>( Scheduler.AdultDistributionsFile,
-                    LoadAdultDistributionData ).StoreAll();
+            AdultDistributions = new ZoneCache<AdultDistributionInformation>(Scheduler.AdultDistributionsFile,
+                LoadAdultDistributionData).StoreAll();
 
-                Distributions = new ZoneCache<DistributionInformation>( Scheduler.FrequencyDistributionsFile,
-                    delegate(int number, float[] data)
+            Distributions = new ZoneCache<DistributionInformation>(Scheduler.FrequencyDistributionsFile,
+                delegate (int number, float[] data)
+                {
+                    DistributionInformation f = new DistributionInformation();
+
+                    int current = 0;
+                    f.Frequency = new float[NumberOfFrequencies];
+                    Array.Copy(data, 0, f.Frequency, 0, NumberOfFrequencies);
+                    current += NumberOfFrequencies;
+                    f.Durations = new float[startTimeQuantums][];
+
+                    for (int i = 0; i < startTimeQuantums; i++)
                     {
-                        DistributionInformation f = new DistributionInformation();
+                        f.Durations[i] = new float[startTimeQuantums + 1];
+                    }
 
-                        int current = 0;
-                        f.Frequency = new float[NumberOfFrequencies];
-                        Array.Copy( data, 0, f.Frequency, 0, NumberOfFrequencies );
-                        current += NumberOfFrequencies;
-                        f.Durations = new float[startTimeQuantums][];
+                    for (int time = 0; time < startTimeQuantums; time++)
+                    {
+                        for (int dur = 0; dur < startTimeQuantums + 1; dur++)
+                        {
+                            f.Durations[time][dur] = data[current++];
+                        }
+                    }
+                    f.StartTimeFrequency = new float[startTimeQuantums][];
+                    for (int i = 0; i < startTimeQuantums; i++)
+                    {
+                        f.StartTimeFrequency[i] = new float[NumberOfFrequencies];
+                    }
 
-                        for ( int i = 0; i < startTimeQuantums; i++ )
+                    for (int fre = 0; fre < NumberOfFrequencies; fre++)
+                    {
+                        for (int time = 0; time < startTimeQuantums; time++)
                         {
-                            f.Durations[i] = new float[startTimeQuantums + 1];
+                            f.StartTimeFrequency[time][fre] = data[current++];
                         }
-
-                        for ( int time = 0; time < startTimeQuantums; time++ )
-                        {
-                            for ( int dur = 0; dur < startTimeQuantums + 1; dur++ )
-                            {
-                                f.Durations[time][dur] = data[current++];
-                            }
-                        }
-                        f.StartTimeFrequency = new float[startTimeQuantums][];
-                        for ( int i = 0; i < startTimeQuantums; i++ )
-                        {
-                            f.StartTimeFrequency[i] = new float[NumberOfFrequencies];
-                        }
-
-                        for ( int fre = 0; fre < NumberOfFrequencies; fre++ )
-                        {
-                            for ( int time = 0; time < startTimeQuantums; time++ )
-                            {
-                                f.StartTimeFrequency[time][fre] = data[current++];
-                            }
-                        }
-                        return f;
-                    } ).StoreAll();
-            }
+                    }
+                    return f;
+                }).StoreAll();
         }
 
         internal static void PrimaryWorkStartTimeAndDuration(ITashaPerson person, out Time startTime, out Time duration)
@@ -240,7 +237,7 @@ namespace Tasha.Scheduler
             AdultDistributionInformation adultDistributionInformation = new AdultDistributionInformation();
             adultDistributionInformation.Adults = new float[NumAdultFrequencies];
             // now we only load the frequency since we calculate the pdf anyways
-            for ( int i = 0; i < data.Length; i++ )
+            for (int i = 0; i < data.Length; i++)
             {
                 adultDistributionInformation.Adults[i] = data[i];
             }
