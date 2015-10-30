@@ -302,12 +302,28 @@ namespace XTMF.Gui.UserControls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.Handled == false && Controllers.EditorController.IsControlDown())
+            if (e.Handled == false)
             {
                 switch (e.Key)
                 {
                     case Key.W:
-                        Close();
+                        if (Controllers.EditorController.IsControlDown())
+                        {
+                            Close();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.Enter:
+                        {
+                            LoadModelSystem();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.F2:
+                        {
+                            RenameModelSystem();
+                            e.Handled = true;
+                        }
                         break;
                 }
             }
@@ -336,18 +352,6 @@ namespace XTMF.Gui.UserControls
             if (button != null)
             {
                 LoadModelSystem();
-            }
-        }
-
-        private void ModelSystemDisplay_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                if (e.Key == Key.Enter)
-                {
-                    LoadModelSystem();
-                    e.Handled = true;
-                }
             }
         }
 

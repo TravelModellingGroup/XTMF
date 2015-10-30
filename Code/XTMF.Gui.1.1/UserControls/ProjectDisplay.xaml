@@ -55,8 +55,7 @@
                     <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" />
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                         <ListBox x:Name="ModelSystemDisplay" Background="Transparent"
-                                 SelectionChanged="ModelSystemDisplay_SelectionChanged"
-                                 Keyboard.KeyUp="ModelSystemDisplay_KeyUp">
+                                 SelectionChanged="ModelSystemDisplay_SelectionChanged">
                             <ListBox.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
@@ -108,7 +107,7 @@
                                                          Header="{Binding Name, Mode=OneWay}"
                                                          Selected="{Binding IsSelected, Mode=OneWay}"
                                                          Text="{Binding Description, Mode=OneWay}"
-                                                         Width="300" Margin="5" Clicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
+                                                         Width="300" Margin="5" DoubleClicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
                                                          ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}, Path=ContextMenu}"
                                                          />
                                     <DataTemplate.Triggers>
