@@ -455,6 +455,9 @@ namespace XTMF.Gui.UserControls
                             MainWindow.Us.ExecuteRun();
                             e.Handled = true;
                             break;
+                        case Key.Escape:
+                            FilterBox.Box.Text = String.Empty;
+                            break;
                     }
                 }
             }
@@ -658,6 +661,18 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
                 switch (e.Key)
                 {
+                    case Key.Escape:
+                        var box = ParameterDisplay.IsKeyboardFocusWithin ? ParameterFilterBox.Box : QuickParameterFilterBox.Box;
+                        if (box.Text == String.Empty)
+                        {
+                            e.Handled = false;
+                        }
+                        else
+                        {
+                            box.Text = String.Empty;
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Enter:
                         MoveFocusNext(shiftDown);
                         break;
