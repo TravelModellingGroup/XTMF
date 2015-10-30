@@ -35,6 +35,9 @@ namespace Tasha.Scheduler
         [RunParameter("Planning Districts", "1-46", typeof(RangeSet), "The planning districts to alter.  The home zone is used for comparison.")]
         public RangeSet PlanningDistricts;
 
+        [RunParameter("Work Planning District", "0-46", typeof(RangeSet), "The planning district of work for the person, or 0 if there is no work zone.")]
+        public RangeSet WorkPlanningDistrict;
+
         [RunParameter("Factor", 1.0f, "The factor to apply to this modification for generation rates greater than zero.")]
         public float Factor;
 

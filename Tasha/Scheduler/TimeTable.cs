@@ -139,7 +139,7 @@ namespace Tasha.Scheduler
 
         #region person frequency
 
-        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
+        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
             int freq = 0;
             var distID = Distribution.GetDistributionID(person, activity);
@@ -153,27 +153,27 @@ namespace Tasha.Scheduler
                     + (person.SchoolZone != null ? person.SchoolZone.ZoneNumber.ToString() : "None") + "'.");
             }
             freq = Distribution.GetRandomFrequencyValue(
-                0, Distribution.NumberOfFrequencies - 1, random, distID, householdPD, generationAdjustments);
+                0, Distribution.NumberOfFrequencies - 1, random, distID, householdPD, workPD, generationAdjustments);
             return freq;
         }
 
-        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency, int householdPD, GenerationAdjustment[] generationAdjustments)
+        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
             int freq = 0;
             freq = Distribution.GetRandomFrequencyValue(
-                0, maxFrequency, random, Distribution.GetDistributionID(person, activity), householdPD, generationAdjustments);
+                0, maxFrequency, random, Distribution.GetDistributionID(person, activity), householdPD, workPD, generationAdjustments);
             return freq;
         }
 
         public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency,
-            Time startTime, Time endTime, int householdPD, GenerationAdjustment[] generationAdjustments)
+            Time startTime, Time endTime, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
             bool feasibleFreq = false;
             int freq = 0;
             while (!feasibleFreq)
             {
                 freq = Distribution.GetRandomFrequencyValue(
-                    0, maxFrequency, random, Distribution.GetDistributionID(person, activity), householdPD, generationAdjustments);
+                    0, maxFrequency, random, Distribution.GetDistributionID(person, activity), householdPD, workPD, generationAdjustments);
                 if (freq == 0)
                 {
                     break;
@@ -198,14 +198,15 @@ namespace Tasha.Scheduler
 
         #region household frequency
 
-        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
+        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
             bool feasibleFreq = false;
             int freq = 0;
             while (!feasibleFreq)
             {
                 freq = Distribution.GetRandomFrequencyValue(
-                    0, Distribution.NumberOfFrequencies - 1, random, Distribution.GetDistributionID(household, activity), householdPD, generationAdjustments);
+                    0, Distribution.NumberOfFrequencies - 1, random, Distribution.GetDistributionID(household, activity),
+                    householdPD, workPD, generationAdjustments);
                 if (freq == 0)
                 {
                     feasibleFreq = true;
@@ -226,7 +227,7 @@ namespace Tasha.Scheduler
             return freq;
         }
 
-        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random, int maxFreq, int householdPD, GenerationAdjustment[] generationAdjustments)
+        public static int GetFrequency(ITashaHousehold household, Activity activity, Random random, int maxFreq, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
             bool feasibleFreq = false;
             int freq = maxFreq;
@@ -234,7 +235,7 @@ namespace Tasha.Scheduler
             {
                 freq = Distribution.GetRandomFrequencyValue(
                     0, Distribution.NumberOfFrequencies - 1, random, Distribution.GetDistributionID(household, activity),
-                    householdPD, generationAdjustments);
+                    householdPD, workPD, generationAdjustments);
                 if (freq == 0)
                 {
                     feasibleFreq = true;

@@ -64,33 +64,33 @@ namespace Tasha.Scheduler
             bool morning_workschool = false;
             bool any_workschool = false;
 
-            foreach(var person in household.Persons)
+            foreach (var person in household.Persons)
             {
                 PersonWorkSchoolProjectStatus workschoolProjectStatus = SchedulerPerson.GetWorkSchoolProjectStatus(person);
-                if(workschoolProjectStatus == PersonWorkSchoolProjectStatus.FullTimeEveningWorkOrSchool ||
+                if (workschoolProjectStatus == PersonWorkSchoolProjectStatus.FullTimeEveningWorkOrSchool ||
                     workschoolProjectStatus == PersonWorkSchoolProjectStatus.FullTimeDayAndEveningWorkOrSchool ||
                     workschoolProjectStatus == PersonWorkSchoolProjectStatus.Other)
                     evening_workschool = true;
-                if(workschoolProjectStatus == PersonWorkSchoolProjectStatus.FullTimeNoEveningWorkOrSchool ||
+                if (workschoolProjectStatus == PersonWorkSchoolProjectStatus.FullTimeNoEveningWorkOrSchool ||
                     workschoolProjectStatus == PersonWorkSchoolProjectStatus.FullTimeDayAndEveningWorkOrSchool ||
                     workschoolProjectStatus == PersonWorkSchoolProjectStatus.PartTimeDay ||
                     workschoolProjectStatus == PersonWorkSchoolProjectStatus.PartTimeEvening)
                     morning_workschool = true;
-                if(workschoolProjectStatus > 0) any_workschool = true;
+                if (workschoolProjectStatus > 0) any_workschool = true;
             }
 
-            if(!any_workschool) return HouseholdWorkSchoolProjectStatus.NoWorkOrSchool;  // noone in hhld works or attends school today
-            else if(!evening_workschool) return HouseholdWorkSchoolProjectStatus.NoEveningWorkOrSchool; //there is work/school, but none after 6:00pm
-            else if(!morning_workschool) return HouseholdWorkSchoolProjectStatus.EveningWorkOrSchool; //there is evening work/school, but no work/school before 1:00pm
+            if (!any_workschool) return HouseholdWorkSchoolProjectStatus.NoWorkOrSchool;  // noone in hhld works or attends school today
+            else if (!evening_workschool) return HouseholdWorkSchoolProjectStatus.NoEveningWorkOrSchool; //there is work/school, but none after 6:00pm
+            else if (!morning_workschool) return HouseholdWorkSchoolProjectStatus.EveningWorkOrSchool; //there is evening work/school, but no work/school before 1:00pm
             else return HouseholdWorkSchoolProjectStatus.DayAndEveningWorkOrSchool; // there is work/school before 1pm and after 6pm
         }
 
         public static int MaxTripChainSize(this ITashaHousehold household)
         {
             int maxTripChainSize = 0;
-            foreach(var person in household.Persons)
+            foreach (var person in household.Persons)
             {
-                foreach(var tripChain in person.TripChains)
+                foreach (var tripChain in person.TripChains)
                 {
                     maxTripChainSize = Math.Max(tripChain.Trips.Count, maxTripChainSize);
                 }
@@ -100,7 +100,7 @@ namespace Tasha.Scheduler
 
         internal static void CheckAndUpdateLatestWorkingTime(this ITashaHousehold household, Time time)
         {
-            if((household["SData"] as SchedHouseholdData).LatestWorkingTime < time)
+            if ((household["SData"] as SchedHouseholdData).LatestWorkingTime < time)
             {
                 (household["SData"] as SchedHouseholdData).LatestWorkingTime = time;
             }
@@ -122,7 +122,7 @@ namespace Tasha.Scheduler
         {
             var data = (household["SData"] as SchedHouseholdData);
             // Generate each person's schedule
-            foreach(var person in household.Persons)
+            foreach (var person in household.Persons)
             {
                 person.GenerateWorkSchoolSchedule(random);
             }
@@ -130,7 +130,7 @@ namespace Tasha.Scheduler
             household.AddHouseholdProjects(data, random);
 
             //Generate other/market schedules
-            foreach(var person in household.Persons)
+            foreach (var person in household.Persons)
             {
                 //person.Generate
                 person.AddPersonalProjects(random);
@@ -181,33 +181,35 @@ namespace Tasha.Scheduler
         private static bool GenerateIndividualMarketEpisodes(this ITashaHousehold household, Random random, GenerationAdjustment[] generationAdjustments)
         {
             int householdPD = household.HomeZone.PlanningDistrict;
-            foreach(var person in household.Persons)
+            foreach (var person in household.Persons)
             {
-                if(!person.Child)
+                if (!person.Child)
                 {
-                    int freq_I = TimeTable.GetFrequency(person, Activity.Market, random, householdPD, generationAdjustments);
+                    var empZone = person.EmploymentZone;
+                    int workPD = empZone == null ? 0 : empZone.PlanningDistrict;
+                    int freq_I = TimeTable.GetFrequency(person, Activity.Market, random, householdPD, workPD, generationAdjustments);
                     int outerAttempts = 0;
-                    for(int j = 0; j < freq_I; ++j)
+                    for (int j = 0; j < freq_I; ++j)
                     {
                         //Update the trip generation count
 
                         Time startTime;
                         Time duration;
                         bool success = false;
-                        for(int attempt = 0; attempt < Scheduler.EpisodeSchedulingAttempts && !success; attempt++)
+                        for (int attempt = 0; attempt < Scheduler.EpisodeSchedulingAttempts && !success; attempt++)
                         {
-                            if(!TimeTable.GetStartTime(person, Activity.Market, random, out startTime))
+                            if (!TimeTable.GetStartTime(person, Activity.Market, random, out startTime))
                             {
                                 continue;
                             }
 
-                            if(!TimeTable.GetDuration(person, Activity.Market, startTime, random, out duration))
+                            if (!TimeTable.GetDuration(person, Activity.Market, startTime, random, out duration))
                             {
                                 continue;
                             }
 
                             var endTime = startTime + duration;
-                            if(endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
+                            if (endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
                             {
                                 success = false;
                                 continue;
@@ -226,12 +228,12 @@ namespace Tasha.Scheduler
 
                             float percentOverlap = overlap / duration;
 
-                            if(percentOverlap < Scheduler.PercentOverlapAllowed || attempt == Scheduler.EpisodeSchedulingAttempts - 1)
+                            if (percentOverlap < Scheduler.PercentOverlapAllowed || attempt == Scheduler.EpisodeSchedulingAttempts - 1)
                             {
                                 Project marketProject = person.GetMarketProject();
                                 Schedule marketSchedule = marketProject.Schedule;
 
-                                if(marketSchedule.Insert(marketEpisode, random))
+                                if (marketSchedule.Insert(marketEpisode, random))
                                 {
                                     //inserted ok
                                     success = true;
@@ -247,7 +249,7 @@ namespace Tasha.Scheduler
                                 // attempt will be auto incremented so we don't need to worry about this
                             }
                         }
-                        if((outerAttempts++) < Scheduler.EpisodeSchedulingAttempts && !success)
+                        if ((outerAttempts++) < Scheduler.EpisodeSchedulingAttempts && !success)
                         {
                             j = -1;
                             Project marketProject = person.GetMarketProject();
@@ -263,34 +265,36 @@ namespace Tasha.Scheduler
         private static bool GenerateIndividualOtherEpisodes(this ITashaHousehold household, Random random, GenerationAdjustment[] generationAdjustments)
         {
             int householdPD = household.HomeZone.PlanningDistrict;
-            foreach(var person in household.Persons)
+            foreach (var person in household.Persons)
             {
-                if(!person.Child)
+                if (!person.Child)
                 {
-                    int freqO = TimeTable.GetFrequency(person, Activity.IndividualOther, random, householdPD, generationAdjustments);
+                    var empZone = person.EmploymentZone;
+                    int workPD = empZone == null ? 0 : empZone.PlanningDistrict;
+                    int freqO = TimeTable.GetFrequency(person, Activity.IndividualOther, random, householdPD, workPD, generationAdjustments);
                     int outerAttempts = 0;
 
                     Time durationO, startTimeO = Time.Zero;
 
-                    for(int i = 0; i < freqO; i++)
+                    for (int i = 0; i < freqO; i++)
                     {
                         bool success = false;
 
-                        for(int attempt = 0; !success && (attempt < Scheduler.EpisodeSchedulingAttempts); attempt++)
+                        for (int attempt = 0; !success && (attempt < Scheduler.EpisodeSchedulingAttempts); attempt++)
                         {
-                            if(!TimeTable.GetStartTime(person, Activity.IndividualOther, freqO, random, out startTimeO))
+                            if (!TimeTable.GetStartTime(person, Activity.IndividualOther, freqO, random, out startTimeO))
                             {
                                 success = false;
                                 continue;
                             }
-                            if(!TimeTable.GetDuration(person, Activity.IndividualOther, startTimeO, random, out durationO))
+                            if (!TimeTable.GetDuration(person, Activity.IndividualOther, startTimeO, random, out durationO))
                             {
                                 success = false;
                                 continue;
                             }
 
                             var endTime = startTimeO + durationO;
-                            if(endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
+                            if (endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
                             {
                                 success = false;
                                 continue;
@@ -309,19 +313,19 @@ namespace Tasha.Scheduler
 
                             float percentOverlap = overlap / durationO;
 
-                            if(percentOverlap < Scheduler.PercentOverlapAllowed || attempt == Scheduler.EpisodeSchedulingAttempts - 1)
+                            if (percentOverlap < Scheduler.PercentOverlapAllowed || attempt == Scheduler.EpisodeSchedulingAttempts - 1)
                             {
                                 Project otherProject = person.GetOtherProject();
                                 Schedule otherSchedule = otherProject.Schedule;
 
-                                if(otherSchedule.Insert(otherEpisode, random))
+                                if (otherSchedule.Insert(otherEpisode, random))
                                 {
                                     //inserted ok
                                     success = true;
                                 }
                             }
                         }
-                        if((outerAttempts++) < Scheduler.EpisodeSchedulingAttempts && !success)
+                        if ((outerAttempts++) < Scheduler.EpisodeSchedulingAttempts && !success)
                         {
                             i = -1;
                             Project otherProject = person.GetOtherProject();
@@ -340,34 +344,34 @@ namespace Tasha.Scheduler
             // initialize available adults
             var availableAdults = new List<ITashaPerson>(household.Persons.Length);
             // We can only do this with households with more than one person
-            if(household.Persons.Length >= 2 && household.NumberOfAdults > 0)
+            if (household.Persons.Length >= 2 && household.NumberOfAdults > 0)
             {
                 // Figure out how many times this home is going to go on a joint market trip
-                int howManyTimes = TimeTable.GetFrequency(household, Activity.JointMarket, random, householdPD, generationAdjustment);
+                int howManyTimes = TimeTable.GetFrequency(household, Activity.JointMarket, random, householdPD, 0, generationAdjustment);
                 // Processes each of those trips
-                for(int i = 0; i < howManyTimes; i++)
+                for (int i = 0; i < howManyTimes; i++)
                 {
                     Time startTime, duration;
                     int numEpisodeAdults = Distribution.GetNumAdultsJointEpisode(household, random,
                                             Activity.JointMarket);
                     bool success = false;
                     // continue to try until either we get it to work or we fail to schedule this episode
-                    for(int attempt = 0; !success && attempt < Scheduler.EpisodeSchedulingAttempts; attempt++)
+                    for (int attempt = 0; !success && attempt < Scheduler.EpisodeSchedulingAttempts; attempt++)
                     {
-                        if(!TimeTable.GetStartTime(household, Activity.JointMarket, random, out startTime))
+                        if (!TimeTable.GetStartTime(household, Activity.JointMarket, random, out startTime))
                         {
                             continue;
                         }
-                        if(!TimeTable.GetDuration(household, Activity.JointMarket, startTime, random, out duration))
+                        if (!TimeTable.GetDuration(household, Activity.JointMarket, startTime, random, out duration))
                         {
                             continue;
                         }
                         // Now that we have our start time and duration, compute our end time
                         Time endTime = startTime + duration;
-                        if(availableAdults.Count > 0) availableAdults.Clear();
+                        if (availableAdults.Count > 0) availableAdults.Clear();
                         Time workSchoolStartTime, workSchoolEndTime;
                         bool available = false;
-                        foreach(var person in household.Persons)
+                        foreach (var person in household.Persons)
                         {
                             workSchoolStartTime = SchedulerPerson.GetWorkSchoolStartTime(person);
                             workSchoolEndTime = SchedulerPerson.GetWorkSchoolEndTime(person);
@@ -375,20 +379,20 @@ namespace Tasha.Scheduler
                             // this person is available if
                             available = (workSchoolStartTime > endTime) | (workSchoolEndTime < startTime) | (workSchoolStartTime == Time.Zero);
 
-                            if(person.Age >= 16 && available)
+                            if (person.Age >= 16 && available)
                             {
                                 availableAdults.Add(person);
                             }
                         }
 
-                        if((availableAdults.Count > 0) & (availableAdults.Count >= numEpisodeAdults))
+                        if ((availableAdults.Count > 0) & (availableAdults.Count >= numEpisodeAdults))
                         {
                             Episode jointMarketEpisode;
                             jointMarketEpisode = new ActivityEpisode(0,
                                 new TimeWindow(startTime, endTime), Activity.JointMarket,
                                 availableAdults[0]);
 
-                            foreach(ITashaPerson adult in availableAdults)
+                            foreach (ITashaPerson adult in availableAdults)
                             {
                                 jointMarketEpisode.AddPerson(adult);
                             }
@@ -409,34 +413,34 @@ namespace Tasha.Scheduler
         {
             var householdPD = household.HomeZone.PlanningDistrict;
             //make sure there at least 2 people and one adult
-            if((household.Persons.Length >= 2) & (household.NumberOfAdults > 0))
+            if ((household.Persons.Length >= 2) & (household.NumberOfAdults > 0))
             {
-                int freqJ = TimeTable.GetFrequency(household, Activity.JointOther, random, householdPD, generationAdjustments);
+                int freqJ = TimeTable.GetFrequency(household, Activity.JointOther, random, householdPD, 0, generationAdjustments);
 
                 Time duration, startTime;
                 int numEpisodeAdults = Distribution.GetNumAdultsJointEpisode(household, random,
                     Activity.JointOther);
 
-                for(int i = 0; i < freqJ; i++)
+                for (int i = 0; i < freqJ; i++)
                 {
                     bool success = false;
                     int attempt = 0;
-                    while(!success && attempt < Scheduler.EpisodeSchedulingAttempts)
+                    while (!success && attempt < Scheduler.EpisodeSchedulingAttempts)
                     {
-                        if(!TimeTable.GetStartTime(household, Activity.JointOther, freqJ, random, out startTime))
+                        if (!TimeTable.GetStartTime(household, Activity.JointOther, freqJ, random, out startTime))
                         {
                             success = false;
                             attempt++;
                             continue;
                         }
-                        if(!TimeTable.GetDuration(household, Activity.JointOther, startTime, random, out duration))
+                        if (!TimeTable.GetDuration(household, Activity.JointOther, startTime, random, out duration))
                         {
                             success = false;
                             attempt++;
                             continue;
                         }
 
-                        if(duration == Time.Zero || startTime == Time.Zero)
+                        if (duration == Time.Zero || startTime == Time.Zero)
                         {
                             success = false;
                             attempt++;
@@ -445,29 +449,29 @@ namespace Tasha.Scheduler
                         {
                             Time endTime = startTime + duration;
                             List<ITashaPerson> availableAdults = new List<ITashaPerson>();
-                            foreach(ITashaPerson person in household.Persons)
+                            foreach (ITashaPerson person in household.Persons)
                             {
                                 Time workSchoolStartTime = SchedulerPerson.GetWorkSchoolStartTime(person);
                                 Time workSchoolEndTime = SchedulerPerson.GetWorkSchoolEndTime(person);
                                 bool available = false;
-                                if(workSchoolStartTime > endTime ||
+                                if (workSchoolStartTime > endTime ||
                                     workSchoolEndTime < startTime ||
                                     workSchoolStartTime == Time.Zero)
                                     available = true;
-                                if(person.Age >= 16 && available)
+                                if (person.Age >= 16 && available)
                                 {
                                     availableAdults.Add(person);
                                 }
                             }
 
-                            if(availableAdults.Count >= numEpisodeAdults && availableAdults.Count > 0)
+                            if (availableAdults.Count >= numEpisodeAdults && availableAdults.Count > 0)
                             {
                                 Episode jointOtherEpisode;
                                 var owner = availableAdults[0];
                                 jointOtherEpisode = new ActivityEpisode(0,
                                     new TimeWindow(startTime, endTime), Activity.JointOther, owner);
 
-                                for(int j = 0; j < numEpisodeAdults; j++)
+                                for (int j = 0; j < numEpisodeAdults; j++)
                                 {
                                     jointOtherEpisode.AddPerson(availableAdults[j]);
                                 }
@@ -477,7 +481,7 @@ namespace Tasha.Scheduler
                                 bool inserted = jointOtherSchedule.Insert(jointOtherEpisode, random);
                                 success = true;
 
-                                if(!inserted)
+                                if (!inserted)
                                 {
                                     success = false;
                                     attempt++;
@@ -499,37 +503,39 @@ namespace Tasha.Scheduler
         private static bool GenerateSchoolEpisodes(this ITashaHousehold household, Random random, GenerationAdjustment[] generationAdjustments)
         {
             var householdPD = household.HomeZone.PlanningDistrict;
-            foreach(ITashaPerson person in household.Persons)
+            foreach (ITashaPerson person in household.Persons)
             {
-                if(person.StudentStatus == StudentStatus.FullTime ||
+                if (person.StudentStatus == StudentStatus.FullTime ||
                     person.StudentStatus == StudentStatus.PartTime)
                 {
-                    if(person.Age >= 11)
+                    if (person.Age >= 11)
                     {
-                        var freq = TimeTable.GetFrequency(person, Activity.School, random, householdPD, generationAdjustments);
+                        var empZone = person.EmploymentZone;
+                        int workPD = empZone == null ? 0 : empZone.PlanningDistrict;
+                        var freq = TimeTable.GetFrequency(person, Activity.School, random, householdPD, workPD, generationAdjustments);
                         //if there is a school activity generated
-                        for(int i = 0; i < freq; i++)
+                        for (int i = 0; i < freq; i++)
                         {
                             bool success = false;
                             short attempt = 0;
                             Time duration = new Time(), startTime = new Time();
                             int maxAttempts = Scheduler.EpisodeSchedulingAttempts;
-                            while(!success && (attempt < maxAttempts))
+                            while (!success && (attempt < maxAttempts))
                             {
                                 attempt++;
                                 //get start time end time and duration
-                                if(!TimeTable.GetStartTime(person, Activity.School, random, out startTime))
+                                if (!TimeTable.GetStartTime(person, Activity.School, random, out startTime))
                                 {
                                     continue;
                                 }
-                                if(!TimeTable.GetDuration(person, Activity.School, startTime, random, out duration))
+                                if (!TimeTable.GetDuration(person, Activity.School, startTime, random, out duration))
                                 {
                                     continue;
                                 }
-                                if(duration != Time.Zero) // no valid duration
+                                if (duration != Time.Zero) // no valid duration
                                 {
                                     var endTime = startTime + duration;
-                                    if(endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
+                                    if (endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
                                     {
                                         success = false;
                                         continue;
@@ -549,7 +555,7 @@ namespace Tasha.Scheduler
                             }
                         }
                     }
-                    else if(person.Age >= 6)
+                    else if (person.Age >= 6)
                     {
                         //this child is in kindergarten
                         //generate random number between 0 and 1
@@ -567,13 +573,13 @@ namespace Tasha.Scheduler
                         schoolSchedule = schoolProject.Schedule;
                         schoolSchedule.Insert(schoolEpisode, random);
                     }
-                    else if(person.Age == 5)
+                    else if (person.Age == 5)
                     {
                         //this child is in kindergarten
                         //generate random number between 0 and 1
                         int randNum = random.Next(0, 1);
                         Time duration = new Time(), startTime = new Time(), endTime = new Time();
-                        if(randNum <= 0.5) //morning shift
+                        if (randNum <= 0.5) //morning shift
                         {
                             //morning shift
                             startTime = Scheduler.SchoolMorningStart;
@@ -602,25 +608,26 @@ namespace Tasha.Scheduler
             return true;
         }
 
-        private static void GenerateWorkBusinessEpisode(ITashaPerson person, Schedule workSchedule, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
+        private static void GenerateWorkBusinessEpisode(ITashaPerson person, Schedule workSchedule, Random random, int householdPD,
+            int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            int freq_B = TimeTable.GetFrequency(person, Activity.WorkBasedBusiness, random, householdPD, generationAdjustments);
-            for(int i = 0; i < freq_B; i++)
+            int freq_B = TimeTable.GetFrequency(person, Activity.WorkBasedBusiness, random, householdPD, workPD, generationAdjustments);
+            for (int i = 0; i < freq_B; i++)
             {
                 Time startTime;
                 Time duration;
-                for(int attempt = 0; attempt < Scheduler.EpisodeSchedulingAttempts; attempt++)
+                for (int attempt = 0; attempt < Scheduler.EpisodeSchedulingAttempts; attempt++)
                 {
-                    if(!TimeTable.GetStartTime(person, Activity.WorkBasedBusiness, random, out startTime))
+                    if (!TimeTable.GetStartTime(person, Activity.WorkBasedBusiness, random, out startTime))
                     {
                         continue;
                     }
-                    if(!TimeTable.GetDuration(person, Activity.WorkBasedBusiness, startTime, random, out duration))
+                    if (!TimeTable.GetDuration(person, Activity.WorkBasedBusiness, startTime, random, out duration))
                     {
                         continue;
                     }
                     var endTime = startTime + duration;
-                    if(endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
+                    if (endTime > Time.EndOfDay + TashaRuntime.EndOfDay + Time.OneQuantum)
                     {
                         continue;
                     }
@@ -635,50 +642,52 @@ namespace Tasha.Scheduler
         private static bool GenerateWorkEpisodes(this ITashaHousehold household, Random random, GenerationAdjustment[] generationAdjustments)
         {
             var householdPD = household.HomeZone.PlanningDistrict;
-            foreach(ITashaPerson person in household.Persons)
+            foreach (ITashaPerson person in household.Persons)
             {
                 // people need to be older than "11" to be allowed to work
-                if(person.Age < Scheduler.MinimumWorkingAge) continue;
+                if (person.Age < Scheduler.MinimumWorkingAge) continue;
                 // Check to see if they are in a regular job type case
                 Project workProject = person.GetWorkProject();
                 Schedule workSchedule = workProject.Schedule;
-                if((person.Occupation == Occupation.NotEmployed) | (person.Occupation == Occupation.Unknown))
+                if ((person.Occupation == Occupation.NotEmployed) | (person.Occupation == Occupation.Unknown))
                 {
                     continue;
                 }
-                if(((person.EmploymentStatus == TTSEmploymentStatus.FullTime) | (person.EmploymentStatus == TTSEmploymentStatus.PartTime)))
+                if (((person.EmploymentStatus == TTSEmploymentStatus.FullTime) | (person.EmploymentStatus == TTSEmploymentStatus.PartTime)))
                 {
-                    if(person.EmploymentZone == null)
+                    var empZone = person.EmploymentZone;
+                    int workPD = empZone == null ? 0 : empZone.PlanningDistrict;
+                    if (person.EmploymentZone == null)
                     {
                         //continue;
                         throw new XTMFRuntimeException("There was a person whom had no employment zone however was a full-time/part-time worker!");
                     }
                     //Employment zone doesn't exist so generate our own based on distributions
-                    if(person.EmploymentZone.ZoneNumber == TashaRuntime.ZoneSystem.RoamingZoneNumber)
+                    if (person.EmploymentZone.ZoneNumber == TashaRuntime.ZoneSystem.RoamingZoneNumber)
                     {
-                        GenerateWorkBusinessEpisode(person, workSchedule, random, householdPD, generationAdjustments);
+                        GenerateWorkBusinessEpisode(person, workSchedule, random, householdPD, workPD, generationAdjustments);
                         continue;
                     }
 
-                    int freq = TimeTable.GetFrequency(person, Activity.PrimaryWork, random, householdPD, generationAdjustments);
-                    if(freq <= 0)
+                    int freq = TimeTable.GetFrequency(person, Activity.PrimaryWork, random, householdPD, workPD, generationAdjustments);
+                    if (freq <= 0)
                     {
                         continue;
                     }
                     Time startTime = Time.Zero;
                     Time duration = Time.Zero;
                     bool success = false;
-                    for(int i = 0; i < freq; i++)
+                    for (int i = 0; i < freq; i++)
                     {
-                        for(int attempts = 0; attempts < Scheduler.EpisodeSchedulingAttempts; attempts++)
+                        for (int attempts = 0; attempts < Scheduler.EpisodeSchedulingAttempts; attempts++)
                         {
                             // If we use an and here the compiler can't prove that we assign to duration
-                            if(!TimeTable.GetStartTime(person, Activity.PrimaryWork, freq, random, out startTime))
+                            if (!TimeTable.GetStartTime(person, Activity.PrimaryWork, freq, random, out startTime))
                             {
                                 continue;
                             }
 
-                            if(TimeTable.GetDuration(person, Activity.PrimaryWork, startTime, random, out duration))
+                            if (TimeTable.GetDuration(person, Activity.PrimaryWork, startTime, random, out duration))
                             {
                                 // if we got the duration, success lets continue on
                                 success = true;
@@ -686,7 +695,7 @@ namespace Tasha.Scheduler
                             }
                         }
                         // if we were unable to get a duration
-                        if(!success)
+                        if (!success)
                         {
                             // try the next person
                             continue;
@@ -701,24 +710,24 @@ namespace Tasha.Scheduler
                         primWorkEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime),
                                     Activity.PrimaryWork, person);
                         primWorkEpisode.Zone = person.EmploymentZone;
-                        if(!workSchedule.Insert(primWorkEpisode, random) && i == 0)
+                        if (!workSchedule.Insert(primWorkEpisode, random) && i == 0)
                         {
                             throw new XTMFRuntimeException("Failed to insert the primary work episode into the work project!");
                         }
                         //set up work business activities
-                        ProcessWorkBusiness(person, workSchedule, random, primWorkEpisode, householdPD, generationAdjustments);
+                        ProcessWorkBusiness(person, workSchedule, random, primWorkEpisode, householdPD, workPD, generationAdjustments);
                         //set up secondary work activities
-                        ProcessSecondaryWork(person, workSchedule, random, primWorkEpisode, householdPD, generationAdjustments);
+                        ProcessSecondaryWork(person, workSchedule, random, primWorkEpisode, householdPD, workPD, generationAdjustments);
                         //set up return home from work activities
-                        ProcessReturnHomeFromWork(person, workSchedule, random, primWorkEpisode, householdPD, generationAdjustments);
+                        ProcessReturnHomeFromWork(person, workSchedule, random, primWorkEpisode, householdPD, workPD, generationAdjustments);
                     }
                 }
                 // Check to see if they work from home
-                else if(person.Age >= 19 &&
+                else if (person.Age >= 19 &&
                     ((person.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_FullTime)
                     | (person.EmploymentStatus == TTSEmploymentStatus.WorkAtHome_PartTime)))
                 {
-                    ProcessWorkAtHome(person, workSchedule, random, householdPD, generationAdjustments);
+                    ProcessWorkAtHome(person, workSchedule, random, householdPD, householdPD, generationAdjustments);
                 }
                 // If they don't work, just continue on
             }
@@ -733,12 +742,12 @@ namespace Tasha.Scheduler
         /// <param name="schedule"></param>
         /// <param name="episode"></param>
         /// <returns></returns>
-        private static bool ProcessReturnHomeFromWork(ITashaPerson person, Schedule schedule, Random random, Episode episode, int householdPD, GenerationAdjustment[] generationAdjustments)
+        private static bool ProcessReturnHomeFromWork(ITashaPerson person, Schedule schedule, Random random, Episode episode, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
             int freq = 0;
 
             //the current work schedule doesn't allow for a return from work activity
-            if(episode.StartTime > Scheduler.MaxPrimeWorkStartTimeForReturnHomeFromWork
+            if (episode.StartTime > Scheduler.MaxPrimeWorkStartTimeForReturnHomeFromWork
                 || episode.Duration < Scheduler.MinPrimaryWorkDurationForReturnHomeFromWork)
             {
                 return false;
@@ -748,9 +757,10 @@ namespace Tasha.Scheduler
             Time endTime = episode.EndTime + new Time(0.3f) < Scheduler.ReturnHomeFromWorkMaxEndTime ?
                 episode.EndTime + new Time(0.3f) : Scheduler.ReturnHomeFromWorkMaxEndTime;
 
-            freq = TimeTable.GetFrequency(person, Activity.ReturnFromWork, random, 1, episode.StartTime + new Time(0.3f), endTime, householdPD, generationAdjustments);
+            freq = TimeTable.GetFrequency(person, Activity.ReturnFromWork, random, 1, episode.StartTime + new Time(0.3f), endTime,
+                householdPD, workPD, generationAdjustments);
 
-            if(freq == 1)
+            if (freq == 1)
             {
                 IZone homeZone = person.Household.HomeZone;
 
@@ -759,7 +769,7 @@ namespace Tasha.Scheduler
                 Time MaxEndTime = ((episode.EndTime - HalfAnHour) < Scheduler.ReturnHomeFromWorkMaxEndTime) ? (episode.EndTime - HalfAnHour) : Scheduler.ReturnHomeFromWorkMaxEndTime;
 
                 Time startTime;
-                if(!TimeTable.GetStartTime(person, Activity.ReturnFromWork
+                if (!TimeTable.GetStartTime(person, Activity.ReturnFromWork
                      , freq
                      , episode.StartTime + HalfAnHour
                      , MaxEndTime, random, out startTime))
@@ -771,7 +781,7 @@ namespace Tasha.Scheduler
                     (episode.EndTime - HalfAnHour - startTime).ToFloat()));
 
                 Time duration;
-                if(!TimeTable.GetDuration(person, Activity.ReturnFromWork, startTime, maxDuration, random, out duration))
+                if (!TimeTable.GetDuration(person, Activity.ReturnFromWork, startTime, maxDuration, random, out duration))
                 {
                     // reject
                     return false;
@@ -793,10 +803,11 @@ namespace Tasha.Scheduler
         /// <param name="person"></param>
         /// <param name="schedule"></param>
         /// <param name="primaryWorkEpisode"></param>
-        private static void ProcessSecondaryWork(ITashaPerson person, Schedule schedule, Random random, Episode primaryWorkEpisode, int householdPD, GenerationAdjustment[] generationAdjustments)
+        private static void ProcessSecondaryWork(ITashaPerson person, Schedule schedule, Random random, Episode primaryWorkEpisode, int householdPD,
+            int workPD, GenerationAdjustment[] generationAdjustments)
         {
             //can only work if finish primary work by 7:00PM
-            if(primaryWorkEpisode.EndTime < Scheduler.SecondaryWorkThreshold)
+            if (primaryWorkEpisode.EndTime < Scheduler.SecondaryWorkThreshold)
             {
                 int freq_R = 0;
 
@@ -804,9 +815,10 @@ namespace Tasha.Scheduler
                 Time HourAfterWork = primaryWorkEpisode.EndTime + Time.OneHour;
                 Time MinStartTime = HourAfterWork > Scheduler.SecondaryWorkMinStartTime ? HourAfterWork : Scheduler.SecondaryWorkMinStartTime;
 
-                freq_R = TimeTable.GetFrequency(person, Activity.SecondaryWork, random, 10, MinStartTime, Time.EndOfDay, householdPD, generationAdjustments);
+                freq_R = TimeTable.GetFrequency(person, Activity.SecondaryWork, random, 10, MinStartTime, Time.EndOfDay,
+                    householdPD, workPD, generationAdjustments);
 
-                for(int i = 0; i < freq_R; i++)
+                for (int i = 0; i < freq_R; i++)
                 {
                     //zone same as work zone
                     IZone zone = primaryWorkEpisode.Zone.ZoneNumber == Scheduler.Tasha.ZoneSystem.RoamingZoneNumber
@@ -818,14 +830,14 @@ namespace Tasha.Scheduler
 
                     Time durationR;
 
-                    if(!TimeTable.GetStartTime(person, primaryWorkEpisode.ActivityType, freq_R, MinStartTime, Time.EndOfDay, random, out startTimeR))
+                    if (!TimeTable.GetStartTime(person, primaryWorkEpisode.ActivityType, freq_R, MinStartTime, Time.EndOfDay, random, out startTimeR))
                     {
                         //TODO: We might want to reconsider this, skipping instead of just throwing an exception
                         //throw new XTMFRuntimeException("Unable to find a start time for a primary work episode");
                         return;
                     }
 
-                    if(!TimeTable.GetDuration(person, Activity.SecondaryWork, startTimeR, Time.EndOfDay - startTimeR, random, out durationR))
+                    if (!TimeTable.GetDuration(person, Activity.SecondaryWork, startTimeR, Time.EndOfDay - startTimeR, random, out durationR))
                     {
                         //throw new XTMFRuntimeException("Unable to find a duration for a primary work episode");
                         return;
@@ -842,23 +854,25 @@ namespace Tasha.Scheduler
             }
         }
 
-        private static void ProcessWorkAtHome(ITashaPerson person, Schedule workSchedule, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
+        private static void ProcessWorkAtHome(ITashaPerson person, Schedule workSchedule, Random random, int householdPD,
+            int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            int freq_A = TimeTable.GetFrequency(person, Activity.WorkAtHomeBusiness, random, householdPD, generationAdjustments);
+            int freq_A = TimeTable.GetFrequency(person, Activity.WorkAtHomeBusiness, random, householdPD,
+                workPD, generationAdjustments);
             Time duration, startTime;
-            for(int i = 0; i < freq_A; i++)
+            for (int i = 0; i < freq_A; i++)
             {
                 bool success = false;
                 short attempt = 0;
-                while(!success && (attempt < Scheduler.EpisodeSchedulingAttempts))
+                while (!success && (attempt < Scheduler.EpisodeSchedulingAttempts))
                 {
-                    if(!TimeTable.GetStartTime(person, Activity.WorkAtHomeBusiness, freq_A, random, out startTime))
+                    if (!TimeTable.GetStartTime(person, Activity.WorkAtHomeBusiness, freq_A, random, out startTime))
                     {
                         success = false;
                         attempt++;
                         continue;
                     }
-                    if(!TimeTable.GetDuration(person, Activity.WorkAtHomeBusiness,
+                    if (!TimeTable.GetDuration(person, Activity.WorkAtHomeBusiness,
                         startTime, Time.EndOfDay - startTime, random, out duration))
                     {
                         success = false;
@@ -872,7 +886,7 @@ namespace Tasha.Scheduler
                     Episode wahBusinessEpisode;
                     wahBusinessEpisode = new ActivityEpisode(0,
                         new TimeWindow(startTime, endTime), Activity.WorkAtHomeBusiness, person);
-                    if(!workSchedule.Insert(wahBusinessEpisode, random))
+                    if (!workSchedule.Insert(wahBusinessEpisode, random))
                     {
                         success = false;
                         attempt++;
@@ -885,27 +899,29 @@ namespace Tasha.Scheduler
             }
         }
 
-        private static void ProcessWorkBusiness(ITashaPerson person, Schedule workSchedule, Random random, Episode primWorkEpisode, int householdPD, GenerationAdjustment[] generationAdjustments)
+        private static void ProcessWorkBusiness(ITashaPerson person, Schedule workSchedule, Random random, Episode primWorkEpisode,
+            int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
             Time startTimeB;
             Time durationB;
             Time startTime = primWorkEpisode.StartTime;
             Time endTime = primWorkEpisode.EndTime;
 
-            int freq = TimeTable.GetFrequency(person, Activity.WorkBasedBusiness, random, Scheduler.MaxFrequency, startTime, endTime, householdPD, generationAdjustments);
-            for(int i = 0; i < freq; i++)
+            int freq = TimeTable.GetFrequency(person, Activity.WorkBasedBusiness, random, Scheduler.MaxFrequency, startTime, endTime,
+                householdPD, workPD, generationAdjustments);
+            for (int i = 0; i < freq; i++)
             {
                 var attempt = 0;
-                while(attempt < Scheduler.EpisodeSchedulingAttempts)
+                while (attempt < Scheduler.EpisodeSchedulingAttempts)
                 {
                     attempt++;
-                    if(!TimeTable.GetStartTime(person, Activity.WorkBasedBusiness, freq,
+                    if (!TimeTable.GetStartTime(person, Activity.WorkBasedBusiness, freq,
                         startTime, endTime, random, out startTimeB))
                     {
                         continue;
                     }
 
-                    if(!TimeTable.GetDuration(person, Activity.WorkBasedBusiness, startTimeB, endTime - startTimeB, random, out durationB))
+                    if (!TimeTable.GetDuration(person, Activity.WorkBasedBusiness, startTimeB, endTime - startTimeB, random, out durationB))
                     {
                         continue;
                     }
@@ -913,7 +929,7 @@ namespace Tasha.Scheduler
                     Episode businessEpisode;
                     businessEpisode = new ActivityEpisode(0,
                         new TimeWindow(startTimeB, startTimeB + durationB), Activity.WorkBasedBusiness, person);
-                    if(workSchedule.Insert(businessEpisode, random))
+                    if (workSchedule.Insert(businessEpisode, random))
                     {
                         break;
                     }
