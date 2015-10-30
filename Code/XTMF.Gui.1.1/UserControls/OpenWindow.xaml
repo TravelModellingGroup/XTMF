@@ -67,7 +67,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Text}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" Clicked="BorderIconButton_Clicked">
+                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="BorderIconButton_Clicked">
                             <my:BorderIconButton.Style>
                                 <Style TargetType="my:BorderIconButton">
                                     <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />

@@ -193,5 +193,13 @@ namespace XTMF.Gui.UserControls
         {
 
         }
+
+        private void BorderIconButton_DoubleClicked(object obj)
+        {
+            if (AssignMode)
+            {
+                Assign();
+            }
+        }
     }
 }
