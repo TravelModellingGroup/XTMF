@@ -127,6 +127,8 @@ namespace Tasha.StationAccess
                         CapacityFactors[i] = 0.0f;
                     }
                 }
+                var previousFraction = iteration > 0 ? 1.0f / (iteration + 1.0f) : 0.0f;
+                var currentFraction = iteration > 0 ? iteration / (1.0f + iteration) : 1.0f;
                 using (var writer = new StreamWriter(CapacityFactorOutput))
                 {
                     writer.WriteLine("Zone,Factor,Demand,Capacity");
@@ -134,7 +136,7 @@ namespace Tasha.StationAccess
                     {
                         float stationCapacity = capacity[zoneIndexForStation[i]];
                         float capacityFactor;
-                        if (ComputeStationCapacityFactor(accessStationCounts[i], stationCapacity, CapacityFactors[i], out capacityFactor))
+                        if (ComputeStationCapacityFactor(currentFraction, previousFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out capacityFactor))
                         {
                             CapacityFactors[i] = capacityFactor;
                             writer.Write(zones[zoneIndexForStation[i]].ZoneNumber);
@@ -147,20 +149,20 @@ namespace Tasha.StationAccess
                         }
                         else
                         {
-                            CapacityFactors[i] = 1.0f;
+                            CapacityFactors[i] = 0.0f;
                         }
                     }
                 }
             }
 
-            public bool ComputeStationCapacityFactor(float demand, float capacity, float previousCapacityFactor, out float capacityFactor)
+            public bool ComputeStationCapacityFactor(float previous, float current, float demand, float capacity, float previousCapacityFactor, out float capacityFactor)
             {
                 if (capacity <= 0)
                 {
                     capacityFactor = float.NaN;
                     return false;
                 }
-                capacityFactor = demand / capacity;
+                capacityFactor = current * (demand / capacity) + previous * (previousCapacityFactor);
                 return true;
             }
 
