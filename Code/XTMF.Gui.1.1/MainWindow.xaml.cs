@@ -312,20 +312,29 @@ namespace XTMF.Gui
                         if (req.ShowDialog() == true)
                         {
                             runName = req.Answer;
-                            RunWindow window = new RunWindow(session, runName);
-                            var doc = AddNewWindow("New Run", window);
-                            doc.Closing += (o, e) =>
+                            string error = null;
+                            var run = session.Run(runName, ref error);
+                            if (run != null)
                             {
-                                if (!window.CloseRequested())
+                                RunWindow window = new RunWindow(session, run, runName);
+                                var doc = AddNewWindow("New Run", window);
+                                doc.Closing += (o, e) =>
                                 {
-                                    e.Cancel = true;
-                                    return;
-                                }
-                            };
-                            doc.CanClose = true;
-                            doc.IsSelected = true;
-                            Keyboard.Focus(window);
-                            window.Focus();
+                                    if (!window.CloseRequested())
+                                    {
+                                        e.Cancel = true;
+                                        return;
+                                    }
+                                };
+                                doc.CanClose = true;
+                                doc.IsSelected = true;
+                                Keyboard.Focus(window);
+                                window.Focus();
+                            }
+                            else
+                            {
+                                MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
                         }
                     };
                 }

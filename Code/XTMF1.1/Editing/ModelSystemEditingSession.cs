@@ -171,6 +171,10 @@ namespace XTMF
             get { return this.EditingProject; }
         }
 
+        private static volatile bool AnyRunning = false;
+
+        private static object RunningLock = new object();
+
         /// <summary>
         /// Run the model if it is contained inside of a project.
         /// </summary>
@@ -187,25 +191,34 @@ namespace XTMF
                     error = "You can not run this model system.";
                     return null;
                 }
-                XTMFRun run;
-                if (ModelSystemIndex >= 0)
+                lock(RunningLock)
                 {
-                    Project cloneProject = ProjectEditingSession.CreateCloneProject(ProjectEditingSession.Project);
-                    cloneProject.ModelSystemStructure[ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
-                    cloneProject.ModelSystemDescriptions[ModelSystemIndex] = ModelSystemModel.Description;
-                    cloneProject.LinkedParameters[ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-                    run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName);
+                    if(AnyRunning)
+                    {
+                        error = "Only one run can be executing at the same time!";
+                        return null;
+                    }
+                    XTMFRun run;
+                    if (ModelSystemIndex >= 0)
+                    {
+                        Project cloneProject = ProjectEditingSession.CreateCloneProject(ProjectEditingSession.Project);
+                        cloneProject.ModelSystemStructure[ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
+                        cloneProject.ModelSystemDescriptions[ModelSystemIndex] = ModelSystemModel.Description;
+                        cloneProject.LinkedParameters[ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
+                        run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName);
+                    }
+                    else
+                    {
+                        run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName);
+                    }
+                    this._Run.Add(run);
+                    AnyRunning = true;
+                    _IsRunning = true;
+                    run.RunComplete += () => TerminateRun(run);
+                    run.ValidationError += (e) => TerminateRun(run);
+                    run.RuntimeValidationError += (e) => TerminateRun(run);
+                    return run;
                 }
-                else
-                {
-                    run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName);
-                }
-                this._Run.Add(run);
-                _IsRunning = true;
-                run.RunComplete += () => TerminateRun(run);
-                run.ValidationError += (e) => TerminateRun(run);
-                run.RuntimeValidationError += (e) => TerminateRun(run);
-                return run;
             }
         }
 
@@ -239,7 +252,13 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                _Run.Remove(run);
+                if (_Run.Remove(run))
+                {
+                    lock (RunningLock)
+                    {
+                        AnyRunning = false;
+                    }
+                }
                 if (_Run.Count == 0)
                 {
                     _IsRunning = false;

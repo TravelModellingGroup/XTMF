@@ -176,12 +176,12 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-        public RunWindow(ModelSystemEditingSession session, string runName)
+        public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             InitializeComponent();
             Session = session;
             session.SessionClosed += Session_SessionClosed;
-            StartRun(session, runName);
+            StartRun(run, runName);
         }
 
         private bool ValidateName(string arg)
@@ -190,15 +190,14 @@ namespace XTMF.Gui.UserControls
                 !System.IO.Path.GetInvalidFileNameChars().Any(c => arg.Contains(c));
         }
 
-        private void StartRun(ModelSystemEditingSession session, string runName)
+        private void StartRun(XTMFRun run, string runName)
         {
-            string error = null;
+            Run = run;
             Dispatcher.BeginInvoke(new Action(() =>
                 {
                     MainWindow.Us.SetWindowName(this, "Run - " + runName);
                     RunNameLabel.Text = runName;
                 }));
-            Run = session.Run(runName, ref error);
             ProgressReports = Run.Configuration.ProgressReports;
             ProgressReports.ListChanged += new ListChangedEventHandler(ProgressReports_ListChanged);
             ProgressReports.BeforeRemove += new EventHandler<ListChangedEventArgs>(ProgressReports_BeforeRemove);
