@@ -84,6 +84,9 @@ namespace Tasha.V4Modes
         [RunParameter( "Variance Scale", 1.0, "The factor applied to the error term." )]
         public double VarianceScale { get; set; }
 
+        [SubModelInformation(Required = false, Description = "Constants for time of day")]
+        public TimePeriodSpatialConstant[] TimePeriodConstants;
+
         public double CalculateV(ITrip trip)
         {
             float v;
@@ -110,7 +113,20 @@ namespace Tasha.V4Modes
             }
             v += this.AgeFactor * (float)Math.Log(p.Age + 1);
             v += RegionConstants[trip.OriginalZone.RegionNumber, trip.DestinationZone.RegionNumber];
+            v += GetPlanningDistrictConstant(trip.ActivityStartTime, trip.OriginalZone.PlanningDistrict, trip.DestinationZone.PlanningDistrict);
             return (double)v;
+        }
+
+        public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
+        {
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
+            {
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                {
+                    return TimePeriodConstants[i].GetConstant(pdO, pdD);
+                }
+            }
+            return 0f;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
