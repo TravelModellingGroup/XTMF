@@ -195,6 +195,10 @@ namespace Tasha.V4Modes
                     data[i][j] = GetRegionConstant(regionIndexes[i], regionIndexes[j]);
                 }
             }
+            foreach(var timePeriod in TimePeriodConstants)
+            {
+                timePeriod.BuildMatrix();
+            }
         }
 
         private float GetRegionConstant(int originRegion, int destinationRegion)
