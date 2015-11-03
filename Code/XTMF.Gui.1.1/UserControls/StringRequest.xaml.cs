@@ -75,13 +75,14 @@ namespace XTMF.Gui.UserControls
         {
             if ( e.Key == Key.Enter )
             {
+                e.Handled = true;
                 CloseSuccessfully();
             }
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyUp( e );
+            base.OnKeyDown( e );
             if (e.Handled == false)
             {
                 if (e.Key == Key.Escape)
