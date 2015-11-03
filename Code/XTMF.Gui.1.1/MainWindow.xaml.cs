@@ -140,6 +140,7 @@ namespace XTMF.Gui
                     display.RequestClose += (ignored) =>
                     {
                         doc.Close();
+                        display.Model.Unload();
                         projectSession.NameChanged -= onRename;
                     };
                     display.Focus();

@@ -123,11 +123,22 @@ namespace XTMF.Gui.UserControls
 
             public event PropertyChangedEventHandler PropertyChanged;
 
+            ProjectEditingSession Session;
+
             public ProjectModel(IProject project, ProjectEditingSession session)
             {
+                Session = session;
                 Project = project;
+                session.ProjectWasExternallySaved += Session_ProjectWasExternallySaved;
                 RefreshModelSystems();
                 RefreshPastRuns(session);
+            }
+
+            private void Session_ProjectWasExternallySaved(object sender, EventArgs e)
+            {
+                // re-setup the page for the new project
+                Project = Session.Project;
+                RefreshModelSystems();
             }
 
             public void RefreshPastRuns(ProjectEditingSession session)
@@ -184,6 +195,11 @@ namespace XTMF.Gui.UserControls
                     }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
                 });
+            }
+
+            public void Unload()
+            {
+                Session.ProjectWasExternallySaved -= Session_ProjectWasExternallySaved;
             }
         }
 
