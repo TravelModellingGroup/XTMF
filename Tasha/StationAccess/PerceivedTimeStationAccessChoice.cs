@@ -159,7 +159,7 @@ namespace Tasha.StationAccess
                             AutoFromOriginToAccessStation[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
                                 + (Capacity * capacity[accessIndex]
                                 + ParkingCost * zones[accessIndex].ParkingCost
-                                + (closestStation[originIndex] == accessIndex ? ClosestStationFactor : 0))) * factor;
+                                + (closestStation[originIndex] == accessIndex ? ClosestStationFactor : 0))) / factor;
                             // calculate egress' from access station
                             AutoFromAccessStationToDestination[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex));
                         }
