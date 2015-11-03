@@ -136,7 +136,7 @@ namespace Tasha.StationAccess
                     {
                         float stationCapacity = capacity[zoneIndexForStation[i]];
                         float capacityFactor;
-                        if (ComputeStationCapacityFactor(currentFraction, previousFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out capacityFactor))
+                        if (ComputeStationCapacityFactor(previousFraction, currentFraction, accessStationCounts[i], stationCapacity, CapacityFactors[i], out capacityFactor))
                         {
                             CapacityFactors[i] = capacityFactor;
                             writer.Write(zones[zoneIndexForStation[i]].ZoneNumber);
