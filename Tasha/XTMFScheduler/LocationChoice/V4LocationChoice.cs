@@ -623,29 +623,37 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     Parallel.For(0, jSum[i].Length, (int j) =>
                     {
                         var jPD = zones[j].PlanningDistrict;
-                        var jUtil = (float)
-                    Math.Exp(
-                         (Math.Log(1 + pf[j]) * ProfessionalFullTime
-                        + Math.Log(1 + pp[j]) * ProfessionalPartTime
-                        + Math.Log(1 + gf[j]) * GeneralFullTime
-                        + Math.Log(1 + gp[j]) * GeneralPartTime
-                        + Math.Log(1 + sf[j]) * RetailFullTime
-                        + Math.Log(1 + sp[j]) * RetailPartTime
-                        + Math.Log(1 + mf[j]) * ManufacturingFullTime
-                        + Math.Log(1 + mp[j]) * ManufacturingPartTime
-                        + Math.Log(1 + zones[j].Population) * Population));
 
-
-                        var nonExpPDConstant = 0.0f;
-                        for (int seg = 0; seg < TimePeriod[i].PDConstant.Length; seg++)
+                        if (Parent.ValidDestinations[j])
                         {
-                            if (TimePeriod[i].PDConstant[seg].Range.Contains(jPD))
+                            var jUtil = (float)
+                        Math.Exp(
+                             (Math.Log(1 + pf[j]) * ProfessionalFullTime
+                            + Math.Log(1 + pp[j]) * ProfessionalPartTime
+                            + Math.Log(1 + gf[j]) * GeneralFullTime
+                            + Math.Log(1 + gp[j]) * GeneralPartTime
+                            + Math.Log(1 + sf[j]) * RetailFullTime
+                            + Math.Log(1 + sp[j]) * RetailPartTime
+                            + Math.Log(1 + mf[j]) * ManufacturingFullTime
+                            + Math.Log(1 + mp[j]) * ManufacturingPartTime
+                            + Math.Log(1 + zones[j].Population) * Population));
+
+
+                            var nonExpPDConstant = 0.0f;
+                            for (int seg = 0; seg < TimePeriod[i].PDConstant.Length; seg++)
                             {
-                                nonExpPDConstant += TimePeriod[i].PDConstant[seg].Constant;
-                                break;
+                                if (TimePeriod[i].PDConstant[seg].Range.Contains(jPD))
+                                {
+                                    nonExpPDConstant += TimePeriod[i].PDConstant[seg].Constant;
+                                    break;
+                                }
                             }
+                            jSum[i][j] = jUtil * (float)Math.Exp(nonExpPDConstant);
                         }
-                        jSum[i][j] = jUtil * (float)Math.Exp(nonExpPDConstant);
+                        else
+                        {
+                            jSum[i][j] = 0.0f;
+                        }
                     });
                 }
                 if (Parent.EstimationMode)
@@ -782,7 +790,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             calculationSpace[i] = pdindex >= 0 ? TimePeriod[index].ODConstants[pdindex].ExpConstant : 1f;
                         }
                     }
-                    
+
                     for (i = 0; i <= calculationSpace.Length - Vector<float>.Count; i += Vector<float>.Count)
                     {
                         var timeTo = new Vector<float>(rowTimes, previousIndexOffset + i);
