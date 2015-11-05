@@ -954,6 +954,37 @@ namespace XTMF.Gui.UserControls
                     //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
                     System.Media.SystemSounds.Asterisk.Play();
                 }
+                else
+                {
+                    BringSelectedIntoView(selected);
+                }
+            }
+        }
+
+        private void BringSelectedIntoView(ModelSystemStructureDisplayModel selected)
+        {
+            List<ModelSystemStructureDisplayModel> ansestry = DisplayRoot.BuildChainTo(selected);
+            if(ansestry == null)
+            {
+                return;
+            }
+            var currentContainer = ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
+            for(int i = 1; i < ansestry.Count; i++)
+            {
+                if(currentContainer == null)
+                {
+                    return;
+                }
+                if(i + 1 < ansestry.Count)
+                {
+                    currentContainer = currentContainer.ItemContainerGenerator.ContainerFromItem(ansestry[i]) as TreeViewItem;
+                }
+                else
+                {
+                    currentContainer = currentContainer.ItemContainerGenerator.ContainerFromItem(ansestry[i]) as TreeViewItem;
+                    currentContainer.BringIntoView();
+                    return;
+                }
             }
         }
 

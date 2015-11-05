@@ -241,5 +241,32 @@ namespace XTMF.Gui.Models
         {
             return BaseModel.Paste(toPaste, ref error);
         }
+
+        internal List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected)
+        {
+            return BuildChainTo(selected, this);
+        }
+
+        private static List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected, ModelSystemStructureDisplayModel current)
+        {
+            if(selected == current)
+            {
+                return new List<ModelSystemStructureDisplayModel>() { current };
+            }
+            var children = current.Children;
+            if(children != null)
+            {
+                foreach(var child in children)
+                {
+                    var ret = BuildChainTo(selected, child);
+                    if(ret != null)
+                    {
+                        ret.Insert(0, current);
+                        return ret;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }
