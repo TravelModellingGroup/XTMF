@@ -992,7 +992,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             {
                 TimePeriods[i].Load();
             }
-            if (ValidDestinations == null)
+            if (!EstimationMode || ValidDestinations == null)
             {
                 ValidDestinations = Root.ZoneSystem.ZoneArray.GetFlatData().Select(zone => ValidDestinationZones.Contains(zone.ZoneNumber)).ToArray();
             }
