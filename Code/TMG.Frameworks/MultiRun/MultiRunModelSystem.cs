@@ -38,6 +38,9 @@ namespace TMG.Frameworks.MultiRun
         [SubModelInformation(Required = true, Description = "The child model system to chain the execution of.")]
         public IModelSystemTemplate Child;
 
+        [RunParameter("Continue After Error", false, "Should we continue onto the next run if a run ends with an exception?")]
+        public bool ContinueAfterError;
+
         public string Name { get; set; }
 
         public string OutputBaseDirectory { get; set; }
@@ -100,10 +103,48 @@ namespace TMG.Frameworks.MultiRun
             CurrentProgress = () => Child.Progress;
             foreach(var runName in ExecuteRuns())
             {
-                RunName = runName;
-                Child.Start();
+                try
+                {
+                    RunName = runName;
+                    Child.Start();
+                }
+                catch(ThreadAbortException)
+                {
+                    // in any case we continue to exit on a thread abort exception
+                    throw;
+                }
+                catch(Exception e)
+                {
+                    if(!ContinueAfterError)
+                    {
+                        throw;
+                    }
+                    SaveException(e);
+                }
                 if(Exit) return;
             }
+        }
+
+        private void SaveException(Exception e)
+        {
+            using (var writer = new StreamWriter("XTMF.ErrorLog.txt", true))
+            {
+                var realExeption = GetTopRootException(e);
+                writer.WriteLine(realExeption.Message);
+                writer.WriteLine();
+                writer.WriteLine(realExeption.StackTrace);
+            }
+        }
+
+        private static System.Exception GetTopRootException(System.Exception value)
+        {
+            if (value == null) return null;
+            var agg = value as AggregateException;
+            if (agg != null)
+            {
+                return GetTopRootException(agg.InnerException);
+            }
+            return value;
         }
 
         public override string ToString()
@@ -391,8 +432,6 @@ namespace TMG.Frameworks.MultiRun
 
             }
         }
-
-
 
         private static bool IsDirectory(string path)
         {
