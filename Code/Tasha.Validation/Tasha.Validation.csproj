@@ -144,6 +144,7 @@
     <Compile Include="PersonScheduleAnalysis.cs" />
     <Compile Include="ProjectScheduleAnalysis.cs" />
     <Compile Include="StartTimeIPostScheduler.cs" />
+    <Compile Include="TripExtraction\ExtractSelectedDemographicTripRecords.cs" />
     <Compile Include="TripStartTime.cs" />
     <Compile Include="TripChainValidate.cs" />
     <Compile Include="TripPurposeValidate.cs" />
