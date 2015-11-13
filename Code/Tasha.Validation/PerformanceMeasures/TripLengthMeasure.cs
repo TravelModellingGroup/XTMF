@@ -150,11 +150,12 @@ namespace Tasha.Validation.PerformanceMeasures
                     }
                     writer.WriteLine();
                 }
-            }          
+            }
+            ResultsDictionary.Clear();
         }
 
         public void IterationStarting(int iteration)
-        {         
+        {
         }
 
         public void Load(int maxIterations)

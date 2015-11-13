@@ -110,7 +110,8 @@ namespace Tasha.Validation.PerformanceMeasures
                 {
                     writer.WriteLine("{0}, {1}", pair.Key, pair.Value);                    
                 }
-            }   
+            }
+            ResultsDictionary.Clear();
         }
 
         public void Load(int maxIterations)

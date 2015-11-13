@@ -38,8 +38,6 @@ namespace Tasha.Validation.PerformanceMeasures
         [RootModule]
         public ITashaRuntime Root;
 
-        Dictionary<int, float> TotalVKT;
-
         [RunParameter("Cost per Km", 0.153f, "What is the cost per km used in this model system?")]
         public float CostPerKm;
         
@@ -96,7 +94,7 @@ namespace Tasha.Validation.PerformanceMeasures
             var invCostPerKM = 1.0f / CostPerKm;
             foreach(var timePeriod in TimePeriods)
             {
-                TotalVKT = new Dictionary<int, float>();
+                var totalVKT = new Dictionary<int, float>();
                 var odCostMatrix = timePeriod.ODFlatCostMatrix.AquireResource<SparseTwinIndex<float>>();
                 using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
                 {
@@ -114,15 +112,15 @@ namespace Tasha.Validation.PerformanceMeasures
                             reader.Get(out destination, 2);
                             reader.Get(out numberOfTrips, 3);
                             var distance = odCostMatrix[origin, destination] * invCostPerKM;
-                            TotalVKT.TryGetValue(homeZone, out vkt);
-                            TotalVKT[homeZone] = vkt + numberOfTrips * distance;
+                            totalVKT.TryGetValue(homeZone, out vkt);
+                            totalVKT[homeZone] = vkt + numberOfTrips * distance;
                         }
                     }
                 }
                 using (StreamWriter writer = new StreamWriter(timePeriod.VKTbyHomeZone))
                 {
                     writer.WriteLine("Home Zone, Total VKTs");
-                    foreach(var pair in TotalVKT)
+                    foreach(var pair in totalVKT)
                     {
                         writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
                     }

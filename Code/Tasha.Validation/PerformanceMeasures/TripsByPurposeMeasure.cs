@@ -191,7 +191,14 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void IterationStarting(int iteration)
         {
-
+            if(PurposeDictionary != null)
+            {
+                PurposeDictionary.Clear();
+            }
+            if(SummaryTripCount != null)
+            {
+                SummaryTripCount.Clear();
+            }
         }
 
         public override string ToString()
