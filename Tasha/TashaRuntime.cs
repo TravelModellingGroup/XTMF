@@ -225,7 +225,8 @@ namespace Tasha
             // setup the status to be initializing
             _Status = null;
             _Progress = () => 0f;
-            if(!VehicleTypes.Contains(AutoType))
+            CurrentIteration = 0;
+            if (!VehicleTypes.Contains(AutoType))
             {
                 VehicleTypes.Add(AutoType);
             }
