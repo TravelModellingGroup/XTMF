@@ -80,14 +80,18 @@ namespace Tasha.Validation.PoRPoW
                             float[][] studentData;
                             if (teirDictionary.TryGetValue(person.StudentStatus, out studentData))
                             {
-                                var schoolZones = zoneSystem.GetFlatIndex(person.SchoolZone.ZoneNumber);
-                                if (schoolZones >= 0)
+                                var zone = person.SchoolZone;
+                                if (zone != null)
                                 {
-                                    var row = studentData[homeIndex];
-                                    bool taken = false;
-                                    WriteLock.Enter(ref taken);
-                                    row[schoolZones] += expansionFactor;
-                                    if (taken) WriteLock.Exit(true);
+                                    var schoolZones = zoneSystem.GetFlatIndex(zone.ZoneNumber);
+                                    if (schoolZones >= 0)
+                                    {
+                                        var row = studentData[homeIndex];
+                                        bool taken = false;
+                                        WriteLock.Enter(ref taken);
+                                        row[schoolZones] += expansionFactor;
+                                        if (taken) WriteLock.Exit(true);
+                                    }
                                 }
                             }
                         }

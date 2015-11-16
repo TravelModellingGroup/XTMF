@@ -65,14 +65,18 @@ namespace Tasha.Validation.PoRPoW
                     float[][] empData;
                     if(occDictionary.TryGetValue(person.EmploymentStatus, out empData))
                     {
-                        var employmentZone = zoneSystem.GetFlatIndex(person.EmploymentZone.ZoneNumber);
-                        if(employmentZone >= 0)
+                        var zone = person.EmploymentZone;
+                        if (zone != null)
                         {
-                            var row = empData[homeIndex];
-                            bool taken = false;
-                            WriteLock.Enter(ref taken);
-                            row[employmentZone] += expansionFactor;
-                            if(taken) WriteLock.Exit(true);
+                            var employmentZone = zoneSystem.GetFlatIndex(zone.ZoneNumber);
+                            if (employmentZone >= 0)
+                            {
+                                var row = empData[homeIndex];
+                                bool taken = false;
+                                WriteLock.Enter(ref taken);
+                                row[employmentZone] += expansionFactor;
+                                if (taken) WriteLock.Exit(true);
+                            }
                         }
                     }
                 }
