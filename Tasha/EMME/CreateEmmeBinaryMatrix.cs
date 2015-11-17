@@ -30,7 +30,7 @@ using System.Threading;
 
 namespace Tasha.EMME
 {
-    public sealed class CreateEmmeBinaryMatrix : IPostHousehold
+    public sealed class CreateEmmeBinaryMatrix : IPostHousehold, IPostHouseholdIteration
     {
         [RootModule]
         public ITravelDemandModel Root;
@@ -56,60 +56,61 @@ namespace Tasha.EMME
         [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
         public int MinimumAge;
 
+        public void HouseholdComplete(ITashaHousehold household, bool success)
+        {
+
+        }
+
+        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+        {
+            Execute(household, hhldIteration);
+        }
+
+        public void HouseholdStart(ITashaHousehold household, int householdIterations)
+        {
+
+        }
+
         public void Execute(ITashaHousehold household, int iteration)
         {
             var persons = household.Persons;
-            for(int i = 0; i < persons.Length; i++)
+            for (int i = 0; i < persons.Length; i++)
             {
-                if(persons[i].Age < MinimumAge)
+                if (persons[i].Age < MinimumAge)
                 {
                     continue;
                 }
                 var expFactor = persons[i].ExpansionFactor;
                 var tripChains = persons[i].TripChains;
-                for(int j = 0; j < tripChains.Count; j++)
+                for (int j = 0; j < tripChains.Count; j++)
                 {
-                    if((tripChains[j].EndTime < StartTime) | (tripChains[j].StartTime) > EndTime)
+                    if ((tripChains[j].EndTime < StartTime) | (tripChains[j].StartTime) > EndTime)
                     {
                         continue;
                     }
                     var trips = tripChains[j].Trips;
                     bool access = true;
-                    for(int k = 0; k < trips.Count; k++)
+                    for (int k = 0; k < trips.Count; k++)
                     {
                         var startTime = trips[k].TripStartTime;
-                        var modesChosen = trips[k].ModesChosen;
-                        int times = 0;
-                        for(int l = 0; l < modesChosen.Length; l++)
+                        var modeChosen = trips[k].Mode;
+                        if (UsesMode(modeChosen))
                         {
-                            if(UsesMode(modesChosen[l]))
-                            {
-                                times++;
-                            }
+                            AddToMatrix(expFactor, startTime, trips[k].OriginalZone, trips[k].DestinationZone);
                         }
-
-                        if(times > 0)
+                        else
                         {
-                            AddToMatrix(expFactor, startTime, times, trips[k].OriginalZone, trips[k].DestinationZone);
-                        }
-                        for(int l = 0; l < AccessModes.Length; l++)
-                        {
-                            times = 0;
-                            for(int m = 0; m < modesChosen.Length; m++)
+                            for (int l = 0; l < AccessModes.Length; l++)
                             {
-                                if(UsesAccessMode(modesChosen[m]))
+                                if (UsesAccessMode(modeChosen))
                                 {
-                                    times++;
+                                    IZone origin, destination;
+                                    if (AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
+                                    {
+                                        AddToMatrix(expFactor, startTime, origin, destination);
+                                    }
+                                    access = false;
                                 }
-                            }
-                            if(times > 0)
-                            {
-                                IZone origin, destination;
-                                if(AccessModes[l].GetTranslatedOD(tripChains[j], trips[k], access, out origin, out destination))
-                                {
-                                    AddToMatrix(expFactor, startTime, times, origin, destination);
-                                }
-                                access = false;
                             }
                         }
                     }
@@ -117,17 +118,16 @@ namespace Tasha.EMME
             }
         }
 
-        private void AddToMatrix(float expFactor, Time startTime, int times, IZone origin, IZone destination)
+        private void AddToMatrix(float expFactor, Time startTime, IZone origin, IZone destination)
         {
-            if(startTime >= StartTime & startTime < EndTime)
+            if (startTime >= StartTime & startTime < EndTime)
             {
                 var originIndex = ZoneSystem.GetFlatIndex(origin.ZoneNumber);
                 var destinationIndex = ZoneSystem.GetFlatIndex(destination.ZoneNumber);
-                var expandedTimes = expFactor * times;
                 bool gotLock = false;
                 WriteLock.Enter(ref gotLock);
-                Matrix[originIndex][destinationIndex] += expandedTimes;
-                if(gotLock) WriteLock.Exit(true);
+                Matrix[originIndex][destinationIndex] += expFactor;
+                if (gotLock) WriteLock.Exit(true);
             }
         }
 
@@ -149,9 +149,9 @@ namespace Tasha.EMME
 
             public bool RuntimeValidation(ref string error)
             {
-                foreach(var mode in Root.AllModes)
+                foreach (var mode in Root.AllModes)
                 {
-                    if(mode.ModeName == ModeName)
+                    if (mode.ModeName == ModeName)
                     {
                         Mode = mode;
                         return true;
@@ -186,7 +186,7 @@ namespace Tasha.EMME
 
             public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool access, out IZone origin, out IZone destination)
             {
-                if(CountAccess ^ (!access))
+                if (CountAccess ^ (!access))
                 {
                     origin = trip.OriginalZone;
                     destination = chain[AccessZoneTagName] as IZone;
@@ -202,9 +202,9 @@ namespace Tasha.EMME
 
             public bool RuntimeValidation(ref string error)
             {
-                foreach(var mode in Root.AllModes)
+                foreach (var mode in Root.AllModes)
                 {
-                    if(mode.ModeName == ModeName)
+                    if (mode.ModeName == ModeName)
                     {
                         Mode = mode;
                         return true;
@@ -228,9 +228,9 @@ namespace Tasha.EMME
         /// <returns></returns>
         private bool UsesMode(ITashaMode mode)
         {
-            for(int i = 0; i < Modes.Length; i++)
+            for (int i = 0; i < Modes.Length; i++)
             {
-                if(Modes[i].Mode == mode)
+                if (Modes[i].Mode == mode)
                 {
                     return true;
                 }
@@ -240,9 +240,9 @@ namespace Tasha.EMME
 
         private bool UsesAccessMode(ITashaMode mode)
         {
-            for(int i = 0; i < AccessModes.Length; i++)
+            for (int i = 0; i < AccessModes.Length; i++)
             {
-                if(AccessModes[i].Mode == mode)
+                if (AccessModes[i].Mode == mode)
                 {
                     return true;
                 }
@@ -253,15 +253,25 @@ namespace Tasha.EMME
         private SparseArray<IZone> ZoneSystem;
         private int NumberOfZones;
 
+        public void IterationStarting(int iteration, int totalIterations)
+        {
+            IterationStarting(iteration);
+        }
+
+        public void IterationFinished(int iteration, int totalIterations)
+        {
+            IterationFinished(iteration);
+        }
+
         public void IterationStarting(int iteration)
         {
             // get the newest zone system
             ZoneSystem = Root.ZoneSystem.ZoneArray;
             NumberOfZones = ZoneSystem.Count;
-            if(Matrix == null)
+            if (Matrix == null)
             {
                 Matrix = new float[NumberOfZones][];
-                for(int i = 0; i < Matrix.Length; i++)
+                for (int i = 0; i < Matrix.Length; i++)
                 {
                     Matrix[i] = new float[NumberOfZones];
                 }
@@ -269,7 +279,7 @@ namespace Tasha.EMME
             else
             {
                 // clear out old trips
-                for(int i = 0; i < Matrix.Length; i++)
+                for (int i = 0; i < Matrix.Length; i++)
                 {
                     Array.Clear(Matrix[i], 0, Matrix[i].Length);
                 }
@@ -281,7 +291,7 @@ namespace Tasha.EMME
         public void IterationFinished(int iteration)
         {
             // Apply the special generators
-            for(int i = 0; i < SpecialGenerators.Length; i++)
+            for (int i = 0; i < SpecialGenerators.Length; i++)
             {
                 SpecialGenerators[i].IncludeTally(Matrix);
             }
@@ -298,7 +308,5 @@ namespace Tasha.EMME
         {
             return true;
         }
-
-
     }
 }
