@@ -119,8 +119,8 @@ namespace TMG.Functions
             int i = firstIndex;
             if ((firstIndex | secondIndex) == 0)
             {
-                int highestForVector = length - Vector<float>.Count;
-                for (; i <= highestForVector; i += Vector<float>.Count)
+                int highestForVector = length - (Vector<float>.Count * 2);
+                for (; i <= highestForVector; i += Vector<float>.Count * 2)
                 {
                     var f1 = new Vector<float>(first, i);
                     var s1 = new Vector<float>(second, i);
