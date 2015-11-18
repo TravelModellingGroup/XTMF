@@ -10,7 +10,7 @@ using XTMF;
 
 namespace Tasha.Validation.ModeChoice
 {
-    public class StartTimeDistributions : IPostHousehold
+    public class StartTimeDistributions : IPostHousehold, IPostHouseholdIteration
     {
         public string Name
         {
@@ -51,6 +51,33 @@ namespace Tasha.Validation.ModeChoice
 
         private const int NumberOfTimeBins = 48;
         private ITashaMode[] Modes;
+
+
+        public void HouseholdComplete(ITashaHousehold household, bool success)
+        {
+            
+        }
+
+        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+        {
+            Execute(household, hhldIteration);
+        }
+
+        public void HouseholdStart(ITashaHousehold household, int householdIterations)
+        {
+            
+        }
+
+        public void IterationStarting(int iteration, int totalIterations)
+        {
+            IterationStarting(iteration);
+        }
+
+        public void IterationFinished(int iteration, int totalIterations)
+        {
+            IterationFinished(iteration);
+        }
+
         public void Execute(ITashaHousehold household, int iteration)
         {
             var persons = household.Persons;
