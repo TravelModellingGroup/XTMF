@@ -25,6 +25,7 @@ using TMG;
 using Tasha.Common;
 using Datastructure;
 using TMG.Input;
+using TMG.Functions;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -229,15 +230,22 @@ namespace Tasha.PopulationSynthesis
                 throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find school choice data for household zone number " + householdZone + " !" );
             }
             double total = 0.0;
-            for ( int i = 0; i < data.Length; i++ )
+            if (VectorHelper.IsHardwareAccelerated)
             {
-                total += data[i];
+                total = VectorHelper.Sum(data, 0, data.Length);
+            }
+            else
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    total += data[i];
+                }
             }
             if ( total <= 0 )
             {
                 return null;
             }
-            var count = random.NextDouble() * total;
+            var count = (float)random.NextDouble() * total;
             int countIndex = -1;
             // first pass randomly pick a point 
             for ( int i = 0; i < data.Length; i++ )

@@ -111,6 +111,7 @@ namespace Tasha.Validation.Convergence
             if(iterationNumber >= totalIterations - 1)
             {
                 Writer.Dispose();
+                Writer = null;
             }
         }
 

@@ -396,10 +396,17 @@ namespace XTMF.Gui.UserControls
 
         private void Run_RunComplete()
         {
-            Dispatcher.Invoke(new Action(() =>
+            try
             {
-                SetRunFinished();
-            }));
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    SetRunFinished();
+                }));
+            }
+            catch
+            {
+
+            }
         }
 
 

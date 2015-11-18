@@ -182,7 +182,7 @@ namespace TMG.Tasha
 
         public IEnumerator<ITashaHousehold> GetEnumerator()
         {
-            BlockingBuffer = new BlockingCollection<ITashaHousehold>(Environment.ProcessorCount * 4);
+            BlockingBuffer = new BlockingCollection<ITashaHousehold>(Environment.ProcessorCount * Environment.ProcessorCount);
             if (NeedsReset)
             {
                 Reset();

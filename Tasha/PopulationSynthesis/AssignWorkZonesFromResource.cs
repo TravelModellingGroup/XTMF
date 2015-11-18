@@ -103,7 +103,14 @@ namespace Tasha.PopulationSynthesis
                                     noProbabilityZones.Add(originIndex);
                                     continue;
                                 }
-                                VectorHelper.Multiply(category[originIndex], 0, category[originIndex], 0, 1.0f / total, category[originIndex].Length);
+                                // convert everything to pdf
+                                var row = category[originIndex];
+                                VectorHelper.Multiply(row, 0, row, 0, 1.0f / total, row.Length);
+                                // now that we have pdf we can now build the cdf's
+                                for (int i = 1; i < category[originIndex].Length; i++)
+                                {
+                                    row[i] = row[i - 1] + row[i];
+                                }
                             }
                         }
                         else
@@ -123,9 +130,15 @@ namespace Tasha.PopulationSynthesis
                                     continue;
                                 }
                                 total = 1.0f / total;
-                                for(int k = 0; k < row.Length; k++)
+                                // convert everything to pdf
+                                for (int k = 0; k < row.Length; k++)
                                 {
                                     row[k] *= total;
+                                }
+                                // now that we have pdf we can now build the cdf's
+                                for (int i = 1; i < category[originIndex].Length; i++)
+                                {
+                                    row[i] = row[i - 1] + row[i];
                                 }
                             }
                         }
@@ -218,19 +231,36 @@ namespace Tasha.PopulationSynthesis
                     var homeZoneIndex = ZoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
                     var row = Probabilities.GetFlatData()[type][homeZoneIndex];
                     var pop = (float)random.NextDouble();
-                    var current = 0.0f;
-                    do
+                    return Zones[FindFirstClosestIndex(pop, row)];
+                }
+
+                private int FindFirstClosestIndex(float pop, float[] row)
+                {
+                    int max = row.Length;
+                    int min = 0;
+                    while(min < max)
                     {
-                        for(int i = 0; i < row.Length; i++)
+                        int mid = (max + min) >> 1;
+                        if(row[mid] < pop)
                         {
-                            current += row[i];
-                            if(current >= pop)
+                            min = mid + 1;
+                        }
+                        else
+                        {
+                            max = mid;
+                        }
+                    }
+                    if (min > 0)
+                    {
+                        for (;; min--)
+                        {
+                            if (row[min - 1] != row[min])
                             {
-                                return Zones[i];
+                                break;
                             }
                         }
-                    } while(current > 0);
-                    throw new XTMFRuntimeException("We failed to generate a work zone for an individual!");
+                    }
+                    return min;
                 }
 
                 private int ClassifyHousehold(ITashaHousehold household)
