@@ -108,8 +108,8 @@ namespace Tasha.Network
                 else
                 {
                     var iteration = timesLoaded + 1;
-                    var previousFraction = 1.0f / (iteration + 1.0f);
-                    var currentFraction = iteration / (1.0f + iteration);
+                    var previousFraction = 1.0f / 2.0f;
+                    var currentFraction = 1.0f / 2.0f;
                     foreach (var point in readODData.Read())
                     {
                         var o = point.O == previousPointO ? previousFlatO : zoneArray.GetFlatIndex(point.O);
