@@ -47,6 +47,9 @@ namespace Tasha.Validation.Convergence
         [SubModelInformation(Required = true, Description = "The second matrix to compare.")]
         public IResource SecondMatrix;
 
+        [RunParameter("Sum First", true, "Should we also provide a sum of the first matrix?")]
+        public bool SumFirst;
+
         [SubModelInformation(Required = true, Description = "The location to save the report to.")]
         public FileLocation ReportFile;
 
@@ -67,7 +70,7 @@ namespace Tasha.Validation.Convergence
 
         private void Dispose(bool managed)
         {
-            if(Writer != null)
+            if (Writer != null)
             {
                 Writer.Dispose();
                 Writer = null;
@@ -81,60 +84,82 @@ namespace Tasha.Validation.Convergence
 
         public void Execute(int iterationNumber, int totalIterations)
         {
-            if(Writer == null)
+            if (Writer == null)
             {
                 Writer = new StreamWriter(ReportFile);
-                switch(AnalysisToRun)
+                switch (AnalysisToRun)
                 {
                     case AnalysisType.Average:
-                        Writer.WriteLine("Iteration,Average");
+                        Writer.Write("Iteration,Average");
                         break;
                     case AnalysisType.Max:
-                        Writer.WriteLine("Iteration,Max");
+                        Writer.Write("Iteration,Max");
                         break;
                 }
+                Writer.WriteLine(SumFirst ? ",SumOfFirst" : "");
             }
+            var first = FirstMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var second = SecondMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             float value = 0.0f;
-            switch(AnalysisToRun)
+            switch (AnalysisToRun)
             {
                 case AnalysisType.Average:
-                    value = GetAverage();
+                    value = GetAverage(first,second);
                     break;
                 case AnalysisType.Max:
-                    value = GetMax();
+                    value = GetMax(first,second);
                     break;
             }
             Writer.Write(iterationNumber + 1);
             Writer.Write(',');
-            Writer.WriteLine(value);
+            Writer.Write(value);
+            if(SumFirst)
+            {
+                var sum = 0.0f;
+                for (int i = 0; i < first.Length; i++)
+                {
+                    if(VectorHelper.IsHardwareAccelerated)
+                    {
+                        sum += VectorHelper.Sum(first[i], 0, first[i].Length);
+                    }
+                    else
+                    {
+                        for (int j = 0; j < first[i].Length; j++)
+                        {
+                            sum += first[i][j];
+                        }
+                    }
+                }
+                Writer.Write(',');
+                Writer.Write(sum);
+            }
+            Writer.WriteLine();
             // if this is the last iteration dispose
-            if(iterationNumber >= totalIterations - 1)
+            if (iterationNumber >= totalIterations - 1)
             {
                 Writer.Dispose();
                 Writer = null;
             }
         }
 
-        private float GetAverage()
+        private float GetAverage(float[][] first, float[][] second)
         {
-            var first = FirstMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var second = SecondMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var diff = 0.0f;
-            if(VectorHelper.IsHardwareAccelerated)
+            if (VectorHelper.IsHardwareAccelerated)
             {
-                for(int i = 0; i < first.Length; i++)
+                for (int i = 0; i < first.Length; i++)
                 {
                     diff += VectorHelper.AbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
                 }
             }
             else
             {
-                for(int i = 0; i < first.Length; i++)
+                for (int i = 0; i < first.Length; i++)
                 {
                     var firstRow = first[i];
                     var secondRow = second[i];
                     var local = 0.0f;
-                    for(int j = 0; j < firstRow.Length; j++)
+                    for (int j = 0; j < firstRow.Length; j++)
                     {
                         local += Math.Abs(firstRow[j] - secondRow[j]);
                     }
@@ -147,25 +172,23 @@ namespace Tasha.Validation.Convergence
             return diff;
         }
 
-        private float GetMax()
+        private float GetMax(float[][] first, float[][] second)
         {
-            var first = FirstMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var second = SecondMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             var diff = 0.0f;
-            if(VectorHelper.IsHardwareAccelerated)
+            if (VectorHelper.IsHardwareAccelerated)
             {
-                for(int i = 0; i < first.Length; i++)
+                for (int i = 0; i < first.Length; i++)
                 {
                     diff = Math.Max(VectorHelper.AbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
                 }
             }
             else
             {
-                for(int i = 0; i < first.Length; i++)
+                for (int i = 0; i < first.Length; i++)
                 {
                     var firstRow = first[i];
                     var secondRow = second[i];
-                    for(int j = 0; j < firstRow.Length; j++)
+                    for (int j = 0; j < firstRow.Length; j++)
                     {
                         diff = Math.Max(Math.Abs(firstRow[j] - secondRow[j]), diff);
                     }
@@ -183,12 +206,12 @@ namespace Tasha.Validation.Convergence
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!FirstMatrix.CheckResourceType<SparseTwinIndex<float>>())
+            if (!FirstMatrix.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the FirstMatrix resource is not of type 'SparseTwinIndex<float>'!";
                 return false;
             }
-            if(!SecondMatrix.CheckResourceType<SparseTwinIndex<float>>())
+            if (!SecondMatrix.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the SecondMatrix resource is not of type 'SparseTwinIndex<float>'!";
                 return false;
