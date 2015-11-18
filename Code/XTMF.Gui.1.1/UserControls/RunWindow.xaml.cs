@@ -526,6 +526,10 @@ namespace XTMF.Gui.UserControls
             {
                 return true;
             }
+            this.Dispatcher.Invoke(() =>
+            {
+                MainWindow.ShowPageContaining(this);
+            });
             //Are you sure?
             var window = GetWindow(this);
             if (window == null ?

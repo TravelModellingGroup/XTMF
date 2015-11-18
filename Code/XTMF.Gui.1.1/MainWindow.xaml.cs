@@ -552,6 +552,15 @@ namespace XTMF.Gui
             }
         }
 
+        internal static void ShowPageContaining(object content)
+        {
+            var result = Us.OpenPages.FirstOrDefault((page) => page.Content == content);
+            if(result != null)
+            {
+                result.IsActive = true;
+            }
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             foreach (var document in OpenPages.Select(page => page.Content))

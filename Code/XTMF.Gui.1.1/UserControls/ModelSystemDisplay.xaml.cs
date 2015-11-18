@@ -516,13 +516,21 @@ namespace XTMF.Gui.UserControls
         internal bool CloseRequested()
         {
             SaveCurrentlySelectedParameters();
-            if (!Session.CloseWillTerminate || !Session.HasChanged
-                || MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
-                "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+            this.Dispatcher.Invoke(() =>
             {
-                return true;
-            }
-            return false;
+                MainWindow.ShowPageContaining(this);
+            });
+            var result = false;
+            this.Dispatcher.Invoke(() =>
+            {
+                if (!Session.CloseWillTerminate || !Session.HasChanged
+                    || MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
+                    "Are you sure?", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+                {
+                    result = true;
+                }
+            }, DispatcherPriority.Input);
+            return result;
         }
 
         public event Action<object> RequestClose;
