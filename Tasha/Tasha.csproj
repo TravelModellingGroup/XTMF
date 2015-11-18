@@ -184,6 +184,7 @@
     <Compile Include="DataExtraction\SaveAsCSVMatrix.cs" />
     <Compile Include="DataExtraction\SqlServerDataSource.cs" />
     <Compile Include="DataExtraction\ZoneSystemSource.cs" />
+    <Compile Include="Data\AverageOD.cs" />
     <Compile Include="Data\ConvertPDDataToZones.cs" />
     <Compile Include="Data\CreateSparseTriIndexFloatFromSparseTwinIndexes.cs" />
     <Compile Include="Data\FloatData.cs" />
