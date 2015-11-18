@@ -101,6 +101,15 @@ namespace XTMF.Gui.Models
             }
         }
 
+        public string LinkedParameterName
+        {
+            get
+            {
+                var lp = RealParameter.GetLinkedParameter();
+                return lp != null ? lp.Name : String.Empty;
+            }
+        }
+
         public bool QuickParameter
         {
             get
@@ -110,6 +119,14 @@ namespace XTMF.Gui.Models
             set
             {
                 RealParameter.QuickParameter = value;
+            }
+        }
+
+        public string QuickParameterName
+        {
+            get
+            {
+                return Name + " : " + RealParameter.BelongsTo.Name;
             }
         }
 

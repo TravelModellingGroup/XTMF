@@ -194,7 +194,7 @@
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
                                                     <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                                     <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
-                                               ToolTip="{Binding LinkedParameter}" Visibility="{Binding LinkedParameterVisibility}" />
+                                               ToolTip="{Binding LinkedParameterName, Mode=OneTime}" Visibility="{Binding LinkedParameterVisibility}" />
                                                     <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
                                                ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
                                                 </Grid>
@@ -344,9 +344,9 @@
                                                     </Grid.ColumnDefinitions>
                                                     <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
-                                                    <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
+                                                    <TextBlock Grid.Column="1" Margin="2" Text="{Binding QuickParameterName, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                                     <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
-                                               ToolTip="{Binding LinkedParameter}" Visibility="{Binding LinkedParameterVisibility}" />
+                                               ToolTip="{Binding LinkedParameterName, Mode=OneTime}" Visibility="{Binding LinkedParameterVisibility, Mode=OneTime}" />
                                                     <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
                                                ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
                                                 </Grid>
