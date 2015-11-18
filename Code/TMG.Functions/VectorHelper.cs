@@ -795,6 +795,52 @@ namespace TMG.Functions
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="destIndex"></param>
+        /// <param name="first"></param>
+        /// <param name="firstIndex"></param>
+        /// <param name="second"></param>
+        /// <param name="secondIndex"></param>
+        /// <param name="length"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Average(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, int length)
+        {
+            Vector<float> half = new Vector<float>(0.5f);
+            if ((destIndex | firstIndex | secondIndex) == 0)
+            {
+                int i = 0;
+                for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = new Vector<float>(first, i);
+                    var s = new Vector<float>(second, i);
+                    ((f + s) * half).CopyTo(destination, i);
+                }
+                // copy the remainder
+                for (; i < length; i++)
+                {
+                    destination[i] = (first[i] + second[i]) * 0.5f;
+                }
+            }
+            else
+            {
+                for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var f = new Vector<float>(first, i + firstIndex);
+                    var s = new Vector<float>(second, i + secondIndex);
+                    ((f + s) * half).CopyTo(destination, i + destIndex);
+                }
+                // copy the remainder
+                for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                {
+                    destination[i + destIndex] = (first[i + firstIndex] + second[i + secondIndex]) * 0.5f;
+                }
+            }
+        }
+
         /// <summary>
         /// Produce a new vector selecting the original value if it is finite.  If it is not,
         /// select the alternative value.
