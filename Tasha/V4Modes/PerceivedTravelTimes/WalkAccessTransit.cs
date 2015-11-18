@@ -126,15 +126,15 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("Variance Scale", 1.0, "The factor applied to the error term.")]
         public double VarianceScale { get; set; }
 
+        private SparseArray<IZone> ZoneArray;
+
         public double CalculateV(ITrip trip)
         {
             // compute the non human factors
-            var zoneSystem = Root.ZoneSystem;
-            var zoneArray = zoneSystem.ZoneArray;
             IZone originalZone = trip.OriginalZone;
-            var o = zoneArray.GetFlatIndex(originalZone.ZoneNumber);
+            var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
             IZone destinationZone = trip.DestinationZone;
-            var d = zoneArray.GetFlatIndex(destinationZone.ZoneNumber);
+            var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
             var p = trip.TripChain.Person;
             float perceivedTimeFactor, constant, costFactor;
             GetPersonVariables(p, out constant, out perceivedTimeFactor, out costFactor);
@@ -250,7 +250,11 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         public bool Feasible(ITrip trip)
         {
-            return true;
+            IZone originalZone = trip.OriginalZone;
+            var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
+            IZone destinationZone = trip.DestinationZone;
+            var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
+            return Network.ValidOD(o, d, trip.TripStartTime);
         }
 
         public bool Feasible(ITripChain tripChain)
@@ -338,6 +342,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
+            var zoneSystem = Root.ZoneSystem;
+            ZoneArray = zoneSystem.ZoneArray;
             // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
             for (int i = 0; i < TimePeriodConstants.Length; i++)
             {
