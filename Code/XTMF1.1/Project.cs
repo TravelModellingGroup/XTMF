@@ -78,13 +78,13 @@ namespace XTMF
 
         internal bool AddModelSystem(ModelSystem modelSystem, string newName, ref string error)
         {
-            if(modelSystem == null)
+            if (modelSystem == null)
             {
                 throw new ArgumentNullException("modelSystem");
             }
             List<ILinkedParameter> linkedParameters;
             var clone = CloneModelSystemStructure(modelSystem, out linkedParameters);
-            if(clone == null)
+            if (clone == null)
             {
                 error = "Unable to clone the model system.";
                 return false;
@@ -250,13 +250,13 @@ namespace XTMF
         /// <returns>A set of parameters with their default values</returns>
         public static IModuleParameters GetParameters(Type modelType)
         {
-            if(modelType == null) return null;
+            if (modelType == null) return null;
             ModuleParameters parameters = new ModuleParameters();
-            foreach(var property in modelType.GetProperties())
+            foreach (var property in modelType.GetProperties())
             {
                 AddProperties(parameters, property.GetCustomAttributes(true), property.Name, false, property.PropertyType);
             }
-            foreach(var field in modelType.GetFields())
+            foreach (var field in modelType.GetFields())
             {
                 AddProperties(parameters, field.GetCustomAttributes(true), field.Name, true, field.FieldType);
             }
@@ -270,10 +270,10 @@ namespace XTMF
         /// <returns>If the name is valid, true, or not, false.</returns>
         public static bool ValidateProjectName(string name)
         {
-            if(string.IsNullOrEmpty(name)) return false;
-            foreach(var invalidChar in Path.GetInvalidFileNameChars())
+            if (string.IsNullOrEmpty(name)) return false;
+            foreach (var invalidChar in Path.GetInvalidFileNameChars())
             {
-                if(name.Contains(invalidChar)) return false;
+                if (name.Contains(invalidChar)) return false;
             }
             return true;
         }
@@ -292,7 +292,7 @@ namespace XTMF
         public IModelSystemTemplate CreateModelSystem(ref string error, IConfiguration configuration, int modelSystemIndex)
         {
             // Pre-Validate the structure
-            if(modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
+            if (modelSystemIndex < 0 | modelSystemIndex >= ModelSystemStructure.Count)
             {
                 throw new XTMFRuntimeException("The model system requested does not exist!\r\nModel System Number:" + modelSystemIndex + " of " +
                 ModelSystemStructure.Count);
@@ -302,13 +302,13 @@ namespace XTMF
 
         public IModelSystemTemplate CreateModelSystem(ref string error, IConfiguration configuration, IModelSystemStructure modelSystemStructure)
         {
-            if(!modelSystemStructure.Validate(ref error))
+            if (!modelSystemStructure.Validate(ref error))
             {
                 return null;
             }
 
             IModelSystemTemplate modelSystem = null;
-            if(CreateModule(configuration, modelSystemStructure, modelSystemStructure, ref error))
+            if (CreateModule(configuration, modelSystemStructure, modelSystemStructure, ref error))
             {
                 modelSystem = modelSystemStructure.Module as IModelSystemTemplate;
             }
@@ -324,12 +324,12 @@ namespace XTMF
         public bool Save(ref string error)
         {
             string dirName = Path.Combine(Configuration.ProjectDirectory, Name);
-            if(!Directory.Exists(dirName))
+            if (!Directory.Exists(dirName))
             {
                 Directory.CreateDirectory(dirName);
             }
             var ret = Save(Path.Combine(dirName, "Project.xml"), ref error);
-            if(ClonedFrom != null)
+            if (ClonedFrom != null)
             {
                 var e = ClonedFrom.ExternallySaved;
                 // swap the project that this was a clone of and replace the real project.
@@ -352,15 +352,15 @@ namespace XTMF
         {
             var dirName = Path.GetDirectoryName(path);
             var tempFileName = Path.GetTempFileName();
-            if(!Directory.Exists(dirName))
+            if (!Directory.Exists(dirName))
             {
                 bool directoryExists = false;
-                while(!directoryExists)
+                while (!directoryExists)
                 {
                     Directory.CreateDirectory(dirName);
-                    for(int i = 0; i < 10; i++)
+                    for (int i = 0; i < 10; i++)
                     {
-                        if(Directory.Exists(dirName))
+                        if (Directory.Exists(dirName))
                         {
                             directoryExists = true;
                             break;
@@ -379,15 +379,15 @@ namespace XTMF
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Root");
 
-                    if(Description != null)
+                    if (Description != null)
                     {
                         writer.WriteAttributeString("Description", Description);
                     }
-                    for(int i = 0; i < mss.Count; i++)
+                    for (int i = 0; i < mss.Count; i++)
                     {
                         var ms = mss[i];
                         var lpl = lpll[i];
-                        if(ms.Type != null)
+                        if (ms.Type != null)
                         {
                             writer.WriteStartElement("AdvancedModelSystem");
                             writer.WriteAttributeString("Description", _Descriptions[i]);
@@ -419,12 +419,12 @@ namespace XTMF
         /// </summary>
         public void SetActive()
         {
-            if(!IsLoaded)
+            if (!IsLoaded)
             {
                 lock (this)
                 {
                     Thread.MemoryBarrier();
-                    if(!IsLoaded)
+                    if (!IsLoaded)
                     {
                         // Load off of the disk in parallel to provide faster UI reaction
                         Load();
@@ -435,12 +435,12 @@ namespace XTMF
 
         public bool ValidateModelName(string possibleNewName)
         {
-            if(string.IsNullOrEmpty(possibleNewName)) return false;
+            if (string.IsNullOrEmpty(possibleNewName)) return false;
             // It can not be the Project because that is reserved for the project
-            if(possibleNewName == "Project") return false;
-            foreach(var invalidChar in Path.GetInvalidFileNameChars())
+            if (possibleNewName == "Project") return false;
+            foreach (var invalidChar in Path.GetInvalidFileNameChars())
             {
-                if(possibleNewName.Contains(invalidChar)) return false;
+                if (possibleNewName.Contains(invalidChar)) return false;
             }
             return true;
         }
@@ -457,9 +457,9 @@ namespace XTMF
         /// <param name="attributes">The attributes that we have found</param>
         private static void AddProperties(ModuleParameters parameters, object[] attributes, string fieldName, bool field, Type t)
         {
-            foreach(var attribute in attributes)
+            foreach (var attribute in attributes)
             {
-                if(attribute is ParameterAttribute)
+                if (attribute is ParameterAttribute)
                 {
                     var temp = attribute as ParameterAttribute;
                     temp.AttachedToField = field;
@@ -473,7 +473,7 @@ namespace XTMF
         {
             string error = null;
             var temp = ArbitraryParameterParser.ArbitraryParameterParse(selectedParam.Type, paramValueAttribute.InnerText, ref error);
-            if(temp != null)
+            if (temp != null)
             {
                 // don't overwrite the default if we are loading something bad
                 selectedParam.Value = temp;
@@ -482,38 +482,38 @@ namespace XTMF
 
         private static void LoadParameters(IModelSystemStructure projectStructure, XmlNode child)
         {
-            if(child.HasChildNodes)
+            if (child.HasChildNodes)
             {
-                foreach(XmlNode paramChild in child.ChildNodes)
+                foreach (XmlNode paramChild in child.ChildNodes)
                 {
-                    if(paramChild.Name == "Param")
+                    if (paramChild.Name == "Param")
                     {
                         var paramNameAttribute = paramChild.Attributes["Name"];
                         var paramTypeAttribute = paramChild.Attributes["Type"];
                         var paramValueAttribute = paramChild.Attributes["Value"];
                         var paramQuickAttribute = paramChild.Attributes["QuickParameter"];
 
-                        if(paramNameAttribute != null || paramTypeAttribute != null || paramValueAttribute != null)
+                        if (paramNameAttribute != null || paramTypeAttribute != null || paramValueAttribute != null)
                         {
                             string name = paramNameAttribute.InnerText;
-                            if(projectStructure.Parameters != null)
+                            if (projectStructure.Parameters != null)
                             {
                                 IModuleParameter selectedParam = null;
-                                foreach(var p in projectStructure.Parameters)
+                                foreach (var p in projectStructure.Parameters)
                                 {
-                                    if(p.Name == name)
+                                    if (p.Name == name)
                                     {
                                         selectedParam = p;
                                         break;
                                     }
                                 }
                                 // we will just ignore parameters that no longer exist
-                                if(selectedParam != null)
+                                if (selectedParam != null)
                                 {
-                                    if(paramQuickAttribute != null)
+                                    if (paramQuickAttribute != null)
                                     {
                                         bool quick;
-                                        if(bool.TryParse(paramQuickAttribute.InnerText, out quick))
+                                        if (bool.TryParse(paramQuickAttribute.InnerText, out quick))
                                         {
                                             selectedParam.QuickParameter = quick;
                                         }
@@ -533,14 +533,14 @@ namespace XTMF
             object collectionValue = null;
             Type collectionType = null;
 
-            if(infoField == null && infoProperty != null && !infoProperty.CanRead)
+            if (infoField == null && infoProperty != null && !infoProperty.CanRead)
             {
                 error = string.Format("Since the {0}.{1} property has no public getter we can not initialize its values. Please add one so that XTMF can load the model.",
                         root.GetType().FullName, infoProperty.Name);
                 return false;
             }
 
-            if(infoField != null)
+            if (infoField != null)
             {
                 collectionValue = infoField.GetValue(root);
                 collectionType = infoField.FieldType;
@@ -552,9 +552,9 @@ namespace XTMF
             }
 
             // check to make sure that it exists before trying to add new values to it.
-            if(collectionValue == null)
+            if (collectionValue == null)
             {
-                if(infoField == null && infoProperty != null && !infoProperty.CanWrite)
+                if (infoField == null && infoProperty != null && !infoProperty.CanWrite)
                 {
                     error = string.Format("Since the {0}.{1} property has no public setter we can not create a collection.  Please either add a public setter or initialize this property in your constructor.",
                         root.GetType().FullName, infoProperty.Name);
@@ -562,12 +562,12 @@ namespace XTMF
                 }
                 // Lets attempt to create it IF it doesn't already exist
                 bool created = false;
-                if(collectionType.IsClass && !collectionType.IsAbstract)
+                if (collectionType.IsClass && !collectionType.IsAbstract)
                 {
-                    if(collectionType.IsArray)
+                    if (collectionType.IsArray)
                     {
                         var collectionObject = Array.CreateInstance(collectionType.GetElementType(), child.Children == null ? 0 : child.Children.Count);
-                        if(infoField != null)
+                        if (infoField != null)
                         {
                             infoField.SetValue(root, collectionObject);
                         }
@@ -581,10 +581,10 @@ namespace XTMF
                     {
                         // if we know it is concrete, lets try to just make it with a default constructor
                         var defaultConstructor = collectionType.GetConstructor(new Type[] { });
-                        if(defaultConstructor != null)
+                        if (defaultConstructor != null)
                         {
                             var collectionObject = defaultConstructor.Invoke(new object[] { });
-                            if(infoField != null)
+                            if (infoField != null)
                             {
                                 infoField.SetValue(root, collectionObject);
                             }
@@ -598,9 +598,9 @@ namespace XTMF
                 }
                 else
                 {
-                    if(collectionType.IsAssignableFrom(listOfInner))
+                    if (collectionType.IsAssignableFrom(listOfInner))
                     {
-                        if(infoField != null)
+                        if (infoField != null)
                         {
                             infoField.SetValue(root, listOfInner.GetConstructor(new Type[] { }).Invoke(new object[] { }));
                         }
@@ -612,9 +612,9 @@ namespace XTMF
                     }
                 }
 
-                if(!created)
+                if (!created)
                 {
-                    if(infoField != null)
+                    if (infoField != null)
                     {
                         error = string.Format("We were unable to create any Collection object for {0}.{1}.  Please initialize this field in your constructor!", root.GetType().FullName,
                             infoField.Name);
@@ -628,10 +628,10 @@ namespace XTMF
                 }
             }
             // If we get to this point, we know that there is in fact an extension of ICollection @ this field
-            if(child.Children != null)
+            if (child.Children != null)
             {
                 object collectionObject = null;
-                if(infoField != null)
+                if (infoField != null)
                 {
                     collectionObject = infoField.GetValue(root);
                 }
@@ -639,9 +639,9 @@ namespace XTMF
                 {
                     collectionObject = infoProperty.GetValue(root, null);
                 }
-                if(collectionObject == null)
+                if (collectionObject == null)
                 {
-                    if(infoProperty != null)
+                    if (infoProperty != null)
                     {
                         error = string.Format("For module '{2}' we were unable to load back the previously created Collection object for {0}.{1}. Please make sure that its getter and setter are both working.", root.GetType().FullName,
                             infoProperty.Name, root.Name);
@@ -655,26 +655,26 @@ namespace XTMF
                     return false;
                 }
                 var collectionTrueType = collectionObject.GetType();
-                if(collectionType.IsArray)
+                if (collectionType.IsArray)
                 {
                     var setValue = collectionTrueType.GetMethod("SetValue", new Type[] { typeof(object), typeof(int) });
-                    for(int i = 0; i < child.Children.Count; i++)
+                    for (int i = 0; i < child.Children.Count; i++)
                     {
-                        if(!CreateModule(config, rootMS, child.Children[i], ref error)) return false;
+                        if (!CreateModule(config, rootMS, child.Children[i], ref error)) return false;
                         setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, i });
                     }
                 }
                 else
                 {
                     var addMethod = collectionTrueType.GetMethod("Add", new Type[] { inner });
-                    if(addMethod == null)
+                    if (addMethod == null)
                     {
                         error = string.Format("For module '{2}' we were unable to find an Add method for type {0} in Type {1}", inner.FullName, collectionType.FullName, root.Name);
                         return false;
                     }
-                    foreach(var member in child.Children)
+                    foreach (var member in child.Children)
                     {
-                        if(!CreateModule(config, rootMS, member, ref error)) return false;
+                        if (!CreateModule(config, rootMS, member, ref error)) return false;
                         addMethod.Invoke(collectionObject, new object[] { member.Module });
                     }
                 }
@@ -684,15 +684,15 @@ namespace XTMF
 
         private bool AttachParent(IModule parent, IModelSystemStructure child, ref string error)
         {
-            foreach(var field in child.Type.GetFields())
+            foreach (var field in child.Type.GetFields())
             {
-                if(field.IsPublic)
+                if (field.IsPublic)
                 {
                     var attributes = field.GetCustomAttributes(typeof(ParentModel), true);
-                    if(attributes == null || attributes.Length == 0) continue;
+                    if (attributes == null || attributes.Length == 0) continue;
                     Type parentType = parent.GetType();
 
-                    if(!field.FieldType.IsAssignableFrom(parentType))
+                    if (!field.FieldType.IsAssignableFrom(parentType))
                     {
                         error = string.Format("The parent type of {0} is not assignable from the true parent type of {1}!", field.FieldType.FullName, parentType.FullName);
                         return false;
@@ -700,15 +700,15 @@ namespace XTMF
                     field.SetValue(child.Module, parent);
                 }
             }
-            foreach(var field in child.Type.GetProperties())
+            foreach (var field in child.Type.GetProperties())
             {
-                if(field.CanRead && field.CanWrite)
+                if (field.CanRead && field.CanWrite)
                 {
                     var attributes = field.GetCustomAttributes(typeof(ParentModel), true);
-                    if(attributes == null || attributes.Length == 0) continue;
+                    if (attributes == null || attributes.Length == 0) continue;
                     Type parentType = parent.GetType();
 
-                    if(!field.PropertyType.IsAssignableFrom(parentType))
+                    if (!field.PropertyType.IsAssignableFrom(parentType))
                     {
                         error = string.Format("The parent type of {0} is not assignable from the true parent type of {1}!", field.PropertyType.FullName, parentType.FullName);
                         return false;
@@ -721,21 +721,21 @@ namespace XTMF
 
         private bool AttachRootModelSystem(IModelSystemStructure iModelSystem, IModule root, ref string error)
         {
-            foreach(var field in root.GetType().GetFields())
+            foreach (var field in root.GetType().GetFields())
             {
-                if(field.IsPublic)
+                if (field.IsPublic)
                 {
                     var attributes = field.GetCustomAttributes(typeof(RootModule), true);
-                    if(attributes == null || attributes.Length == 0) continue;
+                    if (attributes == null || attributes.Length == 0) continue;
                     // make sure the root model system structure actually exists
-                    if(iModelSystem == null)
+                    if (iModelSystem == null)
                     {
                         error = string.Format("The type {0} used for the root in {1} has no module to use as an ancestor.  Please contact your model system provider!", field.FieldType.FullName, root.Name);
                         return false;
                     }
                     Type rootType = iModelSystem.Module.GetType();
 
-                    if(!field.FieldType.IsAssignableFrom(rootType))
+                    if (!field.FieldType.IsAssignableFrom(rootType))
                     {
                         error = string.Format("The parent type of {0} is not assignable from the true root type of {1}!", field.FieldType.FullName, rootType.FullName);
                         return false;
@@ -743,15 +743,15 @@ namespace XTMF
                     field.SetValue(root, iModelSystem.Module);
                 }
             }
-            foreach(var field in root.GetType().GetProperties())
+            foreach (var field in root.GetType().GetProperties())
             {
-                if(field.CanRead && field.CanWrite)
+                if (field.CanRead && field.CanWrite)
                 {
                     var attributes = field.GetCustomAttributes(typeof(RootModule), true);
-                    if(attributes == null || attributes.Length == 0) continue;
+                    if (attributes == null || attributes.Length == 0) continue;
                     Type rootType = iModelSystem.Module.GetType();
 
-                    if(!field.PropertyType.IsAssignableFrom(rootType))
+                    if (!field.PropertyType.IsAssignableFrom(rootType))
                     {
                         error = string.Format("The parent type of {0} is not assignable from the true root type of {1}!", field.PropertyType.FullName, rootType.FullName);
                         return false;
@@ -765,13 +765,13 @@ namespace XTMF
         private bool CreateModule(IConfiguration config, IModelSystemStructure rootMS, IModelSystemStructure ps, ref string error)
         {
             IModule root = null;
-            if(ps.Type == null)
+            if (ps.Type == null)
             {
                 error = string.Concat("Attempted to create the ", ps.Name, " module however it's type does not exist!  Please make sure you have all of the required modules installed for your model system!");
                 return false;
             }
             var configConstructor = ps.Type.GetConstructor(new Type[] { typeof(IConfiguration) });
-            if(configConstructor != null)
+            if (configConstructor != null)
             {
                 try
                 {
@@ -787,7 +787,7 @@ namespace XTMF
             else
             {
                 var baseConstructor = ps.Type.GetConstructor(new Type[] { });
-                if(baseConstructor == null)
+                if (baseConstructor == null)
                 {
                     error = string.Format("Type {0} has no public constructor that takes an IConfiguration nor a default constructor.  Unable to create this type!", ps.Type.FullName);
                     return false;
@@ -807,7 +807,7 @@ namespace XTMF
                 }
                 ps.Module = root;
             }
-            if(root != null)
+            if (root != null)
             {
                 try
                 {
@@ -821,23 +821,23 @@ namespace XTMF
                 // Allow any module access to the host/client
                 InstallNetworkingModules(root, ps, ref error);
                 // Install all of the parameters for this model
-                if(!InstallParameters(root, ps, ref error))
+                if (!InstallParameters(root, ps, ref error))
                 {
                     return false;
                 }
-                if(!AttachRootModelSystem(XTMF.ModelSystemStructure.CheckForRootModule(rootMS, ps, ps.Type), root, ref error))
+                if (!AttachRootModelSystem(XTMF.ModelSystemStructure.CheckForRootModule(rootMS, ps, ps.Type), root, ref error))
                 {
-                    if(error == null)
+                    if (error == null)
                     {
                         error = "We were unable to attach the proper root for " + ps.Name + "!";
                     }
                     return false;
                 }
-                if(ps.Children != null)
+                if (ps.Children != null)
                 {
-                    foreach(var child in ps.Children)
+                    foreach (var child in ps.Children)
                     {
-                        if(child.IsCollection)
+                        if (child.IsCollection)
                         {
                             bool array = child.ParentFieldType.IsArray;
                             var inner = array ? child.ParentFieldType.GetElementType() :
@@ -851,43 +851,43 @@ namespace XTMF
                             : child.ParentFieldType);
                             var infoField = ps.Type.GetField(child.ParentFieldName);
                             var infoProperty = ps.Type.GetProperty(child.ParentFieldName);
-                            if(infoField == null && infoProperty == null)
+                            if (infoField == null && infoProperty == null)
                             {
                                 error = string.Format("While building the module '{2}' we were unable to find a field or property called {0} in type {1}", child.ParentFieldName, ps.Type.FullName, ps.Name);
                                 return false;
                             }
-                            if(!AddCollection(config, root, rootMS, child, infoField, infoProperty, listOfInner, inner, ref error))
+                            if (!AddCollection(config, root, rootMS, child, infoField, infoProperty, listOfInner, inner, ref error))
                             {
                                 return false;
                             }
-                            if(child.Children != null)
+                            if (child.Children != null)
                             {
                                 // now that we have created the children try to attach the parent to them
-                                foreach(var cc in child.Children)
+                                foreach (var cc in child.Children)
                                 {
                                     // Now that the child has been created attach this parent object to any fields requesting it
-                                    if(!AttachParent(root, cc, ref error))
+                                    if (!AttachParent(root, cc, ref error))
                                     {
                                         return false;
                                     }
                                 }
                             }
                         }
-                        else if(child.Type != null)
+                        else if (child.Type != null)
                         {
-                            if(!CreateModule(config, rootMS, child, ref error))
+                            if (!CreateModule(config, rootMS, child, ref error))
                             {
                                 return false;
                             }
                             var infoField = ps.Type.GetField(child.ParentFieldName);
                             var infoProperty = ps.Type.GetProperty(child.ParentFieldName);
-                            if(infoField != null)
+                            if (infoField != null)
                             {
                                 infoField.SetValue(root, child.Module);
                             }
-                            else if(infoProperty != null)
+                            else if (infoProperty != null)
                             {
-                                if(!infoProperty.CanWrite)
+                                if (!infoProperty.CanWrite)
                                 {
                                     error = string.Format("While building the module '{2}' we were unable to write property called {0} in type {1}", child.ParentFieldName, ps.Type.FullName, ps.Name);
                                     return false;
@@ -901,7 +901,7 @@ namespace XTMF
                             }
 
                             // Now that the child has been created attach this parent object to any fields requesting it
-                            if(!AttachParent(root, child, ref error))
+                            if (!AttachParent(root, child, ref error))
                             {
                                 return false;
                             }
@@ -921,13 +921,13 @@ namespace XTMF
 
         private IModuleParameter GetParameterFromLink(string[] variableLink, int index, IModelSystemStructure current)
         {
-            if(index == variableLink.Length - 1)
+            if (index == variableLink.Length - 1)
             {
                 // search the parameters
                 var parameters = current.Parameters;
-                foreach(var p in parameters)
+                foreach (var p in parameters)
                 {
-                    if(p.Name == variableLink[index])
+                    if (p.Name == variableLink[index])
                     {
                         return p;
                     }
@@ -936,16 +936,16 @@ namespace XTMF
             else
             {
                 IList<IModelSystemStructure> descList = current.Children;
-                if(descList == null)
+                if (descList == null)
                 {
                     return null;
                 }
-                if(current.IsCollection)
+                if (current.IsCollection)
                 {
                     int collectionIndex;
-                    if(int.TryParse(variableLink[index], out collectionIndex))
+                    if (int.TryParse(variableLink[index], out collectionIndex))
                     {
-                        if(collectionIndex >= 0 && collectionIndex < descList.Count)
+                        if (collectionIndex >= 0 && collectionIndex < descList.Count)
                         {
                             return GetParameterFromLink(variableLink, index + 1, descList[collectionIndex]);
                         }
@@ -954,9 +954,9 @@ namespace XTMF
                 }
                 else
                 {
-                    foreach(var sub in descList)
+                    foreach (var sub in descList)
                     {
-                        if(sub.ParentFieldName == variableLink[index])
+                        if (sub.ParentFieldName == variableLink[index])
                         {
                             return GetParameterFromLink(variableLink, index + 1, sub);
                         }
@@ -971,22 +971,22 @@ namespace XTMF
             var moduleType = module.GetType();
             var clientType = typeof(IClient);
             var hostType = typeof(IHost);
-            foreach(var field in moduleType.GetFields())
+            foreach (var field in moduleType.GetFields())
             {
-                if(field.IsPublic)
+                if (field.IsPublic)
                 {
-                    if(field.FieldType == clientType)
+                    if (field.FieldType == clientType)
                     {
                         IClient networkingClient = Configuration.RetriveCurrentNetworkingClient();
-                        if(networkingClient != null)
+                        if (networkingClient != null)
                         {
                             field.SetValue(module, networkingClient);
                         }
                     }
-                    else if(field.FieldType == hostType)
+                    else if (field.FieldType == hostType)
                     {
                         IHost networkingHost;
-                        if(!Configuration.StartupNetworkingHost(out networkingHost, ref error))
+                        if (!Configuration.StartupNetworkingHost(out networkingHost, ref error))
                         {
                             return false;
                         }
@@ -994,23 +994,23 @@ namespace XTMF
                     }
                 }
             }
-            foreach(var field in moduleType.GetProperties())
+            foreach (var field in moduleType.GetProperties())
             {
-                if(field.CanRead && field.CanWrite)
+                if (field.CanRead && field.CanWrite)
                 {
-                    if(field.PropertyType == clientType)
+                    if (field.PropertyType == clientType)
                     {
                         IClient networkingClient;
-                        if(!Configuration.StartupNetworkingClient(out networkingClient, ref error))
+                        if (!Configuration.StartupNetworkingClient(out networkingClient, ref error))
                         {
                             return false;
                         }
                         field.SetValue(module, networkingClient, null);
                     }
-                    else if(field.PropertyType == hostType)
+                    else if (field.PropertyType == hostType)
                     {
                         IHost networkingHost;
-                        if(!Configuration.StartupNetworkingHost(out networkingHost, ref error))
+                        if (!Configuration.StartupNetworkingHost(out networkingHost, ref error))
                         {
                             return false;
                         }
@@ -1023,13 +1023,13 @@ namespace XTMF
 
         private bool InstallParameters(IModule root, IModelSystemStructure ps, ref string error)
         {
-            if(ps.Parameters == null) return true;
-            foreach(var param in ps.Parameters)
+            if (ps.Parameters == null) return true;
+            foreach (var param in ps.Parameters)
             {
-                if(param.OnField)
+                if (param.OnField)
                 {
                     var info = ps.Type.GetField(param.VariableName);
-                    if(info == null)
+                    if (info == null)
                     {
                         error = string.Format(System.Globalization.CultureInfo.CurrentCulture, "Unable to find a field called {0} on type {1}!", param.VariableName, ps.Type.FullName);
                         return false;
@@ -1048,7 +1048,7 @@ namespace XTMF
                 else
                 {
                     var info = ps.Type.GetProperty(param.VariableName);
-                    if(info == null)
+                    if (info == null)
                     {
                         error = string.Format(System.Globalization.CultureInfo.CurrentCulture, "Unable to find a property called {0} on type {1}!", param.VariableName, ps.Type.FullName);
                         return false;
@@ -1079,7 +1079,7 @@ namespace XTMF
         /// </summary>
         private bool Load()
         {
-            if(Path.IsPathRooted(Name))
+            if (Path.IsPathRooted(Name))
             {
                 DirectoryLocation = Path.GetDirectoryName(Name);
             }
@@ -1092,13 +1092,12 @@ namespace XTMF
             string fileLocation = Path.Combine(DirectoryLocation, "Project.xml");
             _ModelSystemStructure = new List<IModelSystemStructure>();
             _LinkedParameters = new List<List<ILinkedParameter>>();
-            _Descriptions = new List<string>();
-            if(RemoteProject)
+            if (RemoteProject)
             {
                 IsLoaded = true;
                 return true;
             }
-            if(!Directory.Exists(DirectoryLocation) || !File.Exists(fileLocation))
+            if (!Directory.Exists(DirectoryLocation) || !File.Exists(fileLocation))
             {
                 IsLoaded = true;
                 return true;
@@ -1108,35 +1107,40 @@ namespace XTMF
                 XmlDocument doc = new XmlDocument();
                 doc.Load(fileLocation);
                 XmlNode rootNode = doc["Root"];
-                if(rootNode != null)
+                if (rootNode != null)
                 {
                     var description = rootNode.Attributes["Description"];
-                    if(description != null)
+                    if (description != null)
                     {
                         Description = description.InnerText;
                     }
                     var rootChildren = rootNode.ChildNodes;
                     var toLoad = new ProjectModelSystem[rootChildren.Count];
+                    _Descriptions = new List<string>(rootChildren.Count);
+                    for (int i = 0; i < rootChildren.Count; i++)
+                    {
+                        _Descriptions.Add(String.Empty);
+                    }
                     Parallel.For(0, rootChildren.Count, (int i) =>
                     {
                         XmlNode child = rootChildren[i];
                         // check for the 3.0 file name
-                        if(child.Name == "AdvancedModelSystem")
+                        if (child.Name == "AdvancedModelSystem")
                         {
                             IModelSystemStructure mss;
                             List<ILinkedParameter> lp;
-                            if(LoadAdvancedModelSystem(child, out mss, out lp))
+                            if (LoadAdvancedModelSystem(child, i, out mss, out lp))
                             {
                                 toLoad[i] = new ProjectModelSystem() { LinkedParameters = lp, Root = mss };
                             }
                         }
                     });
-                    for(int i = 0; i < toLoad.Length; i++)
+                    for (int i = 0; i < toLoad.Length; i++)
                     {
-                        if(toLoad[i] != null)
+                        if (toLoad[i] != null)
                         {
                             _ModelSystemStructure.Add(toLoad[i].Root);
-                            if(toLoad[i].LinkedParameters != null)
+                            if (toLoad[i].LinkedParameters != null)
                             {
                                 _LinkedParameters.Add(toLoad[i].LinkedParameters);
                             }
@@ -1163,38 +1167,38 @@ namespace XTMF
             internal List<ILinkedParameter> LinkedParameters;
         }
 
-        private bool LoadAdvancedModelSystem(XmlNode child, out IModelSystemStructure mss, out List<ILinkedParameter> lpl)
+        private bool LoadAdvancedModelSystem(XmlNode child, int index, out IModelSystemStructure mss, out List<ILinkedParameter> lpl)
         {
             mss = null;
             lpl = null;
             bool hasDescription = false;
-            foreach(XmlAttribute attribute in child.Attributes)
+            foreach (XmlAttribute attribute in child.Attributes)
             {
-                if(attribute.Name == "Description")
+                if (attribute.Name == "Description")
                 {
                     hasDescription = true;
-                    _Descriptions.Add(attribute.InnerText);
+                    _Descriptions[index] = attribute.InnerText;
                     break;
                 }
             }
-            if(!hasDescription)
+            if (!hasDescription)
             {
-                _Descriptions.Add("No Description");
+                _Descriptions[index] = "No Description";
             }
-            if(child.HasChildNodes)
+            if (child.HasChildNodes)
             {
-                for(int i = 0; i < child.ChildNodes.Count; i++)
+                for (int i = 0; i < child.ChildNodes.Count; i++)
                 {
-                    switch(child.ChildNodes[i].Name)
+                    switch (child.ChildNodes[i].Name)
                     {
                         case "ModelSystem":
                             {
-                                if(mss == null)
+                                if (mss == null)
                                 {
-                                    if(child.ChildNodes[i].FirstChild != null)
+                                    if (child.ChildNodes[i].FirstChild != null)
                                     {
                                         ModelSystemStructure ms = XTMF.ModelSystemStructure.Load(child.ChildNodes[i], Configuration);
-                                        if(ms != null)
+                                        if (ms != null)
                                         {
                                             mss = ms;
                                         }
@@ -1204,14 +1208,14 @@ namespace XTMF
                             break;
                     }
                 }
-                if(mss == null)
+                if (mss == null)
                 {
                     return false;
                 }
                 // now do a second pass for Linked parameters, since we need the current model system to actually link things
-                for(int i = 0; i < child.ChildNodes.Count; i++)
+                for (int i = 0; i < child.ChildNodes.Count; i++)
                 {
-                    switch(child.ChildNodes[i].Name)
+                    switch (child.ChildNodes[i].Name)
                     {
                         case "LinkedParameters":
                             {
@@ -1231,40 +1235,40 @@ namespace XTMF
             var typeAttribute = currentNode.Attributes["Type"];
             var parentFieldNameAttribute = currentNode.Attributes["ParentFieldName"];
             var parentFieldTypeAttribute = currentNode.Attributes["ParentFieldType"];
-            if(nameAttribute != null)
+            if (nameAttribute != null)
             {
                 projectStructure.Name = nameAttribute.InnerText;
             }
-            if(typeAttribute != null)
+            if (typeAttribute != null)
             {
                 string typeName = typeAttribute.InnerText;
                 projectStructure.Type = Type.GetType(typeName);
             }
-            if(descriptionAttribute != null)
+            if (descriptionAttribute != null)
             {
                 projectStructure.Description = descriptionAttribute.InnerText;
             }
-            if(parentFieldNameAttribute != null)
+            if (parentFieldNameAttribute != null)
             {
                 projectStructure.ParentFieldName = parentFieldNameAttribute.InnerText;
             }
-            if(parentFieldTypeAttribute != null)
+            if (parentFieldTypeAttribute != null)
             {
                 projectStructure.ParentFieldType = Type.GetType(parentFieldTypeAttribute.InnerText);
             }
             // get the default parameters before loading from
             projectStructure.Parameters = LoadDefaultParams(projectStructure.Type);
-            if(projectStructure.Parameters != null)
+            if (projectStructure.Parameters != null)
             {
-                foreach(var p in projectStructure.Parameters)
+                foreach (var p in projectStructure.Parameters)
                 {
                     (p as ModuleParameter).BelongsTo = projectStructure;
                 }
             }
-            if(currentNode.HasChildNodes)
+            if (currentNode.HasChildNodes)
             {
                 int index = 0;
-                foreach(XmlNode child in currentNode.ChildNodes)
+                foreach (XmlNode child in currentNode.ChildNodes)
                 {
                     LoadChildNode(projectStructure, child, ref index);
                 }
@@ -1273,7 +1277,7 @@ namespace XTMF
 
         private void LoadChildNode(IModelSystemStructure projectStructure, XmlNode child, ref int index)
         {
-            switch(child.Name)
+            switch (child.Name)
             {
                 case "Module":
                     {
@@ -1300,31 +1304,31 @@ namespace XTMF
             var paramNameAttribute = child.Attributes["ParentFieldName"];
             var paramTypeAttribute = child.Attributes["ParentFieldType"];
             IModelSystemStructure us = null;
-            if(paramNameAttribute != null && paramTypeAttribute != null)
+            if (paramNameAttribute != null && paramTypeAttribute != null)
             {
-                if(projectStructure.Children != null)
+                if (projectStructure.Children != null)
                 {
-                    for(int i = 0; i < projectStructure.Children.Count; i++)
+                    for (int i = 0; i < projectStructure.Children.Count; i++)
                     {
-                        if(projectStructure.Children[i].ParentFieldName == paramNameAttribute.InnerText)
+                        if (projectStructure.Children[i].ParentFieldName == paramNameAttribute.InnerText)
                         {
                             us = projectStructure.Children[i];
                             break;
                         }
                     }
                 }
-                if(us != null)
+                if (us != null)
                 {
                     us.ParentFieldType = Type.GetType(paramTypeAttribute.InnerText);
                     us.ParentFieldName = paramNameAttribute.InnerText;
                     // now load the children
-                    if(child.HasChildNodes)
+                    if (child.HasChildNodes)
                     {
-                        foreach(XmlNode element in child.ChildNodes)
+                        foreach (XmlNode element in child.ChildNodes)
                         {
                             ModelSystemStructure ps = new ModelSystemStructure(Configuration);
                             Load(ps, element);
-                            if(ps.ParentFieldType == null || ps.ParentFieldName == null)
+                            if (ps.ParentFieldType == null || ps.ParentFieldName == null)
                             {
                                 ps.ParentFieldName = us.ParentFieldName;
                                 ps.ParentFieldType = us.Type;
@@ -1344,11 +1348,11 @@ namespace XTMF
                 using (XmlReader reader = XmlReader.Create(fileName))
                 {
                     bool skipRead = false;
-                    while(!reader.EOF && (skipRead || reader.Read()))
+                    while (!reader.EOF && (skipRead || reader.Read()))
                     {
                         skipRead = false;
-                        if(reader.NodeType != XmlNodeType.Element) continue;
-                        switch(reader.LocalName)
+                        if (reader.NodeType != XmlNodeType.Element) continue;
+                        switch (reader.LocalName)
                         {
                             case "Root":
                                 {
@@ -1369,20 +1373,20 @@ namespace XTMF
         {
             List<ILinkedParameter> lpl = new List<ILinkedParameter>();
             // if there is nothing to load just return back a blank list
-            if(!xmlNode.HasChildNodes)
+            if (!xmlNode.HasChildNodes)
             {
                 return lpl;
             }
 
-            foreach(XmlNode lpNode in xmlNode.ChildNodes)
+            foreach (XmlNode lpNode in xmlNode.ChildNodes)
             {
-                if(lpNode.Name == "LinkedParameter")
+                if (lpNode.Name == "LinkedParameter")
                 {
                     var name = "unnamed";
                     var value = string.Empty;
-                    foreach(XmlAttribute attribute in lpNode.Attributes)
+                    foreach (XmlAttribute attribute in lpNode.Attributes)
                     {
-                        switch(attribute.Name)
+                        switch (attribute.Name)
                         {
                             case "Name":
                                 {
@@ -1402,20 +1406,20 @@ namespace XTMF
                     lp.SetValue(value, ref error);
                     lpl.Add(lp);
                     // if there are no references just continue
-                    if(!lpNode.HasChildNodes)
+                    if (!lpNode.HasChildNodes)
                     {
                         continue;
                     }
-                    foreach(XmlNode lpCNode in lpNode)
+                    foreach (XmlNode lpCNode in lpNode)
                     {
-                        if(lpCNode.Name == "Reference")
+                        if (lpCNode.Name == "Reference")
                         {
-                            foreach(XmlAttribute attribute in lpCNode.Attributes)
+                            foreach (XmlAttribute attribute in lpCNode.Attributes)
                             {
-                                if(attribute.Name == "Name")
+                                if (attribute.Name == "Name")
                                 {
                                     var param = GetParameterFromLink(attribute.InnerText, mss);
-                                    if(param != null)
+                                    if (param != null)
                                     {
                                         lp.Add(param, ref error);
                                     }
@@ -1431,14 +1435,14 @@ namespace XTMF
 
         private void LoadModule(IModelSystemStructure projectStructure, XmlNode child)
         {
-            if(projectStructure.Children != null && !projectStructure.IsCollection)
+            if (projectStructure.Children != null && !projectStructure.IsCollection)
             {
                 var parentFieldNameAttribute = child.Attributes["ParentFieldName"];
-                if(parentFieldNameAttribute != null)
+                if (parentFieldNameAttribute != null)
                 {
-                    for(int i = 0; i < projectStructure.Children.Count; i++)
+                    for (int i = 0; i < projectStructure.Children.Count; i++)
                     {
-                        if(projectStructure.Children[i].ParentFieldName == parentFieldNameAttribute.InnerText)
+                        if (projectStructure.Children[i].ParentFieldName == parentFieldNameAttribute.InnerText)
                         {
                             Load(projectStructure.Children[i], child);
                         }
@@ -1450,21 +1454,21 @@ namespace XTMF
         private string LookupName(IModuleParameter reference, IModelSystemStructure current)
         {
             var param = current.Parameters;
-            if(param != null)
+            if (param != null)
             {
                 int index = param.Parameters.IndexOf(reference);
-                if(index >= 0)
+                if (index >= 0)
                 {
                     return current.Parameters.Parameters[index].Name;
                 }
             }
             var childrenList = current.Children;
-            if(childrenList != null)
+            if (childrenList != null)
             {
-                for(int i = 0; i < childrenList.Count; i++)
+                for (int i = 0; i < childrenList.Count; i++)
                 {
                     var res = LookupName(reference, childrenList[i]);
-                    if(res != null)
+                    if (res != null)
                     {
                         // make sure to use an escape character before the . to avoid making the mistake of reading it as another index
                         return string.Concat(current.IsCollection ? i.ToString()
@@ -1481,22 +1485,22 @@ namespace XTMF
             bool escape = false;
             var length = variableLink.Length;
             StringBuilder builder = new StringBuilder(length);
-            for(int i = 0; i < length; i++)
+            for (int i = 0; i < length; i++)
             {
                 var c = variableLink[i];
                 // check to see if we need to add in the escape
-                if(escape & c != '.')
+                if (escape & c != '.')
                 {
                     builder.Append('\\');
                 }
                 // check to see if we need to move onto the next part
-                if(escape == false & c == '.')
+                if (escape == false & c == '.')
                 {
                     ret.Add(builder.ToString());
                     builder.Clear();
                     escape = false;
                 }
-                else if(c != '\\')
+                else if (c != '\\')
                 {
                     builder.Append(c);
                     escape = false;
@@ -1506,7 +1510,7 @@ namespace XTMF
                     escape = true;
                 }
             }
-            if(escape)
+            if (escape)
             {
                 builder.Append('\\');
             }
@@ -1516,7 +1520,7 @@ namespace XTMF
 
         private void Save(XmlTextWriter writer, IModelSystemStructure s)
         {
-            if(s.IsCollection)
+            if (s.IsCollection)
             {
                 SaveCollection(writer, s);
             }
@@ -1531,9 +1535,9 @@ namespace XTMF
             writer.WriteStartElement("Collection");
             writer.WriteAttributeString("ParentFieldType", s.ParentFieldType.AssemblyQualifiedName);
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
-            if(s.Children != null)
+            if (s.Children != null)
             {
-                foreach(var model in s.Children)
+                foreach (var model in s.Children)
                 {
                     Save(writer, model);
                 }
@@ -1546,7 +1550,7 @@ namespace XTMF
             writer.WriteStartElement("Module");
             writer.WriteAttributeString("Name", s.Name);
             writer.WriteAttributeString("Description", s.Description);
-            if(s.Type == null)
+            if (s.Type == null)
             {
                 writer.WriteAttributeString("Type", "null");
             }
@@ -1554,7 +1558,7 @@ namespace XTMF
             {
                 writer.WriteAttributeString("Type", s.Type.AssemblyQualifiedName);
             }
-            if(s.ParentFieldType == null)
+            if (s.ParentFieldType == null)
             {
                 writer.WriteAttributeString("Type", "null");
             }
@@ -1564,9 +1568,9 @@ namespace XTMF
             }
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
             SaveParameters(writer, s);
-            if(s.Children != null)
+            if (s.Children != null)
             {
-                foreach(var c in s.Children)
+                foreach (var c in s.Children)
                 {
                     Save(writer, c);
                 }
@@ -1578,9 +1582,9 @@ namespace XTMF
         {
             // make sure we are loaded before trying to save
             writer.WriteStartElement("Parameters");
-            if(element.Parameters != null)
+            if (element.Parameters != null)
             {
-                foreach(var param in element.Parameters)
+                foreach (var param in element.Parameters)
                 {
                     writer.WriteStartElement("Param");
                     writer.WriteAttributeString("Name", param.Name);
@@ -1596,15 +1600,15 @@ namespace XTMF
 
         private bool ValidateModelName(IModelSystemStructure iProjectStructure, string name)
         {
-            if(iProjectStructure.Name == name)
+            if (iProjectStructure.Name == name)
             {
                 return true;
             }
-            if(iProjectStructure.Children != null)
+            if (iProjectStructure.Children != null)
             {
-                foreach(var child in iProjectStructure.Children)
+                foreach (var child in iProjectStructure.Children)
                 {
-                    if(ValidateModelName(child, name)) return true;
+                    if (ValidateModelName(child, name)) return true;
                 }
             }
             return false;
@@ -1612,15 +1616,15 @@ namespace XTMF
 
         private void WriteLinkedParameters(XmlTextWriter writer, List<ILinkedParameter> lpl, IModelSystemStructure mss)
         {
-            foreach(var lp in lpl)
+            foreach (var lp in lpl)
             {
                 writer.WriteStartElement("LinkedParameter");
                 writer.WriteAttributeString("Name", lp.Name);
-                if(lp.Value != null)
+                if (lp.Value != null)
                 {
                     writer.WriteAttributeString("Value", lp.Value.ToString());
                 }
-                foreach(var reference in lp.Parameters)
+                foreach (var reference in lp.Parameters)
                 {
                     writer.WriteStartElement("Reference");
                     writer.WriteAttributeString("Name", LookupName(reference, mss));
