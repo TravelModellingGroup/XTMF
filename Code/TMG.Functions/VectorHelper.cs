@@ -115,10 +115,11 @@ namespace TMG.Functions
         {
             var remainderSum = 0.0f;
             var acc = Vector<float>.Zero;
+            int i = firstIndex;
             if ((firstIndex | secondIndex) == 0)
             {
                 int highestForVector = length - Vector<float>.Count;
-                for (int i = 0; i <= highestForVector; i += Vector<float>.Count)
+                for (; i <= highestForVector; i += Vector<float>.Count)
                 {
                     acc += Vector.Abs(new Vector<float>(first, i) - new Vector<float>(second, i));
                 }
@@ -127,14 +128,14 @@ namespace TMG.Functions
             {
                 int highestForVector = length - Vector<float>.Count + firstIndex;
                 int s = secondIndex;
-                for (int f = 0; f <= highestForVector; f += Vector<float>.Count)
+                for (; i <= highestForVector; i += Vector<float>.Count)
                 {
-                    acc += Vector.Abs(new Vector<float>(first, f) - new Vector<float>(second, s));
+                    acc += Vector.Abs(new Vector<float>(first, i) - new Vector<float>(second, s));
                     s += Vector<float>.Count;
                 }
             }
             // copy the remainder
-            for (int i = length - (length % Vector<float>.Count); i < length; i++)
+            for (; i < length; i++)
             {
                 remainderSum += Math.Abs(first[i + firstIndex] - second[i + secondIndex]);
             }
