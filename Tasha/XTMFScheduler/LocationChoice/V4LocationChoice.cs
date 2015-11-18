@@ -663,6 +663,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         GenerateEstimationLogsums(Parent.TimePeriods[i], zones);
                     }
                 }
+                var itterRoot = (Root as IIterativeModel);
+                int currentIteration = itterRoot != null ? itterRoot.CurrentIteration : 0;
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
                 {
                     var numberOfZones = zones.Length;
@@ -695,14 +697,30 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
                         else
                         {
-                            for (int j = 0; j < zones.Length; j++)
+                            // if we are on anything besides the first iteration do a blended assignment for the utility to reduce saw toothing.
+                            if (currentIteration == 0)
                             {
-                                var nonExpPDConstant = jSum[time][j];
-                                var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
-                                // compute to
-                                To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
-                                // compute from
-                                From[time][j * zones.Length + i] = travelUtility;
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j];
+                                    var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = travelUtility;
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 0; j < zones.Length; j++)
+                                {
+                                    var nonExpPDConstant = jSum[time][j];
+                                    var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
+                                    // compute to
+                                    To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility) + To[time][i * zones.Length + j]) * 0.5f;
+                                    // compute from
+                                    From[time][j * zones.Length + i] = (travelUtility + From[time][j * zones.Length + i]) * 0.5f;
+                                }
                             }
                         }
                     }
