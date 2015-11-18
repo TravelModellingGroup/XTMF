@@ -91,6 +91,7 @@ namespace Tasha.Data
                     }
                 }
             }
+            Data = ret;
             Loaded = true;
         }
 
@@ -112,7 +113,7 @@ namespace Tasha.Data
             dataSource.LoadData();
             var ret = dataSource.GiveData();
             dataSource.UnloadData();
-            return null;
+            return ret;
         }
 
         public bool RuntimeValidation(ref string error)
