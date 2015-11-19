@@ -723,12 +723,12 @@ namespace Tasha.V4Modes
             {
                 TimePeriodConstants[i].BuildMatrix();
             }
-            ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
-            GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
-            SalesCost = SalesCostFactor * ProfessionalTimeFactor;
-            ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
-            StudentCost = StudentCostFactor * ProfessionalTimeFactor;
-            NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
+            ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, ProfessionalTimeFactor);
+            GeneralCost = ConvertCostFactor(GeneralCostFactor, GeneralTimeFactor);
+            SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
+            ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
+            StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
+            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
             ZonalDensityForActivitiesArray = ZonalDensityForActivities.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
             ZonalDensityForHomeArray = ZonalDensityForHome.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
             for(int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
@@ -736,6 +736,16 @@ namespace Tasha.V4Modes
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
                 ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
             }
+        }
+
+        private float ConvertCostFactor(float costFactor, float timeFactor)
+        {
+            var ret = costFactor * timeFactor;
+            if (ret > 0)
+            {
+                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret.ToString() + "'");
+            }
+            return ret;
         }
 
         [RunParameter("Unload Access Station Per Iteration", true, "Should we unload the access station choice model or keep it between iterations?")]

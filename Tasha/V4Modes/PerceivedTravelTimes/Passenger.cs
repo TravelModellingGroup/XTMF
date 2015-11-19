@@ -710,12 +710,22 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             {
                 AgeUtilLookup[i] = (float)Math.Log(i + 1) * LogOfAgeFactor;
             }
-            ProfessionalCost = ProfessionalCostFactor * ProfessionalTimeFactor;
-            GeneralCost = GeneralCostFactor * ProfessionalTimeFactor;
-            SalesCost = SalesCostFactor * ProfessionalTimeFactor;
-            ManufacturingCost = ManufacturingCostFactor * ProfessionalTimeFactor;
-            StudentCost = StudentCostFactor * ProfessionalTimeFactor;
-            NonWorkerStudentCost = NonWorkerStudentCostFactor * ProfessionalTimeFactor;
+            ProfessionalCost = ConvertCostFactor(ProfessionalCostFactor, ProfessionalTimeFactor);
+            GeneralCost = ConvertCostFactor(GeneralCostFactor, GeneralTimeFactor);
+            SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
+            ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
+            StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
+            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
+        }
+
+        private float ConvertCostFactor(float costFactor, float timeFactor)
+        {
+            var ret = costFactor * timeFactor;
+            if (ret > 0)
+            {
+                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret.ToString() + "'");
+            }
+            return ret;
         }
     }
 }
