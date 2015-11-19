@@ -174,7 +174,6 @@ namespace TMG.Tasha
             throw new NotImplementedException();
         }
 
-        private BlockingCollection<ITashaHousehold> BlockingBuffer;
         private bool NeedsReset = false;
 
         [RunParameter("Skip Bad Households", false, "Should we continue to process skipping households with bad data?")]
@@ -182,7 +181,7 @@ namespace TMG.Tasha
 
         public IEnumerator<ITashaHousehold> GetEnumerator()
         {
-            BlockingBuffer = new BlockingCollection<ITashaHousehold>(Environment.ProcessorCount * Environment.ProcessorCount);
+            var blockingBuffer = new BlockingCollection<ITashaHousehold>(Environment.ProcessorCount * Environment.ProcessorCount);
             if (NeedsReset)
             {
                 Reset();
@@ -205,7 +204,7 @@ namespace TMG.Tasha
                                     {
                                         break;
                                     }
-                                    BlockingBuffer.Add(next);
+                                    blockingBuffer.Add(next);
                                 }
                                 catch (XTMFRuntimeException)
                                 {
@@ -222,7 +221,7 @@ namespace TMG.Tasha
                                 {
                                     break;
                                 }
-                                BlockingBuffer.Add(next);
+                                blockingBuffer.Add(next);
                             } while (true);
                         }
                     }
@@ -232,14 +231,14 @@ namespace TMG.Tasha
                     }
                     finally
                     {
-                        BlockingBuffer.CompleteAdding();
+                        blockingBuffer.CompleteAdding();
                         if (RefreshHouseholdData)
                         {
                             Unload();
                         }
                     }
                 });
-            foreach (var h in BlockingBuffer.GetConsumingEnumerable())
+            foreach (var h in blockingBuffer.GetConsumingEnumerable())
             {
                 yield return h;
             }
