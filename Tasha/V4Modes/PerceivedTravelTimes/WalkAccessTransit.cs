@@ -362,7 +362,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
             ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
             StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
-            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentCostFactor);
+            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
         }
 
         private float ConvertCostFactor(float costFactor, float timeFactor)
@@ -370,7 +370,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var ret = costFactor * timeFactor;
             if (ret > 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0!");
+                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret.ToString() + "'");
             }
             return ret;
         }

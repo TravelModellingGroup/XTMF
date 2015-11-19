@@ -653,7 +653,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             SalesCost = ConvertCostFactor(SalesCostFactor, SalesTimeFactor);
             ManufacturingCost = ConvertCostFactor(ManufacturingCostFactor, ManufacturingTimeFactor);
             StudentCost = ConvertCostFactor(StudentCostFactor, StudentTimeFactor);
-            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentCostFactor);
+            NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
 
 
             ZonalDensityForActivitiesArray = ZonalDensityForActivities.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];

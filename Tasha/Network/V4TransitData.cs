@@ -328,7 +328,7 @@ namespace Tasha.Network
 
         public bool GetAllData(int flatOrigin, int flatDestination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost)
         {
-            this.GetData(flatOrigin, flatDestination, time, out ivtt, out cost, out walk, out wait, out boarding);
+            this.GetData(flatOrigin, flatDestination, time, out ivtt, out walk, out wait, out boarding, out cost);
             return !(this.NoWalkTimeInfeasible & (walk <= 0 & ivtt <= 0));
         }
 
