@@ -425,15 +425,32 @@ namespace Tasha.PopulationSynthesis
             // now fill it
             var r = ret.GetFlatData();
             var numberOfZones = r[0].Length;
-            Parallel.For(0, numberOfZones, (int i) =>
+            var iterativeRoot = Root as IIterativeModel;
+            if (iterativeRoot == null || iterativeRoot.CurrentIteration == 0)
             {
-                for(int workerCategory = 0; workerCategory < r.Length; workerCategory++)
+                Parallel.For(0, numberOfZones, (int i) =>
                 {
-                    var workerCategoryMatrix = r[workerCategory];
-                    var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
-                    Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones * sizeof(float));
-                }
-            });
+                    for (int workerCategory = 0; workerCategory < r.Length; workerCategory++)
+                    {
+                        var workerCategoryMatrix = r[workerCategory];
+                        var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
+                        Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones * sizeof(float));
+                    }
+                });
+            }
+            else
+            {
+                Parallel.For(0, numberOfZones, (int i) =>
+                {
+                    for (int workerCategory = 0; workerCategory < r.Length; workerCategory++)
+                    {
+                        var workerCategoryMatrix = r[workerCategory];
+                        var pos = ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
+
+                        VectorHelper.Average(results, pos, results, pos, workerCategoryMatrix[i], 0, numberOfZones);
+                    }
+                });
+            }
             return ret;
         }
 
