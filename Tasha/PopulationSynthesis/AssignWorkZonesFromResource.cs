@@ -250,6 +250,10 @@ namespace Tasha.PopulationSynthesis
                             max = mid;
                         }
                     }
+                    if(min >= row.Length)
+                    {
+                        min = row.Length - 1;
+                    }
                     for (; min > 0; min--)
                     {
                         if (row[min - 1] != row[min])
