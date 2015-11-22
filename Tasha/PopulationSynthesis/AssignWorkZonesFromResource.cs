@@ -68,10 +68,10 @@ namespace Tasha.PopulationSynthesis
                 {
                     ZoneSystem = Root.ZoneSystem.ZoneArray;
                     Zones = ZoneSystem.GetFlatData();
-                    if(SaveWorkerCategory != null)
+                    if (SaveWorkerCategory != null)
                     {
                         WorkerResults = new float[3][];
-                        for(int i = 0; i < WorkerResults.Length; i++)
+                        for (int i = 0; i < WorkerResults.Length; i++)
                         {
                             WorkerResults[i] = new float[Zones.Length];
                         }
@@ -83,22 +83,22 @@ namespace Tasha.PopulationSynthesis
 
                 private void ConvertToProbabilities(float[][][] data)
                 {
-                    if(SaveProbabilities != null)
+                    if (SaveProbabilities != null)
                     {
                         SaveProbabilitiesToFile(data);
                     }
                     var pds = Zones.Select(z => z.PlanningDistrict).ToArray();
                     List<int> noProbabilityZones = new List<int>();
-                    for(int categoryIndex = 0; categoryIndex < data.Length; categoryIndex++)
+                    for (int categoryIndex = 0; categoryIndex < data.Length; categoryIndex++)
                     {
                         var category = data[categoryIndex];
-                        if(VectorHelper.IsHardwareAccelerated)
+                        if (VectorHelper.IsHardwareAccelerated)
                         {
-                            for(int originIndex = 0; originIndex < category.Length; originIndex++)
+                            for (int originIndex = 0; originIndex < category.Length; originIndex++)
                             {
                                 var total = VectorHelper.Sum(category[originIndex], 0, category[originIndex].Length);
                                 // we do not greater than in case total is NaN, this will pass
-                                if(!(total > 0))
+                                if (!(total > 0))
                                 {
                                     noProbabilityZones.Add(originIndex);
                                     continue;
@@ -115,16 +115,16 @@ namespace Tasha.PopulationSynthesis
                         }
                         else
                         {
-                            for(int originIndex = 0; originIndex < category.Length; originIndex++)
+                            for (int originIndex = 0; originIndex < category.Length; originIndex++)
                             {
                                 var row = category[originIndex];
                                 var total = 0.0f;
-                                for(int destinationIndex = 0; destinationIndex < row.Length; destinationIndex++)
+                                for (int destinationIndex = 0; destinationIndex < row.Length; destinationIndex++)
                                 {
                                     total += row[destinationIndex];
                                 }
                                 // we do not greater than in case total is NaN, this will pass
-                                if(!(total > 0))
+                                if (!(total > 0))
                                 {
                                     noProbabilityZones.Add(originIndex);
                                     continue;
@@ -142,17 +142,17 @@ namespace Tasha.PopulationSynthesis
                                 }
                             }
                         }
-                        if(noProbabilityZones.Count > 0)
+                        if (noProbabilityZones.Count > 0)
                         {
                             // copy the probability from somewhere else
-                            for(int i = 0; i < noProbabilityZones.Count; i++)
+                            for (int i = 0; i < noProbabilityZones.Count; i++)
                             {
                                 var zoneIndex = noProbabilityZones[i];
                                 var zonePD = pds[zoneIndex];
                                 bool any = false;
-                                for(int j = 0; j < pds.Length; j++)
+                                for (int j = 0; j < pds.Length; j++)
                                 {
-                                    if(pds[j] != zonePD || noProbabilityZones.Contains(j))
+                                    if (pds[j] != zonePD || noProbabilityZones.Contains(j))
                                     {
                                         continue;
                                     }
@@ -161,12 +161,12 @@ namespace Tasha.PopulationSynthesis
                                     any = true;
                                     break;
                                 }
-                                if(!any)
+                                if (!any)
                                 {
                                     // then just copy from any zone because this is ridiculous we need a better model.
-                                    for(int j = 0; j < category.Length; j++)
+                                    for (int j = 0; j < category.Length; j++)
                                     {
-                                        if(noProbabilityZones.Contains(j))
+                                        if (noProbabilityZones.Contains(j))
                                         {
                                             continue;
                                         }
@@ -187,13 +187,13 @@ namespace Tasha.PopulationSynthesis
                     SparseArray<IZone> zoneSystem = Root.ZoneSystem.ZoneArray;
                     var zones = zoneSystem.GetFlatData();
                     var saveData = new float[zones.Length][];
-                    for(int i = 0; i < saveData.Length; i++)
+                    for (int i = 0; i < saveData.Length; i++)
                     {
                         saveData[i] = new float[zones.Length];
-                        for(int j = 0; j < saveData[i].Length; j++)
+                        for (int j = 0; j < saveData[i].Length; j++)
                         {
                             float total = 0.0f;
-                            for(int k = 0; k < data.Length; k++)
+                            for (int k = 0; k < data.Length; k++)
                             {
                                 total += data[k][i][j];
                             }
@@ -217,7 +217,7 @@ namespace Tasha.PopulationSynthesis
 
                 public bool RuntimeValidation(ref string error)
                 {
-                    if(!Linkages.CheckResourceType<SparseTriIndex<float>>())
+                    if (!Linkages.CheckResourceType<SparseTriIndex<float>>())
                     {
                         error = "In '" + Name + "' we were unable to load linkages because it is not of type SparseTriIndex<float>.  Please contact your model system provider.";
                         return false;
@@ -238,10 +238,10 @@ namespace Tasha.PopulationSynthesis
                 {
                     int max = row.Length;
                     int min = 0;
-                    while(min < max)
+                    while (min < max)
                     {
                         int mid = (max + min) >> 1;
-                        if(row[mid] < pop)
+                        if (row[mid] < pop)
                         {
                             min = mid + 1;
                         }
@@ -250,14 +250,11 @@ namespace Tasha.PopulationSynthesis
                             max = mid;
                         }
                     }
-                    if (min > 0)
+                    for (; min > 0; min--)
                     {
-                        for (;; min--)
+                        if (row[min - 1] != row[min])
                         {
-                            if (row[min - 1] != row[min])
-                            {
-                                break;
-                            }
+                            break;
                         }
                     }
                     return min;
@@ -267,19 +264,19 @@ namespace Tasha.PopulationSynthesis
                 {
                     var numberOfLicenses = 0;
                     var numberOfVehicles = household.Vehicles.Length;
-                    if(numberOfVehicles > 0)
+                    if (numberOfVehicles > 0)
                     {
                         var persons = household.Persons;
-                        for(int i = 0; i < persons.Length; i++)
+                        for (int i = 0; i < persons.Length; i++)
                         {
-                            if(persons[i].Licence)
+                            if (persons[i].Licence)
                             {
                                 numberOfLicenses++;
                             }
                         }
                     }
                     int category = numberOfLicenses == 0 ? 0 : (numberOfVehicles < numberOfLicenses ? 1 : 2);
-                    if(SaveWorkerCategory != null)
+                    if (SaveWorkerCategory != null)
                     {
                         RecordHouseholdCategory(category, household.HomeZone.ZoneNumber, household.ExpansionFactor);
                     }
@@ -289,7 +286,7 @@ namespace Tasha.PopulationSynthesis
                 private void RecordHouseholdCategory(int category, int zoneNumber, float expansionFactor)
                 {
                     var flatZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(zoneNumber);
-                    if(flatZoneIndex >= 0)
+                    if (flatZoneIndex >= 0)
                     {
                         // this code is never executed in parallel
                         WorkerResults[category][flatZoneIndex] += expansionFactor;
@@ -298,16 +295,16 @@ namespace Tasha.PopulationSynthesis
 
                 private void SaveHouseholdCategoryRecords()
                 {
-                    if(SaveWorkerCategory != null && WorkerResults != null)
+                    if (SaveWorkerCategory != null && WorkerResults != null)
                     {
                         var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                         using (var writer = new StreamWriter(SaveWorkerCategory))
                         {
                             writer.WriteLine("Zone,Category,Total");
-                            for(int i = 0; i < zones.Length; i++)
+                            for (int i = 0; i < zones.Length; i++)
                             {
                                 var zoneNumber = zones[i].ZoneNumber;
-                                for(int cat = 0; cat < WorkerResults.Length; cat++)
+                                for (int cat = 0; cat < WorkerResults.Length; cat++)
                                 {
                                     writer.Write(zoneNumber);
                                     writer.Write(',');
@@ -356,7 +353,7 @@ namespace Tasha.PopulationSynthesis
 
             internal IZone ProduceResult(Random random, ITashaPerson person, ITashaHousehold household)
             {
-                switch(person.EmploymentStatus)
+                switch (person.EmploymentStatus)
                 {
                     case TTSEmploymentStatus.FullTime:
                         return FullTime.ProduceResult(random, household);
@@ -406,13 +403,13 @@ namespace Tasha.PopulationSynthesis
         {
             // Gather the base data and create our random generator
             IZone empZone;
-            if(IsExternal(empZone = person.EmploymentZone))
+            if (IsExternal(empZone = person.EmploymentZone))
             {
                 return empZone;
             }
             var household = person.Household;
             var random = new Random(RandomSeed * household.HouseholdId);
-            switch(person.Occupation)
+            switch (person.Occupation)
             {
                 case Occupation.Office:
                     return General.ProduceResult(random, person, household);
