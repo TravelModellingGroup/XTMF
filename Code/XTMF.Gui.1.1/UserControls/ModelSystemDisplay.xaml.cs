@@ -1011,13 +1011,16 @@ namespace XTMF.Gui.UserControls
                 {
                     // do this so we don't lose our place
                     var parent = Session.GetParent(selected.BaseModel);
-                    if (parent.Children.IndexOf(selected.BaseModel) < parent.Children.Count - 1)
+                    if (parent.IsCollection)
                     {
-                        MoveFocusNext(false);
-                    }
-                    else
-                    {
-                        MoveFocusNext(true);
+                        if (parent.Children.IndexOf(selected.BaseModel) < parent.Children.Count - 1)
+                        {
+                            MoveFocusNext(false);
+                        }
+                        else
+                        {
+                            MoveFocusNext(true);
+                        }
                     }
                 }
                 if (!ModelSystem.Remove(selected.BaseModel, ref error))
