@@ -226,6 +226,10 @@ namespace XTMF
             get
             {
                 SetActive();
+                if(_Descriptions == null)
+                {
+                    _Descriptions = new List<string>();
+                }
                 return _Descriptions;
             }
             private set
