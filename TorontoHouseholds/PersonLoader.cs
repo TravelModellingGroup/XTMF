@@ -322,11 +322,15 @@ namespace TMG.Tasha
             {
                 TripchainLoader.Reset();
             }
-            if(PlaceOfResidencePlaceOfSchool != null)
+            if (PlaceOfResidencePlaceOfSchool != null)
             {
                 PlaceOfResidencePlaceOfSchool.Unload();
-                PlaceOfResidencePlaceOfWork.Unload();
                 PlaceOfResidencePlaceOfSchool.Load();
+
+            }
+            if(PlaceOfResidencePlaceOfWork != null)
+            { 
+                PlaceOfResidencePlaceOfWork.Unload();
                 PlaceOfResidencePlaceOfWork.Load();
             }
             if(Reader != null)

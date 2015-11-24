@@ -438,8 +438,7 @@ namespace Tasha.PopulationSynthesis
                     {
                         var workerCategoryMatrix = r[workerCategory];
                         var pos = ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
-
-                        VectorHelper.Average(results, pos, results, pos, workerCategoryMatrix[i], 0, numberOfZones);
+                        VectorHelper.Average(workerCategoryMatrix[i], 0, results, pos, workerCategoryMatrix[i], 0, numberOfZones);
                     }
                 });
             }

@@ -190,7 +190,7 @@ namespace Tasha.PopulationSynthesis
         public float CalculateUtilityToE(int pdO, int pdD, int zoneO, int zoneD, int workerIndex, float distance)
         {
             var segment = GetSegment(pdO, pdD);
-            if(segment == null) return 0;
+            if (segment == null) return 0;
             double utility = 0.0;
             // Worker Categories:
             // 0 = No Car / No License
@@ -202,13 +202,13 @@ namespace Tasha.PopulationSynthesis
                     (workerIndex == 2 ? segment.SaturatedVehicles : 0));
             // transit
             TransitNetwork.GetAllData(zoneO, zoneD, TimeOfDay, out trueTime, out walk, out wait, out perceivedTime, out cost);
-            if(perceivedTime > 0)
+            if (perceivedTime > 0)
             {
                 utility += Math.Exp(segment.TransitTime * perceivedTime + segment.TransitConstant);
             }
             var constants = segment.ExpSegmentConstant;
-            if(zoneO == zoneD) constants *= segment.ExpIntrazonalConstant;
-            if(pdO == pdD) constants *= segment.ExpIntraPDConstant;
+            if (zoneO == zoneD) constants *= segment.ExpIntrazonalConstant;
+            if (pdO == pdD) constants *= segment.ExpIntraPDConstant;
             return (float)(utility * constants);
         }
 
@@ -218,16 +218,16 @@ namespace Tasha.PopulationSynthesis
         private Segment GetSegment(int pdO, int pdD)
         {
             var segments = Segments;
-            if(HighPerformanceMap != null)
+            if (HighPerformanceMap != null)
             {
                 var index = HighPerformanceMap[pdO][pdD];
                 return index >= 0 ? segments[index] : null;
             }
             else
             {
-                for(int i = 0; i < segments.Length; i++)
+                for (int i = 0; i < segments.Length; i++)
                 {
-                    if(segments[i].OriginPDs.Contains(pdO)
+                    if (segments[i].OriginPDs.Contains(pdO)
                         && segments[i].DestinationPDs.Contains(pdD))
                     {
                         return segments[i];
@@ -257,33 +257,33 @@ namespace Tasha.PopulationSynthesis
             var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
             var data = LocalData;
-            if(data == null)
+            if (data == null)
             {
                 LocalData = data = new float[zones.Length * zones.Length * NumberOfWorkerCategories];
             }
             var distances = Root.ZoneSystem.Distances.GetFlatData();
             var pds = PlanningDistricts;
-            if(pds == null)
+            if (pds == null)
             {
                 PlanningDistricts = pds = zones.Select((zone) => zone.PlanningDistrict).ToArray();
             }
-            if(KeepLocalData)
+            if (KeepLocalData)
             {
                 CreateHighPerformanceLookup(zoneArray);
             }
             float[] workerSplits = LoadWorkerCategories(zones, zoneArray);
             SparseTwinIndex<float> kFactors = null;
-            if(KFactors != null)
+            if (KFactors != null)
             {
                 kFactors = KFactors.AquireResource<SparseTwinIndex<float>>();
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
                 {
                     var distanceRow = distances[i];
                     var iPD = pds[i];
-                    for(int k = 0; k < NumberOfWorkerCategories; k++)
+                    for (int k = 0; k < NumberOfWorkerCategories; k++)
                     {
                         int offset = k * zones.Length * zones.Length + i * zones.Length;
-                        for(int j = 0; j < zones.Length; j++)
+                        for (int j = 0; j < zones.Length; j++)
                         {
                             // use distance in km
                             data[offset + j] = kFactors[iPD, pds[j]] * CalculateUtilityToE(iPD, pds[j], i, j, k, distanceRow[j] * 0.001f);
@@ -298,10 +298,10 @@ namespace Tasha.PopulationSynthesis
                 {
                     var distanceRow = distances[i];
                     var iPD = pds[i];
-                    for(int k = 0; k < NumberOfWorkerCategories; k++)
+                    for (int k = 0; k < NumberOfWorkerCategories; k++)
                     {
                         int offset = k * zones.Length * zones.Length + i * zones.Length;
-                        for(int j = 0; j < zones.Length; j++)
+                        for (int j = 0; j < zones.Length; j++)
                         {
                             // use distance in km
                             data[offset + j] = CalculateUtilityToE(iPD, pds[j], i, j, k, distanceRow[j] * 0.001f);
@@ -316,8 +316,14 @@ namespace Tasha.PopulationSynthesis
                                 CreateWorkersByCategory(employmentSeekers, workerSplits),
                                 jobs, data,
                                 NumberOfWorkerCategories, zones.Length);
+            var itModel = Root as IIterativeModel;
+            if(itModel != null && itModel.CurrentIteration > 0)
+            {
+                AverageResults(results, PreviousResults);
+            }
             Data = ConvertResults(results, zoneArray);
-            if(!KeepLocalData)
+            PreviousResults = results;
+            if (!KeepLocalData)
             {
                 LocalData = null;
                 PlanningDistricts = null;
@@ -326,9 +332,26 @@ namespace Tasha.PopulationSynthesis
             Loaded = true;
         }
 
+        private static void AverageResults(float[] results, float[] previousResults)
+        {
+            if (VectorHelper.IsHardwareAccelerated)
+            {
+                VectorHelper.Average(results, 0, results, 0, previousResults, 0, results.Length);
+            }
+            else
+            {
+                for (int i = 0; i < results.Length; i++)
+                {
+                    results[i] = (results[i] + previousResults[i]) * 0.5f;
+                }
+            }
+        }
+
+        private float[] PreviousResults;
+
         private void CreateHighPerformanceLookup(SparseArray<IZone> zoneArray)
         {
-            if(HighPerformanceMap == null)
+            if (HighPerformanceMap == null)
             {
                 var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<int>(zoneArray);
                 var pdIndexes = pds.ValidIndexArray();
@@ -336,12 +359,12 @@ namespace Tasha.PopulationSynthesis
                 Parallel.For(0, HighPerformanceMap.Length, (int i) =>
                 {
                     var row = HighPerformanceMap[i] = new int[HighPerformanceMap.Length];
-                    for(int j = 0; j < row.Length; j++)
+                    for (int j = 0; j < row.Length; j++)
                     {
                         int index = -1;
-                        for(int k = 0; k < Segments.Length; k++)
+                        for (int k = 0; k < Segments.Length; k++)
                         {
-                            if(Segments[k].OriginPDs.Contains(i) && Segments[k].DestinationPDs.Contains(j))
+                            if (Segments[k].OriginPDs.Contains(i) && Segments[k].DestinationPDs.Contains(j))
                             {
                                 index = k;
                                 break;
@@ -360,13 +383,13 @@ namespace Tasha.PopulationSynthesis
             var totalEmployment = employment.Sum();
             var balanceFactor = totalPop / totalEmployment;
             var ret = new float[employment.Length];
-            if(VectorHelper.IsHardwareAccelerated)
+            if (VectorHelper.IsHardwareAccelerated)
             {
                 VectorHelper.Multiply(ret, 0, employment, 0, balanceFactor, ret.Length);
             }
             else
             {
-                for(int i = 0; i < employment.Length; i++)
+                for (int i = 0; i < employment.Length; i++)
                 {
                     ret[i] = employment[i] * balanceFactor;
                 }
@@ -378,28 +401,28 @@ namespace Tasha.PopulationSynthesis
 
         private float[] CreateWorkersByCategory(SparseArray<float> occPopByZone, float[] workerSplits)
         {
-            if(KeepLocalData && LocalWorkerCategories != null)
+            if (KeepLocalData && LocalWorkerCategories != null)
             {
                 return LocalWorkerCategories;
             }
             var pop = occPopByZone.GetFlatData();
             var ret = new float[NumberOfWorkerCategories * pop.Length];
-            for(int workerCategory = 0; workerCategory < NumberOfWorkerCategories; workerCategory++)
+            for (int workerCategory = 0; workerCategory < NumberOfWorkerCategories; workerCategory++)
             {
                 int WorkerCategoryOffset = workerCategory * pop.Length;
-                if(VectorHelper.IsHardwareAccelerated)
+                if (VectorHelper.IsHardwareAccelerated)
                 {
                     VectorHelper.Multiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
                 }
                 else
                 {
-                    for(int i = 0; i < pop.Length; i++)
+                    for (int i = 0; i < pop.Length; i++)
                     {
                         ret[i + WorkerCategoryOffset] = pop[i] * workerSplits[i + WorkerCategoryOffset];
                     }
                 }
             }
-            if(KeepLocalData)
+            if (KeepLocalData)
             {
                 LocalWorkerCategories = ret;
             }
@@ -410,7 +433,7 @@ namespace Tasha.PopulationSynthesis
         {
             SparseTriIndex<float> ret = Data;
             // first create the datastructure
-            if(ret == null)
+            if (ret == null)
             {
                 ret = SparseTriIndex<float>.CreateSimilarArray(new SparseArray<int>(new SparseIndexing()
                 {
@@ -425,32 +448,15 @@ namespace Tasha.PopulationSynthesis
             // now fill it
             var r = ret.GetFlatData();
             var numberOfZones = r[0].Length;
-            var iterativeRoot = Root as IIterativeModel;
-            if (iterativeRoot == null || iterativeRoot.CurrentIteration == 0)
+            Parallel.For(0, numberOfZones, (int i) =>
             {
-                Parallel.For(0, numberOfZones, (int i) =>
+                for (int workerCategory = 0; workerCategory < r.Length; workerCategory++)
                 {
-                    for (int workerCategory = 0; workerCategory < r.Length; workerCategory++)
-                    {
-                        var workerCategoryMatrix = r[workerCategory];
-                        var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
-                        Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones * sizeof(float));
-                    }
-                });
-            }
-            else
-            {
-                Parallel.For(0, numberOfZones, (int i) =>
-                {
-                    for (int workerCategory = 0; workerCategory < r.Length; workerCategory++)
-                    {
-                        var workerCategoryMatrix = r[workerCategory];
-                        var pos = ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
-
-                        VectorHelper.Average(results, pos, results, pos, workerCategoryMatrix[i], 0, numberOfZones);
-                    }
-                });
-            }
+                    var workerCategoryMatrix = r[workerCategory];
+                    var pos = sizeof(float) * ((workerCategoryMatrix.Length * workerCategoryMatrix.Length) * workerCategory + numberOfZones * i);
+                    Buffer.BlockCopy(results, pos, workerCategoryMatrix[i], 0, numberOfZones * sizeof(float));
+                }
+            });
             return ret;
         }
 
@@ -467,7 +473,7 @@ namespace Tasha.PopulationSynthesis
 
         private float[] LoadWorkerCategories(IZone[] zones, SparseArray<IZone> zoneArray)
         {
-            if((!ReloadWorkerCategories) & (WorkerCategories != null))
+            if ((!ReloadWorkerCategories) & (WorkerCategories != null))
             {
                 return WorkerCategories;
             }
@@ -478,9 +484,9 @@ namespace Tasha.PopulationSynthesis
                 int columns;
                 reader.LoadLine(out columns);
                 // read data
-                while(reader.LoadLine(out columns))
+                while (reader.LoadLine(out columns))
                 {
-                    if(columns < 3)
+                    if (columns < 3)
                     {
                         continue;
                     }
@@ -492,7 +498,7 @@ namespace Tasha.PopulationSynthesis
                     zone = zoneArray.GetFlatIndex(zone);
                     // categories are 1 indexed however we want 0 indexed
                     category -= 1;
-                    if(zone < 0 | category < 0 | category >= NumberOfWorkerCategories) continue;
+                    if (zone < 0 | category < 0 | category >= NumberOfWorkerCategories) continue;
                     ret[zone + (zones.Length * category)] = probability;
                 }
             }
@@ -502,40 +508,40 @@ namespace Tasha.PopulationSynthesis
         public bool RuntimeValidation(ref string error)
         {
             // load auto network + transit network
-            foreach(var network in Root.NetworkData)
+            foreach (var network in Root.NetworkData)
             {
                 var networkName = network.NetworkType;
-                if(networkName == AutoNetworkName)
+                if (networkName == AutoNetworkName)
                 {
                     AutoNetwork = network;
                 }
-                if(networkName == TransitNetworkName)
+                if (networkName == TransitNetworkName)
                 {
                     TransitNetwork = network as ITripComponentData;
                 }
             }
-            if(AutoNetwork == null)
+            if (AutoNetwork == null)
             {
                 error = "In '" + Name + "' the auto network could not be found!";
                 return false;
             }
-            if(TransitNetwork == null)
+            if (TransitNetwork == null)
             {
                 error = "In '" + Name + "' the transit network could not be found!";
                 return false;
             }
             // check resources for proper types
-            if(!EmployedPopulationResidenceByZone.CheckResourceType<SparseArray<float>>())
+            if (!EmployedPopulationResidenceByZone.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + Name + "' the Employed Population Residence By Zone is not of type SparseArray<float>!";
                 return false;
             }
-            if(!JobsByZone.CheckResourceType<SparseArray<float>>())
+            if (!JobsByZone.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + Name + "' the Jobs By Zone is not of type SparseArray<float>!";
                 return false;
             }
-            if(KFactors != null && !KFactors.CheckResourceType<SparseTwinIndex<float>>())
+            if (KFactors != null && !KFactors.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the KFactors are not of type SparseTwinIndex<float>!";
                 return false;
@@ -546,7 +552,7 @@ namespace Tasha.PopulationSynthesis
         public void UnloadData()
         {
             Loaded = false;
-            if(!KeepLocalData)
+            if (!KeepLocalData)
             {
                 Data = null;
             }
