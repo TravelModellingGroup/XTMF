@@ -379,6 +379,15 @@ class XTMFBridge:
         self.ToXTMF.flush()
         self.IOLock.release()   
         return
+
+    def EnsureModellerToolExists(self, macroName):
+        for i in range(1, 10):
+            if macroName in self.Modeller.tool_namespaces():       
+                return True
+            time.sleep(500)
+        _m.logbook_write("A tool with the following namespace could not be found: %s" %macroName)
+        self.SendToolDoesNotExistError(macroName);
+        return False
     
     def ExecuteModule(self):
         macroName = None
@@ -389,7 +398,8 @@ class XTMFBridge:
             #figure out how long the macro's name is
             macroName = self.ReadString()
             parameterString = self.ReadString()
-
+            if not self.EnsureModellerToolExists(macroName):
+                return
             if not macroName in self.Modeller.tool_namespaces():
                 _m.logbook_write("A tool with the following namespace could not be found: %s" %macroName)
                 self.SendToolDoesNotExistError(macroName);
