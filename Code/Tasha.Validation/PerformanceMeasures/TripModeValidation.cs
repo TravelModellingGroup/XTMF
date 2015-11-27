@@ -30,9 +30,14 @@ namespace Tasha.Validation.PerformanceMeasures
 {
     public class TripModeValidation : IPostHouseholdIteration
     {
-
-        Dictionary<ITashaMode, float> ModeDictionary = new Dictionary<ITashaMode, float>();
         bool Calculate = false;
+
+        Dictionary<ITashaMode, float> AMModeDictionary = new Dictionary<ITashaMode, float>();        
+        Dictionary<ITashaMode, float> MDModeDictionary = new Dictionary<ITashaMode, float>();        
+        Dictionary<ITashaMode, float> PMModeDictionary = new Dictionary<ITashaMode, float>();        
+        Dictionary<ITashaMode, float> EVModeDictionary = new Dictionary<ITashaMode, float>();        
+
+
 
         [SubModelInformation(Required = true, Description = "Mode Validation Results File in .csv")]
         public FileLocation ResultsFile;
@@ -54,26 +59,54 @@ namespace Tasha.Validation.PerformanceMeasures
                         for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
                         {
                             var mode = household.Persons[i].TripChains[j].Trips[k].Mode;
-
-                            lock (this)
+                            var tripStartTime = household.Persons[i].TripChains[j].Trips[k].TripStartTime;
+                            if (tripStartTime.Hours >= 6 && tripStartTime.Hours < 9)
                             {
-                                AddToDictionary(mode, toAdd);
+                                lock (this)
+                                {
+                                    AddToDictionary(AMModeDictionary, mode, toAdd);
+                                }
                             }
+                            else if (tripStartTime.Hours >= 9 && tripStartTime.Hours < 15)
+                            {
+                                lock (this)
+                                {
+                                    AddToDictionary(MDModeDictionary, mode, toAdd);
+                                }
+                            }
+                            else if (tripStartTime.Hours >= 15 && tripStartTime.Hours < 19)
+                            {
+                                lock (this)
+                                {
+                                    AddToDictionary(PMModeDictionary, mode, toAdd);
+                                }
+                            }
+                            else
+                            {
+                                lock (this)
+                                {
+                                    AddToDictionary(EVModeDictionary, mode, toAdd);
+                                }
+                            }                            
                         }
                     }
                 }
             }            
         }
 
-        private void AddToDictionary(ITashaMode mode, float toAdd)
+        private void AddToDictionary(Dictionary<ITashaMode, float> modeDictionary, ITashaMode mode, float toAdd)
         {
-            float initialValue;
-            if(!ModeDictionary.TryGetValue(mode, out initialValue ))
+            float initialValue;                        
+
+            if(!modeDictionary.TryGetValue(mode, out initialValue ))
             {
                 initialValue = 0;
             }
-            ModeDictionary[mode] = toAdd + initialValue;
+            modeDictionary[mode] = toAdd + initialValue;
         }
+
+
+
 
         public void HouseholdStart(ITashaHousehold household, int householdIterations)
         {            
@@ -91,13 +124,29 @@ namespace Tasha.Validation.PerformanceMeasures
                 using (StreamWriter writer = new StreamWriter(ResultsFile))
                 {
                     writer.WriteLine("Mode, Trips");
-                    foreach(var pair in ModeDictionary)
+                    foreach(var pair in AMModeDictionary)
                     {
-                        writer.WriteLine("{0}, {1}", pair.Key.ToString(), pair.Value);
+                        writer.WriteLine("AM" + "{0}, {1}", pair.Key.ToString(), pair.Value);
+                    }
+                    foreach (var pair in MDModeDictionary)
+                    {
+                        writer.WriteLine("MD" + "{0}, {1}", pair.Key.ToString(), pair.Value);
+                    }
+                    foreach (var pair in PMModeDictionary)
+                    {
+                        writer.WriteLine("PM" + "{0}, {1}", pair.Key.ToString(), pair.Value);
+                    }
+                    foreach (var pair in EVModeDictionary)
+                    {
+                        writer.WriteLine("EV" + "{0}, {1}", pair.Key.ToString(), pair.Value);
                     }
                 }
             }
-            ModeDictionary.Clear();
+
+            AMModeDictionary.Clear();
+            MDModeDictionary.Clear();
+            PMModeDictionary.Clear();
+            EVModeDictionary.Clear();
         }
 
         public string Name
