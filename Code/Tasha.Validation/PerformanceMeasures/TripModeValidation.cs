@@ -32,10 +32,10 @@ namespace Tasha.Validation.PerformanceMeasures
     {
         bool Calculate = false;
 
-        Dictionary<ITashaMode, float> AMModeDictionary = new Dictionary<ITashaMode, float>();        
-        Dictionary<ITashaMode, float> MDModeDictionary = new Dictionary<ITashaMode, float>();        
-        Dictionary<ITashaMode, float> PMModeDictionary = new Dictionary<ITashaMode, float>();        
-        Dictionary<ITashaMode, float> EVModeDictionary = new Dictionary<ITashaMode, float>();        
+        Dictionary<string, float> AMModeDictionary = new Dictionary<string, float>();        
+        Dictionary<string, float> MDModeDictionary = new Dictionary<string, float>();        
+        Dictionary<string, float> PMModeDictionary = new Dictionary<string, float>();        
+        Dictionary<string, float> EVModeDictionary = new Dictionary<string, float>();        
 
 
 
@@ -58,8 +58,8 @@ namespace Tasha.Validation.PerformanceMeasures
                     {                        
                         for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
                         {
-                            var mode = household.Persons[i].TripChains[j].Trips[k].Mode;
-                            var tripStartTime = household.Persons[i].TripChains[j].Trips[k].TripStartTime;
+                            var mode = household.Persons[i].TripChains[j].Trips[k].Mode.ModeName;
+                            var tripStartTime = household.Persons[i].TripChains[j].Trips[k].TripStartTime;                            
                             if (tripStartTime.Hours >= 6 && tripStartTime.Hours < 9)
                             {
                                 lock (this)
@@ -94,7 +94,7 @@ namespace Tasha.Validation.PerformanceMeasures
             }            
         }
 
-        private void AddToDictionary(Dictionary<ITashaMode, float> modeDictionary, ITashaMode mode, float toAdd)
+        private void AddToDictionary(Dictionary<string, float> modeDictionary, string mode, float toAdd)
         {
             float initialValue;                        
 
@@ -126,19 +126,19 @@ namespace Tasha.Validation.PerformanceMeasures
                     writer.WriteLine("Mode, Trips");
                     foreach(var pair in AMModeDictionary)
                     {
-                        writer.WriteLine("AM" + "{0}, {1}", pair.Key.ToString(), pair.Value);
+                        writer.WriteLine("AM" + "{0}, {1}", pair.Key, pair.Value);
                     }
                     foreach (var pair in MDModeDictionary)
                     {
-                        writer.WriteLine("MD" + "{0}, {1}", pair.Key.ToString(), pair.Value);
+                        writer.WriteLine("MD" + "{0}, {1}", pair.Key, pair.Value);
                     }
                     foreach (var pair in PMModeDictionary)
                     {
-                        writer.WriteLine("PM" + "{0}, {1}", pair.Key.ToString(), pair.Value);
+                        writer.WriteLine("PM" + "{0}, {1}", pair.Key, pair.Value);
                     }
                     foreach (var pair in EVModeDictionary)
                     {
-                        writer.WriteLine("EV" + "{0}, {1}", pair.Key.ToString(), pair.Value);
+                        writer.WriteLine("EV" + "{0}, {1}", pair.Key, pair.Value);
                     }
                 }
             }
