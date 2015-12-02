@@ -59,7 +59,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
         public bool StationConnectorFlag;
 
-        [RunParameter("Transfer Mode List", "tu" , "A list of the modes for transferring between services.")]
+        [RunParameter("Transfer Mode List", "tu" , "A list of the modes eligible to changed to the invalid transit mode in cases of link fare circumvention.")]
         public string ModeList;
 
         [RunParameter("Invalid Transit Mode", 'n', "The transit mode to assign to invalid transfers.")]
