@@ -397,20 +397,40 @@ namespace XTMF.Gui
             }
         }
 
-        public static string OpenFile(string title)
+        public static string OpenFile(string title, KeyValuePair<string,string>[] extensions, bool alreadyExists)
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog();
-            dialog.Title = title;
-            if (dialog.ShowDialog() == true)
+            string filter = string.Join("|",
+                from element in extensions
+                select element.Key + "|*." + element.Value
+                );
+            if (alreadyExists)
             {
-                return dialog.FileName;
+                var dialog = new Microsoft.Win32.OpenFileDialog();
+                dialog.Title = title;
+                dialog.Filter = filter;
+                if (dialog.ShowDialog() == true)
+                {
+                    return dialog.FileName;
+                }
+                return null;
             }
-            return null;
+            else
+            {
+                var dialog = new Microsoft.Win32.SaveFileDialog();
+                dialog.Title = "Save As";
+                dialog.FileName = title;
+                dialog.Filter = filter;
+                if (dialog.ShowDialog() == true)
+                {
+                    return dialog.FileName;
+                }
+                return null;
+            }
         }
 
         private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
         {
-            var fileName = OpenFile("Import Model System");
+            var fileName = OpenFile("Import Model System", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, true);
             string error = null;
             if (fileName != null)
             {
