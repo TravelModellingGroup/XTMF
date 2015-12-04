@@ -217,10 +217,11 @@ namespace XTMF
             }
             else if(ModelSystemIndex >= 0)
             {
-                Name = ClonedModelSystemRoot.Name;
                 Project.ModelSystemStructure[ModelSystemIndex] = ClonedModelSystemRoot;
                 Project.ModelSystemDescriptions[ModelSystemIndex] = Description;
                 Project.LinkedParameters[ModelSystemIndex] = LinkedParameters.LinkedParameters.Select(lp => (ILinkedParameter)lp.RealLinkedParameter).ToList();
+                // changing the name should go last because it will bubble up to the GUI and if the models are not in the right place the old name still be read in
+                Name = ClonedModelSystemRoot.Name;
                 return Project.Save(ref error);
             }
             else

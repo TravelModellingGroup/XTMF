@@ -259,6 +259,15 @@ namespace XTMF.Gui.UserControls
             var us = source as ProjectDisplay;
             us.DataContext = us.Project;
             us.Model = new ProjectModel(us.Project, us.Session);
+            us.Session.ModelSystemNameChanged += us.Session_ModelSystemNameChanged;
+        }
+
+        private void Session_ModelSystemNameChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+           {
+               Model.RefreshModelSystems();
+           });
         }
 
         private bool FilterMS(object e, string text)

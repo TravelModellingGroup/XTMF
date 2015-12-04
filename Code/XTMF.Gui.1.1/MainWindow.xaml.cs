@@ -539,7 +539,7 @@ namespace XTMF.Gui
                    {
                        doc.Title = modelSystemSession.EditingProject ?
                         modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
-                       : "Model System - " + modelSystemSession.ModelSystemModel.Name; ;
+                       : "Model System - " + modelSystemSession.ModelSystemModel.Name;
                    });
                 };
                 modelSystemSession.NameChanged += onRename;
