@@ -115,7 +115,6 @@
     <Compile Include="ExportNetworkPackage.cs" />
     <Compile Include="ExtraAttributeContextManager.cs" />
     <Compile Include="ExtractEmmeNetworkBacthFile.cs" />
-    <Compile Include="Flows.cs" />
     <Compile Include="IEmmeTool.cs" />
     <Compile Include="ImportBinaryMatrixIntoEmme.cs" />
     <Compile Include="ImportMatrixIntoEmme.cs" />
