@@ -405,6 +405,23 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public float TransitBoarding;
             [RunParameter("Cost", "0.0", typeof(float), "The weight applied for the cost from origin to zone to final destination.")]
             public float Cost;
+            [RunParameter("Intra Zonal", 0.0f, "The constant to apply if the trip is within the same zone.")]
+            public float IntraZonal
+            {
+                get
+                {
+                    return _IntraZonal;
+                }
+                set
+                {
+                    _IntraZonal = value;
+                    ExpIntraZonal = (float)Math.Exp(value);
+                }
+            }
+            private float _IntraZonal;
+
+            private float ExpIntraZonal;
+
             private int[][][][] PDCube;
 
             private double GetTransitUtility(ITripComponentData network, int i, int j, Time time)
@@ -684,7 +701,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 {
                                     for (int j = 0; j < zones.Length; j++)
                                     {
-                                        var nonExpPDConstant = jSum[time][j];
+                                        var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
                                         var travelUtility = logsumSpace[i * zones.Length + j];
                                         // compute to
                                         to[i * zones.Length + j] = nonExpPDConstant * travelUtility;
@@ -702,7 +719,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             {
                                 for (int j = 0; j < zones.Length; j++)
                                 {
-                                    var nonExpPDConstant = jSum[time][j];
+                                    var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
                                     var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                                     // compute to
                                     To[time][i * zones.Length + j] = nonExpPDConstant * travelUtility;
@@ -714,7 +731,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                             {
                                 for (int j = 0; j < zones.Length; j++)
                                 {
-                                    var nonExpPDConstant = jSum[time][j];
+                                    var nonExpPDConstant = jSum[time][j] * (i == j ? ExpIntraZonal : 1.0f);
                                     var travelUtility = GetTravelLogsum(network, transitNetwork, i, j, timeOfDay);
                                     // compute to
                                     To[time][i * zones.Length + j] = ((nonExpPDConstant * travelUtility) + To[time][i * zones.Length + j]) * 0.5f;
