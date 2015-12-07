@@ -314,7 +314,7 @@ namespace XTMF.Gui
                         {
                             runName = req.Answer;
                             string error = null;
-                            if(!RunAlreadyExists(runName, session) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                            if (!RunAlreadyExists(runName, session) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                             {
                                 var run = session.Run(runName, ref error);
                                 if (run != null)
@@ -405,7 +405,7 @@ namespace XTMF.Gui
             }
         }
 
-        public static string OpenFile(string title, KeyValuePair<string,string>[] extensions, bool alreadyExists)
+        public static string OpenFile(string title, KeyValuePair<string, string>[] extensions, bool alreadyExists)
         {
             string filter = string.Join("|",
                 from element in extensions
@@ -453,6 +453,10 @@ namespace XTMF.Gui
                                 if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true, ref error))
                                 {
                                     MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
+                                else
+                                {
+                                    MessageBox.Show(this, "The model system has been successfully imported from '" + fileName + "'.", "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
                                 }
                             }
                             break;
@@ -583,7 +587,7 @@ namespace XTMF.Gui
         internal static void ShowPageContaining(object content)
         {
             var result = Us.OpenPages.FirstOrDefault((page) => page.Content == content);
-            if(result != null)
+            if (result != null)
             {
                 result.IsActive = true;
             }
