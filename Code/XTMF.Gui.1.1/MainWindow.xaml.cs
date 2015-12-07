@@ -314,32 +314,40 @@ namespace XTMF.Gui
                         {
                             runName = req.Answer;
                             string error = null;
-                            var run = session.Run(runName, ref error);
-                            if (run != null)
+                            if(!RunAlreadyExists(runName, session) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                             {
-                                RunWindow window = new RunWindow(session, run, runName);
-                                var doc = AddNewWindow("New Run", window);
-                                doc.Closing += (o, e) =>
+                                var run = session.Run(runName, ref error);
+                                if (run != null)
                                 {
-                                    if (!window.CloseRequested())
+                                    RunWindow window = new RunWindow(session, run, runName);
+                                    var doc = AddNewWindow("New Run", window);
+                                    doc.Closing += (o, e) =>
                                     {
-                                        e.Cancel = true;
-                                        return;
-                                    }
-                                };
-                                doc.CanClose = true;
-                                doc.IsSelected = true;
-                                Keyboard.Focus(window);
-                                window.Focus();
-                            }
-                            else
-                            {
-                                MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        if (!window.CloseRequested())
+                                        {
+                                            e.Cancel = true;
+                                            return;
+                                        }
+                                    };
+                                    doc.CanClose = true;
+                                    doc.IsSelected = true;
+                                    Keyboard.Focus(window);
+                                    window.Focus();
+                                }
+                                else
+                                {
+                                    MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
                             }
                         }
                     };
                 }
             }
+        }
+
+        private bool RunAlreadyExists(string runName, ModelSystemEditingSession session)
+        {
+            return session.RunNameExists(runName);
         }
 
         private Action _CurrentRun;

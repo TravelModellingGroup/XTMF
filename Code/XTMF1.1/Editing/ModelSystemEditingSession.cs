@@ -378,6 +378,20 @@ namespace XTMF
             }
         }
 
+        /// <summary>
+        /// Checks to see if the run directory already exists with the given name
+        /// </summary>
+        /// <param name="runName">The run name to check</param>
+        /// <returns>True if the directory already exists, false otherwise</returns>
+        public bool RunNameExists(string runName)
+        {
+            if(!EditingProject)
+            {
+                throw new InvalidOperationException("You can only call RunNameExists when it is editing a project's model system.");
+            }
+            return ProjectEditingSession.RunNameExists(runName);
+        }
+
         public string Name
         {
             get

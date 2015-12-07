@@ -346,6 +346,16 @@ namespace XTMF
             return Project.CloneModelSystemStructure(out lp, modelSystemIndex);
         }
 
+        /// <summary>
+        /// Checks to see if a run name already exists for this project
+        /// </summary>
+        /// <param name="runName">The run name to check for.</param>
+        /// <returns>True if the run name already exists</returns>
+        internal bool RunNameExists(string runName)
+        {
+            return Directory.Exists(Path.Combine(GetConfiguration().ProjectDirectory, Project.Name, runName));
+        }
+
 
 
         /// <summary>
