@@ -247,6 +247,25 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        public BindingList<LinkedParameterDisplayModel> RecentLinkedParameters = new BindingList<LinkedParameterDisplayModel>();
+
+        private void RecentLinkedParameter_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = sender as DependencyObject;
+            if (selected != null)
+            {
+                var currentMenu = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterRecentLinkedParameters : ParameterRecentLinkedParameters);
+                var selectedLinkedParameter = currentMenu.ItemContainerGenerator.ItemFromContainer(selected) as LinkedParameterDisplayModel;
+                if (selectedLinkedParameter != null)
+                {
+                    AddCurrentParameterToLinkedParameter(selectedLinkedParameter.LinkedParameter);
+                    RecentLinkedParameters.RemoveAt(RecentLinkedParameters.IndexOf(selectedLinkedParameter));
+                    RecentLinkedParameters.Insert(0, selectedLinkedParameter);
+                }
+            }
+
+        }
+
         private void ShowLinkedParameterDialog(bool assign = false)
         {
             var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters, assign);
@@ -255,16 +274,40 @@ namespace XTMF.Gui.UserControls
             {
                 // assign the selected linked parameter
                 var newLP = linkedParameterDialog.SelectedLinkParameter;
-                var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-                if (displayParameter != null)
+
+                if (AddCurrentParameterToLinkedParameter(newLP))
                 {
-                    string error = null;
-                    if (!displayParameter.AddToLinkedParameter(newLP, ref error))
+                    LinkedParameterDisplayModel matched;
+                    if ((matched = RecentLinkedParameters.FirstOrDefault(lpdm => lpdm.LinkedParameter == newLP)) != null)
                     {
-                        MessageBox.Show(GetWindow(), error, "Failed to set to Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                        RecentLinkedParameters.Remove(matched);
                     }
+                    RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
+                    if (RecentLinkedParameters.Count > 5)
+                    {
+                        RecentLinkedParameters.RemoveAt(5);
+                    }
+                    ParameterRecentLinkedParameters.IsEnabled = true;
+                    QuickParameterRecentLinkedParameters.IsEnabled = true;
                 }
             }
+        }
+
+        private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
+        {
+            var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            if (displayParameter != null)
+            {
+
+                string error = null;
+                if (!displayParameter.AddToLinkedParameter(newLP, ref error))
+                {
+                    MessageBox.Show(GetWindow(), error, "Failed to set to Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+                return true;
+            }
+            return false;
         }
 
         private void RemoveFromLinkedParameter()
@@ -318,19 +361,26 @@ namespace XTMF.Gui.UserControls
         {
             var us = source as ModelSystemDisplay;
             var newModelSystem = e.NewValue as ModelSystemModel;
+            us.RecentLinkedParameters.Clear();
+            newModelSystem.LinkedParameters.LinkedParameterRemoved += us.LinkedParameters_LinkedParameterRemoved;
             if (newModelSystem != null)
             {
                 us.ModelSystemName = newModelSystem.Name;
                 Task.Run(() =>
                 {
                     var displayModel = us.CreateDisplayModel(newModelSystem.Root);
-                    us.Dispatcher.BeginInvoke(new Action(() =>
+                    us.Dispatcher.Invoke(() =>
                     {
+                        us.ParameterDisplay.ContextMenu.DataContext = us;
+                        us.QuickParameterDisplay.ContextMenu.DataContext = us;
                         us.ModuleDisplay.ItemsSource = displayModel;
                         us.ModelSystemName = newModelSystem.Name;
                         us.ModuleDisplay.Items.MoveCurrentToFirst();
                         us.FilterBox.Display = us.ModuleDisplay;
-                    }));
+
+                        us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                        us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                    });
                 });
             }
             else
@@ -338,6 +388,27 @@ namespace XTMF.Gui.UserControls
                 us.ModuleDisplay.DataContext = null;
                 us.ModelSystemName = "No model loaded";
                 us.FilterBox.Display = null;
+                us.ParameterLinkedParameterMenuItem.ItemsSource = null;
+            }
+        }
+
+        private void LinkedParameters_LinkedParameterRemoved(object sender, CollectionChangeEventArgs e)
+        {
+            if (e.Element != null)
+            {
+                var lpRemoved = e.Element as LinkedParameterModel;
+                Dispatcher.Invoke(() =>
+               {
+                   foreach (var item in RecentLinkedParameters.Where(rlp => rlp.LinkedParameter == lpRemoved).ToList())
+                   {
+                       RecentLinkedParameters.Remove(item);
+                   }
+                   if(RecentLinkedParameters.Count <= 0)
+                   {
+                       ParameterRecentLinkedParameters.IsEnabled = false;
+                       QuickParameterRecentLinkedParameters.IsEnabled = false;
+                   }
+               });
             }
         }
 

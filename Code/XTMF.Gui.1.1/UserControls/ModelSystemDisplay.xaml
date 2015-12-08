@@ -274,7 +274,7 @@
                                 <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
                                 </MenuItem>
                                 <Separator />
-                                <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
+                                <MenuItem x:Name="ParameterLinkedParameterMenuItem" Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
                                     <MenuItem.Icon>
                                         <Image>
                                             <Image.Source>
@@ -282,6 +282,18 @@
                                             </Image.Source>
                                         </Image>
                                     </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="ParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
+                                    <MenuItem.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type models:LinkedParameterDisplayModel}">
+                                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                        </DataTemplate>
+                                    </MenuItem.ItemTemplate>
+                                    <MenuItem.ItemContainerStyle>
+                                        <Style TargetType="{x:Type MenuItem}">
+                                            <EventSetter Event="Click" Handler="RecentLinkedParameter_Click" />
+                                        </Style>
+                                    </MenuItem.ItemContainerStyle>
                                 </MenuItem>
                                 <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
                                     <MenuItem.Icon>
@@ -436,6 +448,18 @@
                                             </Image.Source>
                                         </Image>
                                     </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="QuickParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
+                                    <MenuItem.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type models:LinkedParameterDisplayModel}">
+                                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                        </DataTemplate>
+                                    </MenuItem.ItemTemplate>
+                                    <MenuItem.ItemContainerStyle>
+                                        <Style TargetType="{x:Type MenuItem}">
+                                            <EventSetter Event="Click" Handler="RecentLinkedParameter_Click" />
+                                        </Style>
+                                    </MenuItem.ItemContainerStyle>
                                 </MenuItem>
                                 <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
                                     <MenuItem.Icon>

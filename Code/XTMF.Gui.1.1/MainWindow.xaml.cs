@@ -563,8 +563,8 @@ namespace XTMF.Gui
                 {
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     VerticalAlignment = VerticalAlignment.Stretch,
-                    ModelSystem = modelSystemSession.ModelSystemModel,
                     Session = modelSystemSession,
+                    ModelSystem = modelSystemSession.ModelSystemModel,
                 };
 
                 var titleBarName = modelSystemSession.EditingProject ?

@@ -42,6 +42,8 @@ namespace XTMF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public event CollectionChangeEventHandler LinkedParameterRemoved;
+
         public LinkedParametersModel(ModelSystemEditingSession session, ModelSystemModel modelSystem, List<ILinkedParameter> realLinkedParameters)
         {
             Session = session;
@@ -84,6 +86,7 @@ namespace XTMF
                 {
                     LinkedParameters.RemoveAt(lp.Index);
                     RealLinkedParameters.RemoveAt(lp.Index);
+                    InvokeRemoved(lp);
                     return true;
                 },
                 (ref string e) =>
@@ -114,7 +117,7 @@ namespace XTMF
             return this.Session.RunCommand(
                 XTMFCommand.CreateCommand((ref string e) =>
                 {
-                    if((lp.Index = this.LinkedParameters.IndexOf(linkedParameter)) < 0)
+                    if ((lp.Index = this.LinkedParameters.IndexOf(linkedParameter)) < 0)
                     {
                         e = "The linked parameter was not found!";
                         return false;
@@ -122,6 +125,7 @@ namespace XTMF
                     lp.Model = this.LinkedParameters[lp.Index];
                     LinkedParameters.RemoveAt(lp.Index);
                     RealLinkedParameters.RemoveAt(lp.Index);
+                    InvokeRemoved(lp);
                     return true;
                 },
                 (ref string e) =>
@@ -134,10 +138,20 @@ namespace XTMF
                 {
                     LinkedParameters.RemoveAt(lp.Index);
                     RealLinkedParameters.RemoveAt(lp.Index);
+                    InvokeRemoved(lp);
                     return true;
                 }),
                 ref error
                 );
+        }
+
+        private void InvokeRemoved(LinkedParameterChange lp)
+        {
+            var ev = LinkedParameterRemoved;
+            if (ev != null)
+            {
+                ev(this, new CollectionChangeEventArgs(CollectionChangeAction.Remove, lp.Model));
+            }
         }
 
         private static ObservableCollection<LinkedParameterModel> CreateLinkedParameters(List<ILinkedParameter> linkedParameters, ModelSystemEditingSession session, ModelSystemModel ModelSystem)
