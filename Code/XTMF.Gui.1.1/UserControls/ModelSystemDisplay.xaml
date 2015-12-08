@@ -271,6 +271,8 @@
                                         </Image>
                                     </MenuItem.Icon>
                                 </MenuItem>
+                                <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
+                                </MenuItem>
                                 <Separator />
                                 <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
                                     <MenuItem.Icon>
@@ -422,6 +424,8 @@
                                             </Image.Source>
                                         </Image>
                                     </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
                                 </MenuItem>
                                 <Separator />
                                 <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">

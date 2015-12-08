@@ -64,7 +64,7 @@ namespace XTMF.Gui.UserControls
             }
             set
             {
-                if(_Session != null)
+                if (_Session != null)
                 {
                     _Session.ProjectWasExternallySaved -= ProjectWasExternalSaved;
                 }
@@ -241,7 +241,7 @@ namespace XTMF.Gui.UserControls
         private void ToggleQuickParameter()
         {
             var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if(displayParameter != null)
+            if (displayParameter != null)
             {
                 displayParameter.QuickParameter = !displayParameter.QuickParameter;
             }
@@ -415,6 +415,10 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.F:
                             SelectFileForCurrentParameter();
+                            e.Handled = true;
+                            break;
+                        case Key.D:
+                            SelectDirectoryForCurrentParameter();
                             e.Handled = true;
                             break;
                         case Key.Z:
@@ -740,7 +744,7 @@ namespace XTMF.Gui.UserControls
                         break;
                     case Key.T:
                         {
-                            if(ctrlDown)
+                            if (ctrlDown)
                             {
                                 ToggleQuickParameter();
                                 e.Handled = true;
@@ -972,18 +976,18 @@ namespace XTMF.Gui.UserControls
         private void BringSelectedIntoView(ModelSystemStructureDisplayModel selected)
         {
             List<ModelSystemStructureDisplayModel> ansestry = DisplayRoot.BuildChainTo(selected);
-            if(ansestry == null)
+            if (ansestry == null)
             {
                 return;
             }
             var currentContainer = ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
-            for(int i = 1; i < ansestry.Count; i++)
+            for (int i = 1; i < ansestry.Count; i++)
             {
-                if(currentContainer == null)
+                if (currentContainer == null)
                 {
                     return;
                 }
-                if(i + 1 < ansestry.Count)
+                if (i + 1 < ansestry.Count)
                 {
                     currentContainer = currentContainer.ItemContainerGenerator.ContainerFromItem(ansestry[i]) as TreeViewItem;
                 }
@@ -1157,6 +1161,28 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void SelectDirectoryForCurrentParameter()
+        {
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if (currentParameter != null && currentModule != null)
+            {
+                var currentRoot = Session.GetRoot(currentModule.BaseModel);
+                ParameterModel _;
+                var inputDirectory = GetInputDirectory(currentRoot, out _);
+                if (inputDirectory != null)
+                {
+                    string directoryName = MainWindow.OpenDirectory();
+                    if (directoryName == null)
+                    {
+                        return;
+                    }
+                    TransformToRelativePath(inputDirectory, ref directoryName);
+                    currentParameter.Value = directoryName;
+                }
+            }
+        }
+
         private void SelectFileForCurrentParameter()
         {
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
@@ -1168,7 +1194,7 @@ namespace XTMF.Gui.UserControls
                 var inputDirectory = GetInputDirectory(currentRoot, out _);
                 if (inputDirectory != null)
                 {
-                    string fileName = this.OpenFile();
+                    string fileName = MainWindow.OpenFile("Select File", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("All Files", "*") }, true);
                     if (fileName == null)
                     {
                         return;
@@ -1189,16 +1215,6 @@ namespace XTMF.Gui.UserControls
             {
                 fileName = fileName.Substring(runtimeInputDirectory.Length);
             }
-        }
-
-        private string OpenFile()
-        {
-            var dialog = new Microsoft.Win32.OpenFileDialog();
-            if (dialog.ShowDialog() == true)
-            {
-                return dialog.FileName;
-            }
-            return null;
         }
 
         private string GetInputDirectory(ModelSystemStructureModel root, out ParameterModel parameter)
@@ -1295,6 +1311,11 @@ namespace XTMF.Gui.UserControls
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             SelectFileForCurrentParameter();
+        }
+
+        private void SelectDirectory_Click(object sender, RoutedEventArgs e)
+        {
+            SelectDirectoryForCurrentParameter();
         }
 
         private void CopyModule_Click(object sender, RoutedEventArgs e)
