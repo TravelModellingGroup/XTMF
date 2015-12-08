@@ -436,6 +436,16 @@ namespace XTMF.Gui
             }
         }
 
+        public static string OpenDirectory()
+        {
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            if(dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                return dialog.SelectedPath;
+            }
+            return null;
+        }
+
         private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
         {
             var fileName = OpenFile("Import Model System", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, true);

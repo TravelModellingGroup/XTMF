@@ -8,10 +8,52 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Background="{StaticResource WindowBackgroundBrush}">
-    <StackPanel Background="{StaticResource ControlBackgroundBrush}" Margin="0.25cm"  VerticalAlignment="Center">
-        <my:HintedTextBox x:Name="ProjectDirectoryBox" Margin="0.25cm,5,0.25cm,5" Text="{Binding ProjectDirectory}" HintText="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-            <my:HintedTextBox Margin="0.25cm,0,0.25cm,5" Text="{Binding ModelSystemDirectory}" HintText="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-            <my:HintedTextBox Margin="0.25cm,0,0.25cm,5" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-    </StackPanel>
+        <StackPanel Background="{StaticResource ControlBackgroundBrush}" Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center">
+            <Grid  Margin="0.25cm,2,0.25cm,2" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Project Directory" FontSize="12" />
+                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" HintText="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                <Button Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ProjectDirectory">
+                    <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="16" Height="16" />
+                </Button>
+            </Grid>
+            <Grid Margin="0.25cm,2,0.25cm,2" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Model System Directory" FontSize="12" />
+                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding ModelSystemDirectory}" HintText="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                <Button Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ModelSystemDirectory">
+                    <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="16" Height="16" />
+                </Button>
+            </Grid>
+            <Grid Margin="0.25cm,2,0.25cm,2" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Host Networking Port" FontSize="12" />
+                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+            </Grid>
+        </StackPanel>
     </Grid>
 </UserControl>
