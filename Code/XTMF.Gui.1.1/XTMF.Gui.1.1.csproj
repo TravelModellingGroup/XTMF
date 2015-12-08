@@ -204,6 +204,7 @@
     <Compile Include="UserControls\TMGProgressBar.xaml.cs">
       <DependentUpon>TMGProgressBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Win32Helper.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,6 +29,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -438,13 +440,27 @@ namespace XTMF.Gui
 
         public static string OpenDirectory()
         {
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            if(dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            var showAdvanced = Environment.OSVersion.Version.Major >= 6;
+            if (showAdvanced)
             {
-                return dialog.SelectedPath;
+                var result = Win32Helper.VistaDialog.Show(new WindowInteropHelper(Us).Handle, null, "Select Directory");
+                if(result.Result)
+                {
+                    return result.FileName;
+                }
+            }
+            else
+            {
+                var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    return dialog.SelectedPath;
+                }
             }
             return null;
         }
+       
+
 
         private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
         {
