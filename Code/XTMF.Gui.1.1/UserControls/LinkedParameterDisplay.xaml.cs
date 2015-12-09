@@ -256,6 +256,8 @@ namespace XTMF.Gui.UserControls
         private void NewLinkedParameter_Clicked(object obj)
         {
             var request = new StringRequest("Name the new Linked Parameter", (s) => true);
+            request.Owner = this;
+            request.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (request.ShowDialog() == true)
             {
                 string error = null;
