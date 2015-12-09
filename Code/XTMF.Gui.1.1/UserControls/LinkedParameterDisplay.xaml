@@ -30,11 +30,13 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Margin="0" HorizontalAlignment="Right">
+        <Grid Grid.Row="1" Margin="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <my:BorderIconButton Grid.Column="0" Header="New"  HighlightColour="{StaticResource AddingYellow}" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
+            <my:HintedTextBox Grid.Column="0" Margin="5" x:Name="LinkedParameterValue" HintText="Linked Parameter Value" Width="250" Height="20"/>
+            <my:BorderIconButton HorizontalAlignment="Right" Grid.Column="1" Header="New"  HighlightColour="{StaticResource AddingYellow}" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
                                  Icon="/XTMF.Gui;component/Resources/Plus.png" Margin="2"/>
         </Grid>
         <Grid Grid.Row="0">

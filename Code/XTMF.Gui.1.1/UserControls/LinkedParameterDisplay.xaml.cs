@@ -60,11 +60,25 @@ namespace XTMF.Gui.UserControls
             AssignMode = assignLinkedParameter;
             Display.SelectionChanged += Display_SelectionChanged;
             Loaded += LinkedParameterDisplay_Loaded;
+            LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
+        }
+
+        private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!e.Handled && e.Key == Key.Enter)
+            {
+                e.Handled = true;
+                CleanupSelectedParameters();
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
             CleanupSelectedParameters();
+            foreach(var item in Items)
+            {
+                item.Dispose();
+            }
             base.OnClosing(e);
         }
 
@@ -97,9 +111,11 @@ namespace XTMF.Gui.UserControls
             var selectedLinkedParameter = CurrentlySelected = Display.SelectedItem as LinkedParameterDisplayModel;
             if (selectedLinkedParameter != null)
             {
+                LinkedParameterValue.Text = selectedLinkedParameter.LinkedParameter.GetValue();
                 var containedParameters = CurrentParameters = (from parameter in selectedLinkedParameter.LinkedParameter.GetParameters()
                                                                select new ParameterDisplay()
-                                                               { ParameterName = parameter.Name,
+                                                               {
+                                                                   ParameterName = parameter.Name,
                                                                    ModuleName = parameter.BelongsTo.Name,
                                                                    Parameter = parameter,
                                                                    KeepAttached = true
@@ -116,6 +132,9 @@ namespace XTMF.Gui.UserControls
         {
             if (CurrentlySelected != null && CurrentParameters != null)
             {
+                // save the value for the linked parameter
+                AssignLinkedParameterValue(LinkedParameterValue.Text);
+                // save the parameters
                 foreach (var parameter in CurrentParameters)
                 {
                     if (!parameter.KeepAttached)
@@ -127,6 +146,22 @@ namespace XTMF.Gui.UserControls
                         }
                         ChangesMade = true;
                     }
+                }
+            }
+        }
+
+        private void AssignLinkedParameterValue(string text)
+        {
+            if (CurrentlySelected != null)
+            {
+                string error = null;
+                if (CurrentlySelected.LinkedParameter.GetValue() != text)
+                {
+                    if (!CurrentlySelected.LinkedParameter.SetValue(text, ref error))
+                    {
+                        MessageBox.Show("There was an error assigning the value '" + text + "' to the linked parameter!\r\n" + error, "Error setting value", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    ChangesMade = true;
                 }
             }
         }
