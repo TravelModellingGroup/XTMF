@@ -291,6 +291,10 @@ namespace XTMF.Gui.UserControls
                     QuickParameterRecentLinkedParameters.IsEnabled = true;
                 }
             }
+            if(linkedParameterDialog.ChangesMade)
+            {
+                RefreshParameters();
+            }
         }
 
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
@@ -351,9 +355,18 @@ namespace XTMF.Gui.UserControls
                         {
                             selectedModule.Type = selectedType;
                         }
-                        UpdateParameters(selectedModule.BaseModel.Parameters);
+                        RefreshParameters();
                     }
                 }
+            }
+        }
+
+        private void RefreshParameters()
+        {
+            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if (selectedModule != null)
+            {
+                UpdateParameters(selectedModule.BaseModel.Parameters);
             }
         }
 
@@ -970,7 +983,7 @@ namespace XTMF.Gui.UserControls
             var module = (e.NewValue as ModelSystemStructureDisplayModel);
             if (module != null)
             {
-                UpdateParameters(module.BaseModel.Parameters);
+                RefreshParameters();
                 if (ParameterTabControl.SelectedIndex != 0)
                 {
                     ParameterTabControl.SelectedIndex = 0;
@@ -1102,7 +1115,7 @@ namespace XTMF.Gui.UserControls
                 {
                     System.Media.SystemSounds.Asterisk.Play();
                 }
-                UpdateParameters(selected.BaseModel.Parameters);
+                RefreshParameters();
                 Keyboard.Focus(ModuleDisplay);
             }
         }
