@@ -135,9 +135,14 @@ namespace XTMF
             ModelSystemDescriptions = toClone.ModelSystemDescriptions.ToList();
         }
 
-        internal Project CreateCloneProject()
+        internal Project CreateCloneProject(bool attachToParent = true)
         {
-            return new Project(this);
+            var project = new Project(this);
+            if(!attachToParent)
+            {
+                project.ClonedFrom = null;
+            }
+            return project;
         }
 
         internal bool RemoveModelSystem(int index, ref string error)

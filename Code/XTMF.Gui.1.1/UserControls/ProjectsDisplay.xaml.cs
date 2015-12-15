@@ -60,12 +60,12 @@ namespace XTMF.Gui.UserControls
 
         private void ProjectRepository_ProjectRemoved(IProject removedProject, int position)
         {
-            Display.Items.Refresh();
+            RefreshProjects();
         }
 
         private void ProjectRepository_ProjectAdded(IProject newProject)
         {
-            Display.Items.Refresh();
+            RefreshProjects();
         }
 
         private void ProjectsDisplay_Loaded(object sender, RoutedEventArgs e)
@@ -119,11 +119,15 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void NewProject_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewProject();
+        }
+
         private void Rename_Click(object sender, RoutedEventArgs e)
         {
             RenameCurrentProject();
         }
-
 
         private void Clone_Click(object sender, RoutedEventArgs e)
         {
@@ -150,6 +154,11 @@ namespace XTMF.Gui.UserControls
             RenameCurrentProject();
         }
 
+        private void NewProject_Clicked(object sender)
+        {
+            CreateNewProject();
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (!e.Handled)
@@ -158,11 +167,31 @@ namespace XTMF.Gui.UserControls
                 {
                     case Key.F2:
                         RenameCurrentProject();
+                        e.Handled = true;
+                        break;
+                    case Key.Delete:
+                        DeleteCurrentProject();
+                        e.Handled = true;
+                        break;
+                    case Key.C:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CloneCurrentProject();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.N:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CreateNewProject();
+                            e.Handled = true;
+                        }
                         break;
                     case Key.Enter:
                         if (!Renaming)
                         {
                             LoadCurrentProject();
+                            e.Handled = true;
                         }
                         break;
                 }
@@ -173,6 +202,12 @@ namespace XTMF.Gui.UserControls
         private UIElement GetCurrentlySelectedControl()
         {
             return Display.ItemContainerGenerator.ContainerFromItem(Display.SelectedItem) as UIElement;
+        }
+
+        private void CreateNewProject()
+        {
+            MainWindow.Us.NewProject();
+            RefreshProjects();
         }
 
         bool Renaming = false;
@@ -207,8 +242,8 @@ namespace XTMF.Gui.UserControls
         {
             var selected = Display.SelectedItem;
             Display.Items.Refresh();
-            Display.SelectedItem = selected;
             FilterBox.RefreshFilter();
+            Display.SelectedItem = selected;
         }
 
         private void Adorn_Unloaded(object sender, RoutedEventArgs e)
@@ -258,6 +293,5 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
     }
 }

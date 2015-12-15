@@ -106,7 +106,7 @@ namespace XTMF
                     error = "A project with that name already existed!";
                     return false;
                 }
-                var clonedProject = toClone.CreateCloneProject();
+                var clonedProject = toClone.CreateCloneProject(false);
                 clonedProject.Name = name;
                 // if we are able to save, add it to the project repository
                 if (clonedProject.Save(ref error))

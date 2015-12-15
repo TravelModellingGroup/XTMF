@@ -37,7 +37,7 @@
                       Background="{StaticResource WindowBackgroundBrush}">
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="_Rename Project" Click="Rename_Click">
+                        <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
@@ -46,7 +46,16 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="_Clone Project" Click="Clone_Click">
+                        <MenuItem Header="_New Project (Ctrl+N)" Click="NewProject_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="/XTMF.Gui;component/Resources/Plus.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Clone Project (Ctrl+C)" Click="Clone_Click">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
@@ -55,7 +64,7 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="_Delete Project" Click="Delete_Click">
+                        <MenuItem Header="_Delete Project (Del)" Click="Delete_Click">
                             <MenuItem.Icon>
                                 <Image>
                                     <Image.Source>
@@ -101,11 +110,12 @@
         </ScrollViewer>
         <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <my:BorderIconButton x:Name="DeleteProject" Margin="0,0,4,0" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Images/Delete.png"
+                <my:BorderIconButton Margin="0,0,0,0" Header="New Project" Width="170" Text="Create a new Project." Icon="/XTMF.Gui;component/Resources/Plus.png" Clicked="NewProject_Clicked"/>
+                <my:BorderIconButton x:Name="RenameProject" Margin="0,0,0,0" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/base_cog_32.png" Clicked="RenameProject_Clicked"/>
+                <my:BorderIconButton x:Name="CloneProject"  Margin="0,0,0,0" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png" Clicked="CloneProject_Clicked"/>
+                
+                <my:BorderIconButton x:Name="DeleteProject" Margin="0,0,0,0" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Images/Delete.png"
                                      HighlightColour="{StaticResource WarningRed}" Clicked="DeleteProject_Clicked"/>
-                <my:BorderIconButton x:Name="CloneProject"  Margin="0,0,4,0" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png" Clicked="CloneProject_Clicked"/>
-                <my:BorderIconButton x:Name="RenameProject" Margin="0,0,4,0" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/base_cog_32.png" Clicked="RenameProject_Clicked"/>
-
             </WrapPanel>
         </Border>
     </Grid>
