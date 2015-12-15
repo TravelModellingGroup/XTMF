@@ -156,7 +156,28 @@ namespace XTMF
             }
             lock (EditingSessionsLock)
             {
-                if (!this.Project.AddModelSystem(modelSystem, modelSystem.Name, ref error))
+                if (!Project.AddModelSystem(modelSystem, modelSystem.Name, ref error))
+                {
+                    return false;
+                }
+                var temp = new SessionData[EditingSessions.Length + 1];
+                Array.Copy(EditingSessions, temp, EditingSessions.Length);
+                EditingSessions = temp;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Create a new model system in the project with the given name
+        /// </summary>
+        /// <param name="modelSystemName">The name of the new model system</param>
+        /// <param name="error">If an error occurs this will contain a description</param>
+        /// <returns>True if successful, false otherwise with error message.</returns>
+        public bool AddModelSystem(string modelSystemName, ref string error)
+        {
+            lock(EditingSessionsLock)
+            {
+                if (!Project.AddModelSystem(modelSystemName, ref error))
                 {
                     return false;
                 }

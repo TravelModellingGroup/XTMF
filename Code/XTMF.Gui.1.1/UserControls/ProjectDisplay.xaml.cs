@@ -346,8 +346,29 @@ namespace XTMF.Gui.UserControls
                         break;
                     case Key.F2:
                         {
-                            RenameModelSystem();
+                            RenameCurrentModelSystem();
                             e.Handled = true;
+                        }
+                        break;
+                    case Key.C:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CloneCurrentModelSystem();
+                        }
+                        break;
+                    case Key.Delete:
+                        DeleteCurrentModelSystem();
+                        break;
+                    case Key.N:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CreateNewModelSystem();
+                        }
+                        break;
+                    case Key.S:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            SaveCurrentAsModelSystem();
                         }
                         break;
                 }
@@ -503,6 +524,11 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteModelSystem_Click(object sender, RoutedEventArgs e)
         {
+            DeleteCurrentModelSystem();
+        }
+
+        private void DeleteCurrentModelSystem()
+        {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
             {
@@ -523,7 +549,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RenameModelSystem()
+        private void RenameCurrentModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
@@ -545,10 +571,15 @@ namespace XTMF.Gui.UserControls
 
         private void RenameModelSystem_Click(object sender, RoutedEventArgs e)
         {
-            RenameModelSystem();
+            RenameCurrentModelSystem();
         }
 
         private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCurrentAsModelSystem();
+        }
+
+        private void SaveCurrentAsModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
@@ -571,6 +602,11 @@ namespace XTMF.Gui.UserControls
 
         private void CloneModelSystem_Click(object sender, RoutedEventArgs e)
         {
+            CloneCurrentModelSystem();
+        }
+
+        private void CloneCurrentModelSystem()
+        {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
             {
@@ -590,6 +626,37 @@ namespace XTMF.Gui.UserControls
                     {
                         Model.RefreshModelSystems();
                     }
+                }
+            }
+        }
+
+        private void NewModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewModelSystem();
+        }
+
+        private void CreateNewModelSystem_Clicked(object obj)
+        {
+            CreateNewModelSystem();
+        }
+
+        private void CreateNewModelSystem()
+        {
+            StringRequest sr = new StringRequest("New Model System's Name?", (newName) =>
+            {
+                return Session.ValidateModelSystemName(newName);
+            });
+            sr.Owner = GetWindow();
+            if (sr.ShowDialog() == true)
+            {
+                string error = null;
+                if (!Session.AddModelSystem(sr.Answer, ref error))
+                {
+                    MessageBox.Show(error, "Unable to create New Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    Model.RefreshModelSystems();
                 }
             }
         }
