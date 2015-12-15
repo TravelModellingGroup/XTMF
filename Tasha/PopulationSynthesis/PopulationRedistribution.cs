@@ -215,9 +215,10 @@ where you still want the same demographics."
                     int populationToAdd = zonalDifferences[flatZone] >= 0 ? basePopulation[flatZone] : basePopulation[flatZone] + zonalDifferences[flatZone];
                     var zonalHouseholds = HouseholdsByZone.GetFlatData()[flatZone];
                     int i = 0;
+                    List<int> tossedHouseholds = new List<int>();
                     for (int pop = 0; pop < populationToAdd;)
                     {
-                        if (attempts > 10)
+                        if (attempts > 2)
                         {
                             throw new XTMFRuntimeException("In '" + Name + "' we were unable to assign a base population for zone '" + zonesToProcess[z].ZoneNumber + "'!");
                         }
@@ -234,13 +235,24 @@ where you still want the same demographics."
                                     break;
                                 }
                             }
+                            else
+                            {
+                                tossedHouseholds.Add(i);
+                            }
                         }
                         attempts++;
                     }
                     // if we didn't use everything add the rest of the households to the remaining list
+                    var lookupIndex = lookupsForRegion[flatRegionIndex];
+                    // first add all the households we excluded to finish the zone
+                    foreach (var tossed in tossedHouseholds)
+                    {
+                        remaining.Add(zonalHouseholds[tossed]);
+                        lookupIndex.Add(householdIndex[tossed]);
+                    }
+                    // then add the rest of the households we haven't looked at
                     if (attempts <= 1)
                     {
-                        var lookupIndex = lookupsForRegion[flatRegionIndex];
                         for (; i < zonalHouseholds.Count; i++)
                         {
                             remaining.Add(zonalHouseholds[i]);
