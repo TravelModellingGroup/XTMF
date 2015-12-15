@@ -281,7 +281,7 @@ namespace XTMF.Gui.UserControls
             if (project != null)
             {
                 if (MessageBox.Show(GetWindow(),
-                    "Are you sure you want to delete the project '" + project.Name + "'?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                    "Are you sure you want to delete the project '" + project.Name + "'?  This action cannot be undone!", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     string error = null;
                     if (!Runtime.ProjectController.DeleteProject(project, ref error))
