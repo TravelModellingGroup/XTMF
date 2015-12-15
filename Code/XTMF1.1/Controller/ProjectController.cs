@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -30,6 +31,11 @@ namespace XTMF
         {
             Runtime = runtime;
         }
+
+        /// <summary>
+        /// This event occurs when the projects have been changed
+        /// </summary>
+        public event CollectionChangeEventHandler ProjectsChanged;
 
         /// <summary>
         /// The sessions that are currently running
@@ -82,7 +88,7 @@ namespace XTMF
         /// <param name="name">The name to give the clone</param>
         /// <param name="error">A description of the error</param>
         /// <returns>True if the clone succeeded,</returns>
-        internal bool CloneProject(Project toClone, string name, ref string error)
+        public bool CloneProject(Project toClone, string name, ref string error)
         {
             if (!Project.ValidateProjectName(name))
             {
@@ -119,7 +125,7 @@ namespace XTMF
         /// <param name="newName">The name to save this project as</param>
         /// <param name="error">A description of why this operation has failed</param>
         /// <returns>True if the rename succeeded, false otherwise.</returns>
-        internal bool RenameProject(Project project, string newName, ref string error)
+        public bool RenameProject(Project project, string newName, ref string error)
         {
             lock (EditingSessionLock)
             {
@@ -310,7 +316,7 @@ namespace XTMF
             }
         }
 
-        internal bool ValidateProjectName(string name)
+        public bool ValidateProjectName(string name)
         {
             return Project.ValidateProjectName(name);
         }

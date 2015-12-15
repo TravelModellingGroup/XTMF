@@ -177,6 +177,9 @@
     <Compile Include="UserControls\ProjectDisplay.xaml.cs">
       <DependentUpon>ProjectDisplay.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ProjectsDisplay.xaml.cs">
+      <DependentUpon>ProjectsDisplay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\RunWindow.xaml.cs">
       <DependentUpon>RunWindow.xaml</DependentUpon>
     </Compile>
@@ -278,6 +281,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ProjectDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ProjectsDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

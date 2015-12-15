@@ -464,26 +464,6 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-        private void DeleteProject_Clicked(object obj)
-        {
-            if (MessageBox.Show(GetWindow(),
-                "Are you sure you want to delete the project?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
-            {
-                string error = null;
-                if (!Session.DeleteProject(ref error))
-                {
-                    MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                    return;
-                }
-                // now we can close the window
-                var e = RequestClose;
-                if (e != null)
-                {
-                    e(this);
-                }
-            }
-        }
-
         private void ImportModelSystem_Clicked(object obj)
         {
             var xtmf = Session.GetRuntime();
@@ -585,40 +565,6 @@ namespace XTMF.Gui.UserControls
                     {
                         MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                }
-            }
-        }
-
-        private void RenameProject_Clicked(object obj)
-        {
-            StringRequest sr = new StringRequest("New Project Name?", (newName) =>
-            {
-                return Session.ValidateModelSystemName(newName);
-            });
-            sr.Owner = GetWindow();
-            if (sr.ShowDialog() == true)
-            {
-                string error = null;
-                if (!Session.ReameProject(sr.Answer, ref error))
-                {
-                    MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void CloneProject_Clicked(object obj)
-        {
-            StringRequest sr = new StringRequest("Cloned Project's Name?", (newName) =>
-            {
-                return Session.ValidateModelSystemName(newName);
-            });
-            sr.Owner = GetWindow();
-            if (sr.ShowDialog() == true)
-            {
-                string error = null;
-                if (!Session.CloneProjectAs(sr.Answer, ref error))
-                {
-                    MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

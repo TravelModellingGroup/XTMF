@@ -89,39 +89,11 @@ namespace XTMF.Gui
 
         public void OpenProject()
         {
-            var open = new OpenWindow()
-            {
-                Owner = this
-            };
-            open.OpenProject(EditorController.Runtime);
-            Task.Factory.StartNew(() =>
-            {
-                if (open.LoadTask != null)
-                {
-                    OperationProgressing progressing = null;
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        progressing = new OperationProgressing()
-                        {
-                            Owner = this
-                        };
-                    }));
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.ShowDialog();
-                    }));
-
-                    open.LoadTask.Wait();
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.Close();
-                    }));
-                }
-                EditProject(open.ProjectSession);
-            });
+            var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime));
+            doc.IsActive = true;
         }
 
-        private void EditProject(ProjectEditingSession projectSession)
+        internal void EditProject(ProjectEditingSession projectSession)
         {
             if (projectSession != null)
             {
@@ -204,7 +176,7 @@ namespace XTMF.Gui
         /// </summary>
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
 
-        private LayoutDocument AddNewWindow(string name, UIElement content, Action onClose = null)
+        internal LayoutDocument AddNewWindow(string name, UIElement content, Action onClose = null)
         {
             var document = new LayoutDocument()
             {
@@ -444,7 +416,7 @@ namespace XTMF.Gui
             if (showAdvanced)
             {
                 var result = Win32Helper.VistaDialog.Show(new WindowInteropHelper(Us).Handle, null, "Select Directory");
-                if(result.Result)
+                if (result.Result)
                 {
                     return result.FileName;
                 }
@@ -459,7 +431,7 @@ namespace XTMF.Gui
             }
             return null;
         }
-       
+
 
 
         private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
