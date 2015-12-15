@@ -218,6 +218,10 @@ namespace XTMF
                     return null;
                 }
                 var newProject = new Project(name, this.Runtime.Configuration);
+                if (!newProject.Save(ref error))
+                {
+                    return null;
+                }
                 this.Runtime.Configuration.ProjectRepository.AddProject(newProject);
                 return newProject;
             }
