@@ -357,16 +357,12 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Resources\Links.emf" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\CopyFolderHSx64.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\CopyHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\crest.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\CutHS.png" />
@@ -378,12 +374,6 @@
     <Resource Include="Images\FolderOpen_16x16_72.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Home.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Link.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PasteHS.png" />
   </ItemGroup>
   <ItemGroup>
@@ -391,9 +381,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\XTMF_icon_2.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\xtmf_logo_1.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\010_LowPriority_16x16_72.png" />
@@ -408,19 +395,7 @@
     <Resource Include="Resources\base_cog_32.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\base_star_32.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\BigLinks.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\crest.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Download.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Edit.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\FloppyDisk.png" />
