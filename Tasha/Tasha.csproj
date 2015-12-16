@@ -276,6 +276,7 @@
     <Compile Include="PopulationSynthesis\EliminateJobsInHomeAndExternal.cs" />
     <Compile Include="PopulationSynthesis\ExtractHouseholdData.cs" />
     <Compile Include="PopulationSynthesis\ExtractPersonData.cs" />
+    <Compile Include="PopulationSynthesis\PopulationRedistribution.cs" />
     <Compile Include="PopulationSynthesis\PoRPoS.cs" />
     <Compile Include="PopulationSynthesis\StartPoRPoW.cs" />
     <Compile Include="PopulationSynthesis\TTSPopulationReplicationForcast.cs" />

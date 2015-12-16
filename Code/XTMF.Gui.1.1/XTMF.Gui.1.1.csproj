@@ -165,6 +165,9 @@
     <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ModelSystemsDisplay.xaml.cs">
+      <DependentUpon>ModelSystemsDisplay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModuleTypeSelect.xaml.cs">
       <DependentUpon>ModuleTypeSelect.xaml</DependentUpon>
     </Compile>
@@ -176,6 +179,9 @@
     </Compile>
     <Compile Include="UserControls\ProjectDisplay.xaml.cs">
       <DependentUpon>ProjectDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ProjectsDisplay.xaml.cs">
+      <DependentUpon>ProjectsDisplay.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\RunWindow.xaml.cs">
       <DependentUpon>RunWindow.xaml</DependentUpon>
@@ -204,6 +210,7 @@
     <Compile Include="UserControls\TMGProgressBar.xaml.cs">
       <DependentUpon>TMGProgressBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Win32Helper.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -264,6 +271,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\ModelSystemsDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\ModuleTypeSelect.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -277,6 +288,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\ProjectDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ProjectsDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -342,16 +357,12 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Resources\Links.emf" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\CopyFolderHSx64.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\CopyHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\crest.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\CutHS.png" />
@@ -363,12 +374,6 @@
     <Resource Include="Images\FolderOpen_16x16_72.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Home.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Link.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\PasteHS.png" />
   </ItemGroup>
   <ItemGroup>
@@ -376,9 +381,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\XTMF_icon_2.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\xtmf_logo_1.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\010_LowPriority_16x16_72.png" />
@@ -393,19 +395,7 @@
     <Resource Include="Resources\base_cog_32.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\base_star_32.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\BigLinks.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\crest.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Download.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Edit.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\FloppyDisk.png" />

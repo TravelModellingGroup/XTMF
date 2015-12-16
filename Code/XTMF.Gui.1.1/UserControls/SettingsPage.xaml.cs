@@ -174,5 +174,23 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        private void Select_ModelSystemDirectory(object sender, RoutedEventArgs e)
+        {
+            var dir = MainWindow.OpenDirectory();
+            if(dir != null)
+            {
+                ((SettingsModel)DataContext).ModelSystemDirectory = dir;
+            }
+        }
+
+        private void Select_ProjectDirectory(object sender, RoutedEventArgs e)
+        {
+            var dir = MainWindow.OpenDirectory();
+            if (dir != null)
+            {
+                ((SettingsModel)DataContext).ProjectDirectory = dir;
+            }
+        }
     }
 }

@@ -259,6 +259,15 @@ namespace XTMF.Gui.UserControls
             var us = source as ProjectDisplay;
             us.DataContext = us.Project;
             us.Model = new ProjectModel(us.Project, us.Session);
+            us.Session.ModelSystemNameChanged += us.Session_ModelSystemNameChanged;
+        }
+
+        private void Session_ModelSystemNameChanged(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+           {
+               Model.RefreshModelSystems();
+           });
         }
 
         private bool FilterMS(object e, string text)
@@ -337,8 +346,29 @@ namespace XTMF.Gui.UserControls
                         break;
                     case Key.F2:
                         {
-                            RenameModelSystem();
+                            RenameCurrentModelSystem();
                             e.Handled = true;
+                        }
+                        break;
+                    case Key.C:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CloneCurrentModelSystem();
+                        }
+                        break;
+                    case Key.Delete:
+                        DeleteCurrentModelSystem();
+                        break;
+                    case Key.N:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            CreateNewModelSystem();
+                        }
+                        break;
+                    case Key.S:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            SaveCurrentAsModelSystem();
                         }
                         break;
                 }
@@ -455,26 +485,6 @@ namespace XTMF.Gui.UserControls
             return current as Window;
         }
 
-        private void DeleteProject_Clicked(object obj)
-        {
-            if (MessageBox.Show(GetWindow(),
-                "Are you sure you want to delete the project?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
-            {
-                string error = null;
-                if (!Session.DeleteProject(ref error))
-                {
-                    MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                    return;
-                }
-                // now we can close the window
-                var e = RequestClose;
-                if (e != null)
-                {
-                    e(this);
-                }
-            }
-        }
-
         private void ImportModelSystem_Clicked(object obj)
         {
             var xtmf = Session.GetRuntime();
@@ -514,6 +524,11 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteModelSystem_Click(object sender, RoutedEventArgs e)
         {
+            DeleteCurrentModelSystem();
+        }
+
+        private void DeleteCurrentModelSystem()
+        {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
             {
@@ -534,7 +549,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RenameModelSystem()
+        private void RenameCurrentModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
@@ -556,10 +571,15 @@ namespace XTMF.Gui.UserControls
 
         private void RenameModelSystem_Click(object sender, RoutedEventArgs e)
         {
-            RenameModelSystem();
+            RenameCurrentModelSystem();
         }
 
         private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCurrentAsModelSystem();
+        }
+
+        private void SaveCurrentAsModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
@@ -580,41 +600,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RenameProject_Clicked(object obj)
-        {
-            StringRequest sr = new StringRequest("New Project Name?", (newName) =>
-            {
-                return Session.ValidateModelSystemName(newName);
-            });
-            sr.Owner = GetWindow();
-            if (sr.ShowDialog() == true)
-            {
-                string error = null;
-                if (!Session.ReameProject(sr.Answer, ref error))
-                {
-                    MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void CloneProject_Clicked(object obj)
-        {
-            StringRequest sr = new StringRequest("Cloned Project's Name?", (newName) =>
-            {
-                return Session.ValidateModelSystemName(newName);
-            });
-            sr.Owner = GetWindow();
-            if (sr.ShowDialog() == true)
-            {
-                string error = null;
-                if (!Session.CloneProjectAs(sr.Answer, ref error))
-                {
-                    MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
         private void CloneModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            CloneCurrentModelSystem();
+        }
+
+        private void CloneCurrentModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
@@ -635,6 +626,37 @@ namespace XTMF.Gui.UserControls
                     {
                         Model.RefreshModelSystems();
                     }
+                }
+            }
+        }
+
+        private void NewModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewModelSystem();
+        }
+
+        private void CreateNewModelSystem_Clicked(object obj)
+        {
+            CreateNewModelSystem();
+        }
+
+        private void CreateNewModelSystem()
+        {
+            StringRequest sr = new StringRequest("New Model System's Name?", (newName) =>
+            {
+                return Session.ValidateModelSystemName(newName);
+            });
+            sr.Owner = GetWindow();
+            if (sr.ShowDialog() == true)
+            {
+                string error = null;
+                if (!Session.AddModelSystem(sr.Answer, ref error))
+                {
+                    MessageBox.Show(error, "Unable to create New Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    Model.RefreshModelSystems();
                 }
             }
         }

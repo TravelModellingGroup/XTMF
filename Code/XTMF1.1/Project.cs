@@ -96,6 +96,19 @@ namespace XTMF
             return Save(ref error);
         }
 
+        internal bool AddModelSystem(string modelSystemName, ref string error)
+        {
+            if (String.IsNullOrWhiteSpace(modelSystemName))
+            {
+                error = "A model system's name must not be blank or only contain white space!";
+                return false;
+            }
+            ModelSystemStructure.Add(new ModelSystemStructure(Configuration) { Name = modelSystemName, Required = true, Description = "The root of the model system" });
+            ModelSystemDescriptions.Add(String.Empty);
+            LinkedParameters.Add(new List<ILinkedParameter>());
+            return Save(ref error);
+        }
+
         internal bool AddModelSystem(int index, string newName, ref string error)
         {
             List<ILinkedParameter> linkedParameters;
@@ -135,9 +148,14 @@ namespace XTMF
             ModelSystemDescriptions = toClone.ModelSystemDescriptions.ToList();
         }
 
-        internal Project CreateCloneProject()
+        internal Project CreateCloneProject(bool attachToParent = true)
         {
-            return new Project(this);
+            var project = new Project(this);
+            if (!attachToParent)
+            {
+                project.ClonedFrom = null;
+            }
+            return project;
         }
 
         internal bool RemoveModelSystem(int index, ref string error)
@@ -226,7 +244,7 @@ namespace XTMF
             get
             {
                 SetActive();
-                if(_Descriptions == null)
+                if (_Descriptions == null)
                 {
                     _Descriptions = new List<string>();
                 }

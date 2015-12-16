@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,7 +32,7 @@ namespace TMG.Emme
         [RunParameter("Scenario", 0, "The Emme scenario to export")]
         public int ScenarioNumber;
 
-        [RunParameter("Attributes to Export", "", "A list of extra attribute IDs to include in the NWP file (including the '@' symbol)")]
+        [RunParameter("Attributes to Export", "", "A list of extra attribute IDs to include in the NWP file (including the '@' symbol).  If you enter in 'All' all attributes will be exported.")]
         public StringList AttributeIdsToExport;
 
         [SubModelInformation(Description = "Network Package File", Required = true)]

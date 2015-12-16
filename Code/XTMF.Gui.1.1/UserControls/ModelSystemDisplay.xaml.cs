@@ -64,7 +64,7 @@ namespace XTMF.Gui.UserControls
             }
             set
             {
-                if(_Session != null)
+                if (_Session != null)
                 {
                     _Session.ProjectWasExternallySaved -= ProjectWasExternalSaved;
                 }
@@ -241,10 +241,29 @@ namespace XTMF.Gui.UserControls
         private void ToggleQuickParameter()
         {
             var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            if(displayParameter != null)
+            if (displayParameter != null)
             {
                 displayParameter.QuickParameter = !displayParameter.QuickParameter;
             }
+        }
+
+        public BindingList<LinkedParameterDisplayModel> RecentLinkedParameters = new BindingList<LinkedParameterDisplayModel>();
+
+        private void RecentLinkedParameter_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = sender as DependencyObject;
+            if (selected != null)
+            {
+                var currentMenu = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterRecentLinkedParameters : ParameterRecentLinkedParameters);
+                var selectedLinkedParameter = currentMenu.ItemContainerGenerator.ItemFromContainer(selected) as LinkedParameterDisplayModel;
+                if (selectedLinkedParameter != null)
+                {
+                    AddCurrentParameterToLinkedParameter(selectedLinkedParameter.LinkedParameter);
+                    RecentLinkedParameters.RemoveAt(RecentLinkedParameters.IndexOf(selectedLinkedParameter));
+                    RecentLinkedParameters.Insert(0, selectedLinkedParameter);
+                }
+            }
+
         }
 
         private void ShowLinkedParameterDialog(bool assign = false)
@@ -255,16 +274,44 @@ namespace XTMF.Gui.UserControls
             {
                 // assign the selected linked parameter
                 var newLP = linkedParameterDialog.SelectedLinkParameter;
-                var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-                if (displayParameter != null)
+
+                if (AddCurrentParameterToLinkedParameter(newLP))
                 {
-                    string error = null;
-                    if (!displayParameter.AddToLinkedParameter(newLP, ref error))
+                    LinkedParameterDisplayModel matched;
+                    if ((matched = RecentLinkedParameters.FirstOrDefault(lpdm => lpdm.LinkedParameter == newLP)) != null)
                     {
-                        MessageBox.Show(GetWindow(), error, "Failed to set to Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                        RecentLinkedParameters.Remove(matched);
                     }
+                    RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
+                    if (RecentLinkedParameters.Count > 5)
+                    {
+                        RecentLinkedParameters.RemoveAt(5);
+                    }
+                    ParameterRecentLinkedParameters.IsEnabled = true;
+                    QuickParameterRecentLinkedParameters.IsEnabled = true;
                 }
             }
+            if(linkedParameterDialog.ChangesMade)
+            {
+                RefreshParameters();
+            }
+        }
+
+        private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
+        {
+            var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            if (displayParameter != null)
+            {
+
+                string error = null;
+                if (!displayParameter.AddToLinkedParameter(newLP, ref error))
+                {
+                    MessageBox.Show(GetWindow(), error, "Failed to set to Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+                return true;
+            }
+            return false;
         }
 
         private void RemoveFromLinkedParameter()
@@ -308,9 +355,18 @@ namespace XTMF.Gui.UserControls
                         {
                             selectedModule.Type = selectedType;
                         }
-                        UpdateParameters(selectedModule.BaseModel.Parameters);
+                        RefreshParameters();
                     }
                 }
+            }
+        }
+
+        private void RefreshParameters()
+        {
+            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if (selectedModule != null)
+            {
+                UpdateParameters(selectedModule.BaseModel.Parameters);
             }
         }
 
@@ -318,19 +374,26 @@ namespace XTMF.Gui.UserControls
         {
             var us = source as ModelSystemDisplay;
             var newModelSystem = e.NewValue as ModelSystemModel;
+            us.RecentLinkedParameters.Clear();
+            newModelSystem.LinkedParameters.LinkedParameterRemoved += us.LinkedParameters_LinkedParameterRemoved;
             if (newModelSystem != null)
             {
                 us.ModelSystemName = newModelSystem.Name;
                 Task.Run(() =>
                 {
                     var displayModel = us.CreateDisplayModel(newModelSystem.Root);
-                    us.Dispatcher.BeginInvoke(new Action(() =>
+                    us.Dispatcher.Invoke(() =>
                     {
+                        us.ParameterDisplay.ContextMenu.DataContext = us;
+                        us.QuickParameterDisplay.ContextMenu.DataContext = us;
                         us.ModuleDisplay.ItemsSource = displayModel;
                         us.ModelSystemName = newModelSystem.Name;
                         us.ModuleDisplay.Items.MoveCurrentToFirst();
                         us.FilterBox.Display = us.ModuleDisplay;
-                    }));
+
+                        us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                        us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+                    });
                 });
             }
             else
@@ -338,6 +401,27 @@ namespace XTMF.Gui.UserControls
                 us.ModuleDisplay.DataContext = null;
                 us.ModelSystemName = "No model loaded";
                 us.FilterBox.Display = null;
+                us.ParameterLinkedParameterMenuItem.ItemsSource = null;
+            }
+        }
+
+        private void LinkedParameters_LinkedParameterRemoved(object sender, CollectionChangeEventArgs e)
+        {
+            if (e.Element != null)
+            {
+                var lpRemoved = e.Element as LinkedParameterModel;
+                Dispatcher.Invoke(() =>
+               {
+                   foreach (var item in RecentLinkedParameters.Where(rlp => rlp.LinkedParameter == lpRemoved).ToList())
+                   {
+                       RecentLinkedParameters.Remove(item);
+                   }
+                   if(RecentLinkedParameters.Count <= 0)
+                   {
+                       ParameterRecentLinkedParameters.IsEnabled = false;
+                       QuickParameterRecentLinkedParameters.IsEnabled = false;
+                   }
+               });
             }
         }
 
@@ -415,6 +499,10 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.F:
                             SelectFileForCurrentParameter();
+                            e.Handled = true;
+                            break;
+                        case Key.D:
+                            SelectDirectoryForCurrentParameter();
                             e.Handled = true;
                             break;
                         case Key.Z:
@@ -740,7 +828,7 @@ namespace XTMF.Gui.UserControls
                         break;
                     case Key.T:
                         {
-                            if(ctrlDown)
+                            if (ctrlDown)
                             {
                                 ToggleQuickParameter();
                                 e.Handled = true;
@@ -895,7 +983,7 @@ namespace XTMF.Gui.UserControls
             var module = (e.NewValue as ModelSystemStructureDisplayModel);
             if (module != null)
             {
-                UpdateParameters(module.BaseModel.Parameters);
+                RefreshParameters();
                 if (ParameterTabControl.SelectedIndex != 0)
                 {
                     ParameterTabControl.SelectedIndex = 0;
@@ -972,18 +1060,18 @@ namespace XTMF.Gui.UserControls
         private void BringSelectedIntoView(ModelSystemStructureDisplayModel selected)
         {
             List<ModelSystemStructureDisplayModel> ansestry = DisplayRoot.BuildChainTo(selected);
-            if(ansestry == null)
+            if (ansestry == null)
             {
                 return;
             }
             var currentContainer = ModuleDisplay.ItemContainerGenerator.ContainerFromIndex(0) as TreeViewItem;
-            for(int i = 1; i < ansestry.Count; i++)
+            for (int i = 1; i < ansestry.Count; i++)
             {
-                if(currentContainer == null)
+                if (currentContainer == null)
                 {
                     return;
                 }
-                if(i + 1 < ansestry.Count)
+                if (i + 1 < ansestry.Count)
                 {
                     currentContainer = currentContainer.ItemContainerGenerator.ContainerFromItem(ansestry[i]) as TreeViewItem;
                 }
@@ -1027,7 +1115,7 @@ namespace XTMF.Gui.UserControls
                 {
                     System.Media.SystemSounds.Asterisk.Play();
                 }
-                UpdateParameters(selected.BaseModel.Parameters);
+                RefreshParameters();
                 Keyboard.Focus(ModuleDisplay);
             }
         }
@@ -1157,6 +1245,28 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void SelectDirectoryForCurrentParameter()
+        {
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+            if (currentParameter != null && currentModule != null)
+            {
+                var currentRoot = Session.GetRoot(currentModule.BaseModel);
+                ParameterModel _;
+                var inputDirectory = GetInputDirectory(currentRoot, out _);
+                if (inputDirectory != null)
+                {
+                    string directoryName = MainWindow.OpenDirectory();
+                    if (directoryName == null)
+                    {
+                        return;
+                    }
+                    TransformToRelativePath(inputDirectory, ref directoryName);
+                    currentParameter.Value = directoryName;
+                }
+            }
+        }
+
         private void SelectFileForCurrentParameter()
         {
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
@@ -1168,7 +1278,7 @@ namespace XTMF.Gui.UserControls
                 var inputDirectory = GetInputDirectory(currentRoot, out _);
                 if (inputDirectory != null)
                 {
-                    string fileName = this.OpenFile();
+                    string fileName = MainWindow.OpenFile("Select File", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("All Files", "*") }, true);
                     if (fileName == null)
                     {
                         return;
@@ -1189,16 +1299,6 @@ namespace XTMF.Gui.UserControls
             {
                 fileName = fileName.Substring(runtimeInputDirectory.Length);
             }
-        }
-
-        private string OpenFile()
-        {
-            var dialog = new Microsoft.Win32.OpenFileDialog();
-            if (dialog.ShowDialog() == true)
-            {
-                return dialog.FileName;
-            }
-            return null;
         }
 
         private string GetInputDirectory(ModelSystemStructureModel root, out ParameterModel parameter)
@@ -1295,6 +1395,11 @@ namespace XTMF.Gui.UserControls
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             SelectFileForCurrentParameter();
+        }
+
+        private void SelectDirectory_Click(object sender, RoutedEventArgs e)
+        {
+            SelectDirectoryForCurrentParameter();
         }
 
         private void CopyModule_Click(object sender, RoutedEventArgs e)

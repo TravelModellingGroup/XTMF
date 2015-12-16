@@ -149,7 +149,7 @@ namespace Datastructure
         /// Get the sparse index of a flat data location
         /// </summary>
         /// <param name="flatIndex">The flat address to lookup</param>
-        /// <returns>The coresponding sparse address, -1 if it doesn't exist</returns>
+        /// <returns>The corresponding sparse address, -1 if it doesn't exist</returns>
         public int GetSparseIndex(int flatIndex)
         {
             int soFar = 0;
@@ -167,7 +167,7 @@ namespace Datastructure
         }
 
         /// <summary>
-        /// Get the sprase index of a second index flat data location
+        /// Get the sparse index of a second index flat data location
         /// </summary>
         /// <param name="flatIndexI">The first dimension's flat address</param>
         /// <param name="flatIndexJ">The second dimension's flat address</param>
@@ -387,7 +387,7 @@ namespace Datastructure
                 }
                 else
                 {
-                    // then we are in a vlid range
+                    // then we are in a valid range
                     o = ( o - midIndex.Start + midIndex.BaseLocation );
                     return true;
                 }

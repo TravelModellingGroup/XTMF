@@ -20,6 +20,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace XTMF
@@ -53,7 +54,7 @@ namespace XTMF
         /// <summary>
         /// This event will fire when a model system has been removed
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly" )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event Action<IModelSystem, int> ModelSystemRemoved;
 
         /// <summary>
@@ -71,20 +72,20 @@ namespace XTMF
         /// <param name="modelSystem"></param>
         public void Add(IModelSystem modelSystem)
         {
-            if ( modelSystem != null )
+            if (modelSystem != null)
             {
-                lock ( this )
+                lock (this)
                 {
-                    this.ModelSystems.Add( modelSystem );
-                    ( this.ModelSystems as List<IModelSystem> ).Sort( delegate(IModelSystem first, IModelSystem second)
-                    {
-                        return first.Name.CompareTo( second.Name );
-                    } );
+                    this.ModelSystems.Add(modelSystem);
+                    (this.ModelSystems as List<IModelSystem>).Sort(delegate (IModelSystem first, IModelSystem second)
+                 {
+                     return first.Name.CompareTo(second.Name);
+                 });
                 }
                 var msa = this.ModelSystemAdded;
-                if ( msa != null )
+                if (msa != null)
                 {
-                    msa( modelSystem );
+                    msa(modelSystem);
                 }
             }
         }
@@ -99,32 +100,92 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Renames the model system if possible
+        /// </summary>
+        /// <param name="modelSystem">The model system to rename</param>
+        /// <param name="newName">The name to save it as</param>
+        /// <param name="error">An error message if the operation fails</param>
+        /// <returns>True if the operation succeeds, false otherwise with a message.</returns>
+        public bool Rename(ModelSystem modelSystem, string newName, ref string error)
+        {
+            var newNameLower = newName.ToLowerInvariant();
+            if (ModelSystems.Any(ms => ms.Name.ToLowerInvariant() == newNameLower))
+            {
+                error = "There was already a model system with the name " + newName + "!";
+                return false;
+            }
+            var oldName = modelSystem.Name;
+            modelSystem.Name = newName;
+            var success = modelSystem.Save(ref error);
+            // if the rename worked we need to cleanup the old save file
+            if (success)
+            {
+                try
+                {
+                    File.Delete(Path.Combine(this.Config.ModelSystemDirectory, oldName + ".xml"));
+                }
+                catch (IOException)
+                {
+                    // if we were unable to delete the file that means it was already removed, so there is nothing to do
+                }
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Makes a copy of the model system with the given new name
+        /// </summary>
+        /// <param name="modelSystem">The model system to create a clone of</param>
+        /// <param name="newName">The name to give the model system</param>
+        /// <param name="error">An error message if the operation fails</param>
+        /// <returns>True if successful, false otherwise with an error message.</returns>
+        public bool CloneModelSystem(ModelSystem modelSystem, string newName, ref string error)
+        {
+            var newNameLower = newName.ToLowerInvariant();
+            if (ModelSystems.Any(ms => ms.Name.ToLowerInvariant() == newNameLower))
+            {
+                error = "There was already a model system with the name " + newName + "!";
+                return false;
+            }
+            ModelSystem clone = new ModelSystem(Config, newName);
+            clone.Description = modelSystem.Description;
+            clone.LinkedParameters = modelSystem.LinkedParameters;
+            clone.Name = newName;
+            clone.ModelSystemStructure = modelSystem.ModelSystemStructure;
+            var saved = clone.Save(ref error);
+            // unload so there are no references to the current model system
+            clone.Unload();
+            Add(clone);
+            return saved;
+        }
+
+        /// <summary>
         /// Provides removal for a model system
         /// </summary>
         /// <param name="modelSystem"></param>
         /// <returns></returns>
         public bool Remove(IModelSystem modelSystem)
         {
-            if ( modelSystem != null )
+            if (modelSystem != null)
             {
                 int index;
-                lock ( this )
+                lock (this)
                 {
-                    index = this.ModelSystems.IndexOf( modelSystem );
-                    if ( !this.ModelSystems.Remove( modelSystem ) )
+                    index = this.ModelSystems.IndexOf(modelSystem);
+                    if (!this.ModelSystems.Remove(modelSystem))
                     {
                         return false;
                     }
                 }
                 var msr = this.ModelSystemRemoved;
-                if ( msr != null )
+                if (msr != null)
                 {
-                    msr( modelSystem, index );
+                    msr(modelSystem, index);
                 }
                 // we don't need to be locked in order to delete it
                 try
                 {
-                    File.Delete( Path.Combine( this.Config.ModelSystemDirectory, modelSystem.Name + ".xml" ) );
+                    File.Delete(Path.Combine(this.Config.ModelSystemDirectory, modelSystem.Name + ".xml"));
                 }
                 catch
                 {
@@ -150,34 +211,34 @@ namespace XTMF
         /// </summary>
         private void LoadModelSystemsFromDisk()
         {
-            if ( !Directory.Exists( this.Config.ModelSystemDirectory ) ) return;
-            string[] files = Directory.GetFiles( this.Config.ModelSystemDirectory );
+            if (!Directory.Exists(this.Config.ModelSystemDirectory)) return;
+            string[] files = Directory.GetFiles(this.Config.ModelSystemDirectory);
             ConcurrentQueue<IModelSystem> temp = new ConcurrentQueue<IModelSystem>();
-            Parallel.For( 0, files.Length, (int i) =>
-            {
-                // Load the ModelSystem structure from disk
-                // After we have it, then we can just go and create a new model system from it
-                try
-                {
-                    var ms = new ModelSystem( this.Config, Path.GetFileNameWithoutExtension( files[i] ) );
-                    if ( ms != null )
-                    {
-                        temp.Enqueue( ms );
-                    }
-                }
-                catch
-                {
-                }
-            } );
+            Parallel.For(0, files.Length, (int i) =>
+           {
+               // Load the ModelSystem structure from disk
+               // After we have it, then we can just go and create a new model system from it
+               try
+               {
+                   var ms = new ModelSystem(this.Config, Path.GetFileNameWithoutExtension(files[i]));
+                   if (ms != null)
+                   {
+                       temp.Enqueue(ms);
+                   }
+               }
+               catch
+               {
+               }
+           });
             IModelSystem dequeueMe;
-            while ( temp.TryDequeue( out dequeueMe ) )
+            while (temp.TryDequeue(out dequeueMe))
             {
-                this.ModelSystems.Add( dequeueMe );
+                this.ModelSystems.Add(dequeueMe);
             }
-            ( this.ModelSystems as List<IModelSystem> ).Sort( delegate(IModelSystem first, IModelSystem second)
-            {
-                return first.Name.CompareTo( second.Name );
-            } );
+            (this.ModelSystems as List<IModelSystem>).Sort(delegate (IModelSystem first, IModelSystem second)
+         {
+             return first.Name.CompareTo(second.Name);
+         });
 
         }
     }

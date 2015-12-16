@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,6 +29,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -87,39 +89,11 @@ namespace XTMF.Gui
 
         public void OpenProject()
         {
-            var open = new OpenWindow()
-            {
-                Owner = this
-            };
-            open.OpenProject(EditorController.Runtime);
-            Task.Factory.StartNew(() =>
-            {
-                if (open.LoadTask != null)
-                {
-                    OperationProgressing progressing = null;
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        progressing = new OperationProgressing()
-                        {
-                            Owner = this
-                        };
-                    }));
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.ShowDialog();
-                    }));
-
-                    open.LoadTask.Wait();
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.Close();
-                    }));
-                }
-                EditProject(open.ProjectSession);
-            });
+            var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime));
+            doc.IsActive = true;
         }
 
-        private void EditProject(ProjectEditingSession projectSession)
+        internal void EditProject(ProjectEditingSession projectSession)
         {
             if (projectSession != null)
             {
@@ -157,43 +131,8 @@ namespace XTMF.Gui
 
         public void OpenModelSystem()
         {
-            OpenWindow openWindow = new OpenWindow()
-            {
-                Owner = this
-            };
-            openWindow.OpenModelSystem(EditorController.Runtime);
-            Task.Factory.StartNew(() =>
-            {
-                if (openWindow.LoadTask != null)
-                {
-                    OperationProgressing progressing = null;
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        progressing = new OperationProgressing()
-                        {
-                            Owner = this
-                        };
-                    }));
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.ShowDialog();
-                    }));
-                    openWindow.LoadTask.Wait();
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.Close();
-                    }));
-                }
-                var session = openWindow.ModelSystemSession;
-                if (session != null)
-                {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        EditModelSystem(session);
-                        SetStatusText("Ready");
-                    }));
-                }
-            });
+            var doc = AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime));
+            doc.IsActive = true;
         }
 
 
@@ -202,7 +141,7 @@ namespace XTMF.Gui
         /// </summary>
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
 
-        private LayoutDocument AddNewWindow(string name, UIElement content, Action onClose = null)
+        internal LayoutDocument AddNewWindow(string name, UIElement content, Action onClose = null)
         {
             var document = new LayoutDocument()
             {
@@ -314,32 +253,40 @@ namespace XTMF.Gui
                         {
                             runName = req.Answer;
                             string error = null;
-                            var run = session.Run(runName, ref error);
-                            if (run != null)
+                            if (!RunAlreadyExists(runName, session) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                             {
-                                RunWindow window = new RunWindow(session, run, runName);
-                                var doc = AddNewWindow("New Run", window);
-                                doc.Closing += (o, e) =>
+                                var run = session.Run(runName, ref error);
+                                if (run != null)
                                 {
-                                    if (!window.CloseRequested())
+                                    RunWindow window = new RunWindow(session, run, runName);
+                                    var doc = AddNewWindow("New Run", window);
+                                    doc.Closing += (o, e) =>
                                     {
-                                        e.Cancel = true;
-                                        return;
-                                    }
-                                };
-                                doc.CanClose = true;
-                                doc.IsSelected = true;
-                                Keyboard.Focus(window);
-                                window.Focus();
-                            }
-                            else
-                            {
-                                MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        if (!window.CloseRequested())
+                                        {
+                                            e.Cancel = true;
+                                            return;
+                                        }
+                                    };
+                                    doc.CanClose = true;
+                                    doc.IsSelected = true;
+                                    Keyboard.Focus(window);
+                                    window.Focus();
+                                }
+                                else
+                                {
+                                    MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
                             }
                         }
                     };
                 }
             }
+        }
+
+        private bool RunAlreadyExists(string runName, ModelSystemEditingSession session)
+        {
+            return session.RunNameExists(runName);
         }
 
         private Action _CurrentRun;
@@ -397,20 +344,64 @@ namespace XTMF.Gui
             }
         }
 
-        public static string OpenFile(string title)
+        public static string OpenFile(string title, KeyValuePair<string, string>[] extensions, bool alreadyExists)
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog();
-            dialog.Title = title;
-            if (dialog.ShowDialog() == true)
+            string filter = string.Join("|",
+                from element in extensions
+                select element.Key + "|*." + element.Value
+                );
+            if (alreadyExists)
             {
-                return dialog.FileName;
+                var dialog = new Microsoft.Win32.OpenFileDialog();
+                dialog.Title = title;
+                dialog.Filter = filter;
+                if (dialog.ShowDialog() == true)
+                {
+                    return dialog.FileName;
+                }
+                return null;
+            }
+            else
+            {
+                var dialog = new Microsoft.Win32.SaveFileDialog();
+                dialog.Title = "Save As";
+                dialog.FileName = title;
+                dialog.Filter = filter;
+                if (dialog.ShowDialog() == true)
+                {
+                    return dialog.FileName;
+                }
+                return null;
+            }
+        }
+
+        public static string OpenDirectory()
+        {
+            var showAdvanced = Environment.OSVersion.Version.Major >= 6;
+            if (showAdvanced)
+            {
+                var result = Win32Helper.VistaDialog.Show(new WindowInteropHelper(Us).Handle, null, "Select Directory");
+                if (result.Result)
+                {
+                    return result.FileName;
+                }
+            }
+            else
+            {
+                var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    return dialog.SelectedPath;
+                }
             }
             return null;
         }
 
+
+
         private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
         {
-            var fileName = OpenFile("Import Model System");
+            var fileName = OpenFile("Import Model System", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, true);
             string error = null;
             if (fileName != null)
             {
@@ -425,6 +416,10 @@ namespace XTMF.Gui
                                 if (!EditorController.Runtime.ModelSystemController.ImportModelSystem(fileName, true, ref error))
                                 {
                                     MessageBox.Show(this, error, "Unable to import", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
+                                else
+                                {
+                                    MessageBox.Show(this, "The model system has been successfully imported from '" + fileName + "'.", "Model System Imported", MessageBoxButton.OK, MessageBoxImage.Information);
                                 }
                             }
                             break;
@@ -497,7 +492,7 @@ namespace XTMF.Gui
             return Project.ValidateProjectName(name);
         }
 
-        private void EditModelSystem(ModelSystemEditingSession modelSystemSession)
+        internal void EditModelSystem(ModelSystemEditingSession modelSystemSession)
         {
             if (modelSystemSession != null)
             {
@@ -505,8 +500,8 @@ namespace XTMF.Gui
                 {
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     VerticalAlignment = VerticalAlignment.Stretch,
-                    ModelSystem = modelSystemSession.ModelSystemModel,
                     Session = modelSystemSession,
+                    ModelSystem = modelSystemSession.ModelSystemModel,
                 };
 
                 var titleBarName = modelSystemSession.EditingProject ?
@@ -519,7 +514,7 @@ namespace XTMF.Gui
                    {
                        doc.Title = modelSystemSession.EditingProject ?
                         modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
-                       : "Model System - " + modelSystemSession.ModelSystemModel.Name; ;
+                       : "Model System - " + modelSystemSession.ModelSystemModel.Name;
                    });
                 };
                 modelSystemSession.NameChanged += onRename;
@@ -555,7 +550,7 @@ namespace XTMF.Gui
         internal static void ShowPageContaining(object content)
         {
             var result = Us.OpenPages.FirstOrDefault((page) => page.Content == content);
-            if(result != null)
+            if (result != null)
             {
                 result.IsActive = true;
             }

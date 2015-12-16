@@ -209,10 +209,6 @@ namespace XTMF
 
         public override string ToString()
         {
-            if (ModelSystemStructure != null && ModelSystemStructure.Type != null)
-            {
-                return string.Format("{0}:{1}", Name, ModelSystemStructure.Type.Name);
-            }
             return Name;
         }
 

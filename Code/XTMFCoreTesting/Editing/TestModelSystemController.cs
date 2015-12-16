@@ -38,13 +38,14 @@ namespace XTMF.Testing.Editing
             controller.Delete( msName );
             var ms = controller.LoadOrCreate( msName );
             Assert.AreNotEqual( null, ms, "The model system 'TestModelSystem' was null!" );
-            Assert.IsTrue( controller.Delete( ms ), "We were unable to delete a model system that should have existed!" );
+            string error = null;
+            Assert.IsTrue( controller.Delete( ms, ref error ), "We were unable to delete a model system that should have existed!" );
             ms = controller.LoadOrCreate( msName );
             using (var session = controller.EditModelSystem( ms ))
             {
-                Assert.IsFalse( controller.Delete( ms ), "Even though the model system had an editing session it was deleted!" );
+                Assert.IsFalse( controller.Delete( ms, ref error ), "Even though the model system had an editing session it was deleted!" );
             }
-            Assert.IsTrue( controller.Delete( ms ), "Even though the model system was no longer being editing it was not deleted!" );
+            Assert.IsTrue( controller.Delete( ms, ref error ), "Even though the model system was no longer being editing it was not deleted!" );
         }
 
         [TestMethod]

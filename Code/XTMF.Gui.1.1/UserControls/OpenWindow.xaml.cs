@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -271,7 +271,7 @@ namespace XTMF.Gui.UserControls
                 if (MessageBox.Show(Window.GetWindow(this),
                 "Are you sure you want to delete the model system '" + (result as ModelSystem).Name + "'?", "Delete Model System", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    if (!Runtime.ModelSystemController.Delete(result as ModelSystem))
+                    if (!Runtime.ModelSystemController.Delete(result as ModelSystem, ref error))
                     {
                         MessageBox.Show(Window.GetWindow(this), error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
@@ -337,13 +337,14 @@ namespace XTMF.Gui.UserControls
 
         private void Export_Click(object sender, RoutedEventArgs e)
         {
-            string fileName;
-            if (!String.IsNullOrWhiteSpace(fileName = MainWindow.OpenFile("")))
+            var item = (Display.SelectedItem as Model.ModelElement);
+            if (item != null)
             {
-                if (Display.SelectedItem == null)
+                string fileName = MainWindow.OpenFile(item.Name, new KeyValuePair<string, string>[]{ new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                if (!String.IsNullOrWhiteSpace(fileName))
                 {
-                    var modelSystem = (Display.SelectedItem as Model.ModelElement).Data as IModelSystem;
                     string error = null;
+                    var modelSystem = item.Data as IModelSystem;
                     if (!Runtime.ModelSystemController.ExportModelSystem(modelSystem, fileName, ref error))
                     {
                         MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);

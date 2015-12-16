@@ -76,18 +76,18 @@ namespace TMG.Frameworks.MultiRun
         private bool LoadChildFromXTMF(ref string error)
         {
             IModelSystemStructure ourStructure = null;
-            if(ModelSystemReflection.FindModuleStructure(Config, this, ref ourStructure))
+            if (ModelSystemReflection.FindModuleStructure(Config, this, ref ourStructure))
             {
-                foreach(var child in ourStructure.Children)
+                foreach (var child in ourStructure.Children)
                 {
-                    if(child.ParentFieldName == "Child")
+                    if (child.ParentFieldName == "Child")
                     {
                         ChildStructure = child;
                         break;
                     }
                 }
             }
-            if(ChildStructure == null)
+            if (ChildStructure == null)
             {
                 error = "In '" + Name + "' we were unable to find the Client Model System!";
                 return false;
@@ -101,27 +101,27 @@ namespace TMG.Frameworks.MultiRun
         public void Start()
         {
             CurrentProgress = () => Child.Progress;
-            foreach(var runName in ExecuteRuns())
+            foreach (var runName in ExecuteRuns())
             {
                 try
                 {
                     RunName = runName;
                     Child.Start();
                 }
-                catch(ThreadAbortException)
+                catch (ThreadAbortException)
                 {
                     // in any case we continue to exit on a thread abort exception
                     throw;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    if(!ContinueAfterError)
+                    if (!ContinueAfterError)
                     {
                         throw;
                     }
                     SaveException(e);
                 }
-                if(Exit) return;
+                if (Exit) return;
             }
         }
 
@@ -164,11 +164,11 @@ namespace TMG.Frameworks.MultiRun
             XmlDocument doc = new XmlDocument();
             doc.Load(BatchRunFile);
             var root = doc.FirstChild;
-            if(root.HasChildNodes)
+            if (root.HasChildNodes)
             {
-                foreach(XmlNode topLevelCommand in root.ChildNodes)
+                foreach (XmlNode topLevelCommand in root.ChildNodes)
                 {
-                    if(topLevelCommand.LocalName.Equals("Run", StringComparison.InvariantCultureIgnoreCase))
+                    if (topLevelCommand.LocalName.Equals("Run", StringComparison.InvariantCultureIgnoreCase))
                     {
                         string name = "Unnamed Run";
                         SetupRun(topLevelCommand, ref name);
@@ -176,11 +176,11 @@ namespace TMG.Frameworks.MultiRun
                     }
                     else
                     {
-                        if(topLevelCommand.NodeType != XmlNodeType.Comment)
+                        if (topLevelCommand.NodeType != XmlNodeType.Comment)
                         {
                             var commandName = topLevelCommand.LocalName;
                             Action<XmlNode> command;
-                            if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                            if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
                             {
                                 throw new XTMFRuntimeException("We are unable to find a command named '" + commandName
                                     + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
@@ -218,7 +218,7 @@ namespace TMG.Frameworks.MultiRun
         public bool TryAddBatchCommand(string name, Action<XmlNode> command, bool overwrite)
         {
             name = name.ToLowerInvariant();
-            if(!overwrite && BatchCommands.ContainsKey(name))
+            if (!overwrite && BatchCommands.ContainsKey(name))
             {
                 return false;
             }
@@ -236,7 +236,7 @@ namespace TMG.Frameworks.MultiRun
         public string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
         {
             var at = node.Attributes[attribute];
-            if(at == null)
+            if (at == null)
             {
                 throw new XTMFRuntimeException(errorMessage + "\r\n" + node.OuterXml);
             }
@@ -249,10 +249,10 @@ namespace TMG.Frameworks.MultiRun
             var destination = GetAttributeOrError(command, "Destination", "There was a copy command without an 'Destination' attribute!");
             bool move = false;
             var moveAt = command.Attributes["Move"];
-            if(moveAt != null)
+            if (moveAt != null)
             {
                 bool result = false;
-                if(bool.TryParse(moveAt.InnerText, out result))
+                if (bool.TryParse(moveAt.InnerText, out result))
                 {
                     move = result;
                 }
@@ -264,12 +264,12 @@ namespace TMG.Frameworks.MultiRun
         {
             try
             {
-                if(Directory.Exists(origin))
+                if (Directory.Exists(origin))
                 {
                     // check to see if we don't need to make a copy
-                    if(move)
+                    if (move)
                     {
-                        if(Directory.Exists(destination))
+                        if (Directory.Exists(destination))
                         {
                             Directory.Delete(destination);
                         }
@@ -282,9 +282,9 @@ namespace TMG.Frameworks.MultiRun
                 }
                 else
                 {
-                    if(move)
+                    if (move)
                     {
-                        if(File.Exists(destination))
+                        if (File.Exists(destination))
                         {
                             File.Delete(destination);
                         }
@@ -309,7 +309,7 @@ namespace TMG.Frameworks.MultiRun
             // Get the subdirectories for the specified directory.
             DirectoryInfo dir = new DirectoryInfo(sourceDirectory);
             DirectoryInfo[] dirs = dir.GetDirectories();
-            if(!dir.Exists)
+            if (!dir.Exists)
             {
                 throw new DirectoryNotFoundException(
                     "Source directory does not exist or could not be found: "
@@ -317,21 +317,21 @@ namespace TMG.Frameworks.MultiRun
             }
 
             // If the destination directory doesn't exist, create it.
-            if(!Directory.Exists(destinationDirectory))
+            if (!Directory.Exists(destinationDirectory))
             {
                 Directory.CreateDirectory(destinationDirectory);
             }
 
             // Get the files in the directory and copy them to the new location.
             FileInfo[] files = dir.GetFiles();
-            foreach(FileInfo file in files)
+            foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destinationDirectory, file.Name);
                 file.CopyTo(temppath, true);
             }
 
             // If copying subdirectories, copy them and their contents to new location.
-            foreach(DirectoryInfo subdir in dirs)
+            foreach (DirectoryInfo subdir in dirs)
             {
                 string temppath = Path.Combine(destinationDirectory, subdir.Name);
                 DirectoryCopy(subdir.FullName, temppath);
@@ -341,11 +341,11 @@ namespace TMG.Frameworks.MultiRun
         private void ChangeParameter(XmlNode command)
         {
             string value = GetAttributeOrError(command, "Value", "The attribute 'Value' was not found!");
-            if(command.HasChildNodes)
+            if (command.HasChildNodes)
             {
-                foreach(XmlNode child in command)
+                foreach (XmlNode child in command)
                 {
-                    if(child.LocalName.ToLowerInvariant() == "parameter")
+                    if (child.LocalName.ToLowerInvariant() == "parameter")
                     {
                         string parameterName = GetAttributeOrError(child, "ParameterPath", "The attribute 'ParameterPath' was not found!");
                         ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
@@ -367,18 +367,18 @@ namespace TMG.Frameworks.MultiRun
             var modelSystemIndex = project.ModelSystemStructure.IndexOf(ModelSystemReflection.BuildModelStructureChain(Config, this)[0]);
             var ourLinkedParameters = project.LinkedParameters[modelSystemIndex];
             bool any = false;
-            foreach(var lp in ourLinkedParameters)
+            foreach (var lp in ourLinkedParameters)
             {
-                if(lp.Name == name)
+                if (lp.Name == name)
                 {
                     any = true;
-                    foreach(var parameter in lp.Parameters)
+                    foreach (var parameter in lp.Parameters)
                     {
                         ModelSystemReflection.AssignValue(parameter, value);
                     }
                 }
             }
-            if(!any)
+            if (!any)
             {
                 throw new XTMFRuntimeException("In '" + Name + "' a linked parameter '" + name + "' was not found in order to assign it the value of '" + value + "'.");
             }
@@ -387,49 +387,95 @@ namespace TMG.Frameworks.MultiRun
         private void UnloadResource(XmlNode command)
         {
             string path = GetAttributeOrError(command, "Path", "We were unable to find an attribute called 'Path'!");
+            bool recursive = false;
+            var attribute = command.Attributes["Recursive"];
+            if (attribute != null)
+            {
+                if (!bool.TryParse(attribute.InnerText, out recursive))
+                {
+                    throw new XTMFRuntimeException("In '" + Name + "' an unload command had a recursive parameter with the value '" + attribute.InnerText + "', which is not true/false!");
+                }
+            }
             IModelSystemStructure referencedModule = null;
-            if(!ModelSystemReflection.GetModelSystemStructureFromPath(ChildStructure, path, ref referencedModule))
+            if (!ModelSystemReflection.GetModelSystemStructureFromPath(ChildStructure, path, ref referencedModule))
             {
                 throw new XTMFRuntimeException("In '" + Name + "' we were unable to find the child with the path '" + path + "'!");
             }
-            if(referencedModule.IsCollection)
+            if (referencedModule.IsCollection)
             {
                 var children = referencedModule.Children;
-                if(children != null)
+                if (children != null)
                 {
-                    foreach(var child in children)
+                    foreach (var child in children)
                     {
-                        var mod = child.Module;
-                        var res = mod as IResource;
-                        var dataSource = mod as IDataSource;
-                        if(res != null)
+                        if (recursive)
                         {
-                            res.ReleaseResource();
+                            UnloadRecursively(child);
                         }
-                        else if(dataSource != null)
+                        else
                         {
-                            dataSource.UnloadData();
+                            var mod = child.Module;
+                            var res = mod as IResource;
+                            var dataSource = mod as IDataSource;
+                            if (res != null)
+                            {
+                                res.ReleaseResource();
+                            }
+                            else if (dataSource != null)
+                            {
+                                dataSource.UnloadData();
+                            }
                         }
                     }
                 }
             }
             else
             {
-                var res = referencedModule.Module as IResource;
-                var dataSource = referencedModule.Module as IDataSource;
-                if(res != null)
+                if (recursive)
                 {
-                    res.ReleaseResource();
-                }
-                else if(dataSource != null)
-                {
-                    dataSource.UnloadData();
+                    UnloadRecursively(referencedModule);
                 }
                 else
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource or data source! Only resources or data sources can be unloaded!");
+                    var res = referencedModule.Module as IResource;
+                    var dataSource = referencedModule.Module as IDataSource;
+                    if (res != null)
+                    {
+                        res.ReleaseResource();
+                    }
+                    else if (dataSource != null)
+                    {
+                        dataSource.UnloadData();
+                    }
+                    else
+                    {
+                        throw new XTMFRuntimeException("In '" + Name + "' the referenced module '" + path + "' is not a resource or data source! Only resources or data sources can be unloaded!");
+                    }
                 }
 
+            }
+        }
+
+        private void UnloadRecursively(IModelSystemStructure child)
+        {
+            var children = child.Children;
+            if(children != null)
+            {
+                foreach(var subChild in children)
+                {
+                    UnloadRecursively(subChild);
+                }
+            }
+            var mod = child.Module;
+            var res = mod as IResource;
+            var dataSource = mod as IDataSource;
+            if (res != null)
+            {
+                res.ReleaseResource();
+            }
+            else if (dataSource != null)
+            {
+                dataSource.UnloadData();
             }
         }
 
@@ -440,9 +486,9 @@ namespace TMG.Frameworks.MultiRun
 
         private void DeleteFiles(XmlNode command)
         {
-            if(command.HasChildNodes)
+            if (command.HasChildNodes)
             {
-                foreach(XmlNode child in command.ChildNodes)
+                foreach (XmlNode child in command.ChildNodes)
                 {
                     DeleteCommand(child);
                 }
@@ -457,11 +503,11 @@ namespace TMG.Frameworks.MultiRun
         private void DeleteCommand(XmlNode command)
         {
             var filePath = GetAttributeOrError(command, "Path", "There is a Delete file command that does not define a path to delete!");
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 try
                 {
-                    if(IsDirectory(filePath))
+                    if (IsDirectory(filePath))
                     {
                         Directory.Delete(filePath, IsRecursiveDelete(command));
                     }
@@ -481,10 +527,10 @@ namespace TMG.Frameworks.MultiRun
         private bool IsRecursiveDelete(XmlNode command)
         {
             var attribute = command.Attributes["Recursive"];
-            if(attribute != null)
+            if (attribute != null)
             {
                 bool rec = true;
-                if(bool.TryParse(attribute.InnerText, out rec))
+                if (bool.TryParse(attribute.InnerText, out rec))
                 {
                     return rec;
                 }
@@ -506,14 +552,14 @@ namespace TMG.Frameworks.MultiRun
         private void SetupRun(XmlNode run, ref string name)
         {
             var runName = run.Attributes["Name"];
-            if(runName != null)
+            if (runName != null)
             {
                 name = runName.InnerText;
             }
             var saveAndRunAs = run.Attributes["RunAs"];
-            if(saveAndRunAs != null)
+            if (saveAndRunAs != null)
             {
-                if(OriginalDirectory == null)
+                if (OriginalDirectory == null)
                 {
                     OriginalDirectory = Directory.GetCurrentDirectory();
                 }
@@ -523,21 +569,21 @@ namespace TMG.Frameworks.MultiRun
                 }
                 var newDirectoryName = saveAndRunAs.InnerText;
                 DirectoryInfo info = new DirectoryInfo(newDirectoryName);
-                if(!info.Exists)
+                if (!info.Exists)
                 {
                     info.Create();
                 }
                 Directory.SetCurrentDirectory(newDirectoryName);
             }
-            if(run.HasChildNodes)
+            if (run.HasChildNodes)
             {
-                foreach(XmlNode runChild in run.ChildNodes)
+                foreach (XmlNode runChild in run.ChildNodes)
                 {
-                    if(runChild.NodeType != XmlNodeType.Comment)
+                    if (runChild.NodeType != XmlNodeType.Comment)
                     {
                         var commandName = runChild.LocalName;
                         Action<XmlNode> command;
-                        if(!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                        if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
                         {
                             throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
                         }
@@ -545,7 +591,7 @@ namespace TMG.Frameworks.MultiRun
                     }
                 }
             }
-            if(saveAndRunAs != null)
+            if (saveAndRunAs != null)
             {
                 GetRoot().Save("RunParameters.xml");
             }

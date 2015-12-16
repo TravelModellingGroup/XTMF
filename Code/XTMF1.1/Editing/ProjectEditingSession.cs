@@ -89,6 +89,8 @@ namespace XTMF
 
         public event PropertyChangedEventHandler NameChanged;
 
+        public event EventHandler ModelSystemNameChanged;
+
         /// <summary>
         /// Attempt to rename the project.  This name must be unique.
         /// </summary>
@@ -154,7 +156,28 @@ namespace XTMF
             }
             lock (EditingSessionsLock)
             {
-                if (!this.Project.AddModelSystem(modelSystem, modelSystem.Name, ref error))
+                if (!Project.AddModelSystem(modelSystem, modelSystem.Name, ref error))
+                {
+                    return false;
+                }
+                var temp = new SessionData[EditingSessions.Length + 1];
+                Array.Copy(EditingSessions, temp, EditingSessions.Length);
+                EditingSessions = temp;
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Create a new model system in the project with the given name
+        /// </summary>
+        /// <param name="modelSystemName">The name of the new model system</param>
+        /// <param name="error">If an error occurs this will contain a description</param>
+        /// <returns>True if successful, false otherwise with error message.</returns>
+        public bool AddModelSystem(string modelSystemName, ref string error)
+        {
+            lock(EditingSessionsLock)
+            {
+                if (!Project.AddModelSystem(modelSystemName, ref error))
                 {
                     return false;
                 }
@@ -244,12 +267,22 @@ namespace XTMF
                 if (editingSession.Session != null)
                 {
                     editingSession.Session.ModelSystemModel.ChangeModelSystemName(newName, ref error);
+                    InvokeModelSystemNameChanged();
                 }
                 //In any case we need to save this change so everything updates accordingly
                 Project.ModelSystemStructure[index].Name = newName;
                 Project.Save(ref error);
             }
             return true;
+        }
+
+        private void InvokeModelSystemNameChanged()
+        {
+            var e = ModelSystemNameChanged;
+            if (e != null)
+            {
+                e(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -332,6 +365,16 @@ namespace XTMF
         internal IModelSystemStructure CloneModelSystemStructure(out List<ILinkedParameter> lp, int modelSystemIndex)
         {
             return Project.CloneModelSystemStructure(out lp, modelSystemIndex);
+        }
+
+        /// <summary>
+        /// Checks to see if a run name already exists for this project
+        /// </summary>
+        /// <param name="runName">The run name to check for.</param>
+        /// <returns>True if the run name already exists</returns>
+        internal bool RunNameExists(string runName)
+        {
+            return Directory.Exists(Path.Combine(GetConfiguration().ProjectDirectory, Project.Name, runName));
         }
 
 
@@ -487,11 +530,17 @@ namespace XTMF
                 if (this.EditingSessions[modelSystemIndex].Session == null)
                 {
                     this.EditingSessions[modelSystemIndex].Session = new ModelSystemEditingSession(Runtime, this, modelSystemIndex);
+                    this.EditingSessions[modelSystemIndex].Session.NameChanged += Session_NameChanged;
                 }
                 // in either case add a reference to it.
                 this.EditingSessions[modelSystemIndex].References++;
                 return this.EditingSessions[modelSystemIndex].Session;
             }
+        }
+
+        private void Session_NameChanged(object sender, PropertyChangedEventArgs e)
+        {
+            InvokeModelSystemNameChanged();
         }
 
         internal void ModelSystemEditingSessionClosed(ModelSystemEditingSession modelSystemEditingSession, int modelSystemIndex)

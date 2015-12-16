@@ -27,7 +27,7 @@ using System.Windows;
 
 namespace XTMF.Gui.Models
 {
-    sealed class LinkedParameterDisplayModel : INotifyPropertyChanged, IDisposable
+    public sealed class LinkedParameterDisplayModel : INotifyPropertyChanged, IDisposable
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

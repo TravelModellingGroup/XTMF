@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace XTMF
 {
-    internal class LinkedParameter : ILinkedParameter
+    public class LinkedParameter : ILinkedParameter
     {
         /// <summary>
         /// Create a new LinkedParameter with the given name
