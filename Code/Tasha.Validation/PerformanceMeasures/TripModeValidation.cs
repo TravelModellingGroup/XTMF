@@ -32,84 +32,78 @@ namespace Tasha.Validation.PerformanceMeasures
     {
         bool Calculate = false;
 
-        Dictionary<string, float> AMModeDictionary = new Dictionary<string, float>();        
-        Dictionary<string, float> MDModeDictionary = new Dictionary<string, float>();        
-        Dictionary<string, float> PMModeDictionary = new Dictionary<string, float>();        
-        Dictionary<string, float> EVModeDictionary = new Dictionary<string, float>();        
-
-
+        Dictionary<string, float> AMModeDictionary = new Dictionary<string, float>();
+        Dictionary<string, float> MDModeDictionary = new Dictionary<string, float>();
+        Dictionary<string, float> PMModeDictionary = new Dictionary<string, float>();
+        Dictionary<string, float> EVModeDictionary = new Dictionary<string, float>();
 
         [SubModelInformation(Required = true, Description = "Mode Validation Results File in .csv")]
         public FileLocation ResultsFile;
 
+        [RunParameter("Minimum Age", 11, "The minimum age a person must be in order to be recorded.")]
+        public int MinAge;
+
         public void HouseholdComplete(ITashaHousehold household, bool success)
-        {            
+        {
         }
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
             if (Calculate)
-            {                
+            {
                 for (int i = 0; i < household.Persons.Length; i++)
                 {
                     float toAdd = household.Persons[i].ExpansionFactor / totalHouseholdIterations;
 
                     for (int j = 0; j < household.Persons[i].TripChains.Count; j++)
-                    {                        
+                    {
+                        var person = household.Persons[i];
+                        if(person.Age < MinAge)
+                        {
+                            continue;
+                        }
                         for (int k = 0; k < household.Persons[i].TripChains[j].Trips.Count; k++)
                         {
-                            var mode = household.Persons[i].TripChains[j].Trips[k].Mode.ModeName;
-                            var tripStartTime = household.Persons[i].TripChains[j].Trips[k].TripStartTime;                            
-                            if (tripStartTime.Hours >= 6 && tripStartTime.Hours < 9)
+                            var trip = person.TripChains[j].Trips[k];
+                            var mode = trip.Mode.ModeName;
+                            var tripStartTime = trip.TripStartTime.Hours;
+                            if (tripStartTime >= 6 && tripStartTime < 9)
                             {
-                                lock (this)
-                                {
-                                    AddToDictionary(AMModeDictionary, mode, toAdd);
-                                }
+                                AddToDictionary(AMModeDictionary, mode, toAdd);
                             }
-                            else if (tripStartTime.Hours >= 9 && tripStartTime.Hours < 15)
+                            else if (tripStartTime >= 9 && tripStartTime < 15)
                             {
-                                lock (this)
-                                {
-                                    AddToDictionary(MDModeDictionary, mode, toAdd);
-                                }
+                                AddToDictionary(MDModeDictionary, mode, toAdd);
                             }
-                            else if (tripStartTime.Hours >= 15 && tripStartTime.Hours < 19)
+                            else if (tripStartTime >= 15 && tripStartTime < 19)
                             {
-                                lock (this)
-                                {
-                                    AddToDictionary(PMModeDictionary, mode, toAdd);
-                                }
+                                AddToDictionary(PMModeDictionary, mode, toAdd);
                             }
                             else
                             {
-                                lock (this)
-                                {
-                                    AddToDictionary(EVModeDictionary, mode, toAdd);
-                                }
-                            }                            
+                                AddToDictionary(EVModeDictionary, mode, toAdd);
+                            }
                         }
                     }
                 }
-            }            
+            }
         }
 
         private void AddToDictionary(Dictionary<string, float> modeDictionary, string mode, float toAdd)
         {
-            float initialValue;                        
-
-            if(!modeDictionary.TryGetValue(mode, out initialValue ))
+            lock (this)
             {
-                initialValue = 0;
+                float initialValue;
+                if (!modeDictionary.TryGetValue(mode, out initialValue))
+                {
+                    initialValue = 0;
+                }
+                modeDictionary[mode] = toAdd + initialValue;
             }
-            modeDictionary[mode] = toAdd + initialValue;
         }
 
-
-
-
         public void HouseholdStart(ITashaHousehold household, int householdIterations)
-        {            
+        {
         }
 
         public void IterationStarting(int iteration, int totalIterations)
@@ -118,13 +112,13 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
         public void IterationFinished(int iteration, int totalIterations)
-        {         
-            if(iteration == totalIterations - 1)
+        {
+            if (iteration == totalIterations - 1)
             {
                 using (StreamWriter writer = new StreamWriter(ResultsFile))
                 {
                     writer.WriteLine("Mode, Trips");
-                    foreach(var pair in AMModeDictionary)
+                    foreach (var pair in AMModeDictionary)
                     {
                         writer.WriteLine("AM" + "{0}, {1}", pair.Key, pair.Value);
                     }
