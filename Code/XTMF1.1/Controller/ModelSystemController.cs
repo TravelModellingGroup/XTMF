@@ -118,7 +118,10 @@ namespace XTMF
                 {
                     if(oldModelSystem != null)
                     {
-                        this.Delete((ModelSystem)oldModelSystem);
+                        if(!this.Delete((ModelSystem)oldModelSystem, ref error))
+                        {
+                            return false;
+                        }
                     }
                     FileInfo newInfo;
                     if((newInfo = file.CopyTo(
@@ -212,6 +215,16 @@ namespace XTMF
             return Project.ValidateProjectName(name);
         }
 
+        public bool ValidateModelSystemName(string newName, ref string error)
+        {
+            var ret = ValidateName(newName);
+            if(!ret)
+            {
+                error = "A model system may not contain any characters not allowed in file names!";
+            }
+            return ret;
+        }
+
 
         /// <summary>
         /// Loads a model system given its name.  If it doesn't exist a null will be returned.
@@ -271,11 +284,72 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Makes a copy of the model system with the given new name
+        /// </summary>
+        /// <param name="modelSystem">The model system to create a clone of</param>
+        /// <param name="newName">The name to give the model system</param>
+        /// <param name="error">An error message if the operation fails</param>
+        /// <returns>True if successful, false otherwise with an error message.</returns>
+        public bool CloneModelSystem(ModelSystem modelSystem, string newName, ref string error)
+        {
+            if (!Project.ValidateProjectName(newName))
+            {
+                error = "The new name contained characters that are not valid!";
+                return false;
+            }
+            lock(RepositoryLock)
+            {
+                lock(EditingLock)
+                {
+                    // as long as it isn't being edited
+                    if (this.EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
+                    {
+                        // we can't delete a model system that is currently being edited
+                        error = "A model system can not be cloned while being edited!";
+                        return false;
+                    }
+                    return Repository.CloneModelSystem(modelSystem, newName, ref error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Renames the model system if possible
+        /// </summary>
+        /// <param name="modelSystem">The model system to rename</param>
+        /// <param name="newName">The name to save it as</param>
+        /// <param name="error">An error message if the operation fails</param>
+        /// <returns>True if the operation succeeds, false otherwise with a message.</returns>
+        public bool Rename(ModelSystem modelSystem, string newName, ref string error)
+        {
+            if(!Project.ValidateProjectName(newName))
+            {
+                error = "The new name contained characters that are not valid!";
+                return false;
+            }
+            lock(RepositoryLock)
+            {
+                lock (EditingLock)
+                {
+                    // as long as it isn't being edited
+                    if (this.EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
+                    {
+                        // we can't delete a model system that is currently being edited
+                        error = "A model system can not be renamed while being edited!";
+                        return false;
+                    }
+                }
+                // just use the repositories model system remove
+                return this.Repository.Rename(modelSystem, newName, ref error);
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="modelSystem"></param>
         /// <returns></returns>
-        public bool Delete(ModelSystem modelSystem)
+        public bool Delete(ModelSystem modelSystem, ref string error)
         {
             lock (RepositoryLock)
             {
@@ -284,7 +358,7 @@ namespace XTMF
                     // as long as it isn't being edited
                     if(this.EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
                     {
-                        // we can't delete a model system that is currently being edited
+                        error = "We can't delete a model system that is currently being edited";
                         return false;
                     }
                 }

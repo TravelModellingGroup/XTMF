@@ -271,7 +271,7 @@ namespace XTMF.Gui.UserControls
                 if (MessageBox.Show(Window.GetWindow(this),
                 "Are you sure you want to delete the model system '" + (result as ModelSystem).Name + "'?", "Delete Model System", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    if (!Runtime.ModelSystemController.Delete(result as ModelSystem))
+                    if (!Runtime.ModelSystemController.Delete(result as ModelSystem, ref error))
                     {
                         MessageBox.Show(Window.GetWindow(this), error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }

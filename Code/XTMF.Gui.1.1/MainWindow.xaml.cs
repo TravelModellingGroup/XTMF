@@ -131,43 +131,8 @@ namespace XTMF.Gui
 
         public void OpenModelSystem()
         {
-            OpenWindow openWindow = new OpenWindow()
-            {
-                Owner = this
-            };
-            openWindow.OpenModelSystem(EditorController.Runtime);
-            Task.Factory.StartNew(() =>
-            {
-                if (openWindow.LoadTask != null)
-                {
-                    OperationProgressing progressing = null;
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        progressing = new OperationProgressing()
-                        {
-                            Owner = this
-                        };
-                    }));
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.ShowDialog();
-                    }));
-                    openWindow.LoadTask.Wait();
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        progressing.Close();
-                    }));
-                }
-                var session = openWindow.ModelSystemSession;
-                if (session != null)
-                {
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        EditModelSystem(session);
-                        SetStatusText("Ready");
-                    }));
-                }
-            });
+            var doc = AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime));
+            doc.IsActive = true;
         }
 
 
@@ -527,7 +492,7 @@ namespace XTMF.Gui
             return Project.ValidateProjectName(name);
         }
 
-        private void EditModelSystem(ModelSystemEditingSession modelSystemSession)
+        internal void EditModelSystem(ModelSystemEditingSession modelSystemSession)
         {
             if (modelSystemSession != null)
             {
