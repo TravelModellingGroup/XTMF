@@ -235,7 +235,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                     }
                     else if ((c < '0' | c > '9'))
                     {
-                        throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + GetInputFileName(FileName) + "'!");
+                        throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
                     }
                     else
                     {
@@ -260,7 +260,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                         }
                         else if ((c < '0' | c > '9'))
                         {
-                            throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + GetInputFileName(FileName) + "'!");
+                            throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
                         }
                         else
                         {
@@ -301,7 +301,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                 }
                 if (c < '0' | c > '9')
                 {
-                    throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + GetInputFileName(FileName) + "'!");
+                    throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
                 }
                 p = p * 10 + (c - '0');
             } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != ' ' & c != ',');
