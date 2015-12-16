@@ -489,10 +489,6 @@
       <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>
       <Name>XTMFInterfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\XTMF\XTMF.csproj">
-      <Project>{DDF2CC45-5B1D-4E3B-87B9-2CCE0E4AC81B}</Project>
-      <Name>XTMF</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\saveHS.png" />

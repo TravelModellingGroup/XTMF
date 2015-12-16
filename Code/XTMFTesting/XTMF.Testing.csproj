@@ -173,10 +173,6 @@
       <Project>{036ae224-aa65-4c4c-a29f-502ded239a84}</Project>
       <Name>TMGInterfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\XTMF.Gui\XTMF.Gui.csproj">
-      <Project>{1D2B66E0-CDFB-4ABA-A7EC-0FED1E246325}</Project>
-      <Name>XTMF.Gui</Name>
-    </ProjectReference>
     <ProjectReference Include="..\XTMF1.1\XTMF1.1.csproj">
       <Project>{8b983608-b6c7-49eb-a5dd-6cccf55b9c45}</Project>
       <Name>XTMF1.1</Name>
