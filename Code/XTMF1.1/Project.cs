@@ -103,7 +103,13 @@ namespace XTMF
                 error = "A model system's name must not be blank or only contain white space!";
                 return false;
             }
-            ModelSystemStructure.Add(new ModelSystemStructure(Configuration) { Name = modelSystemName, Required = true, Description = "The root of the model system" });
+            ModelSystemStructure.Add(new ModelSystemStructure(Configuration)
+            {
+                Name = modelSystemName,
+                Required = true,
+                Description = "The root of the model system",
+                ParentFieldType = typeof(IModelSystemTemplate)
+            });
             ModelSystemDescriptions.Add(String.Empty);
             LinkedParameters.Add(new List<ILinkedParameter>());
             return Save(ref error);
