@@ -61,7 +61,7 @@ namespace Tasha.EMME
             return ZoneSystem.GetFlatIndex(zone.ZoneNumber);
         }
 
-        private int HouseholdIterations = 0;
+        private int HouseholdIterations = 1;
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
