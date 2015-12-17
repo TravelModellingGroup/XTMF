@@ -33,7 +33,9 @@ namespace XTMF
     public class Configuration : IConfiguration, IDisposable, INotifyPropertyChanged
     {
         public Dictionary<string, string> AdditionalSettings = new Dictionary<string, string>();
-        private string ConfigurationFileName = "Configuration/Config.xml";
+
+        // The configuration file name will be saved when initializing the object
+        private string ConfigurationFileName;
         private IClient CurrentClient = null;
         private IHost CurrentHost = null;
         private string ModuleDirectory = "Modules";
