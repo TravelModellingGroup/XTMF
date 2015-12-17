@@ -406,6 +406,14 @@ namespace XTMF
                 var temp = new SessionData[EditingSessions.Length - 1];
                 Array.Copy(EditingSessions, temp, index);
                 Array.Copy(EditingSessions, index + 1, temp, index, EditingSessions.Length - index - 1);
+                for (int i = index; i < EditingSessions.Length; i++)
+                {
+                    var session = EditingSessions[i].Session;
+                    if (session != null)
+                    {
+                        session.SetModelSystemIndex(i);
+                    }
+                }
                 EditingSessions = temp;
             }
             return true;
@@ -428,7 +436,7 @@ namespace XTMF
         /// </summary>
         /// <param name="path">The directory the previous run was in.</param>
         /// <param name="error">An error in case of failure</param>
-        /// <returns>An editing session if successfull, null otherwise.</returns>
+        /// <returns>An editing session if successful, null otherwise.</returns>
         public ModelSystemEditingSession LoadPreviousRun(string path, ref string error)
         {
             DirectoryInfo info = new DirectoryInfo(path);
