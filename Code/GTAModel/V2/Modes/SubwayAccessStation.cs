@@ -65,7 +65,7 @@ namespace TMG.GTAModel.V2.Modes
         [RunParameter( "Parking Cost", 0f, "The factor applied to the cost of parking at the access station." )]
         public float ParkingCost;
 
-        [RunParameter( "Access Network Name", "Transit", "The name of the network to use after the interchange." )]
+        [RunParameter( "Primary Network Name", "Transit", "The name of the network to use after the interchange." )]
         public string PrimaryModeName;
 
         [RootModule]

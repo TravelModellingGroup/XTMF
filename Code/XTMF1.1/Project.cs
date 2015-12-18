@@ -103,7 +103,13 @@ namespace XTMF
                 error = "A model system's name must not be blank or only contain white space!";
                 return false;
             }
-            ModelSystemStructure.Add(new ModelSystemStructure(Configuration) { Name = modelSystemName, Required = true, Description = "The root of the model system" });
+            ModelSystemStructure.Add(new ModelSystemStructure(Configuration)
+            {
+                Name = modelSystemName,
+                Required = true,
+                Description = "The root of the model system",
+                ParentFieldType = typeof(IModelSystemTemplate)
+            });
             ModelSystemDescriptions.Add(String.Empty);
             LinkedParameters.Add(new List<ILinkedParameter>());
             return Save(ref error);
@@ -491,7 +497,7 @@ namespace XTMF
             }
         }
 
-        private static void AssignTypeValue(XmlAttribute paramTypeAttribute, XmlAttribute paramValueAttribute, IModuleParameter selectedParam)
+        private static void AssignTypeValue(XmlAttribute paramValueAttribute, IModuleParameter selectedParam)
         {
             string error = null;
             var temp = ArbitraryParameterParser.ArbitraryParameterParse(selectedParam.Type, paramValueAttribute.InnerText, ref error);
@@ -510,12 +516,12 @@ namespace XTMF
                 {
                     if (paramChild.Name == "Param")
                     {
+                        // we can ignore the parameter type since we can inspect the code for that value
                         var paramNameAttribute = paramChild.Attributes["Name"];
-                        var paramTypeAttribute = paramChild.Attributes["Type"];
                         var paramValueAttribute = paramChild.Attributes["Value"];
                         var paramQuickAttribute = paramChild.Attributes["QuickParameter"];
 
-                        if (paramNameAttribute != null || paramTypeAttribute != null || paramValueAttribute != null)
+                        if (paramNameAttribute != null || paramValueAttribute != null)
                         {
                             string name = paramNameAttribute.InnerText;
                             if (projectStructure.Parameters != null)
@@ -540,7 +546,7 @@ namespace XTMF
                                             selectedParam.QuickParameter = quick;
                                         }
                                     }
-                                    AssignTypeValue(paramTypeAttribute, paramValueAttribute, selectedParam);
+                                    AssignTypeValue(paramValueAttribute, selectedParam);
                                 }
                             }
                         }

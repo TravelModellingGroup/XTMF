@@ -484,6 +484,16 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Update the model system index.
+        /// This should be called when a model system has been deleted from a project
+        /// </summary>
+        /// <param name="newIndex">The new index of this model system</param>
+        internal void SetModelSystemIndex(int newIndex)
+        {
+            ModelSystemIndex = newIndex;
+        }
+
+        /// <summary>
         /// Forces the session to terminate, even if we will lose data.
         /// </summary>
         private void ForceClose()

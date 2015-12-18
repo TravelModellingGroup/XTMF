@@ -29,6 +29,7 @@ using TMG.Input;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using TMG.Functions;
 
 namespace Tasha.EMME
 {
@@ -60,87 +61,92 @@ namespace Tasha.EMME
             return ZoneSystem.GetFlatIndex(zone.ZoneNumber);
         }
 
+        private int HouseholdIterations = 1;
+
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
+            // Gather the number of household iterations
+            HouseholdIterations = totalHouseholdIterations;
+            // now execute
             var persons = household.Persons;
-            for(int i = 0; i < persons.Length; i++)
+            for (int i = 0; i < persons.Length; i++)
             {
                 var expFactor = persons[i].ExpansionFactor;
                 var tripChains = persons[i].TripChains;
 
-                for(int j = 0; j < tripChains.Count; j++)
+                for (int j = 0; j < tripChains.Count; j++)
                 {
-                    if((tripChains[j].EndTime < StartTime) | (tripChains[j].StartTime) > EndTime)
+                    if ((tripChains[j].EndTime < StartTime) | (tripChains[j].StartTime) > EndTime)
                     {
                         continue;
                     }
                     var jointTour = tripChains[j].JointTrip;
-                    if(tripChains[j].JointTrip && !tripChains[j].JointTripRep)
+                    if (tripChains[j].JointTrip && !tripChains[j].JointTripRep)
                     {
                         continue;
                     }
                     var trips = tripChains[j].Trips;
                     // check to see if we should be running access or egress for this person on their trip chain
                     bool initialAccessTrip = true;
-                    for(int k = 0; k < trips.Count; k++)
+                    for (int k = 0; k < trips.Count; k++)
                     {
                         var startTime = trips[k].TripStartTime;
-                            int accessModeIndex = -1;
-                            var modeChosen = trips[k].Mode;
-                            if(Passenger.Mode == modeChosen)
-                            {
+                        int accessModeIndex = -1;
+                        var modeChosen = trips[k].Mode;
+                        if (Passenger.Mode == modeChosen)
+                        {
 
-                                var driversTrip = trips[k]["Driver"] as ITrip;
-                                // driver originData
-                                var driverOrigin = GetFlatIndex(driversTrip.OriginalZone);
-                                var passengerOrigin = GetFlatIndex(trips[k].OriginalZone);
-                                var passengerDestination = GetFlatIndex(trips[k].DestinationZone);
-                                var driverDestination = GetFlatIndex(driversTrip.DestinationZone);
+                            var driversTrip = trips[k]["Driver"] as ITrip;
+                            // driver originData
+                            var driverOrigin = GetFlatIndex(driversTrip.OriginalZone);
+                            var passengerOrigin = GetFlatIndex(trips[k].OriginalZone);
+                            var passengerDestination = GetFlatIndex(trips[k].DestinationZone);
+                            var driverDestination = GetFlatIndex(driversTrip.DestinationZone);
 
-                                var driverTripChain = driversTrip.TripChain;
-                                var driverOnJoint = driverTripChain.JointTrip;
-                                float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
-                                // subtract out the old data
-                                if(IsDriverAlreadyOnRoad(driversTrip))
-                                {
-                                    AddToMatrix(startTime, -driverExpansionFactor, driverOrigin, driverDestination);
-                                }
-                                // add in our 3 trip leg data
-                                if(driverOrigin != passengerOrigin)
-                                {
-                                    // this really is driver on joint
-                                    AddToMatrix(startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
-                                }
-                                AddToMatrix(startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
-                                if(passengerDestination != driverDestination)
-                                {
-                                    AddToMatrix(startTime, driverExpansionFactor, passengerDestination, driverDestination);
-                                }
-                            }
-                            else if((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
+                            var driverTripChain = driversTrip.TripChain;
+                            var driverOnJoint = driverTripChain.JointTrip;
+                            float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
+                            // subtract out the old data
+                            if (IsDriverAlreadyOnRoad(driversTrip))
                             {
-                                IZone origin, destination;
-                                if(AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out origin, out destination))
-                                {
-                                    var originIndex = GetFlatIndex(origin);
-                                    var destinationIndex = GetFlatIndex(destination);
-                                    AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
-                                }
-                                initialAccessTrip = false;
+                                AddToMatrix(startTime, -driverExpansionFactor, driverOrigin, driverDestination);
                             }
-                            else if(IsThisModeOneWeShouldCount(modeChosen))
+                            // add in our 3 trip leg data
+                            if (driverOrigin != passengerOrigin)
                             {
-                                var originIndex = GetFlatIndex(trips[k].OriginalZone);
-                                var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
+                                // this really is driver on joint
+                                AddToMatrix(startTime, driverExpansionFactor, driverOrigin, passengerOrigin);
+                            }
+                            AddToMatrix(startTime, driverExpansionFactor, passengerOrigin, passengerDestination);
+                            if (passengerDestination != driverDestination)
+                            {
+                                AddToMatrix(startTime, driverExpansionFactor, passengerDestination, driverDestination);
+                            }
+                        }
+                        else if ((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
+                        {
+                            IZone origin, destination;
+                            if (AccessModes[accessModeIndex].GetTranslatedOD(tripChains[j], trips[k], initialAccessTrip, out origin, out destination))
+                            {
+                                var originIndex = GetFlatIndex(origin);
+                                var destinationIndex = GetFlatIndex(destination);
                                 AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
                             }
+                            initialAccessTrip = false;
+                        }
+                        else if (IsThisModeOneWeShouldCount(modeChosen))
+                        {
+                            var originIndex = GetFlatIndex(trips[k].OriginalZone);
+                            var destinationIndex = GetFlatIndex(trips[k].DestinationZone);
+                            AddToMatrix(startTime, expFactor, originIndex, destinationIndex);
                         }
                     }
                 }
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsDriverAlreadyOnRoad(ITrip driversTrip)
+        private static bool IsDriverAlreadyOnRoad(ITrip driversTrip)
         {
             // The pure passenger trip chain only has 1 trip
             // And all other trip chains need to have at least 2
@@ -150,13 +156,13 @@ namespace Tasha.EMME
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddToMatrix(Time startTime, float expFactor, int originIndex, int destinationIndex)
         {
-            if(startTime >= StartTime & startTime < EndTime)
+            if (startTime >= StartTime & startTime < EndTime)
             {
                 var row = Matrix[originIndex];
                 bool gotLock = false;
                 WriteLock.Enter(ref gotLock);
                 row[destinationIndex] += expFactor;
-                if(gotLock) WriteLock.Exit(true);
+                if (gotLock) WriteLock.Exit(true);
             }
         }
 
@@ -178,9 +184,9 @@ namespace Tasha.EMME
 
             public bool RuntimeValidation(ref string error)
             {
-                foreach(var mode in Root.AllModes)
+                foreach (var mode in Root.AllModes)
                 {
-                    if(mode.ModeName == ModeName)
+                    if (mode.ModeName == ModeName)
                     {
                         Mode = mode;
                         return true;
@@ -216,7 +222,7 @@ namespace Tasha.EMME
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool GetTranslatedOD(ITripChain chain, ITrip trip, bool initialTrip, out IZone origin, out IZone destination)
             {
-                if(CountAccess ^ (!initialTrip))
+                if (CountAccess ^ (!initialTrip))
                 {
                     origin = trip.OriginalZone;
                     destination = chain[AccessZoneTagName] as IZone;
@@ -232,9 +238,9 @@ namespace Tasha.EMME
 
             public bool RuntimeValidation(ref string error)
             {
-                foreach(var mode in Root.AllModes)
+                foreach (var mode in Root.AllModes)
                 {
-                    if(mode.ModeName == ModeName)
+                    if (mode.ModeName == ModeName)
                     {
                         Mode = mode;
                         return true;
@@ -261,9 +267,9 @@ namespace Tasha.EMME
         /// <returns></returns>
         private bool IsThisModeOneWeShouldCount(ITashaMode mode)
         {
-            for(int i = 0; i < Modes.Length; i++)
+            for (int i = 0; i < Modes.Length; i++)
             {
-                if(Modes[i].Mode == mode)
+                if (Modes[i].Mode == mode)
                 {
                     return true;
                 }
@@ -273,9 +279,9 @@ namespace Tasha.EMME
 
         private int UsesAccessMode(ITashaMode mode)
         {
-            for(int i = 0; i < AccessModes.Length; i++)
+            for (int i = 0; i < AccessModes.Length; i++)
             {
-                if(AccessModes[i].Mode == mode)
+                if (AccessModes[i].Mode == mode)
                 {
                     return i;
                 }
@@ -291,10 +297,10 @@ namespace Tasha.EMME
             // get the newest zone system
             ZoneSystem = Root.ZoneSystem.ZoneArray;
             NumberOfZones = ZoneSystem.Count;
-            if(Matrix == null)
+            if (Matrix == null)
             {
                 Matrix = new float[NumberOfZones][];
-                for(int i = 0; i < Matrix.Length; i++)
+                for (int i = 0; i < Matrix.Length; i++)
                 {
                     Matrix[i] = new float[NumberOfZones];
                 }
@@ -302,7 +308,7 @@ namespace Tasha.EMME
             else
             {
                 // clear out old trips
-                for(int i = 0; i < Matrix.Length; i++)
+                for (int i = 0; i < Matrix.Length; i++)
                 {
                     Array.Clear(Matrix[i], 0, Matrix[i].Length);
                 }
@@ -315,10 +321,20 @@ namespace Tasha.EMME
         {
             //Min each OD to Zero
             MinZero(Matrix);
-            // Apply the special generators
-            for(int i = 0; i < SpecialGenerators.Length; i++)
+            if (SpecialGenerators.Length > 0)
             {
-                SpecialGenerators[i].IncludeTally(Matrix);
+                var specialGenerationResults = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>().GetFlatData();
+                // Apply the special generators
+                for (int i = 0; i < SpecialGenerators.Length; i++)
+                {
+                    SpecialGenerators[i].IncludeTally(specialGenerationResults);
+                }
+                // Now scale the by household iterations and integrate it back into the result matrix
+                Parallel.For(0, specialGenerationResults.Length, (int i) =>
+                {
+                    VectorHelper.Multiply(specialGenerationResults[i], 0, specialGenerationResults[i], 0, HouseholdIterations, specialGenerationResults[i].Length);
+                    VectorHelper.Add(Matrix[i], 0, Matrix[i], 0, specialGenerationResults[i], 0, specialGenerationResults.Length);
+                });
             }
             // write to disk
             new EmmeMatrix(ZoneSystem, Matrix).Save(MatrixSaveLocation, true);
@@ -329,7 +345,7 @@ namespace Tasha.EMME
             Parallel.For(0, matrix.Length, (int i) =>
             {
                 var row = matrix[i];
-                for(int j = 0; j < row.Length; j++)
+                for (int j = 0; j < row.Length; j++)
                 {
                     row[j] = Math.Max(row[j], 0.0f);
                 }

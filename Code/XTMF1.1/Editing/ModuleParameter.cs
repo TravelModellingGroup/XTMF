@@ -102,7 +102,14 @@ namespace XTMF
             {
                 string error = null;
                 // we can't have them referencing the same object or changing one will change the original
-                copy.Value = ArbitraryParameterParser.ArbitraryParameterParse( this.Type, this.Value.ToString(), ref error );
+                if (Value != null)
+                {
+                    copy.Value = ArbitraryParameterParser.ArbitraryParameterParse(this.Type, this.Value.ToString(), ref error);
+                }
+                else
+                {
+                    copy.Value = null;
+                }
             }
             copy.Description = this.Description;
             copy.VariableName = this.VariableName;

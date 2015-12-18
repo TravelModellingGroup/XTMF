@@ -19,6 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Reflection;
 using XTMF.Networking;
 
 namespace XTMF
@@ -38,9 +40,20 @@ namespace XTMF
         public XTMFRuntime(Configuration configuration = null)
         {
             CopyBuffer = new CopyBuffer();
-            this.Configuration = configuration == null ? new Configuration() : configuration;
-            this.ModelSystemController = new ModelSystemController( this );
-            this.ProjectController = new ProjectController( this );
+            this.Configuration = configuration == null ? BuildConfiguration() : configuration;
+            this.ModelSystemController = new ModelSystemController(this);
+            this.ProjectController = new ProjectController(this);
+        }
+
+        private Configuration BuildConfiguration()
+        {
+            var localInstanceDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var localConfigurationFileName = Path.Combine(localInstanceDirectory, "LocalXTMFConfiguration.xml");
+            if (File.Exists(localConfigurationFileName))
+            {
+                return new Configuration(localConfigurationFileName);
+            }
+            return new Configuration();
         }
 
         /// <summary>
@@ -68,7 +81,7 @@ namespace XTMF
             string error = null;
             this.Configuration.RemoteServerAddress = address;
             this.Configuration.RemoteServerPort = port;
-            if ( this.Configuration.StartupNetworkingClient( out client, ref error ) )
+            if (this.Configuration.StartupNetworkingClient(out client, ref error))
             {
                 return client;
             }
@@ -80,18 +93,18 @@ namespace XTMF
         /// </summary>
         public void ShutDown()
         {
-            
+
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( this );
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Configuration != null )
+            if (this.Configuration != null)
             {
                 this.Configuration.Dispose();
                 this.Configuration = null;

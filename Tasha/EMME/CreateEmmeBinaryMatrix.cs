@@ -27,6 +27,8 @@ using TMG;
 using Datastructure;
 using TMG.Input;
 using System.Threading;
+using System.Threading.Tasks;
+using TMG.Functions;
 
 namespace Tasha.EMME
 {
@@ -56,6 +58,8 @@ namespace Tasha.EMME
         [RunParameter("Minimum Age", 0, "The minimum age a person needs to be in order to be included in the demand.")]
         public int MinimumAge;
 
+        private int HouseholdIterations = 1;
+
         public void HouseholdComplete(ITashaHousehold household, bool success)
         {
 
@@ -63,6 +67,9 @@ namespace Tasha.EMME
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
+            // Gather the number of household iterations
+            HouseholdIterations = totalHouseholdIterations;
+            // now execute
             Execute(household, hhldIteration);
         }
 
@@ -290,10 +297,20 @@ namespace Tasha.EMME
 
         public void IterationFinished(int iteration)
         {
-            // Apply the special generators
-            for (int i = 0; i < SpecialGenerators.Length; i++)
+            if (SpecialGenerators.Length > 0)
             {
-                SpecialGenerators[i].IncludeTally(Matrix);
+                var specialGenerationResults = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>().GetFlatData();
+                // Apply the special generators
+                for (int i = 0; i < SpecialGenerators.Length; i++)
+                {
+                    SpecialGenerators[i].IncludeTally(specialGenerationResults);
+                }
+                // Now scale the by household iterations and integrate it back into the result matrix
+                Parallel.For(0, specialGenerationResults.Length, (int i) =>
+                {
+                    VectorHelper.Multiply(specialGenerationResults[i], 0, specialGenerationResults[i], 0, HouseholdIterations, specialGenerationResults[i].Length);
+                    VectorHelper.Add(Matrix[i], 0, Matrix[i], 0, specialGenerationResults[i], 0, specialGenerationResults.Length);
+                });
             }
             // write to disk
             new EmmeMatrix(ZoneSystem, Matrix).Save(MatrixSaveLocation, true);
