@@ -37,7 +37,7 @@ namespace Tasha.XTMFScheduler
         [SubModelInformation( Required = true, Description = "For PD,EmploymentStatus,Occupation,Duration" )]
         public IResource EmpStatOccDurationProbability;
 
-        [Parameter( "Start Of Day", "28h", typeof( Time ), "The end of the day." )]
+        [Parameter( "End Of Day", "28h", typeof( Time ), "The end of the day." )]
         public Time EndOfDay;
 
         [Parameter( "Start Of Day", "4:00AM", typeof( Time ), "The start of the day." )]

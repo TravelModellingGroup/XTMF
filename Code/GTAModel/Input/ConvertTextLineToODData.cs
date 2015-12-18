@@ -32,7 +32,7 @@ namespace TMG.GTAModel.Input
         [RunParameter( "Destination Index", 1, "The 0 based index of the destination column." )]
         public int IndexOfD;
 
-        [RunParameter( "Destination Index", 2, "The 0 based index of the data column." )]
+        [RunParameter( "Data Index", 2, "The 0 based index of the data column." )]
         public int IndexOfData;
 
         [RunParameter( "Origin Index", 0, "The 0 based index of the origin column." )]
