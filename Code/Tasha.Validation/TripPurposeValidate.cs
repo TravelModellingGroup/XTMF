@@ -91,17 +91,18 @@ namespace Tasha.Validation
                 lock (this)
                 {
                     float amountToAddPerTrip;
-                    if(ExpandedTrips)
-                    {
-                        amountToAddPerTrip = household.ExpansionFactor;
-                    }
-                    else
-                    {
-                        amountToAddPerTrip = 1;
-                    }
 
                     foreach(var person in household.Persons)
                     {
+                        if (ExpandedTrips)
+                        {
+                            amountToAddPerTrip = person.ExpansionFactor;
+                        }
+                        else
+                        {
+                            amountToAddPerTrip = 1;
+                        }
+
                         if(person.Age < MinAge)
                         {
                             continue;
@@ -140,15 +141,15 @@ namespace Tasha.Validation
             }
         }
 
-        private void AddTripToDictionary(Dictionary<Activity,float> dictioanry, float occurance, ITrip trip)
+        private void AddTripToDictionary(Dictionary<Activity,float> dictionary, float occurance, ITrip trip)
         {
-            if(dictioanry.ContainsKey(trip.Purpose))
+            if(dictionary.ContainsKey(trip.Purpose))
             {
-                dictioanry[trip.Purpose] += occurance;
+                dictionary[trip.Purpose] += occurance;
             }
             else
             {
-                dictioanry.Add(trip.Purpose, occurance);
+                dictionary.Add(trip.Purpose, occurance);
             }
         }
 
@@ -198,6 +199,8 @@ namespace Tasha.Validation
                     }
                 }
             }
+
+            PurposeDictionary.Clear();
         }
 
         public void Load(int maxIterations)
