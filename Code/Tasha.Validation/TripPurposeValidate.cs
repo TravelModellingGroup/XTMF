@@ -198,9 +198,9 @@ namespace Tasha.Validation
                         }
                     }
                 }
-            }
 
-            PurposeDictionary.Clear();
+                PurposeDictionary.Clear();
+            }            
         }
 
         public void Load(int maxIterations)
