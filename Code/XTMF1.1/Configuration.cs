@@ -414,6 +414,8 @@ namespace XTMF
             return true;
         }
 
+        public string LoadError;
+
         private void LoadAssembly(Assembly assembly)
         {
             Type module = typeof(IModule);
@@ -427,8 +429,13 @@ namespace XTMF
                 if (type.IsAbstract | type.IsNotPublic | !(type.IsClass | type.IsValueType)) continue;
                 if (module.IsAssignableFrom(type))
                 {
+                    string error = null;
+                    if (CheckTypeForErrors(type, ref error))
+                    {
+                        LoadError = error;
+                    }
                     // we know then that this is an IModel
-                    lock (this.ModelSystemTemplateRepository)
+                    lock (this.ModelRepository)
                     {
                         this.ModelRepository.AddModule(type);
                     }
@@ -441,6 +448,33 @@ namespace XTMF
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks to see if the module violates any rules
+        /// </summary>
+        /// <param name="type">The type to process</param>
+        /// <param name="error">A message describing the error.</param>
+        /// <returns>True if there is an error.</returns>
+        private bool CheckTypeForErrors(Type type, ref string error)
+        {
+            var parameters = Project.GetParameters(type).Parameters;
+            for (int i = 0; i < parameters.Count - 1; i++)
+            {
+                var firstName = parameters[i].Name;
+                for (int j = i + 1; j < parameters.Count; j++)
+                {
+                    var secondName = parameters[j].Name;
+                    if (firstName == secondName)
+                    {
+                        error = "In the module type '" + type.FullName + "' there are parameters sharing the same name '" + firstName + "' which is not allowed in XTMF.\r\n"
+                            + "The field names are '" + parameters[i].VariableName + "' and '" + parameters[j].VariableName + "'.\r\n"
+                            + "Please close XTMF and recompile your module after correcting this issue.";
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private void LoadConfigurationFile(string configFileName)

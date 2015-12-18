@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace XTMF.Gui.Controllers
@@ -29,7 +30,7 @@ namespace XTMF.Gui.Controllers
     internal static class EditorController
     {
 
-        static SingleAccess<List<MainWindow>> OpenWindows = new SingleAccess<List<MainWindow>>( new List<MainWindow>() );
+        static SingleAccess<List<MainWindow>> OpenWindows = new SingleAccess<List<MainWindow>>(new List<MainWindow>());
         public static XTMFRuntime Runtime { get; private set; }
 
         internal static void Register(MainWindow window, Action OnComplete)
@@ -37,32 +38,41 @@ namespace XTMF.Gui.Controllers
             Task.Factory.StartNew(
                 () =>
             {
-                OpenWindows.Run( (list) =>
-                {
-                    if ( Runtime == null )
-                    {
-                        Runtime = new XTMFRuntime();
-                    }
-                    if ( !list.Contains( window ) )
-                    {
-                        list.Add( window );
-                    }
-                    if ( OnComplete != null )
-                    {
-                        OnComplete();
-                    }
-                } );
-            } );
+                OpenWindows.Run((list) =>
+               {
+                   if (Runtime == null)
+                   {
+                       Runtime = new XTMFRuntime();
+                       var loadError = ((Configuration)Runtime.Configuration).LoadError;
+                       if (loadError != null)
+                       {
+                           window.Dispatcher.BeginInvoke( new Action(() =>
+                          {
+                              MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
+                              Clipboard.SetText(loadError);
+                          }));
+                       }
+                   }
+                   if (!list.Contains(window))
+                   {
+                       list.Add(window);
+                   }
+                   if (OnComplete != null)
+                   {
+                       OnComplete();
+                   }
+               });
+            });
         }
 
         internal static void Unregister(MainWindow window)
         {
-            OpenWindows.Run( (list) => list.Remove( window ) );
+            OpenWindows.Run((list) => list.Remove(window));
         }
 
         internal static bool IsControlDown()
         {
-            return ( Keyboard.IsKeyDown( Key.LeftCtrl ) | Keyboard.IsKeyDown( Key.RightCtrl ) );
+            return (Keyboard.IsKeyDown(Key.LeftCtrl) | Keyboard.IsKeyDown(Key.RightCtrl));
         }
 
         internal static bool IsShiftDown()
