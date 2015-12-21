@@ -26,6 +26,8 @@ using TMG;
 using XTMF;
 using TMG.Input;
 using TMG.Functions;
+using TMG.DataUtility;
+using System.Threading.Tasks;
 
 namespace Tasha.External
 {
@@ -50,7 +52,24 @@ namespace Tasha.External
         [RunParameter("Mode Name", "Auto", "The name of the mode to filter for,")]
         public string ModeName;
 
-        private ITashaMode Mode;
+        [RunParameter("Implement External Transit", false, "Should we consider external transit.")]
+        public bool ImplementExternalTransit;
+
+        [RunParameter("Record Access", false, "Should we record the access to station or the primary transit trip?")]
+        public bool RecordAccess;
+
+        [RunParameter("External Transit Modes", "DAT,WAT", typeof(StringList), "Comma separated modes to load in for transit.")]
+        public StringList ExternalTransitMode;
+
+        [RunParameter("External Zones", "6000-6999", typeof(RangeSet), "The external zones of the model.")]
+        public RangeSet ExternalZones;
+
+        [RunParameter("Station Zones", "9000-9999", typeof(RangeSet), "The zones that represent access stations.")]
+        public RangeSet AccessStationZones;
+
+        private ITashaMode PrimaryMode;
+
+        private HashSet<ITashaMode> ExternalTransit;
 
         public string Name { get; set; }
 
@@ -61,10 +80,13 @@ namespace Tasha.External
         [SubModelInformation(Required = false, Description = "Save the results of this generation to file.")]
         public FileLocation SaveResults;
 
+        private int[] ClosestStationIndex;
+
         public void IncludeTally(float[][] currentTally)
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = zoneSystem.GetFlatData();
+            BuildData(zones);
             var tripChains = BaseYearTrips.AquireResource<List<ITripChain>>();
             var basePopulation = BaseYearPopulation.AquireResource<SparseArray<float>>().GetFlatData();
             var ratio = new float[zones.Length];
@@ -98,15 +120,62 @@ namespace Tasha.External
                     var expansionFactor = person.ExpansionFactor * ratio[homeZone];
                     foreach (var trip in chain.Trips)
                     {
-                        if (trip.Mode != Mode)
-                        {
-                            continue;
-                        }
                         var tripStart = trip.TripStartTime;
                         if ((tripStart >= StartTime) & (tripStart < EndTime))
                         {
-                            tallyToUse[zoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber)][zoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber)]
-                                += expansionFactor;
+                            var originZone = trip.OriginalZone.ZoneNumber;
+                            var destinationZone = trip.DestinationZone.ZoneNumber;
+                            var originZoneIndex = zoneSystem.GetFlatIndex(originZone);
+                            var destinationZoneIndex = zoneSystem.GetFlatIndex(destinationZone);
+                            if (ImplementExternalTransit && ExternalTransit.Contains(trip.Mode))
+                            {
+                                var originExternal = ExternalZones.Contains(originZone);
+                                var destinationExternal = ExternalZones.Contains(destinationZone);
+                                if (originExternal && destinationExternal)
+                                {
+                                    // if the transit trip is external ignore it since we don't model the service
+                                    continue;
+                                }
+                                else
+                                {
+                                    if (RecordAccess)
+                                    {
+                                        // if we are recording the auto side of the trip
+                                        if (originExternal)
+                                        {
+                                            tallyToUse[originZoneIndex][ClosestStationIndex[destinationZoneIndex]] += expansionFactor;
+                                        }
+                                        else if (destinationExternal)
+                                        {
+                                            tallyToUse[ClosestStationIndex[originZoneIndex]][destinationZoneIndex] += expansionFactor;
+                                        }
+                                        else
+                                        {
+                                            tallyToUse[originZoneIndex][destinationZoneIndex] += expansionFactor;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // if we are recording the transit side of the trip
+                                        if (originExternal)
+                                        {
+                                            tallyToUse[ClosestStationIndex[originZoneIndex]][destinationZoneIndex] += expansionFactor;
+                                        }
+                                        else if (destinationExternal)
+                                        {
+                                            tallyToUse[originZoneIndex][ClosestStationIndex[destinationZoneIndex]] += expansionFactor;
+                                        }
+                                        else
+                                        {
+                                            tallyToUse[originZoneIndex][destinationZoneIndex] += expansionFactor;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (trip.Mode == PrimaryMode)
+                            {
+                                tallyToUse[originZoneIndex][destinationZoneIndex] += expansionFactor;
+                            }
                         }
                     }
                 }
@@ -123,6 +192,39 @@ namespace Tasha.External
             }
         }
 
+        private void BuildData(IZone[] zones)
+        {
+            var temp = new int[zones.Length];
+            Parallel.For(0, temp.Length, (int i) =>
+            {
+                var origin = zones[i];
+                int bestIndex = 0;
+                double bestDistance = double.MaxValue;
+                for (int j = 0; j < zones.Length; j++)
+                {
+                    if (AccessStationZones.Contains(zones[j].ZoneNumber))
+                    {
+                        double dist;
+                        if ((dist = Distance(origin, zones[j])) < bestDistance)
+                        {
+                            bestIndex = j;
+                            bestDistance = dist;
+                        }
+                    }
+                }
+                temp[i] = bestIndex;
+            });
+            ClosestStationIndex = temp;
+        }
+
+        private static double Distance(IZone origin, IZone accessZone)
+        {
+            double originX = origin.X, originY = origin.Y;
+            double accessX = accessZone.X, accessY = accessZone.Y;
+            return Math.Sqrt((originX - accessX) * (originX - accessX)
+                            + (originY - accessY) * (originY - accessY));
+        }
+
         public bool RuntimeValidation(ref string error)
         {
             if (!BaseYearTrips.CheckResourceType<List<ITripChain>>())
@@ -135,14 +237,20 @@ namespace Tasha.External
                 error = "In '" + this.Name + "' the resource for Base Year Population was not of type SparseArray<float>!";
                 return false;
             }
+            ExternalTransit = new HashSet<ITashaMode>();
             foreach (var mode in this.Root.AllModes)
             {
-                if (ModeName == mode.ModeName)
+                var modeName = mode.ModeName;
+                if (ModeName == modeName)
                 {
-                    Mode = mode;
+                    PrimaryMode = mode;
+                }
+                if(ExternalTransitMode.Contains(modeName))
+                {
+                    ExternalTransit.Add(mode);
                 }
             }
-            if (Mode == null)
+            if (PrimaryMode == null)
             {
                 error = "In '" + this.Name + "' we were unable to find a mode with the name '" + ModeName + "'!";
                 return false;
