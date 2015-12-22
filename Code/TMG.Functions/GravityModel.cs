@@ -138,33 +138,33 @@ namespace TMG.Functions
             Parallel.For(0, Productions.GetFlatData().Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 () => new float[columnTotals.Length],
                 (int flatOrigin, ParallelLoopState state, float[] localTotals) =>
+            {
+                var flatProductions = Productions.GetFlatData();
+                // check to see if there is no production, if not skip this
+                if (flatProductions[flatOrigin] > 0)
                 {
-                    var flatProductions = Productions.GetFlatData();
-                    // check to see if there is no production, if not skip this
-                    if (flatProductions[flatOrigin] > 0)
+                    var flatFriction = Friction.GetFlatData();
+                    var flatAStar = AttractionsStar.GetFlatData();
+                    var flatAttractions = Attractions.GetFlatData();
+                    var flatFrictionRow = flatFriction[flatOrigin];
+                    var sumAF = VectorHelper.Multiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, flatFriction.Length);
+                    sumAF = (flatProductions[flatOrigin] / sumAF);
+                    if (float.IsInfinity(sumAF) | float.IsNaN(sumAF))
                     {
-                        var flatFriction = Friction.GetFlatData();
-                        var flatAStar = AttractionsStar.GetFlatData();
-                        var flatAttractions = Attractions.GetFlatData();
-                        var flatFrictionRow = flatFriction[flatOrigin];
-                        var sumAF = VectorHelper.Multiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, flatFriction.Length);
-                        sumAF = (flatProductions[flatOrigin] / sumAF);
-                        if (float.IsInfinity(sumAF) | float.IsNaN(sumAF))
-                        {
-                            // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
-                            sumAF = 0f;
-                        }
-                        VectorHelper.Multiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, flatFriction.Length);
+                        // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
+                        sumAF = 0f;
                     }
-                    return localTotals;
-                },
-                (float[] localTotals) =>
+                    VectorHelper.Multiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, flatFriction.Length);
+                }
+                return localTotals;
+            },
+            (float[] localTotals) =>
+            {
+                lock (columnTotals)
                 {
-                    lock (columnTotals)
-                    {
-                        VectorHelper.Add(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
-                    }
-                });
+                    VectorHelper.Add(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
+                }
+            });
         }
     }
 }

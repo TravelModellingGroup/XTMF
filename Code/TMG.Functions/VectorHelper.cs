@@ -329,7 +329,7 @@ namespace TMG.Functions
             {
                 for (int i = 0; i < length; i++)
                 {
-                    destination[destIndex + i] = first[firstIndex + i] * second[secondIndex];
+                    destination[destIndex + i] = first[firstIndex + i] * second[secondIndex + i];
                 }
             }
         }
@@ -376,7 +376,7 @@ namespace TMG.Functions
             {
                 for (int i = 0; i < length; i++)
                 {
-                    destination[destIndex + i] = first[firstIndex + i] / second[secondIndex];
+                    destination[destIndex + i] = first[firstIndex + i] / second[secondIndex + i];
                 }
             }
         }
