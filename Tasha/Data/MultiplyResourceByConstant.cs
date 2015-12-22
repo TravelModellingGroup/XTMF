@@ -57,24 +57,14 @@ namespace Tasha.Data
             var otherData = resource.GetFlatData();
             var ourResource = resource.CreateSimilarArray<float>();
             var data = ourResource.GetFlatData();
-            if(TMG.Functions.VectorHelper.IsHardwareAccelerated)
-            {
-                TMG.Functions.VectorHelper.Multiply(data, 0, otherData, 0, Factor, data.Length);
-            }
-            else
-            {
-                for(int i = 0; i < data.Length; i++)
-                {
-                    data[i] = otherData[i] * Factor;
-                }
-            }
+            TMG.Functions.VectorHelper.Multiply(data, 0, otherData, 0, Factor, data.Length);
             Data = ourResource;
             Loaded = true;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!ResourceToMultiply.CheckResourceType<SparseArray<float>>())
+            if (!ResourceToMultiply.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + Name + "' the resource was not of type SparseArray<float>!";
                 return false;

@@ -58,24 +58,9 @@ namespace Tasha.Data
             var otherData = resource.GetFlatData();
             var ourResource = resource.CreateSimilarArray<float>();
             var data = ourResource.GetFlatData();
-            if(VectorHelper.IsHardwareAccelerated)
+            for (int i = 0; i < data.Length; i++)
             {
-                for(int i = 0; i < data.Length; i++)
-                {
-                    VectorHelper.Multiply(data[i], 0, otherData[i], 0, Factor, data[i].Length);
-                }
-            }
-            else
-            {
-                for(int i = 0; i < data.Length; i++)
-                {
-                    var row = data[i];
-                    var otherRow = otherData[i];
-                    for(int j = 0; j < row.Length; j++)
-                    {
-                        row[j] = otherRow[j] * Factor;
-                    }
-                }
+                VectorHelper.Multiply(data[i], 0, otherData[i], 0, Factor, data[i].Length);
             }
             Data = ourResource;
             Loaded = true;
@@ -83,7 +68,7 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!ResourceToMultiply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!ResourceToMultiply.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the resource was not of type SparseTwinIndex<float>!";
                 return false;

@@ -60,22 +60,9 @@ namespace Tasha.Data
             SparseTwinIndex<float> data;
             data = zoneArray.CreateSquareTwinArray<float>();
             var flatData = data.GetFlatData();
-            if(VectorHelper.IsHardwareAccelerated)
+            for (int i = 0; i < flatData.Length; i++)
             {
-                for(int i = 0; i < flatData.Length; i++)
-                {
-                    VectorHelper.Multiply(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
-                }
-            }
-            else
-            {
-                for(int i = 0; i < flatData.Length; i++)
-                {
-                    for(int j = 0; j < flatData[i].Length; j++)
-                    {
-                        flatData[i][j] = firstRate[i][j] * secondRate[i][j];
-                    }
-                }
+                VectorHelper.Multiply(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
             }
             this.Data = data;
         }
@@ -99,12 +86,12 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!this.FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!this.FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + this.Name + "' the first rates resource is not of type SparseTwinIndex<float>!";
                 return false;
             }
-            if(!this.SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!this.SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + this.Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
                 return false;

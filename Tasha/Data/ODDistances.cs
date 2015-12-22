@@ -31,7 +31,7 @@ namespace Tasha.Data
     {
         public bool Loaded
         {
-            get;set;
+            get; set;
         }
 
         public string Name { get; set; }
@@ -55,14 +55,14 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            
-            if(!Root.ZoneSystem.Loaded)
+
+            if (!Root.ZoneSystem.Loaded)
             {
                 Root.ZoneSystem.LoadData();
             }
 
             SparseTwinIndex<float> distances = Root.ZoneSystem.Distances;
-            if(!ConvertToKM)
+            if (!ConvertToKM)
             {
                 Data = distances;
             }
@@ -71,22 +71,9 @@ namespace Tasha.Data
                 var flatDistances = distances.GetFlatData();
                 Data = distances.CreateSimilarArray<float>();
                 var local = Data.GetFlatData();
-                if(VectorHelper.IsHardwareAccelerated)
+                for (int i = 0; i < local.Length; i++)
                 {
-                    for(int i = 0; i < local.Length; i++)
-                    {
-                        VectorHelper.Multiply(local[i], 0, flatDistances[i], 0, 0.001f, local.Length);
-                    }
-                }
-                else
-                {
-                    for(int i = 0; i < local.Length; i++)
-                    {
-                        for(int j = 0; j < local[i].Length; j++)
-                        {
-                            local[i][j] = flatDistances[i][j] * 0.001f;
-                        }
-                    }
+                    VectorHelper.Multiply(local[i], 0, flatDistances[i], 0, 0.001f, local.Length);
                 }
             }
         }

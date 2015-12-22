@@ -71,17 +71,7 @@ the same size as the input data to normalize."
             var ourMatrix = inputMatrix.GetFlatData();
             var ourTotalByRow = GetRowTotalsFromResource(DataToNormalize);
             // create inverse
-            if (VectorHelper.IsHardwareAccelerated)
-            {
-                VectorHelper.Divide(ourTotalByRow, 0, totalToNormalizeTo, 0, ourTotalByRow, 0, ourTotalByRow.Length);
-            }
-            else
-            {
-                for (int i = 0; i < ourTotalByRow.Length; i++)
-                {
-                    ourTotalByRow[i] = totalToNormalizeTo[i] / ourTotalByRow[i];
-                }
-            }
+            VectorHelper.Divide(ourTotalByRow, 0, totalToNormalizeTo, 0, ourTotalByRow, 0, ourTotalByRow.Length);
             // apply inverse
             var data = inputMatrix.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
@@ -89,20 +79,9 @@ the same size as the input data to normalize."
             {
                 // if it is infinity or NAN, that means that we had zero elements
                 // thusly we can just leave the matrix alone to its default value of zero.
-                if(!(float.IsInfinity(ourTotalByRow[i]) || float.IsNaN(ourTotalByRow[i])))
+                if (!(float.IsInfinity(ourTotalByRow[i]) || float.IsNaN(ourTotalByRow[i])))
                 {
-                    if (VectorHelper.IsHardwareAccelerated)
-                    {
-                        VectorHelper.Multiply(flatData[i], 0, ourMatrix[i], 0, ourTotalByRow[i], flatData[i].Length);
-                    }
-                    else
-                    {
-                        var dataRow = flatData[i];
-                        for (int j = 0; j < ourMatrix[i].Length; j++)
-                        {
-                            dataRow[j] = ourMatrix[i][j] * ourTotalByRow[i];
-                        }
-                    }
+                    VectorHelper.Multiply(flatData[i], 0, ourMatrix[i], 0, ourTotalByRow[i], flatData[i].Length);
                 }
             }
             Data = data;
@@ -120,24 +99,9 @@ the same size as the input data to normalize."
             {
                 var matrix = resource.AquireResource<SparseTwinIndex<float>>().GetFlatData();
                 totalByRow = new float[matrix.Length];
-                if (VectorHelper.IsHardwareAccelerated)
+                for (int i = 0; i < totalByRow.Length; i++)
                 {
-                    for (int i = 0; i < totalByRow.Length; i++)
-                    {
-                        totalByRow[i] = VectorHelper.Sum(matrix[i], 0, matrix[i].Length);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < totalByRow.Length; i++)
-                    {
-                        var total = 0.0f;
-                        for (int j = 0; j < matrix[i].Length; j++)
-                        {
-                            total += matrix[i][j];
-                        }
-                        totalByRow[i] = total;
-                    }
+                    totalByRow[i] = VectorHelper.Sum(matrix[i], 0, matrix[i].Length);
                 }
             }
             return totalByRow;

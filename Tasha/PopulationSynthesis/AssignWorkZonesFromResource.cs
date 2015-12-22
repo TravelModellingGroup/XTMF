@@ -92,54 +92,22 @@ namespace Tasha.PopulationSynthesis
                     for (int categoryIndex = 0; categoryIndex < data.Length; categoryIndex++)
                     {
                         var category = data[categoryIndex];
-                        if (VectorHelper.IsHardwareAccelerated)
+                        for (int originIndex = 0; originIndex < category.Length; originIndex++)
                         {
-                            for (int originIndex = 0; originIndex < category.Length; originIndex++)
+                            var total = VectorHelper.Sum(category[originIndex], 0, category[originIndex].Length);
+                            // we do not greater than in case total is NaN, this will pass
+                            if (!(total > 0))
                             {
-                                var total = VectorHelper.Sum(category[originIndex], 0, category[originIndex].Length);
-                                // we do not greater than in case total is NaN, this will pass
-                                if (!(total > 0))
-                                {
-                                    noProbabilityZones.Add(originIndex);
-                                    continue;
-                                }
-                                // convert everything to pdf
-                                var row = category[originIndex];
-                                VectorHelper.Multiply(row, 0, row, 0, 1.0f / total, row.Length);
-                                // now that we have pdf we can now build the cdf's
-                                for (int i = 1; i < category[originIndex].Length; i++)
-                                {
-                                    row[i] = row[i - 1] + row[i];
-                                }
+                                noProbabilityZones.Add(originIndex);
+                                continue;
                             }
-                        }
-                        else
-                        {
-                            for (int originIndex = 0; originIndex < category.Length; originIndex++)
+                            // convert everything to pdf
+                            var row = category[originIndex];
+                            VectorHelper.Multiply(row, 0, row, 0, 1.0f / total, row.Length);
+                            // now that we have pdf we can now build the cdf's
+                            for (int i = 1; i < category[originIndex].Length; i++)
                             {
-                                var row = category[originIndex];
-                                var total = 0.0f;
-                                for (int destinationIndex = 0; destinationIndex < row.Length; destinationIndex++)
-                                {
-                                    total += row[destinationIndex];
-                                }
-                                // we do not greater than in case total is NaN, this will pass
-                                if (!(total > 0))
-                                {
-                                    noProbabilityZones.Add(originIndex);
-                                    continue;
-                                }
-                                total = 1.0f / total;
-                                // convert everything to pdf
-                                for (int k = 0; k < row.Length; k++)
-                                {
-                                    row[k] *= total;
-                                }
-                                // now that we have pdf we can now build the cdf's
-                                for (int i = 1; i < category[originIndex].Length; i++)
-                                {
-                                    row[i] = row[i - 1] + row[i];
-                                }
+                                row[i] = row[i - 1] + row[i];
                             }
                         }
                         if (noProbabilityZones.Count > 0)
@@ -250,7 +218,7 @@ namespace Tasha.PopulationSynthesis
                             max = mid;
                         }
                     }
-                    if(min >= row.Length)
+                    if (min >= row.Length)
                     {
                         min = row.Length - 1;
                     }

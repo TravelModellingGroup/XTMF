@@ -122,11 +122,11 @@ namespace Tasha.V4Modes
             // compute the non human factors
             var zoneSystem = Root.ZoneSystem;
             var zoneArray = zoneSystem.ZoneArray;
-            var o = zoneArray.GetFlatIndex( trip.OriginalZone.ZoneNumber );
-            var d = zoneArray.GetFlatIndex( trip.DestinationZone.ZoneNumber );
+            var o = zoneArray.GetFlatIndex(trip.OriginalZone.ZoneNumber);
+            var d = zoneArray.GetFlatIndex(trip.DestinationZone.ZoneNumber);
             float v;
             // if Intrazonal
-            if ( o == d )
+            if (o == d)
             {
                 return float.NaN;
             }
@@ -135,22 +135,22 @@ namespace Tasha.V4Modes
             float constant;
             GetPersonVariables(p, out constant);
             v = constant;
-            if ( p.Female )
+            if (p.Female)
             {
                 v += FemaleFlag;
             }
             var age = p.Age;
-            v += AgeUtilLookup[Math.Min( Math.Max( age - 15, 0 ), 15 )];
-            if ( age >= 65 )
+            v += AgeUtilLookup[Math.Min(Math.Max(age - 15, 0), 15)];
+            if (age >= 65)
             {
                 v += Over65;
             }
-            else if ( age >= 55 )
+            else if (age >= 55)
             {
                 v += Over55;
             }
             //Apply trip purpose factors
-            switch(trip.Purpose)
+            switch (trip.Purpose)
             {
                 case Activity.Market:
                     v += MarketFlag + ZonalDensityForActivitiesArray[d];
@@ -171,9 +171,9 @@ namespace Tasha.V4Modes
         {
             var empStat = person.EmploymentStatus;
             var stuStat = person.StudentStatus;
-            if(empStat == TTSEmploymentStatus.FullTime)
+            if (empStat == TTSEmploymentStatus.FullTime)
             {
-                switch(person.Occupation)
+                switch (person.Occupation)
                 {
                     case Occupation.Professional:
                         constant = ProfessionalConstant;
@@ -189,16 +189,16 @@ namespace Tasha.V4Modes
                         return;
                 }
             }
-            switch(person.StudentStatus)
+            switch (person.StudentStatus)
             {
                 case StudentStatus.FullTime:
                 case StudentStatus.PartTime:
                     constant = StudentConstant;
                     return;
             }
-            if(empStat == TTSEmploymentStatus.PartTime)
+            if (empStat == TTSEmploymentStatus.PartTime)
             {
-                switch(person.Occupation)
+                switch (person.Occupation)
                 {
                     case Occupation.Professional:
                         constant = ProfessionalConstant;
@@ -231,7 +231,7 @@ namespace Tasha.V4Modes
 
         public bool Feasible(ITrip trip)
         {
-            if ( trip.OriginalZone.PlanningDistrict == trip.DestinationZone.PlanningDistrict) return false;
+            if (trip.OriginalZone.PlanningDistrict == trip.DestinationZone.PlanningDistrict) return false;
             return trip.TripChain.Person.Licence;
         }
 
@@ -253,12 +253,12 @@ namespace Tasha.V4Modes
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!ZonalDensityForActivities.CheckResourceType<SparseArray<float>>())
+            if (!ZonalDensityForActivities.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + Name + "' the resource for Zonal Density For Activities was of the wrong type!";
                 return false;
             }
-            if(!ZonalDensityForHome.CheckResourceType<SparseArray<float>>())
+            if (!ZonalDensityForHome.CheckResourceType<SparseArray<float>>())
             {
                 error = "In '" + Name + "' the resource for Zonal Density For Home was of the wrong type!";
                 return false;
@@ -276,19 +276,19 @@ namespace Tasha.V4Modes
             bool first;
             var trips = chain.Trips;
             int otherIndex;
-            int tripCount = CountTripsUsingThisMode( tripIndex, out first, out otherIndex, trips );
+            int tripCount = CountTripsUsingThisMode(tripIndex, out first, out otherIndex, trips);
 
-            if ( tripCount > 2 )
+            if (tripCount > 2)
             {
                 dependentUtility = float.NaN;
                 OnSelection = null;
                 return false;
             }
-            if ( first )
+            if (first)
             {
-                var accessData = AccessStationModel.ProduceResult( chain );
-                if ( accessData == null || !BuildUtility( trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
-                    accessData, trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, trips[tripIndex].TripStartTime, out dependentUtility ) )
+                var accessData = AccessStationModel.ProduceResult(chain);
+                if (accessData == null || !BuildUtility(trips[tripIndex].OriginalZone, trips[otherIndex].OriginalZone,
+                    accessData, trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, trips[tripIndex].TripStartTime, out dependentUtility))
                 {
                     OnSelection = null;
                     dependentUtility = float.NegativeInfinity;
@@ -300,9 +300,9 @@ namespace Tasha.V4Modes
                     var person = tripChain.Person;
                     var household = person.Household;
                     householdIteration++;
-                    tripChain.Attach( "AccessStation", SelectAccessStation(
-                            new Random( household.HouseholdId * person.Id * person.TripChains.IndexOf( tripChain ) * RandomSeed * householdIteration ),
-                            accessData ) );
+                    tripChain.Attach("AccessStation", SelectAccessStation(
+                            new Random(household.HouseholdId * person.Id * person.TripChains.IndexOf(tripChain) * RandomSeed * householdIteration),
+                            accessData));
                 };
             }
             else
@@ -319,39 +319,14 @@ namespace Tasha.V4Modes
             var utils = accessData.Second;
             var totalUtil = 0.0f;
             bool any = false;
-            if(VectorHelper.IsHardwareAccelerated)
+            totalUtil = VectorHelper.Sum(utils, 0, utils.Length);
+            if (totalUtil <= 0)
             {
-                totalUtil = VectorHelper.Sum(utils, 0, utils.Length);
-                if(totalUtil <= 0)
-                {
-                    dependentUtility = float.NaN;
-                    return false;
-                }
-                dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
-                VectorHelper.Multiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
+                dependentUtility = float.NaN;
+                return false;
             }
-            else
-            {
-                for(int i = 0; i < utils.Length; i++)
-                {
-                    if(!float.IsNaN(utils[i]))
-                    {
-                        totalUtil += utils[i];
-                        any = true;
-                    }
-                }
-                if(!any | totalUtil <= 0)
-                {
-                    dependentUtility = float.NaN;
-                    return false;
-                }
-                dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
-                totalUtil = 1 / totalUtil;
-                for(int i = 0; i < utils.Length; i++)
-                {
-                    utils[i] *= totalUtil;
-                }
-            }
+            dependentUtility = LogsumCorrelation * (float)Math.Log(totalUtil) + GetPlanningDistrictConstant(firstStartTime, firstOrigin.PlanningDistrict, firstDestination.PlanningDistrict);
+            VectorHelper.Multiply(utils, 0, utils, 0, 1.0f / totalUtil, utils.Length);
             return true;
         }
 
@@ -360,21 +335,21 @@ namespace Tasha.V4Modes
             var rand = random.NextDouble();
             var utils = accessData.Second;
             var runningTotal = 0.0f;
-            for ( int i = 0; i < utils.Length; i++ )
+            for (int i = 0; i < utils.Length; i++)
             {
-                if ( !float.IsNaN( utils[i] ) )
+                if (!float.IsNaN(utils[i]))
                 {
                     runningTotal += utils[i];
-                    if ( runningTotal >= rand )
+                    if (runningTotal >= rand)
                     {
                         return accessData.First[i];
                     }
                 }
             }
             // if we didn't find the right utility, just take the first one we can find
-            for ( int i = 0; i < utils.Length; i++ )
+            for (int i = 0; i < utils.Length; i++)
             {
-                if ( !float.IsNaN( utils[i] ) )
+                if (!float.IsNaN(utils[i]))
                 {
                     return accessData.First[i];
                 }
@@ -387,11 +362,11 @@ namespace Tasha.V4Modes
             int tripCount = 0;
             otherIndex = -1;
             first = true;
-            for ( int i = 0; i < trips.Count; i++ )
+            for (int i = 0; i < trips.Count; i++)
             {
-                if ( trips[i].Mode == this )
+                if (trips[i].Mode == this)
                 {
-                    if ( i < tripIndex )
+                    if (i < tripIndex)
                     {
                         first = false;
                     }
@@ -407,9 +382,9 @@ namespace Tasha.V4Modes
 
         public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
         {
-            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
             {
-                if(startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
+                if (startTime >= TimePeriodConstants[i].StartTime && startTime < TimePeriodConstants[i].EndTime)
                 {
                     var value = TimePeriodConstants[i].GetConstant(pdO, pdD);
                     return value;
@@ -432,25 +407,25 @@ namespace Tasha.V4Modes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
-            if(!AccessStationChoiceLoaded | UnloadAccessStationModelEachIteration)
+            if (!AccessStationChoiceLoaded | UnloadAccessStationModelEachIteration)
             {
                 AccessStationModel.Load();
                 AccessStationChoiceLoaded = true;
             }
             // We do this here instead of the RuntimeValidation so that we don't run into issues with estimation
             AgeUtilLookup = new float[16];
-            for (int i = 0; i < AgeUtilLookup.Length; i++ )
+            for (int i = 0; i < AgeUtilLookup.Length; i++)
             {
-                AgeUtilLookup[i] = (float)Math.Log( i + 1, Math.E ) * LogOfAgeFactor;
+                AgeUtilLookup[i] = (float)Math.Log(i + 1, Math.E) * LogOfAgeFactor;
             }
             //build the region constants
-            for(int i = 0; i < TimePeriodConstants.Length; i++)
+            for (int i = 0; i < TimePeriodConstants.Length; i++)
             {
                 TimePeriodConstants[i].BuildMatrix();
             }
             ZonalDensityForActivitiesArray = ZonalDensityForActivities.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
             ZonalDensityForHomeArray = ZonalDensityForHome.AquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
-            for(int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
+            for (int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
             {
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
                 ZonalDensityForHomeArray[i] *= ToHomeDensityFactor;
@@ -464,7 +439,7 @@ namespace Tasha.V4Modes
 
         public void IterationEnding(int iterationNumber, int maxIterations)
         {
-            if(UnloadAccessStationModelEachIteration)
+            if (UnloadAccessStationModelEachIteration)
             {
                 AccessStationModel.Unload();
             }

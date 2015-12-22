@@ -48,12 +48,6 @@ namespace TMG.Functions
         }
 
         /// <summary>
-        /// Check to see if Vector code is allowed
-        /// </summary>
-        /// <returns>If true, then SIMD is enabled.</returns>
-        public static bool IsHardwareAccelerated { get { return Vector.IsHardwareAccelerated; } }
-
-        /// <summary>
         /// Add up the elements in the vector
         /// </summary>
         /// <param name="v">The vector to sum</param>

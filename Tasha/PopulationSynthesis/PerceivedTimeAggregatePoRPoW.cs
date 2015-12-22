@@ -317,7 +317,7 @@ namespace Tasha.PopulationSynthesis
                                 jobs, data,
                                 NumberOfWorkerCategories, zones.Length);
             var itModel = Root as IIterativeModel;
-            if(itModel != null && itModel.CurrentIteration > 0)
+            if (itModel != null && itModel.CurrentIteration > 0)
             {
                 AverageResults(results, PreviousResults);
             }
@@ -334,17 +334,7 @@ namespace Tasha.PopulationSynthesis
 
         private static void AverageResults(float[] results, float[] previousResults)
         {
-            if (VectorHelper.IsHardwareAccelerated)
-            {
-                VectorHelper.Average(results, 0, results, 0, previousResults, 0, results.Length);
-            }
-            else
-            {
-                for (int i = 0; i < results.Length; i++)
-                {
-                    results[i] = (results[i] + previousResults[i]) * 0.5f;
-                }
-            }
+            VectorHelper.Average(results, 0, results, 0, previousResults, 0, results.Length);
         }
 
         private float[] PreviousResults;
@@ -379,21 +369,10 @@ namespace Tasha.PopulationSynthesis
         private float[] CreateNormalizedJobs(SparseArray<float> employmentSeekers, float[] employment)
         {
             var pop = employmentSeekers.GetFlatData();
-            var totalPop = pop.Sum();
-            var totalEmployment = employment.Sum();
-            var balanceFactor = totalPop / totalEmployment;
+            var totalPop = VectorHelper.Sum(pop, 0, pop.Length);
+            var totalEmployment = VectorHelper.Sum(employment, 0, employment.Length);
             var ret = new float[employment.Length];
-            if (VectorHelper.IsHardwareAccelerated)
-            {
-                VectorHelper.Multiply(ret, 0, employment, 0, balanceFactor, ret.Length);
-            }
-            else
-            {
-                for (int i = 0; i < employment.Length; i++)
-                {
-                    ret[i] = employment[i] * balanceFactor;
-                }
-            }
+            VectorHelper.Multiply(ret, 0, employment, 0, totalPop / totalEmployment, ret.Length);
             return ret;
         }
 
@@ -410,17 +389,7 @@ namespace Tasha.PopulationSynthesis
             for (int workerCategory = 0; workerCategory < NumberOfWorkerCategories; workerCategory++)
             {
                 int WorkerCategoryOffset = workerCategory * pop.Length;
-                if (VectorHelper.IsHardwareAccelerated)
-                {
-                    VectorHelper.Multiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
-                }
-                else
-                {
-                    for (int i = 0; i < pop.Length; i++)
-                    {
-                        ret[i + WorkerCategoryOffset] = pop[i] * workerSplits[i + WorkerCategoryOffset];
-                    }
-                }
+                VectorHelper.Multiply(ret, WorkerCategoryOffset, pop, 0, workerSplits, WorkerCategoryOffset, pop.Length);
             }
             if (KeepLocalData)
             {

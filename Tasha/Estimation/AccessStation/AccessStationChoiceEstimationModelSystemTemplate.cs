@@ -213,20 +213,10 @@ namespace Tasha.Estimation.AccessStation
         private bool Normalize(Pair<IZone[], float[]> result)
         {
             var utils = result.Second;
-            var total = VectorHelper.IsHardwareAccelerated ? VectorHelper.Sum(utils, 0, utils.Length) : utils.Sum();
+            var total = VectorHelper.Sum(utils, 0, utils.Length);
             if (total <= 0) return false;
             // convert utilities to probability
-            if (VectorHelper.IsHardwareAccelerated)
-            {
-                VectorHelper.Multiply(utils, 0, utils, 0, 1.0f / total, utils.Length);
-            }
-            else
-            {
-                for (int i = 0; i < utils.Length; i++)
-                {
-                    utils[i] /= total;
-                }
-            }
+            VectorHelper.Multiply(utils, 0, utils, 0, 1.0f / total, utils.Length);
             return true;
         }
 

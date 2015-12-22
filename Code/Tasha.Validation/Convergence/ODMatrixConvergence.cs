@@ -104,31 +104,21 @@ namespace Tasha.Validation.Convergence
             switch (AnalysisToRun)
             {
                 case AnalysisType.Average:
-                    value = GetAverage(first,second);
+                    value = GetAverage(first, second);
                     break;
                 case AnalysisType.Max:
-                    value = GetMax(first,second);
+                    value = GetMax(first, second);
                     break;
             }
             Writer.Write(iterationNumber + 1);
             Writer.Write(',');
             Writer.Write(value);
-            if(SumFirst)
+            if (SumFirst)
             {
                 var sum = 0.0f;
                 for (int i = 0; i < first.Length; i++)
                 {
-                    if(VectorHelper.IsHardwareAccelerated)
-                    {
-                        sum += VectorHelper.Sum(first[i], 0, first[i].Length);
-                    }
-                    else
-                    {
-                        for (int j = 0; j < first[i].Length; j++)
-                        {
-                            sum += first[i][j];
-                        }
-                    }
+                    sum += VectorHelper.Sum(first[i], 0, first[i].Length);
                 }
                 Writer.Write(',');
                 Writer.Write(sum);
@@ -145,27 +135,11 @@ namespace Tasha.Validation.Convergence
         private float GetAverage(float[][] first, float[][] second)
         {
             var diff = 0.0f;
-            if (VectorHelper.IsHardwareAccelerated)
+            for (int i = 0; i < first.Length; i++)
             {
-                for (int i = 0; i < first.Length; i++)
-                {
-                    diff += VectorHelper.AbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
-                }
+                diff += VectorHelper.AbsDiffAverage(first[i], 0, second[i], 0, first[i].Length);
             }
-            else
-            {
-                for (int i = 0; i < first.Length; i++)
-                {
-                    var firstRow = first[i];
-                    var secondRow = second[i];
-                    var local = 0.0f;
-                    for (int j = 0; j < firstRow.Length; j++)
-                    {
-                        local += Math.Abs(firstRow[j] - secondRow[j]);
-                    }
-                    diff += local / firstRow.Length;
-                }
-            }
+
             diff = diff / first.Length;
             FirstMatrix.ReleaseResource();
             SecondMatrix.ReleaseResource();
@@ -175,24 +149,9 @@ namespace Tasha.Validation.Convergence
         private float GetMax(float[][] first, float[][] second)
         {
             var diff = 0.0f;
-            if (VectorHelper.IsHardwareAccelerated)
+            for (int i = 0; i < first.Length; i++)
             {
-                for (int i = 0; i < first.Length; i++)
-                {
-                    diff = Math.Max(VectorHelper.AbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < first.Length; i++)
-                {
-                    var firstRow = first[i];
-                    var secondRow = second[i];
-                    for (int j = 0; j < firstRow.Length; j++)
-                    {
-                        diff = Math.Max(Math.Abs(firstRow[j] - secondRow[j]), diff);
-                    }
-                }
+                diff = Math.Max(VectorHelper.AbsDiffMax(first[i], 0, second[i], 0, first[i].Length), diff);
             }
             FirstMatrix.ReleaseResource();
             SecondMatrix.ReleaseResource();

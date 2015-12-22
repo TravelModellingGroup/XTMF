@@ -61,17 +61,7 @@ namespace Tasha.Data
             var flatFirst = firstRate.GetFlatData();
             var flatSecond = secondRate.GetFlatData();
             var flat = data.GetFlatData();
-            if(VectorHelper.IsHardwareAccelerated)
-            {
-                VectorHelper.Divide(flat, 0, flatFirst, 0, flatSecond, 0, flat.Length);
-            }
-            else
-            {
-                for(int i = 0; i < flat.Length; i++)
-                {
-                    flat[i] = flatFirst[i] / flatSecond[i];
-                }
-            }
+            VectorHelper.Divide(flat, 0, flatFirst, 0, flatSecond, 0, flat.Length);
             this.Data = data;
         }
 
