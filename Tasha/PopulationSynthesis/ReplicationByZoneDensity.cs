@@ -644,7 +644,14 @@ namespace Tasha.PopulationSynthesis
             BaseYearPopulation.LoadData();
             var baseDensity = BaseYearPopulation.GiveData().GetFlatData().Clone() as float[];
             BaseYearPopulation.UnloadData();
-            var area = zones.Select(z => z.InternalArea).ToArray();
+            var area = zones.Select(z =>
+            {
+                // A = (6InternalDistance)^2
+                // since the units are meters we can divide by 1000 to get to pop/km
+                // 0.006 is 6/1000
+                var dist = (z.InternalDistance * 0.006f);
+                return dist * dist;
+            }).ToArray();
             var forecastDensity = zones.Select(z => (float)z.Population).ToArray();
             VectorHelper.Divide(baseDensity, 0, baseDensity, 0, area, 0, baseDensity.Length);
             var regions = zones.Select(z => z.RegionNumber).ToArray();
