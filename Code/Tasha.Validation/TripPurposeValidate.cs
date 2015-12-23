@@ -156,6 +156,7 @@ namespace Tasha.Validation
         public void IterationFinished(int iteration)
         {
             // only run on the last iteration
+            // Important for not saving too much data
             if(iteration == Root.TotalIterations - 1)
             {
                 var dir = Path.GetDirectoryName(FileName);
