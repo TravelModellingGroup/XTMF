@@ -46,7 +46,7 @@ namespace Tasha.Validation
 
         private Dictionary<Activity, float> PurposeDictionary;
 
-        private SparseTwinIndex<Dictionary<Activity, float>> PDPurposeDictionary;
+        private SparseTwinIndex<Dictionary<Activity, float>> ODPurposeDictionary;
 
         public string Name
         {
@@ -80,8 +80,8 @@ namespace Tasha.Validation
         [RunParameter("Destination Zones", "1-9999", typeof(RangeSet), "The destination zones to select for.")]
         public RangeSet DestinationZones;
 
-        [RunParameter("Save By PD", false, "Save the data by planning district.")]
-        public bool SaveByPD;
+        [RunParameter("Save as Zone OD", false, "Save as OD Pair")]
+        public bool SaveOD;
 
         public void Execute(ITashaHousehold household, int iteration)
         {
@@ -118,12 +118,12 @@ namespace Tasha.Validation
                                     var tripStartTime = trip.TripStartTime;
                                     if(tripStartTime >= StartTime && tripStartTime < EndTime)
                                     {
-                                        if(SaveByPD)
+                                        if(SaveOD)
                                         {
-                                            var dictionary = PDPurposeDictionary[originalZone.PlanningDistrict, destinationZone.PlanningDistrict];
+                                            var dictionary = ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber];
                                             if(dictionary == null)
                                             {
-                                                PDPurposeDictionary[originalZone.PlanningDistrict, destinationZone.PlanningDistrict] = dictionary = new Dictionary<Activity, float>();
+                                                ODPurposeDictionary[originalZone.ZoneNumber, destinationZone.ZoneNumber] = dictionary = new Dictionary<Activity, float>();
                                             }
                                             AddTripToDictionary(dictionary, amountToAddPerTrip, trip);
                                             
@@ -169,22 +169,22 @@ namespace Tasha.Validation
                 }
                 using (StreamWriter Writer = new StreamWriter(FileName))
                 {
-                    if(SaveByPD)
+                    if(SaveOD)
                     {
-                        Writer.WriteLine("OriginPD,DestinationPD,TripPurpose,NumberOfOccurrences");
-                        foreach(var origin in PDPurposeDictionary.ValidIndexes())
+                        Writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");
+                        foreach(var origin in ODPurposeDictionary.ValidIndexes())
                         {
                             var originStr = origin.ToString();
-                            foreach(var destintation in PDPurposeDictionary.ValidIndexes(origin))
+                            foreach(var destintation in ODPurposeDictionary.ValidIndexes(origin))
                             {
                                 var destStr = destintation.ToString();
-                                var dictionary = PDPurposeDictionary[origin, destintation];
+                                var dictionary = ODPurposeDictionary[origin, destintation];
                                 if(dictionary != null)
                                 {
                                     foreach(var pair in dictionary)
                                     {
                                         Writer.WriteLine("{0},{1},{2},{3}", originStr, destStr, pair.Key, pair.Value);
-                                    }
+                                   } 
                                 }
                             }
                         }
@@ -216,9 +216,9 @@ namespace Tasha.Validation
         {
             if(iteration == Root.TotalIterations - 1)
             {
-                if(SaveByPD)
+                if(SaveOD)
                 {
-                    PDPurposeDictionary = TMG.Functions.ZoneSystemHelper.CreatePDTwinArray<Dictionary<Activity, float>>(Root.ZoneSystem.ZoneArray);
+                    ODPurposeDictionary = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<Dictionary<Activity, float>>();
                 }
                 else
                 {
