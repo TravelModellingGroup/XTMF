@@ -56,7 +56,7 @@ namespace Tasha.Data
         public void LoadData()
         {
             float[][] operateOnMe;
-            if(RawDataSource != null)
+            if (RawDataSource != null)
             {
                 RawDataSource.LoadData();
                 operateOnMe = RawDataSource.GiveData().GetFlatData();
@@ -66,30 +66,23 @@ namespace Tasha.Data
             {
                 operateOnMe = ResourceDataSource.AquireResource<SparseTwinIndex<float>>().GetFlatData();
             }
-            if(VectorHelper.IsHardwareAccelerated)
+            var sum = 0.0f;
+            for (int i = 0; i < operateOnMe.Length; i++)
             {
-                var sum = 0.0f;
-                for(int i = 0; i < operateOnMe.Length; i++)
-                {
-                    sum += VectorHelper.Sum(operateOnMe[i], 0, operateOnMe[i].Length);
-                }
-                Data = sum;
+                sum += VectorHelper.Sum(operateOnMe[i], 0, operateOnMe[i].Length);
             }
-            else
-            {
-                Data = operateOnMe.Sum(row => row.Sum());
-            }
+            Data = sum;
             Loaded = true;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!(RawDataSource != null ^ ResourceDataSource != null))
+            if (!(RawDataSource != null ^ ResourceDataSource != null))
             {
                 error = "In '" + Name + "' you must only select one of RawDataSource or ResourceDataSource";
                 return false;
             }
-            if(ResourceDataSource != null && !ResourceDataSource.CheckResourceType<SparseTwinIndex<float>>())
+            if (ResourceDataSource != null && !ResourceDataSource.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the ResourceDataSource was not of type SparseTwinIndex<float>!";
                 return false;

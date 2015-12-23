@@ -752,18 +752,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     return calculationSpace;
                 }
-                if (VectorHelper.IsHardwareAccelerated)
-                {
-                    VectorHelper.Multiply(calculationSpace, 0, calculationSpace, 0, 1.0f / total, calculationSpace.Length);
-                }
-                else
-                {
-                    var ratio = 1.0f / total;
-                    for (int i = 0; i < calculationSpace.Length; i++)
-                    {
-                        calculationSpace[i] *= ratio;
-                    }
-                }
+                VectorHelper.Multiply(calculationSpace, 0, calculationSpace, 0, 1.0f / total, calculationSpace.Length);
                 return calculationSpace;
             }
 

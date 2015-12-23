@@ -57,23 +57,9 @@ namespace Tasha.Data
             SparseArray<float> data;
             data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePDArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
-            if(VectorHelper.IsHardwareAccelerated)
+            for (int j = 0; j < resources.Length; j++)
             {
-                for(int j = 0; j < resources.Length; j++)
-                {
-                    VectorHelper.Add(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
-                }
-            }
-            else
-            {
-                for(int j = 0; j < resources.Length; j++)
-                {
-                    var currentResource = resources[j];
-                    for(int i = 0; i < currentResource.Length; i++)
-                    {
-                        flatData[i] += currentResource[i];
-                    }
-                }
+                VectorHelper.Add(flatData, 0, flatData, 0, resources[j], 0, flatData.Length);
             }
             Data = data;
         }
@@ -97,9 +83,9 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            for(int i = 0; i < ResourcesToAdd.Length; i++)
+            for (int i = 0; i < ResourcesToAdd.Length; i++)
             {
-                if(!ResourcesToAdd[i].CheckResourceType<SparseArray<float>>())
+                if (!ResourcesToAdd[i].CheckResourceType<SparseArray<float>>())
                 {
                     error = "In '" + Name + "' the resource '" + ResourcesToAdd[i].Name + "' is not of type SparseArray<float>!";
                     return false;

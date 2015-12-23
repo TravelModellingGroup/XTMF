@@ -82,9 +82,9 @@ namespace Tasha.PopulationSynthesis
             UniversityProbabilities = UniversityProbabilitiesResource.AquireResource<SparseTwinIndex<float>>();
 
             // create replicated versions for our per iteration needs
-            CurrentElementarySchoolProbabilities = Replicate( ElementarySchoolProbabilities );
-            CurrentHighSchoolProbabilities = Replicate( HighSchoolProbabilities );
-            CurrentUniversityProbabilities = Replicate( UniversityProbabilities );
+            CurrentElementarySchoolProbabilities = Replicate(ElementarySchoolProbabilities);
+            CurrentHighSchoolProbabilities = Replicate(HighSchoolProbabilities);
+            CurrentUniversityProbabilities = Replicate(UniversityProbabilities);
 
             // Gather the zone system for use from the root module.
             Zones = Root.ZoneSystem.ZoneArray;
@@ -101,11 +101,11 @@ namespace Tasha.PopulationSynthesis
             var ret = baseData.CreateSimilarArray<T>();
             var flatRet = ret.GetFlatData();
             var flatBase = baseData.GetFlatData();
-            for ( int i = 0; i < flatBase.Length; i++ )
+            for (int i = 0; i < flatBase.Length; i++)
             {
                 var retRow = flatRet[i];
                 var baseRow = flatBase[i];
-                for ( int j = 0; j < retRow.Length; j++ )
+                for (int j = 0; j < retRow.Length; j++)
                 {
                     retRow[j] = baseRow[j];
                 }
@@ -117,18 +117,18 @@ namespace Tasha.PopulationSynthesis
         {
             // Gather the base data and create our random generator
             var household = person.Household;
-            var random = new Random( RandomSeed * household.HouseholdId );
-            var probabilities = GetDataForAge( person.Age );
+            var random = new Random(RandomSeed * household.HouseholdId);
+            var probabilities = GetDataForAge(person.Age);
             var householdZone = household.HomeZone.ZoneNumber;
-            if ( Root.ZoneSystem.ZoneArray.GetFlatIndex( householdZone ) < 0 )
+            if (Root.ZoneSystem.ZoneArray.GetFlatIndex(householdZone) < 0)
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we found a person with an invalid household zone! ['" + householdZone + "']" );
+                throw new XTMFRuntimeException("In '" + Name + "' we found a person with an invalid household zone! ['" + householdZone + "']");
             }
-            IZone ret = PickSchoolZone( householdZone, probabilities, random, person.ExpansionFactor );
+            IZone ret = PickSchoolZone(householdZone, probabilities, random, person.ExpansionFactor);
             // If a zone is successfully found, return it
-            if ( ret != null ) return ret;
+            if (ret != null) return ret;
             // If we couldn't find a zone we need to use our backup plan and just generate out of the original distribution
-            return GenerateFromOriginalDistribution( person, random, householdZone );
+            return GenerateFromOriginalDistribution(person, random, householdZone);
         }
 
         /// <summary>
@@ -141,40 +141,40 @@ namespace Tasha.PopulationSynthesis
         /// <returns>The school zone for the person.</returns>
         private IZone GenerateFromOriginalDistribution(ITashaPerson person, Random random, int householdZone, bool deapSearch = true)
         {
-            var originalData = GetOriginalDataForAge( person.Age );
-            var data = GetHouseholdRow( householdZone, originalData );
-            if ( data == null )
+            var originalData = GetOriginalDataForAge(person.Age);
+            var data = GetHouseholdRow(householdZone, originalData);
+            if (data == null)
             {
                 return null;
             }
             double total = 0.0;
-            for ( int i = 0; i < data.Length; i++ )
+            for (int i = 0; i < data.Length; i++)
             {
                 total += data[i];
             }
-            if ( total <= 0 )
+            if (total <= 0)
             {
                 // If there still isn't anything for this zone
-                return deapSearch ? GetProbabilitiesFromAnotherZoneInPD( person, random, householdZone ) : null;
+                return deapSearch ? GetProbabilitiesFromAnotherZoneInPD(person, random, householdZone) : null;
             }
             var count = random.NextDouble() * total;
-            for ( int i = 0; i < data.Length; i++ )
+            for (int i = 0; i < data.Length; i++)
             {
                 count -= data[i];
-                if ( count <= 0 )
+                if (count <= 0)
                 {
                     return Zones.GetFlatData()[i];
                 }
             }
             // In case of rounding error issues just find the first non zero data point
-            for ( int i = 0; i < data.Length; i++ )
+            for (int i = 0; i < data.Length; i++)
             {
-                if ( data[i] > 0 )
+                if (data[i] > 0)
                 {
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException( "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!" );
+            throw new XTMFRuntimeException("In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
         }
 
         /// <summary>
@@ -189,28 +189,28 @@ namespace Tasha.PopulationSynthesis
         {
             var pd = Zones[householdZone].PlanningDistrict;
             var zones = Zones.GetFlatData();
-            List<int> possibleZone = new List<int>( 15 );
-            for ( int i = 0; i < zones.Length; i++ )
+            List<int> possibleZone = new List<int>(15);
+            for (int i = 0; i < zones.Length; i++)
             {
                 // if the zone belongs to the same planning district
-                if ( zones[i].PlanningDistrict == pd & zones[i].ZoneNumber != householdZone )
+                if (zones[i].PlanningDistrict == pd & zones[i].ZoneNumber != householdZone)
                 {
-                    possibleZone.Add( i );
+                    possibleZone.Add(i);
                 }
             }
             // while there are still zones to search through randomly try to find them
-            while ( possibleZone.Count > 0 )
+            while (possibleZone.Count > 0)
             {
-                var index = (int)( random.NextDouble() * possibleZone.Count );
-                var ret = GenerateFromOriginalDistribution( person, random, zones[possibleZone[index]].ZoneNumber, false );
-                if ( ret != null )
+                var index = (int)(random.NextDouble() * possibleZone.Count);
+                var ret = GenerateFromOriginalDistribution(person, random, zones[possibleZone[index]].ZoneNumber, false);
+                if (ret != null)
                 {
                     return ret;
                 }
-                possibleZone.RemoveAt( index );
+                possibleZone.RemoveAt(index);
             }
             // if we have exhausted all options fail with an exception.
-            throw new XTMFRuntimeException( "In '" + Name + "' we were unable to generate a school zone because there are no zones in the planning district " + pd + " that have school data!" );
+            throw new XTMFRuntimeException("In '" + Name + "' we were unable to generate a school zone because there are no zones in the planning district " + pd + " that have school data!");
         }
 
         /// <summary>
@@ -224,65 +224,55 @@ namespace Tasha.PopulationSynthesis
         /// <returns>A zone to use for school, null if no options exist</returns>
         private IZone PickSchoolZone(int householdZone, SparseTwinIndex<float> probabilities, Random random, float personExpansionFactor)
         {
-            float[] data = GetHouseholdRow( householdZone, probabilities );
-            if ( data == null )
+            float[] data = GetHouseholdRow(householdZone, probabilities);
+            if (data == null)
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find school choice data for household zone number " + householdZone + " !" );
+                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find school choice data for household zone number " + householdZone + " !");
             }
             double total = 0.0;
-            if (VectorHelper.IsHardwareAccelerated)
-            {
-                total = VectorHelper.Sum(data, 0, data.Length);
-            }
-            else
-            {
-                for (int i = 0; i < data.Length; i++)
-                {
-                    total += data[i];
-                }
-            }
-            if ( total <= 0 )
+            total = VectorHelper.Sum(data, 0, data.Length);
+            if (total <= 0)
             {
                 return null;
             }
             var count = (float)random.NextDouble() * total;
             int countIndex = -1;
             // first pass randomly pick a point 
-            for ( int i = 0; i < data.Length; i++ )
+            for (int i = 0; i < data.Length; i++)
             {
                 count -= data[i];
-                if ( count <= 0 )
+                if (count <= 0)
                 {
-                    if ( personExpansionFactor < data[i] )
+                    if (personExpansionFactor < data[i])
                     {
                         data[i] -= personExpansionFactor;
                         return Zones.GetFlatData()[i];
                     }
-                    else if ( countIndex == -1 )
+                    else if (countIndex == -1)
                     {
                         countIndex = i;
                     }
                 }
             }
             // check places before that point if nothing after it has enough utility
-            for ( int i = 0; i < countIndex; i++ )
+            for (int i = 0; i < countIndex; i++)
             {
-                if ( personExpansionFactor <= data[i] )
+                if (personExpansionFactor <= data[i])
                 {
                     data[i] -= personExpansionFactor;
                     return Zones.GetFlatData()[i];
                 }
             }
             // In case of rounding error issues just find the first non zero data point
-            for ( int i = 0; i < data.Length; i++ )
+            for (int i = 0; i < data.Length; i++)
             {
-                if ( data[i] > 0 )
+                if (data[i] > 0)
                 {
                     data[i] = 0;
                     return Zones.GetFlatData()[i];
                 }
             }
-            throw new XTMFRuntimeException( "In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!" );
+            throw new XTMFRuntimeException("In '" + Name + "' we ended up in a case where there was a probability to generate a school zone however there was no zones with any probability!");
         }
 
         /// <summary>
@@ -293,11 +283,11 @@ namespace Tasha.PopulationSynthesis
         /// <returns>The row of data, null if it doesn't exist</returns>
         private float[] GetHouseholdRow(int householdZone, SparseTwinIndex<float> probabilities)
         {
-            var index = probabilities.GetFlatIndex( householdZone );
-            if ( index < 0 )
+            var index = probabilities.GetFlatIndex(householdZone);
+            if (index < 0)
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find any data for a zone numbered '" + householdZone
-                    + "'.  Please make sure that this zone actually exists." );
+                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find any data for a zone numbered '" + householdZone
+                    + "'.  Please make sure that this zone actually exists.");
             }
             return probabilities.GetFlatData()[index];
         }
@@ -309,11 +299,11 @@ namespace Tasha.PopulationSynthesis
         /// <returns>The probability distribution for the age.</returns>
         private SparseTwinIndex<float> GetDataForAge(int age)
         {
-            if ( ElementryRange.Contains( age ) )
+            if (ElementryRange.Contains(age))
             {
                 return CurrentElementarySchoolProbabilities;
             }
-            if ( HighschoolRange.Contains( age ) )
+            if (HighschoolRange.Contains(age))
             {
                 return CurrentHighSchoolProbabilities;
             }
@@ -327,11 +317,11 @@ namespace Tasha.PopulationSynthesis
         /// <returns>The probability distribution for the age.</returns>
         private SparseTwinIndex<float> GetOriginalDataForAge(int age)
         {
-            if ( ElementryRange.Contains( age ) )
+            if (ElementryRange.Contains(age))
             {
                 return ElementarySchoolProbabilities;
             }
-            if ( HighschoolRange.Contains( age ) )
+            if (HighschoolRange.Contains(age))
             {
                 return HighSchoolProbabilities;
             }
@@ -342,9 +332,9 @@ namespace Tasha.PopulationSynthesis
         public void Unload()
         {
 
-            SaveIfFileExists( CurrentElementarySchoolProbabilities, SaveElementrySchoolProbabilities );
-            SaveIfFileExists( CurrentHighSchoolProbabilities, SaveHighSchoolProbabilities );
-            SaveIfFileExists( CurrentUniversityProbabilities, SaveUniversitySchoolProbabilities );
+            SaveIfFileExists(CurrentElementarySchoolProbabilities, SaveElementrySchoolProbabilities);
+            SaveIfFileExists(CurrentHighSchoolProbabilities, SaveHighSchoolProbabilities);
+            SaveIfFileExists(CurrentUniversityProbabilities, SaveUniversitySchoolProbabilities);
 
             ElementarySchoolProbabilities = null;
             HighSchoolProbabilities = null;
@@ -357,9 +347,9 @@ namespace Tasha.PopulationSynthesis
 
         private static void SaveIfFileExists(SparseTwinIndex<float> matrix, FileLocation file)
         {
-            if ( file != null )
+            if (file != null)
             {
-                TMG.Functions.SaveData.SaveMatrix( matrix, file );
+                TMG.Functions.SaveData.SaveMatrix(matrix, file);
             }
         }
 
@@ -377,7 +367,7 @@ namespace Tasha.PopulationSynthesis
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !ElementarySchoolProbabilitiesResource.CheckResourceType<SparseTwinIndex<float>>() )
+            if (!ElementarySchoolProbabilitiesResource.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' ";
                 return false;

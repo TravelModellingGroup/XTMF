@@ -390,26 +390,11 @@ namespace Tasha.StationAccess
                 var firstDestination = zoneArray.GetFlatIndex(first.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondOrigin = zoneArray.GetFlatIndex(second.OriginalZone.ZoneNumber) * AccessZoneIndexes.Length;
                 var secondDestination = zoneArray.GetFlatIndex(second.DestinationZone.ZoneNumber) * AccessZoneIndexes.Length;
-                if (VectorHelper.IsHardwareAccelerated)
-                {
-                    VectorHelper.Multiply(utilities, 0, firstTimePeriod.AutoFromOriginToAccessStation, firstOrigin,
-                        firstTimePeriod.TransitFromAccessStationToDestination, firstDestination,
-                        secondTimePeriod.TransitFromDestinationToAccessStation, secondOrigin,
-                        secondTimePeriod.AutoFromAccessStationToDestination, secondDestination, utilities.Length);
-                    VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
-                }
-                else
-                {
-                    for (int i = 0; i < utilities.Length; i++)
-                    {
-                        utilities[i] = firstTimePeriod.AutoFromOriginToAccessStation[firstOrigin + i] * firstTimePeriod.TransitFromAccessStationToDestination[firstDestination + i]
-                                       * secondTimePeriod.TransitFromDestinationToAccessStation[secondOrigin + i] * secondTimePeriod.AutoFromAccessStationToDestination[secondDestination + i];
-                        if (!(utilities[i] >= MinimumStationUtility))
-                        {
-                            utilities[i] = 0.0f;
-                        }
-                    }
-                }
+                VectorHelper.Multiply(utilities, 0, firstTimePeriod.AutoFromOriginToAccessStation, firstOrigin,
+                    firstTimePeriod.TransitFromAccessStationToDestination, firstDestination,
+                    secondTimePeriod.TransitFromDestinationToAccessStation, secondOrigin,
+                    secondTimePeriod.AutoFromAccessStationToDestination, secondDestination, utilities.Length);
+                VectorHelper.ReplaceIfLessThanOrNotFinite(utilities, 0, 0.0f, MinimumStationUtility, utilities.Length);
                 return new Pair<IZone[], float[]>(AccessZones, utilities);
             }
             return null;

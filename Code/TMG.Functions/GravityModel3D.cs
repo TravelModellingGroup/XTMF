@@ -32,7 +32,7 @@ namespace TMG.Functions
 
             var ret = new float[categories * numberofZones * numberofZones];
             var destinationStar = new float[numberofZones];
-            for(int i = 0; i < destinationStar.Length; i++)
+            for (int i = 0; i < destinationStar.Length; i++)
             {
                 destinationStar[i] = destinations[i];
             }
@@ -42,56 +42,10 @@ namespace TMG.Functions
             do
             {
                 Array.Clear(columnTotals, 0, columnTotals.Length);
-                if(VectorHelper.IsHardwareAccelerated)
-                {
-                    VectorApply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
-                    balanced = Balance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
-                }
-                else
-                {
-                    Apply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
-                    balanced = Balance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
-                }
-            } while(iterations++ < maxIterations & !balanced);
+                VectorApply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
+                balanced = VectorBalance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
+            } while (iterations++ < maxIterations & !balanced);
             return ret;
-        }
-
-        private static void Apply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
-        {
-            var numberOfZones = columnTotals.Length;
-            Parallel.For(0, columnTotals.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                () => new float[columnTotals.Length],
-                 (int i, ParallelLoopState state, float[] localTotals) =>
-            {
-                for(int k = 0; k < categories; k++)
-                {
-                    var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
-                    if(catByOrigin <= 0) continue;
-                    int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
-                    float sumAF = 0.0f;
-                    for(int j = 0; j < numberOfZones; j++)
-                    {
-                        sumAF += friction[index + j] * dStar[j];
-                    }
-                    if(sumAF <= 0) continue;
-                    var totalFromOrigin = catByOrigin / sumAF;
-                    for(int j = 0; j < numberOfZones; j++)
-                    {
-                        localTotals[j] += ret[index + j] = totalFromOrigin * friction[index + j] * dStar[j];
-                    }
-                }
-                return localTotals;
-            },
-                 (float[] localTotals) =>
-            {
-                lock (columnTotals)
-                {
-                    for(int i = 0; i < localTotals.Length; i++)
-                    {
-                        columnTotals[i] += localTotals[i];
-                    }
-                }
-            });
         }
 
         private static void VectorApply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
@@ -101,13 +55,13 @@ namespace TMG.Functions
                 () => new float[columnTotals.Length],
                  (int i, ParallelLoopState state, float[] localTotals) =>
             {
-                for(int k = 0; k < categories; k++)
+                for (int k = 0; k < categories; k++)
                 {
                     var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
-                    if(catByOrigin <= 0) continue;
+                    if (catByOrigin <= 0) continue;
                     int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
                     var sumAF = VectorHelper.MultiplyAndSum(friction, index, dStar, 0, numberOfZones);
-                    if(sumAF <= 0) continue;
+                    if (sumAF <= 0) continue;
                     VectorHelper.Multiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAF, localTotals, 0, numberOfZones);
                 }
                 return localTotals;
@@ -119,41 +73,6 @@ namespace TMG.Functions
                     VectorHelper.Add(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
                 }
             });
-        }
-
-        private static bool Balance(float[] ret, float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon, int categories)
-        {
-            bool balanced = true;
-            Parallel.For(0, columnTotals.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                () => true,
-                (int j, ParallelLoopState state, bool localBalanced) =>
-            {
-                if(destinations[j] <= 0) return localBalanced;
-                var residule = destinations[j] / columnTotals[j];
-                if(float.IsInfinity(residule))
-                {
-                    destinationStar[j] = destinations[j];
-                    return false;
-                }
-                else
-                {
-                    if(Math.Abs(residule - 1.0f) > epsilon)
-                    {
-                        localBalanced = false;
-                    }
-                    destinationStar[j] = destinationStar[j] * residule;
-                }
-                return localBalanced;
-            },
-                (bool localBalanced) =>
-            {
-                if(!localBalanced)
-                {
-                    balanced = false;
-                }
-            });
-            Thread.MemoryBarrier();
-            return balanced;
         }
 
         private static bool VectorBalance(float[] ret, float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon, int categories)

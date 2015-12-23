@@ -64,32 +64,12 @@ namespace Tasha.Data
             data = zoneArray.CreateSquareTwinArray<float>();
             var flatData = data.GetFlatData();
             var dereferenced = AdditionalRates.Select(a => a.AquireResource<SparseTwinIndex<float>>().GetFlatData()).ToArray();
-            if(VectorHelper.IsHardwareAccelerated)
+            for (int i = 0; i < flatData.Length; i++)
             {
-                for(int i = 0; i < flatData.Length; i++)
+                VectorHelper.Add(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
+                for (int j = 0; j < dereferenced.Length; j++)
                 {
-                    VectorHelper.Add(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
-                    for(int j = 0; j < dereferenced.Length; j++)
-                    {
-                        VectorHelper.Add(flatData[i], 0, flatData[i], 0, dereferenced[j][i], 0, flatData[i].Length);
-                    }
-                }
-            }
-            else
-            {
-                for(int i = 0; i < flatData.Length; i++)
-                {
-                    for(int k = 0; k < flatData[i].Length; k++)
-                    {
-                        flatData[i][k] = firstRate[i][k] + secondRate[i][k];
-                    }
-                    for(int j = 0; j < dereferenced.Length; j++)
-                    {
-                        for(int k = 0; k < flatData[i].Length; k++)
-                        {
-                            flatData[i][k] = flatData[i][k] + dereferenced[j][i][k];
-                        }
-                    }
+                    VectorHelper.Add(flatData[i], 0, flatData[i], 0, dereferenced[j][i], 0, flatData[i].Length);
                 }
             }
             Data = data;
@@ -114,21 +94,21 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the first rates resource is not of type SparseTwinIndex<float>!";
                 return false;
             }
-            if(!SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
                 return false;
             }
-            for(int i = 0; i < AdditionalRates.Length; i++)
+            for (int i = 0; i < AdditionalRates.Length; i++)
             {
-                if(!AdditionalRates[i].CheckResourceType<SparseTwinIndex<float>>())
+                if (!AdditionalRates[i].CheckResourceType<SparseTwinIndex<float>>())
                 {
-                    error = "In '" + Name + "' the additional rate resource named '" + AdditionalRates[i].Name + "' at position '" + i.ToString()+"' is not of type SparseTwinIndex<float>!";
+                    error = "In '" + Name + "' the additional rate resource named '" + AdditionalRates[i].Name + "' at position '" + i.ToString() + "' is not of type SparseTwinIndex<float>!";
                     return false;
                 }
             }

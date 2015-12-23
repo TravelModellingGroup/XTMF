@@ -74,22 +74,9 @@ namespace Tasha.Data
             var data = ret.GetFlatData();
             var f = first.GetFlatData();
             var s = second.GetFlatData();
-            if (VectorHelper.IsHardwareAccelerated)
+            for (int i = 0; i < data.Length; i++)
             {
-                for (int i = 0; i < data.Length; i++)
-                {
-                    VectorHelper.Average(data[i], 0, f[i], 0, s[i], 0, data[i].Length);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < data.Length; i++)
-                {
-                    for (int j = 0; j < data[i].Length; j++)
-                    {
-                        data[i][j] = (f[i][j] + s[i][j]) * 0.5f;
-                    }
-                }
+                VectorHelper.Average(data[i], 0, f[i], 0, s[i], 0, data[i].Length);
             }
             Data = ret;
             Loaded = true;
