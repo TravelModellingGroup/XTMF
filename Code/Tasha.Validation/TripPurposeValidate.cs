@@ -198,8 +198,6 @@ namespace Tasha.Validation
                         }
                     }
                 }
-
-                PurposeDictionary.Clear();
             }            
         }
 
