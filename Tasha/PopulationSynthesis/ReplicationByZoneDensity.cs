@@ -86,7 +86,7 @@ namespace Tasha.PopulationSynthesis
             private int[] InitialZoneClassification;
             private int[] ForecastZoneClassification;
 
-            private double TotalExpansionFactor;
+            private double[] TotalExpansionFactor;
 
             public void Initialize(int[] regionNumber, float[] originalZoneDensities, float[] forecastZoneDensities)
             {
@@ -118,7 +118,7 @@ namespace Tasha.PopulationSynthesis
                 Random random = new Random(randomSeed);
                 var ret = new List<KeyValuePair<int, int>>();
                 var remaining = zones.Select(z => z.Population).ToArray();
-                TotalExpansionFactor = DensityPool.Sum(pool => pool.Sum(h => h.ExpansionFactor));
+                TotalExpansionFactor = DensityPool.Select(pool => pool.Sum(h => (double)h.ExpansionFactor)).ToArray();
                 do
                 {
                     any = false;
@@ -136,37 +136,37 @@ namespace Tasha.PopulationSynthesis
 
             private KeyValuePair<int, int> Pick(Random random, int densityCat, int zone, ref int remaining)
             {
-                var pool = DensityPool[densityCat];
-                var indexes = PoolToGlobalIndex[densityCat];
+                var households = DensityPool[densityCat];
+                var hhldGlobalIndex = PoolToGlobalIndex[densityCat];
                 for (int unused = 0; unused < 2; unused++)
                 {
-                    var place = (float)random.NextDouble() * TotalExpansionFactor;
+                    var place = (float)random.NextDouble() * TotalExpansionFactor[densityCat];
                     float current = 0.0f;
-                    for (int i = 0; i < pool.Count; i++)
+                    for (int i = 0; i < households.Count; i++)
                     {
-                        current += pool[i].ExpansionFactor;
+                        current += households[i].ExpansionFactor;
                         if (current > place)
                         {
-                            var numberOfPersons = pool[i].Household.Persons.Length;
+                            var numberOfPersons = households[i].Household.Persons.Length;
                             // skip adding this particular household if it has too many persons
                             if (remaining < numberOfPersons)
                             {
                                 continue;
                             }
-                            pool[i].ExpansionFactor -= 1;
+                            households[i].ExpansionFactor -= 1;
                             var remainder = 0.0f;
-                            if (pool[i].ExpansionFactor <= 0)
+                            if (households[i].ExpansionFactor <= 0)
                             {
-                                remainder = -pool[i].ExpansionFactor;
-                                pool[i].ExpansionFactor = 0;
+                                remainder = -households[i].ExpansionFactor;
+                                households[i].ExpansionFactor = 0;
                             }
-                            TotalExpansionFactor -= 1 - remainder;
+                            TotalExpansionFactor[densityCat] -= 1 - remainder;
                             remaining -= numberOfPersons;
-                            return new KeyValuePair<int, int>(zone, indexes[i]);
+                            return new KeyValuePair<int, int>(zone, hhldGlobalIndex[i]);
                         }
                     }
                     // if we get here then it failed, we need to reset the probabilities again
-                    TotalExpansionFactor = pool.Sum(h =>
+                    TotalExpansionFactor[densityCat] = households.Sum(h =>
                     {
                         h.ResetExpansion();
                         return h.ExpansionFactor;
