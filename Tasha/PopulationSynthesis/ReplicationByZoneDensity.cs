@@ -138,32 +138,44 @@ namespace Tasha.PopulationSynthesis
             {
                 var households = DensityPool[densityCat];
                 var hhldGlobalIndex = PoolToGlobalIndex[densityCat];
+                if(households.Count <= 0)
+                {
+                    throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in Pool'" + Name + "' for category " + DensityBins[densityCat].ToString() + "!"
+                    + "\r\nThere were " + households.Count + " household records in that pool.");
+                }
                 for (int unused = 0; unused < 2; unused++)
                 {
                     var place = (float)random.NextDouble() * TotalExpansionFactor[densityCat];
                     float current = 0.0f;
+                    int selectedIndex = -1;
                     for (int i = 0; i < households.Count; i++)
                     {
                         current += households[i].ExpansionFactor;
                         if (current > place)
                         {
-                            var numberOfPersons = households[i].Household.Persons.Length;
-                            // skip adding this particular household if it has too many persons
-                            if (remaining < numberOfPersons)
-                            {
-                                continue;
-                            }
-                            households[i].ExpansionFactor -= 1;
-                            var remainder = 0.0f;
-                            if (households[i].ExpansionFactor <= 0)
-                            {
-                                remainder = -households[i].ExpansionFactor;
-                                households[i].ExpansionFactor = 0;
-                            }
-                            TotalExpansionFactor[densityCat] -= 1 - remainder;
-                            remaining -= numberOfPersons;
-                            return new KeyValuePair<int, int>(zone, hhldGlobalIndex[i]);
+                            selectedIndex = i;
+                            break;
                         }
+                    }
+                    for (int i = 0; i < households.Count; i++)
+                    {
+                        var index = (selectedIndex + i) % households.Count;
+                        var numberOfPersons = households[index].Household.Persons.Length;
+                        // skip adding this particular household if it has too many persons
+                        if (remaining < numberOfPersons)
+                        {
+                            continue;
+                        }
+                        households[index].ExpansionFactor -= 1;
+                        var remainder = 0.0f;
+                        if (households[index].ExpansionFactor <= 0)
+                        {
+                            remainder = -households[i].ExpansionFactor;
+                            households[index].ExpansionFactor = 0;
+                        }
+                        TotalExpansionFactor[densityCat] -= 1 - remainder;
+                        remaining -= numberOfPersons;
+                        return new KeyValuePair<int, int>(zone, hhldGlobalIndex[index]);
                     }
                     // if we get here then it failed, we need to reset the probabilities again
                     TotalExpansionFactor[densityCat] = households.Sum(h =>
@@ -172,7 +184,8 @@ namespace Tasha.PopulationSynthesis
                         return h.ExpansionFactor;
                     });
                 }
-                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in Pool'" + Name + "'!");
+                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in Pool'" + Name + "' for category " + DensityBins[densityCat].ToString() + "!"
+                    + "\r\nThere were " + households.Count + " household records in that pool.");
             }
 
             public string Name { get; set; }
