@@ -40,6 +40,11 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Random Seed", "12345", typeof(int), "A base position to have a deterministic random processes.")]
         public int RandomSeed;
 
+        [RunParameter("Expansion Factor Scale", 1.0f, "Setting this to 2 would double the number of people sampled per zone (at half the expansion factor).")]
+        public float HouseholdExpansionFactor;
+
+        private float InvHouseholdExpansion;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -92,12 +97,13 @@ namespace Tasha.PopulationSynthesis
                 if(taken) Lock.Exit(true);
             }
 
-            internal List<KeyValuePair<int, int>> ProcessPD(int randomSeed, IZone[] zones, int[] zoneIndexes)
+            internal List<KeyValuePair<int, int>> ProcessPD(int randomSeed, IZone[] zones, float householdExpansion, int[] zoneIndexes)
             {
                 bool any;
                 Random random = new Random(randomSeed * PD);
+                var rPerZone = zoneIndexes.Select(z => new Random(random.Next())).ToArray();
                 var ret = new List<KeyValuePair<int, int>>();
-                var remaining = zoneIndexes.Select((z) => zones[z].Population).ToArray();
+                var remaining = zoneIndexes.Select((z) => (int)Math.Round(zones[z].Population * householdExpansion)).ToArray();
                 TotalExpansionFactor = Households.Sum(h => h.ExpansionFactor);
                 do
                 {
@@ -107,7 +113,7 @@ namespace Tasha.PopulationSynthesis
                         if(remaining[zone] > 0)
                         {
                             any = true;
-                            ret.Add(Pick(random, zoneIndexes[zone], ref remaining[zone]));
+                            ret.Add(Pick(rPerZone[zone], zoneIndexes[zone], ref remaining[zone]));
                         }
                     }
                 } while(any);
@@ -195,7 +201,7 @@ namespace Tasha.PopulationSynthesis
                                    where zone.PlanningDistrict == pd
                                    select zoneArray.GetFlatIndex(zone.ZoneNumber)).ToArray();
                 // make sure we don't generate persons for the external zones
-                results[i] = HouseholdsByPD.GetSparseIndex(i) == 0 ? new List<KeyValuePair<int, int>>() : flatPD[i].ProcessPD(RandomSeed, zones, zoneIndexes);
+                results[i] = HouseholdsByPD.GetSparseIndex(i) == 0 ? new List<KeyValuePair<int, int>>() : flatPD[i].ProcessPD(RandomSeed, zones, HouseholdExpansionFactor, zoneIndexes);
             });
             Save(results, flatPD);
         }
@@ -446,7 +452,7 @@ namespace Tasha.PopulationSynthesis
                             }
                             var workZone = persons[j].EmploymentZone;
                             var schoolZone = persons[j].SchoolZone;
-                            var personExpanded = persons[j].ExpansionFactor;
+                            var personExpanded = persons[j].ExpansionFactor * InvHouseholdExpansion;
                             if (!IsExternal(workZone))
                             {
                                 switch(persons[j].EmploymentStatus)
@@ -580,8 +586,9 @@ namespace Tasha.PopulationSynthesis
                         writer.Write(householdID);
                         writer.Write(',');
                         writer.Write(zones[zone]);
-                        // the expansion factor is always 1
-                        writer.Write(",1,");
+                        writer.Write(",");
+                        writer.Write(InvHouseholdExpansion);
+                        writer.Write(",");
                         writer.Write((int)household.DwellingType);
                         writer.Write(',');
                         writer.Write(household.Persons.Length);
@@ -602,6 +609,7 @@ namespace Tasha.PopulationSynthesis
 
         public bool RuntimeValidation(ref string error)
         {
+            InvHouseholdExpansion = 1.0f / HouseholdExpansionFactor;
             return true;
         }
 

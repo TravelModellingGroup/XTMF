@@ -40,6 +40,11 @@ namespace Tasha.PopulationSynthesis
         [RunParameter("Random Seed", "12345", typeof(int), "A base position to have a deterministic random processes.")]
         public int RandomSeed;
 
+        [RunParameter("Expansion Factor Scale", 1.0f, "Setting this to 2 would double the number of people sampled per zone (at half the expansion factor).")]
+        public float HouseholdExpansionFactor;
+
+        private float InvHouseholdExpansion;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -112,12 +117,13 @@ namespace Tasha.PopulationSynthesis
                 return bin;
             }
 
-            internal List<KeyValuePair<int, int>> Process(int randomSeed, IZone[] zones)
+            internal List<KeyValuePair<int, int>> Process(int randomSeed, IZone[] zones, float householdExpansion)
             {
                 bool any;
                 Random random = new Random(randomSeed);
+                var rPerZone = zones.Select(z => new Random(random.Next())).ToArray();
                 var ret = new List<KeyValuePair<int, int>>();
-                var remaining = zones.Select(z => z.Population).ToArray();
+                var remaining = zones.Select(z => (int)Math.Round(z.Population * householdExpansion)).ToArray();
                 TotalExpansionFactor = DensityPool.Select(pool => pool.Sum(h => (double)h.ExpansionFactor)).ToArray();
                 do
                 {
@@ -127,7 +133,7 @@ namespace Tasha.PopulationSynthesis
                         if (ForecastZoneClassification[zone] >= 0 && remaining[zone] > 0)
                         {
                             any = true;
-                            ret.Add(Pick(random, ForecastZoneClassification[zone], zone, ref remaining[zone]));
+                            ret.Add(Pick(rPerZone[zone], ForecastZoneClassification[zone], zone, ref remaining[zone]));
                         }
                     }
                 } while (any);
@@ -143,11 +149,11 @@ namespace Tasha.PopulationSynthesis
                     throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in Pool'" + Name + "' for category " + DensityBins[densityCat].ToString() + "!"
                     + "\r\nThere were " + households.Count + " household records in that pool.");
                 }
+                int selectedIndex = 0;
                 for (int unused = 0; unused < 2; unused++)
                 {
                     var place = (float)random.NextDouble() * TotalExpansionFactor[densityCat];
                     float current = 0.0f;
-                    int selectedIndex = -1;
                     for (int i = 0; i < households.Count; i++)
                     {
                         current += households[i].ExpansionFactor;
@@ -183,6 +189,15 @@ namespace Tasha.PopulationSynthesis
                         h.ResetExpansion();
                         return h.ExpansionFactor;
                     });
+                }
+                // if there is no household with the remaining population left just give the household that was selected in the first place
+                int mustBeUnder = remaining;
+                if(!households.Any(h => h.Household.Persons.Length <= mustBeUnder))
+                {
+                    TotalExpansionFactor[densityCat] -= 1 - households[selectedIndex].ExpansionFactor;
+                    households[selectedIndex].ExpansionFactor -= 1;
+                    remaining = 0;
+                    return new KeyValuePair<int, int>(zone, hhldGlobalIndex[selectedIndex]);
                 }
                 throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in Pool'" + Name + "' for category " + DensityBins[densityCat].ToString() + "!"
                     + "\r\nThere were " + households.Count + " household records in that pool.");
@@ -265,7 +280,7 @@ namespace Tasha.PopulationSynthesis
             Parallel.For(0, PopulationPools.Length, (int i) =>
             {
                 // make sure we don't generate persons for the external zones
-                results[i] = PopulationPools[i].Process(randomSeed[i], zones);
+                results[i] = PopulationPools[i].Process(randomSeed[i], zones, HouseholdExpansionFactor);
             });
             Save(results);
         }
@@ -501,7 +516,7 @@ namespace Tasha.PopulationSynthesis
                             }
                             var workZone = persons[j].EmploymentZone;
                             var schoolZone = persons[j].SchoolZone;
-                            var personExpanded = persons[j].ExpansionFactor;
+                            var personExpanded = persons[j].ExpansionFactor * InvHouseholdExpansion;
                             if (!IsExternal(workZone))
                             {
                                 switch (persons[j].EmploymentStatus)
@@ -634,8 +649,9 @@ namespace Tasha.PopulationSynthesis
                         writer.Write(householdID);
                         writer.Write(',');
                         writer.Write(zones[zone]);
-                        // the expansion factor is always 1
-                        writer.Write(",1,");
+                        writer.Write(",");
+                        writer.Write(InvHouseholdExpansion);
+                        writer.Write(",");
                         writer.Write((int)household.DwellingType);
                         writer.Write(',');
                         writer.Write(household.Persons.Length);
@@ -681,6 +697,7 @@ namespace Tasha.PopulationSynthesis
 
         public bool RuntimeValidation(ref string error)
         {
+            InvHouseholdExpansion = 1.0f / HouseholdExpansionFactor;
             return true;
         }
     }
