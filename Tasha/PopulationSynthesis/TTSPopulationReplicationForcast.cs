@@ -69,6 +69,12 @@ namespace Tasha.PopulationSynthesis
                 }
             }
 
+            internal void ReAdjustOriginalExpansion(float scale)
+            {
+                OriginalExpansionFactor *= scale;
+                ExpansionFactor = OriginalExpansionFactor;
+            }
+
             internal void ResetExpansion()
             {
                 ExpansionFactor = OriginalExpansionFactor;
@@ -105,6 +111,11 @@ namespace Tasha.PopulationSynthesis
                 var ret = new List<KeyValuePair<int, int>>();
                 var remaining = zoneIndexes.Select((z) => (int)Math.Round(zones[z].Population * householdExpansion)).ToArray();
                 TotalExpansionFactor = Households.Sum(h => h.ExpansionFactor);
+                var populationScaleRatio = remaining.Sum() / TotalExpansionFactor;
+                foreach(var hhld in Households)
+                {
+                    hhld.ReAdjustOriginalExpansion(populationScaleRatio);
+                }
                 do
                 {
                     any = false;
