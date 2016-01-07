@@ -1383,5 +1383,90 @@ namespace TMG.Functions
                 }
             }
         }
+
+        /// <summary>
+        /// Computes the Arithmetic Geometric mean for the given values.
+        /// </summary>
+        /// <param name="x">The first parameter vector. This parameter must be non negative!</param>
+        /// <param name="y">The second parameter vector. This parameter must be non negative!</param>
+        /// <returns>The AGM for each element in the parameters</returns>
+        /// <see cref="https://en.wikipedia.org/wiki/Arithmetic–geometric_mean"/>
+        public static Vector<float> ArithmeticGeometricMean(Vector<float> x, Vector<float> y)
+        {
+            var half = new Vector<float>(0.5f);
+            var a = half * (x + y);
+            var g = Vector.SquareRoot(x * y);
+            // 5 expansions seems to be sufficient for 32-bit floating point numbers
+            for (int i = 0; i < 5; i++)
+            {
+                var tempA = half * (a + g);
+                g = Vector.SquareRoot(a * g);
+                a = tempA;
+            }
+            return a;
+        }
+
+        /// <summary>
+        /// Computes the natural logarithm for each element in x
+        /// </summary>
+        /// <param name="x">The values to compute the logarithms of</param>
+        /// <returns>The vector of logarithms</returns>
+        /// <see cref="https://en.wikipedia.org/wiki/Natural_logarithm"/>
+        public static Vector<float> Log(Vector<float> x)
+        {
+            var two = new Vector<float>(2.0f);
+            var pi = new Vector<float>((float)Math.PI);
+            var mTimesln2 = new Vector<float>(0.693147181f * 16.0f);
+            var denom = new Vector<float>(4.0f) / (x * new Vector<float>(65536.0f));
+            return (pi / (two * ArithmeticGeometricMean(Vector<float>.One, denom))) - mTimesln2;
+        }
+
+        /// <summary>
+        /// Applies log(x) for each element in the array and saves it into the destination.
+        /// </summary>
+        /// <param name="destination">Where to save the results.</param>
+        /// <param name="destIndex">An offset into the array to start saving.</param>
+        /// <param name="x">The vector to take the log of.</param>
+        /// <param name="xIndex">The offset into the array to start from.</param>
+        /// <param name="length">The number of elements to convert.</param>
+        public static void Log(float[] destination, int destIndex, float[] x, int xIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                if ((destIndex | xIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Log(new Vector<float>(x, i)).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = (float)Math.Log(x[i]);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Log(new Vector<float>(x, i + xIndex)).CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = (float)Math.Log(x[i + xIndex]);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = (float)Math.Log(x[i + xIndex]);
+                }
+            }
+        }
+
     }
 }
