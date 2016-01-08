@@ -53,6 +53,8 @@ namespace XTMF
         /// </summary>
         public event EventHandler ProjectWasExternallySaved;
 
+        public event EventHandler Saved;
+
         internal void ProjectWasExternalSaved()
         {
             // we need to reload first so the GUI knows how to rebuild the display model.
@@ -348,6 +350,11 @@ namespace XTMF
                 if (!ModelSystemModel.Save(ref error))
                 {
                     return false;
+                }
+                var e = Saved;
+                if(e != null)
+                {
+                    e(this, new EventArgs());
                 }
                 HasChanged = false;
                 return true;

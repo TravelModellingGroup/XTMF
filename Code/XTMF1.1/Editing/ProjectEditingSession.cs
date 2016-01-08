@@ -91,6 +91,8 @@ namespace XTMF
 
         public event EventHandler ModelSystemNameChanged;
 
+        public event EventHandler ModelSystemSaved;
+
         /// <summary>
         /// Attempt to rename the project.  This name must be unique.
         /// </summary>
@@ -539,10 +541,20 @@ namespace XTMF
                 {
                     this.EditingSessions[modelSystemIndex].Session = new ModelSystemEditingSession(Runtime, this, modelSystemIndex);
                     this.EditingSessions[modelSystemIndex].Session.NameChanged += Session_NameChanged;
+                    this.EditingSessions[modelSystemIndex].Session.Saved += Session_Saved; ;
                 }
                 // in either case add a reference to it.
                 this.EditingSessions[modelSystemIndex].References++;
                 return this.EditingSessions[modelSystemIndex].Session;
+            }
+        }
+
+        private void Session_Saved(object sender, EventArgs e)
+        {
+            var msSaved = ModelSystemSaved;
+            if (msSaved != null)
+            {
+                msSaved(this, e);
             }
         }
 

@@ -260,6 +260,15 @@ namespace XTMF.Gui.UserControls
             us.DataContext = us.Project;
             us.Model = new ProjectModel(us.Project, us.Session);
             us.Session.ModelSystemNameChanged += us.Session_ModelSystemNameChanged;
+            us.Session.ModelSystemSaved += us.Session_ModelSystemSaved;
+        }
+
+        private void Session_ModelSystemSaved(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Model.RefreshModelSystems();
+            });
         }
 
         private void Session_ModelSystemNameChanged(object sender, EventArgs e)
