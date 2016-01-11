@@ -408,16 +408,17 @@ namespace Tasha.Scheduler
 
         private static bool AreTogether(ITripChain f, ITripChain s)
         {
-            bool success = true;
             if (f.Trips.Count != s.Trips.Count) return false;
-            f.Trips.CoDo(s.Trips, delegate (ITrip first, ITrip second)
-           {
-               if (success && !AreTogether(first, second))
-               {
-                   success = false;
-               }
-           });
-            return success;
+            var fTrips = f.Trips;
+            var sTrips = s.Trips;
+            for (int i = 0; i < fTrips.Count; i++)
+            {
+                if (!AreTogether(fTrips[i], sTrips[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static bool AreTogether(ITrip f, ITrip s)

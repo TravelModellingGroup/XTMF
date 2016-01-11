@@ -71,16 +71,17 @@ namespace TMG.Tasha
 
         private static bool AreTogether(ITripChain f, ITripChain s)
         {
-            bool success = true;
-            if ( f.Trips.Count != s.Trips.Count ) return false;
-            f.Trips.CoDo( s.Trips, delegate(ITrip first, ITrip second)
+            if (f.Trips.Count != s.Trips.Count) return false;
+            var fTrips = f.Trips;
+            var sTrips = s.Trips;
+            for (int i = 0; i < fTrips.Count; i++)
             {
-                if ( success && !AreTogether( first, second ) )
+                if (!AreTogether(fTrips[i], sTrips[i]))
                 {
-                    success = false;
+                    return false;
                 }
-            } );
-            return success;
+            }
+            return true;
         }
 
         private static bool AreTogether(ITrip f, ITrip s)

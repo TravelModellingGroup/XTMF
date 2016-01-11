@@ -159,7 +159,7 @@ namespace Tasha.Modes
                 }
             }
 
-            V.Sort( x => x, (y, z) => y < z );
+            Array.Sort(V);
 
             //int RndChoice = Common.RandChoiceCDF(V, int.Parse(this.Configuration.Get("Seed")));
             int RndChoice = 0;

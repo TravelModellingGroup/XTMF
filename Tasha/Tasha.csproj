@@ -397,10 +397,6 @@
       <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
       <Name>Datastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FunctionalProgramming\FunctionalProgramming.csproj">
-      <Project>{75EC8DE9-B5A1-493D-8DFB-65E8DC0A6B13}</Project>
-      <Name>FunctionalProgramming</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ODCache\ODCache.csproj">
       <Project>{00444214-238A-408C-B9D0-AF9873AE1F9B}</Project>
       <Name>ODCache</Name>

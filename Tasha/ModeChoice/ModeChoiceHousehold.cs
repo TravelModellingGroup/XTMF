@@ -701,7 +701,10 @@ namespace Tasha.ModeChoice
         {
             //best mode of choice for each trip in set
             List<ITripChain>[] optimalSets = new List<ITripChain>[ModeChoice.VehicleTypes.Count];
-            optimalSets.Apply( n => n = new List<ITripChain>() );
+            for (int i = 0; i < optimalSets.Length; i++)
+            {
+                optimalSets[i] = new List<ITripChain>();
+            }
             foreach ( ITripChain tripchain in TripChains )
             {
                 int BestForVehicle = 0;

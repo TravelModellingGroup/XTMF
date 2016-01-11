@@ -118,22 +118,4 @@ public static class FunctionalProgramming
         }
         return list;
     }
-
-    public static IList<T> Sort<T, K>(this IList<T> us, Func<T, K> SelectKey, Func<K, K, bool> IsHigher)
-    {
-        int size = us.Count;
-        for ( int i = 0; i < size; i++ )
-        {
-            for ( int j = 1; j < size - i; j++ )
-            {
-                if ( IsHigher( SelectKey( us[j - 1] ), SelectKey( us[j] ) ) )
-                {
-                    T temp = us[j];
-                    us[j] = us[j - 1];
-                    us[j - 1] = temp;
-                }
-            }
-        }
-        return us;
-    }
 }

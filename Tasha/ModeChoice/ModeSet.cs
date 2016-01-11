@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Tasha.Common;
@@ -47,7 +48,7 @@ namespace Tasha.ModeChoice
             this.Chain = CopyMe.Chain;
             this.Length = CopyMe.Length;
             this.ChosenMode = new ITashaMode[this.Length];
-            this.ChosenMode.CoApply( CopyMe.ChosenMode, (n, k) => k );
+            Array.Copy(CopyMe.ChosenMode, this.ChosenMode, CopyMe.Length);
             this.U = U;
         }
 
