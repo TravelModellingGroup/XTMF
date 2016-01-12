@@ -24,7 +24,6 @@ using System.IO;
 using XTMF;
 using TMG;
 using Tasha.Common;
-using TMG.DirectCompute;
 using Datastructure;
 using System.Threading.Tasks;
 using Tasha.ModeChoice;

@@ -25,22 +25,22 @@ using XTMF;
 
 namespace TMG.GTAModel
 {
-    [ModuleInformation( Description = "<b>For test purposes only!</b><p>This code is designed to test the GPU gravity model.</p>" )]
+    [ModuleInformation(Description = "<b>For test purposes only!</b><p>This code is designed to test the GPU gravity model.</p>")]
     public class DemographicDistribution : IDemographicDistribution
     {
-        [RunParameter( "Beta", 1f, "The correlation between the different options." )]
+        [RunParameter("Beta", 1f, "The correlation between the different options.")]
         public float Beta;
 
-        [RunParameter( "Accuracy Epsilon", 0.2f, "The epsilon value used for the gravity distribution." )]
+        [RunParameter("Accuracy Epsilon", 0.2f, "The epsilon value used for the gravity distribution.")]
         public float Epsilon;
 
-        [RunParameter( "Max Iterations", 300, "The maximum number of iterations for computing the Work Location." )]
+        [RunParameter("Max Iterations", 300, "The maximum number of iterations for computing the Work Location.")]
         public int MaxIterations;
 
         [RootModule]
         public I4StepModel Root;
 
-        [RunParameter( "Simulation Time", "7:00", typeof( Time ), "The time of day the simulation will be for." )]
+        [RunParameter("Simulation Time", "7:00", typeof(Time), "The time of day the simulation will be for.")]
         public Time SimulationTime;
 
         public string Name
@@ -66,16 +66,16 @@ namespace TMG.GTAModel
             var attractionEnum = attractions.GetEnumerator();
             var catEnum = cat.GetEnumerator();
             var numberOfZones = this.Root.ZoneSystem.ZoneArray.GetFlatData().Length;
-            using ( MultiRunGPUGravityModel multiDist = new MultiRunGPUGravityModel( numberOfZones, ( (p) => this.Progress = p ), this.Epsilon, this.MaxIterations ) )
+            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var sparseFriction = zoneArray.CreateSquareTwinArray<float>();
+            float[][] friction = sparseFriction.GetFlatData();
+            var validZones = zoneArray.ValidIndexArray();
+            while (productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext())
             {
-                var zoneArray = this.Root.ZoneSystem.ZoneArray;
-                float[] friction = null;
-                while ( productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext() )
-                {
-                    yield return multiDist.ProcessFlow( ( friction = this.ComputeFriction( zoneArray.GetFlatData(), catEnum.Current, friction ) ), productionEnum.Current, attractionEnum.Current );
-                }
-                friction = null;
+                friction = this.ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
+                yield return new GravityModel(sparseFriction, ((p) => this.Progress = p), this.Epsilon, this.MaxIterations).ProcessFlow(productionEnum.Current, attractionEnum.Current, validZones);
             }
+            friction = null;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -83,61 +83,44 @@ namespace TMG.GTAModel
             return true;
         }
 
-        private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] friction)
+        private float[][] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[][] friction)
         {
             var numberOfZones = zones.Length;
-            float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
             var rootModes = this.Root.Modes;
             var numberOfModes = rootModes.Count;
-            var minFrictionInc = (float)Math.Exp( -10 );
+            var minFrictionInc = (float)Math.Exp(-10);
             // initialize the category so we can compute the friction
             cat.InitializeDemographicCategory();
-            try
-            {
-                Parallel.For( 0, numberOfZones, delegate(int i)
-                {
-                    int index = i * numberOfZones;
-                    var origin = zones[i];
-                    int vIndex = i * numberOfZones * numberOfModes;
-                    for ( int j = 0; j < numberOfZones; j++ )
-                    {
-                        double logsum = 0f;
-                        var destination = zones[j];
-                        int feasibleModes = 0;
-                        for ( int mIndex = 0; mIndex < numberOfModes; mIndex++ )
-                        {
-                            var mode = rootModes[mIndex];
-                            if ( !mode.Feasible( origin, zones[j], this.SimulationTime ) )
-                            {
-                                vIndex++;
-                                continue;
-                            }
-                            feasibleModes++;
-                            var inc = mode.CalculateV( origin, zones[j], this.SimulationTime );
-                            if ( float.IsNaN( inc ) )
-                            {
-                                continue;
-                            }
-                            logsum += Math.Exp( inc );
-                        }
-                        ret[index++] = (float)Math.Pow( logsum, this.Beta );
-                    }
-                } );
-            }
-            catch ( AggregateException e )
-            {
-                if ( e.InnerException is XTMFRuntimeException )
-                {
-                    throw e.InnerException;
-                }
-                else
-                {
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                }
-            }
-
-            // Use the Log-Sum from the V's as the impedence function
-            return ret;
+            Parallel.For(0, numberOfZones, delegate (int i)
+           {
+               var origin = zones[i];
+               int vIndex = i * numberOfZones * numberOfModes;
+               for (int j = 0; j < numberOfZones; j++)
+               {
+                   double logsum = 0f;
+                   var destination = zones[j];
+                   int feasibleModes = 0;
+                   for (int mIndex = 0; mIndex < numberOfModes; mIndex++)
+                   {
+                       var mode = rootModes[mIndex];
+                       if (!mode.Feasible(origin, zones[j], this.SimulationTime))
+                       {
+                           vIndex++;
+                           continue;
+                       }
+                       feasibleModes++;
+                       var inc = mode.CalculateV(origin, zones[j], this.SimulationTime);
+                       if (float.IsNaN(inc))
+                       {
+                           continue;
+                       }
+                       logsum += Math.Exp(inc);
+                   }
+                   friction[i][j] = (float)Math.Pow(logsum, this.Beta);
+               }
+           });
+            // Use the Log-Sum from the V's as the impedance function
+            return friction;
         }
     }
 }

@@ -331,10 +331,6 @@
       <Project>{4129E4DB-412B-493A-BDA1-F0C367EE1F6F}</Project>
       <Name>TMG.Functions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TMG.GPU\TMG.GPU.vcxproj">
-      <Project>{BAAA5756-479D-4499-9FE7-504443C2D471}</Project>
-      <Name>TMG.DirectCompute</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj">
       <Project>{036AE224-AA65-4C4C-A29F-502DED239A84}</Project>
       <Name>TMGInterfaces</Name>

@@ -115,8 +115,6 @@
     <Compile Include="Fratar.cs" />
     <Compile Include="MirrorModeTree.cs" />
     <Compile Include="ModelSystemReflection.cs" />
-    <Compile Include="MultiRunGPUGravityModel.cs" />
-    <Compile Include="GPUGravityModel.cs" />
     <Compile Include="GravityModel.cs" />
     <Compile Include="PerformanceTesting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -131,10 +129,6 @@
     <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
       <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
       <Name>Datastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TMG.GPU\TMG.GPU.vcxproj">
-      <Project>{baaa5756-479d-4499-9fe7-504443c2d471}</Project>
-      <Name>TMG.DirectCompute</Name>
     </ProjectReference>
     <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj">
       <Project>{036AE224-AA65-4C4C-A29F-502DED239A84}</Project>
