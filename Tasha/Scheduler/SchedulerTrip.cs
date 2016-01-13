@@ -57,13 +57,21 @@ namespace Tasha.Scheduler
             Purpose = episode.ActivityType;
         }
 
+        private Time _ActivityStartTime;
         /// <summary>
         /// What time does this trip start at?
         /// </summary>
         public Time ActivityStartTime
         {
-            get;
-            internal set;
+            get
+            {
+                return _ActivityStartTime;
+            }
+            internal set
+            {
+                _ActivityStartTime = value;
+                RecalculateTripStartTime = true;
+            }
         }
 
         public char cPurpose
@@ -90,10 +98,18 @@ namespace Tasha.Scheduler
             set;
         }
 
+        private ITashaMode _Mode;
         public ITashaMode Mode
         {
-            get;
-            set;
+            get
+            {
+                return _Mode;
+            }
+            set
+            {
+                _Mode = value;
+                RecalculateTripStartTime = true;
+            }
         }
 
         public ITashaMode[] ModesChosen
@@ -142,18 +158,25 @@ namespace Tasha.Scheduler
             set;
         }
 
+        private bool RecalculateTripStartTime = true;
+        private Time _TripStartTime;
         public Time TripStartTime
         {
             get
             {
-                if(Mode != null)
+                if(RecalculateTripStartTime)
                 {
-                    return ActivityStartTime - Mode.TravelTime(OriginalZone, DestinationZone, ActivityStartTime);
+                    if (Mode != null)
+                    {
+                        _TripStartTime = ActivityStartTime - Mode.TravelTime(OriginalZone, DestinationZone, ActivityStartTime);
+                    }
+                    else
+                    {
+                        _TripStartTime = ActivityStartTime;
+                    }
+                    RecalculateTripStartTime = false;
                 }
-                else
-                {
-                    return ActivityStartTime;
-                }
+                return _TripStartTime;
             }
         }
 
@@ -175,33 +198,9 @@ namespace Tasha.Scheduler
                 ActivityStartTime = Time.Zero;
                 TripNumber = -1;
                 Array.Clear(ModesChosen, 0, ModesChosen.Length);
+                RecalculateTripStartTime = true;
                 Trips.Enqueue(this);
             }
-        }
-
-        public void SetActivityStartTime(Time time)
-        {
-            ActivityStartTime = time;
-        }
-
-        public void SetDestinationZone(IZone zone)
-        {
-            DestinationZone = zone;
-        }
-
-        public void SetOriginZone(IZone zone)
-        {
-            OriginalZone = zone;
-        }
-
-        internal static SchedulerTrip GetTrip(TravelEpisode episode)
-        {
-            SchedulerTrip ret;
-            if(!Trips.TryDequeue(out ret))
-            {
-                return new SchedulerTrip(episode);
-            }
-            return ret;
         }
 
         internal static SchedulerTrip GetTrip(int householdIterations)

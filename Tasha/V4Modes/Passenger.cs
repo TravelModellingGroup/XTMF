@@ -621,14 +621,21 @@ namespace Tasha.V4Modes
             Time driverActivityStartTime = driverOriginalTrip.ActivityStartTime;
             var driverTripStartTime = driverActivityStartTime - Time.FromMinutes(autoData[CalculateBaseIndex(driverOrigin, driverDestination, numberOfZones)]);
             Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
-            Time earliestPassenger = passengerActivityStartTime - MaxPassengerTimeThreshold;
             Time latestPassenger = passengerActivityStartTime + MaxPassengerTimeThreshold;
 
-            Time originalDriverTime = driverActivityStartTime - driverTripStartTime;
-            // check to see if the driver is able to get to their destination
             var timeToPassenger = Time.FromMinutes(dToPTime = autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones)]);
             var driverArrivesAt = driverTripStartTime + timeToPassenger;
             var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
+            // try to fail quickly.
+            if(latestPassenger < earliestDriver)
+            {
+                tToPD = 0.0f;
+                tToDD = 0.0f;
+                return false;
+            }
+
+            // check to see if the driver is able to get to their destination
+            Time earliestPassenger = passengerActivityStartTime - MaxPassengerTimeThreshold;
             var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
             Time overlapStart, overlapEnd;
             if(!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd))
