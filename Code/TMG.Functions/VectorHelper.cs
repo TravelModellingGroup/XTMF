@@ -438,6 +438,64 @@ namespace TMG.Functions
         }
 
         /// <summary>
+        /// Multiply first, second, and the scalar and save into the destination vector
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="destIndex"></param>
+        /// <param name="first"></param>
+        /// <param name="firstIndex"></param>
+        /// <param name="second"></param>
+        /// <param name="secondIndex"></param>
+        /// <param name="scalar"></param>
+        /// <param name="length"></param>
+        internal static void Multiply(float[] destination, int destIndex, float[] first, int firstIndex, float[] second, int secondIndex, float scalar, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                var vScalar = new Vector<float>(scalar);
+                if ((destIndex | firstIndex | secondIndex) == 0)
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(first, i);
+                        var s = new Vector<float>(second, i);
+                        (f * s * vScalar).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = first[i] * second[i] * scalar;
+                    }
+                }
+                else
+                {
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(first, i + firstIndex);
+                        var s = new Vector<float>(second, i + secondIndex);
+                        (f * s * vScalar).CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i + destIndex] = first[i + firstIndex] * second[i + secondIndex] * scalar;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[destIndex + i] = first[firstIndex + i] * second[secondIndex + i] * scalar;
+                }
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="destination"></param>

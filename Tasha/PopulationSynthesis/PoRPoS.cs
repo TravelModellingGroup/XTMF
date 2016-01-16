@@ -28,6 +28,7 @@ using Datastructure;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.IO;
+using TMG.Functions;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -96,25 +97,19 @@ namespace Tasha.PopulationSynthesis
                 var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
                 Parallel.For( 0, baseData.Length, (int i) =>
                     {
-                        float baseYearStudents = 0.0f;
                         var baseYearRow = baseData[i];
-                        for ( int j = 0; j < baseYearRow.Length; j++ )
-                        {
-                            baseYearStudents += baseYearRow[j];
-                        }
+                        float baseYearStudents = VectorHelper.Sum(baseYearRow, 0, baseYearRow.Length);
+                        var resultRow = data[i];
                         if ( baseYearStudents > 0 )
                         {
                             var factor = o[i] / baseYearStudents;
                             factors[i] = factor;
-                            var resultRow = data[i];
-                            for ( int j = 0; j < baseYearRow.Length; j++ )
-                            {
-                                resultRow[j] = baseYearRow[j] * factor;
-                            }
+                            VectorHelper.Multiply(resultRow, 0, baseYearRow, 0, factor, baseYearRow.Length);
                         }
                         else
                         {
-                            // if there were no students then success
+                            // if there were no students then we need to ensure the results are zero
+                            Array.Clear(resultRow, 0, resultRow.Length);
                             if ( o[i] == 0.0f )
                             {
                                 factors[i] = 1.0f;

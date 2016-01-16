@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -51,9 +51,10 @@ namespace TMG.Functions
         private static void VectorApply(float[] ret, float[] categoriesByOrigin, float[] friction, float[] dStar, float[] columnTotals, int categories)
         {
             var numberOfZones = columnTotals.Length;
-            Parallel.For(0, columnTotals.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                () => new float[columnTotals.Length],
-                 (int i, ParallelLoopState state, float[] localTotals) =>
+            // For now parallel has been taken out to ensure that there is no rounding error level difference between runs.  If this becomes a problem we can rebuild it with a parallel algorithm
+            // that guarantees constancy between runs.
+            // Currently the efficiency of using Multiply2Scalar1AndColumnSum beats doing parallel with 8 cores and just multiplying and then going back to calculate the column sums
+            for (int i = 0; i < numberOfZones; i++)
             {
                 for (int k = 0; k < categories; k++)
                 {
@@ -62,17 +63,9 @@ namespace TMG.Functions
                     int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
                     var sumAF = VectorHelper.MultiplyAndSum(friction, index, dStar, 0, numberOfZones);
                     if (sumAF <= 0) continue;
-                    VectorHelper.Multiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAF, localTotals, 0, numberOfZones);
+                    VectorHelper.Multiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAF, columnTotals, 0, numberOfZones);
                 }
-                return localTotals;
-            },
-                 (float[] localTotals) =>
-            {
-                lock (columnTotals)
-                {
-                    VectorHelper.Add(columnTotals, 0, columnTotals, 0, localTotals, 0, columnTotals.Length);
-                }
-            });
+            }
         }
 
         private static bool VectorBalance(float[] ret, float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon, int categories)
