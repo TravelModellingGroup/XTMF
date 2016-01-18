@@ -458,6 +458,43 @@ namespace XTMF
         /// <returns>True if there is an error.</returns>
         private bool CheckTypeForErrors(Type type, ref string error)
         {
+            return 
+                CheckForParameterDelcarationErrors(type, ref error) ||
+                CheckForNonPublicRootAndParentTags(type, ref error);
+        }
+
+ 
+        /// <summary>
+        /// Check to see if the given type uses the RootModuleAttribute or the ParentModelAttribute but do
+        /// not declare those variables public.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <param name="error">A description of the error</param>
+        /// <returns>True if there is an error, false otherwise</returns>
+        private static bool CheckForNonPublicRootAndParentTags(Type type, ref string error)
+        {
+            var failures = from t in UnifiedFieldType.GetMembers(type)
+                           where t.GetAttributes().Any(o => (o is RootModule) || (o is ParentModel)) && !t.IsPublic
+                           select t;
+            var firstFailure = failures.FirstOrDefault();
+            if(firstFailure != null)
+            {
+                error = "When analyzing the type '" + type.FullName + "' the member '" + firstFailure.Name 
+                    + "' used a header (RootModule/ParentModel) to get a value from XTMF however it is not public.  This violates the XTMF coding conventions, and will not work as expected."
+                     + "\r\nPlease close XTMF and recompile your module after correcting this issue.";
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Check the given type to make sure that the parameters that are defined are all uniquely defined.
+        /// </summary>
+        /// <param name="type">The type to check for</param>
+        /// <param name="error">A description of the issue in the code that needs to be resolved.</param>
+        /// <returns>True if there is an error, false otherwise.</returns>
+        private static bool CheckForParameterDelcarationErrors(Type type, ref string error)
+        {
             var parameters = Project.GetParameters(type).Parameters;
             for (int i = 0; i < parameters.Count - 1; i++)
             {
