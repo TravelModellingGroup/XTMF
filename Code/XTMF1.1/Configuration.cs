@@ -474,13 +474,13 @@ namespace XTMF
         private static bool CheckForNonPublicRootAndParentTags(Type type, ref string error)
         {
             var failures = from t in UnifiedFieldType.GetMembers(type)
-                           where t.GetAttributes().Any(o => (o is RootModule) || (o is ParentModel)) && !t.IsPublic
+                           where t.GetAttributes().Any(o => (o is RootModule) || (o is ParentModel) || (o is ParameterAttribute)) && !t.IsPublic
                            select t;
             var firstFailure = failures.FirstOrDefault();
             if(firstFailure != null)
             {
                 error = "When analyzing the type '" + type.FullName + "' the member '" + firstFailure.Name 
-                    + "' used a header (RootModule/ParentModel) to get a value from XTMF however it is not public.  This violates the XTMF coding conventions, and will not work as expected."
+                    + "' used a header (RootModule/ParentModel/Parameter) to get a value from XTMF however it is not public.  This violates the XTMF coding conventions, and will not work as expected."
                      + "\r\nPlease close XTMF and recompile your module after correcting this issue.";
                 return true;
             }
