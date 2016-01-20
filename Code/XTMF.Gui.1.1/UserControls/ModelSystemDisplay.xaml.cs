@@ -703,16 +703,18 @@ namespace XTMF.Gui.UserControls
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             var box = sender as TextBox;
-            BindingExpression be = box.GetBindingExpression(TextBox.TextProperty);
-            be.UpdateSource();
-            var textbox = (sender as TextBox);
-            if (textbox == null) return;
-            if (textbox.Background.IsFrozen)
+            if (box != null)
             {
-                textbox.Background = textbox.Background.CloneCurrentValue();
+                BindingExpression be = box.GetBindingExpression(TextBox.TextProperty);
+                be.UpdateSource();
+                if (box == null) return;
+                if (box.Background.IsFrozen)
+                {
+                    box.Background = box.Background.CloneCurrentValue();
+                }
+                ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                box.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
             }
-            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-            textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
         }
 
         private void SaveCurrentlySelectedParameters()
@@ -763,7 +765,6 @@ namespace XTMF.Gui.UserControls
             {
                 var shiftDown = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift);
                 var ctrlDown = e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control);
-                e.Handled = true;
                 switch (e.Key)
                 {
                     case Key.Escape:
@@ -792,10 +793,12 @@ namespace XTMF.Gui.UserControls
                             {
                                 MoveFocusNextModule(true);
                             }
+                            e.Handled = true;
                         }
                         else
                         {
                             MoveFocusNext(true);
+                            e.Handled = true;
                         }
                         break;
                     case Key.Down:
@@ -814,6 +817,7 @@ namespace XTMF.Gui.UserControls
                         {
                             MoveFocusNext(false);
                         }
+                        e.Handled = true;
                         break;
                     case Key.L:
                         if (ctrlDown)
