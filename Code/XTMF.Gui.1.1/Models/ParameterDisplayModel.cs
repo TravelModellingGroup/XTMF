@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace XTMF.Gui.Models
 {
@@ -41,7 +42,7 @@ namespace XTMF.Gui.Models
         private void RealParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var property = e.PropertyName;
-            if(e.PropertyName == "IsLinked")
+            if (e.PropertyName == "IsLinked")
             {
                 property = "LinkedParameterVisibility";
             }
@@ -73,10 +74,10 @@ namespace XTMF.Gui.Models
             set
             {
                 // only update if something changed
-                if(value != RealParameter.Value)
+                if (value != RealParameter.Value)
                 {
                     string error = null;
-                    if(!RealParameter.SetValue(value, ref error))
+                    if (!RealParameter.SetValue(value, ref error))
                     {
                         MessageBox.Show(MainWindow.Us, "We were unable to set the parameter '" + Name + "' with the value '" + value + "'.\r\n" + error, "Unable to Set Parameter",
                             MessageBoxButton.OK, MessageBoxImage.Error);
@@ -153,7 +154,7 @@ namespace XTMF.Gui.Models
         internal bool RemoveLinkedParameter(ref string error)
         {
             var lp = GetLinkedParameter();
-            if(lp == null)
+            if (lp == null)
             {
                 error = "This parameter is not in contained in a linked parameter";
                 return false;
@@ -164,6 +165,42 @@ namespace XTMF.Gui.Models
         internal bool ResetToDefault(ref string error)
         {
             return RealParameter.SetToDefault(ref error);
+        }
+
+        public bool IsEnumeration
+        {
+            get
+            {
+                return RealParameter.Type.IsEnum;
+            }
+        }
+
+        public string[] PossibleEnumerationValues
+        {
+            get
+            {
+                return RealParameter.Type.GetEnumNames();
+            }
+        }
+    }
+
+    public class ParameterTypeSelector : DataTemplateSelector
+    {
+        public DataTemplate Enumeration { get; set; }
+
+        public DataTemplate Standard { get; set; }
+
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+            var param = item as ParameterDisplayModel;
+            if (param != null)
+            {
+                if (param.IsEnumeration)
+                {
+                    return Enumeration;
+                }
+            }
+            return Standard;
         }
     }
 }
