@@ -35,6 +35,9 @@ namespace TMG.Emme.Tools
         [SubModelInformation(Required = true, Description = "The batch line edit file to apply.")]
         public FileLocation InputFile;
 
+        [SubModelInformation(Required = false, Description = "Additional batch input files. Each will be applied in order.")]
+        public FileLocation[] AdditionalBatchLineFiles;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -53,7 +56,13 @@ namespace TMG.Emme.Tools
 
         private string GetArguments()
         {
-            return string.Format("{0} \"{1}\"", ScenarioNumber, InputFile.GetFilePath());
+            return string.Format("{0} \"{1}\" \"{2}\"", ScenarioNumber, FullPath(InputFile.GetFilePath()),
+                (AdditionalBatchLineFiles.Length <= 0 ? "None" : string.Join(";", AdditionalBatchLineFiles.Select(f => FullPath(f)).ToArray())));
+        }
+
+        private static string FullPath(string fileName)
+        {
+            return System.IO.Path.GetFullPath(fileName);
         }
 
         public bool RuntimeValidation(ref string error)
