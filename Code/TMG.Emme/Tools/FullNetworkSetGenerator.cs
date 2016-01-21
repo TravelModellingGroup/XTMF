@@ -46,6 +46,9 @@ namespace TMG.Emme.Tools
         [SubModelInformation(Required = false, Description = "A path to the batch edit file.")]
         public FileLocation BatchEditFile;
 
+        [SubModelInformation(Required = false, Description = "Additional files containing how to modify transit schedules. Each will be applied in order.")]
+        public FileLocation[] AdditionalTransitAlternativeTable;
+
         [RunParameter("Default Aggregation", "Naive", typeof(Aggregation), "The default aggregation to apply.")]
         public Aggregation DefaultAggregation;
 
@@ -148,9 +151,12 @@ namespace TMG.Emme.Tools
                                     StopFilterAttribute,
                                     ConnectorFilterAttribute,
                                     "\"" + AttributeAggregator + "\"",
-                                    "\"" + LineFilterExpression + "\""
+                                    "\"" + LineFilterExpression + "\"",
+                                    (AdditionalTransitAlternativeTable.Length <= 0 ? "None" : string.Join(";", AdditionalTransitAlternativeTable.Select(f => GetFileLocationOrNone(f)).ToArray()))
                                     );
         }
+
+
 
         private string GetTimePeriodScenarioParameters()
         {

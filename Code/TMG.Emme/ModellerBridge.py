@@ -414,7 +414,8 @@ class XTMFBridge:
             parameterList = self.BreakIntoParametersStrings(parameterString)
             parameterList = self.ConvertIntoTypes(parameterList, toolParameterTypes)
             if parameterList == None:
-                _m.logbook_write("We were unable to create the parameters to their given types, or there was the wrong number of arguments.")
+                _m.logbook_write("We were unable to create the parameters to their given types, or there was the wrong number of arguments for the tool "+macroName+".")
+                _m.logbook_write("The parameter string was \r\n" + parameterString)
                 self.SendParameterError("The module \"" + macroName + "\" was executed with the wrong number of arguments or of invalid types.")
                 return
             parameterNames = inspect.getargspec(tool.__call__)[0][1:]
