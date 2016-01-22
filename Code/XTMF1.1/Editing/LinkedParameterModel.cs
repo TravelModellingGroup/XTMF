@@ -164,8 +164,7 @@ namespace XTMF
                     {
                         change.OriginalIndex = change.OriginalContainedIn.NoCommandRemove(toAdd);
                     }
-                    NoCommandAdd(toAdd, (change.Index = ParameterModels.Count));
-                    return true;
+                    return NoCommandAdd(toAdd, (change.Index = ParameterModels.Count), ref e);
                 },
                 // undo
                 (ref string e) =>
@@ -173,14 +172,13 @@ namespace XTMF
                     NoCommandRemove(toAdd);
                     if(change.OriginalContainedIn != null)
                     {
-                        change.OriginalContainedIn.NoCommandAdd(toAdd, change.OriginalIndex);
+                        return change.OriginalContainedIn.NoCommandAdd(toAdd, change.OriginalIndex, ref e);
                     }
                     else
                     {
                         // if it isn't part of another linked parameter just add the value back
-                        toAdd.SetValue(originalValue, ref e);
+                        return toAdd.SetValue(originalValue, ref e);
                     }
-                    return true;
                 },
                 // redo
                 (ref string e) =>
@@ -189,21 +187,26 @@ namespace XTMF
                     {
                         change.OriginalContainedIn.NoCommandRemove(toAdd);
                     }
-                    NoCommandAdd(toAdd, change.Index);
-                    return true;
+                    return NoCommandAdd(toAdd, change.Index, ref e);
                 }
                 ), ref error);
         }
 
-        private void NoCommandAdd(ParameterModel toAdd, int index)
+        private bool NoCommandAdd(ParameterModel toAdd, int index, ref string error)
         {
             lock (ParameterModelsLock)
             {
-                string error = null;
                 ParameterModels.Insert(index, toAdd);
-                RealLinkedParameter.Add(toAdd.RealParameter, ref error);
+                // Try to add the linked parameter
+                if(!RealLinkedParameter.Add(toAdd.RealParameter, ref error))
+                {
+                    //if the add failed return that fact
+                    ParameterModels.RemoveAt(index);
+                    return false;
+                }
                 toAdd.UpdateValueFromReal();
                 toAdd.SignalIsLinkedChanged();
+                return true;
             }
         }
 
@@ -249,8 +252,7 @@ namespace XTMF
                 // undo
                 (ref string e) =>
                 {
-                    NoCommandAdd(toRemove, change.Index);
-                    return true;
+                    return NoCommandAdd(toRemove, change.Index, ref e);
                 },
                 // redo
                 (ref string e) =>
@@ -261,9 +263,9 @@ namespace XTMF
                 ), ref error);
         }
 
-        internal void AddParameterWithoutCommand(ParameterModel parameterModel)
+        internal bool AddParameterWithoutCommand(ParameterModel parameterModel, ref string error)
         {
-            NoCommandAdd(parameterModel, ParameterModels.Count);
+            return NoCommandAdd(parameterModel, ParameterModels.Count, ref error);
         }
 
         internal void RemoveParameterWithoutCommand(ParameterModel parameterToRemove)
