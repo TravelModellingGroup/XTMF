@@ -296,7 +296,10 @@ namespace XTMF
                 {
                     foreach (var containedParameters in GetParametersFromTemp(lp.Temp, beingAdded, indexOffset))
                     {
-                        lp.Real.AddParameterWithoutCommand(containedParameters);
+                        if(!lp.Real.AddParameterWithoutCommand(containedParameters, ref e))
+                        {
+                            return false;
+                        }
                         containedParameters.SignalIsLinkedChanged();
                         additions.Add(new Tuple<ParameterModel, LinkedParameterModel>(containedParameters, lp.Real));
                     }
@@ -308,7 +311,10 @@ namespace XTMF
                     newLinkedParameters.Add(newLP);
                     foreach (var containedParameters in GetParametersFromTemp(missingLp, beingAdded, indexOffset))
                     {
-                        newLP.AddParameterWithoutCommand(containedParameters);
+                        if(!newLP.AddParameterWithoutCommand(containedParameters, ref e))
+                        {
+                            return false;
+                        }
                         containedParameters.SignalIsLinkedChanged();
                     }
                 }
@@ -402,7 +408,10 @@ namespace XTMF
                 }
                 foreach (var addition in additions)
                 {
-                    addition.Item2.AddParameterWithoutCommand(addition.Item1);
+                    if(!addition.Item2.AddParameterWithoutCommand(addition.Item1, ref e))
+                    {
+                        return false;
+                    }
                 }
                 return true;
             }), ref error);
