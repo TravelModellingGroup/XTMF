@@ -215,7 +215,9 @@ namespace TMG.Estimation.AI
                     var secondDerivative = SecondDerivative(i);
                     var current = jobs[1].Parameters[i].Current;
                     int offset = i * 2 + 2;
+                    writer.Write('"');
                     writer.Write(parameters[i].Names[0]);
+                    writer.Write('"');
                     writer.Write(',');
                     writer.Write(current);
                     writer.Write(',');
