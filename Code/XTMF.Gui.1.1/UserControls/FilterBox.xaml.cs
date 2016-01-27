@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -74,11 +75,14 @@ namespace XTMF.Gui
                 _Filter = value;
                 if(ItemsSource != null)
                 {
-                    if(!ItemsSource.CanFilter)
+                    if(!ItemsSource.View.CanFilter)
                     {
-                        throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.SourceCollection.GetType().FullName);
+                        throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.View.SourceCollection.GetType().FullName);
                     }
-                    ItemsSource.Filter = new Predicate<object>(o => value(o, Box.Text));
+                    ItemsSource.Filter += (o, e) =>
+                    {
+                        e.Accepted = _Filter(e.Item, CurrentBoxText);
+                    };                  
                 }
             }
         }
@@ -87,8 +91,9 @@ namespace XTMF.Gui
         {
             set
             {
-                ItemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
-                if(_Filter != null)
+                ItemsSource = new CollectionViewSource() { Source = value.ItemsSource };
+                value.ItemsSource = ItemsSource.View;
+                if (_Filter != null)
                 {
                     Filter = _Filter;
                 }
@@ -96,16 +101,16 @@ namespace XTMF.Gui
                 {
                     if(UseItemSourceFilter)
                     {
-                        ItemsSource.Refresh();
+                        ItemsSource.View.Refresh();
                     }
                     else
                     {
-                        var items = ItemsSource.GetEnumerator();
+                        var items = ItemsSource.View.GetEnumerator();
                         using (var differ = ItemsSource.DeferRefresh())
                         {
                             while(items.MoveNext())
                             {
-                                Filter(items.Current, Box.Text);
+                                Filter(items.Current, CurrentBoxText);
                             }
                         }
                     }
@@ -149,10 +154,12 @@ namespace XTMF.Gui
             ClearFilter();
         }
 
-        private ICollectionView ItemsSource;
+        private CollectionViewSource ItemsSource;
+        private string CurrentBoxText = String.Empty;
 
         private void Box_TextChanged(object sender, TextChangedEventArgs e)
         {
+            CurrentBoxText = Box.Text;
             RefreshFilter();
             ClearFilterButton.Visibility = !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
         }
