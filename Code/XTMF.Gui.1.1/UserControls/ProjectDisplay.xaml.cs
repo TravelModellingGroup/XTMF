@@ -263,20 +263,22 @@ namespace XTMF.Gui.UserControls
             us.Session.ModelSystemSaved += us.Session_ModelSystemSaved;
         }
 
-        private void Session_ModelSystemSaved(object sender, EventArgs e)
+        private void RefreshModelSystems()
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 Model.RefreshModelSystems();
-            });
+            }));
+        }
+
+        private void Session_ModelSystemSaved(object sender, EventArgs e)
+        {
+            RefreshModelSystems();
         }
 
         private void Session_ModelSystemNameChanged(object sender, EventArgs e)
         {
-            Dispatcher.Invoke(() =>
-           {
-               Model.RefreshModelSystems();
-           });
+            RefreshModelSystems();
         }
 
         private bool FilterMS(object e, string text)

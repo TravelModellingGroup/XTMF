@@ -105,37 +105,37 @@ namespace TMG.Estimation
         {
             Progress = 0.0f;
             Status = () => "Running iteration " + (CurrentIteration + 1) + " of " + TotalIterations;
-            for(CurrentIteration = 0; !Exit & CurrentIteration < TotalIterations; CurrentIteration++)
+            for (CurrentIteration = 0; !Exit & CurrentIteration < TotalIterations; CurrentIteration++)
             {
+                Progress = (float)CurrentIteration / TotalIterations;
                 CurrentJobIndex = 0;
                 CurrentJobs = AI.CreateJobsForIteration();
                 ClientModelSystem.Start();
-                if(!SkipReportingResults)
+                if (!SkipReportingResults)
                 {
                     SaveResultsToDisk();
                 }
                 AI.IterationComplete();
-                Progress = (float)CurrentIteration / TotalIterations;
             }
             Progress = 1.0f;
         }
 
         private void SaveResultsToDisk()
         {
-            while(true)
+            while (true)
             {
                 try
                 {
                     using (var writer = new StreamWriter(ResultFile.GetFilePath(), true))
                     {
-                        if(CurrentIteration == 0)
+                        if (CurrentIteration == 0)
                         {
                             // write header here
                             StringBuilder header = new StringBuilder();
                             header.Append("Generation,Value");
-                            for(int i = 0; i < Parameters.Count; i++)
+                            for (int i = 0; i < Parameters.Count; i++)
                             {
-                                for(int j = 0; j < Parameters[i].Names.Length; j++)
+                                for (int j = 0; j < Parameters[i].Names.Length; j++)
                                 {
                                     header.Append(',');
                                     header.Append('"');
@@ -145,15 +145,15 @@ namespace TMG.Estimation
                             }
                             writer.WriteLine(header.ToString());
                         }
-                        for(int i = 0; i < CurrentJobs.Count; i++)
+                        for (int i = 0; i < CurrentJobs.Count; i++)
                         {
                             var currentJob = CurrentJobs[i];
                             writer.Write(CurrentIteration);
                             writer.Write(',');
                             writer.Write(currentJob.Value);
-                            for(int j = 0; j < currentJob.Parameters.Length; j++)
+                            for (int j = 0; j < currentJob.Parameters.Length; j++)
                             {
-                                for(int k = 0; k < Parameters[j].Names.Length; k++)
+                                for (int k = 0; k < Parameters[j].Names.Length; k++)
                                 {
                                     writer.Write(',');
                                     // this uses the i th value since they are all the same
@@ -170,7 +170,7 @@ namespace TMG.Estimation
                     Status = () => "Unable to write to results file.";
                     // let them close the file
                     System.Threading.Thread.Sleep(10);
-                    if(Exit) break;
+                    if (Exit) break;
                 }
             }
         }
@@ -181,21 +181,20 @@ namespace TMG.Estimation
             toWrite.Append(CurrentIteration);
             toWrite.Append(',');
             toWrite.Append(currentJob.Value);
-            for(int i = 0; i < currentJob.Parameters.Length; i++)
+            for (int i = 0; i < currentJob.Parameters.Length; i++)
             {
-                for(int j = 0; j < Parameters[i].Names.Length; j++)
+                for (int j = 0; j < Parameters[i].Names.Length; j++)
                 {
                     toWrite.Append(',');
                     // this uses the i th value since they are all the same
                     toWrite.Append(currentJob.Parameters[i].Current);
                 }
             }
-
         }
 
         public Job GiveJob()
         {
-            if(!Exit & CurrentJobIndex < CurrentJobs.Count)
+            if (!Exit & CurrentJobIndex < CurrentJobs.Count)
             {
                 return CurrentJobs[CurrentJobIndex];
             }
@@ -204,21 +203,22 @@ namespace TMG.Estimation
 
         public void SaveResult(float result)
         {
-            if(CurrentJobIndex < CurrentJobs.Count)
+            if (CurrentJobIndex < CurrentJobs.Count)
             {
                 CurrentJobs[CurrentJobIndex].Value = result;
                 var e = FitnessFunctionEvaluated;
-                if(e != null)
+                if (e != null)
                 {
                     e(CurrentJobs[CurrentJobIndex], CurrentIteration, result);
                 }
                 CurrentJobIndex++;
             }
+            Progress = ((float)CurrentIteration / TotalIterations) + ((float)CurrentJobIndex) / (CurrentJobs.Count * TotalIterations);
         }
 
         private void InitializeHost()
         {
-            if(HostModelSystem != null)
+            if (HostModelSystem != null)
             {
                 Status = () => "Running host model system";
                 HostModelSystem.Start();

@@ -47,7 +47,7 @@ namespace XTMF.Gui.UserControls
             Runtime = runtime;
             var projectRepository = ((ProjectRepository)runtime.Configuration.ProjectRepository);
             Loaded += ProjectsDisplay_Loaded;
-            Display.ItemsSource = projectRepository.Projects;
+            Display.ItemsSource = new XTMF.Gui.Collections.ProxyList<IProject>(projectRepository.Projects);
             projectRepository.ProjectAdded += ProjectRepository_ProjectAdded;
             projectRepository.ProjectRemoved += ProjectRepository_ProjectRemoved;
             FilterBox.Display = Display;

@@ -121,6 +121,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Collections\ProxyList.cs" />
     <Compile Include="Controllers\EditorController.cs" />
     <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -39,6 +40,7 @@ namespace XTMF.Gui
     /// </summary>
     public partial class FilterBox : UserControl
     {
+        private ICollectionView ItemsSource;
         public FilterBox()
         {
             UseItemSourceFilter = true;
@@ -72,29 +74,35 @@ namespace XTMF.Gui
             set
             {
                 _Filter = value;
-                if(ItemsSource != null)
+                if (_Display != null && ItemsSource != null)
                 {
-                    if(!ItemsSource.CanFilter)
+                    if (UseItemSourceFilter)
                     {
-                        throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.SourceCollection.GetType().FullName);
+                        if (!ItemsSource.CanFilter)
+                        {
+                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.SourceCollection.GetType().FullName);
+                        }
+
+                        ItemsSource.Filter = new Predicate<object>((o) => _Filter(o, CurrentBoxText));
                     }
-                    ItemsSource.Filter = new Predicate<object>(o => value(o, Box.Text));
                 }
             }
         }
 
+        private ItemsControl _Display;
         public ItemsControl Display
         {
             set
             {
+                _Display = value;
                 ItemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
-                if(_Filter != null)
+                if (_Filter != null)
                 {
                     Filter = _Filter;
                 }
                 Refresh = () =>
                 {
-                    if(UseItemSourceFilter)
+                    if (UseItemSourceFilter)
                     {
                         ItemsSource.Refresh();
                     }
@@ -103,7 +111,7 @@ namespace XTMF.Gui
                         var items = ItemsSource.GetEnumerator();
                         using (var differ = ItemsSource.DeferRefresh())
                         {
-                            while(items.MoveNext())
+                            while (items.MoveNext())
                             {
                                 Filter(items.Current, Box.Text);
                             }
@@ -121,9 +129,9 @@ namespace XTMF.Gui
 
         protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
-            if(e.Handled == false)
+            if (e.Handled == false)
             {
-                switch(e.Key)
+                switch (e.Key)
                 {
                     case Key.Escape:
                         e.Handled = ClearFilter();
@@ -136,7 +144,7 @@ namespace XTMF.Gui
 
         private bool ClearFilter()
         {
-            if(!string.IsNullOrWhiteSpace(Box.Text))
+            if (!string.IsNullOrWhiteSpace(Box.Text))
             {
                 Box.Text = string.Empty;
                 return true;
@@ -149,17 +157,18 @@ namespace XTMF.Gui
             ClearFilter();
         }
 
-        private ICollectionView ItemsSource;
+        private string CurrentBoxText = String.Empty;
 
         private void Box_TextChanged(object sender, TextChangedEventArgs e)
         {
+            CurrentBoxText = Box.Text;
             RefreshFilter();
             ClearFilterButton.Visibility = !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         internal void RefreshFilter()
         {
-            if(Refresh != null)
+            if (Refresh != null)
             {
                 Dispatcher.BeginInvoke(Refresh, DispatcherPriority.Input);
             }

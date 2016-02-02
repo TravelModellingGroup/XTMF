@@ -104,6 +104,7 @@ namespace XTMF
                         }
                         UpdateChildren();
                         Parameters = oldParameters;
+                        SetRealParametersToModel();
                         Dirty = oldDirty;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
                         if (oldDirty ^ IsDirty)
@@ -114,6 +115,22 @@ namespace XTMF
                         return true;
                     }, apply), ref error);
 
+                }
+            }
+        }
+
+        private void SetRealParametersToModel()
+        {
+            var parameters = RealModelSystemStructure.Parameters;
+            if (parameters != null)
+            {
+                foreach (var realParmameter in parameters.Parameters)
+                {
+                    var name = realParmameter.Name;
+
+                    realParmameter.Value = (from p in Parameters.Parameters
+                                            where p.Name == name
+                                            select p.Value).First();
                 }
             }
         }
@@ -887,7 +904,15 @@ namespace XTMF
 
         private ObservableCollection<ModelSystemStructureModel> CreateChildren(ModelSystemEditingSession session, ModelSystemStructure realModelSystemStructure)
         {
-            if (realModelSystemStructure.Children == null) return new ObservableCollection<ModelSystemStructureModel>();
+            if (realModelSystemStructure.Children == null)
+            {
+                if(Children != null)
+                {
+                    Children.Clear();
+                    return Children;
+                }
+                return new ObservableCollection<ModelSystemStructureModel>();
+            }
 
             ObservableCollection<ModelSystemStructureModel> ret;
             if (Children == null)
