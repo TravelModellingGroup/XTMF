@@ -40,6 +40,7 @@ namespace XTMF.Gui
     /// </summary>
     public partial class FilterBox : UserControl
     {
+        private ICollectionView ItemsSource;
         public FilterBox()
         {
             UseItemSourceFilter = true;
@@ -73,44 +74,46 @@ namespace XTMF.Gui
             set
             {
                 _Filter = value;
-                if(ItemsSource != null)
+                if (_Display != null && ItemsSource != null)
                 {
-                    if(!ItemsSource.View.CanFilter)
+                    if (UseItemSourceFilter)
                     {
-                        throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.View.SourceCollection.GetType().FullName);
+                        if (!ItemsSource.CanFilter)
+                        {
+                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.SourceCollection.GetType().FullName);
+                        }
+
+                        ItemsSource.Filter = new Predicate<object>((o) => _Filter(o, CurrentBoxText));
                     }
-                    ItemsSource.Filter += (o, e) =>
-                    {
-                        e.Accepted = _Filter(e.Item, CurrentBoxText);
-                    };                  
                 }
             }
         }
 
+        private ItemsControl _Display;
         public ItemsControl Display
         {
             set
             {
-                ItemsSource = new CollectionViewSource() { Source = value.ItemsSource };
-                value.ItemsSource = ItemsSource.View;
+                _Display = value;
+                ItemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
                 if (_Filter != null)
                 {
                     Filter = _Filter;
                 }
                 Refresh = () =>
                 {
-                    if(UseItemSourceFilter)
+                    if (UseItemSourceFilter)
                     {
-                        ItemsSource.View.Refresh();
+                        ItemsSource.Refresh();
                     }
                     else
                     {
-                        var items = ItemsSource.View.GetEnumerator();
+                        var items = ItemsSource.GetEnumerator();
                         using (var differ = ItemsSource.DeferRefresh())
                         {
-                            while(items.MoveNext())
+                            while (items.MoveNext())
                             {
-                                Filter(items.Current, CurrentBoxText);
+                                Filter(items.Current, Box.Text);
                             }
                         }
                     }
@@ -126,9 +129,9 @@ namespace XTMF.Gui
 
         protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
-            if(e.Handled == false)
+            if (e.Handled == false)
             {
-                switch(e.Key)
+                switch (e.Key)
                 {
                     case Key.Escape:
                         e.Handled = ClearFilter();
@@ -141,7 +144,7 @@ namespace XTMF.Gui
 
         private bool ClearFilter()
         {
-            if(!string.IsNullOrWhiteSpace(Box.Text))
+            if (!string.IsNullOrWhiteSpace(Box.Text))
             {
                 Box.Text = string.Empty;
                 return true;
@@ -154,7 +157,6 @@ namespace XTMF.Gui
             ClearFilter();
         }
 
-        private CollectionViewSource ItemsSource;
         private string CurrentBoxText = String.Empty;
 
         private void Box_TextChanged(object sender, TextChangedEventArgs e)
@@ -166,7 +168,7 @@ namespace XTMF.Gui
 
         internal void RefreshFilter()
         {
-            if(Refresh != null)
+            if (Refresh != null)
             {
                 Dispatcher.BeginInvoke(Refresh, DispatcherPriority.Input);
             }
