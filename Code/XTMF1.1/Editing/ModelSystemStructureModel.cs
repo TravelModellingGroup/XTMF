@@ -121,13 +121,17 @@ namespace XTMF
 
         private void SetRealParametersToModel()
         {
-            foreach(var realParmameter in RealModelSystemStructure.Parameters.Parameters)
+            var parameters = RealModelSystemStructure.Parameters;
+            if (parameters != null)
             {
-                var name = realParmameter.Name;
+                foreach (var realParmameter in parameters.Parameters)
+                {
+                    var name = realParmameter.Name;
 
-                realParmameter.Value = (from p in Parameters.Parameters
-                                        where p.Name == name
-                                        select p.Value).First();
+                    realParmameter.Value = (from p in Parameters.Parameters
+                                            where p.Name == name
+                                            select p.Value).First();
+                }
             }
         }
 
