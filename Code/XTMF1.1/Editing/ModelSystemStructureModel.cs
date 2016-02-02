@@ -104,6 +104,7 @@ namespace XTMF
                         }
                         UpdateChildren();
                         Parameters = oldParameters;
+                        SetRealParametersToModel();
                         Dirty = oldDirty;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
                         if (oldDirty ^ IsDirty)
@@ -115,6 +116,18 @@ namespace XTMF
                     }, apply), ref error);
 
                 }
+            }
+        }
+
+        private void SetRealParametersToModel()
+        {
+            foreach(var realParmameter in RealModelSystemStructure.Parameters.Parameters)
+            {
+                var name = realParmameter.Name;
+
+                realParmameter.Value = (from p in Parameters.Parameters
+                                        where p.Name == name
+                                        select p.Value).First();
             }
         }
 
