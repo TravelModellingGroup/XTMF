@@ -42,7 +42,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             Runtime = runtime;
             var modelSystemRepository = ((ModelSystemRepository)Runtime.Configuration.ModelSystemRepository);
-            Display.ItemsSource = modelSystemRepository.ModelSystems;
+            Display.ItemsSource = new XTMF.Gui.Collections.ProxyList<IModelSystem>(modelSystemRepository.ModelSystems);
             modelSystemRepository.ModelSystemAdded += ModelSystemRepository_ModelSystemAdded;
             modelSystemRepository.ModelSystemRemoved += ModelSystemRepository_ModelSystemRemoved;
             FilterBox.Display = Display;
