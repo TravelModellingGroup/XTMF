@@ -95,7 +95,7 @@ namespace Tasha.Data
         {
             if (resource != null)
             {
-                return resource.AquireResource<SparseTwinIndex<float>>();
+                return resource.AcquireResource<SparseTwinIndex<float>>();
             }
             dataSource.LoadData();
             var ret = dataSource.GiveData();

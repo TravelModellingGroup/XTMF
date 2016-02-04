@@ -59,9 +59,9 @@ namespace Tasha.PopulationSynthesis
 
         public void LoadData()
         {
-            var employmentForZone = EmploymentByZoneForOccEmpStat.AquireResource<SparseArray<float>>().GetFlatData();
-            var workAtHomeRates = WorkAtHomeRateByZoneForOccEmpStat.AquireResource<SparseArray<float>>().GetFlatData();
-            var externalWorkerRates = ExternalWorkerRateByZoneForByOccEmpStat.AquireResource<SparseArray<float>>().GetFlatData();
+            var employmentForZone = EmploymentByZoneForOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
+            var workAtHomeRates = WorkAtHomeRateByZoneForOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
+            var externalWorkerRates = ExternalWorkerRateByZoneForByOccEmpStat.AcquireResource<SparseArray<float>>().GetFlatData();
             var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
             var flat = data.GetFlatData();
             for(int i = 0; i < flat.Length; i++)

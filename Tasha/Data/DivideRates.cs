@@ -55,8 +55,8 @@ namespace Tasha.Data
         {
             var zoneArray = this.Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            var firstRate = this.FirstRateToApply.AquireResource<SparseArray<float>>();
-            var secondRate = this.SecondRateToApply.AquireResource<SparseArray<float>>();
+            var firstRate = this.FirstRateToApply.AcquireResource<SparseArray<float>>();
+            var secondRate = this.SecondRateToApply.AcquireResource<SparseArray<float>>();
             SparseArray<float> data = firstRate.CreateSimilarArray<float>();
             var flatFirst = firstRate.GetFlatData();
             var flatSecond = secondRate.GetFlatData();

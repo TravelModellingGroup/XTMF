@@ -46,7 +46,7 @@ namespace Tasha.Common
         [RunParameter("Resource Name", "UniqueName", "The unique name for this resource.")]
         public string ResourceName { get; set; }
 
-        public T AquireResource<T>()
+        public T AcquireResource<T>()
         {
             var source = DataSource as IDataSource<T>;
             if(source == null)

@@ -52,7 +52,7 @@ namespace Tasha.Data
         {
             var zoneArray = this.Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            var firstRate = this.ToNormalize.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var firstRate = this.ToNormalize.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             SparseTwinIndex<float> data;
             data = zoneArray.CreateSquareTwinArray<float>();
             var flatData = data.GetFlatData();

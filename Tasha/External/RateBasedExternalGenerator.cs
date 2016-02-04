@@ -87,8 +87,8 @@ namespace Tasha.External
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = zoneSystem.GetFlatData();
             BuildData(zones);
-            var tripChains = BaseYearTrips.AquireResource<List<ITripChain>>();
-            var basePopulation = BaseYearPopulation.AquireResource<SparseArray<float>>().GetFlatData();
+            var tripChains = BaseYearTrips.AcquireResource<List<ITripChain>>();
+            var basePopulation = BaseYearPopulation.AcquireResource<SparseArray<float>>().GetFlatData();
             var ratio = new float[zones.Length];
             for (int i = 0; i < ratio.Length; i++)
             {

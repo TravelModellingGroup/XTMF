@@ -43,9 +43,9 @@ namespace Tasha.Data
 
         public IEnumerable<ODData<float>> Read()
         {
-            var firstSparse = First.AquireResource<SparseTwinIndex<float>>();
+            var firstSparse = First.AcquireResource<SparseTwinIndex<float>>();
             var first = firstSparse.GetFlatData();
-            var second = Second.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var second = Second.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             ODData<float> point = new ODData<float>();
             for(int i = 0; i < first.Length; i++)
             {

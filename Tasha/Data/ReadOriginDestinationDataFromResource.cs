@@ -42,7 +42,7 @@ It can also read in SparseTwinIndex<float> where the O,D values will be infered 
             if ( this.OriginOnly )
             {
                 ODData<float> temp;
-                var data = this.DataResource.AquireResource<SparseArray<float>>();
+                var data = this.DataResource.AcquireResource<SparseArray<float>>();
                 temp.D = 0;
                 var validIndexes = data.ValidIndexArray();
                 var flatData = data.GetFlatData();
@@ -56,7 +56,7 @@ It can also read in SparseTwinIndex<float> where the O,D values will be infered 
             else
             {
                 ODData<float> temp;
-                var data = this.DataResource.AquireResource<SparseTwinIndex<float>>();
+                var data = this.DataResource.AcquireResource<SparseTwinIndex<float>>();
                 var flatData = data.GetFlatData();
                 for ( int i = 0; i < flatData.Length; i++ )
                 {

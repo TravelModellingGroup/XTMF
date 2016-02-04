@@ -84,7 +84,7 @@ namespace TMG.GTAModel
             var mob = this.Mobility[0].Start;
             var age = this.AgeCategoryRange[0].Start;
             var occ = this.OccupationCategory[0].Start;
-            var workerData = this.WorkerData.AquireResource<SparseArray<SparseTriIndex<float>>>().GetFlatData();
+            var workerData = this.WorkerData.AcquireResource<SparseArray<SparseTriIndex<float>>>().GetFlatData();
             var test = workerData[0];
             if ( !test.GetFlatIndex( ref emp, ref mob, ref age ) )
             {

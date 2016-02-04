@@ -52,9 +52,9 @@ namespace Tasha.Common
             set;
         }
 
-        public T AquireResource<T>()
+        public T AcquireResource<T>()
         {
-            return this.LinkedResource.AquireResource<T>();
+            return this.LinkedResource.AcquireResource<T>();
         }
 
         public bool CheckResourceType(Type dataType)

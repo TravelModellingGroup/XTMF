@@ -165,7 +165,7 @@ namespace Tasha.Data
             }
             else
             {
-                toMask = BaseDataResource.AquireResource<SparseTwinIndex<float>>();
+                toMask = BaseDataResource.AcquireResource<SparseTwinIndex<float>>();
             }
 
             return toMask;

@@ -58,7 +58,7 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            var original = OriginalData.AquireResource<SparseArray<float>>();
+            var original = OriginalData.AcquireResource<SparseArray<float>>();
             var oData = original.GetFlatData();
             var ours = original.CreateSimilarArray<float>();
             var ourData = ours.GetFlatData();

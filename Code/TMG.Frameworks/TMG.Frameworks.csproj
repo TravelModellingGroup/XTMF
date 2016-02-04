@@ -53,6 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
+    <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />
     <Compile Include="Extensibility\ExecuteInParallel.cs" />
     <Compile Include="Extensibility\LaunchProgram.cs" />
     <Compile Include="MultiRun\MultiRunModelSystem.cs" />
@@ -60,6 +62,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
+      <Project>{e0b4f1c9-d2f6-415e-b8f5-af66f23f4b87}</Project>
+      <Name>Datastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj">
       <Project>{4129e4db-412b-493a-bda1-f0c367ee1f6f}</Project>
       <Name>TMG.Functions</Name>

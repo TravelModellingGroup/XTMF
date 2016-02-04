@@ -74,9 +74,9 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var zones = this.ZoneSystem.AquireResource<IZoneSystem>().ZoneArray;
+            var zones = this.ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
             var numberOfZones = zones.GetFlatData().Length;
-            var connection = this.DatabaseConnection.AquireResource<IDbConnection>();
+            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
             float[][] populationByAge = null;
             using ( var command = connection.CreateCommand() )
             {

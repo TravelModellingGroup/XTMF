@@ -30,9 +30,9 @@ namespace XTMF
         /// <summary>
         /// Provides access to the resource
         /// </summary>
-        /// <typeparam name="T">The type of the resource to try to aquire.</typeparam>
+        /// <typeparam name="T">The type of the resource to try to acquire.</typeparam>
         /// <returns>Returns null if the resource is not of the given type, otherwise provides the resource.</returns>
-        T AquireResource<T>();
+        T AcquireResource<T>();
 
         /// <summary>
         /// Checks to see if the resource is of the given type

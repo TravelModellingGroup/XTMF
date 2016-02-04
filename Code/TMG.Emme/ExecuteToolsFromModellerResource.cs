@@ -35,7 +35,7 @@ namespace TMG.Emme
 
         public void Start()
         {
-            var modeller = this.EmmeModeller.AquireResource<ModellerController>();
+            var modeller = this.EmmeModeller.AcquireResource<ModellerController>();
             var tools = this.Tools;
             int i = 0;
             _Progress = () => ( ( (float)i / tools.Length ) + tools[i].Progress * ( 1.0f / tools.Length ) );

@@ -166,7 +166,7 @@ namespace TMG.GTAModel.Modes
                 this.AccessStationUtilities.ReleaseResource();
             }
             // each iteration reload the utilities
-            this.AccessUtilities = this.AccessStationUtilities.AquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
+            this.AccessUtilities = this.AccessStationUtilities.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
         }
     }
 }

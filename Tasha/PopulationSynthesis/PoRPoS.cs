@@ -89,7 +89,7 @@ namespace Tasha.PopulationSynthesis
             internal void Execute()
             {
                 Console.WriteLine( "Processing '" + this.Name + "'" );
-                var results = this.Results.AquireResource<SparseTwinIndex<float>>();
+                var results = this.Results.AcquireResource<SparseTwinIndex<float>>();
                 var data = results.GetFlatData();
                 float[] o = this.StudentsByZone.GiveData().GetFlatData();
                 var baseData = this.BaseYearData.GiveData().GetFlatData();

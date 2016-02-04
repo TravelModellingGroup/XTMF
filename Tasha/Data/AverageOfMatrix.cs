@@ -64,7 +64,7 @@ namespace Tasha.Data
             }
             else
             {
-                operateOnMe = ResourceDataSource.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+                operateOnMe = ResourceDataSource.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             }
             var sum = 0.0f;
             for (int i = 0; i < operateOnMe.Length; i++)

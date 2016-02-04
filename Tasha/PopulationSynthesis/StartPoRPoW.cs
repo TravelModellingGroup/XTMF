@@ -54,7 +54,7 @@ namespace Tasha.PopulationSynthesis
             Console.WriteLine("Initializing PoRPoW Probabilities...");
             foreach(var target in ToWakeup)
             {
-                target.AquireResource<SparseTriIndex<float>>();
+                target.AcquireResource<SparseTriIndex<float>>();
             }
         }
 

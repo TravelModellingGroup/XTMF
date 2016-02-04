@@ -65,7 +65,7 @@ namespace Tasha.Data
 
         public void Start()
         {
-            var matrix = new EmmeMatrix(Root.ZoneSystem.ZoneArray, MatrixToSave.AquireResource<SparseTwinIndex<float>>().GetFlatData());
+            var matrix = new EmmeMatrix(Root.ZoneSystem.ZoneArray, MatrixToSave.AcquireResource<SparseTwinIndex<float>>().GetFlatData());
             matrix.Save(OutputFile, true);
         }
     }

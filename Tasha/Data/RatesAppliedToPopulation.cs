@@ -56,7 +56,7 @@ namespace Tasha.Data
             var zones = zoneArray.GetFlatData();
             var data = zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
-            var studentRates = this.RatesToApply.AquireResource<SparseArray<float>>();
+            var studentRates = this.RatesToApply.AcquireResource<SparseArray<float>>();
             if ( this.RatesBasedOnPD )
             {
                 for ( int i = 0; i < zones.Length; i++ )
