@@ -22,9 +22,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMG.Functions;
 using TMG.Data;
 using XTMF;
-using static TMG.Functions.ModuleHelper;
+
 
 namespace TMG.Frameworks.Data.Processing
 {
@@ -72,8 +73,8 @@ namespace TMG.Frameworks.Data.Processing
 
         public void LoadData()
         {
-            var map = GetDataFromResourceOrDatasource(ZoneMapFromDataSource, ZoneMapFromResource, UnloadZoneSource);
-            var zoneData = GetDataFromResourceOrDatasource(ODDataFromDataSource, ODDataFromResource, UnloadODDataSource).GetFlatData();
+            var map = ModuleHelper.GetDataFromResourceOrDatasource(ZoneMapFromDataSource, ZoneMapFromResource, UnloadZoneSource);
+            var zoneData = ModuleHelper.GetDataFromResourceOrDatasource(ODDataFromDataSource, ODDataFromResource, UnloadODDataSource).GetFlatData();
             var bins = map.MapValues.ToArray();
             var mapOD = SparseArray<float>.CreateSparseArray(bins, null).CreateSquareTwinArray<float>();
             var flatMapData = mapOD.GetFlatData();
@@ -99,15 +100,8 @@ namespace TMG.Frameworks.Data.Processing
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!EnsureExactlyOne(this, ZoneMapFromDataSource, ZoneMapFromResource, ref error) || !EnsureTypesMatch(this, ZoneMapFromDataSource, ZoneMapFromResource, ref error))
-            {
-                return false;
-            }
-            if (!EnsureExactlyOne(this, ODDataFromDataSource, ODDataFromResource, ref error) || !EnsureTypesMatch(this, ODDataFromDataSource, ODDataFromResource, ref error))
-            {
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(ZoneMapFromDataSource, ZoneMapFromResource, ref error) 
+                && this.EnsureExactlyOneAndOfSameType(ODDataFromDataSource, ODDataFromResource, ref error);
         }
 
 

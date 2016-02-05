@@ -30,6 +30,19 @@ namespace TMG.Functions
     public static class ModuleHelper
     {
         /// <summary>
+        /// Invoke this method during runtime to ensure that only one of the two given are setup to run and that only one is available.
+        /// </summary>
+        /// <param name="caller">The method in runtime validation</param>
+        /// <param name="first">The first module to test</param>
+        /// <param name="second">The second module to test</param>
+        /// <param name="error">A description of the error if one occurs</param>
+        /// <returns>True if there is no issue, false if both are either filler out or none are.</returns>
+        public static bool EnsureExactlyOneAndOfSameType<T>(this IModule caller, IDataSource<T> dataSource, IResource resource, ref string error)
+        {
+            return caller.EnsureExactlyOne(dataSource, resource, ref error) || !caller.EnsureTypesMatch(dataSource, resource, ref error);
+        }
+
+        /// <summary>
         /// Invoke this method during runtime to ensure that only one of the two given are setup to run.
         /// </summary>
         /// <param name="caller">The method in runtime validation</param>
@@ -37,7 +50,7 @@ namespace TMG.Functions
         /// <param name="second">The second module to test</param>
         /// <param name="error">A description of the error if one occurs</param>
         /// <returns>True if there is no issue, false if both are either filler out or none are.</returns>
-        public static bool EnsureExactlyOne(IModule caller, IModule first, IModule second, ref string error)
+        public static bool EnsureExactlyOne(this IModule caller, IModule first, IModule second, ref string error)
         {
             if (!(first != null ^ second != null))
             {
@@ -63,7 +76,7 @@ namespace TMG.Functions
         /// <param name="resource">The resource to check</param>
         /// <param name="error">An error message if one occurs</param>
         /// <returns>True if there is nothing wrong, false otherwise with message.</returns>
-        public static bool EnsureTypesMatch<T>(IModule caller, IDataSource<T> dataSource, IResource resource, ref string error)
+        public static bool EnsureTypesMatch<T>(this IModule caller, IDataSource<T> dataSource, IResource resource, ref string error)
         {
             if (resource != null && !resource.CheckResourceType<T>())
             {
