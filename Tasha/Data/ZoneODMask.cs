@@ -149,41 +149,12 @@ namespace Tasha.Data
 
         private SparseTwinIndex<float> GetToMaskData()
         {
-            SparseTwinIndex<float> toMask;
-            if (BaseDataDataSource != null)
-            {
-                var needToLoad = !BaseDataDataSource.Loaded;
-                if (needToLoad)
-                {
-                    BaseDataDataSource.LoadData();
-                }
-                toMask = BaseDataDataSource.GiveData();
-                if (needToLoad)
-                {
-                    BaseDataDataSource.UnloadData();
-                }
-            }
-            else
-            {
-                toMask = BaseDataResource.AcquireResource<SparseTwinIndex<float>>();
-            }
-
-            return toMask;
+            return (ModuleHelper.GetDataFromResourceOrDatasource(BaseDataDataSource, BaseDataResource, true));
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if (BaseDataDataSource != null && BaseDataResource != null)
-            {
-                error = "In '" + Name + "' only one of Base Data DataSource or Base Data Resource should be selected for!";
-                return false;
-            }
-            if (BaseDataDataSource == null && BaseDataResource == null)
-            {
-                error = "In '" + Name + "' one of Base Data DataSource or Base Data Resource should be selected for!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(BaseDataDataSource, BaseDataResource, ref error);
         }
 
         public void UnloadData()

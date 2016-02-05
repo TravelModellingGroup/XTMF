@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text;
 using Datastructure;
 using TMG;
+using TMG.Functions;
 using XTMF;
 namespace Tasha.Data
 {
@@ -48,7 +49,11 @@ namespace Tasha.Data
             return Data;
         }
 
+        [SubModelInformation(Required = false, Description = "The original data needs to be either here or in the RawOriginalData.")]
         public IResource OriginalData;
+
+        [SubModelInformation(Required = false, Description = "The original data needs to be either here or in the OriginalData.")]
+        public IDataSource<SparseArray<float>> RawOriginalData;
 
         [RunParameter("Offset X", 0.0f, "Applied to X to offset the SCurve")]
         public float OffsetX;
@@ -58,7 +63,7 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            var original = OriginalData.AcquireResource<SparseArray<float>>();
+            var original = ModuleHelper.GetDataFromResourceOrDatasource(RawOriginalData, OriginalData);
             var oData = original.GetFlatData();
             var ours = original.CreateSimilarArray<float>();
             var ourData = ours.GetFlatData();
@@ -72,7 +77,7 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(RawOriginalData, OriginalData, ref error);
         }
 
         public void UnloadData()

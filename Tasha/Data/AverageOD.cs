@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -68,8 +68,8 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            SparseTwinIndex<float> first = GetMatrix(FirstMatrix, FirstDataSource);
-            SparseTwinIndex<float> second = GetMatrix(SecondMatrix, SecondDataSource);
+            SparseTwinIndex<float> first = ModuleHelper.GetDataFromResourceOrDatasource(FirstDataSource, FirstMatrix);
+            SparseTwinIndex<float> second = ModuleHelper.GetDataFromResourceOrDatasource(SecondDataSource, SecondMatrix);
             SparseTwinIndex<float> ret = GetResultMatrix(first);
             var data = ret.GetFlatData();
             var f = first.GetFlatData();
@@ -91,49 +91,10 @@ namespace Tasha.Data
             return Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
         }
 
-        private SparseTwinIndex<float> GetMatrix(IResource resource, IDataSource<SparseTwinIndex<float>> dataSource)
-        {
-            if (resource != null)
-            {
-                return resource.AcquireResource<SparseTwinIndex<float>>();
-            }
-            dataSource.LoadData();
-            var ret = dataSource.GiveData();
-            dataSource.UnloadData();
-            return ret;
-        }
-
         public bool RuntimeValidation(ref string error)
         {
-            if (!EnsureOne(FirstMatrix, FirstDataSource, "first", ref error))
-            {
-                return false;
-            }
-            if (!EnsureOne(SecondMatrix, SecondDataSource, "second", ref error))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private bool EnsureOne(IResource firstMatrix, IDataSource<SparseTwinIndex<float>> firstDataSource, string matrixName, ref string error)
-        {
-            if (firstMatrix != null && firstDataSource != null)
-            {
-                error = "In '" + Name + "' both matrices were defined for the " + matrixName + " matrix.  Only one can be filled out at the same time!";
-                return false;
-            }
-            if (firstMatrix == null && firstDataSource == null)
-            {
-                error = "In '" + Name + "' no matrices were defined for the " + matrixName + " matrix.  One must be filled out!";
-                return false;
-            }
-            if (firstMatrix != null && !firstMatrix.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the " + matrixName + " matrix resource was not of type IDataSource<SparseTwinIndex<float>>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(FirstDataSource, FirstMatrix, ref error)
+                && this.EnsureExactlyOneAndOfSameType(SecondDataSource, SecondMatrix, ref error);
         }
 
         public void UnloadData()
