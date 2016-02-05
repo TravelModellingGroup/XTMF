@@ -26,7 +26,7 @@ namespace XTMF.Testing
     [TestClass]
     public class CSVReaderTest
     {
-        private string[] TestCSVFileNames = new string[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv" };
+        private string[] TestCSVFileNames = new string[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv" };
 
         [TestInitialize]
         public void CreateTestEnvironment()
@@ -53,6 +53,13 @@ namespace XTMF.Testing
                     writer.WriteLine( "1,2,3,4,5" );
                     writer.WriteLine( "3,1,4,5,2" );
                     writer.WriteLine( "1.23,4.56,7.89,10.1112,0.1314" );
+                }
+                using (StreamWriter writer = new StreamWriter(TestCSVFileNames[3]))
+                {
+                    writer.WriteLine("A,B,C,D,E");
+                    writer.WriteLine("1,2,3,4,5");
+                    writer.WriteLine("3,1,4,5,2");
+                    writer.Write("1.23,4.56,7.89,10.1112,0.1314");
                 }
             }
         }
@@ -127,6 +134,29 @@ namespace XTMF.Testing
                     numberOfLines++;
                 }
                 Assert.AreEqual( 5, numberOfLines );
+            }
+        }
+
+        [TestMethod]
+        public void TestNoEnterLastLine()
+        {
+            using (CsvReader reader = new CsvReader(TestCSVFileNames[3]))
+            {
+                int columns;
+                int numberOfLines = 0;
+                while (reader.LoadLine(out columns))
+                {
+                    if ((columns == 0) & (numberOfLines != 4))
+                    {
+                        Assert.Fail("There was a blank line besides at the end of the file!");
+                    }
+                    else if (columns > 0)
+                    {
+                        Assert.AreEqual(5, columns);
+                    }
+                    numberOfLines++;
+                }
+                Assert.AreEqual(4, numberOfLines);
             }
         }
     }
