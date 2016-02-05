@@ -39,7 +39,7 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var data = this.AccessStationData.AquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
+            var data = this.AccessStationData.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
             var flatData = data.GetFlatData();
             using ( var writer = new StreamWriter( OutputFile ) )
             {

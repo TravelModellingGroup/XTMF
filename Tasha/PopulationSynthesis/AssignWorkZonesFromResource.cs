@@ -76,7 +76,7 @@ namespace Tasha.PopulationSynthesis
                             WorkerResults[i] = new float[Zones.Length];
                         }
                     }
-                    Probabilities = Linkages.AquireResource<SparseTriIndex<float>>();
+                    Probabilities = Linkages.AcquireResource<SparseTriIndex<float>>();
                     ConvertToProbabilities(Probabilities.GetFlatData());
                     Linkages.ReleaseResource();
                 }

@@ -40,7 +40,7 @@ namespace TMG.GTAModel.Analysis
         public void Start()
         {
             var zones = this.Root.ZoneSystem.ZoneArray;
-            var workerData = this.WorkerResource.AquireResource<SparseArray<SparseTriIndex<float>>>();
+            var workerData = this.WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
             var flatZones = zones.GetFlatData();
             var flatWorkerData = workerData.GetFlatData();
             using ( StreamWriter writer = new StreamWriter( this.OututFile.GetFilePath() ) )

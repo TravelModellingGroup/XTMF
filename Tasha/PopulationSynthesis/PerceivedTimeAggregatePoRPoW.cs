@@ -275,7 +275,7 @@ namespace Tasha.PopulationSynthesis
             SparseTwinIndex<float> kFactors = null;
             if (KFactors != null)
             {
-                kFactors = KFactors.AquireResource<SparseTwinIndex<float>>();
+                kFactors = KFactors.AcquireResource<SparseTwinIndex<float>>();
                 Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
                 {
                     var distanceRow = distances[i];
@@ -310,8 +310,8 @@ namespace Tasha.PopulationSynthesis
                 });
             }
 
-            SparseArray<float> employmentSeekers = EmployedPopulationResidenceByZone.AquireResource<SparseArray<float>>();
-            var jobs = CreateNormalizedJobs(employmentSeekers, JobsByZone.AquireResource<SparseArray<float>>().GetFlatData());
+            SparseArray<float> employmentSeekers = EmployedPopulationResidenceByZone.AcquireResource<SparseArray<float>>();
+            var jobs = CreateNormalizedJobs(employmentSeekers, JobsByZone.AcquireResource<SparseArray<float>>().GetFlatData());
             var results = TMG.Functions.GravityModel3D.ProduceFlows(MaxIterations, Epsilon,
                                 CreateWorkersByCategory(employmentSeekers, workerSplits),
                                 jobs, data,

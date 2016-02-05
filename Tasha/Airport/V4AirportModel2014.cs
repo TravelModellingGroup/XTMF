@@ -91,7 +91,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         /// <param name="modeSplits">The mode splits</param>
         private void SaveAuto(ModeSplitUtilities[] modeSplits)
         {
-            var data = AutoProbabilities.AquireResource<SparseArray<float>>().GetFlatData();
+            var data = AutoProbabilities.AcquireResource<SparseArray<float>>().GetFlatData();
             for(int i = 0; i < modeSplits.Length; i++)
             {
                 data[i] = modeSplits[i].Auto;
@@ -104,7 +104,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         /// <param name="modeSplits">The mode splits</param>
         private void SaveTransit(ModeSplitUtilities[] modeSplits)
         {
-            var data = TransitProbabilities.AquireResource<SparseArray<float>>().GetFlatData();
+            var data = TransitProbabilities.AcquireResource<SparseArray<float>>().GetFlatData();
             for(int i = 0; i < modeSplits.Length; i++)
             {
                 data[i] = modeSplits[i].Transit;
@@ -117,7 +117,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         /// <param name="distributions">The distributions</param>
         private void SaveDistributions(float[] distributions)
         {
-            var data = DistributionProbabilities.AquireResource<SparseArray<float>>().GetFlatData();
+            var data = DistributionProbabilities.AcquireResource<SparseArray<float>>().GetFlatData();
             for(int i = 0; i < distributions.Length; i++)
             {
                 data[i] = distributions[i];
@@ -306,11 +306,11 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         {
             if(EmploymentHasLogApplied)
             {
-                return Employment.AquireResource<SparseArray<float>>().GetFlatData().Select(x => x).ToArray();
+                return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => x).ToArray();
             }
             else
             {
-                return Employment.AquireResource<SparseArray<float>>().GetFlatData().Select(x => (float)Math.Log(x + 1)).ToArray();
+                return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => (float)Math.Log(x + 1)).ToArray();
             }
         }
 

@@ -58,12 +58,12 @@ namespace Tasha.Data
         {
             var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            var firstRate = FirstRateToApply.AquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var secondRate = SecondRateToApply.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var firstRate = FirstRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var secondRate = SecondRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             SparseTwinIndex<float> data;
             data = zoneArray.CreateSquareTwinArray<float>();
             var flatData = data.GetFlatData();
-            var dereferenced = AdditionalRates.Select(a => a.AquireResource<SparseTwinIndex<float>>().GetFlatData()).ToArray();
+            var dereferenced = AdditionalRates.Select(a => a.AcquireResource<SparseTwinIndex<float>>().GetFlatData()).ToArray();
             for (int i = 0; i < flatData.Length; i++)
             {
                 VectorHelper.Add(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);

@@ -89,8 +89,8 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var connection = this.DatabaseConnection.AquireResource<IDbConnection>();
-            var zones = this.ZoneSystem.AquireResource<IZoneSystem>();
+            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
+            var zones = this.ZoneSystem.AcquireResource<IZoneSystem>();
             using ( var command = connection.CreateCommand() )
             {
                 AddParameter( command, "@TTSYear", TTSYear, DbType.Int32 );

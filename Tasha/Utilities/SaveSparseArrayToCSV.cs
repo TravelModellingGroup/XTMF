@@ -55,7 +55,7 @@ namespace Tasha.Utilities
         public void Start()
         {
             SparseArray<float> data;
-            data = Data.AquireResource<SparseArray<float>>();
+            data = Data.AcquireResource<SparseArray<float>>();
             TMG.Functions.SaveData.SaveVector(data, OutputTo.GetFilePath());
         }
     }

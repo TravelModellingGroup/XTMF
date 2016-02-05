@@ -112,6 +112,7 @@
     <Compile Include="DataUtility\StringList.cs" />
     <Compile Include="Data\DwellingType.cs" />
     <Compile Include="Data\TreeData.cs" />
+    <Compile Include="Data\ZoneMap.cs" />
     <Compile Include="IDemographicCategoyPurpose.cs" />
     <Compile Include="IAssignment.cs" />
     <Compile Include="IDemographic4StepModelSystemTemplate.cs" />

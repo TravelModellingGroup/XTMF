@@ -113,9 +113,9 @@ namespace Tasha.XTMFScheduler
 
         public void IterationStart(int currentIteration, int totalIterations)
         {
-            this.GenerationProbability = this.AgeEmpStatOccProbability.AquireResource<SparseArray<SparseTriIndex<float>>>();
-            this.DurationProbability = this.EmpStatOccDurationProbability.AquireResource<SparseArray<SparseTriIndex<float>>>();
-            this.Ages = this.AgeResource.AquireResource<IndexedRangeSet>();
+            this.GenerationProbability = this.AgeEmpStatOccProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            this.DurationProbability = this.EmpStatOccDurationProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            this.Ages = this.AgeResource.AcquireResource<IndexedRangeSet>();
         }
 
         public bool RuntimeValidation(ref string error)

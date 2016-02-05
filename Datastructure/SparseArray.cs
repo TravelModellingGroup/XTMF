@@ -74,7 +74,7 @@ namespace Datastructure
 
         public static SparseArray<T> CreateSparseArray(int[] sparseSpace, IList<T> data)
         {
-            var length = data.Count;
+            var length = sparseSpace.Length;
             SortStruct[] indexes = new SortStruct[length];
             for(int i = 0; i < length; i++)
             {
@@ -229,9 +229,12 @@ namespace Datastructure
         {
             Array.Sort(indexes, new CompareSortStruct());
             T[] Data = new T[length];
-            for(int i = 0; i < length; i++)
+            if (data != null)
             {
-                Data[i] = data[indexes[i].DataSpace];
+                for (int i = 0; i < length; i++)
+                {
+                    Data[i] = data[indexes[i].DataSpace];
+                }
             }
             return new SparseArray<T>(GenerateIndexes(indexes), Data);
         }

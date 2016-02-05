@@ -57,7 +57,7 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var matrix = ODMatrix.AquireResource<SparseTwinIndex<float>>();
+            var matrix = ODMatrix.AcquireResource<SparseTwinIndex<float>>();
             if(ThirdNormalized)
             {
                 TMG.Functions.SaveData.SaveMatrixThirdNormalized(matrix, SaveLocation);

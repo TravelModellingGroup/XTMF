@@ -53,7 +53,7 @@ namespace Tasha.Data
         {
             var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            var resources = ResourcesToAdd.Select(resource => resource.AquireResource<SparseArray<float>>().GetFlatData()).ToArray();
+            var resources = ResourcesToAdd.Select(resource => resource.AcquireResource<SparseArray<float>>().GetFlatData()).ToArray();
             SparseArray<float> data;
             data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePDArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();

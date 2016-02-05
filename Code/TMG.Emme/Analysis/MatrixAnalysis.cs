@@ -214,7 +214,7 @@ namespace TMG.Emme.Analysis
             {
                 var ret = BuildData(headers);
                 var weightSum = BuildData(headers);
-                var weights = WeightedValuesByZone.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+                var weights = WeightedValuesByZone.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
                 // build totals
                 for(int i = 0; i < zoneToHeaderMap.Length; i++)
                 {
@@ -308,7 +308,7 @@ namespace TMG.Emme.Analysis
             string[] aggregationHeaders;
             List<int>[] zoneToAggregationMap;
             LoadMapping(out aggregationHeaders, out zoneToAggregationMap);
-            var data = AnalysisTarget.AquireResource<SparseTwinIndex<float>>();
+            var data = AnalysisTarget.AcquireResource<SparseTwinIndex<float>>();
             var aggData = AggregationToApply.ApplyAggregation(data.GetFlatData(), zoneToAggregationMap, aggregationHeaders);
             SaveData(aggData, aggregationHeaders);
         }
