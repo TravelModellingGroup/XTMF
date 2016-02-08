@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -23,9 +23,11 @@ using System.Text;
 using Datastructure;
 using TMG.Input;
 using XTMF;
+using TMG.Functions;
+
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module streams the results of the subtraction of two resources of type SparseTwinIndex<Float>.")]
     public class SubtractODResources : IReadODData<float>
     {
 
@@ -35,11 +37,17 @@ namespace Tasha.Data
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        [SubModelInformation(Required = true, Description = "The first matrix (First - Second)")]
+        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
         public IResource First;
 
-        [SubModelInformation(Required = true, Description = "The second matrix (First - Second)")]
+        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
+        public IDataSource<SparseTwinIndex<float>> FirstRaw;
+
+        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
         public IResource Second;
+
+        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
+        public IDataSource<SparseTwinIndex<float>> SecondRaw;
 
         public IEnumerable<ODData<float>> Read()
         {
@@ -61,17 +69,8 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!First.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the First resource is not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            if(!Second.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the Second resource is not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(FirstRaw, First, ref error)
+                && this.EnsureExactlyOneAndOfSameType(SecondRaw, Second, ref error);
         }
     }
 

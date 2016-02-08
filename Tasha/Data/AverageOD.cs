@@ -68,8 +68,8 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            SparseTwinIndex<float> first = ModuleHelper.GetDataFromResourceOrDatasource(FirstDataSource, FirstMatrix);
-            SparseTwinIndex<float> second = ModuleHelper.GetDataFromResourceOrDatasource(SecondDataSource, SecondMatrix);
+            SparseTwinIndex<float> first = ModuleHelper.GetDataFromDatasourceOrResource(FirstDataSource, FirstMatrix);
+            SparseTwinIndex<float> second = ModuleHelper.GetDataFromDatasourceOrResource(SecondDataSource, SecondMatrix);
             SparseTwinIndex<float> ret = GetResultMatrix(first);
             var data = ret.GetFlatData();
             var f = first.GetFlatData();

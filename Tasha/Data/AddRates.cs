@@ -36,6 +36,9 @@ namespace Tasha.Data
         [SubModelInformation(Required = false, Description = "The resources to add together.")]
         public IResource[] ResourcesToAdd;
 
+        [SubModelInformation(Required = false, Description = "The data sources to add together.")]
+        public IDataSource<SparseArray<float>>[] ResourcesToAddRaw;
+
         [RunParameter("Save by PD", true, "Should we save our combined rate by PD?  If true then all rates are treated as if by PD!")]
         public bool SaveRatesBasedOnPD;
 
@@ -53,7 +56,15 @@ namespace Tasha.Data
         {
             var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            var resources = ResourcesToAdd.Select(resource => resource.AcquireResource<SparseArray<float>>().GetFlatData()).ToArray();
+            var resources = ResourcesToAdd.Select(resource => resource.AcquireResource<SparseArray<float>>().GetFlatData()).Union(
+                    ResourcesToAddRaw.Select(source =>
+                    {
+                        source.LoadData();
+                        var ret = source.GiveData();
+                        source.UnloadData();
+                        return ret.GetFlatData();
+                    })
+                ).ToArray();
             SparseArray<float> data;
             data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePDArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();

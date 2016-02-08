@@ -94,7 +94,7 @@ namespace TMG.Functions
         /// <param name="resource">The resource to check</param>
         /// <param name="unloadData">Should the source be unloaded afterwards</param>
         /// <returns>The data from one of the modules</returns>
-        public static T GetDataFromResourceOrDatasource<T>(IDataSource<T> dataSource, IResource resource, bool unloadData = false)
+        public static T GetDataFromDatasourceOrResource<T>(IDataSource<T> dataSource, IResource resource, bool unloadData = false)
         {
             T ret;
             if (dataSource != null)

@@ -63,7 +63,7 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            var original = ModuleHelper.GetDataFromResourceOrDatasource(RawOriginalData, OriginalData);
+            var original = ModuleHelper.GetDataFromDatasourceOrResource(RawOriginalData, OriginalData);
             var oData = original.GetFlatData();
             var ours = original.CreateSimilarArray<float>();
             var ourData = ours.GetFlatData();
