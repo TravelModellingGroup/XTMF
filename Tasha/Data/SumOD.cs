@@ -55,7 +55,7 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            float[][] operateOnMe = ModuleHelper.GetDataFromResourceOrDatasource(RawDataSource, ResourceDataSource, RawDataSource != null).GetFlatData();
+            float[][] operateOnMe = ModuleHelper.GetDataFromDatasourceOrResource(RawDataSource, ResourceDataSource, RawDataSource != null).GetFlatData();
             var sum = 0.0f;
             for (int i = 0; i < operateOnMe.Length; i++)
             {

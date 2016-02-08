@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,7 +27,7 @@ using TMG.Input;
 using XTMF;
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module will take a reader and only processing the origin data will copy all data from planning districts to all zones contained.")]
     public class ConvertPDDataToZones : IDataSource<SparseArray<float>>
     {
 

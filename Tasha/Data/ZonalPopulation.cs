@@ -1,5 +1,6 @@
-﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+﻿
+/*
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -25,7 +26,7 @@ using TMG;
 using XTMF;
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module scraps the population for each zone from the zonal information and provides it in a SparseArray<float>.")]
     public class ZonalPopulation : IDataSource<SparseArray<float>>
     {
         public bool Loaded
@@ -68,12 +69,12 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-
             return true;
         }
 
         public void UnloadData()
         {
+            Data = null;
             Loaded = false;
         }
     }

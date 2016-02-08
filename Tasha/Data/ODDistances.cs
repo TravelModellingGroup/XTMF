@@ -26,7 +26,7 @@ using XTMF;
 using TMG.Functions;
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module provides an OD matrix with the distances between zonal centroids.")]
     public class ODDistances : IDataSource<SparseTwinIndex<float>>
     {
         public bool Loaded

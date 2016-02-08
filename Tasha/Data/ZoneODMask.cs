@@ -149,7 +149,7 @@ namespace Tasha.Data
 
         private SparseTwinIndex<float> GetToMaskData()
         {
-            return (ModuleHelper.GetDataFromResourceOrDatasource(BaseDataDataSource, BaseDataResource, true));
+            return (ModuleHelper.GetDataFromDatasourceOrResource(BaseDataDataSource, BaseDataResource, true));
         }
 
         public bool RuntimeValidation(ref string error)

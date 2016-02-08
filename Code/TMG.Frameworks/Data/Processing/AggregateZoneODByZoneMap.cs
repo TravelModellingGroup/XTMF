@@ -73,8 +73,8 @@ namespace TMG.Frameworks.Data.Processing
 
         public void LoadData()
         {
-            var map = ModuleHelper.GetDataFromResourceOrDatasource(ZoneMapFromDataSource, ZoneMapFromResource, UnloadZoneSource);
-            var zoneData = ModuleHelper.GetDataFromResourceOrDatasource(ODDataFromDataSource, ODDataFromResource, UnloadODDataSource).GetFlatData();
+            var map = ModuleHelper.GetDataFromDatasourceOrResource(ZoneMapFromDataSource, ZoneMapFromResource, UnloadZoneSource);
+            var zoneData = ModuleHelper.GetDataFromDatasourceOrResource(ODDataFromDataSource, ODDataFromResource, UnloadODDataSource).GetFlatData();
             var bins = map.MapValues.ToArray();
             var mapOD = SparseArray<float>.CreateSparseArray(bins, null).CreateSquareTwinArray<float>();
             var flatMapData = mapOD.GetFlatData();

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,7 +26,7 @@ using Datastructure;
 using TMG.Functions;
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module is designed to read in a SparseTwinIndex<float> (OD Matrix) and return the average of all of the cells.")]
     public class AverageOfMatrix : IDataSource<float>
     {
         public bool Loaded
@@ -55,7 +55,7 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            float[][] operateOnMe = ModuleHelper.GetDataFromResourceOrDatasource(RawDataSource, ResourceDataSource, RawDataSource != null).GetFlatData();
+            float[][] operateOnMe = ModuleHelper.GetDataFromDatasourceOrResource(RawDataSource, ResourceDataSource, RawDataSource != null).GetFlatData();
             var sum = 0.0f;
             for (int i = 0; i < operateOnMe.Length; i++)
             {

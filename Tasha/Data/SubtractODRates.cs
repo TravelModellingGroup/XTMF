@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -35,11 +35,17 @@ namespace Tasha.Data
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation(Required = true, Description = "The first Matrix (First - Second)")]
+        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
         public IResource FirstRateToApply;
 
-        [SubModelInformation(Required = true, Description = "The second Matrix (First - Second)")]
+        [SubModelInformation(Required = false, Description = "The first Matrix (raw or resource) (First - Second)")]
+        public IDataSource<SparseTwinIndex<float>> FirstRateToApplyRaw;
+
+        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
         public IResource SecondRateToApply;
+
+        [SubModelInformation(Required = false, Description = "The second Matrix (raw or resource) (First - Second)")]
+        public IDataSource<SparseTwinIndex<float>> SecondRateToApplyRaw;
 
         public SparseTwinIndex<float> GiveData()
         {
@@ -55,8 +61,8 @@ namespace Tasha.Data
         {
             var zoneArray = this.Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            var firstRate = this.FirstRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var secondRate = this.SecondRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var firstRate = ModuleHelper.GetDataFromDatasourceOrResource(FirstRateToApplyRaw, FirstRateToApply, FirstRateToApplyRaw != null).GetFlatData();
+            var secondRate = ModuleHelper.GetDataFromDatasourceOrResource(SecondRateToApplyRaw, SecondRateToApply, FirstRateToApplyRaw != null).GetFlatData();
             SparseTwinIndex<float> data;
             data = zoneArray.CreateSquareTwinArray<float>();
             var flatData = data.GetFlatData();
@@ -86,17 +92,8 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!this.FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + this.Name + "' the first rates resource is not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            if (!this.SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + this.Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(FirstRateToApplyRaw, FirstRateToApply, ref error)
+                && this.EnsureExactlyOneAndOfSameType(SecondRateToApplyRaw, SecondRateToApply, ref error);
         }
     }
 }
