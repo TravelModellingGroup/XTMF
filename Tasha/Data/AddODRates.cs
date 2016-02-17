@@ -114,7 +114,7 @@ namespace Tasha.Data
         public bool RuntimeValidation(ref string error)
         {
             if(!this.EnsureExactlyOneAndOfSameType(FirstRateToApplyRaw, FirstRateToApply, ref error) ||
-                this.EnsureExactlyOneAndOfSameType(SecondRateToApplyRaw, SecondRateToApply, ref error))
+                !this.EnsureExactlyOneAndOfSameType(SecondRateToApplyRaw, SecondRateToApply, ref error))
             {
                 return false;
             }
