@@ -41,10 +41,10 @@ namespace Tasha.Data
         [SubModelInformation(Required = false, Description = "The first Matrix")]
         public IDataSource<SparseTwinIndex<float>> FirstRateToApplyRaw;
 
-        [SubModelInformation(Required = true, Description = "The second Matrix.")]
+        [SubModelInformation(Required = false, Description = "The second Matrix.")]
         public IResource SecondRateToApply;
 
-        [SubModelInformation(Required = true, Description = "The second Matrix.")]
+        [SubModelInformation(Required = false, Description = "The second Matrix.")]
         public IDataSource<SparseTwinIndex<float>> SecondRateToApplyRaw;
 
 
