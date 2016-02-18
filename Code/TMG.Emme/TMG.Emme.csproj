@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analysis\MatrixAnalysis.cs" />
+    <Compile Include="Tools\Analysis\Transit\StrategyAnalysis\ExtractLinkTransfers.cs" />
     <Compile Include="ChainExecution.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="EmmeMatrix.cs" />
@@ -165,6 +166,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
