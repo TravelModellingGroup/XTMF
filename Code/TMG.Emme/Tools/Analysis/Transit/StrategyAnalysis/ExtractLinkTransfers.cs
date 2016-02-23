@@ -32,16 +32,16 @@ namespace TMG.Emme.Tools.Analysis.Transit.StrategyAnalysis
         [RunParameter("Scenario Number", 1, "The scenario to read the information from.")]
         public int ScenarioNumber;
 
-        [RunParameter("Demand Matrix", 1, "The matrix to use for assigning demand.")]
+        [RunParameter("Demand Matrix", 0, "The matrix to use for analysis. A value of 0 will cause the tool to search for the demand matrix used in the most recent assignment.")]
         public int DemandMatrix;
 
-        [RunParameter("Link Set", "", "A description of what links to apply this to.")]
+        [RunParameter("Link Set", "label:link1:link2", "A description of what links to apply this to. Needs to be in the form label:link1:link2. Links should be in the form 10000,10001. Separate link pair sets with a semicolon.")]
         public string LinkSet;
 
-        [RunParameter("Peak Period Factor", 0.43f, "The peak period factor to use for the assignment.")]
+        [RunParameter("Peak Period Factor", 1.0f, "The peak period factor to use. Note that the tool uses division here, so a value akin to the assignment period is expected.")]
         public float PeakPeriodFactor;
 
-        [RunParameter("Hypernetwork", false, "Set this to true if you are running this against a hyper-network")]
+        [RunParameter("Hypernetwork", false, "Set this to true if you wish to include links in the hypernetwork with the same shape.")]
         public bool Hypernetwork;
 
         [SubModelInformation(Required = true, Description = "The location to save the results to.")]
