@@ -60,7 +60,7 @@ namespace TMG.Functions
                 }
                 else
                 {
-                    error = "In '" + caller.Name + "' neither of the modules '" + first.Name + "' nor '" + second.Name + "' have been initialized!  One of these modules must be in order to continue.";
+                    error = "In '" + caller.Name + "' neither of the data modules have been initialized!  One of these modules must be in order to continue.";
                 }
                 return false;
             }
