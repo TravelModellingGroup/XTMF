@@ -49,8 +49,8 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var connection = this.DatabaseConnection.AquireResource<IDbConnection>();
-            var zones = this.ZoneSystem.AquireResource<IZoneSystem>().ZoneArray;
+            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
+            var zones = this.ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
             using ( var command = connection.CreateCommand() )
             {
                 // Gather the data

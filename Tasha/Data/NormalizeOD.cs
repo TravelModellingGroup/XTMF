@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -35,8 +35,11 @@ namespace Tasha.Data
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation(Required = true, Description = "The matrix to normalize")]
+        [SubModelInformation(Required = false, Description = "The matrix to normalize")]
         public IResource ToNormalize;
+
+        [SubModelInformation(Required = false, Description = "Optionally the raw source to normalize")]
+        public IDataSource<SparseTwinIndex<float>> RawToNormalize;
 
         public SparseTwinIndex<float> GiveData()
         {
@@ -52,7 +55,7 @@ namespace Tasha.Data
         {
             var zoneArray = this.Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            var firstRate = this.ToNormalize.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var firstRate = ModuleHelper.GetDataFromDatasourceOrResource(RawToNormalize, ToNormalize).GetFlatData();
             SparseTwinIndex<float> data;
             data = zoneArray.CreateSquareTwinArray<float>();
             var flatData = data.GetFlatData();
@@ -87,12 +90,7 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!this.ToNormalize.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + this.Name + "' the first rates resource is not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(RawToNormalize, ToNormalize, ref error);
         }
     }
 }

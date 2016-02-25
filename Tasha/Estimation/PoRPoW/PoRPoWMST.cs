@@ -126,10 +126,10 @@ namespace Tasha.Estimation.PoRPoW
                 {
                     network.LoadData();
                 }
-                truth = TruthData.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+                truth = TruthData.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
                 TruthData.ReleaseResource();
             }
-            var model = ModelData.AquireResource<SparseTriIndex<float>>().GetFlatData();
+            var model = ModelData.AcquireResource<SparseTriIndex<float>>().GetFlatData();
             var zones = ZoneSystem.ZoneArray.GetFlatData();
             // sum up the truth
             if (FirstTime || LoadTruthEveryTime)

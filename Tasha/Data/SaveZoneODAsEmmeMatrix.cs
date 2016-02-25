@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -25,10 +25,11 @@ using XTMF;
 using Datastructure;
 using TMG;
 using TMG.Input;
+using TMG.Functions;
 
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module is designed to save a matrix data source to file.")]
     public class SaveZoneODAsEmmeMatrix : ISelfContainedModule, IEmmeTool
     {
 
@@ -47,25 +48,23 @@ namespace Tasha.Data
             return true;
         }
 
-        [SubModelInformation(Required = true, Description = "The matrix resource to save.")]
+        [SubModelInformation(Required = false, Description = "The matrix resource to save.")]
         public IResource MatrixToSave;
+
+        [SubModelInformation(Required = false, Description = "Optionally a raw data source to use.")]
+        public IDataSource<SparseTwinIndex<float>> MatrixToSaveRaw;
 
         [SubModelInformation(Required = true, Description = "The place to save the file.")]
         public FileLocation OutputFile;
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!MatrixToSave.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the matrix to save was not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(MatrixToSaveRaw, MatrixToSave, ref error);
         }
 
         public void Start()
         {
-            var matrix = new EmmeMatrix(Root.ZoneSystem.ZoneArray, MatrixToSave.AquireResource<SparseTwinIndex<float>>().GetFlatData());
+            var matrix = new EmmeMatrix(Root.ZoneSystem.ZoneArray, ModuleHelper.GetDataFromDatasourceOrResource(MatrixToSaveRaw, MatrixToSave, MatrixToSaveRaw != null).GetFlatData());
             matrix.Save(OutputFile, true);
         }
     }

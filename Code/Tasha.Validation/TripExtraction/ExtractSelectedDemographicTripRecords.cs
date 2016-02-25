@@ -61,11 +61,6 @@ namespace Tasha.Validation.TripExtraction
 
         public void HouseholdComplete(ITashaHousehold household, bool success)
         {
-            
-        }
-
-        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
-        {
             if (WriteThisIteration)
             {
                 if (SelectedHouseholdZones.Contains(household.HomeZone.ZoneNumber))
@@ -81,12 +76,14 @@ namespace Tasha.Validation.TripExtraction
                             var employmentZone = empZone == null ? 0 : empZone.ZoneNumber;
                             if (SelectedEmploymentZones.Contains(employmentZone))
                             {
-                                var tripNumber = 1;
                                 foreach (var tripChain in person.TripChains)
                                 {
+                                    var tripNumber = 1;
+                                    var numberOfWorkTrips = tripChain.Trips.Count(trip => trip.Purpose == Activity.PrimaryWork || trip.Purpose == Activity.SecondaryWork || trip.Purpose == Activity.WorkBasedBusiness);
+                                    var numberOfTripInTour = tripChain.Trips.Count;
                                     foreach (var trip in tripChain.Trips)
                                     {
-                                        SaveTrip(trip, householdNumber, personNumber, tripNumber);
+                                        SaveTrip(trip, householdNumber, personNumber, tripNumber, numberOfWorkTrips, numberOfTripInTour);
                                         tripNumber++;
                                     }
                                 }
@@ -97,13 +94,20 @@ namespace Tasha.Validation.TripExtraction
             }
         }
 
+        public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
+        {
+
+        }
+
 
         private void WriteHeader()
         {
-            Writer.WriteLine("HouseholdID,PersonID,TripNumber,OriginZone,DestinationZone,Purpose,Mode,TripStartTime,ActivityStartTime,Distance");
+            var allModes = Root.AllModes;
+            Writer.Write("HouseholdID,PersonID,TripNumber,OriginZone,DestinationZone,Purpose,TripStartTime,ActivityStartTime,Distance,NumberOfWorkTrips,NumberOfTripsInTour,");
+            Writer.WriteLine(string.Join(",", allModes.Select(m => m.ModeName)));
         }
 
-        private void SaveTrip(ITrip trip, int householdNumber, int personNumber, int tripNumber)
+        private void SaveTrip(ITrip trip, int householdNumber, int personNumber, int tripNumber, int numberOfWorkTrips, int numberOfTripsInTour)
         {
             var writer = Writer;
             writer.Write(householdNumber);
@@ -118,13 +122,22 @@ namespace Tasha.Validation.TripExtraction
             writer.Write(',');
             writer.Write(GetPurposeName(trip.Purpose));
             writer.Write(',');
-            writer.Write(trip.Mode.ModeName);
-            writer.Write(',');
             writer.Write(trip.TripStartTime);
             writer.Write(',');
             writer.Write(trip.ActivityStartTime);
             writer.Write(',');
-            writer.WriteLine(GetTripDistance(trip));
+            writer.Write(GetTripDistance(trip));
+            writer.Write(',');
+            writer.Write(numberOfWorkTrips);
+            writer.Write(',');
+            writer.Write(numberOfTripsInTour);
+            var modesChosen = trip.ModesChosen;
+            for (int i = 0; i < AllModes.Length; i++)
+            {
+                writer.Write(',');
+                writer.Write(modesChosen.Count(m => m == AllModes[i]));
+            }
+            writer.WriteLine();
         }
 
         private float GetTripDistance(ITrip trip)
@@ -141,23 +154,26 @@ namespace Tasha.Validation.TripExtraction
 
         public void HouseholdStart(ITashaHousehold household, int householdIterations)
         {
-            
+
         }
 
         public void IterationFinished(int iteration, int totalIterations)
         {
-            if(WriteThisIteration)
+            if (WriteThisIteration)
             {
                 Writer.Close();
                 Writer = null;
             }
         }
 
+        private ITashaMode[] AllModes;
+
         public void IterationStarting(int iteration, int totalIterations)
         {
             WriteThisIteration = iteration == totalIterations - 1;
-            if(WriteThisIteration)
+            if (WriteThisIteration)
             {
+                AllModes = Root.AllModes.ToArray();
                 ZoneDistances = Root.ZoneSystem.Distances;
                 Writer = new StreamWriter(SaveTo);
                 WriteHeader();
@@ -171,7 +187,7 @@ namespace Tasha.Validation.TripExtraction
 
         public void Dispose()
         {
-            if(Writer != null)
+            if (Writer != null)
             {
                 Writer.Close();
                 Writer = null;

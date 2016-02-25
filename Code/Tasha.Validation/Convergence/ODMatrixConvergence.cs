@@ -98,8 +98,8 @@ namespace Tasha.Validation.Convergence
                 }
                 Writer.WriteLine(SumFirst ? ",SumOfFirst" : "");
             }
-            var first = FirstMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var second = SecondMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var first = FirstMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var second = SecondMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             float value = 0.0f;
             switch (AnalysisToRun)
             {

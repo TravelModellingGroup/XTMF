@@ -96,7 +96,7 @@ namespace TMG.GTAModel.Generation
             var age = AgeCategoryRange[0].Start;
             var mob = Mobility[0].Start;
             var emp = EmploymentStatusCategory[0].Start;
-            var data = WorkerData.AquireResource<SparseArray<SparseTriIndex<float>>>();
+            var data = WorkerData.AcquireResource<SparseArray<SparseTriIndex<float>>>();
             var flatData = data.GetFlatData();
             var test = flatData[0];
             var flatProduction = production.GetFlatData();

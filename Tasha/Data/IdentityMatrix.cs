@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -28,7 +28,7 @@ using XTMF;
 
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module proves an identity matrix which matches the same size as the zone system.")]
     public class IdentityMatrix : IDataSource<SparseTwinIndex<float>>
     {
 

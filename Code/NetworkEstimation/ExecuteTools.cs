@@ -51,7 +51,7 @@ namespace TMG.NetworkEstimation
         public void Start()
         {
             this._Progress = () => 0f;
-            var controller = this.ResourceToEmme.AquireResource<ModellerController>();
+            var controller = this.ResourceToEmme.AcquireResource<ModellerController>();
             if ( controller == null )
             {
                 throw new XTMFRuntimeException("In '' the EMME Modeller controller resource did not contain a modeller controller!");

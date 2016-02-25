@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,6 +26,7 @@ using TMG;
 using TMG.Input;
 namespace Tasha.Data
 {
+    [ModuleInformation(Description = "This module provides a way of storing a single floating point number.  It also provides the interface to set its value.")]
     public class FloatData : ISetableDataSource<float>
     {
         [RootModule]

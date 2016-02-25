@@ -309,9 +309,19 @@ namespace XTMF.Gui.UserControls
                     MessageBox.Show(GetWindow(), error, "Failed to set to Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
+                // if the selected parameter is also a quick parameter update that parameter in the quick parameters
+                UpdateQuickParameterEquivalent(displayParameter);
                 return true;
             }
             return false;
+        }
+
+        private void UpdateQuickParameterEquivalent(ParameterDisplayModel displayParameter)
+        {
+            if (displayParameter.QuickParameter)
+            {
+                QuickParameterDisplay.Items.Refresh();
+            }
         }
 
         private void RemoveFromLinkedParameter()
@@ -324,6 +334,7 @@ namespace XTMF.Gui.UserControls
                 {
                     MessageBox.Show(GetWindow(), error, "Failed to remove from Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                UpdateQuickParameterEquivalent(currentParameter);
             }
         }
 

@@ -67,7 +67,7 @@ the same size as the input data to normalize."
         {
             // Get totals by row
             var totalToNormalizeTo = GetRowTotalsFromResource(DataToNormalizeTo);
-            var inputMatrix = DataToNormalize.AquireResource<SparseTwinIndex<float>>();
+            var inputMatrix = DataToNormalize.AcquireResource<SparseTwinIndex<float>>();
             var ourMatrix = inputMatrix.GetFlatData();
             var ourTotalByRow = GetRowTotalsFromResource(DataToNormalize);
             // create inverse
@@ -93,11 +93,11 @@ the same size as the input data to normalize."
             float[] totalByRow;
             if (resource.CheckResourceType<SparseArray<float>>())
             {
-                totalByRow = resource.AquireResource<SparseArray<float>>().GetFlatData();
+                totalByRow = resource.AcquireResource<SparseArray<float>>().GetFlatData();
             }
             else
             {
-                var matrix = resource.AquireResource<SparseTwinIndex<float>>().GetFlatData();
+                var matrix = resource.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
                 totalByRow = new float[matrix.Length];
                 for (int i = 0; i < totalByRow.Length; i++)
                 {

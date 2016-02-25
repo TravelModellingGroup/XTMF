@@ -67,14 +67,17 @@ namespace Tasha.Validation
                             {
                                 if ( trip.ModesChosen[i] == null )
                                 {
-                                    this.Validate1.Write( "Problem in household #" );
-                                    this.Validate1.WriteLine( household.HouseholdId );
+                                    Validate1.Write( "UnsolvedModeChoice,Household#=" );
+                                    Validate1.WriteLine( household.HouseholdId );
                                 }
                                 else
                                 {
-                                    if ( trip.ModesChosen[i].ModeName == "Auto" )
+                                    if ( trip.ModesChosen[i].ModeName == "Auto" && !person.Licence )
                                     {
-                                        Count += 1;
+                                        Validate1.Write("NoLicenseAutoSelected,Household#=");
+                                        Validate1.Write(household.HouseholdId);
+                                        Validate1.Write("Person#=");
+                                        Validate1.WriteLine(Array.IndexOf(household.Persons,person));
                                     }
                                 }
                             }
@@ -101,7 +104,7 @@ namespace Tasha.Validation
         public void IterationStarting(int iteration)
         {
             var exist = File.Exists( FileName );
-            if ( !exist )
+            if ( Validate1 == null || !exist )
             {
                 this.Validate1 = new StreamWriter( FileName );
             }

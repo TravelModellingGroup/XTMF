@@ -95,7 +95,7 @@ namespace Tasha.Validation.PerformanceMeasures
             foreach(var timePeriod in TimePeriods)
             {
                 var totalVKT = new Dictionary<int, float>();
-                var odCostMatrix = timePeriod.ODFlatCostMatrix.AquireResource<SparseTwinIndex<float>>();
+                var odCostMatrix = timePeriod.ODFlatCostMatrix.AcquireResource<SparseTwinIndex<float>>();
                 using (CsvReader reader = new CsvReader(timePeriod.ODTripsData))
                 {
                     int columns;

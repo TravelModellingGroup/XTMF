@@ -82,6 +82,10 @@ namespace XTMF.Gui.UserControls
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ProjectDirectory");
                             Configuration.Save();
                         }
+                        else
+                        {
+                            MessageBox.Show(MainWindow.Us, "Unable to save project directory: " + error, "Unable to set directory", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                 }
             }
@@ -104,6 +108,10 @@ namespace XTMF.Gui.UserControls
                             Configuration.ModelSystemDirectory = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ModelSystemDirectory");
                             Configuration.Save();
+                        }
+                        else
+                        {
+                            MessageBox.Show(MainWindow.Us, "Unable to save model system directory: " + error, "Unable to set directory", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                 }
@@ -178,7 +186,7 @@ namespace XTMF.Gui.UserControls
         private void Select_ModelSystemDirectory(object sender, RoutedEventArgs e)
         {
             var dir = MainWindow.OpenDirectory();
-            if(dir != null)
+            if (dir != null)
             {
                 ((SettingsModel)DataContext).ModelSystemDirectory = dir;
             }

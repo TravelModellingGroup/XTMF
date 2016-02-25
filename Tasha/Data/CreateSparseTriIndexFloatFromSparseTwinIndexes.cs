@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,7 +26,7 @@ using XTMF;
 
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module provides the ability to construct SparseTriIndex<float> by building up SparseTwinIndex<float> data sources.")]
     public class CreateSparseTriIndexFloatFromSparseTwinIndexes : IDataSource<SparseTriIndex<float>>
     {
         public bool Loaded { get;set; }

@@ -74,11 +74,11 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = zoneSystem.GetFlatData();
-            var NIApop = NIAData.AquireResource<SparseArray<float>>().GetFlatData();
-            var employmentByZone = EmploymentData.AquireResource<SparseArray<float>>().GetFlatData();            
-            var AutoTimes = AutoTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var TransitIVTT = TransitIVTTMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var TotalTransitTimes = TotalTransitTimeMatrix.AquireResource<SparseTwinIndex<float>>().GetFlatData();            
+            var NIApop = NIAData.AcquireResource<SparseArray<float>>().GetFlatData();
+            var employmentByZone = EmploymentData.AcquireResource<SparseArray<float>>().GetFlatData();            
+            var AutoTimes = AutoTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var TransitIVTT = TransitIVTTMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var TotalTransitTimes = TotalTransitTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();            
 
             float[] zonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
                                            select (float)z.Population).ToArray();

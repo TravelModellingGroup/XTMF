@@ -73,8 +73,8 @@ namespace Tasha.DataExtraction
         public void Start()
         {
             float[] population = null;
-            var zoneSystem = this.ZoneSystem.AquireResource<IZoneSystem>();
-            var connection = this.DatabaseConnection.AquireResource<IDbConnection>();
+            var zoneSystem = this.ZoneSystem.AcquireResource<IZoneSystem>();
+            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
             using ( var command = connection.CreateCommand() )
             {
                 population = ExtractPopulation( command, zoneSystem.ZoneArray );

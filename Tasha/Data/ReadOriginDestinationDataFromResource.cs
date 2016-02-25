@@ -29,7 +29,7 @@ namespace Tasha.Data
     [ModuleInformation(Description=
         @"This module is designed to provide access to resources where reading from a file was expected. 
 It can read from a resource of type SparseArray<float> where it will assume the data is for the origin and only load that. 
-It can also read in SparseTwinIndex<float> where the O,D values will be infered from the data source.")]
+It can also read in SparseTwinIndex<float> where the O,D values will be inferred from the data source.")]
     public class ReadOriginDestinationDataFromResource : IReadODData<float>
     {
         [SubModelInformation( Required = true, Description = "The resource to read from." )]
@@ -42,7 +42,7 @@ It can also read in SparseTwinIndex<float> where the O,D values will be infered 
             if ( this.OriginOnly )
             {
                 ODData<float> temp;
-                var data = this.DataResource.AquireResource<SparseArray<float>>();
+                var data = this.DataResource.AcquireResource<SparseArray<float>>();
                 temp.D = 0;
                 var validIndexes = data.ValidIndexArray();
                 var flatData = data.GetFlatData();
@@ -56,7 +56,7 @@ It can also read in SparseTwinIndex<float> where the O,D values will be infered 
             else
             {
                 ODData<float> temp;
-                var data = this.DataResource.AquireResource<SparseTwinIndex<float>>();
+                var data = this.DataResource.AcquireResource<SparseTwinIndex<float>>();
                 var flatData = data.GetFlatData();
                 for ( int i = 0; i < flatData.Length; i++ )
                 {

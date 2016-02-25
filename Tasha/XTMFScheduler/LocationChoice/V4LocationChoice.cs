@@ -621,14 +621,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
             protected void CalculateUtilities()
             {
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                var pf = Parent.ProfessionalFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var pp = Parent.ProfessionalPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var gf = Parent.GeneralFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var gp = Parent.GeneralPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var sf = Parent.RetailFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var sp = Parent.RetailPartTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var mf = Parent.ManufacturingFullTime.AquireResource<SparseArray<float>>().GetFlatData();
-                var mp = Parent.ManufacturingPartTime.AquireResource<SparseArray<float>>().GetFlatData();
+                var pf = Parent.ProfessionalFullTime.AcquireResource<SparseArray<float>>().GetFlatData();
+                var pp = Parent.ProfessionalPartTime.AcquireResource<SparseArray<float>>().GetFlatData();
+                var gf = Parent.GeneralFullTime.AcquireResource<SparseArray<float>>().GetFlatData();
+                var gp = Parent.GeneralPartTime.AcquireResource<SparseArray<float>>().GetFlatData();
+                var sf = Parent.RetailFullTime.AcquireResource<SparseArray<float>>().GetFlatData();
+                var sp = Parent.RetailPartTime.AcquireResource<SparseArray<float>>().GetFlatData();
+                var mf = Parent.ManufacturingFullTime.AcquireResource<SparseArray<float>>().GetFlatData();
+                var mp = Parent.ManufacturingPartTime.AcquireResource<SparseArray<float>>().GetFlatData();
                 if (pf.Length != zones.Length)
                 {
                     throw new XTMFRuntimeException("The professional full-time employment data is not of the same size as the number of zones!");

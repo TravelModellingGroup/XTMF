@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -25,7 +25,7 @@ using TMG;
 using XTMF;
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module copies the intrazonal distances loaded into the zones to a SparseArray<float>.")]
     public class IntrazonalDistances : IDataSource<SparseArray<float>>
     {
         public bool Loaded

@@ -51,7 +51,7 @@ namespace Tasha.Validation.Data
 
         public void Execute()
         {
-            var sparse = ToOutput.AquireResource<SparseArray<float>>();
+            var sparse = ToOutput.AcquireResource<SparseArray<float>>();
             var data = sparse.GetFlatData();
             using (StreamWriter writer = new StreamWriter(OutputFile))
             {

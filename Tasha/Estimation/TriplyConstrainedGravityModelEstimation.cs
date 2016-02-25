@@ -102,7 +102,7 @@ namespace Tasha.Estimation
             {
                 ZoneSystem.LoadData();
             }
-            var truth = TruthData.AquireResource<SparseTriIndex<float>>().GetFlatData();
+            var truth = TruthData.AcquireResource<SparseTriIndex<float>>().GetFlatData();
             if (first)
             {
                 TotalTruth = truth.Select(category => category.Sum(row => VectorHelper.Sum(row, 0, row.Length))).ToArray();
@@ -124,7 +124,7 @@ namespace Tasha.Estimation
                 }
                 first = false;
             }
-            var model = ModelData.AquireResource<SparseTriIndex<float>>().GetFlatData();
+            var model = ModelData.AcquireResource<SparseTriIndex<float>>().GetFlatData();
             ModelData.ReleaseResource();
             // Normalize the model data
             float[] modelTotalByCategory = model.Select(cateogry => cateogry.Sum(row => VectorHelper.Sum(row, 0, row.Length))).ToArray();

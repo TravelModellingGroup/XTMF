@@ -75,7 +75,7 @@ namespace Tasha.Estimation.V4AirportModel2014
         private float ComputeFitness()
         {
             var fitness = 0.0;
-            var auto = AutoProbabilites.AquireResource<SparseArray<float>>().GetFlatData();
+            var auto = AutoProbabilites.AcquireResource<SparseArray<float>>().GetFlatData();
             // we only need the auto probabilities since auto + transit = 1 always.
             for(int i = 0; i < AutoProbabilities.Length; i++)
             {

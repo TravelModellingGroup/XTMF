@@ -59,7 +59,7 @@ namespace Tasha.Estimation.V4AirportModel2014
         private float ComputeFitness()
         {
             var fitness = 0.0;
-            var distributionProbability = DistributionProbabilites.AquireResource<SparseArray<float>>().GetFlatData();
+            var distributionProbability = DistributionProbabilites.AcquireResource<SparseArray<float>>().GetFlatData();
             // we only need the auto probabilities since auto + transit = 1 always.
             for(int i = 0; i < ObservedDistribution.Length; i++)
             {

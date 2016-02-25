@@ -50,7 +50,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
             public float ReturnData()
             {
-                return SummationOfResult.AquireResource<float>();
+                return SummationOfResult.AcquireResource<float>();
             }
 
             public string Name

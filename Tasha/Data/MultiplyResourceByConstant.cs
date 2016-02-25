@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -22,13 +22,18 @@ using System.Linq;
 using System.Text;
 using Datastructure;
 using XTMF;
+using TMG.Functions;
+
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module will multiply a vector by the given constant.")]
     public class MultiplyResourceByConstant : IDataSource<SparseArray<float>>
     {
-        [SubModelInformation(Required = true, Description = "The resource to multiply")]
+        [SubModelInformation(Required = false, Description = "The resource to multiply")]
         public IResource ResourceToMultiply;
+
+        [SubModelInformation(Required = false, Description = "Alternative to the resource to multiply.")]
+        public IDataSource<SparseArray<float>> RawToMultiply;
 
         [RunParameter("Factor", 1.0f, "The factor to multiply the rates by in order to produce our results.")]
         public float Factor;
@@ -53,23 +58,18 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            var resource = ResourceToMultiply.AquireResource<SparseArray<float>>();
+            var resource = ModuleHelper.GetDataFromDatasourceOrResource(RawToMultiply, ResourceToMultiply, RawToMultiply != null);
             var otherData = resource.GetFlatData();
             var ourResource = resource.CreateSimilarArray<float>();
             var data = ourResource.GetFlatData();
-            TMG.Functions.VectorHelper.Multiply(data, 0, otherData, 0, Factor, data.Length);
+            VectorHelper.Multiply(data, 0, otherData, 0, Factor, data.Length);
             Data = ourResource;
             Loaded = true;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!ResourceToMultiply.CheckResourceType<SparseArray<float>>())
-            {
-                error = "In '" + Name + "' the resource was not of type SparseArray<float>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(RawToMultiply, ResourceToMultiply, ref error);
         }
 
         public void UnloadData()

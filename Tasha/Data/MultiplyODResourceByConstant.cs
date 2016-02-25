@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -25,11 +25,14 @@ using XTMF;
 using TMG.Functions;
 namespace Tasha.Data
 {
-
+    [ModuleInformation(Description = "This module will multiply the input by a constant value.")]
     public class MultiplyODResourceByConstant : IDataSource<SparseTwinIndex<float>>
     {
-        [SubModelInformation(Required = true, Description = "The resource to multiply")]
+        [SubModelInformation(Required = false, Description = "The resource to multiply")]
         public IResource ResourceToMultiply;
+
+        [SubModelInformation(Required = false, Description = "The raw data source to multiply.  Either this or the resource must be filled out.")]
+        public IDataSource<SparseTwinIndex<float>> RawToMultiply;
 
         [RunParameter("Factor", 1.0f, "The factor to multiply the rates by in order to produce our results.")]
         public float Factor;
@@ -54,7 +57,7 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            var resource = ResourceToMultiply.AquireResource<SparseTwinIndex<float>>();
+            var resource = ModuleHelper.GetDataFromDatasourceOrResource(RawToMultiply, ResourceToMultiply, RawToMultiply != null);
             var otherData = resource.GetFlatData();
             var ourResource = resource.CreateSimilarArray<float>();
             var data = ourResource.GetFlatData();
@@ -68,12 +71,7 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!ResourceToMultiply.CheckResourceType<SparseTwinIndex<float>>())
-            {
-                error = "In '" + Name + "' the resource was not of type SparseTwinIndex<float>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(RawToMultiply, ResourceToMultiply, ref error);
         }
 
         public void UnloadData()

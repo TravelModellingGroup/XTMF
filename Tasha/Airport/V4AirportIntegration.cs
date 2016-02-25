@@ -62,8 +62,8 @@ and then apply that against the Emplanings and Deplainings for the time period."
 
         public void IncludeTally(float[][] currentTally)
         {
-            var modeProbability = ModeProbabilityArray.AquireResource<SparseArray<float>>().GetFlatData();
-            var distribution = DistributionProbabilityArray.AquireResource<SparseArray<float>>().GetFlatData();
+            var modeProbability = ModeProbabilityArray.AcquireResource<SparseArray<float>>().GetFlatData();
+            var distribution = DistributionProbabilityArray.AcquireResource<SparseArray<float>>().GetFlatData();
             var airportZone = Root.ZoneSystem.ZoneArray.GetFlatIndex(PearsonZone);
             var effectiveEmplainings = Emplainings * (1.0f / PassengersPerTrip);
             var effectiveDeplainings = Deplainings * (1.0f / PassengersPerTrip);

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -23,6 +23,8 @@ using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
+using TMG.Functions;
+
 namespace Tasha.Data
 {
     [ModuleInformation( Description =
@@ -34,8 +36,11 @@ namespace Tasha.Data
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation( Required = true, Description = "The rates to use for each planning district." )]
+        [SubModelInformation( Required = false, Description = "The rates to use for each planning district." )]
         public IResource RatesToApply;
+
+        [SubModelInformation(Required = false, Description = "An alternative source.")]
+        public IDataSource<SparseArray<float>> RatesToApplyRaw;
 
         [RunParameter( "PD Rates", true, "Are the rates based on planning districts (true) or zones (false)." )]
         public bool RatesBasedOnPD;
@@ -56,7 +61,7 @@ namespace Tasha.Data
             var zones = zoneArray.GetFlatData();
             var data = zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
-            var studentRates = this.RatesToApply.AquireResource<SparseArray<float>>();
+            var studentRates = ModuleHelper.GetDataFromDatasourceOrResource(RatesToApplyRaw, RatesToApply, RatesToApplyRaw != null);
             if ( this.RatesBasedOnPD )
             {
                 for ( int i = 0; i < zones.Length; i++ )
@@ -97,12 +102,7 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !RatesToApply.CheckResourceType<SparseArray<float>>() )
-            {
-                error = "In '" + this.Name + "' the Rates resource is not of type SparseArray<float>!";
-                return false;
-            }
-            return true;
+            return this.EnsureExactlyOneAndOfSameType(RatesToApplyRaw, RatesToApply, ref error);
         }
     }
 }

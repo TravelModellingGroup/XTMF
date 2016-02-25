@@ -77,9 +77,9 @@ namespace Tasha.PopulationSynthesis
         public void Load()
         {
             // Get our resources
-            ElementarySchoolProbabilities = ElementarySchoolProbabilitiesResource.AquireResource<SparseTwinIndex<float>>();
-            HighSchoolProbabilities = HighschoolProbabilitiesResource.AquireResource<SparseTwinIndex<float>>();
-            UniversityProbabilities = UniversityProbabilitiesResource.AquireResource<SparseTwinIndex<float>>();
+            ElementarySchoolProbabilities = ElementarySchoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+            HighSchoolProbabilities = HighschoolProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
+            UniversityProbabilities = UniversityProbabilitiesResource.AcquireResource<SparseTwinIndex<float>>();
 
             // create replicated versions for our per iteration needs
             CurrentElementarySchoolProbabilities = Replicate(ElementarySchoolProbabilities);

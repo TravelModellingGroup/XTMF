@@ -53,7 +53,7 @@
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
                                 <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                 <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
-                                               ToolTip="{Binding LinkedParameterName, Mode=OneTime}" Visibility="{Binding LinkedParameterVisibility}" />
+                                               ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}" />
                                 <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
                                                ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
                             </Grid>
@@ -97,7 +97,7 @@
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
                                 <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                 <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
-                                               ToolTip="{Binding LinkedParameterName, Mode=OneTime}" Visibility="{Binding LinkedParameterVisibility}" />
+                                               ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}" />
                                 <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
                                                ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
                             </Grid>

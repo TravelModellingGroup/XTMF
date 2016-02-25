@@ -22,6 +22,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,8 +58,25 @@ namespace XTMF
             this.ModelRepository = new ModuleRepository();
             this.ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
             LoadModules();
-            this.ModelSystemRepository = new ModelSystemRepository(this);
-            this.ProjectRepository = new ProjectRepository(this);
+            try
+            {
+                this.ModelSystemRepository = new ModelSystemRepository(this);
+            }
+            catch (Exception e)
+            {
+                LoadError = "Unable to load model system: " + e.Message;
+                LoadErrorTerminal = true;
+            }
+            
+            try
+            {
+                this.ProjectRepository = new ProjectRepository(this);
+            }
+            catch(Exception e)
+            {
+                LoadError = "Unable to load projects: " + e.Message;
+                LoadErrorTerminal = true;
+            }
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
@@ -264,6 +283,7 @@ namespace XTMF
             {
                 return false;
             }
+            
             if (!Directory.Exists(dir))
             {
                 try
@@ -281,8 +301,69 @@ namespace XTMF
                     return false;
                 }
             }
+            else
+            {
+                if (!HasFolderWritePermission(dir))
+                {
+                    error = "Unable to use directory " + dir + ". Access was denied!";
+                    return false;
+                }
+            }
             this.ProjectDirectory = dir;
             return true;
+        }
+
+        /// <summary>
+        /// Check to see if the user has access to write to the directory.
+        /// </summary>
+        /// <param name="destDir">The directory to write to.</param>
+        /// <returns>True if the user has write access</returns>
+        /// <see cref="http://stackoverflow.com/questions/1410127/c-sharp-test-if-user-has-write-access-to-a-folder"/>
+        public static bool HasFolderWritePermission(string destDir)
+        {
+            if (string.IsNullOrEmpty(destDir) || !Directory.Exists(destDir)) return false;
+            try
+            {
+                var ret = false;
+                DirectorySecurity security = Directory.GetAccessControl(destDir);
+
+                var user = WindowsIdentity.GetCurrent();
+                SecurityIdentifier currentUser = user.User;
+                foreach (AuthorizationRule rule in security.GetAccessRules(true, true, typeof(SecurityIdentifier)))
+                {
+                    FileSystemAccessRule rights = ((FileSystemAccessRule)rule);
+                    if (currentUser == rule.IdentityReference)
+                    {
+                        // user specific access overwrites and group level access so we can return immediately 
+                        if (rights.AccessControlType == AccessControlType.Allow)
+                        {
+                            if (rights.FileSystemRights == (rights.FileSystemRights | FileSystemRights.Modify)) return true;
+                        }
+                        else
+                        {
+                            // if deny
+                            if (rights.FileSystemRights == (rights.FileSystemRights | FileSystemRights.Modify)) return false;
+                        }
+                    }
+                    else if(user.Groups.Contains(rule.IdentityReference))
+                    {
+                        // if the user is in any group that is allowed then they are allowed
+                        // unless that user is specifically not allowed
+                        if (rights.AccessControlType == AccessControlType.Allow)
+                        {
+                            if (rights.FileSystemRights == (rights.FileSystemRights | FileSystemRights.Modify))
+                            {
+                                ret = true;
+                            }
+                        }
+                    }
+                }
+                return ret;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public bool SetModelSystemDirectory(string dir, ref string error)
@@ -305,6 +386,14 @@ namespace XTMF
                 catch (IOException)
                 {
                     error = "Unable to create directory " + dir + ". Unable to write to the location!";
+                    return false;
+                }
+            }
+            else
+            {
+                if (!HasFolderWritePermission(dir))
+                {
+                    error = "Unable to use directory " + dir + ". Access was denied!";
                     return false;
                 }
             }
@@ -415,6 +504,7 @@ namespace XTMF
         }
 
         public string LoadError;
+        public bool LoadErrorTerminal = false;
 
         private void LoadAssembly(Assembly assembly)
         {
@@ -536,7 +626,11 @@ namespace XTMF
                             {
                                 var dir = attribute.InnerText;
                                 string error = null;
-                                this.SetProjectDirectory(dir, ref error);
+                                if(!this.SetProjectDirectory(dir, ref error))
+                                {
+                                    LoadError = error;
+                                    LoadErrorTerminal = true;
+                                }
                             }
                         }
                         break;
@@ -547,7 +641,11 @@ namespace XTMF
                             {
                                 var dir = attribute.InnerText;
                                 string error = null;
-                                this.SetModelSystemDirectory(dir, ref error);
+                                if (!this.SetModelSystemDirectory(dir, ref error))
+                                {
+                                    LoadError = error;
+                                    LoadErrorTerminal = true;
+                                }
                             }
                         }
                         break;
