@@ -115,9 +115,8 @@
                             <SolidColorBrush Color="Black" />
                         </TextBox.CaretBrush>
                     </TextBox>-->
-                    <ComboBox Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch"
-                              PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="Black" FontSize="14"
-                                         BorderThickness="0" Height="20" Padding="10" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
+                    <ComboBox Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Foreground="Black" FontSize="14"
+                                         BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
                 </StackPanel>
             </Border>
         </DataTemplate>

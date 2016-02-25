@@ -175,11 +175,11 @@ namespace XTMF.Gui.Models
             }
         }
 
-        public string[] PossibleEnumerationValues
+        public List<string> PossibleEnumerationValues
         {
             get
             {
-                return RealParameter.Type.GetEnumNames();
+                return RealParameter.Type.GetEnumNames().ToList();
             }
         }
     }
