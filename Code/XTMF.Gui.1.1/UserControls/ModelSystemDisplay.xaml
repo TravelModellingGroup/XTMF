@@ -106,16 +106,6 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="White" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <!--<TextBox  Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
-                                             PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="Black" FontSize="14"
-                                         SelectionBrush="#0F6FC6" SelectionOpacity="0.4" BorderThickness="0" Height="20" Padding="10">
-                        <TextBox.Background>
-                            <SolidColorBrush Color="#EEEEEE" />
-                        </TextBox.Background>
-                        <TextBox.CaretBrush>
-                            <SolidColorBrush Color="Black" />
-                        </TextBox.CaretBrush>
-                    </TextBox>-->
                     <ComboBox Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Foreground="Black" FontSize="14"
                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
                 </StackPanel>
@@ -386,52 +376,7 @@
                     <my:FilterBox Grid.Row="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView Grid.Row="2" x:Name="QuickParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      Margin="0" Background="{StaticResource ControlBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
-                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch"
-                                    x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
-                            MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter">
-                                        <StackPanel.Background>
-                                            <SolidColorBrush Color="{StaticResource ResourceKey=ControlBackgroundColour}" />
-                                        </StackPanel.Background>
-                                        <Expander Margin="0.2cm,5,0.2cm,5" Foreground="White" FontSize="14"
-                                  HorizontalAlignment="Stretch" ToolTip="{Binding ToolTipText, Mode=OneTime}" Style="{StaticResource ParameterNameStyle}">
-                                            <Expander.Header>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="AUTO"/>
-                                                        <ColumnDefinition Width="AUTO"/>
-                                                        <ColumnDefinition Width="AUTO"/>
-                                                        <ColumnDefinition Width="AUTO"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
-                                                  Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
-                                                    <TextBlock Grid.Column="1" Margin="2" Text="{Binding QuickParameterName, Mode=OneTime}" Foreground="White" TextTrimming="CharacterEllipsis" Cursor="Hand" />
-                                                    <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
-                                               ToolTip="{Binding LinkedParameterName, Mode=OneTime}" Visibility="{Binding LinkedParameterVisibility, Mode=OneTime}" />
-                                                    <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
-                                               ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
-                                                </Grid>
-                                            </Expander.Header>
-                                            <TextBlock HorizontalAlignment="Left" Foreground="White" FontWeight="Normal"
-                                       FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
-                                        </Expander>
-                                        <TextBox  Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
-                                             PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="Black" FontSize="14"
-                                         SelectionBrush="#0F6FC6" SelectionOpacity="0.4" BorderThickness="0" Height="20" Padding="10">
-                                            <TextBox.Background>
-                                                <SolidColorBrush Color="#EEEEEE" />
-                                            </TextBox.Background>
-                                            <TextBox.CaretBrush>
-                                                <SolidColorBrush Color="Black" />
-                                            </TextBox.CaretBrush>
-                                        </TextBox>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
+                      Margin="0" Background="{StaticResource ControlBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
