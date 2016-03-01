@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -182,6 +183,8 @@ namespace XTMF.Gui.UserControls
         {
             DataContext = this;
             InitializeComponent();
+            AllowMultiSelection(ModuleDisplay);
+            ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
             FilterBox.Filter = (o, text) =>
            {
                var module = o as ModelSystemStructureDisplayModel;
@@ -202,7 +205,7 @@ namespace XTMF.Gui.UserControls
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
         {
-            UpdateParameters(parameters);
+            UpdateParameters();
         }
 
         private bool FilterParameters(object arg1, string arg2)
@@ -291,7 +294,7 @@ namespace XTMF.Gui.UserControls
                     QuickParameterRecentLinkedParameters.IsEnabled = true;
                 }
             }
-            if(linkedParameterDialog.ChangesMade)
+            if (linkedParameterDialog.ChangesMade)
             {
                 RefreshParameters();
             }
@@ -374,11 +377,7 @@ namespace XTMF.Gui.UserControls
 
         private void RefreshParameters()
         {
-            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (selectedModule != null)
-            {
-                UpdateParameters(selectedModule.BaseModel.Parameters);
-            }
+            UpdateParameters();
         }
 
         private static void OnModelSystemChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
@@ -427,7 +426,7 @@ namespace XTMF.Gui.UserControls
                    {
                        RecentLinkedParameters.Remove(item);
                    }
-                   if(RecentLinkedParameters.Count <= 0)
+                   if (RecentLinkedParameters.Count <= 0)
                    {
                        ParameterRecentLinkedParameters.IsEnabled = false;
                        QuickParameterRecentLinkedParameters.IsEnabled = false;
@@ -986,11 +985,61 @@ namespace XTMF.Gui.UserControls
 
         private void UpdateParameters()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel; ;
-            if (selected != null)
+            var parameters = GetActiveParameters();
+            if (parameters != null)
             {
-                UpdateParameters(selected.ParametersModel);
+                FadeOut();
+                Task.Factory.StartNew(() =>
+                {
+                    var source = ParameterDisplayModel.CreateParameters(parameters.OrderBy(el => el.Name), CurrentlySelected.Count > 1);
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        CleanUpParameters();
+                        ParameterDisplay.ItemsSource = source;
+                        ParameterFilterBox.Display = ParameterDisplay;
+                        ParameterFilterBox.Filter = FilterParameters;
+                        ParameterFilterBox.RefreshFilter();
+                        var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
+                        if (type != null)
+                        {
+                            SelectedName.Text = type.Name;
+                            SelectedNamespace.Text = type.FullName;
+                        }
+                        else
+                        {
+                            SelectedName.Text = CurrentlySelected.Count > 1 ? "Multiple Selected" : "None Selected";
+                            SelectedNamespace.Text = string.Empty;
+                        }
+                        DoubleAnimation fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                        ParameterDisplay.BeginAnimation(OpacityProperty, fadeIn);
+                    }));
+                });
             }
+            else
+            {
+                ParameterDisplay.ItemsSource = null;
+                SelectedName.Text = "None Selected";
+                SelectedNamespace.Text = string.Empty;
+            }
+        }
+
+        private List<ParameterModel> GetActiveParameters()
+        {
+            switch(CurrentlySelected.Count)
+            {
+                case 0:
+                    return null;
+                case 1:
+                    return CurrentlySelected[0].ParametersModel.GetParameters().ToList();
+                default:
+                    return GetParameterIntersection();
+            }
+        }
+
+        private List<ParameterModel> GetParameterIntersection()
+        {
+            var allParameters = CurrentlySelected.Select(m => m.GetParameters());
+            return CurrentlySelected.SelectMany(m => m.GetParameters().Where(p => allParameters.All(list => list.Any(q => p.Name == q.Name && p.Type == q.Type)))).ToList();
         }
 
         private void ModuleDisplay_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -1132,46 +1181,6 @@ namespace XTMF.Gui.UserControls
                 }
                 RefreshParameters();
                 Keyboard.Focus(ModuleDisplay);
-            }
-        }
-
-
-        private void UpdateParameters(ParametersModel parameters)
-        {
-            if (parameters != null)
-            {
-                FadeOut();
-                Task.Factory.StartNew(() =>
-                {
-                    var source = ParameterDisplayModel.CreateParameters(parameters.GetParameters().OrderBy(el => el.Name));
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        CleanUpParameters();
-                        ParameterDisplay.ItemsSource = source;
-                        ParameterFilterBox.Display = ParameterDisplay;
-                        ParameterFilterBox.Filter = FilterParameters;
-                        ParameterFilterBox.RefreshFilter();
-                        var type = parameters.ModelSystemStructure.Type;
-                        if (type != null)
-                        {
-                            SelectedName.Text = type.Name;
-                            SelectedNamespace.Text = type.FullName;
-                        }
-                        else
-                        {
-                            SelectedName.Text = "None Selected";
-                            SelectedNamespace.Text = string.Empty;
-                        }
-                        DoubleAnimation fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-                        ParameterDisplay.BeginAnimation(OpacityProperty, fadeIn);
-                    }));
-                });
-            }
-            else
-            {
-                ParameterDisplay.ItemsSource = null;
-                SelectedName.Text = "None Selected";
-                SelectedNamespace.Text = string.Empty;
             }
         }
 
@@ -1487,6 +1496,74 @@ namespace XTMF.Gui.UserControls
         private void MoveDown_Click(object sender, RoutedEventArgs e)
         {
             MoveCurrentModule(1);
+        }
+
+        ///
+        private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
+                                              "IsSelectionChangeActive",
+                                              BindingFlags.NonPublic | BindingFlags.Instance
+                                            );
+
+        List<ModelSystemStructureDisplayModel> CurrentlySelected = new List<ModelSystemStructureDisplayModel>();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <see cref="http://stackoverflow.com/questions/1163801/wpf-treeview-with-multiple-selection"/>
+        public void AllowMultiSelection(TreeView treeView)
+        {
+            if (IsSelectionChangeActiveProperty == null) return;
+
+            var selectedItems = new List<TreeViewItem>();
+            treeView.SelectedItemChanged += (a, b) =>
+            {
+                var treeViewItem = VisualUpwardSearch(GetCurrentlySelectedControl() as DependencyObject) as TreeViewItem;
+                if (treeViewItem == null) return;
+
+                var currentItem = treeView.SelectedItem as ModelSystemStructureDisplayModel;
+
+                // allow multiple selection
+                // when control key is pressed
+                if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                {
+                    // suppress selection change notification
+                    // select all selected items
+                    // then restore selection change notifications
+                    var isSelectionChangeActive =
+                      IsSelectionChangeActiveProperty.GetValue(treeView, null);
+
+                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
+                    selectedItems.ForEach(item => item.IsSelected = true);
+
+                    IsSelectionChangeActiveProperty.SetValue
+                    (
+                      treeView,
+                      isSelectionChangeActive,
+                      null
+                    );
+                }
+                else
+                {
+                    // deselect all selected items except the current one
+                    CurrentlySelected.Clear();
+                    selectedItems.ForEach(item => item.IsSelected = (item == treeViewItem));
+                    selectedItems.Clear();
+                }
+
+                if (!selectedItems.Contains(treeViewItem))
+                {
+                    selectedItems.Add(treeViewItem);
+                    CurrentlySelected.Add(currentItem);
+                }
+                else
+                {
+                    // deselect if already selected
+                    CurrentlySelected.Remove(currentItem);
+                    treeViewItem.IsSelected = false;
+                    selectedItems.Remove(treeViewItem);
+                }
+            };
+
         }
     }
 }

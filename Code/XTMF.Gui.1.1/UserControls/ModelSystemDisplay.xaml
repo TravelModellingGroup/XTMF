@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -22,6 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:models="clr-namespace:XTMF.Gui.Models"
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
@@ -136,7 +137,7 @@
             </Grid.RowDefinitions>
             <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
             <TreeView Grid.Row="1" Background="{StaticResource ControlBackgroundBrush}" 
-                  x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}" SelectedItemChanged="ModuleDisplay_SelectedItemChanged"
+                  x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
                 <TreeView.ContextMenu>

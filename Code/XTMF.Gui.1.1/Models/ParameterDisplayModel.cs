@@ -33,9 +33,12 @@ namespace XTMF.Gui.Models
 
         internal readonly ParameterModel RealParameter;
 
-        public ParameterDisplayModel(ParameterModel realParameter)
+        private readonly bool MultipleSelected;
+
+        public ParameterDisplayModel(ParameterModel realParameter, bool multipleSelected = false)
         {
             RealParameter = realParameter;
+            MultipleSelected = multipleSelected;
             realParameter.PropertyChanged += RealParameter_PropertyChanged;
         }
 
@@ -60,7 +63,7 @@ namespace XTMF.Gui.Models
             PropertyChanged = null;
         }
 
-        public string Name { get { return RealParameter.Name; } }
+        public string Name { get { return GetName(MultipleSelected); } }
 
         public string Description { get { return RealParameter.Description; } }
 
@@ -127,7 +130,19 @@ namespace XTMF.Gui.Models
         {
             get
             {
-                return Name + " : " + RealParameter.BelongsTo.Name;
+                return GetName(true);
+            }
+        }
+
+        private string GetName(bool includeModuleName)
+        {
+            if (includeModuleName)
+            {
+                return RealParameter.Name + " : " + RealParameter.BelongsTo.Name;
+            }
+            else
+            {
+                return RealParameter.Name;
             }
         }
 
@@ -136,9 +151,9 @@ namespace XTMF.Gui.Models
         /// </summary>
         /// <param name="parameterModel">The parameters in the model</param>
         /// <returns>An observable collection of the parameters using the display model</returns>
-        internal static ObservableCollection<ParameterDisplayModel> CreateParameters(IOrderedEnumerable<ParameterModel> parameterModel)
+        internal static ObservableCollection<ParameterDisplayModel> CreateParameters(IOrderedEnumerable<ParameterModel> parameterModel, bool multipleSelected = false)
         {
-            return new ObservableCollection<ParameterDisplayModel>(parameterModel.Select(p => new ParameterDisplayModel(p)));
+            return new ObservableCollection<ParameterDisplayModel>(parameterModel.Select(p => new ParameterDisplayModel(p, multipleSelected)));
         }
 
         internal bool AddToLinkedParameter(LinkedParameterModel newLP, ref string error)
