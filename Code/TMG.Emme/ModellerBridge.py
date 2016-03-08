@@ -384,7 +384,7 @@ class XTMFBridge:
         for i in range(1, 10):
             if macroName in self.Modeller.tool_namespaces():       
                 return True
-            time.sleep(500)
+            time.sleep(1)
         _m.logbook_write("A tool with the following namespace could not be found: %s" %macroName)
         self.SendToolDoesNotExistError(macroName);
         return False
