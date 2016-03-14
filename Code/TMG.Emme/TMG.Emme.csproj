@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analysis\MatrixAnalysis.cs" />
+    <Compile Include="NetworkAssignment\MulticlassFarebasedCongestedTransitAssignment.cs" />
     <Compile Include="Tools\Analysis\Transit\StrategyAnalysis\ExtractLinkTransfers.cs" />
     <Compile Include="ChainExecution.cs" />
     <Compile Include="Controller.cs" />
