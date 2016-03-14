@@ -178,11 +178,13 @@ class XTMFBridge:
         parameterNames = inspect.getargspec(tool.__call__)[0][1:]
         ret = []
         for param in parameterNames:
-            paramVar = eval("tool.__class__." + str(param))
-            if paramVar == None:
-                raise Exception(param + " does not exist!")
-            else:
-                typeOfParam = paramVar.type
+            try:
+                paramVar = eval("tool.__class__." + str(param))
+            except:
+                _m.logbook_write(param + " does not exist!")
+                self.SendParameterError(param + " does not exist!")
+                return None
+            typeOfParam = paramVar.type
             if typeOfParam == _m.Attribute(float).type:
                 ret.append("float")
             elif typeOfParam == _m.Attribute(int).type:
@@ -192,8 +194,9 @@ class XTMFBridge:
             elif typeOfParam == _m.Attribute(bool).type:
                 ret.append("bool")
             else:
+                _m.logbook_write(param + " uses a type unsupported by the ModellerBridge '"+str(typeOfParam)+"'!")
+                self.SendParameterError(param + " uses a type unsupported by the ModellerBridge '"+str(typeOfParam)+"'!")
                 return None
-
         return ret 
     
     def BreakIntoParametersStrings(self, parameterString):
@@ -408,8 +411,6 @@ class XTMFBridge:
             
             toolParameterTypes = self.GetToolParameterTypes(tool)
             if toolParameterTypes == None:
-                _m.logbook_write("The module requested \"" + macroName + "\" does not contain the XTMF Call Parameters field!")
-                self.SendParameterError("The module requested \"" + macroName + "\" does not contain the XTMF Call Parameters field!")
                 return
             parameterList = self.BreakIntoParametersStrings(parameterString)
             parameterList = self.ConvertIntoTypes(parameterList, toolParameterTypes)
