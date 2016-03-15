@@ -193,7 +193,7 @@ namespace TMG.Emme
             }
             catch
             {
-                throw new XTMFRuntimeException("Unable to create a bridge to EMME!");
+                throw new XTMFRuntimeException("Unable to create a bridge to EMME to '" + this.AddQuotes(projectFile) + "'!");
             }
             // Give some short names for the streams that we will be using
             this.ToEmme = this.Emme.StandardInput;
