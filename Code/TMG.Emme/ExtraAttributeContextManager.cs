@@ -91,6 +91,9 @@ namespace TMG.Emme
         [Parameter("Delete Flag", true, "Tf set to true, this module will delete the attributes after running. Otherwise, this module will just ensure that the attributes exist and are initialized.")]
         public bool DeleteFlag;
 
+        [Parameter("Reset To Default", false, "Reset the attributes to their default values if they already exist.")]
+        public bool ResetToDefault;
+
         [SubModelInformation(Description="Attribute to create.")]
         public List<ExtraAttributeData> AttributesToCreate;
 
@@ -125,7 +128,7 @@ namespace TMG.Emme
                 for (int i = 0; i < createdAttributes.Length; i++)
                 {
                     var attData = this.AttributesToCreate[i];
-                    var args = string.Join(" ", this.ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, false);
+                    var args = string.Join(" ", this.ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, false, ResetToDefault);
                     createdAttributes[i] = mc.Run(_ToolName, args);
                     this._progress = (float)( i /  createdAttributes.Length / numberOfTasks);
                 }
@@ -146,7 +149,7 @@ namespace TMG.Emme
                         if (createdAttributes[i])
                         {
                             var attData = this.AttributesToCreate[i];
-                            var args = string.Join(" ", this.ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, true);
+                            var args = string.Join(" ", this.ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, true, ResetToDefault);
                             mc.Run(_ToolName, args);
                         }
                     }
