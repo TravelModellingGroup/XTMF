@@ -52,11 +52,11 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="3*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Foreground="White" Text="{Binding Name}" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="{Binding Type}" />
-                                <TextBlock Grid.Column="2" Foreground="White" Text="{Binding Description}" />
+                                <TextBlock Grid.Column="2" Foreground="White" Text="{Binding Description}" TextWrapping="Wrap"/>
                             </Grid>
                         </ItemContainerTemplate>
                     </ItemsControl.ItemTemplate>
@@ -75,11 +75,11 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="3*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Foreground="White" Text="{Binding Name}" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="{Binding Type}" />
-                                <TextBlock Grid.Column="2" Foreground="White" Text="{Binding Description}" />
+                                <TextBlock Grid.Column="2" Foreground="White" Text="{Binding Description}" TextWrapping="Wrap" />
                                 </Grid>
                             </ItemContainerTemplate>
                     </ItemsControl.ItemTemplate>
