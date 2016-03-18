@@ -140,6 +140,7 @@
     <Compile Include="Tools\FullNetworkSetGenerator.cs" />
     <Compile Include="Tools\ImportScenarios.cs" />
     <Compile Include="TransitLines.cs" />
+    <Compile Include="Utilities\ChainEMMETools.cs" />
     <Compile Include="Utilities\ChainExecutionDuringEmme.cs" />
     <Compile Include="Utilities\ConvertMatrixToBinary.cs" />
   </ItemGroup>
