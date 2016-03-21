@@ -165,7 +165,7 @@ namespace TMG.Estimation
                     }
                 }
             }
-            throw new XTMFRuntimeException( "Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
+            throw new XTMFRuntimeException( "Unable to find a child module in '" + currentStructure.Name + "' named '" + parts[currentIndex]
                 + "' in order to assign parameters!" );
         }
 
