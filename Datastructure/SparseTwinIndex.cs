@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -107,6 +107,77 @@ namespace Datastructure
             T[][] Data;
 
             return new SparseTwinIndex<T>( ConvertToIndexes( processedIndexes, out Data, data, indexes ), Data ) { Count = length };
+        }
+
+        /// <summary>
+        /// Create a new square SparseTwinIndex using the given indexes, and optionally pre-filling it with data.
+        /// </summary>
+        /// <param name="firstIndex">The origin indexes</param>
+        /// <param name="secondIndex">The destination indexes</param>
+        /// <param name="data">(Optional)The data to initialize the structure with</param>
+        /// <returns>A SparseTwinIndex in the shape provided and optionally filled with the given data.</returns>
+        public static SparseTwinIndex<T> CreateSquareTwinIndex(int[] firstIndex, int[] secondIndex, T[] data = null)
+        {
+            // check the parameters
+            if(firstIndex == null)
+            {
+                throw new ArgumentNullException("firstIndex");
+            }
+            if (secondIndex == null)
+            {
+                throw new ArgumentNullException("secondIndex");
+            }
+            if (data != null)
+            {
+                if (firstIndex.Length * secondIndex.Length != data.Length)
+                {
+                    throw new ArgumentException("The lengths of firstIndex multiplied by secondIndex is not the same as the length of data!");
+                }
+            }
+            // now that we know our parameters are of the right length build the square matrix
+            // first figure out the stretches of consecutive values for each index
+            var firstRangeSet = new RangeSet(firstIndex);
+            var secondRangeSet = new RangeSet(secondIndex);
+            return new SparseTwinIndex<T>(CreateSquareIndexes(firstRangeSet, secondRangeSet), ConvertArrayToMatrix(firstIndex, secondIndex, data)) { Count = firstIndex.Length * secondIndex.Length } ;
+        }
+
+        private static SparseIndexing CreateSquareIndexes(RangeSet firstRangeSet, RangeSet secondRangeSet)
+        {
+            var ret = new SparseIndexing() { Indexes = CreateSparseSetFromRangeSet(firstRangeSet) };
+            var indexes = ret.Indexes;
+            for (int i = 0; i < indexes.Length; i++)
+            {
+                indexes[i].SubIndex = new SparseIndexing() { Indexes = CreateSparseSetFromRangeSet(secondRangeSet) };
+            }
+            return ret;
+        }
+
+        private static SparseSet[] CreateSparseSetFromRangeSet(RangeSet set)
+        {
+            var ret = new SparseSet[set.Count];
+            for (int i = 0; i < ret.Length; i++)
+            {
+                ret[i] = new SparseSet() { Start = set[i].Start, Stop = set[i].Stop };
+            }
+            return ret;
+        }
+
+        
+
+        private static T[][] ConvertArrayToMatrix(int[] firstIndex, int[] secondIndex, T[] data)
+        {
+            // if there is nothing to do, we are already done
+            if (data == null) return null;
+            // if there is data to copy into the new structure build it and copy
+            var ret = new T[firstIndex.Length][];
+            var pos = 0;
+            for (int i = 0; i < ret.Length; i++)
+            {
+                ret[i] = new T[secondIndex.Length];
+                Array.Copy(data, pos, ret[i], 0, ret[i].Length);
+                pos += ret[i].Length;
+            }
+            return ret;
         }
 
         public bool ContainsIndex(int o, int d)

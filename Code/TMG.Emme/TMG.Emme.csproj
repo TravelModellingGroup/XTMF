@@ -143,11 +143,17 @@
     <Compile Include="Utilities\ChainEMMETools.cs" />
     <Compile Include="Utilities\ChainExecutionDuringEmme.cs" />
     <Compile Include="Utilities\ConvertMatrixToBinary.cs" />
+    <Compile Include="Utilities\LoadEMME4BinaryMatrixInMatrixZoneSystem.cs" />
+    <Compile Include="Utilities\LOSBetweenPoints.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
       <Project>{E0B4F1C9-D2F6-415E-B8F5-AF66F23F4B87}</Project>
       <Name>Datastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj">
+      <Project>{4129e4db-412b-493a-bda1-f0c367ee1f6f}</Project>
+      <Name>TMG.Functions</Name>
     </ProjectReference>
     <ProjectReference Include="..\TMGInterfaces\TMGInterfaces.csproj">
       <Project>{036ae224-aa65-4c4c-a29f-502ded239a84}</Project>

@@ -53,7 +53,7 @@ namespace TMG.NetworkEstimation
         [Parameter("PM Error Factor", 1.0f, "A factor applied to the non-squared error of PM boardings.")]
         public float PMErrorFactor;
 
-        [SubModelInformation(Description= "AM Observed Boardings File", Required= true)]
+        [SubModelInformation(Description = "AM Observed Boardings File", Required = true)]
         public FileLocation ObservedBoardingsFileAM;
 
         [SubModelInformation(Description = "PM Observed Boardings File", Required = true)]
@@ -118,12 +118,19 @@ namespace TMG.NetworkEstimation
 
             var cleaned = pythonDictionary.Replace("{", "").Replace("}", "");
             var cells = cleaned.Split(',');
+            int cellNumber = 0;
             foreach (var cell in cells)
             {
                 var pair = cell.Split(':');
+                if (pair.Length < 2)
+                {
+                    throw new XTMFRuntimeException("In '" + Name + "' the results were not in the correct format in cell #" 
+                        + cellNumber + ".\r\nThe results were '" + pythonDictionary + "'.");
+                }
                 var lineId = pair[0].Replace("'", "").Trim();
                 float boardings = float.Parse(pair[1]);
                 result[lineId] = boardings;
+                cellNumber++;
             }
             return result;
         }
@@ -146,7 +153,7 @@ namespace TMG.NetworkEstimation
 
                     if (numCol < 2)
                         throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol.ToString() + ")");
-                
+
                     float boardings;
                     reader.Get(out boardings, 1);
 
@@ -161,20 +168,20 @@ namespace TMG.NetworkEstimation
         {
             double squaredErrorSum = 0.0;
             int numberOfLines = 0;
-            if(SaveAMBoardingsByAggregatedLine != null)
+            if (SaveAMBoardingsByAggregatedLine != null)
             {
-                SaveBoardings(SaveAMBoardingsByAggregatedLine,modelledBoardingsAm);
+                SaveBoardings(SaveAMBoardingsByAggregatedLine, modelledBoardingsAm);
             }
-            if(SavePMBoardingsByAggregatedLine != null)
+            if (SavePMBoardingsByAggregatedLine != null)
             {
-                SaveBoardings(SavePMBoardingsByAggregatedLine,modelledBoardingsPm);
+                SaveBoardings(SavePMBoardingsByAggregatedLine, modelledBoardingsPm);
             }
             //Calc error for AM boardings
             foreach (var entry in observedBoardingsAM)
             {
                 if (!modelledBoardingsAm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
                 var modelledBoardings = modelledBoardingsAm[entry.Key];
-                squaredErrorSum += Math.Pow( (modelledBoardings - entry.Value) * this.AMErrorFactor, 2);
+                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * this.AMErrorFactor, 2);
                 numberOfLines++;
             }
 
@@ -183,16 +190,16 @@ namespace TMG.NetworkEstimation
             {
                 if (!modelledBoardingsPm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
                 var modelledBoardings = observedBoardingsPM[entry.Key];
-                squaredErrorSum += Math.Pow( (modelledBoardings - entry.Value) * this.PMErrorFactor, 2);
+                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * this.PMErrorFactor, 2);
                 numberOfLines++;
             }
 
-            if(SaveAMBoardingDifferencesByAggregatedLine != null)
+            if (SaveAMBoardingDifferencesByAggregatedLine != null)
             {
                 SaveBoardings(SaveAMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsAM, modelledBoardingsAm));
             }
 
-            if(SavePMBoardingDifferencesByAggregatedLine != null)
+            if (SavePMBoardingDifferencesByAggregatedLine != null)
             {
                 SaveBoardings(SavePMBoardingDifferencesByAggregatedLine, ComputeDeltas(observedBoardingsPM, modelledBoardingsPm));
             }
@@ -204,13 +211,13 @@ namespace TMG.NetworkEstimation
                 numberOfLines += 2;
             }
 
-            this.Root.RetrieveValue = (() => (float)( Math.Sqrt(squaredErrorSum / numberOfLines)));
+            this.Root.RetrieveValue = (() => (float)(Math.Sqrt(squaredErrorSum / numberOfLines)));
         }
 
         private Dictionary<string, float> ComputeDeltas(Dictionary<string, float> observedBoardingsAM, Dictionary<string, float> modelledBoardingsAm)
         {
             return (from modelled in modelledBoardingsAm
-                    select new KeyValuePair<string,float>(modelled.Key, modelled.Value - observedBoardingsAM[modelled.Key])).ToDictionary(e=>e.Key,e=>e.Value);
+                    select new KeyValuePair<string, float>(modelled.Key, modelled.Value - observedBoardingsAM[modelled.Key])).ToDictionary(e => e.Key, e => e.Value);
         }
 
         private void SaveBoardings(FileLocation location, Dictionary<string, float> periodData)
@@ -218,7 +225,7 @@ namespace TMG.NetworkEstimation
             using (StreamWriter writer = new StreamWriter(location))
             {
                 writer.WriteLine("Line,Boardings");
-                foreach(var set in periodData)
+                foreach (var set in periodData)
                 {
                     writer.Write(set.Key);
                     writer.Write(',');

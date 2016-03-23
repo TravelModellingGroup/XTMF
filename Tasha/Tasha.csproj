@@ -187,6 +187,7 @@
     <Compile Include="Data\AverageOD.cs" />
     <Compile Include="Data\ConvertPDDataToZones.cs" />
     <Compile Include="Data\CreateSparseTriIndexFloatFromSparseTwinIndexes.cs" />
+    <Compile Include="Data\DivideOD.cs" />
     <Compile Include="Data\FloatData.cs" />
     <Compile Include="Data\AverageOfMatrix.cs" />
     <Compile Include="Data\ZoneODMask.cs" />
