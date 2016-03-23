@@ -34,7 +34,7 @@ namespace TMG.Emme.XTMF_Internal
         [RunParameter("Base Scenario", 1, "The scenario to copy from.")]
         public int BaseScenario;
 
-        [RunParameter("Base Scenario", 2, "The scenario to copy to.")]
+        [RunParameter("Destination Scenario", 2, "The scenario to copy to.")]
         public int DestinationScenario;
 
         [RunParameter("Copy Assignments", false, "Copy the results from assignments as well.")]
