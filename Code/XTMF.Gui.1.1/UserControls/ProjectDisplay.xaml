@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -71,7 +71,7 @@
                                             </Image>
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="Save Model System As (Ctrl+S)" Click="SaveModelSystemAs_Click">
+                                    <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
                                         <MenuItem.Icon>
                                             <Image>
                                                 <Image.Source>
