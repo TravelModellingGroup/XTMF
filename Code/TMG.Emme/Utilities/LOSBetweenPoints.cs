@@ -185,7 +185,7 @@ namespace TMG.Emme.Utilities
                 + "' we were unable to fill our available number of centroids given the range provided.");
         }
 
-        private const string AttachCentroidToNodeTool = "tmg.XTMF_Internal.attach_centroids_to_nodes";
+        private const string AttachCentroidToNodeTool = "tmg.XTMF_internal.attach_centroids_to_nodes";
 
         private void AttachCentroids(ModellerController controller, List<int> nodesToExplore, List<int> newControids,
             List<int> currentlyExploring)
