@@ -343,6 +343,32 @@ namespace XTMF
             return ret;
         }
 
+        /// <summary>
+        /// Export a model system within a project to file.
+        /// </summary>
+        /// <param name="modelSystemIndex">The index of the model system to export</param>
+        /// <param name="fileName">The name of the file to save it to.</param>
+        /// <param name="error">A description of the error that ocured if one did.</param>
+        /// <returns>False if there was an error, true otherwise.</returns>
+        public bool ExportModelSystem(int modelSystemIndex, string fileName, ref string error)
+        {
+            lock(EditingSessions)
+            {
+                // If it is currently being edited, save that version
+                var root = Project.ModelSystemStructure[modelSystemIndex];
+                var editingSession = EditingSessions.FirstOrDefault(s => s.Session != null && s.Session.IsEditing(root));
+                if (editingSession.Session != null)
+                {
+                    error = "You can't export a model system while editing it.";
+                    return false;
+                }
+                else
+                {
+                    return Runtime.ProjectController.ExportModelSystem(fileName, Project, modelSystemIndex, ref error);
+                }
+            }
+        }
+
         public bool CloneModelSystemToProjectAs(IModelSystemStructure root, string name, ref string error)
         {
             lock (EditingSessionsLock)

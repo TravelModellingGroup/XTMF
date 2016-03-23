@@ -153,6 +153,20 @@ namespace XTMF
 
         public bool Save(string fileName, ref string error)
         {
+            return Save(fileName, ModelSystemStructure, Description, LinkedParameters, ref error);
+        }
+
+        /// <summary>
+        /// Save a model system to file
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="root"></param>
+        /// <param name="description"></param>
+        /// <param name="linkedParameters"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public static bool Save(string fileName, IModelSystemStructure root, string description, List<ILinkedParameter> linkedParameters, ref string error)
+        {
             string tempFileName = Path.GetTempFileName();
             try
             {
@@ -161,16 +175,16 @@ namespace XTMF
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Root");
                     writer.Flush();
-                    ModelSystemStructure.Save(writer);
-                    if (Description != null)
+                    root.Save(writer);
+                    if (description != null)
                     {
                         writer.WriteStartElement("Description");
-                        writer.WriteString(Description);
+                        writer.WriteString(description);
                         writer.WriteEndElement();
                     }
-                    if (LinkedParameters != null)
+                    if (linkedParameters != null)
                     {
-                        foreach (var lp in LinkedParameters)
+                        foreach (var lp in linkedParameters)
                         {
                             writer.WriteStartElement("LinkedParameter");
                             writer.WriteAttributeString("Name", lp.Name);
@@ -181,7 +195,7 @@ namespace XTMF
                             foreach (var reference in lp.Parameters)
                             {
                                 writer.WriteStartElement("Reference");
-                                writer.WriteAttributeString("Name", LookupName(reference));
+                                writer.WriteAttributeString("Name", LookupName(reference, root));
                                 writer.WriteEndElement();
                             }
                             writer.WriteEndElement();
@@ -192,7 +206,7 @@ namespace XTMF
             }
             catch (Exception e)
             {
-                Description = string.Empty;
+                description = string.Empty;
                 error = e.Message;
                 return false;
             }
@@ -439,7 +453,7 @@ namespace XTMF
             return LookupName(reference, ModelSystemStructure);
         }
 
-        private string LookupName(IModuleParameter reference, IModelSystemStructure current)
+        private static string LookupName(IModuleParameter reference, IModelSystemStructure current)
         {
             var param = current.Parameters;
             if (param != null)

@@ -104,6 +104,11 @@ namespace XTMF.Gui.UserControls
                 {
                     return session.CloneModelSystemToProjectAs(Root, name, ref error);
                 }
+
+                internal bool ExportModelSystem(ProjectEditingSession session, string fileName, ref string error)
+                {
+                    return session.ExportModelSystem(RealIndex, fileName, ref error);
+                }
             }
 
             public class PreviousRun : INotifyPropertyChanged
@@ -379,7 +384,7 @@ namespace XTMF.Gui.UserControls
                     case Key.S:
                         if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
                         {
-                            SaveCurrentAsModelSystem();
+                            SaveCurrentAsModelSystem(true);
                         }
                         break;
                 }
@@ -587,25 +592,48 @@ namespace XTMF.Gui.UserControls
 
         private void SaveModelSystemAs_Click(object sender, RoutedEventArgs e)
         {
-            SaveCurrentAsModelSystem();
+            SaveCurrentAsModelSystem(false);
         }
 
-        private void SaveCurrentAsModelSystem()
+        private void ExportModelSystemAs_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCurrentAsModelSystem(true);
+        }
+
+        private void SaveCurrentAsModelSystem(bool exportToFile)
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
             {
-                StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
+                if (exportToFile)
                 {
-                    return Session.ValidateModelSystemName(newName);
-                });
-                sr.Owner = GetWindow();
-                if (sr.ShowDialog() == true)
-                {
-                    string error = null;
-                    if (!selected.CloneModelSystem(Session, sr.Answer, ref error))
+                    // save as a model system in an external file
+                    string fileName = MainWindow.OpenFile(selected.Name, new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                    if (!String.IsNullOrWhiteSpace(fileName))
                     {
-                        MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                        string error = null;
+                        if (!selected.ExportModelSystem(Session, fileName, ref error))
+                        {
+                            MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        }
+                    }
+                }
+                else
+                {
+                    // save as a model system within XTMF
+                    StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
+                    {
+                        return Session.ValidateModelSystemName(newName);
+                    });
+                    sr.Owner = GetWindow();
+                    if (sr.ShowDialog() == true)
+                    {
+                        string error = null;
+
+                        if (!selected.CloneModelSystem(Session, sr.Answer, ref error))
+                        {
+                            MessageBox.Show(error, "Unable to Save Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                 }
             }
