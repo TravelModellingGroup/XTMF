@@ -100,6 +100,14 @@ namespace TMG.Emme.Utilities
                 var data = MatrixInput.GiveData();
                 MatrixInput.UnloadData();
                 var flatIndexes = centroidNumbers.Select(c => data.GetFlatIndex(c)).ToArray();
+                // ensure that all of the indexes are properly allocated
+                for (int i = 0; i < flatIndexes.Length; i++)
+                {
+                    if (flatIndexes[i] < 0)
+                    {
+                        throw new XTMFRuntimeException("In '" + Name + "' the a centroid in our exploration set was not found in the data provided!");
+                    }
+                }
                 var flatData = data.GetFlatData();
                 for (int i = 0; i < centroidNumbers.Count; i++)
                 {
