@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using TMG.Input;
@@ -43,11 +44,11 @@ namespace TMG.Emme
             var mc = controller as ModellerController;
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
-
-            var args = string.Join(" ", "\""+this.MatrixFile.GetFilePath()+ "\"",
+            var pathToUse = Path.GetFullPath(this.MatrixFile.GetFilePath());
+            var args = string.Join(" ", "\""+ pathToUse + "\"",
                                         this.ScenarioNumber);
 
-            Console.WriteLine("Importing matrix into scenario " + this.ScenarioNumber.ToString() + " from file " + this.MatrixFile.GetFilePath());
+            Console.WriteLine("Importing matrix into scenario " + this.ScenarioNumber.ToString() + " from file " + pathToUse);
 
             var result = "";
             if(mc.CheckToolExists(_ToolName))

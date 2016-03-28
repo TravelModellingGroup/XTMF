@@ -43,6 +43,9 @@ namespace TMG.Emme.Utilities
         [RunParameter("Maximum Centroids", 3250, "The maximum number of centroids for your license size.  Size 13 in 4.2 is 3250.")]
         public int MaximumCentroids;
 
+        [RunParameter("Scenario Number", 1, "The scenario number to interact with.")]
+        public int Scenario;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -193,6 +196,7 @@ namespace TMG.Emme.Utilities
             //The goal is to execute our new tool in order to 
             controller.Run(AttachCentroidToNodeTool,
                 string.Join(" ",
+                Scenario.ToString(),
                 "\"" + string.Join(";", currentlyExploring.Select(i => nodesToExplore[i].ToString())) + "\"",
                 "\"" + string.Join(";", newControids.Select(i => i.ToString())) + "\""
                ));
@@ -260,7 +264,7 @@ namespace TMG.Emme.Utilities
             var availableCentroids = MaximumCentroids - Root.ZoneSystem.ZoneArray.Count;
             //Execute Primary runs
 
-            if (availableCentroids <= nodesToExplore.Count)
+            if (nodesToExplore.Count <= availableCentroids)
             {
                 // in this case we can explore everything in one shot
                 yield return BuildNodeMap(nodesToExplore, 0, nodesToExplore.Count, 0, 0);
@@ -303,11 +307,11 @@ namespace TMG.Emme.Utilities
             var map = new List<int>();
             for (int i = startFirst; i < endFirst; i++)
             {
-                map.Add(nodesToExplore[i]);
+                map.Add(i);
             }
             for (int j = startSecond; j < endSecond; j++)
             {
-                map.Add(nodesToExplore[j]);
+                map.Add(j);
             }
             return map;
         }
