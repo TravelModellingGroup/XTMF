@@ -153,6 +153,7 @@ namespace TMG.Emme.Utilities
 
         public bool Execute(Controller controller)
         {
+            Progress = 0.0f;
             var mc = controller as ModellerController;
             if (mc == null)
             {
@@ -161,13 +162,17 @@ namespace TMG.Emme.Utilities
             List<int> nodesToExplore = GetNodesToExplore();
             List<int> newControids = GenerateCentroids();
             InitializeData(nodesToExplore);
-            foreach (List<int> currentlyExploring in ProduceRuns(nodesToExplore))
+            var exploration = ProduceRuns(nodesToExplore).ToList();
+            for (int i = 0; i < exploration.Count; i++)
             {
+                Progress = (float)i / exploration.Count;
+                var currentlyExploring = exploration[i];
                 AttachCentroids(mc, nodesToExplore, newControids, currentlyExploring);
                 RunAssignment(controller, nodesToExplore, currentlyExploring);
                 CollectData(nodesToExplore, currentlyExploring, newControids);
             }
             SaveResults(nodesToExplore);
+            Progress = 1.0f;
             return true;
         }
 
