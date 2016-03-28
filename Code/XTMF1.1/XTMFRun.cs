@@ -187,6 +187,17 @@ namespace XTMF
             RunThread.Start();
         }
 
+        /// <summary>
+        /// Blocks execution until the run has completed.
+        /// </summary>
+        public void Wait()
+        {
+            if(RunThread != null)
+            {
+                RunThread.Join();
+            }
+        }
+
         public void TerminateRun()
         {
             Task.Run(() =>
