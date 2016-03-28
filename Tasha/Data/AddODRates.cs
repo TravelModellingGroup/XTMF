@@ -66,22 +66,21 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
-            var firstRate = ModuleHelper.GetDataFromDatasourceOrResource(FirstRateToApplyRaw, FirstRateToApply, FirstRateToApplyRaw != null).GetFlatData();
+            var first = ModuleHelper.GetDataFromDatasourceOrResource(FirstRateToApplyRaw, FirstRateToApply, FirstRateToApplyRaw != null);
+            var firstRate = first.GetFlatData();
             var secondRate = ModuleHelper.GetDataFromDatasourceOrResource(SecondRateToApplyRaw, SecondRateToApply, SecondRateToApplyRaw != null).GetFlatData();
             SparseTwinIndex<float> data;
-            data = zoneArray.CreateSquareTwinArray<float>();
+            data = first.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
             var dereferenced = AdditionalRates.Select(a => a.AcquireResource<SparseTwinIndex<float>>().GetFlatData()).Union
                 (
-                    AdditionalRatesRaw.Select( source =>
-                    {
-                        source.LoadData();
-                        var ret = source.GiveData();
-                        source.UnloadData();
-                        return ret.GetFlatData();
-                    })
+                    AdditionalRatesRaw.Select(source =>
+                   {
+                       source.LoadData();
+                       var ret = source.GiveData();
+                       source.UnloadData();
+                       return ret.GetFlatData();
+                   })
                 ).ToArray();
             for (int i = 0; i < flatData.Length; i++)
             {
@@ -113,7 +112,7 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!this.EnsureExactlyOneAndOfSameType(FirstRateToApplyRaw, FirstRateToApply, ref error) ||
+            if (!this.EnsureExactlyOneAndOfSameType(FirstRateToApplyRaw, FirstRateToApply, ref error) ||
                 !this.EnsureExactlyOneAndOfSameType(SecondRateToApplyRaw, SecondRateToApply, ref error))
             {
                 return false;

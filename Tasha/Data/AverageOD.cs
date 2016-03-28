@@ -88,7 +88,7 @@ namespace Tasha.Data
             {
                 return first;
             }
-            return Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            return first.CreateSimilarArray<float>();
         }
 
         public bool RuntimeValidation(ref string error)
