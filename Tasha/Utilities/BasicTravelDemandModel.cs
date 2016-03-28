@@ -31,19 +31,20 @@ namespace Tasha.Utilities
     public class BasicTravelDemandModel : ITravelDemandModel
     {
         [RunParameter("Input Base Directory", "../../Input", "The directory to use for getting input.")]
-        public string InputBaseDirectory { get;set; }
+        public string InputBaseDirectory { get; set; }
 
         public string Name { get; set; }
 
-        public IList<INetworkData> NetworkData { get;set; }
+        public IList<INetworkData> NetworkData { get; set; }
 
-        public string OutputBaseDirectory { get;set; }
+        public string OutputBaseDirectory { get; set; }
 
-        public float Progress { get; set; }
+        private Func<float> _Progress = null;
+        public float Progress { get { return _Progress == null ? 0.0f : _Progress(); } }
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        public IZoneSystem ZoneSystem { get;set; }
+        public IZoneSystem ZoneSystem { get; set; }
 
         [SubModelInformation(Required = false, Description = "Children to execute")]
         public ISelfContainedModule[] ToExecute;
@@ -58,20 +59,44 @@ namespace Tasha.Utilities
             return true;
         }
 
+        private Func<string> status = null;
+
         public void Start()
         {
-            if(ZoneSystem != null)
+            if (ZoneSystem != null)
             {
                 ZoneSystem.LoadData();
             }
-            for(int i = 0; i < ToExecute.Length; i++)
+            int i = 0;
+            _Progress = () =>
+            {
+                if (i < ToExecute.Length)
+                {
+                    return ((float)i / ToExecute.Length) + (1.0f / ToExecute.Length) * ToExecute[i].Progress;
+                }
+                return 1.0f;
+            };
+            status = () =>
+            {
+                return ToExecute[i].ToString();
+            };
+            for (; i < ToExecute.Length; i++)
             {
                 ToExecute[i].Start();
             }
-            if(ZoneSystem != null)
+            if (ZoneSystem != null)
             {
                 ZoneSystem.UnloadData();
             }
+        }
+
+        public override string ToString()
+        {
+            if(status == null)
+            {
+                return "Initializing";
+            }
+            return status();
         }
     }
 
