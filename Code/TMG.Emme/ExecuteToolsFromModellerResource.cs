@@ -79,7 +79,7 @@ namespace TMG.Emme
         {
             if (status == null)
             {
-                return String.Empty;
+                return "Connecting to EMME";
             }
             return status();
         }
