@@ -143,9 +143,36 @@ namespace XTMF.Gui.UserControls
         {
             var index = Display.SelectedItem;
             if (index == null) return;
-            SelectedType = (index as Model).type;
-            DialogResult = true;
-            Close();
+            SelectModel(index as Model);
+        }
+
+        private void SelectModel(Model model)
+        {
+            if (model != null)
+            {
+                SelectedType = model.type;
+                DialogResult = true;
+                Close();
+            }
+        }
+
+        private Model GetFirstItem()
+        {
+            if (Display.ItemContainerGenerator.Items.Count > 0)
+            {
+                return Display.ItemContainerGenerator.Items[0] as Model;
+            }
+            return null;
+        }
+
+        private void FilterBox_EnterPressed(object sender, EventArgs e)
+        {
+            var selected = Display.SelectedItem as Model;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            SelectModel(selected);
         }
     }
 }
