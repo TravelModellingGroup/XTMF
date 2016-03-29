@@ -65,6 +65,9 @@ namespace XTMF.Gui
         private Action Refresh;
         private Func<object, string, bool> _Filter;
 
+        public event EventHandler EnterPressed;
+
+
         public Func<object, string, bool> Filter
         {
             get
@@ -136,10 +139,24 @@ namespace XTMF.Gui
                     case Key.Escape:
                         e.Handled = ClearFilter();
                         break;
+                    case Key.Enter:
+                        e.Handled = HandleEnterPress();
+                        break;
                 }
 
             }
             base.OnKeyDown(e);
+        }
+
+        private bool HandleEnterPress()
+        {
+            var ev = EnterPressed;
+            if (ev != null)
+            {
+                ev(this, new EventArgs());
+                return true;
+            }
+            return false;
         }
 
         private bool ClearFilter()
