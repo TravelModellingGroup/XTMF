@@ -161,9 +161,23 @@ namespace TMG.Frameworks.MultiRun
 
         private IEnumerable<string> ExecuteRuns()
         {
+            XmlNode root = GetRootOfDocument(BatchRunFile);
+            foreach (var run in CommandProcessor(root))
+            {
+                yield return run;
+            }
+        }
+
+        private XmlNode GetRootOfDocument(string fileName)
+        {
             XmlDocument doc = new XmlDocument();
-            doc.Load(BatchRunFile);
+            doc.Load(fileName);
             var root = doc.FirstChild;
+            return root;
+        }
+
+        private IEnumerable<string> CommandProcessor(XmlNode root)
+        {
             if (root.HasChildNodes)
             {
                 foreach (XmlNode topLevelCommand in root.ChildNodes)
@@ -185,7 +199,16 @@ namespace TMG.Frameworks.MultiRun
                                 throw new XTMFRuntimeException("We are unable to find a command named '" + commandName
                                     + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
                             }
+                            var initialCount = ExecutionStack.Count;
                             command.Invoke(topLevelCommand);
+                            if (initialCount < ExecutionStack.Count)
+                            {
+                                var current = ExecutionStack.Pop();
+                                foreach (var run in CommandProcessor(current))
+                                {
+                                    yield return run;
+                                }
+                            }
                         }
                     }
                 }
@@ -205,6 +228,9 @@ namespace TMG.Frameworks.MultiRun
             TryAddBatchCommand("delete", DeleteFiles, true);
             TryAddBatchCommand("write", WriteToFile, true);
             TryAddBatchCommand("unload", UnloadResource, true);
+            TryAddBatchCommand("template", Template, true);
+            TryAddBatchCommand("executetemplate", ExecuteTemplate, true);
+            TryAddBatchCommand("import", ImportMultiRunFile, true);
         }
 
 
@@ -384,6 +410,215 @@ namespace TMG.Frameworks.MultiRun
             }
         }
 
+        private sealed class MultirunTemplate
+        {
+            internal string Name;
+            internal XmlNode Node;
+            string[] Parameters;
+            internal MultirunTemplate Parent;
+
+            public MultirunTemplate(string name, XmlNode node, string[] parameters)
+            {
+                Name = name;
+                Node = node;
+                Parameters = parameters;
+            }
+
+            private bool ValidateParameters(KeyValuePair<string, string>[] parameterAssignment, ref string error)
+            {
+                // validate the parameters
+                if (parameterAssignment.Length != Parameters.Length)
+                {
+                    error = Name + " was executed with the wrong number of parameters! The parameters are [" + string.Join(" ", Parameters) + "]!";
+                }
+                for (int i = 0; i < parameterAssignment.Length; i++)
+                {
+                    if (Array.IndexOf(Parameters, parameterAssignment[i].Key) < 0)
+                    {
+                        error = Name + " was executed but no parameter was defined as '" + parameterAssignment[i].Key + "'";
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            internal bool PrepareForExecution(KeyValuePair<string, string>[] parameters, out MultirunTemplate toExecute, ref string error)
+            {
+                if (!ValidateParameters(parameters, ref error))
+                {
+                    toExecute = null;
+                    return false;
+                }
+                var newNode = Node.CloneNode(true);
+                if (!ReplaceStrings(newNode, parameters, ref error))
+                {
+                    toExecute = null;
+                    return false;
+                }
+                toExecute = new MultirunTemplate(Name, newNode, Parameters) { Parent = this };
+                return true;
+            }
+
+            private static bool ReplaceStrings(XmlNode currentNode, KeyValuePair<string, string>[] parameters, ref string error)
+            {
+                // check each attribute and replace as needed
+                var attributes = currentNode.Attributes;
+                if (attributes != null)
+                {
+                    foreach (XmlAttribute at in attributes)
+                    {
+                        if (!ReplaceStrings(at, parameters, ref error))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                // now look at all of the children
+                if (currentNode.HasChildNodes)
+                {
+                    foreach (XmlNode child in currentNode.ChildNodes)
+                    {
+                        if (!ReplaceStrings(child, parameters, ref error))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            private static bool ReplaceStrings(XmlAttribute at, KeyValuePair<string, string>[] parameters, ref string error)
+            {
+                var originalString = at.Value;
+                // only execute if the escape character is found
+                int firstIndex = originalString.IndexOf('%');
+                if (firstIndex >= 0)
+                {
+                    // initialize the builder up until we found the first escape character
+                    StringBuilder builder = new StringBuilder(originalString.Length);
+                    StringBuilder nameBuilder = new StringBuilder();
+                    builder.Append(originalString, 0, firstIndex);
+                    // invoking string length is quite slow, so since it isn't changing just store it
+                    var length = originalString.Length;
+                    for (int i = firstIndex; i < length; i++)
+                    {
+                        if (originalString[i] == '%')
+                        {
+                            if (i + 1 < length)
+                            {
+                                if (originalString[i + 1] == '%')
+                                {
+                                    builder.Append('%');
+                                    // skip the next %
+                                    i = i + 1;
+                                }
+                                else
+                                {
+                                    // in this case we need to gather the variable name and then assign the value
+                                    int j = i + 1;
+                                    for (; j < length; j++)
+                                    {
+                                        var c = originalString[j];
+                                        // now we are at the end of the variable name
+                                        if (c == '%')
+                                        {
+                                            break;
+                                        }
+                                        nameBuilder.Append(c);
+                                    }
+                                    // check to make sure we actually finished
+                                    if (j == length)
+                                    {
+                                        error = "No closing % was given in order to use a parameter!";
+                                        return false;
+                                    }
+                                    // move our main loop ahead to the end of the variable
+                                    i = j;
+                                    var parameterName = nameBuilder.ToString();
+                                    var parameter = parameters.FirstOrDefault(p => p.Key == parameterName);
+                                    // if the parameter does not exist
+                                    if (parameter.Key == null)
+                                    {
+                                        error = "A parameter with the name '" + parameterName + "' was not found!";
+                                        return false;
+                                    }
+                                    // now that we have our variable, insert its value in our place
+                                    builder.Append(parameter.Value);
+                                    nameBuilder.Clear();
+                                }
+                            }
+                            else
+                            {
+                                builder.Append('%');
+                            }
+                        }
+                        else
+                        {
+                            builder.Append(originalString[i]);
+                        }
+                    }
+                    at.Value = builder.ToString();
+                }
+                return true;
+            }
+        }
+
+        Stack<XmlNode> ExecutionStack = new Stack<XmlNode>();
+
+        Dictionary<string, MultirunTemplate> Templates = new Dictionary<string, MultirunTemplate>();
+
+        private void Template(XmlNode command)
+        {
+            var name = GetAttributeOrError(command, "Name", "The template was not given a name!\r\n" + command.OuterXml);
+            var parameterAttribute = GetAttributeOrError(command, "Parameters", "The template was not given any parameters!\r\n" + command.OuterXml);
+            // gather the parameters semi-colon separated
+            var parameters = parameterAttribute.Split(';');
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                parameters[i] = parameters[i].Trim();
+            }
+            // this will allow overwriting templates
+            Templates[name] = new MultirunTemplate(name, command.CloneNode(true), parameters);
+        }
+
+        private void ExecuteTemplate(XmlNode command)
+        {
+            var name = GetAttributeOrError(command, "Name", "The template's name was not given!\r\n" + command.OuterXml);
+            MultirunTemplate template, toExecute;
+            if (!Templates.TryGetValue(name, out template))
+            {
+                // then no template with this name exists
+                throw new XTMFRuntimeException("No template with the name '" + name + "' exists!");
+            }
+            KeyValuePair<string, string>[] parameters = GetParameters(command.Attributes);
+            string error = null;
+            if (!template.PrepareForExecution(parameters, out toExecute, ref error))
+            {
+                throw new XTMFRuntimeException("Unable to execute template\n\r" + error + "\r\n" + template.Node.OuterXml);
+            }
+            ExecutionStack.Push(toExecute.Node);
+        }
+
+        private void ImportMultiRunFile(XmlNode command)
+        {
+            var path = GetAttributeOrError(command, "Path", "The multirun's file path was not given!\r\n" + command.OuterXml);
+            ExecutionStack.Push(GetRootOfDocument(path));
+        }
+
+        private KeyValuePair<string, string>[] GetParameters(XmlAttributeCollection attributes)
+        {
+            var ret = new List<KeyValuePair<string, string>>();
+            foreach (XmlAttribute at in attributes)
+            {
+                // make sure the attribute isn't the name of the template to execute
+                if (at.Name != "Name")
+                {
+                    ret.Add(new KeyValuePair<string, string>(at.Name, at.InnerText));
+                }
+            }
+            return ret.ToArray();
+        }
+
         private void UnloadResource(XmlNode command)
         {
             string path = GetAttributeOrError(command, "Path", "We were unable to find an attribute called 'Path'!");
@@ -459,9 +694,9 @@ namespace TMG.Frameworks.MultiRun
         private void UnloadRecursively(IModelSystemStructure child)
         {
             var children = child.Children;
-            if(children != null)
+            if (children != null)
             {
-                foreach(var subChild in children)
+                foreach (var subChild in children)
                 {
                     UnloadRecursively(subChild);
                 }
