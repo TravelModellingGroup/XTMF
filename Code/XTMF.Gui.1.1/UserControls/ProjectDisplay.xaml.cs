@@ -439,6 +439,11 @@ namespace XTMF.Gui.UserControls
         private void LoadModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            LoadModelSystem(selected);
+        }
+
+        private void LoadModelSystem(ProjectModel.ContainedModelSystemModel selected)
+        {
             if (selected != null)
             {
                 var invoke = InitiateModelSystemEditingSession;
@@ -698,6 +703,25 @@ namespace XTMF.Gui.UserControls
                     Model.RefreshModelSystems();
                 }
             }
+        }
+
+        private ProjectModel.ContainedModelSystemModel GetFirstItem()
+        {
+            if (ModelSystemDisplay.ItemContainerGenerator.Items.Count > 0)
+            {
+                return ModelSystemDisplay.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel;
+            }
+            return null;
+        }
+
+        private void FilterModelSystemsBox_EnterPressed(object sender, EventArgs e)
+        {
+            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            LoadModelSystem(selected);
         }
     }
 }
