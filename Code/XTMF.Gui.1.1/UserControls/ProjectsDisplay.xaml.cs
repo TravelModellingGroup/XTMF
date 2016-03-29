@@ -92,6 +92,11 @@ namespace XTMF.Gui.UserControls
         private void LoadCurrentProject()
         {
             var project = Display.SelectedItem as Project;
+            LoadProject(project);
+        }
+
+        private void LoadProject(Project project)
+        {
             if (project != null)
             {
                 ProjectEditingSession session = null;
@@ -292,6 +297,25 @@ namespace XTMF.Gui.UserControls
                     RefreshProjects();
                 }
             }
+        }
+
+        private Project GetFirstItem()
+        {
+            if (Display.ItemContainerGenerator.Items.Count > 0)
+            {
+                return Display.ItemContainerGenerator.Items[0] as Project;
+            }
+            return null;
+        }
+
+        private void FilterBox_EnterPressed(object sender, EventArgs e)
+        {
+            var selected = Display.SelectedItem as Project;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            LoadProject(selected);
         }
     }
 }
