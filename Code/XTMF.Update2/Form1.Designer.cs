@@ -76,7 +76,7 @@ namespace XTMF.Update
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 67.59776F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(508, 129);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(508, 128);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // panel1
@@ -89,7 +89,7 @@ namespace XTMF.Update
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(248, 123);
+            this.panel1.Size = new System.Drawing.Size(248, 122);
             this.panel1.TabIndex = 2;
             // 
             // WebserviceCheckBox
@@ -149,7 +149,7 @@ namespace XTMF.Update
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(257, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(248, 123);
+            this.panel2.Size = new System.Drawing.Size(248, 122);
             this.panel2.TabIndex = 3;
             // 
             // UpdateButton
@@ -167,12 +167,12 @@ namespace XTMF.Update
             this.ArchitectureSelect.BackColor = System.Drawing.Color.White;
             this.ArchitectureSelect.FormattingEnabled = true;
             this.ArchitectureSelect.Items.AddRange(new object[] {
-            "Auto Detect",
-            "64 Bit",
-            "32 Bit",
-            "Auto Detect with Source",
-            "64 bit with Source",
-            "32 bit with Source"});
+            "(Complete)    Auto Detect",
+            "(Complete)    64 Bit            ",
+            "(Complete)    32 Bit",
+            "(XTMF Only) Auto Detect",
+            "(XTMF Only) 64 Bit",
+            "(XTMF Only) 32 Bit"});
             this.ArchitectureSelect.Location = new System.Drawing.Point(3, 25);
             this.ArchitectureSelect.Name = "ArchitectureSelect";
             this.ArchitectureSelect.Size = new System.Drawing.Size(236, 69);
@@ -195,7 +195,7 @@ namespace XTMF.Update
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(25)))), ((int)(((byte)(39)))));
-            this.ClientSize = new System.Drawing.Size(508, 129);
+            this.ClientSize = new System.Drawing.Size(508, 128);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;

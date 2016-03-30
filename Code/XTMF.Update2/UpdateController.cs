@@ -41,7 +41,7 @@ namespace XTMF.Update
 
         public int XTMFUpdateServerPort { get; set; }
 
-        public void UpdateAll(bool force32, bool force64, bool sourceCode, Action<float> Update = null, Action<string> status = null)
+        public void UpdateAll(bool force32, bool force64, bool xtmfOnly, Action<float> Update = null, Action<string> status = null)
         {
             bool x64 = Environment.Is64BitOperatingSystem;
             if ( force32 )
@@ -65,12 +65,10 @@ namespace XTMF.Update
             try
             {
                 var ourNewAssemblyPath = UpdateCore( x64, excludedPaths, Update );
-                WriteIfNotNull( status, "Updating XTMF Modules" );
-                UpdateModules( x64, Update );
-                WriteIfNotNull( status, "Updating XTMF Source Code" );
-                if ( sourceCode )
+                WriteIfNotNull( status, "Updating Modules" );
+                if (!xtmfOnly)
                 {
-                    UpdateSourceCode( Update );
+                    UpdateModules(x64, Update);
                 }
                 WriteIfNotNull( status, "Update Complete" );
                 this.RebootAndCopyBase( ourNewAssemblyPath, excludedPaths );
