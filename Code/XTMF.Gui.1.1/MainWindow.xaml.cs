@@ -591,7 +591,7 @@ namespace XTMF.Gui
                        string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
                        try
                        {
-                           Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), "\"" + path + "\"");
+                           Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), Process.GetCurrentProcess().Id + " \"" + path + "\"");
                        }
                        catch
                        {

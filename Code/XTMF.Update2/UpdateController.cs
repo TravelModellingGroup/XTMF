@@ -41,7 +41,7 @@ namespace XTMF.Update
 
         public int XTMFUpdateServerPort { get; set; }
 
-        public void UpdateAll(bool force32, bool force64, bool xtmfOnly, Action<float> Update = null, Action<string> status = null)
+        public void UpdateAll(bool force32, bool force64, bool xtmfOnly, Action<float> Update = null, Action<string> status = null, string launchAfter = null)
         {
             bool x64 = Environment.Is64BitOperatingSystem;
             if ( force32 )
@@ -71,7 +71,7 @@ namespace XTMF.Update
                     UpdateModules(x64, Update);
                 }
                 WriteIfNotNull( status, "Update Complete" );
-                this.RebootAndCopyBase( ourNewAssemblyPath, excludedPaths );
+                this.RebootAndCopyBase( ourNewAssemblyPath, excludedPaths, launchAfter );
             }
             catch ( Exception e )
             {
@@ -134,7 +134,7 @@ namespace XTMF.Update
             return -1;
         }
 
-        private string BuildParameters(string[] tempPath, string[] destination)
+        private string BuildParameters(string[] tempPath, string[] destination, string launchAfter)
         {
             StringBuilder builder = new StringBuilder();
             for ( int i = 0; i < tempPath.Length; i++ )
@@ -150,6 +150,12 @@ namespace XTMF.Update
                     builder.Append( '"' );
                     builder.Append( ' ' );
                 }
+            }
+            if(launchAfter != null)
+            {
+                builder.Append('"');
+                builder.Append(launchAfter);
+                builder.Append('"');
             }
             var combined = builder.ToString();
             return combined;
@@ -278,14 +284,14 @@ namespace XTMF.Update
             }
         }
 
-        private void RebootAndCopyBase(string[] tempPath, string[] destination)
+        private void RebootAndCopyBase(string[] tempPath, string[] destination, string launchAfter)
         {
             var containingDirectory = Path.GetDirectoryName( Application.ExecutablePath );
             try
             {
                 // Launch the process that will update this program
                 Process.Start( Path.Combine( Application.StartupPath, "XTMF.UpdateCore.exe" ),
-                    BuildParameters( tempPath, destination ) );
+                    BuildParameters( tempPath, destination, launchAfter) );
             }
             catch
             {

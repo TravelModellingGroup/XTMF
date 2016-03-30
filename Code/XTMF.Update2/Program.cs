@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace XTMF.Update
 {
@@ -27,11 +28,29 @@ namespace XTMF.Update
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main()
+        private static void Main(string[] args)
         {
+            int processID = 0;
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault( false );
-            Application.Run( new Form1() );
+            Application.SetCompatibleTextRenderingDefault(false);
+            if (args.Length >= 2 && int.TryParse(args[0], out processID))
+            {
+                try
+                {
+                    var p = Process.GetProcessById(processID);
+                    Application.Run(new Form1() { ParentProcess = p, LaunchPoint = args[1] });
+                }
+                catch
+                {
+                    Application.Run(new Form1());
+                }
+            }
+            else
+            {
+                Application.Run(new Form1());
+            }
         }
+
+
     }
 }

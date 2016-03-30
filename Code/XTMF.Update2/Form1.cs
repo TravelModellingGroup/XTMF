@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -31,7 +32,25 @@ namespace XTMF.Update
             InitializeComponent();
             Controller = new UpdateController();
             this.ArchitectureSelect.SelectedIndex = 0;
+            if (ParentProcess != null)
+            {
+                UpdateButton.Enabled = false;
+                Task.Factory.StartNew(() =>
+               {
+                   if (!ParentProcess.HasExited)
+                   {
+                       ParentProcess.WaitForExit();
+                   }
+                   Invoke(new Action(() =>
+                   {
+                       UpdateButton.Enabled = true;
+                   }));
+               });
+            }
         }
+
+        public string LaunchPoint { get; internal set; }
+        public Process ParentProcess { get; internal set; }
 
         private void ArchitectureSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -58,7 +77,7 @@ namespace XTMF.Update
 
         private void SetUpdateProgress(float param)
         {
-            this.UpdateProgress.Value = (int)( param * 100 );
+            this.UpdateProgress.Value = (int)(param * 100);
         }
 
         private void SetUpdateStatus(string status)
@@ -73,27 +92,27 @@ namespace XTMF.Update
             bool force64 = this.ArchitectureSelect.SelectedIndex % 3 == 1;
             bool xtmfOnly = this.ArchitectureSelect.SelectedIndex >= 3;
             this.Controller.UseWebservices = this.WebserviceCheckBox.Checked;
-            EnableControls( false );
-            var UpdateTask = new Task( new Action( delegate()
-                {
-                    try
-                    {
-                        this.Controller.UpdateAll( force32, force64, xtmfOnly, ( p => this.BeginInvoke( new Action<float>( SetUpdateProgress ), new object[] { p } ) ),
-                        ( s => this.BeginInvoke( new Action<string>( SetUpdateStatus ), new object[] { s } ) ) );
-                    }
-                    catch ( AggregateException error )
-                    {
-                        MessageBox.Show( error.InnerException.Message, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error );
-                    }
-                    catch ( Exception error )
-                    {
-                        MessageBox.Show( error.Message + "\r\n" + error.StackTrace, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error );
-                    }
-                    finally
-                    {
-                        EnableControls( true );
-                    }
-                } ) );
+            EnableControls(false);
+            var UpdateTask = new Task(new Action(delegate ()
+              {
+                  try
+                  {
+                      this.Controller.UpdateAll(force32, force64, xtmfOnly, (p => this.BeginInvoke(new Action<float>(SetUpdateProgress), new object[] { p })),
+                      (s => this.BeginInvoke(new Action<string>(SetUpdateStatus), new object[] { s })), LaunchPoint);
+                  }
+                  catch (AggregateException error)
+                  {
+                      MessageBox.Show(error.InnerException.Message, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                  }
+                  catch (Exception error)
+                  {
+                      MessageBox.Show(error.Message + "\r\n" + error.StackTrace, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                  }
+                  finally
+                  {
+                      EnableControls(true);
+                  }
+              }));
             UpdateTask.Start();
         }
     }

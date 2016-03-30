@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -29,6 +30,11 @@ namespace XTMF.Update
             if ( args.Length < 2 ) return;
             for ( int i = 0; i < args.Length; i += 2 )
             {
+                // make sure that we don't process the application we are supposed to startup
+                if(i + 1 == args.Length)
+                {
+                    break;
+                }
                 for ( int times = 0; times < 5; times++ )
                 {
                     try
@@ -45,6 +51,11 @@ namespace XTMF.Update
                         Thread.Sleep( 200 );
                     }
                 }
+            }
+            if(args.Length % 2 == 1)
+            {
+                var launchProgram = args[args.Length - 1];
+                Process.Start(launchProgram);
             }
         }
     }
