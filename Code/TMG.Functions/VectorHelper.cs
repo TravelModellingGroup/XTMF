@@ -490,6 +490,173 @@ namespace TMG.Functions
             }
         }
 
+        public static void Add(float[] dest, float[] source, float scalar)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> constant = new Vector<float>(scalar);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= source.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var dynamic = new Vector<float>(source, i);
+                    (constant + dynamic).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < source.Length; i++)
+                {
+                    dest[i] = source[i] + scalar;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = source[i] + scalar;
+                }
+            }
+        }
+
+        public static void Subtract(float[] dest, float[] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> rhsV = new Vector<float>(rhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var lhsV = new Vector<float>(lhs, i);
+                    (lhsV - rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] - rhs;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] - rhs;
+                }
+            }
+        }
+
+        public static void Subtract(float[] dest, float lhs, float[] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> lhsV = new Vector<float>(lhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var rhsV = new Vector<float>(rhs, i);
+                    (lhsV - rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < rhs.Length; i++)
+                {
+                    dest[i] = lhs - rhs[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs - rhs[i];
+                }
+            }
+        }
+
+        public static void Divide(float[] dest, float[] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> rhsV = new Vector<float>(rhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var lhsV = new Vector<float>(lhs, i);
+                    (lhsV / rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] / rhs;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] / rhs;
+                }
+            }
+        }
+
+        public static void Divide(float[] dest, float lhs, float[] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> lhsV = new Vector<float>(lhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var rhsV = new Vector<float>(rhs, i);
+                    (lhsV / rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < rhs.Length; i++)
+                {
+                    dest[i] = lhs / rhs[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs / rhs[i];
+                }
+            }
+        }
+
+        public static void Multiply(float[] dest, float[] source, float scalar)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> constant = new Vector<float>(scalar);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= source.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var dynamic = new Vector<float>(source, i);
+                    (constant * dynamic).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < source.Length; i++)
+                {
+                    dest[i] = source[i] * scalar;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = source[i] * scalar;
+                }
+            }
+        }
 
         public static void Add(float[][] destination, float lhs, float[][] rhs)
         {
@@ -1844,7 +2011,7 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                if ((destIndex | xIndex ) == 0)
+                if ((destIndex | xIndex) == 0)
                 {
                     int i = 0;
                     for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)

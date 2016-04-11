@@ -25,7 +25,7 @@ namespace TMG.GTAModel.Input
 {
     public class ZoneFloatDataSource : IDataSource<SparseTwinIndex<float>>
     {
-        [SubModelInformation( Required = true, Description = "The module that reads in the data that will will aggregate." )]
+        [SubModelInformation( Required = true, Description = "The module that reads in the data that will aggregate." )]
         public IReadODData<float> Reader;
 
         [RootModule]

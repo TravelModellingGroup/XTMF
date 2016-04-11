@@ -32,6 +32,9 @@ namespace Tasha.Data
         [RootModule]
         public ITravelDemandModel Root;
 
+        [RunParameter("Initial Value", 0.0f, "The value to initially set this data source to.")]
+        public float InitialValue;
+
         private float Data;
 
         public float GiveData()
@@ -46,13 +49,13 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            Data = 0.0f;
+            Data = InitialValue;
             Loaded = true;
         }
 
         public void UnloadData()
         {
-            Data = 0.0f;
+            Data = InitialValue;
             Loaded = false;
         }
 

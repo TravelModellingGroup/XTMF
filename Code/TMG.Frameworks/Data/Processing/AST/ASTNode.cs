@@ -38,12 +38,14 @@ namespace TMG.Frameworks.Data.Processing.AST
             Start = start;
         }
 
-        public abstract ComputationResult Evaluate(IDataSource<SparseTwinIndex<float>>[] dataSources);
+        public abstract ComputationResult Evaluate(IDataSource[] dataSources);
     }
 
     public class ComputationResult
     {
-        bool IsODResult {  get { return Data != null; } }
+        public bool IsODResult { get { return ODData != null; } }
+
+        public bool IsVectorResult { get { return VectorData != null; } }
 
         public bool Error { get { return ErrorMessage != null; } }
 
@@ -51,16 +53,27 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         public bool Accumulator { get; private set; }
 
-        public SparseTwinIndex<float> Data
+        public enum VectorDirection
+        {
+            Unassigned,
+            Horizontal,
+            Vertical
+        }
+
+        public VectorDirection Direction { get; private set; }
+
+        public SparseTwinIndex<float> ODData
         {
             get; private set;
         }
+
+        public SparseArray<float> VectorData { get; private set; }
 
         public float LiteralValue
         {
             get; private set;
         }
-        public bool IsValue { get { return !IsODResult && !Error; } }
+        public bool IsValue { get { return !IsODResult && !IsVectorResult && !Error; } }
 
         public ComputationResult(float value)
         {
@@ -69,8 +82,23 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         public ComputationResult(SparseTwinIndex<float> data, bool accumulator)
         {
-            Data = data;
+            ODData = data;
             Accumulator = accumulator;
+        }
+
+        public ComputationResult(SparseArray<float> data, bool accumulator, VectorDirection direction = VectorDirection.Unassigned)
+        {
+            VectorData = data;
+            Accumulator = accumulator;
+            Direction = direction;
+        }
+
+        public ComputationResult(ComputationResult res, VectorDirection direction)
+        {
+            ODData = res.ODData;
+            LiteralValue = res.LiteralValue;
+            VectorData = res.VectorData;
+            Direction = direction;
         }
 
         public ComputationResult(string errorMessage)

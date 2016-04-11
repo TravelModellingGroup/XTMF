@@ -27,7 +27,7 @@ using TMG.Frameworks.Data.Processing.AST;
 namespace TMG.Frameworks.Data.Processing
 {
     [ModuleInformation(
-        Description = 
+        Description =
  @"This module is designed to execute optimized matrix math on the given data sources.  The available operations are add +, subtract -, multiply *, and divide /. 
 You can also use brackets () to order the operations.  Math using literals will be optimized and no data source will be altered.  A valid expression could be 
 '(A + B * C) / D' where you have the data sources A, B, C, and D defined with their Module names matching.  The result of this will be an OD matrix.  If only literals are used the size 
@@ -39,7 +39,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
         public string Expression;
 
         [SubModelInformation(Required = false, Description = "The matrices to refer to.")]
-        public IDataSource<SparseTwinIndex<float>>[] DataSources;
+        public IDataSource[] DataSources;
 
         [RootModule]
         public ITravelDemandModel Root;
@@ -70,7 +70,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
                 var result = ExpressionToExecute.Evaluate(DataSources);
                 if (result.Error)
                 {
-                    throw new XTMFRuntimeException(result.ErrorMessage);
+                    throw new XTMFRuntimeException("In '" + Name + "' an exception during the execution of the expression occurred.\r\n" + result.ErrorMessage);
                 }
                 // check to see if the result is a scalar
                 if (result.IsValue)
@@ -89,9 +89,13 @@ of the matrix will match the zone system otherwise the size of the matrices are 
                     }
                     Data = data;
                 }
+                else if (result.IsVectorResult)
+                {
+                    throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Vector instead of a matrix!");
+                }
                 else
                 {
-                    Data = result.Data;
+                    Data = result.ODData;
                 }
             }
             finally
