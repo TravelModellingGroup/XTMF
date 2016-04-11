@@ -308,7 +308,7 @@ namespace TMG.Emme.Utilities
                     var remainderStart = nodesToExplore.Count - nodesRemaining;
                     while (startFirst < nodesToExplore.Count)
                     {
-                        yield return BuildNodeMap(nodesToExplore, startFirst, startFirst + stepSize, remainderStart, nodesToExplore.Count);
+                        yield return BuildNodeMap(nodesToExplore, startFirst, Math.Min(startFirst + remainderStep, nodesToExplore.Count), remainderStart, nodesToExplore.Count);
                         startFirst += remainderStep;
                     }
                 }
