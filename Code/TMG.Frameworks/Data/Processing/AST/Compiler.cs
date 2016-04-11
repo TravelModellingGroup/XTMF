@@ -29,7 +29,7 @@ namespace TMG.Frameworks.Data.Processing.AST
         public static bool Compile(string expression,out AST.Expression ex, ref string error)
         {
             var buffer = expression.ToCharArray();
-            return AST.Expression.Compile(buffer, 0, buffer.Length, out ex, ref error);
+            return AST.Expression.Compile(buffer, 0, buffer.Length, out ex, ref error) && AST.Expression.Optimize(ref ex, ref error);
         }
     }
 }

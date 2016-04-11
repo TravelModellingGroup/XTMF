@@ -58,6 +58,12 @@ namespace TMG.Frameworks.Data.Processing.AST
             return -1;
         }
 
+        internal static bool Optimize(ref Expression ex, ref string error)
+        {
+            // if this ever becomes a real problem try to add some optimization to the expression tree
+            return true;
+        }
+
         private static int FindStartOfBracket(char[] buffer, int start, int length, ref string error)
         {
             int bracketLevel = 1;
