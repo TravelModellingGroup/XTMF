@@ -1,0 +1,483 @@
+﻿/*
+    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using Datastructure;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TMG.Functions;
+using XTMF;
+
+namespace TMG.Frameworks.Data.Processing.AST
+{
+    public abstract class Expression : ASTNode
+    {
+
+        public Expression(int start) : base(start)
+        {
+
+        }
+
+        private static int FindEndOfBracket(char[] buffer, int start, int length, ref string error)
+        {
+            int bracketLevel = 1;
+            int i = start;
+            for (; i < start + length && bracketLevel > 0; i++)
+            {
+                if (buffer[i] == ')')
+                {
+                    bracketLevel--;
+                }
+                else if (buffer[i] == '(')
+                {
+                    bracketLevel++;
+                }
+            }
+            if (bracketLevel == 0)
+            {
+                return i - 1;
+            }
+            error = "Unable to find end of bracket starting at position " + start;
+            return -1;
+        }
+
+        private static int FindStartOfBracket(char[] buffer, int start, int length, ref string error)
+        {
+            int bracketLevel = 1;
+            int i = start + length - 1;
+            for (; i >= start && bracketLevel > 0; i--)
+            {
+                if (buffer[i] == '(')
+                {
+                    bracketLevel--;
+                }
+                else if (buffer[i] == ')')
+                {
+                    bracketLevel++;
+                }
+            }
+            if (bracketLevel == 0)
+            {
+                return i + 1;
+            }
+            error = "Unable to find start of bracket with the end bracket at position " + start;
+            return -1;
+        }
+
+        public static bool Compile(char[] buffer, int start, int length, out Expression ex, ref string error)
+        {
+            ex = null;
+            var endPlusOne = (length + start);
+            // try to extract + and -
+            for (int i = start; i < endPlusOne; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        {
+                            int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            i = endIndex;
+                        }
+                        break;
+                    case '+':
+                    case '-':
+                        {
+                            BinaryExpression toReturn = buffer[i] == '+' ? (BinaryExpression)new Add(i) : (BinaryExpression)new Subtract(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
+            // if there are no adds work on multiplies fix this for division
+            for (int i = start; i < endPlusOne; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        {
+                            int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            i = endIndex;
+                        }
+                        break;
+                    case '*':
+                        {
+                            BinaryExpression toReturn = (BinaryExpression)new Multiply(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
+            // if there are no adds work on division
+            for (int i = length + start - 1; i >= start; i--)
+            {
+                switch (buffer[i])
+                {
+                    case ')':
+                        {
+                            int endIndex = FindStartOfBracket(buffer, start, i - start, ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            i = endIndex;
+                        }
+                        break;
+                    case '/':
+                        {
+                            BinaryExpression toReturn = (BinaryExpression)new Divide(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
+            // deal with brackets
+            for (int i = start; i < start + length; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        {
+                            int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            var toReturn = new Bracket(i);
+                            if (!Compile(buffer, i + 1, (endIndex - i) - 1, out toReturn.InnerExpression, ref error))
+                            {
+                                return false;
+                            }
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
+            // try to extract literal / variable name
+            StringBuilder builder = new StringBuilder();
+            bool first = true;
+            bool complete = false;
+            int index = -1;
+            for (int i = start; i < endPlusOne && !complete; i++)
+            {
+                switch (buffer[i])
+                {
+                    case ' ':
+                        if (first)
+                        {
+                            // just skip
+                        }
+                        else
+                        {
+                            complete = true;
+                            // end of string
+                        }
+                        break;
+                    default:
+                        if (first)
+                        {
+                            first = false;
+                            index = i;
+                        }
+                        builder.Append(buffer[i]);
+                        break;
+                }
+            }
+            var value = builder.ToString();
+            float f;
+            if (value.Length <= 0)
+            {
+                error = "We were unable to read in a value from position " + start;
+                return false;
+            }
+            if (float.TryParse(value, out f))
+            {
+                // if we can read it in as a floating point number
+                ex = new Literal(index, f);
+            }
+            else
+            {
+                ex = new Variable(index, value);
+            }
+            return true;
+        }
+    }
+
+
+    public abstract class MonoExpression : Expression
+    {
+        public Expression InnerExpression;
+
+        public MonoExpression(int start) : base(start)
+        {
+
+        }
+    }
+
+    public abstract class BinaryExpression : Expression
+    {
+        public Expression LHS;
+        public Expression RHS;
+
+        public BinaryExpression(int start) : base(start)
+        {
+
+        }
+
+        public override ComputationResult Evaluate(IDataSource<SparseTwinIndex<float>>[] dataSources)
+        {
+            var lhs = LHS.Evaluate(dataSources);
+            var rhs = RHS.Evaluate(dataSources);
+            if (lhs.Error)
+            {
+                return lhs;
+            }
+            else if (rhs.Error)
+            {
+                return rhs;
+            }
+            return Evaluate(lhs, rhs);
+        }
+
+        public abstract ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs);
+    }
+
+    public abstract class Value : Expression
+    {
+        public Value(int start) : base(start)
+        {
+
+        }
+    }
+
+    public class Add : BinaryExpression
+    {
+        public Add(int start) : base(start)
+        {
+
+        }
+
+        public override ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs)
+        {
+            // see if we have two values, in this case we can skip doing the matrix operation
+            if (lhs.IsValue && rhs.IsValue)
+            {
+                return new ComputationResult(lhs.LiteralValue + rhs.LiteralValue);
+            }
+            // float / matrix
+            if (lhs.IsValue)
+            {
+                var retMatrix = rhs.Accumulator ? rhs.Data : rhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Add(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+            else if (rhs.IsValue)
+            {
+                // matrix / float
+                var retMatrix = lhs.Accumulator ? lhs.Data : lhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Add(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.LiteralValue);
+                return new ComputationResult(retMatrix, true);
+            }
+            else
+            {
+                var retMatrix = lhs.Accumulator ? lhs.Data : ( rhs.Accumulator ? rhs.Data : lhs.Data.CreateSimilarArray<float>());
+                VectorHelper.Add(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+        }
+    }
+
+    public class Subtract : BinaryExpression
+    {
+        public Subtract(int start) : base(start)
+        {
+
+        }
+
+        public override ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs)
+        {
+            // see if we have two values, in this case we can skip doing the matrix operation
+            if (lhs.IsValue && rhs.IsValue)
+            {
+                return new ComputationResult(lhs.LiteralValue - rhs.LiteralValue);
+            }
+            // float / matrix
+            if (lhs.IsValue)
+            {
+                var retMatrix = rhs.Accumulator ? rhs.Data : rhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Subtract(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+            else if (rhs.IsValue)
+            {
+                // matrix / float
+                var retMatrix = lhs.Accumulator ? lhs.Data : lhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Subtract(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.LiteralValue);
+                return new ComputationResult(retMatrix, true);
+            }
+            else
+            {
+                var retMatrix = lhs.Accumulator ? lhs.Data : (rhs.Accumulator ? rhs.Data : lhs.Data.CreateSimilarArray<float>());
+                VectorHelper.Subtract(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+        }
+    }
+
+    public class Multiply : BinaryExpression
+    {
+        public Multiply(int start) : base(start)
+        {
+
+        }
+
+        public override ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs)
+        {
+            // see if we have two values, in this case we can skip doing the matrix operation
+            if (lhs.IsValue && rhs.IsValue)
+            {
+                return new ComputationResult(lhs.LiteralValue * rhs.LiteralValue);
+            }
+            // float / matrix
+            if (lhs.IsValue)
+            {
+                var retMatrix = rhs.Accumulator ? rhs.Data : rhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Multiply(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+            else if (rhs.IsValue)
+            {
+                // matrix / float
+                var retMatrix = lhs.Accumulator ? lhs.Data : lhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Multiply(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.LiteralValue);
+                return new ComputationResult(retMatrix, true);
+            }
+            else
+            {
+                var retMatrix = lhs.Accumulator ? lhs.Data : (rhs.Accumulator ? rhs.Data : lhs.Data.CreateSimilarArray<float>());
+                VectorHelper.Multiply(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+        }
+    }
+
+    public class Divide : BinaryExpression
+    {
+        public Divide(int start) : base(start)
+        {
+
+        }
+
+        public override ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs)
+        {
+            // see if we have two values, in this case we can skip doing the matrix operation
+            if (lhs.IsValue && rhs.IsValue)
+            {
+                return new ComputationResult(lhs.LiteralValue / rhs.LiteralValue);
+            }
+            // float / matrix
+            if (lhs.IsValue)
+            {
+                var retMatrix = rhs.Accumulator ? rhs.Data : rhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Divide(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+            else if (rhs.IsValue)
+            {
+                // matrix / float
+                var retMatrix = lhs.Accumulator ? lhs.Data : lhs.Data.CreateSimilarArray<float>();
+                VectorHelper.Divide(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.LiteralValue);
+                return new ComputationResult(retMatrix, true);
+            }
+            else
+            {
+                var retMatrix = lhs.Accumulator ? lhs.Data : (rhs.Accumulator ? rhs.Data : lhs.Data.CreateSimilarArray<float>());
+                VectorHelper.Divide(retMatrix.GetFlatData(), lhs.Data.GetFlatData(), rhs.Data.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
+        }
+    }
+
+    public class Bracket : MonoExpression
+    {
+        public Bracket(int start) : base(start)
+        {
+
+        }
+
+        public override ComputationResult Evaluate(IDataSource<SparseTwinIndex<float>>[] dataSources)
+        {
+            return InnerExpression.Evaluate(dataSources);
+        }
+    }
+
+    public class Literal : Value
+    {
+        public readonly float Value;
+
+        public Literal(int start, float value) : base(start)
+        {
+            Value = value;
+        }
+
+        public override ComputationResult Evaluate(IDataSource<SparseTwinIndex<float>>[] dataSources)
+        {
+            return new ComputationResult(Value);
+        }
+    }
+
+    public class Variable : Value
+    {
+        public readonly string Name;
+
+        public Variable(int start, string name) : base(start)
+        {
+            Name = name;
+        }
+
+        public override ComputationResult Evaluate(IDataSource<SparseTwinIndex<float>>[] dataSources)
+        {
+            var source = dataSources.FirstOrDefault(d => d.Name == Name);
+            if (source == null)
+            {
+                return new ComputationResult("Unable to find a data source named '" + Name + "'!");
+            }
+            if (!source.Loaded)
+            {
+                source.LoadData();
+            }
+            return new ComputationResult(source.GiveData(), false);
+        }
+    }
+
+}
