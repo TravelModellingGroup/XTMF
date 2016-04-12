@@ -205,7 +205,7 @@
                                     RightClicked="DisplayButton_RightClicked"
                                     Margin="4"
                                     KeyboardNavigation.TabNavigation="Continue"
-                                    KeyboardNavigation.IsTabStop="false" IsTabStop="False" Width="275" Focusable="False" x:Name="DisplayButton">
+                                    KeyboardNavigation.IsTabStop="false" IsTabStop="False" MinWidth="275" Focusable="False" x:Name="DisplayButton">
                         </my:BorderIconButton>
                         <HierarchicalDataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
