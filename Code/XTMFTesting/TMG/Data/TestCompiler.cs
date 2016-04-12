@@ -198,6 +198,38 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(21.0f, flat[1], 0.00001f);
         }
 
+        [TestMethod]
+        public void TestMatrixSum()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("Sum(A + B)", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual(30.0f, result.LiteralValue, 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestVectorSum()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("Sum(SumRows(A + B))", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual(30.0f, result.LiteralValue, 0.00001f);
+        }
+
         class MatrixSource : IDataSource<SparseTwinIndex<float>>
         {
             public bool Loaded { get; set; }
