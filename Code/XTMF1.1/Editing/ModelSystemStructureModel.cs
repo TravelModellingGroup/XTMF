@@ -250,6 +250,12 @@ namespace XTMF
                     error = "The copied model system is not pasteable at this location.";
                     return false;
                 }
+                // if we are not a collection update the name of the module that is going to replace us with our name and description
+                if(!IsCollection)
+                {
+                    copiedStructure.Name = Name;
+                    copiedStructure.Description = Description;
+                }
             }
             List<LinkedParameterModel> newLinkedParameters = new List<LinkedParameterModel>();
             var additions = new List<Tuple<ParameterModel, LinkedParameterModel>>();
