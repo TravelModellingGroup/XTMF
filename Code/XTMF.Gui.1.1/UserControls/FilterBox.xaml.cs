@@ -130,7 +130,7 @@ namespace XTMF.Gui
             Box.Focus();
         }
 
-        protected override void OnPreviewKeyUp(KeyEventArgs e)
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
             if (e.Handled == false)
             {
