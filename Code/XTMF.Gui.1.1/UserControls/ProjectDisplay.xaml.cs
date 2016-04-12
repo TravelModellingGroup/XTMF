@@ -354,6 +354,13 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                         }
                         break;
+                    case Key.O:
+                        if(Controllers.EditorController.IsControlDown())
+                        {
+                            OpenProjectFolder();
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Enter:
                         {
                             LoadModelSystem();
@@ -481,6 +488,11 @@ namespace XTMF.Gui.UserControls
         }
 
         private void OpenProjectFolder_Clicked(object obj)
+        {
+            OpenProjectFolder();
+        }
+
+        private void OpenProjectFolder()
         {
             var directoryName = System.IO.Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
             try
