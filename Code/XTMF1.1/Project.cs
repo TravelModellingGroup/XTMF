@@ -403,7 +403,7 @@ namespace XTMF
             {
                 using (XmlTextWriter writer = new XmlTextWriter(tempFileName, Encoding.Unicode))
                 {
-                    writer.Formatting = Formatting.Indented;
+                    writer.Formatting = Formatting.None;
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Root");
 
