@@ -40,7 +40,9 @@ namespace TMG.Frameworks.Data.Processing.AST
             AsVertical,
             Sum,
             Abs,
-            Avg
+            Avg,
+            AvgRows,
+            AvgColumns
         }
 
         private FunctionType Type;
@@ -95,6 +97,12 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "avg":
                     type = FunctionType.Avg;
+                    return true;
+                case "avgrows":
+                    type = FunctionType.AvgRows;
+                    return true;
+                case "avgcolumns":
+                    type = FunctionType.AvgColumns;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -185,6 +193,26 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("SumColumns was executed with a parameter that was not a matrix!");
                     }
                     return SumColumns(values[0]);
+                case FunctionType.AvgRows:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("AvgRows was executed with the wrong number of parameters!");
+                    }
+                    if (!values[0].IsODResult)
+                    {
+                        return new ComputationResult("AvgRows was executed with a parameter that was not a matrix!");
+                    }
+                    return AvgRows(values[0]);
+                case FunctionType.AvgColumns:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("AvgColumns was executed with the wrong number of parameters!");
+                    }
+                    if (!values[0].IsODResult)
+                    {
+                        return new ComputationResult("AvgColumns was executed with a parameter that was not a matrix!");
+                    }
+                    return AvgColumns(values[0]);
                 case FunctionType.Sum:
                     if (values.Length != 1)
                     {
@@ -323,7 +351,34 @@ namespace TMG.Frameworks.Data.Processing.AST
             var flatData = data.GetFlatData();
             for (int i = 0; i < flatData.Length; i++)
             {
-                flatRet[i] = VectorHelper.Sum(flatData[i], 0, flatData.Length);
+                flatRet[i] = VectorHelper.Sum(flatData[i], 0, flatData[i].Length);
+            }
+            return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
+        }
+
+        private ComputationResult AvgColumns(ComputationResult computationResult)
+        {
+            var data = computationResult.ODData;
+            var ret = new SparseArray<float>(data.Indexes);
+            var flatRet = ret.GetFlatData();
+            var flatData = data.GetFlatData();
+            for (int i = 0; i < flatData.Length; i++)
+            {
+                VectorHelper.Add(flatRet, 0, flatRet, 0, flatData[i], 0, flatData[i].Length);
+            }
+            VectorHelper.Divide(flatRet, flatRet, flatData.Length);
+            return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
+        }
+
+        private ComputationResult AvgRows(ComputationResult computationResult)
+        {
+            var data = computationResult.ODData;
+            var ret = new SparseArray<float>(data.Indexes);
+            var flatRet = ret.GetFlatData();
+            var flatData = data.GetFlatData();
+            for (int i = 0; i < flatData.Length; i++)
+            {
+                flatRet[i] = VectorHelper.Sum(flatData[i], 0, flatData[i].Length) / flatData[i].Length;
             }
             return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
         }

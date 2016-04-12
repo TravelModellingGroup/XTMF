@@ -336,6 +336,44 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(-5.0f, result.LiteralValue, 0.00001f);
         }
 
+        [TestMethod]
+        public void TestMatrixAvgRows()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("AvgRows(A)", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsVectorResult);
+            Assert.IsTrue(result.Direction == ComputationResult.VectorDirection.Vertical);
+            var flat = result.VectorData.GetFlatData();
+            Assert.AreEqual(1.5f, flat[0], 0.00001f);
+            Assert.AreEqual(3.5f, flat[1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixAvgColumns()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("AvgColumns(A)", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsVectorResult);
+            Assert.IsTrue(result.Direction == ComputationResult.VectorDirection.Horizontal);
+            var flat = result.VectorData.GetFlatData();
+            Assert.AreEqual(2.0f, flat[0], 0.00001f);
+            Assert.AreEqual(3.0f, flat[1], 0.00001f);
+        }
+
         class MatrixSource : IDataSource<SparseTwinIndex<float>>
         {
             public bool Loaded { get; set; }
