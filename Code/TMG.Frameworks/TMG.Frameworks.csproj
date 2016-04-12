@@ -55,9 +55,15 @@
   <ItemGroup>
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
     <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />
+    <Compile Include="Data\Processing\AST\Add.cs" />
     <Compile Include="Data\Processing\AST\ASTNode.cs" />
     <Compile Include="Data\Processing\AST\Compiler.cs" />
+    <Compile Include="Data\Processing\AST\Divide.cs" />
     <Compile Include="Data\Processing\AST\Expression.cs" />
+    <Compile Include="Data\Processing\AST\FunctionCall.cs" />
+    <Compile Include="Data\Processing\AST\Multiply.cs" />
+    <Compile Include="Data\Processing\AST\Subtract.cs" />
+    <Compile Include="Data\Processing\AST\Variable.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
     <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
     <Compile Include="Extensibility\ExecuteInParallel.cs" />
