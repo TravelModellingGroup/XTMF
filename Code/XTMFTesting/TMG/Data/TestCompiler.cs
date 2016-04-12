@@ -230,6 +230,26 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(30.0f, result.LiteralValue, 0.00001f);
         }
 
+        [TestMethod]
+        public void TestMatrixTranspose()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("Transpose(A + B)", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(3.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(9.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(6.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(12.0f, flat[1][1], 0.00001f);
+        }
+
         class MatrixSource : IDataSource<SparseTwinIndex<float>>
         {
             public bool Loaded { get; set; }
