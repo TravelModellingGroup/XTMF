@@ -39,7 +39,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             AsHorizontal,
             AsVertical,
             Sum,
-            Abs
+            Abs,
+            Avg
         }
 
         private FunctionType Type;
@@ -91,6 +92,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "abs":
                     type = FunctionType.Abs;
+                    return true;
+                case "avg":
+                    type = FunctionType.Avg;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -197,8 +201,39 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("Abs was executed with the wrong number of parameters!");
                     }
                     return Abs(values[0]);
+                case FunctionType.Avg:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("Avg was executed with the wrong number of parameters!");
+                    }
+                    if (values[0].IsValue)
+                    {
+                        return new ComputationResult("Avg was executed with a parameter that was already a scalar value!");
+                    }
+                    return Avg(values[0]);
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult Avg(ComputationResult computationResult)
+        {
+            if (computationResult.IsVectorResult)
+            {
+                var flat = computationResult.VectorData.GetFlatData();
+                return new ComputationResult(VectorHelper.Sum(flat, 0, flat.Length) / flat.Length);
+            }
+            else
+            {
+                var flat = computationResult.ODData.GetFlatData();
+                var total = 0.0f;
+                var count = 0;
+                for (int i = 0; i < flat.Length; i++)
+                {
+                    total += VectorHelper.Sum(flat[i], 0, flat[i].Length);
+                    count += flat[i].Length;
+                }
+                return new ComputationResult(total / count);
+            }
         }
 
         private ComputationResult Abs(ComputationResult computationResult)
