@@ -184,6 +184,7 @@ namespace XTMF.Gui.UserControls
             DataContext = this;
             InitializeComponent();
             AllowMultiSelection(ModuleDisplay);
+            Loaded += ModelSystemDisplay_Loaded;
             ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
             FilterBox.Filter = (o, text) =>
            {
@@ -201,6 +202,11 @@ namespace XTMF.Gui.UserControls
               });
                return true;
            };
+        }
+
+        private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus(FilterBox);
         }
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
