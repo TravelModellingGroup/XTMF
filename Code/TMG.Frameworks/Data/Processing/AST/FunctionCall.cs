@@ -38,7 +38,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             SumColumns,
             AsHorizontal,
             AsVertical,
-            Sum
+            Sum,
+            Abs
         }
 
         private FunctionType Type;
@@ -87,6 +88,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "sum":
                     type = FunctionType.Sum;
+                    return true;
+                case "abs":
+                    type = FunctionType.Abs;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -187,8 +191,36 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("Sum was executed with a parameter that was already a scalar value!");
                     }
                     return Sum(values[0]);
+                case FunctionType.Abs:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("Abs was executed with the wrong number of parameters!");
+                    }
+                    return Abs(values[0]);
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult Abs(ComputationResult computationResult)
+        {
+            if(computationResult.IsValue)
+            {
+                return new ComputationResult(Math.Abs(computationResult.LiteralValue));
+            }
+            else if(computationResult.IsVectorResult)
+            {
+                var retVector = computationResult.Accumulator ? computationResult.VectorData : computationResult.VectorData.CreateSimilarArray<float>();
+                var flat = retVector.GetFlatData();
+                VectorHelper.Abs(flat, computationResult.VectorData.GetFlatData());
+                return new ComputationResult(retVector, true);
+            }
+            else
+            {
+                var retMatrix = computationResult.Accumulator ? computationResult.ODData : computationResult.ODData.CreateSimilarArray<float>();
+                var flat = retMatrix.GetFlatData();
+                VectorHelper.Abs(flat, computationResult.ODData.GetFlatData());
+                return new ComputationResult(retMatrix, true);
+            }
         }
 
         private ComputationResult Sum(ComputationResult computationResult)

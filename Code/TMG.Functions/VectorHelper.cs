@@ -658,6 +658,40 @@ namespace TMG.Functions
             }
         }
 
+        public static void Abs(float[] dest, float[] source)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var dynamic = new Vector<float>(source, i);
+                    (Vector.Abs(dynamic)).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = Math.Abs(source[i]);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = Math.Abs(source[i]);
+                }
+            }
+        }
+
+        public static void Abs(float[][] dest, float[][] source)
+        {
+            for (int row = 0; row < dest.Length; row++)
+            {
+                Abs(dest[row], source[row]);
+            }
+        }
+
         public static void Add(float[][] destination, float lhs, float[][] rhs)
         {
             if (Vector.IsHardwareAccelerated)
