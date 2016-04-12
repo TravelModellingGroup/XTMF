@@ -1064,6 +1064,29 @@ namespace XTMF
             }), ref error);
         }
 
+        public bool SetDescription(string newDescription, ref string error)
+        {
+            var oldDescription = "";
+            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            {
+                oldDescription = this.RealModelSystemStructure.Description;
+                this.RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                return true;
+            }, (ref string e) =>
+            {
+                this.RealModelSystemStructure.Description = oldDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                return true;
+            },
+            (ref string e) =>
+            {
+                this.RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                return true;
+            }), ref error);
+        }
+
         private void UpdateChildren()
         {
             Children = CreateChildren(Session, RealModelSystemStructure);

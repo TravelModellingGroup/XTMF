@@ -560,7 +560,14 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.F2:
-                            Rename();
+                            if (Controllers.EditorController.IsShiftDown())
+                            {
+                                RenameDescription();
+                            }
+                            else
+                            {
+                                Rename();
+                            }
                             e.Handled = true;
                             break;
                         case Key.F5:
@@ -1085,6 +1092,11 @@ namespace XTMF.Gui.UserControls
             Rename();
         }
 
+        private void Description_Clicked(object sender, RoutedEventArgs e)
+        {
+            RenameDescription();
+        }
+
         private void Rename()
         {
             var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
@@ -1100,6 +1112,29 @@ namespace XTMF.Gui.UserControls
                         throw new Exception(error);
                     }
                 }, selectedModuleControl, selected.Name);
+                layer.Add(adorn);
+                adorn.Focus();
+            }
+            else
+            {
+                throw new InvalidAsynchronousStateException("The current module could not be found!");
+            }
+        }
+        private void RenameDescription()
+        {
+            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
+            var selectedModuleControl = GetCurrentlySelectedControl();
+            if (selectedModuleControl != null)
+            {
+                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
+                var adorn = new TextboxAdorner("Rename Description", (result) =>
+                {
+                    string error = null;
+                    if (!selected.SetDescription(result, ref error))
+                    {
+                        throw new Exception(error);
+                    }
+                }, selectedModuleControl, selected.Description);
                 layer.Add(adorn);
                 adorn.Focus();
             }
