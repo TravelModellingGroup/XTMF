@@ -679,7 +679,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatLHS.Length; i++)
                             {
-                                VectorHelper.Add(flatLHS[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Add(flatRet[i], flatLHS[i], flatRHS[i]);
                             }
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
@@ -800,7 +800,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatLHS.Length; i++)
                             {
-                                VectorHelper.Subtract(flatLHS[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Subtract(flatRet[i], flatLHS[i], flatRHS[i]);
                             }
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
@@ -921,7 +921,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatLHS.Length; i++)
                             {
-                                VectorHelper.Multiply(flatLHS[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Multiply(flatRet[i], flatLHS[i], flatRHS[i]);
                             }
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
@@ -1042,7 +1042,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatLHS.Length; i++)
                             {
-                                VectorHelper.Divide(flatLHS[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Divide(flatRet[i], flatLHS[i], flatRHS[i]);
                             }
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
