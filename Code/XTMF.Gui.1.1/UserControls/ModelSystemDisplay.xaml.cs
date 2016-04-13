@@ -980,19 +980,28 @@ namespace XTMF.Gui.UserControls
 
         private void PasteCurrentModule()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (selected != null)
+            string pasteText = Clipboard.GetText();
+            var any = false;
+            if (pasteText != null)
             {
-                string error = null;
-                if (!selected.Paste(Clipboard.GetText(), ref error))
+                foreach (var selected in CurrentlySelected.ToList())
                 {
-                    MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
+                    string error = null;
+                    if (!selected.Paste(pasteText, ref error))
+                    {
+                        MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else
+                    {
+                        any = true;
+                    }
                 }
-                else
-                {
-                    UpdateParameters();
-                    UpdateQuickParameters();
-                }
+            }
+            if(any)
+            {
+                UpdateParameters();
+                UpdateQuickParameters();
             }
         }
 
@@ -1038,7 +1047,7 @@ namespace XTMF.Gui.UserControls
 
         private List<ParameterModel> GetActiveParameters()
         {
-            switch(CurrentlySelected.Count)
+            switch (CurrentlySelected.Count)
             {
                 case 0:
                     return null;
@@ -1107,9 +1116,12 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename", (result) =>
                 {
                     string error = null;
-                    if (!selected.SetName(result, ref error))
+                    foreach (var sel in CurrentlySelected)
                     {
-                        throw new Exception(error);
+                        if (!sel.BaseModel.SetName(result, ref error))
+                        {
+                            throw new Exception(error);
+                        }
                     }
                 }, selectedModuleControl, selected.Name);
                 layer.Add(adorn);
@@ -1130,9 +1142,12 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename Description", (result) =>
                 {
                     string error = null;
-                    if (!selected.SetDescription(result, ref error))
+                    foreach (var sel in CurrentlySelected)
                     {
-                        throw new Exception(error);
+                        if (!sel.BaseModel.SetDescription(result, ref error))
+                        {
+                            throw new Exception(error);
+                        }
                     }
                 }, selectedModuleControl, selected.Description);
                 layer.Add(adorn);
@@ -1202,7 +1217,7 @@ namespace XTMF.Gui.UserControls
             // order to not operate on the list as it is changing
             foreach (var selected in CurrentlySelected.ToList())
             {
-                if(first == null)
+                if (first == null)
                 {
                     first = selected;
                     parent = Session.GetParent(selected.BaseModel);
@@ -1213,7 +1228,7 @@ namespace XTMF.Gui.UserControls
                     System.Media.SystemSounds.Asterisk.Play();
                 }
             }
-            if(first != null)
+            if (first != null)
             {
                 if (!first.IsCollection)
                 {
