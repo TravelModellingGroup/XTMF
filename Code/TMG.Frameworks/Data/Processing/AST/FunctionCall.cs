@@ -42,7 +42,9 @@ namespace TMG.Frameworks.Data.Processing.AST
             Abs,
             Avg,
             AvgRows,
-            AvgColumns
+            AvgColumns,
+            E,
+            PI
         }
 
         private FunctionType Type;
@@ -103,6 +105,12 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "avgcolumns":
                     type = FunctionType.AvgColumns;
+                    return true;
+                case "e":
+                    type = FunctionType.E;
+                    return true;
+                case "pi":
+                    type = FunctionType.PI;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -239,6 +247,10 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("Avg was executed with a parameter that was already a scalar value!");
                     }
                     return Avg(values[0]);
+                case FunctionType.E:
+                    return new ComputationResult((float)Math.E);
+                case FunctionType.PI:
+                    return new ComputationResult((float)Math.PI);
             }
             return new ComputationResult("An undefined function was executed!");
         }

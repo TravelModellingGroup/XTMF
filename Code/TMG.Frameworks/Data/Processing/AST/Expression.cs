@@ -87,6 +87,18 @@ namespace TMG.Frameworks.Data.Processing.AST
             return -1;
         }
 
+        private static bool AnyNoneWhitespace(char[] buffer, int start, int length)
+        {
+            for (int i = start; i < start + length; i++)
+            {
+                if(buffer[i] != ' ')
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static bool Compile(char[] buffer, int start, int length, out Expression ex, ref string error)
         {
             ex = null;
@@ -210,12 +222,15 @@ namespace TMG.Frameworks.Data.Processing.AST
                                         lastStart = j + 1;
                                     }
                                 }
-                                // add the final parameter
-                                if (!Compile(buffer, lastStart, endIndex - lastStart, out p, ref error))
+                                if (AnyNoneWhitespace(buffer, lastStart, endIndex - lastStart))
                                 {
-                                    return false;
+                                    // add the final parameter
+                                    if (!Compile(buffer, lastStart, endIndex - lastStart, out p, ref error))
+                                    {
+                                        return false;
+                                    }
+                                    parameters.Add(p);
                                 }
-                                parameters.Add(p);
                                 if (!FunctionCall.GetCall(start, builder.ToString(), parameters.ToArray(), out toReturn, ref error))
                                 {
                                     return false;

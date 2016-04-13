@@ -374,6 +374,28 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(3.0f, flat[1], 0.00001f);
         }
 
+        [TestMethod]
+        public void TestPI()
+        {
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("PI( )", out ex, ref error));
+            var result = ex.Evaluate(new IDataSource[0]);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual((float)Math.PI, result.LiteralValue, 0.000001f);
+        }
+
+        [TestMethod]
+        public void TestE()
+        {
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("E( )", out ex, ref error));
+            var result = ex.Evaluate(new IDataSource[0]);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual((float)Math.E, result.LiteralValue, 0.000001f);
+        }
+
         class MatrixSource : IDataSource<SparseTwinIndex<float>>
         {
             public bool Loaded { get; set; }
