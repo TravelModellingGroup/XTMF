@@ -556,7 +556,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.Delete:
-                            RemoveCurrentModule();
+                            RemoveSelectedModules();
                             e.Handled = true;
                             break;
                         case Key.F2:
@@ -1191,22 +1191,36 @@ namespace XTMF.Gui.UserControls
 
         private void Remove_Clicked(object sender, RoutedEventArgs e)
         {
-            RemoveCurrentModule();
+            RemoveSelectedModules();
         }
 
-        private void RemoveCurrentModule()
+        private void RemoveSelectedModules()
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (selected != null)
+            ModelSystemStructureDisplayModel first = null;
+            ModelSystemStructureModel parent = null;
+            // we need to make a copy of the currently selected in
+            // order to not operate on the list as it is changing
+            foreach (var selected in CurrentlySelected.ToList())
             {
+                if(first == null)
+                {
+                    first = selected;
+                    parent = Session.GetParent(selected.BaseModel);
+                }
                 string error = null;
-                if (!selected.IsCollection)
+                if (!ModelSystem.Remove(selected.BaseModel, ref error))
+                {
+                    System.Media.SystemSounds.Asterisk.Play();
+                }
+            }
+            if(first != null)
+            {
+                if (!first.IsCollection)
                 {
                     // do this so we don't lose our place
-                    var parent = Session.GetParent(selected.BaseModel);
                     if (parent.IsCollection)
                     {
-                        if (parent.Children.IndexOf(selected.BaseModel) < parent.Children.Count - 1)
+                        if (parent.Children.IndexOf(first.BaseModel) < parent.Children.Count - 1)
                         {
                             MoveFocusNext(false);
                         }
@@ -1215,10 +1229,6 @@ namespace XTMF.Gui.UserControls
                             MoveFocusNext(true);
                         }
                     }
-                }
-                if (!ModelSystem.Remove(selected.BaseModel, ref error))
-                {
-                    System.Media.SystemSounds.Asterisk.Play();
                 }
                 RefreshParameters();
                 Keyboard.Focus(ModuleDisplay);

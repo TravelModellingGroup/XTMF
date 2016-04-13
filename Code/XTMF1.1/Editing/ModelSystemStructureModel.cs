@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -100,9 +100,10 @@ namespace XTMF
                             for (int i = 0; i < oldChildren.Count; i++)
                             {
                                 RealModelSystemStructure.Children[i] = oldChildren[i].RealModelSystemStructure;
+                                Children.Add(oldChildren[i]);
                             }
                         }
-                        UpdateChildren();
+                        //UpdateChildren();
                         Parameters = oldParameters;
                         SetRealParametersToModel();
                         Dirty = oldDirty;
