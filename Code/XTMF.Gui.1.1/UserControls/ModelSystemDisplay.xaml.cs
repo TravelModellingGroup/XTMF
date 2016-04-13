@@ -349,36 +349,44 @@ namespace XTMF.Gui.UserControls
 
         private void SelectReplacement()
         {
-            var selectedModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if (Session == null)
             {
                 throw new InvalidOperationException("Session has not been set before operating.");
             }
-            if (selectedModule != null)
+            if (CurrentlySelected.Count > 0)
             {
-                ModuleTypeSelect findReplacement = new ModuleTypeSelect(Session, selectedModule.BaseModel);
+                if (CurrentlySelected.Any(c => c.BaseModel.ParentFieldType != CurrentlySelected[0].BaseModel.ParentFieldType))
+                {
+                    MessageBox.Show(GetWindow(), "All selected modules must be for the same type.", "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                ModuleTypeSelect findReplacement = new ModuleTypeSelect(Session, CurrentlySelected[0].BaseModel);
                 findReplacement.Owner = GetWindow();
                 if (findReplacement.ShowDialog() == true)
                 {
                     var selectedType = findReplacement.SelectedType;
                     if (selectedType != null)
                     {
-                        if (selectedModule.BaseModel.IsCollection)
+                        foreach (var selectedModule in CurrentlySelected)
                         {
-                            string error = null;
-                            if (!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
+                            if (selectedModule.BaseModel.IsCollection)
                             {
-                                MessageBox.Show(GetWindow(), error, "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
+                                string error = null;
+                                if (!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
+                                {
+                                    MessageBox.Show(GetWindow(), error, "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
                             }
-                        }
-                        else
-                        {
-                            selectedModule.Type = selectedType;
+                            else
+                            {
+                                selectedModule.Type = selectedType;
+                            }
                         }
                         RefreshParameters();
                     }
                 }
             }
+
         }
 
         private void RefreshParameters()
@@ -998,7 +1006,7 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
-            if(any)
+            if (any)
             {
                 UpdateParameters();
                 UpdateQuickParameters();
@@ -1608,9 +1616,46 @@ namespace XTMF.Gui.UserControls
                       null
                     );
                 }
+                else if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) && CurrentlySelected.Count > 0)
+                {
+
+                    var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
+                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
+                    // select the range
+                    var lastSelected = CurrentlySelected.Last();
+                    var lastTreeItem = selectedItems.Last();
+                    var currentParent = VisualUpwardSearch(VisualTreeHelper.GetParent(treeViewItem));
+                    var lastParent = VisualUpwardSearch(VisualTreeHelper.GetParent(lastTreeItem));
+                    if (currentParent != null && currentParent == lastParent)
+                    {
+                        var itemGenerator = currentParent.ItemContainerGenerator;
+                        var lastSelectedIndex = itemGenerator.IndexFromContainer(lastTreeItem);
+                        var currentSelectedIndex = itemGenerator.IndexFromContainer(treeViewItem);
+                        int minIndex = Math.Min(lastSelectedIndex, currentSelectedIndex);
+                        int maxIndex = Math.Max(lastSelectedIndex, currentSelectedIndex);
+                        for (int i = minIndex + 1; i < maxIndex; i++)
+                        {
+                            var innerTreeViewItem = itemGenerator.ContainerFromIndex(i) as TreeViewItem;
+                            var innerModule = itemGenerator.Items[i] as ModelSystemStructureDisplayModel;
+                            if(!CurrentlySelected.Contains(innerModule))
+                            {
+                                CurrentlySelected.Add(innerModule);
+                                selectedItems.Add(innerTreeViewItem);
+                            }
+                        }
+                    }
+                    // select all of the modules that should be selected
+                    selectedItems.ForEach(item => item.IsSelected = true);
+                    IsSelectionChangeActiveProperty.SetValue
+                    (
+                      treeView,
+                      isSelectionChangeActive,
+                      null
+                    );
+                }
                 else
                 {
-                    // deselect all selected items except the current one
+                    // deselect all selected items (current one will be re-added)
                     CurrentlySelected.Clear();
                     selectedItems.ForEach(item => item.IsSelected = (item == treeViewItem));
                     selectedItems.Clear();
