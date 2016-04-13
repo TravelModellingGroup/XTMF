@@ -126,7 +126,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatRet.Length; i++)
                             {
-                                VectorHelper.Divide(flatRet[i], 0, flatRHS, 0, flatLHS[i], 0, flatRet[i].Length);
+                                VectorHelper.Divide(flatRet[i], 0, flatLHS[i], 0, flatRHS, 0, flatRet[i].Length);
                             }
                         }
                         else

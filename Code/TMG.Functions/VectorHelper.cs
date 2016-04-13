@@ -1019,6 +1019,60 @@ namespace TMG.Functions
             }
         }
 
+        public static void Pow(float[] flat, float[] lhs, float rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                flat[i] = (float)Math.Pow(lhs[i], rhs);
+            }
+        }
+
+        public static void Pow(float[] flat, float lhs, float[] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                flat[i] = (float)Math.Pow(lhs, rhs[i]);
+            }
+        }
+
+        public static void Pow(float[] flat, float[] lhs, float[] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                flat[i] = (float)Math.Pow(lhs[i], rhs[i]);
+            }
+        }
+
+        public static void Pow(float[][] flat, float[][] lhs, float[][] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                Pow(flat[i], lhs[i], rhs[i]);
+            }
+        }
+
+        public static void Pow(float[][] flat, float[][] lhs, float rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                Pow(flat[i], lhs[i], rhs);
+            }
+        }
+
+        public static void Pow(float[][] flat, float lhs, float[][] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                Pow(flat[i], lhs, rhs[i]);
+            }
+        }
+
 
         /// <summary>
         /// Multiply an array by a scalar and store it in another array.

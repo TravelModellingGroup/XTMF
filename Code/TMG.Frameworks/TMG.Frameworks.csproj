@@ -59,6 +59,7 @@
     <Compile Include="Data\Processing\AST\ASTNode.cs" />
     <Compile Include="Data\Processing\AST\Compiler.cs" />
     <Compile Include="Data\Processing\AST\Divide.cs" />
+    <Compile Include="Data\Processing\AST\Exponent.cs" />
     <Compile Include="Data\Processing\AST\Expression.cs" />
     <Compile Include="Data\Processing\AST\FunctionCall.cs" />
     <Compile Include="Data\Processing\AST\Multiply.cs" />

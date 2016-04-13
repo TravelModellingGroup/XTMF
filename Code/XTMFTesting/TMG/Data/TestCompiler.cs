@@ -396,6 +396,46 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual((float)Math.E, result.LiteralValue, 0.000001f);
         }
 
+        [TestMethod]
+        public void TestMatrixExponent()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A ^ B", out ex, ref error), "Unable to compile 'A + B'");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(16.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(729.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(65536.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixExponent2()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("(A + 1) ^ (B - 1)", out ex, ref error), "Unable to compile 'A + B'");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(2.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(27.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(1024, flat[1][0], 0.00001f);
+            Assert.AreEqual(78125.0f, flat[1][1], 0.00001f);
+        }
+
         class MatrixSource : IDataSource<SparseTwinIndex<float>>
         {
             public bool Loaded { get; set; }

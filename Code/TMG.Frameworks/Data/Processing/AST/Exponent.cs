@@ -25,9 +25,9 @@ using TMG.Functions;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public class Subtract : BinaryExpression
+    public class Exponent : BinaryExpression
     {
-        public Subtract(int start) : base(start)
+        public Exponent(int start) : base(start)
         {
 
         }
@@ -46,13 +46,13 @@ namespace TMG.Frameworks.Data.Processing.AST
                 {
                     var retVector = rhs.Accumulator ? rhs.VectorData : rhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
-                    VectorHelper.Subtract(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue);
+                    VectorHelper.Pow(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retVector, true);
                 }
                 else
                 {
                     var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Subtract(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.ODData.GetFlatData());
+                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.ODData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -62,14 +62,14 @@ namespace TMG.Frameworks.Data.Processing.AST
                 {
                     var retVector = lhs.Accumulator ? lhs.VectorData : lhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
-                    VectorHelper.Subtract(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue);
+                    VectorHelper.Pow(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retVector, true);
                 }
                 else
                 {
                     // matrix / float
                     var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Subtract(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.LiteralValue);
+                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -93,14 +93,14 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatRHS.Length; i++)
                             {
-                                VectorHelper.Subtract(flatRet[i], flatRHS[i], flatLHS[i]);
+                                VectorHelper.Pow(flatRet[i], flatRHS[i], flatLHS[i]);
                             }
                         }
                         else if (lhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
                             for (int i = 0; i < flatRHS.Length; i++)
                             {
-                                VectorHelper.Subtract(flatRet[i], 0, flatLHS, 0, flatRHS[i], 0, flatRet[i].Length);
+                                VectorHelper.Pow(flatRet[i], flatLHS, flatRHS[i]);
                             }
                         }
                         else
@@ -119,14 +119,14 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatLHS.Length; i++)
                             {
-                                VectorHelper.Subtract(flatRet[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS[i]);
                             }
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
                             for (int i = 0; i < flatRet.Length; i++)
                             {
-                                VectorHelper.Subtract(flatRet[i], 0, flatLHS[i], 0, flatRHS, 0, flatRet[i].Length);
+                                VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS);
                             }
                         }
                         else
@@ -139,7 +139,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                 else
                 {
                     var retMatrix = lhs.Accumulator ? lhs.ODData : (rhs.Accumulator ? rhs.ODData : lhs.ODData.CreateSimilarArray<float>());
-                    VectorHelper.Subtract(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.ODData.GetFlatData());
+                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.ODData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }

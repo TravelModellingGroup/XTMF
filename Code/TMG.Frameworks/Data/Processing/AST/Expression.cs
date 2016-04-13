@@ -179,6 +179,31 @@ namespace TMG.Frameworks.Data.Processing.AST
                         }
                 }
             }
+            // support exponents
+            for (int i = start; i < endPlusOne; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        {
+                            int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            i = endIndex;
+                        }
+                        break;
+                    case '^':
+                        {
+                            BinaryExpression toReturn = (BinaryExpression)new Exponent(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
             StringBuilder builder = new StringBuilder();
             bool first = true;
             bool complete = false;
