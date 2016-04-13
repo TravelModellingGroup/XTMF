@@ -1169,19 +1169,31 @@ namespace XTMF.Gui.UserControls
 
         private void MoveCurrentModule(int deltaPosition)
         {
-            var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (selected != null)
+            if (CurrentlySelected.Count > 0)
             {
-                string error = null;
-                if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
+                var parent = Session.GetParent(CurrentlySelected[0].BaseModel);
+                // make sure they all have the same parent
+                if (CurrentlySelected.Any(m => Session.GetParent(m.BaseModel) != parent))
                 {
-                    //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // if not ding and exit
                     System.Media.SystemSounds.Asterisk.Play();
+                    return;
                 }
-                else
+                var mul = deltaPosition < 0 ? 1 : -1;
+                var moveOrder = CurrentlySelected.Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) }).OrderBy(i => mul * i.ParentIndex);
+                var first = moveOrder.First();
+                foreach (var el in moveOrder)
                 {
-                    BringSelectedIntoView(selected);
+                    var selected = CurrentlySelected[el.Index];
+                    string error = null;
+                    if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
+                    {
+                        //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Media.SystemSounds.Asterisk.Play();
+                        break;
+                    }
                 }
+                BringSelectedIntoView(CurrentlySelected[first.Index]);
             }
         }
 
@@ -1591,7 +1603,23 @@ namespace XTMF.Gui.UserControls
             var selectedItems = new List<TreeViewItem>();
             treeView.SelectedItemChanged += (a, b) =>
             {
-                var treeViewItem = VisualUpwardSearch(GetCurrentlySelectedControl() as DependencyObject) as TreeViewItem;
+                var module = GetCurrentlySelectedControl();
+                if (module == null)
+                {
+                    // disable the event to avoid recursion
+                    var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
+                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
+                    selectedItems.ForEach(item => item.IsSelected = true);
+                    // enable the event to avoid recursion
+                    IsSelectionChangeActiveProperty.SetValue
+                    (
+                      treeView,
+                      isSelectionChangeActive,
+                      null
+                    );
+                    return;
+                }
+                var treeViewItem = VisualUpwardSearch(module as DependencyObject) as TreeViewItem;
                 if (treeViewItem == null) return;
 
                 var currentItem = treeView.SelectedItem as ModelSystemStructureDisplayModel;
@@ -1618,7 +1646,6 @@ namespace XTMF.Gui.UserControls
                 }
                 else if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) && CurrentlySelected.Count > 0)
                 {
-
                     var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
                     IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
                     // select the range
@@ -1637,7 +1664,7 @@ namespace XTMF.Gui.UserControls
                         {
                             var innerTreeViewItem = itemGenerator.ContainerFromIndex(i) as TreeViewItem;
                             var innerModule = itemGenerator.Items[i] as ModelSystemStructureDisplayModel;
-                            if(!CurrentlySelected.Contains(innerModule))
+                            if (!CurrentlySelected.Contains(innerModule))
                             {
                                 CurrentlySelected.Add(innerModule);
                                 selectedItems.Add(innerTreeViewItem);
@@ -1674,7 +1701,6 @@ namespace XTMF.Gui.UserControls
                     selectedItems.Remove(treeViewItem);
                 }
             };
-
         }
     }
 }
