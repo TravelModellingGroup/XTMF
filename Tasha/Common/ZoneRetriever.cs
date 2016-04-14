@@ -27,6 +27,7 @@ using XTMF;
 
 namespace Tasha.Common
 {
+    [ModuleInformation(Description = "This module is designed to load in a zone system and to provide that information to the rest of the model system.")]
     public sealed class ZoneRetriever : IZoneSystem, IDisposable
     {
         [RunParameter("Highest Zone Number", 7150, "The highest numbered zone.")]

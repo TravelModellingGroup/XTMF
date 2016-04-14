@@ -32,7 +32,7 @@ using System.Runtime.CompilerServices;
 
 namespace Tasha.Validation.Scheduler
 {
-
+    [ModuleInformation(Description = "This module is designed to extract out the purposes of trips, in a given time period, by persons over a given age.  The result is a matrix in the EMME4+ binary format.")]
     public class ExtractTripPurposes : IPostHousehold
     {
 

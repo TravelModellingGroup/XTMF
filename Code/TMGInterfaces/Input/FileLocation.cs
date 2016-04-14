@@ -44,6 +44,9 @@ namespace TMG.Input
         }
     }
 
+    [ModuleInformation(
+        Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the input directory unless a full path is given."
+        )]
     public class DirectorySeperatedPathFromInputDirectory : FileLocation
     {
         [RunParameter("Directory Relative To Input Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the input directory.")]
@@ -70,6 +73,9 @@ namespace TMG.Input
         }
     }
 
+    [ModuleInformation(
+    Description = "This module provides the ability to specify a file path relative to the input directory unless a full path is given."
+    )]
     public class FilePathFromInputDirectory : FileLocation
     {
         [RunParameter("File From Input Directory", "Filename.type", typeof(FileFromInputDirectory), "A file path to represent relative to the input directory.")]
@@ -84,6 +90,9 @@ namespace TMG.Input
         }
     }
 
+    [ModuleInformation(
+    Description = "This module provides the ability to specify a file path, broken into two parts.  The directory is relative to the output directory unless a full path is given."
+    )]
     public class DirectorySeperatedPathFromOutputDirectory : FileLocation
     {
         [RunParameter("Directory Relative To Run Directory", "", typeof(FileFromInputDirectory), "A directory path to represent relative to the run directory.")]
@@ -110,6 +119,9 @@ namespace TMG.Input
         }
     }
 
+    [ModuleInformation(
+Description = "This module provides the ability to specify a file path relative to the output directory unless a full path is given."
+)]
     public class FilePathFromOuputDirectory : FileLocation
     {
         [RunParameter("File From Output Directory", "Filename.type", typeof(FileFromOutputDirectory), "A file path to represent relative to the run's directory.")]
@@ -121,6 +133,9 @@ namespace TMG.Input
         }
     }
 
+    [ModuleInformation(
+Description = "This module provides the ability to specify a file path relative to the directory that contains XTMF unless a full path is given."
+)]
     public class FilePathFromXTMFDirectory : FileLocation
     {
         [RunParameter("File From XTMF Installation", "Filename.type", typeof(FileFromOutputDirectory), "A path relative to the installation directory of XTMF.")]

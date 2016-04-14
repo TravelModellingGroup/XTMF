@@ -28,6 +28,7 @@ using TMG;
 
 namespace Tasha.V4Modes
 {
+    [ModuleInformation(Description = "This module provides the ability to apply constants to a utility function depending on the trip origin and destinations of the trip.")]
     public sealed class SpatialConstant : IModule
     {
         [RunParameter("Origins", "", typeof(RangeSet), "The rangeset for the accepted origins")]
@@ -51,6 +52,7 @@ namespace Tasha.V4Modes
         }
     }
 
+    [ModuleInformation(Description = "This module provides the ability to apply constants to the utility function of modes depending on the time of day, origin, and destination for the trip.")]
     public sealed class TimePeriodSpatialConstant : XTMF.IModule
     {
         [RootModule]

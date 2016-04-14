@@ -23,6 +23,7 @@ using XTMF;
 
 namespace Tasha.XTMFModeChoice
 {
+    [ModuleInformation(Description = "This is the primary mode choice module for GTAModel V4.0.  It provides support for passenger and rideshare modes as well as tour-dependent utility modes.")]
     public class ModeChoice : ITashaModeChoice
     {
         [RunParameter("Rideshare's Base Mode Name", "Auto", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]

@@ -27,6 +27,7 @@ using Datastructure;
 
 namespace Tasha.PopulationSynthesis
 {
+    [ModuleInformation(Description = "This module is designed to initialize the resources containing the place of residence place of work aggregate model.")]
     public class StartPoRPoW : IPreIteration
     {
         public string Name { get; set; }

@@ -29,7 +29,15 @@ using System.Threading;
 
 namespace TMG.Frameworks.MultiRun
 {
+    [ModuleInformation(
+        Description =
+@"
+TMG’s Multi-run framework is designed to aid in the automation of running model systems where each iteration would require setup.
+The framework itself is extendable as modules are able to add their own additional commands to the language used in the configuration file.
 
+For specification about the language, and extensibility please consult the TMG Frameworks Users Guide.
+"
+        )]
     public class MultiRunModelSystem : IModelSystemTemplate
     {
         [RunParameter("Input Directory", "../../Input", "The input directory to use for this model system template.")]

@@ -24,6 +24,7 @@ using XTMF;
 
 namespace TMG.Tasha
 {
+    [ModuleInformation(Description = "This module is designed to load trip chains for a given person from TTS like trip records.")]
     public class TripChainLoader : IDatachainLoader<ITashaPerson, ITripChain>, IDisposable
     {
         [RunParameter("DestinationZone", 9, "The 0 indexed column that represents a person's Household ID." )]
