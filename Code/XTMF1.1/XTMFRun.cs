@@ -101,7 +101,7 @@ namespace XTMF
         /// <summary>
         /// An event that fires if a runtime error occurs, this includes out of memory exceptions
         /// </summary>
-        public event Action<Exception> RuntimeError;
+        public event Action<string,string> RuntimeError;
 
         /// <summary>
         /// An event that fires when the model ends in an error during runtime validation
@@ -373,11 +373,12 @@ namespace XTMF
 
         private void SendRuntimeError(Exception errorMessage)
         {
+            errorMessage = GetTopRootException(errorMessage);
             SaveErrorMessage(errorMessage);
             var alert = RuntimeError;
             if(alert != null)
             {
-                alert(errorMessage);
+                alert(errorMessage.Message, errorMessage.StackTrace);
             }
         }
 

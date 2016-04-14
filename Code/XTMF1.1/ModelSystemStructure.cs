@@ -1032,11 +1032,11 @@ namespace XTMF
         private static string GetDefaultDescription(IModelSystemStructure projectStructure, IModelSystemStructure parent)
         {
             // we can't get information from collections or if the parent isn't defined
-            if (parent == null || parent.IsCollection)
+            if (parent == null || parent.IsCollection || projectStructure.ParentFieldName == null)
             {
                 return String.Empty;
             }
-            // otherwise scan the type to see if we can get any infomration
+            // otherwise scan the type to see if we can get any information
             var type = parent.Type;
             var field = type.GetField(projectStructure.ParentFieldName);
             var property = type.GetProperty(projectStructure.ParentFieldName);

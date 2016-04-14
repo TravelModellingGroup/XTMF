@@ -26,11 +26,11 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class ErrorWindow : Window
     {
-        public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register( "ErrorMessage", typeof(string), typeof(ErrorWindow),
-        new FrameworkPropertyMetadata( OnErrorMessageChanged ) );
+        public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register("ErrorMessage", typeof(string), typeof(ErrorWindow),
+        new FrameworkPropertyMetadata(OnErrorMessageChanged));
 
-        public static readonly DependencyProperty ErrorProperty = DependencyProperty.Register( "Exception", typeof(Exception), typeof(ErrorWindow),
-                new FrameworkPropertyMetadata( OnErrorChanged ) );
+        public static readonly DependencyProperty ErrorStackTraceProperty = DependencyProperty.Register("ErrorStackTrace", typeof(string), typeof(ErrorWindow),
+                new FrameworkPropertyMetadata(OnErrorStackTraceChanged));
 
         public ErrorWindow()
         {
@@ -42,78 +42,46 @@ namespace XTMF.Gui.UserControls
         {
             get
             {
-                return this.GetValue( ErrorMessageProperty ) as string;
+                return this.GetValue(ErrorMessageProperty) as string;
             }
 
             set
             {
-                this.SetValue( ErrorMessageProperty, value as string );
+                this.SetValue(ErrorMessageProperty, value as string);
             }
         }
 
-        public Exception Exception
+        public string ErrorStackTrace
         {
             get
             {
-                return this.GetValue( ErrorProperty ) as Exception;
+                return this.GetValue(ErrorStackTraceProperty) as string;
             }
 
             set
             {
-                this.SetValue( ErrorProperty, value as Exception );
+                this.SetValue(ErrorStackTraceProperty, value as string);
             }
         }
+
+
 
         public void Continue(object bob)
         {
             this.Close();
         }
 
-        public void Copy(object bob)
-        {
-            var error = GetTopRootException( this.Exception );
-            if ( error == null )
-            {
-                SetToClipboard( ErrorMessage );
-            }
-            else
-            {
-                SetToClipboard( error.Message + "\r\n" + error.StackTrace );
-            }
-        }
 
-        private static System.Exception GetTopRootException(System.Exception value)
-        {
-            if ( value == null ) return null;
-            var agg = value as AggregateException;
-            if ( agg != null )
-            {
-                return GetTopRootException( agg.InnerException );
-            }
-            return value;
-        }
-
-        private static void OnErrorChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
+        private static void OnErrorStackTraceChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
             var window = source as ErrorWindow;
-            var value = e.NewValue as Exception;
-            value = GetTopRootException( value );
-            if ( value != null )
+            var value = e.NewValue as string;
+            if (value != null)
             {
-                if ( value is OutOfMemoryException )
-                {
-                    window.MessageBox.Text = "The system ran out of memory, please check the amount of memory available on your system.  If there is still insufficient memory for this model system please contact your model system designer.";
-                    window.StackTraceBox.Text = value.StackTrace;
-                }
-                else
-                {
-                    window.MessageBox.Text = "Runtime Exception:\r\n" + value.Message;
-                    window.StackTraceBox.Text = value.StackTrace;
-                }
+                window.StackTraceBox.Text = value;
             }
             else
             {
-                window.MessageBox.Text = "No error found!";
                 window.StackTraceBox.Text = "No error found!";
             }
         }
@@ -122,21 +90,31 @@ namespace XTMF.Gui.UserControls
         {
             var window = source as ErrorWindow;
             var value = e.NewValue as string;
-            if ( value != null )
+            if (value != null)
             {
                 window.MessageBox.Text = value;
-                window.StackTraceBox.Text = "No Stack Trace";
             }
             else
             {
                 window.MessageBox.Text = "No error found!";
-                window.StackTraceBox.Text = "No error Trace";
+            }
+        }
+
+        public void Copy(object bob)
+        {
+            if (ErrorStackTrace == null)
+            {
+                SetToClipboard(ErrorMessage);
+            }
+            else
+            {
+                SetToClipboard(ErrorMessage + "\r\n" + ErrorStackTrace);
             }
         }
 
         private void SetToClipboard(string str)
         {
-            Clipboard.SetText( str );
+            Clipboard.SetText(str);
         }
     }
 }

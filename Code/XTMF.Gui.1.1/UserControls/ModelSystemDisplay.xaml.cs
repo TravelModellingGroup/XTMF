@@ -941,7 +941,10 @@ namespace XTMF.Gui.UserControls
                             var watch = Stopwatch.StartNew();
                             if (!Session.Save(ref error))
                             {
-                                MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                                Dispatcher.Invoke(() =>
+                                {
+                                    MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                                });
                             }
                             watch.Stop();
                             var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
