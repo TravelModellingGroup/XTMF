@@ -367,21 +367,24 @@ namespace XTMF.Gui.UserControls
                     var selectedType = findReplacement.SelectedType;
                     if (selectedType != null)
                     {
-                        foreach (var selectedModule in CurrentlySelected)
-                        {
-                            if (selectedModule.BaseModel.IsCollection)
-                            {
-                                string error = null;
-                                if (!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
-                                {
-                                    MessageBox.Show(GetWindow(), error, "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
-                                }
-                            }
-                            else
-                            {
-                                selectedModule.Type = selectedType;
-                            }
-                        }
+                        Session.ExecuteCombinedCommands(() =>
+                       {
+                           foreach (var selectedModule in CurrentlySelected)
+                           {
+                               if (selectedModule.BaseModel.IsCollection)
+                               {
+                                   string error = null;
+                                   if (!selectedModule.BaseModel.AddCollectionMember(selectedType, ref error))
+                                   {
+                                       MessageBox.Show(GetWindow(), error, "Failed add module to collection", MessageBoxButton.OK, MessageBoxImage.Error);
+                                   }
+                               }
+                               else
+                               {
+                                   selectedModule.Type = selectedType;
+                               }
+                           }
+                       });
                         RefreshParameters();
                     }
                 }
@@ -1127,13 +1130,16 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename", (result) =>
                 {
                     string error = null;
-                    foreach (var sel in CurrentlySelected)
-                    {
-                        if (!sel.BaseModel.SetName(result, ref error))
-                        {
-                            throw new Exception(error);
-                        }
-                    }
+                    Session.ExecuteCombinedCommands(() =>
+                   {
+                       foreach (var sel in CurrentlySelected)
+                       {
+                           if (!sel.BaseModel.SetName(result, ref error))
+                           {
+                               throw new Exception(error);
+                           }
+                       }
+                   });
                 }, selectedModuleControl, selected.Name);
                 layer.Add(adorn);
                 adorn.Focus();
@@ -1153,13 +1159,16 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename Description", (result) =>
                 {
                     string error = null;
-                    foreach (var sel in CurrentlySelected)
+                    Session.ExecuteCombinedCommands(() =>
                     {
-                        if (!sel.BaseModel.SetDescription(result, ref error))
+                        foreach (var sel in CurrentlySelected)
                         {
-                            throw new Exception(error);
+                            if (!sel.BaseModel.SetDescription(result, ref error))
+                            {
+                                throw new Exception(error);
+                            }
                         }
-                    }
+                    });
                 }, selectedModuleControl, selected.Description);
                 layer.Add(adorn);
                 adorn.Focus();
@@ -1185,17 +1194,20 @@ namespace XTMF.Gui.UserControls
                 var mul = deltaPosition < 0 ? 1 : -1;
                 var moveOrder = CurrentlySelected.Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) }).OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
-                foreach (var el in moveOrder)
-                {
-                    var selected = CurrentlySelected[el.Index];
-                    string error = null;
-                    if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
-                    {
-                        //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
-                        System.Media.SystemSounds.Asterisk.Play();
-                        break;
-                    }
-                }
+                Session.ExecuteCombinedCommands(() =>
+               {
+                   foreach (var el in moveOrder)
+                   {
+                       var selected = CurrentlySelected[el.Index];
+                       string error = null;
+                       if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
+                       {
+                            //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
+                            System.Media.SystemSounds.Asterisk.Play();
+                           break;
+                       }
+                   }
+               });
                 BringSelectedIntoView(CurrentlySelected[first.Index]);
             }
         }
@@ -1238,19 +1250,22 @@ namespace XTMF.Gui.UserControls
             ModelSystemStructureModel parent = null;
             // we need to make a copy of the currently selected in
             // order to not operate on the list as it is changing
-            foreach (var selected in CurrentlySelected.ToList())
-            {
-                if (first == null)
-                {
-                    first = selected;
-                    parent = Session.GetParent(selected.BaseModel);
-                }
-                string error = null;
-                if (!ModelSystem.Remove(selected.BaseModel, ref error))
-                {
-                    System.Media.SystemSounds.Asterisk.Play();
-                }
-            }
+            Session.ExecuteCombinedCommands(() =>
+           {
+               foreach (var selected in CurrentlySelected.ToList())
+               {
+                   if (first == null)
+                   {
+                       first = selected;
+                       parent = Session.GetParent(selected.BaseModel);
+                   }
+                   string error = null;
+                   if (!ModelSystem.Remove(selected.BaseModel, ref error))
+                   {
+                       System.Media.SystemSounds.Asterisk.Play();
+                   }
+               }
+           });
             if (first != null)
             {
                 if (!first.IsCollection)
