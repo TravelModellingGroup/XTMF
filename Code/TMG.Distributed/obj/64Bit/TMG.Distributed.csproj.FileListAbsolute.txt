@@ -1,3 +1,0 @@
-C:\Documents\XTMF\Modules\TMG.Distributed.dll
-C:\Documents\GITXTMF\Code\TMG.Distributed\obj\64Bit\TMG.Distributed.csprojResolveAssemblyReference.cache
-C:\Documents\GITXTMF\Code\TMG.Distributed\obj\64Bit\TMG.Distributed.dll

@@ -361,64 +361,6 @@ namespace XTMF
             }
         }
 
-        private volatile bool InCombinedContext = false;
-
-        private List<XTMFCommand> CombinedCommands;
-
-        public void ExecuteCombinedCommands(Action combinedCommandContext)
-        {
-            lock(SessionLock)
-            {
-                InCombinedContext = true;
-                var list = CombinedCommands = new List<XTMFCommand>();
-                try
-                {
-                    combinedCommandContext();
-                }
-                finally
-                {
-                    // only add to the undo list if a command was added successfully
-                    if (list.Count > 0)
-                    {
-                        // create a command to undo everything in a single shot [do is empty]
-                        UndoStack.Add(XTMFCommand.CreateCommand((ref string error) => { return true; },
-                            (ref string error) =>
-                            {
-                                foreach (var command in ((IEnumerable<XTMFCommand>)list).Reverse())
-                                {
-                                    if (command.CanUndo())
-                                    {
-                                        if (!command.Undo(ref error))
-                                        {
-                                            return false;
-                                        }
-                                    }
-                                }
-                                return true;
-                            }
-                            ,
-                             (ref string error) =>
-                             {
-                                 foreach (var command in list)
-                                 {
-                                     if (command.CanUndo())
-                                     {
-                                         if (!command.Redo(ref error))
-                                         {
-                                             return false;
-                                         }
-                                     }
-                                 }
-                                 return true;
-                             }
-                        ));
-                    }
-                }
-                InCombinedContext = false;
-                CombinedCommands = null;
-            }
-        }
-
         public bool RunCommand(XTMFCommand command, ref string error)
         {
             lock (SessionLock)
@@ -431,17 +373,9 @@ namespace XTMF
                 if (command.Do(ref error))
                 {
                     HasChanged = true;
-                    if (InCombinedContext)
+                    if (command.CanUndo())
                     {
-                        var list = CombinedCommands;
-                        list.Add(command);
-                    }
-                    else
-                    {
-                        if (command.CanUndo())
-                        {
-                            UndoStack.Add(command);
-                        }
+                        UndoStack.Add(command);
                     }
                     // if we do something new, redo no long is available
                     RedoStack.Clear();

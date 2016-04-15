@@ -1,5 +1,0 @@
-C:\Documents\XTMF\Modules\TMG.Frameworks.dll
-C:\Documents\XTMF\Modules\TMG.Frameworks.pdb
-C:\Documents\GITXTMF\Code\TMG.Frameworks\obj\64Bit\TMG.Frameworks.csprojResolveAssemblyReference.cache
-C:\Documents\GITXTMF\Code\TMG.Frameworks\obj\64Bit\TMG.Frameworks.dll
-C:\Documents\GITXTMF\Code\TMG.Frameworks\obj\64Bit\TMG.Frameworks.pdb
