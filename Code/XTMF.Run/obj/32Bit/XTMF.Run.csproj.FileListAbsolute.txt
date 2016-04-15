@@ -1,6 +1,0 @@
-C:\Documents\XTMF32\XTMF.Run.exe.config
-C:\Documents\XTMF32\XTMF.Run.exe
-C:\Documents\XTMF32\XTMF.Run.pdb
-C:\Documents\GITXTMF\Code\XTMF.Run\obj\32Bit\XTMF.Run.csprojResolveAssemblyReference.cache
-C:\Documents\GITXTMF\Code\XTMF.Run\obj\32Bit\XTMF.Run.exe
-C:\Documents\GITXTMF\Code\XTMF.Run\obj\32Bit\XTMF.Run.pdb
