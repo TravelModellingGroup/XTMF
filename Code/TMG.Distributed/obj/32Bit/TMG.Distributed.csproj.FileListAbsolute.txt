@@ -1,0 +1,5 @@
+C:\Documents\XTMF32\Modules\TMG.Distributed.dll
+C:\Documents\XTMF32\Modules\TMG.Distributed.pdb
+C:\Documents\GITXTMF\Code\TMG.Distributed\obj\32Bit\TMG.Distributed.csprojResolveAssemblyReference.cache
+C:\Documents\GITXTMF\Code\TMG.Distributed\obj\32Bit\TMG.Distributed.dll
+C:\Documents\GITXTMF\Code\TMG.Distributed\obj\32Bit\TMG.Distributed.pdb

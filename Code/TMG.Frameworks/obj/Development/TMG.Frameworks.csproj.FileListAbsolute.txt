@@ -1,0 +1,5 @@
+C:\Documents\XTMF-Dev\Modules\TMG.Frameworks.dll
+C:\Documents\XTMF-Dev\Modules\TMG.Frameworks.pdb
+C:\Documents\GITXTMF\Code\TMG.Frameworks\obj\Development\TMG.Frameworks.csprojResolveAssemblyReference.cache
+C:\Documents\GITXTMF\Code\TMG.Frameworks\obj\Development\TMG.Frameworks.dll
+C:\Documents\GITXTMF\Code\TMG.Frameworks\obj\Development\TMG.Frameworks.pdb

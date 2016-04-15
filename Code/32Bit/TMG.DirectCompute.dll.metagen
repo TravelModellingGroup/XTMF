@@ -1,0 +1,62 @@
+ImageRuntimeVersion: v4.0.30319
+Assembly TMG.DirectCompute, Version=1.0.*, Culture=Invariant Language (Invariant Country): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly XTMFInterfaces, Version=1.0.*, Culture=Invariant Language (Invariant Country): 
+	hash=None, flags=None
+Class TMG.DirectCompute.GPUBuffer: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    Boolean ReadWrite : Public
+    Boolean Constant : Public
+    Int32 ElementSize : Public
+    Int32 Length : Public
+Class TMG.DirectCompute.ComputeShader: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Fields:
+    Int32 NumberOfXThreads : Public
+    Int32 NumberOfYThreads : Public
+    Int32 ThreadGroupSizeX : Public
+    Int32 ThreadGroupSizeY : Public
+  Methods:
+    AddBuffer(GPUBuffer): PrivateScope, Public, HideBySig
+    RemoveAllBuffers(): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Class TMG.DirectCompute.GPU: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Fields:
+    System.Collections.Generic.List`1[TMG.DirectCompute.GPUBuffer] Buffers : Public
+  Methods:
+    CreateBuffer(Int32, Int32, Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
+    CreateConstantBuffer(Int32): PrivateScope, Public, HideBySig
+    ReleaseBuffer(GPUBuffer): PrivateScope, Public, HideBySig
+    CompileComputeShader(String, String, String[], String[]): PrivateScope, Public, HideBySig
+    CompileComputeShader(String, String): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Int32[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Double[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Single[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Byte[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Int32[]): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Double[]): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Single[]): PrivateScope, Public, HideBySig
+    Read(GPUBuffer, Byte[]): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Int32[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Double[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Single[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Byte[], Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Int32[]): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Double[]): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Single[]): PrivateScope, Public, HideBySig
+    Write(GPUBuffer, Byte[]): PrivateScope, Public, HideBySig
+    Clear(GPUBuffer, Int32, Int32): PrivateScope, Public, HideBySig
+    ExecuteComputeShader(ComputeShader): PrivateScope, Public, HideBySig
+    Wait(): PrivateScope, Public, HideBySig
+    Release(): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
