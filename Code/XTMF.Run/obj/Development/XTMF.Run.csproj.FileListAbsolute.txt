@@ -1,0 +1,6 @@
+C:\Documents\XTMF-Dev\XTMF.Run.exe.config
+C:\Documents\XTMF-Dev\XTMF.Run.exe
+C:\Documents\XTMF-Dev\XTMF.Run.pdb
+C:\Documents\GITXTMF\Code\XTMF.Run\obj\Development\XTMF.Run.csprojResolveAssemblyReference.cache
+C:\Documents\GITXTMF\Code\XTMF.Run\obj\Development\XTMF.Run.exe
+C:\Documents\GITXTMF\Code\XTMF.Run\obj\Development\XTMF.Run.pdb
