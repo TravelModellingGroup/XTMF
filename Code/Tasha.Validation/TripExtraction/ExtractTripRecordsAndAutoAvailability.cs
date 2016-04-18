@@ -139,7 +139,7 @@ namespace Tasha.Validation.TripExtraction
         private void WriteHeader()
         {
             var allModes = Root.AllModes;
-            Writer.Write("HouseholdID,PersonID,TripNumber,OriginZone,DestinationZone,Purpose,TripStartTime,ActivityStartTime,");
+            Writer.Write("HouseholdID,PersonID,TripChain,TripNumber,OriginZone,DestinationZone,Purpose,TripStartTime,ActivityStartTime,");
             Writer.Write(string.Join(",", allModes.Select(m => m.ModeName)));
             Writer.WriteLine(",PreferedNonVehicle");
         }
@@ -150,6 +150,8 @@ namespace Tasha.Validation.TripExtraction
             writer.Write(householdNumber);
             writer.Write(',');
             writer.Write(personNumber);
+            writer.Write(',');
+            writer.Write(tripChainNumber);
             writer.Write(',');
             writer.Write(tripNumber);
             writer.Write(',');
