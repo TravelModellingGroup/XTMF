@@ -3,6 +3,7 @@
 ################################################################################
 *.opendb
 
+/Code/.vs
 /Code/4Step/bin/Development
 /Code/4Step/obj
 /Code/Beijing/bin/Development
@@ -16,11 +17,13 @@
 /Code/NetworkEstimation/obj
 /Code/Tasha.Validation/bin/Development
 /Code/Tasha.Validation/obj
+/Code/TMG.Distributed/obj
 /Code/TMG.Emme/obj
 /Code/TMG.Estimation/bin/32Bit
 /Code/TMG.Estimation/obj
 /Code/TMG.Functions/bin
 /Code/TMG.Functions/obj
+/Code/TMG.Frameworks/obj
 /Code/TMG.GPU/32Bit
 /Code/TMG.GPU/64Bit
 /Code/TMG.GPU/Debug
