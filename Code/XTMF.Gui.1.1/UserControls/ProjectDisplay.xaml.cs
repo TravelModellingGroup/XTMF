@@ -472,10 +472,17 @@ namespace XTMF.Gui.UserControls
                 if (invoke != null)
                 {
                     string error = null;
-                    var newSession = Session.LoadPreviousRun(selected.Path, ref error);
-                    if (newSession != null)
+                    ModelSystemEditingSession newSession;
+                    if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
                     {
-                        invoke(newSession);
+                        if (newSession != null)
+                        {
+                            invoke(newSession);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
                 PastRunDisplay.SelectedItem = null;

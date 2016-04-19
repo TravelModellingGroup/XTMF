@@ -465,21 +465,31 @@ namespace XTMF
         /// <param name="path">The directory the previous run was in.</param>
         /// <param name="error">An error in case of failure</param>
         /// <returns>An editing session if successful, null otherwise.</returns>
-        public ModelSystemEditingSession LoadPreviousRun(string path, ref string error)
+        public bool LoadPreviousRun(string path, ref string error, out ModelSystemEditingSession session)
         {
+            session = null;
             DirectoryInfo info = new DirectoryInfo(path);
             if (!info.Exists)
             {
                 error = "There is no directory with the name '" + path + "'!";
-                return null;
+                return false;
             }
             var runFileName = Path.Combine(path, "RunParameters.xml");
             if (!File.Exists(runFileName))
             {
                 error = "There is no file containing run parameters in the directory '" + path + "'!";
-                return null;
+                return false;
             }
-            return new ModelSystemEditingSession(Runtime, this, runFileName);
+            try
+            {
+                session = new ModelSystemEditingSession(Runtime, this, runFileName);
+                return true;
+            }
+            catch(Exception e)
+            {
+                error = e.Message;
+                return false;
+            }
         }
 
         /// <summary>
