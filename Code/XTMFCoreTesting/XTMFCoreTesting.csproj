@@ -71,12 +71,14 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Editing\TestEditingStack.cs" />
+    <Compile Include="Editing\TestGenericModule.cs" />
     <Compile Include="Editing\TestModelSystemEditingSession.cs" />
     <Compile Include="Editing\TestModelSystemController.cs" />
     <Compile Include="Editing\TestLinkedParameters.cs" />
     <Compile Include="Editing\TestEditingParameter.cs" />
     <Compile Include="Editing\TestLinkedParameter.cs" />
     <Compile Include="Editing\TestProjectEditingSession.cs" />
+    <Compile Include="Modules\Editing\TestGenericModule.cs" />
     <Compile Include="Modules\Editing\TestModelSystemTemplate.cs" />
     <Compile Include="Modules\Editing\TestModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
