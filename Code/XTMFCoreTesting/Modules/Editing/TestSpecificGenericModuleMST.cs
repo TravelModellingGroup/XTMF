@@ -24,31 +24,43 @@ using System.Threading.Tasks;
 
 namespace XTMF.Testing.Modules.Editing
 {
-
-    public interface GenericInterface<A,B,C,D> : XTMF.IModule
+    public class TestSpecificGenericModuleMST : IModelSystemTemplate
     {
+        [RunParameter("Input Directory", "../../Input", "The input directory.")]
+        public string InputBaseDirectory { get; set; }
 
-    }
+        [RunParameter("SecondaryString", "", "Another string parameter")]
+        public string SecondaryString;
 
-    public abstract class NonGenericBase<E,F,G> : GenericInterface<float, E, F, G>
-    { 
+        public GenericInterface<float,float, float, float> MyChild;
+
         public string Name { get; set; }
+
+        public string OutputBaseDirectory { get; set; }
 
         public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+        public Tuple<byte, byte, byte> ProgressColour
+        {
+            get
+            {
+                return new Tuple<byte, byte, byte>(50, 150, 50);
+            }
+        }
+
+        public bool ExitRequest()
+        {
+            return false;
+        }
 
         public bool RuntimeValidation(ref string error)
         {
             return true;
         }
-    }
 
-    public class TestGenericModule<H, I> : NonGenericBase<float, H, I>
-    {
-        /// <summary>
-        /// Actually have a data field in order to ensure the T matters
-        /// </summary>
-        public I Data;
+        public void Start()
+        {
+            
+        }
     }
 }

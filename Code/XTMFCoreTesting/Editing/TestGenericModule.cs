@@ -42,10 +42,25 @@ namespace XTMF.Testing.Editing
             {
                 var root = session.ModelSystemModel.Root;
                 root.Type = typeof(TestModelSystemTemplate);
-                if(!root.Children[0].AddCollectionMember(typeof(TestGenericModule<float>), ref error))
+                if(!root.Children[0].AddCollectionMember(typeof(TestGenericModule<float,float>), ref error))
                 {
                     Assert.Fail(error);
                 }
+                Assert.IsTrue(session.Save(ref error));
+            }
+            return modelSystem;
+        }
+
+        private ModelSystem CreateSpecificTestModelSystem(XTMFRuntime runtime)
+        {
+            var controller = runtime.ModelSystemController;
+            controller.Delete("TestModelSystem");
+            var modelSystem = controller.LoadOrCreate("TestModelSystem");
+            string error = null;
+            using (var session = controller.EditModelSystem(modelSystem))
+            {
+                var root = session.ModelSystemModel.Root;
+                root.Type = typeof(TestSpecificGenericModuleMST);
                 Assert.IsTrue(session.Save(ref error));
             }
             return modelSystem;
@@ -90,6 +105,64 @@ namespace XTMF.Testing.Editing
                     }
                     // now that it is done we should be able to edit it again
                     Assert.IsTrue(collection.AddCollectionMember(typeof(TestModule), ref error), error);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestGettingGenericType()
+        {
+            var runtime = TestXTMFCore.CreateRuntime();
+            var projectController = runtime.ProjectController;
+            var msController = runtime.ModelSystemController;
+            string error = null;
+            projectController.DeleteProject("TestProject", ref error);
+            Project project;
+            Assert.IsTrue((project = projectController.LoadOrCreate("TestProject", ref error)) != null);
+            using (var session = projectController.EditProject(project))
+            {
+                var testModelSystem = CreateTestModelSystem(runtime);
+                Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
+                using (var modelSystemSession = session.EditModelSystem(0))
+                {
+                    Assert.IsNotNull(modelSystemSession);
+                    var root = modelSystemSession.ModelSystemModel.Root;
+                    var collection = root.Children.FirstOrDefault((child) => child.Name == "Test Collection");
+                    Assert.IsNotNull(collection);
+                    var availableModules = modelSystemSession.GetValidModules(collection);
+                    if(!availableModules.Any(m => m.Name == "TestGenericModule`2" && m.ContainsGenericParameters))
+                    {
+                        Assert.Fail();
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestGettingSpecificGenericType()
+        {
+            var runtime = TestXTMFCore.CreateRuntime();
+            var projectController = runtime.ProjectController;
+            var msController = runtime.ModelSystemController;
+            string error = null;
+            projectController.DeleteProject("TestProject", ref error);
+            Project project;
+            Assert.IsTrue((project = projectController.LoadOrCreate("TestProject", ref error)) != null);
+            using (var session = projectController.EditProject(project))
+            {
+                var testModelSystem = CreateSpecificTestModelSystem(runtime);
+                Assert.IsTrue(session.AddModelSystem(testModelSystem, ref error));
+                using (var modelSystemSession = session.EditModelSystem(0))
+                {
+                    Assert.IsNotNull(modelSystemSession);
+                    var root = modelSystemSession.ModelSystemModel.Root;
+                    var collection = root.Children.FirstOrDefault((child) => child.Name == "My Child");
+                    Assert.IsNotNull(collection);
+                    var availableModules = modelSystemSession.GetValidModules(collection);
+                    if (!availableModules.Any(m => m.Name == "TestGenericModule`2" ))
+                    {
+                        Assert.Fail();
+                    }
                 }
             }
         }

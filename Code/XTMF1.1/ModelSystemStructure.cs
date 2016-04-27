@@ -20,6 +20,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -33,15 +34,15 @@ namespace XTMF
         public ModelSystemStructure(IConfiguration config, string name, Type parentFieldType)
             : this(config)
         {
-            this.Name = name;
-            this.Children = null;
-            this.Module = null;
-            this.ParentFieldType = parentFieldType;
+            Name = name;
+            Children = null;
+            Module = null;
+            ParentFieldType = parentFieldType;
         }
 
         internal ModelSystemStructure(IConfiguration config)
         {
-            this.Configuration = config;
+            Configuration = config;
         }
 
         public IList<IModelSystemStructure> Children
@@ -84,33 +85,33 @@ namespace XTMF
         {
             get
             {
-                return this._Type;
+                return _Type;
             }
 
             set
             {
-                if (this.Children != null)
+                if (Children != null)
                 {
-                    this.Children.Clear();
+                    Children.Clear();
                 }
                 if (value != null)
                 {
-                    if ((this.Parameters = Project.LoadDefaultParams(value)) != null)
+                    if ((Parameters = Project.LoadDefaultParams(value)) != null)
                     {
-                        (this.Parameters as ModuleParameters).BelongsTo = this;
-                        foreach (var p in this.Parameters)
+                        (Parameters as ModuleParameters).BelongsTo = this;
+                        foreach (var p in Parameters)
                         {
                             (p as ModuleParameter).BelongsTo = this;
                         }
                     }
-                    bool nullBefore = this._Type == null;
-                    this._Type = value;
-                    ModelSystemStructure.GenerateChildren(this.Configuration, this);
+                    bool nullBefore = _Type == null;
+                    _Type = value;
+                    ModelSystemStructure.GenerateChildren(Configuration, this);
                 }
                 else
                 {
-                    this.Parameters = null;
-                    this._Type = null;
+                    Parameters = null;
+                    _Type = null;
                 }
             }
         }
@@ -318,33 +319,33 @@ namespace XTMF
 
         public void Add(string name, Type type)
         {
-            if (this.Children == null)
+            if (Children == null)
             {
-                this.Children = new List<IModelSystemStructure>();
+                Children = new List<IModelSystemStructure>();
             }
-            var newChild = new ModelSystemStructure(this.Configuration, name, ParentFieldType);
+            var newChild = new ModelSystemStructure(Configuration, name, ParentFieldType);
             newChild.Type = type;
-            this.Children.Add(newChild);
+            Children.Add(newChild);
         }
 
         public void Add(IModelSystemStructure p)
         {
-            if (this.Children == null)
+            if (Children == null)
             {
-                this.Children = new List<IModelSystemStructure>();
+                Children = new List<IModelSystemStructure>();
             }
-            this.Children.Add(p);
+            Children.Add(p);
         }
 
         public IModelSystemStructure Clone()
         {
-            ModelSystemStructure cloneUs = new ModelSystemStructure(this.Configuration);
-            cloneUs.Name = this.Name;
-            cloneUs.Description = this.Description;
-            cloneUs.Module = this.Module;
-            if (this.Parameters != null)
+            ModelSystemStructure cloneUs = new ModelSystemStructure(Configuration);
+            cloneUs.Name = Name;
+            cloneUs.Description = Description;
+            cloneUs.Module = Module;
+            if (Parameters != null)
             {
-                if ((cloneUs.Parameters = this.Parameters.Clone()) != null)
+                if ((cloneUs.Parameters = Parameters.Clone()) != null)
                 {
                     (cloneUs.Parameters as ModuleParameters).BelongsTo = cloneUs;
                     foreach (var p in cloneUs.Parameters)
@@ -353,14 +354,14 @@ namespace XTMF
                     }
                 }
             }
-            cloneUs.Required = this.Required;
-            cloneUs.ParentFieldName = this.ParentFieldName;
-            cloneUs.ParentFieldType = this.ParentFieldType;
-            cloneUs._Type = this._Type;
-            cloneUs.IsCollection = this.IsCollection;
-            if (this.Children != null)
+            cloneUs.Required = Required;
+            cloneUs.ParentFieldName = ParentFieldName;
+            cloneUs.ParentFieldType = ParentFieldType;
+            cloneUs._Type = _Type;
+            cloneUs.IsCollection = IsCollection;
+            if (Children != null)
             {
-                foreach (var child in this.Children)
+                foreach (var child in Children)
                 {
                     cloneUs.Add(child.Clone());
                 }
@@ -380,7 +381,7 @@ namespace XTMF
 
         public IModelSystemStructure CreateCollectionMember(Type newType)
         {
-            if (this.IsCollection)
+            if (IsCollection)
             {
                 return CreateCollectionMember(CreateModuleName(newType.Name), newType);
             }
@@ -389,18 +390,18 @@ namespace XTMF
 
         public IModelSystemStructure CreateCollectionMember(string name, Type newType)
         {
-            if (this.IsCollection)
+            if (IsCollection)
             {
-                if (this.Children == null)
+                if (Children == null)
                 {
-                    this.Children = new List<IModelSystemStructure>();
+                    Children = new List<IModelSystemStructure>();
                 }
-                ModelSystemStructure p = new ModelSystemStructure(this.Configuration);
-                Type innerType = this.ParentFieldType.IsArray ? this.ParentFieldType.GetElementType()
-                    : this.ParentFieldType.GetGenericArguments()[0];
+                ModelSystemStructure p = new ModelSystemStructure(Configuration);
+                Type innerType = ParentFieldType.IsArray ? ParentFieldType.GetElementType()
+                    : ParentFieldType.GetGenericArguments()[0];
                 p.Type = newType;
                 p.ParentFieldType = innerType;
-                p.ParentFieldName = this.ParentFieldName;
+                p.ParentFieldName = ParentFieldName;
                 p.Name = name;
                 return p;
             }
@@ -418,9 +419,9 @@ namespace XTMF
         {
             var rootRequirement = GetRootRequirement(type);
             var parent = GetParent(topLevelModule, this);
-            if (this.IsCollection)
+            if (IsCollection)
             {
-                var arguements = this.ParentFieldType.IsArray ? this.ParentFieldType.GetElementType() : this.ParentFieldType.GetGenericArguments()[0];
+                var arguements = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
                 if (!(arguements.IsAssignableFrom(type) && (CheckForParent(parent.Type, type)) && CheckForRootModule(topLevelModule, this, rootRequirement) != null))
                 {
                     if (!arguements.IsAssignableFrom(type))
@@ -440,10 +441,10 @@ namespace XTMF
             }
             else
             {
-                if (!(this.ParentFieldType.IsAssignableFrom(type) && (parent == null || CheckForParent(parent.Type, type))
+                if (!(ParentFieldType.IsAssignableFrom(type) && (parent == null || CheckForParent(parent.Type, type))
                         && CheckForRootModule(topLevelModule, this, rootRequirement) != null))
                 {
-                    if (!this.ParentFieldType.IsAssignableFrom(type))
+                    if (!ParentFieldType.IsAssignableFrom(type))
                     {
                         error = "This type does not meet the requirements of the parent!";
                     }
@@ -470,7 +471,7 @@ namespace XTMF
         {
             ConcurrentBag<Type> possibleTypes = new ConcurrentBag<Type>();
             var parent = GetParent(topModule, this);
-            if (this.IsCollection)
+            if (IsCollection)
             {
                 GetPossibleModulesCollection(possibleTypes, parent.Type, topModule);
             }
@@ -499,7 +500,7 @@ namespace XTMF
             var lookUp = CreateInverseLookupTable(typesUsed);
             SaveTypes(writer, typesUsed);
             typesUsed = null;
-            this.Save(writer, this, this, lookUp);
+            Save(writer, this, this, lookUp);
             writer.Flush();
         }
 
@@ -512,53 +513,53 @@ namespace XTMF
             }
             using (FileStream fs = new FileStream(fileName, FileMode.Create))
             {
-                this.Save(fs);
+                Save(fs);
             }
         }
 
         public override string ToString()
         {
-            return this.Name != null ? this.Name : "No Name";
+            return Name != null ? Name : "No Name";
         }
 
         public bool Validate(ref string error, IModelSystemStructure parent = null)
         {
-            if (this.Required)
+            if (Required)
             {
-                if (this.IsCollection)
+                if (IsCollection)
                 {
-                    if (this.Children == null || this.Children.Count == 0)
+                    if (Children == null || Children.Count == 0)
                     {
-                        error = "The collection '" + this.Name + "' in module '" + parent.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.";
+                        error = "The collection '" + Name + "' in module '" + parent.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.";
                         return false;
                     }
                 }
                 else
                 {
-                    if (this.Type == null)
+                    if (Type == null)
                     {
-                        error = "In '" + this.Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.";
+                        error = "In '" + Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.";
                         return false;
                     }
                 }
             }
 
-            if (this.ParentFieldType == null)
+            if (ParentFieldType == null)
             {
-                error = "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve this."
-                    + "\r\nError for module '" + this.Name + "' of type '" + this.Type.FullName + "'";
+                error = "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve "
+                    + "\r\nError for module '" + Name + "' of type '" + Type.FullName + "'";
                 return false;
             }
 
-            if (this.Type != null && !this.ParentFieldType.IsAssignableFrom(this.Type))
+            if (Type != null && !ParentFieldType.IsAssignableFrom(Type))
             {
-                error = String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", this.Type, this.ParentFieldType, this.Name);
+                error = String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name);
                 return false;
             }
 
-            if (this.Children != null)
+            if (Children != null)
             {
-                foreach (var child in this.Children)
+                foreach (var child in Children)
                 {
                     if (!child.Validate(ref error, this))
                     {
@@ -1317,27 +1318,122 @@ namespace XTMF
             writer.WriteEndElement();
         }
 
+        public bool MapGenericsFromTypeToParentType(Type parent, Type t, out Type mappedType)
+        {
+            var tArguments = t.GetGenericArguments();
+            // initially the mapped type is the regular type
+            mappedType = t;
+            if (!parent.IsGenericType)
+            {
+                return true;
+            }
+            Type highestInterface;
+            // if the previous is the interface the highest level form is going to be the interface itself, so find it
+            if (parent.IsInterface)
+            {
+                // get the type of the interface that is being bound to
+                var toFind = parent.GetGenericTypeDefinition();
+                if ((highestInterface = t.GetInterfaces().FirstOrDefault(i => CheckIfTypesAreGenericallyTheSame(i, toFind))) == null)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // get the parent type of this class that is being bound to
+                highestInterface = t;
+                while (highestInterface != null && CheckIfTypesAreGenericallyTheSame(highestInterface, parent))
+                {
+                    highestInterface = highestInterface.BaseType;
+                }
+                if (highestInterface == null)
+                {
+                    return false;
+                }
+            }
+            var originalParentTypes = parent.GetGenericArguments();
+            if (originalParentTypes != null)
+            {
+                //check to make sure the highest order match
+                var highestInterfaceTypes = highestInterface.GetGenericArguments();
+                for (int i = 0; i < highestInterfaceTypes.Length; i++)
+                {
+                    if ((!originalParentTypes[i].IsGenericParameter)
+                        && (!highestInterfaceTypes[i].IsGenericParameter)
+                        && originalParentTypes[i] != highestInterfaceTypes[i])
+                    {
+                        return false;
+                    }
+                }
+                var map = new Type[tArguments.Length];
+                // fill in the generic types with their starting generic values
+                for (int i = 0; i < tArguments.Length; i++)
+                {
+                    map[i] = tArguments[i];
+                }
+
+                for (int i = 0; i < highestInterfaceTypes.Length; i++)
+                {
+                    // if the parent's parameter has been set
+                    if (originalParentTypes[i] != highestInterfaceTypes[i])
+                    {
+                        // go through and find the right type to replace
+                        for (int j = 0; j < tArguments.Length; j++)
+                        {
+                            // and map it
+                            if (tArguments[j] == highestInterfaceTypes[i])
+                            {
+                                map[j] = originalParentTypes[i];
+                                break;
+                            }
+                        }
+                    }
+                }
+                mappedType = t.MakeGenericType(map);
+            }
+            return true;
+        }
+
+        private bool CheckIfTypesAreGenericallyTheSame(Type first, Type second)
+        {
+            return first.GetGenericTypeDefinition() == second.GetGenericTypeDefinition();
+        }
+
         private void GetPossibleModulesChildren(IModelSystemStructure topModule, ConcurrentBag<Type> possibleTypes, IModelSystemStructure parent)
         {
-            var modules = this.Configuration.ModelRepository.Modules;
-            if (this.ParentFieldType == null) return;
+            var modules = Configuration.ModelRepository.Modules;
+            if (ParentFieldType == null) return;
+            Type generalParentForm = ParentFieldType.IsConstructedGenericType ? ParentFieldType.GetGenericTypeDefinition() : null;
+            Type[] parentGenericTypes = ParentFieldType.IsConstructedGenericType ? ParentFieldType.GetGenericArguments() : null;
             Parallel.For(0, modules.Count, delegate (int i)
             {
                 Type t = modules[i];
-                if (this.ParentFieldType.IsAssignableFrom(t)
-                    && (parent == null || CheckForParent(parent.Type, t))
-                    && (CheckForRootModule(topModule, this, t) != null))
+
+                if (t.IsGenericType && !t.IsConstructedGenericType)
                 {
-                    possibleTypes.Add(t);
+                    if (!MapGenericsFromTypeToParentType(ParentFieldType, t, out t))
+                    {
+                        // if the type is not acceptable just return
+                        return;
+                    }
                 }
-            });
+                if (ParentFieldType.IsAssignableFrom(t))
+                {
+                    if ((parent == null || CheckForParent(parent.Type, t))
+                        && (CheckForRootModule(topModule, this, t) != null))
+                    {
+                        possibleTypes.Add(t);
+                    }
+                }
+            })
+            ;
         }
 
         private void GetPossibleModulesCollection(ConcurrentBag<Type> possibleTypes, Type parent, IModelSystemStructure topModule)
         {
-            if (this.ParentFieldType == null) return;
-            var arguements = this.ParentFieldType.IsArray ? this.ParentFieldType.GetElementType() : this.ParentFieldType.GetGenericArguments()[0];
-            var modules = this.Configuration.ModelRepository.Modules;
+            if (ParentFieldType == null) return;
+            var arguements = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
+            var modules = Configuration.ModelRepository.Modules;
             Parallel.For(0, modules.Count, delegate (int i)
             {
                 Type t = modules[i];
@@ -1376,7 +1472,7 @@ namespace XTMF
             {
                 foreach (var model in s.Children)
                 {
-                    this.Save(writer, model, this, lookup);
+                    Save(writer, model, this, lookup);
                 }
             }
             writer.WriteEndElement();
@@ -1407,7 +1503,7 @@ namespace XTMF
                 writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
             }
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
-            this.SaveParameters(writer, s, lookup);
+            SaveParameters(writer, s, lookup);
             if (s.Children != null)
             {
                 foreach (var c in s.Children)
