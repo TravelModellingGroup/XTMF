@@ -620,5 +620,10 @@ namespace XTMF
         {
             return ModelSystemModel.GetModelFor(currentModule.RealModelSystemStructure.GetParent(ModelSystemModel.Root.RealModelSystemStructure));
         }
+
+        public ICollection<Type> GetValidGenericVariableTypes(Type[] conditions)
+        {
+            return ((Configuration)Configuration).GetValidGenericVariableTypes(conditions);
+        }
     }
 }

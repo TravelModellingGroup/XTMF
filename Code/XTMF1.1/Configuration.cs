@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -506,6 +507,8 @@ namespace XTMF
         public string LoadError;
         public bool LoadErrorTerminal = false;
 
+        private ConcurrentBag<Type> FreeVariableType = new ConcurrentBag<Type>();
+
         private void LoadAssembly(Assembly assembly)
         {
             Type module = typeof(IModule);
@@ -515,7 +518,7 @@ namespace XTMF
             {
                 var type = types[i];
                 // Make sure that they are valid types
-                //this.StoreForLookup(type, assembly);
+                FreeVariableType.Add(type);
                 if (type.IsAbstract | type.IsNotPublic | !(type.IsClass | type.IsValueType)) continue;
                 if (module.IsAssignableFrom(type))
                 {
@@ -688,6 +691,30 @@ namespace XTMF
                         break;
                 }
             }
+        }
+
+        internal ICollection<Type> GetValidGenericVariableTypes(Type[] conditions)
+        {
+            var validTypes = new ConcurrentBag<Type>();
+            if (conditions == null || conditions.Length == 0)
+            {
+                return FreeVariableType.ToList();
+            }
+            else
+            {
+                Parallel.ForEach(FreeVariableType, (Type t) =>
+                {
+                    foreach(var condition in conditions)
+                    {
+                        if(!condition.IsAssignableFrom(t))
+                        {
+                            return;
+                        }
+                    }
+                    validTypes.Add(t);
+                });
+            }
+            return validTypes.ToList();
         }
 
         private void LoadModules()

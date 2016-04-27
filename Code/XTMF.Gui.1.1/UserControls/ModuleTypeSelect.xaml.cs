@@ -65,9 +65,9 @@ namespace XTMF.Gui.UserControls
         private bool CheckAgainstFilter(object o, string text)
         {
             var model = o as Model;
-            if ( string.IsNullOrWhiteSpace( text ) ) return true;
-            if ( model == null ) return false;
-            return model.Name.IndexOf( text, StringComparison.CurrentCultureIgnoreCase ) >= 0 || model.Text.IndexOf( text, StringComparison.CurrentCultureIgnoreCase ) >= 0;
+            if (string.IsNullOrWhiteSpace(text)) return true;
+            if (model == null) return false;
+            return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0 || model.Text.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
         }
 
         public ModuleTypeSelect(ModelSystemEditingSession session, ModelSystemStructureModel selectedModule)
@@ -75,21 +75,21 @@ namespace XTMF.Gui.UserControls
         {
             ModelSystemSession = session;
             SelectedModule = selectedModule;
-            BuildRequirements( session );
+            BuildRequirements(session);
             FilterBox.Filter = CheckAgainstFilter;
             FilterBox.Display = Display;
         }
 
         protected override void OnActivated(EventArgs e)
         {
-            base.OnActivated( e );
+            base.OnActivated(e);
             FilterBox.Focus();
         }
 
         protected override void OnGotFocus(RoutedEventArgs e)
         {
-            base.OnGotFocus( e );
-            if ( e.OriginalSource == this )
+            base.OnGotFocus(e);
+            if (e.OriginalSource == this)
             {
                 FilterBox.Focus();
             }
@@ -99,34 +99,33 @@ namespace XTMF.Gui.UserControls
 
         public Type SelectedType { get; private set; }
 
-
         /// <summary>
         /// Figure out what types we are going to be restricted by
         /// </summary>
         private void BuildRequirements(ModelSystemEditingSession session)
         {
-            List<Type> available = session.GetValidModules( SelectedModule );
-            Display.ItemsSource = AvailableModules = Convert( available );
+            List<Type> available = session.GetValidModules(SelectedModule);
+            Display.ItemsSource = AvailableModules = Convert(available);
         }
 
         private List<Model> Convert(List<Type> before)
         {
-            var ret = before.Select( o => new Model( o ) ).ToList();
-            ret.Sort( (a, b) => a.Name.CompareTo( b.Name ) );
+            var ret = before.Select(o => new Model(o)).ToList();
+            ret.Sort((a, b) => a.Name.CompareTo(b.Name));
             return ret;
         }
 
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            base.OnKeyUp( e );
-            if ( e.Handled == false )
+            base.OnKeyUp(e);
+            if (e.Handled == false)
             {
                 if (e.Key == Key.Escape)
                 {
                     e.Handled = true;
                     Close();
                 }
-                else if(e.Key == Key.Enter)
+                else if (e.Key == Key.Enter)
                 {
                     e.Handled = true;
                     Select();
@@ -154,7 +153,19 @@ namespace XTMF.Gui.UserControls
                 if (ConstainsFreeVariables(SelectedType))
                 {
                     // then we need to fill in the free parameters
-                    MessageBox.Show("This type contains a free generic parameter!");
+                    List<Type> selectedForFreeVariables = new List<Type>();
+                    foreach (var variable in GetFreeVariables(SelectedType))
+                    {
+                        var dialog = new FreeVariableEntry(variable, ModelSystemSession) { Owner = this };
+                        if (dialog.ShowDialog() != true)
+                        {
+                            return;
+                        }
+                        selectedForFreeVariables.Add(dialog.SelectedType);
+                    }
+                    SelectedType = CreateConcreteType(SelectedType, selectedForFreeVariables);
+                    DialogResult = true;
+                    Close();
                 }
                 else
                 {
@@ -162,6 +173,23 @@ namespace XTMF.Gui.UserControls
                     Close();
                 }
             }
+        }
+
+        private Type CreateConcreteType(Type selectedType, List<Type> selectedForFreeVariables)
+        {
+            var originalTypes = selectedType.GetGenericArguments();
+            var newTypes = new Type[originalTypes.Length];
+            int j = 0;
+            for (int i = 0; i < originalTypes.Length; i++)
+            {
+                newTypes[i] = originalTypes[i].IsGenericParameter ? selectedForFreeVariables[j++] : originalTypes[i];
+            }
+            return selectedType.MakeGenericType(newTypes);
+        }
+
+        private IEnumerable<Type> GetFreeVariables(Type selectedType)
+        {
+            return selectedType.GetGenericArguments().Where(t => t.IsGenericParameter);
         }
 
         private bool ConstainsFreeVariables(Type selectedType)

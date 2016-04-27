@@ -152,6 +152,9 @@
     <Compile Include="UserControls\FilterBox.xaml.cs">
       <DependentUpon>FilterBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\FreeVariableEntry.xaml.cs">
+      <DependentUpon>FreeVariableEntry.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\Help\ContentReference.cs" />
     <Compile Include="UserControls\Help\HelpDialog.xaml.cs">
       <DependentUpon>HelpDialog.xaml</DependentUpon>
@@ -253,6 +256,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\FilterBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\FreeVariableEntry.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
