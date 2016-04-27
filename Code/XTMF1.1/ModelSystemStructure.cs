@@ -1408,7 +1408,6 @@ namespace XTMF
             Parallel.For(0, modules.Count, delegate (int i)
             {
                 Type t = modules[i];
-
                 if (t.IsGenericType && !t.IsConstructedGenericType)
                 {
                     if (!MapGenericsFromTypeToParentType(ParentFieldType, t, out t))
@@ -1437,6 +1436,14 @@ namespace XTMF
             Parallel.For(0, modules.Count, delegate (int i)
             {
                 Type t = modules[i];
+                if (t.IsGenericType && !t.IsConstructedGenericType)
+                {
+                    if (!MapGenericsFromTypeToParentType(ParentFieldType, t, out t))
+                    {
+                        // if the type is not acceptable just return
+                        return;
+                    }
+                }
                 if (arguements.IsAssignableFrom(t)
                     && (CheckForParent(parent, t))
                     && (CheckForRootModule(topModule, this, t) != null))
