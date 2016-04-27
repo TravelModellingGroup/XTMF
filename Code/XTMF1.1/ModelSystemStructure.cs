@@ -1342,7 +1342,7 @@ namespace XTMF
             {
                 // get the parent type of this class that is being bound to
                 highestInterface = t;
-                while (highestInterface != null && CheckIfTypesAreGenericallyTheSame(highestInterface, parent))
+                while (highestInterface != null && !CheckIfTypesAreGenericallyTheSame(highestInterface, parent))
                 {
                     highestInterface = highestInterface.BaseType;
                 }
@@ -1396,7 +1396,7 @@ namespace XTMF
 
         private bool CheckIfTypesAreGenericallyTheSame(Type first, Type second)
         {
-            return first.GetGenericTypeDefinition() == second.GetGenericTypeDefinition();
+            return (first.IsGenericType ? first.GetGenericTypeDefinition() : first) == (second.IsGenericType ? second.GetGenericTypeDefinition() : second);
         }
 
         private void GetPossibleModulesChildren(IModelSystemStructure topModule, ConcurrentBag<Type> possibleTypes, IModelSystemStructure parent)
@@ -1431,20 +1431,20 @@ namespace XTMF
         private void GetPossibleModulesCollection(ConcurrentBag<Type> possibleTypes, Type parent, IModelSystemStructure topModule)
         {
             if (ParentFieldType == null) return;
-            var arguements = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
+            var innerCollectionType = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
             var modules = Configuration.ModelRepository.Modules;
             Parallel.For(0, modules.Count, delegate (int i)
             {
                 Type t = modules[i];
                 if (t.IsGenericType && !t.IsConstructedGenericType)
                 {
-                    if (!MapGenericsFromTypeToParentType(ParentFieldType, t, out t))
+                    if (!MapGenericsFromTypeToParentType(innerCollectionType, t, out t))
                     {
                         // if the type is not acceptable just return
                         return;
                     }
                 }
-                if (arguements.IsAssignableFrom(t)
+                if (innerCollectionType.IsAssignableFrom(t)
                     && (CheckForParent(parent, t))
                     && (CheckForRootModule(topModule, this, t) != null))
                 {

@@ -151,9 +151,22 @@ namespace XTMF.Gui.UserControls
             if (model != null)
             {
                 SelectedType = model.type;
-                DialogResult = true;
-                Close();
+                if (ConstainsFreeVariables(SelectedType))
+                {
+                    // then we need to fill in the free parameters
+                    MessageBox.Show("This type contains a free generic parameter!");
+                }
+                else
+                {
+                    DialogResult = true;
+                    Close();
+                }
             }
+        }
+
+        private bool ConstainsFreeVariables(Type selectedType)
+        {
+            return selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
         }
 
         private Model GetFirstItem()
