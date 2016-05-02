@@ -26,8 +26,6 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
             Session = session;
-            FilterBox.Filter = CheckAgainstFilter;
-            FilterBox.Display = Display;
             Conditions = freeVariable.GetGenericParameterConstraints();
             Loaded += FreeVariableEntry_Loaded;
         }
@@ -61,7 +59,8 @@ namespace XTMF.Gui.UserControls
                Dispatcher.Invoke(() =>
               {
                   Display.ItemsSource = (AvailableModules = temp);
-                  
+                  FilterBox.Filter = CheckAgainstFilter;
+                  FilterBox.Display = Display;
               });
            });
         }
