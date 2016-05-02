@@ -230,7 +230,7 @@ namespace Datastructure
                 }
                 this.LineBuffer[this.LinePosition++] = c;
                 // if a comma or an end quote followed by a comma
-                if ( ( !quote & ( c == ',' ) )
+                if ( ( !quote & ( c == ',' | c == '\t' ) )
                     | c == '\r' )
                 {
                     addOne = false;
