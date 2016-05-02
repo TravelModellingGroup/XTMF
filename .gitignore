@@ -57,6 +57,8 @@
 /Code/XTMFCoreTesting/obj
 /Code/XTMFInterfaces/bin
 /Code/XTMFInterfaces/obj
+/Code/XTMFInterfaces/XTMFInterfaces.dll
+/Code/XTMFInterfaces/XTMFInterfaces.pdb
 /Code/XtmfSDK/bin
 /Code/XtmfSDK/obj
 /Code/XTMFTesting/bin

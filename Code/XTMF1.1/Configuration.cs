@@ -693,7 +693,12 @@ namespace XTMF
             }
         }
 
-        internal ICollection<Type> GetValidGenericVariableTypes(Type[] conditions)
+        /// <summary>
+        /// Get all of the types that satisfy the conditions that are presented.
+        /// </summary>
+        /// <param name="conditions">The conditions required for a type to be acceptable.</param>
+        /// <returns>A collection of the types that are possible.</returns>
+        public ICollection<Type> GetValidGenericVariableTypes(Type[] conditions)
         {
             var validTypes = new ConcurrentBag<Type>();
             if (conditions == null || conditions.Length == 0)
@@ -721,6 +726,8 @@ namespace XTMF
         {
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Start();
+            // load in the types from system
+            LoadAssembly(typeof(float).GetType().Assembly);
             // Load the given base assembly
             if (this.BaseAssembly != null)
             {

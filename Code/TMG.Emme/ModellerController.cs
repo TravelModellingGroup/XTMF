@@ -178,7 +178,7 @@ namespace TMG.Emme
             // and windows won't allow us to have a window and take its standard I/O streams at the same time
             this.Emme = new Process();
             var startInfo = new ProcessStartInfo(pythonPath, "-u " + argumentString);
-            startInfo.EnvironmentVariables["PATH"] += ";" + pythonLib;
+            startInfo.EnvironmentVariables["PATH"] += ";" + pythonLib + ";" + Path.Combine(emmePath,"programs");
             this.Emme.StartInfo = startInfo;
             this.Emme.StartInfo.CreateNoWindow = true;
             this.Emme.StartInfo.UseShellExecute = false;

@@ -75,6 +75,7 @@ namespace TMG.Emme.Utilities
         public void UnloadData()
         {
             Data = null;
+            Loaded = false;
         }
     }
 

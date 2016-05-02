@@ -294,7 +294,7 @@ namespace TMG.Emme.Utilities
                     startFirst = stepSize * i;
                     for (int j = i + 1; j < primarySteps; j++)
                     {
-                        startFirst = stepSize * j;
+                        startSecond = stepSize * j;
                         yield return BuildNodeMap(nodesToExplore, startFirst, startFirst + stepSize, startSecond, startSecond + stepSize);
                     }
                 }
