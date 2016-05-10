@@ -234,7 +234,7 @@ namespace XTMF.Gui.Models
 
         internal void CopyModule()
         {
-            System.Windows.Clipboard.SetText(BaseModel.CopyModule());
+            System.Windows.Clipboard.SetDataObject(BaseModel.CopyModule());
         }
 
         internal bool Paste(string toPaste, ref string error)
