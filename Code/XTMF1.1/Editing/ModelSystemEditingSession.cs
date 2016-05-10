@@ -616,6 +616,11 @@ namespace XTMF
             return ModelSystemModel.GetModelFor(currentModule.RealModelSystemStructure.GetRoot(ModelSystemModel.Root.RealModelSystemStructure));
         }
 
+        public ModelSystemStructureModel GetRoot(ModelSystemStructure currentModule)
+        {
+            return ModelSystemModel.GetModelFor(currentModule.GetRoot(ModelSystemModel.Root.RealModelSystemStructure));
+        }
+
         public ModelSystemStructureModel GetParent(ModelSystemStructureModel currentModule)
         {
             return ModelSystemModel.GetModelFor(currentModule.RealModelSystemStructure.GetParent(ModelSystemModel.Root.RealModelSystemStructure));

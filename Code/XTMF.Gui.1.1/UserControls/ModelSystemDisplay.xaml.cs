@@ -1376,10 +1376,9 @@ namespace XTMF.Gui.UserControls
         private void SelectDirectoryForCurrentParameter()
         {
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (currentParameter != null && currentModule != null)
+            if (currentParameter != null)
             {
-                var currentRoot = Session.GetRoot(currentModule.BaseModel);
+                var currentRoot = Session.GetRoot(currentParameter.BelongsTo as ModelSystemStructure);
                 ParameterModel _;
                 var inputDirectory = GetInputDirectory(currentRoot, out _);
                 if (inputDirectory != null)
@@ -1398,10 +1397,9 @@ namespace XTMF.Gui.UserControls
         private void SelectFileForCurrentParameter()
         {
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
-            var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (currentParameter != null && currentModule != null)
+            if (currentParameter != null)
             {
-                var currentRoot = Session.GetRoot(currentModule.BaseModel);
+                var currentRoot = Session.GetRoot(currentParameter.BelongsTo as ModelSystemStructure);
                 ParameterModel _;
                 var inputDirectory = GetInputDirectory(currentRoot, out _);
                 if (inputDirectory != null)
