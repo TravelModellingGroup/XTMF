@@ -141,6 +141,8 @@ namespace TMG.Emme.NetworkAssignment
                                                                 select mc.ToEmmeFloat(c.BoardingPerception)) + "\"",
                                         "\"" + string.Join(",", from c in Classes
                                                                 select mc.ToEmmeFloat(c.FarePerception)) + "\"",
+                                        "\"" + string.Join(",", from c in Classes
+                                                                select c.ModeList) + "\"",
                                         HeadwayFractionAttribute,
                                         "\"" + (string.Join(",", from c in Classes
                                                                  select c.LinkFareAttribute)).Replace('"', '\'') + "\"",
@@ -217,6 +219,9 @@ namespace TMG.Emme.NetworkAssignment
 
             [RunParameter("Wait Time Perception", 1.0f, "Perception factor applied to wait time component.")]
             public float WaitTimePerception;
+
+            [RunParameter("Modes", "*", "A character array of all the modes applied to this class. \'*\' selects all.")]
+            public string ModeList;
 
             public bool RuntimeValidation(ref string error)
             {
