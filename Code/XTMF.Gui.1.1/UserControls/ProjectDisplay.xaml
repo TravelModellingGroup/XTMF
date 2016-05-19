@@ -47,7 +47,7 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" />
+                    <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" />
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                         <ListBox x:Name="ModelSystemDisplay" Background="Transparent"
                                  SelectionChanged="ModelSystemDisplay_SelectionChanged">

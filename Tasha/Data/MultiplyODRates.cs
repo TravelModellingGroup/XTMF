@@ -53,12 +53,11 @@ namespace Tasha.Data
 
         public void LoadData()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
-            var firstRate = this.FirstRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var first = this.FirstRateToApply.AcquireResource<SparseTwinIndex<float>>();
+            var firstRate = first.GetFlatData();
             var secondRate = this.SecondRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             SparseTwinIndex<float> data;
-            data = zoneArray.CreateSquareTwinArray<float>();
+            data = first.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
             for (int i = 0; i < flatData.Length; i++)
             {

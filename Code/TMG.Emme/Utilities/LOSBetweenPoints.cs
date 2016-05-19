@@ -43,6 +43,9 @@ namespace TMG.Emme.Utilities
         [RunParameter("Maximum Centroids", 3250, "The maximum number of centroids for your license size.  Size 13 in 4.2 is 3250.")]
         public int MaximumCentroids;
 
+        [RunParameter("Scenario Number", 1, "The scenario number to interact with.")]
+        public int Scenario;
+
         public string Name { get; set; }
 
         public float Progress { get; set; }
@@ -97,10 +100,18 @@ namespace TMG.Emme.Utilities
                 var data = MatrixInput.GiveData();
                 MatrixInput.UnloadData();
                 var flatIndexes = centroidNumbers.Select(c => data.GetFlatIndex(c)).ToArray();
-                var flatData = data.GetFlatData();
-                for (int i = 0; i < centroidNumbers.Count; i++)
+                // ensure that all of the indexes are properly allocated
+                for (int i = 0; i < flatIndexes.Length && i < currentlyExploring.Count; i++)
                 {
-                    for (int j = 0; j < centroidNumbers.Count; j++)
+                    if (flatIndexes[i] < 0)
+                    {
+                        throw new XTMFRuntimeException("In '" + Name + "' a centroid in our exploration set was not found in the data provided!");
+                    }
+                }
+                var flatData = data.GetFlatData();
+                for (int i = 0; i < currentlyExploring.Count; i++)
+                {
+                    for (int j = 0; j < currentlyExploring.Count; j++)
                     {
                         Data[currentlyExploring[i]][currentlyExploring[j]] = flatData[flatIndexes[i]][flatIndexes[j]];
                     }
@@ -142,6 +153,7 @@ namespace TMG.Emme.Utilities
 
         public bool Execute(Controller controller)
         {
+            Progress = 0.0f;
             var mc = controller as ModellerController;
             if (mc == null)
             {
@@ -150,13 +162,17 @@ namespace TMG.Emme.Utilities
             List<int> nodesToExplore = GetNodesToExplore();
             List<int> newControids = GenerateCentroids();
             InitializeData(nodesToExplore);
-            foreach (List<int> currentlyExploring in ProduceRuns(nodesToExplore))
+            var exploration = ProduceRuns(nodesToExplore).ToList();
+            for (int i = 0; i < exploration.Count; i++)
             {
+                Progress = (float)i / exploration.Count;
+                var currentlyExploring = exploration[i];
                 AttachCentroids(mc, nodesToExplore, newControids, currentlyExploring);
                 RunAssignment(controller, nodesToExplore, currentlyExploring);
                 CollectData(nodesToExplore, currentlyExploring, newControids);
             }
             SaveResults(nodesToExplore);
+            Progress = 1.0f;
             return true;
         }
 
@@ -193,6 +209,7 @@ namespace TMG.Emme.Utilities
             //The goal is to execute our new tool in order to 
             controller.Run(AttachCentroidToNodeTool,
                 string.Join(" ",
+                Scenario.ToString(),
                 "\"" + string.Join(";", currentlyExploring.Select(i => nodesToExplore[i].ToString())) + "\"",
                 "\"" + string.Join(";", newControids.Select(i => i.ToString())) + "\""
                ));
@@ -260,7 +277,7 @@ namespace TMG.Emme.Utilities
             var availableCentroids = MaximumCentroids - Root.ZoneSystem.ZoneArray.Count;
             //Execute Primary runs
 
-            if (availableCentroids <= nodesToExplore.Count)
+            if (nodesToExplore.Count <= availableCentroids)
             {
                 // in this case we can explore everything in one shot
                 yield return BuildNodeMap(nodesToExplore, 0, nodesToExplore.Count, 0, 0);
@@ -277,7 +294,7 @@ namespace TMG.Emme.Utilities
                     startFirst = stepSize * i;
                     for (int j = i + 1; j < primarySteps; j++)
                     {
-                        startFirst = stepSize * j;
+                        startSecond = stepSize * j;
                         yield return BuildNodeMap(nodesToExplore, startFirst, startFirst + stepSize, startSecond, startSecond + stepSize);
                     }
                 }
@@ -291,7 +308,7 @@ namespace TMG.Emme.Utilities
                     var remainderStart = nodesToExplore.Count - nodesRemaining;
                     while (startFirst < nodesToExplore.Count)
                     {
-                        yield return BuildNodeMap(nodesToExplore, startFirst, startFirst + stepSize, remainderStart, nodesToExplore.Count);
+                        yield return BuildNodeMap(nodesToExplore, startFirst, Math.Min(startFirst + remainderStep, nodesToExplore.Count), remainderStart, nodesToExplore.Count);
                         startFirst += remainderStep;
                     }
                 }
@@ -303,11 +320,11 @@ namespace TMG.Emme.Utilities
             var map = new List<int>();
             for (int i = startFirst; i < endFirst; i++)
             {
-                map.Add(nodesToExplore[i]);
+                map.Add(i);
             }
             for (int j = startSecond; j < endSecond; j++)
             {
-                map.Add(nodesToExplore[j]);
+                map.Add(j);
             }
             return map;
         }

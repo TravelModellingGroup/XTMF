@@ -87,7 +87,11 @@ namespace XTMF.Gui.UserControls
 
         private void LoadCurrentModelSystem()
         {
-            var modelSystem = Display.SelectedItem as ModelSystem;
+            LoadModelSystem(Display.SelectedItem as ModelSystem);
+        }
+
+        private void LoadModelSystem(ModelSystem modelSystem)
+        {
             if (modelSystem != null)
             {
                 ModelSystemEditingSession session = null;
@@ -315,6 +319,25 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+        }
+
+        private ModelSystem GetFirstItem()
+        {
+            if (Display.ItemContainerGenerator.Items.Count > 0)
+            {
+                return Display.ItemContainerGenerator.Items[0] as ModelSystem;
+            }
+            return null;
+        }
+
+        private void FilterBox_EnterPressed(object sender, EventArgs e)
+        {
+            var selected = Display.SelectedItem as ModelSystem;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            LoadModelSystem(selected);
         }
     }
 }

@@ -1,0 +1,65 @@
+﻿<!-- 
+    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<Window x:Class="XTMF.Gui.UserControls.FreeVariableEntry"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+        xmlns:my="clr-namespace:XTMF.Gui"
+        mc:Ignorable="d"
+            WindowStyle="SingleBorderWindow"
+            WindowStartupLocation="CenterOwner"
+        Title="Select Generic Type" Height="500" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="AUTO" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" />
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ListView x:Name="Display" Background="{StaticResource ControlBackgroundBrush}"  
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <my:BorderIconButton Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+                                             Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
+                                             DoubleClicked="BorderIconButton_Clicked">
+                            <my:BorderIconButton.Style>
+                                <Style TargetType="my:BorderIconButton">
+                                    <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                </Style>
+                            </my:BorderIconButton.Style>
+                        </my:BorderIconButton>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollViewer>
+    </Grid>
+</Window>

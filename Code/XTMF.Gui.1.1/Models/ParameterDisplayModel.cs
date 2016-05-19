@@ -197,6 +197,14 @@ namespace XTMF.Gui.Models
                 return RealParameter.Type.GetEnumNames().ToList();
             }
         }
+
+        public IModelSystemStructure BelongsTo
+        {
+            get
+            {
+                return RealParameter.BelongsTo;
+            }
+        }
     }
 
     public class ParameterTypeSelector : DataTemplateSelector

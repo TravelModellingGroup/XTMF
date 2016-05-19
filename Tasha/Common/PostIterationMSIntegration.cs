@@ -22,6 +22,7 @@ using XTMF;
 
 namespace Tasha.Common
 {
+    [ModuleInformation(Description = "This module is designed to allow the integration of ISelfContainedModules to execute during the post iteration phase in the TASHA pipeline.")]
     public class PostIterationMSIntegration : IPostIteration
     {
         [SubModelInformation( Required = false, Description = "The model systems to host after an iteration has completed." )]

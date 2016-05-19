@@ -33,6 +33,7 @@ using Tasha.XTMFModeChoice;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
+    [ModuleInformation(Description = "This module is designed to extract out vehicle kilometer's traveled (VKTs) by home zone for the given modes.")]
     public sealed class ODTripSumByHomeZone : IPostHousehold
     {
         [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]

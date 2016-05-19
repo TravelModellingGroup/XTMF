@@ -23,6 +23,7 @@ using XTMF;
 
 namespace TashaModes
 {
+    [ModuleInformation(Description = "This module represents a physical auto vehicle in a TASHA simulation.")]
     public class AutoType : IVehicleType
     {
         #region IVehicleType Members

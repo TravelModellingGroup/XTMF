@@ -146,6 +146,7 @@
     <Compile Include="Utilities\LoadEMME4BinaryMatrixInMatrixZoneSystem.cs" />
     <Compile Include="Utilities\LOSBetweenPoints.cs" />
     <Compile Include="XTMF_Internal\CopyScenario.cs" />
+    <Compile Include="XTMF_Internal\DeleteScenario.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">

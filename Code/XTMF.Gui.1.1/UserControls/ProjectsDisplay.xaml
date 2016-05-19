@@ -31,7 +31,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" />
+        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" />
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ListView x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       Background="{StaticResource WindowBackgroundBrush}">

@@ -27,6 +27,7 @@ using TMG;
 
 namespace Tasha.Common.IterationConditionals
 {
+    [ModuleInformation(Description = "This module is designed to allow the model system to have conditional execution based upon the provided information and the model system's current iteration.")]
     public class IterationConditionalPostIteration : IterationConditional, IPostIteration
     {
         [SubModelInformation(Required = true, Description = "Executed if true")]

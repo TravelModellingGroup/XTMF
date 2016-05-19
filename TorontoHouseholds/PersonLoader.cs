@@ -26,6 +26,7 @@ using XTMF;
 
 namespace TMG.Tasha
 {
+    [ModuleInformation(Description = "This module is designed to load person records given the household that the people live in from TTS like data.")]
     public class PersonLoader : IDatachainLoader<ITashaHousehold, ITashaPerson>, IDisposable
     {
         [RunParameter("FileName", "Households/People.csv", "The file name of the csv file that we will load people from.")]

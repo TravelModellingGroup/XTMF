@@ -159,6 +159,15 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
+                        <MenuItem Header="Edit Description (Shift + F2)" Click="Description_Clicked">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <MenuItem Header="Module (Ctrl+M)" Click="Module_Clicked" />
                         <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
                             <MenuItem.Icon>
@@ -205,7 +214,7 @@
                                     RightClicked="DisplayButton_RightClicked"
                                     Margin="4"
                                     KeyboardNavigation.TabNavigation="Continue"
-                                    KeyboardNavigation.IsTabStop="false" IsTabStop="False" Width="275" Focusable="False" x:Name="DisplayButton">
+                                    KeyboardNavigation.IsTabStop="false" IsTabStop="False" MinWidth="275" Focusable="False" x:Name="DisplayButton">
                         </my:BorderIconButton>
                         <HierarchicalDataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">

@@ -29,6 +29,8 @@ using System.IO;
 
 namespace Tasha.Validation.PoRPoW
 {
+    [ModuleInformation(Description = 
+ @"This module is designed to extract the assignments of place of residence - place of work by analyzing the population as they are being processed through the TASHA pipeline.  It will produce eight files, one for each occupation category, for full-time and part-time employment.")]
     public class ExtractPoRPoWAssignments : IPostHousehold
     {
         public string Name { get; set; }

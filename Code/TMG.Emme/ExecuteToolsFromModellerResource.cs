@@ -23,14 +23,14 @@ using System.Text;
 using XTMF;
 namespace TMG.Emme
 {
-    [ModuleInformation( Description =
-@"This module is designed to execute a series of emme tools from a modeller controller that is stored in an XTMF resource." )]
+    [ModuleInformation(Description =
+@"This module is designed to execute a series of emme tools from a modeller controller that is stored in an XTMF resource.")]
     public class ExecuteToolsFromModellerResource : ISelfContainedModule
     {
-        [SubModelInformation( Required = false, Description = "The tools to run in order." )]
+        [SubModelInformation(Required = false, Description = "The tools to run in order.")]
         public IEmmeTool[] Tools;
 
-        [SubModelInformation( Required = true, Description = "The name of the resource that has modeller." )]
+        [SubModelInformation(Required = true, Description = "The name of the resource that has modeller.")]
         public IResource EmmeModeller;
 
         public void Start()
@@ -38,10 +38,11 @@ namespace TMG.Emme
             var modeller = this.EmmeModeller.AcquireResource<ModellerController>();
             var tools = this.Tools;
             int i = 0;
-            _Progress = () => ( ( (float)i / tools.Length ) + tools[i].Progress * ( 1.0f / tools.Length ) );
-            for ( ; i < tools.Length; i++ )
+            _Progress = () => (((float)i / tools.Length) + tools[i].Progress * (1.0f / tools.Length));
+            status = () => tools[i].ToString();
+            for (; i < tools.Length; i++)
             {
-                tools[i].Execute( modeller );
+                tools[i].Execute(modeller);
             }
             _Progress = () => 0f;
         }
@@ -59,17 +60,28 @@ namespace TMG.Emme
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); }
+            get { return new Tuple<byte, byte, byte>(50, 150, 50); }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.EmmeModeller.CheckResourceType<ModellerController>() )
+            if (!this.EmmeModeller.CheckResourceType<ModellerController>())
             {
                 error = "In '" + this.Name + "' the resource 'EmmeModeller' did not contain an Emme ModellerController!";
                 return false;
             }
             return true;
+        }
+
+        private Func<string> status = null;
+
+        public override string ToString()
+        {
+            if (status == null)
+            {
+                return "Connecting to EMME";
+            }
+            return status();
         }
     }
 }

@@ -28,6 +28,7 @@ using XTMF;
 
 namespace TMG.Tasha
 {
+    [ModuleInformation(Description = "This class is designed to load households from TTS like trip records.")]
     public sealed class HouseholdLoader : IDataLoader<ITashaHousehold>, IDisposable
     {
         [RunParameter("Auto Mode Name", "Auto", "The name of the mode that will turn into rideshare, this is ignored if there is no rideshare mode selected.")]

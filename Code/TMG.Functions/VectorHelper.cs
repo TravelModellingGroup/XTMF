@@ -381,6 +381,698 @@ namespace TMG.Functions
             }
         }
 
+        public static void Divide(float[][] destination, float numerator, float[][] denominator)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> n = new Vector<float>(numerator);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var denom = denominator[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var d = new Vector<float>(denom, i);
+                        (n / d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = numerator / denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = numerator / denominator[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Divide(float[][] destination, float[][] numerator, float denominator)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> d = new Vector<float>(denominator);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = numerator[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        (n / d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] / denominator;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = numerator[i][j] / denominator;
+                    }
+                }
+            }
+        }
+
+        public static void Divide(float[][] destination, float[][] numerator, float[][] denominator)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = numerator[row];
+                    var denom = denominator[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        var d = new Vector<float>(denom, i);
+                        (n / d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] / denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = numerator[i][j] / denominator[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Add(float[] dest, float[] source, float scalar)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> constant = new Vector<float>(scalar);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= source.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var dynamic = new Vector<float>(source, i);
+                    (constant + dynamic).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < source.Length; i++)
+                {
+                    dest[i] = source[i] + scalar;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = source[i] + scalar;
+                }
+            }
+        }
+
+        public static void Subtract(float[] dest, float[] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> rhsV = new Vector<float>(rhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var lhsV = new Vector<float>(lhs, i);
+                    (lhsV - rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] - rhs;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] - rhs;
+                }
+            }
+        }
+
+        public static void Subtract(float[] dest, float lhs, float[] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> lhsV = new Vector<float>(lhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var rhsV = new Vector<float>(rhs, i);
+                    (lhsV - rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < rhs.Length; i++)
+                {
+                    dest[i] = lhs - rhs[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs - rhs[i];
+                }
+            }
+        }
+
+        public static void Divide(float[] dest, float[] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> rhsV = new Vector<float>(rhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var lhsV = new Vector<float>(lhs, i);
+                    (lhsV / rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < lhs.Length; i++)
+                {
+                    dest[i] = lhs[i] / rhs;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs[i] / rhs;
+                }
+            }
+        }
+
+        public static void Divide(float[] dest, float lhs, float[] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> lhsV = new Vector<float>(lhs);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var rhsV = new Vector<float>(rhs, i);
+                    (lhsV / rhsV).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < rhs.Length; i++)
+                {
+                    dest[i] = lhs / rhs[i];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = lhs / rhs[i];
+                }
+            }
+        }
+
+        public static void Multiply(float[] dest, float[] source, float scalar)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> constant = new Vector<float>(scalar);
+
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= source.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var dynamic = new Vector<float>(source, i);
+                    (constant * dynamic).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < source.Length; i++)
+                {
+                    dest[i] = source[i] * scalar;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = source[i] * scalar;
+                }
+            }
+        }
+
+        public static void Abs(float[] dest, float[] source)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                // copy everything we can do inside of a vector
+                int i = 0;
+                for (; i <= dest.Length - Vector<float>.Count; i += Vector<float>.Count)
+                {
+                    var dynamic = new Vector<float>(source, i);
+                    (Vector.Abs(dynamic)).CopyTo(dest, i);
+                }
+                // copy the remainder
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = Math.Abs(source[i]);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = Math.Abs(source[i]);
+                }
+            }
+        }
+
+        public static void Abs(float[][] dest, float[][] source)
+        {
+            for (int row = 0; row < dest.Length; row++)
+            {
+                Abs(dest[row], source[row]);
+            }
+        }
+
+        public static void Add(float[][] destination, float lhs, float[][] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> n = new Vector<float>(lhs);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var d = new Vector<float>(denom, i);
+                        (n + d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = lhs + denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs / rhs[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Add(float[][] destination, float[][] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> d = new Vector<float>(rhs);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        (n + d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] + rhs;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs[i][j] + rhs;
+                    }
+                }
+            }
+        }
+
+        public static void Add(float[][] destination, float[][] lhs, float[][] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        var d = new Vector<float>(denom, i);
+                        (n + d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] + denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs[i][j] + rhs[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Subtract(float[][] destination, float lhs, float[][] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> n = new Vector<float>(lhs);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var d = new Vector<float>(denom, i);
+                        (n - d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = lhs - denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs - rhs[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Subtract(float[][] destination, float[][] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> d = new Vector<float>(rhs);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        (n - d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] - rhs;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs[i][j] - rhs;
+                    }
+                }
+            }
+        }
+
+        public static void Subtract(float[][] destination, float[][] lhs, float[][] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        var d = new Vector<float>(denom, i);
+                        (n - d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] - denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs[i][j] - rhs[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Multiply(float[][] destination, float lhs, float[][] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> n = new Vector<float>(lhs);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var d = new Vector<float>(denom, i);
+                        (n * d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = lhs * denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs * rhs[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Multiply(float[][] destination, float[][] lhs, float rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> d = new Vector<float>(rhs);
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        (n * d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] * rhs;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs[i][j] * rhs;
+                    }
+                }
+            }
+        }
+
+        public static void Multiply(float[][] destination, float[][] lhs, float[][] rhs)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                for (int row = 0; row < destination.Length; row++)
+                {
+                    var dest = destination[row];
+                    var length = dest.Length;
+                    var num = lhs[row];
+                    var denom = rhs[row];
+                    // copy everything we can do inside of a vector
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var n = new Vector<float>(num, i);
+                        var d = new Vector<float>(denom, i);
+                        (n * d).CopyTo(dest, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        dest[i] = num[i] * denom[i];
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < destination.Length; i++)
+                {
+                    for (int j = 0; j < destination[i].Length; j++)
+                    {
+                        destination[i][j] = lhs[i][j] * rhs[i][j];
+                    }
+                }
+            }
+        }
+
+        public static void Pow(float[] flat, float[] lhs, float rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                flat[i] = (float)Math.Pow(lhs[i], rhs);
+            }
+        }
+
+        public static void Pow(float[] flat, float lhs, float[] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                flat[i] = (float)Math.Pow(lhs, rhs[i]);
+            }
+        }
+
+        public static void Pow(float[] flat, float[] lhs, float[] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                flat[i] = (float)Math.Pow(lhs[i], rhs[i]);
+            }
+        }
+
+        public static void Pow(float[][] flat, float[][] lhs, float[][] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                Pow(flat[i], lhs[i], rhs[i]);
+            }
+        }
+
+        public static void Pow(float[][] flat, float[][] lhs, float rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                Pow(flat[i], lhs[i], rhs);
+            }
+        }
+
+        public static void Pow(float[][] flat, float lhs, float[][] rhs)
+        {
+            // Vectorize this when possible
+            for (int i = 0; i < flat.Length; i++)
+            {
+                Pow(flat[i], lhs, rhs[i]);
+            }
+        }
+
 
         /// <summary>
         /// Multiply an array by a scalar and store it in another array.
@@ -1407,7 +2099,7 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                if ((destIndex | xIndex ) == 0)
+                if ((destIndex | xIndex) == 0)
                 {
                     int i = 0;
                     for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)

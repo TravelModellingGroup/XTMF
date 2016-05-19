@@ -354,6 +354,13 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                         }
                         break;
+                    case Key.O:
+                        if(Controllers.EditorController.IsControlDown())
+                        {
+                            OpenProjectFolder();
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Enter:
                         {
                             LoadModelSystem();
@@ -439,6 +446,11 @@ namespace XTMF.Gui.UserControls
         private void LoadModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            LoadModelSystem(selected);
+        }
+
+        private void LoadModelSystem(ProjectModel.ContainedModelSystemModel selected)
+        {
             if (selected != null)
             {
                 var invoke = InitiateModelSystemEditingSession;
@@ -460,10 +472,17 @@ namespace XTMF.Gui.UserControls
                 if (invoke != null)
                 {
                     string error = null;
-                    var newSession = Session.LoadPreviousRun(selected.Path, ref error);
-                    if (newSession != null)
+                    ModelSystemEditingSession newSession;
+                    if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
                     {
-                        invoke(newSession);
+                        if (newSession != null)
+                        {
+                            invoke(newSession);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
                 PastRunDisplay.SelectedItem = null;
@@ -476,6 +495,11 @@ namespace XTMF.Gui.UserControls
         }
 
         private void OpenProjectFolder_Clicked(object obj)
+        {
+            OpenProjectFolder();
+        }
+
+        private void OpenProjectFolder()
         {
             var directoryName = System.IO.Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
             try
@@ -698,6 +722,25 @@ namespace XTMF.Gui.UserControls
                     Model.RefreshModelSystems();
                 }
             }
+        }
+
+        private ProjectModel.ContainedModelSystemModel GetFirstItem()
+        {
+            if (ModelSystemDisplay.ItemContainerGenerator.Items.Count > 0)
+            {
+                return ModelSystemDisplay.ItemContainerGenerator.Items[0] as ProjectModel.ContainedModelSystemModel;
+            }
+            return null;
+        }
+
+        private void FilterModelSystemsBox_EnterPressed(object sender, EventArgs e)
+        {
+            var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            LoadModelSystem(selected);
         }
     }
 }

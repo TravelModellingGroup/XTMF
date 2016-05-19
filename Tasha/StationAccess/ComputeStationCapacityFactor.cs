@@ -32,6 +32,9 @@ using System.Threading.Tasks;
 
 namespace Tasha.StationAccess
 {
+    [ModuleInformation(Description =
+        @"This module is designed to generate the station capacity information by time period for the Access Station Choice model.  It applies a 
+blended average between iteration to help converge.")]
     public class ComputeStationCapacityFactor : IPostIteration
     {
 

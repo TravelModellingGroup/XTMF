@@ -151,6 +151,7 @@
     <Compile Include="TestGravityModel.cs" />
     <Compile Include="TestMessageQueue.cs" />
     <Compile Include="TestVector.cs" />
+    <Compile Include="TMG\Data\TestCompiler.cs" />
     <Compile Include="TMG\Data\TestZoneMap.cs" />
     <Compile Include="XTMFPerformance.cs" />
     <Compile Include="XTMFTestBase.cs" />
@@ -167,6 +168,10 @@
     <ProjectReference Include="..\..\TashaInterfaces\TashaInterfaces.csproj">
       <Project>{ff44241d-1070-4391-9a3c-b19b8f96a583}</Project>
       <Name>TashaInterfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TMG.Frameworks\TMG.Frameworks.csproj">
+      <Project>{6c534cc4-e0dc-4613-9358-678834c55776}</Project>
+      <Name>TMG.Frameworks</Name>
     </ProjectReference>
     <ProjectReference Include="..\TMG.Functions\TMG.Functions.csproj">
       <Project>{4129e4db-412b-493a-bda1-f0c367ee1f6f}</Project>

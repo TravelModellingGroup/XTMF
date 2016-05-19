@@ -26,6 +26,7 @@ namespace Tasha.Scheduler
     /// <summary>
     /// Handles the scheduling of the population
     /// </summary>
+    [ModuleInformation(Description = "This module provides the activity scheduling algorithm for TASHA/GTAModelV4.0.")]
     public class Scheduler : ITashaScheduler
     {
         public static string ActivityLevels;

@@ -323,9 +323,9 @@ namespace XTMF.Gui.UserControls
             (new ErrorWindow() { Owner = GetWindow(this), ErrorMessage = header + "\r\n" + message }).ShowDialog();
         }
 
-        private void ShowErrorMessage(string v, Exception error)
+        private void ShowErrorMessage(string v, string message, string stackTrace)
         {
-            (new ErrorWindow() { Owner = GetWindow(this), Exception = error }).ShowDialog();
+            (new ErrorWindow() { Owner = GetWindow(this), ErrorMessage = message, ErrorStackTrace = stackTrace }).ShowDialog();
         }
 
         private void Run_ValidationStarting()
@@ -341,25 +341,14 @@ namespace XTMF.Gui.UserControls
             }));
         }
 
-        private void Run_RuntimeError(Exception error)
+        private void Run_RuntimeError(string message, string stackTrace)
         {
             Dispatcher.Invoke(new Action(() =>
             {
                 SetRunFinished();
-                error = GetInnermostError(error);
-                ShowErrorMessage("Runtime Error", error);
+                ShowErrorMessage("Runtime Error", message, stackTrace);
             }));
 
-        }
-
-        private Exception GetInnermostError(Exception error)
-        {
-            var ret = error;
-            while (ret.InnerException != null)
-            {
-                ret = ret.InnerException;
-            }
-            return ret;
         }
 
         private void SetRunFinished()

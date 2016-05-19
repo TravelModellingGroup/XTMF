@@ -69,26 +69,45 @@ namespace TMG.Frameworks.Office
             return true;
         }
 
+        private class ConversionDetails
+        {
+            internal string OriginPath;
+            internal string DestinationPath;
+            public ConversionDetails(string origin, string destination)
+            {
+                OriginPath = origin;
+                DestinationPath = destination;
+            }
+        }
+
         public void Start()
         {
+            Progress = 0.0f;
             var excel = new Application();
             Workbooks workbooks = null;
             // be very careful here to make sure that excel is actually going to close properly
             try
             {
                 workbooks = excel.Workbooks;
+                List<ConversionDetails> filesToConvert = new List<ConversionDetails>();
                 foreach(var toConvert in FilesToConvert)
                 {
 
                     var inPath = toConvert.InputFile.GetFilePath();
                     if(Directory.Exists(inPath))
                     {
-                        SaveDirectory(workbooks, new DirectoryInfo(inPath), new DirectoryInfo(toConvert.OutputFile.GetFilePath()));
+                        AddDirectory(filesToConvert, new DirectoryInfo(inPath), new DirectoryInfo(toConvert.OutputFile.GetFilePath()));
                     }
                     else
                     {
-                        SaveWorkbook(workbooks, inPath, toConvert.OutputFile.GetFilePath());
+                        AddFile(filesToConvert, inPath, toConvert.OutputFile.GetFilePath());
                     }
+
+                }
+                for (int i = 0; i < filesToConvert.Count; i++)
+                {
+                    Progress = (float)i / filesToConvert.Count;
+                    Save(workbooks, filesToConvert[i]);
 
                 }
             }
@@ -102,13 +121,33 @@ namespace TMG.Frameworks.Office
                 excel.Quit();
                 Marshal.FinalReleaseComObject(excel);
             }
+            Progress = 1.0f;
         }
 
-        private void SaveDirectory(Workbooks workbooks, DirectoryInfo currentInputDirectory, DirectoryInfo currentOutputDirectory)
+        private void Save(Workbooks workbooks, ConversionDetails toConvert)
+        {
+            Workbook workbook = null;
+            try
+            {
+                workbook = workbooks.Open(toConvert.OriginPath);
+                workbook.SaveAs(toConvert.DestinationPath, XlFileFormat.xlWorkbookDefault);
+            }
+            finally
+            {
+                if (workbook != null)
+                {
+                    workbook.Close();
+                    Marshal.FinalReleaseComObject(workbook);
+                }
+            }
+        }
+
+
+        private void AddDirectory(List<ConversionDetails> files, DirectoryInfo currentInputDirectory, DirectoryInfo currentOutputDirectory)
         {
             foreach(var subDir in currentInputDirectory.GetDirectories())
             {
-                SaveDirectory(workbooks, subDir, currentOutputDirectory.CreateSubdirectory(subDir.Name));
+                AddDirectory(files, subDir, currentOutputDirectory.CreateSubdirectory(subDir.Name));
             }
             foreach(var file in currentInputDirectory.GetFiles( "*.csv", SearchOption.TopDirectoryOnly))
             {
@@ -116,26 +155,13 @@ namespace TMG.Frameworks.Office
                 {
                     currentOutputDirectory.Create();
                 }
-                SaveWorkbook(workbooks, file.FullName, Path.Combine(currentOutputDirectory.FullName, Path.GetFileNameWithoutExtension(file.Name) + ".xlsx"));
+                AddFile(files, file.FullName, Path.Combine(currentOutputDirectory.FullName, Path.GetFileNameWithoutExtension(file.Name) + ".xlsx"));
             }
         }
 
-        private static void SaveWorkbook(Workbooks workbooks, string inPath, string outPath)
+        private static void AddFile(List<ConversionDetails> files, string inPath, string outPath)
         {
-            Workbook workbook = null;
-            try
-            {
-                workbook = workbooks.Open(inPath);
-                workbook.SaveAs(outPath, XlFileFormat.xlWorkbookDefault);
-            }
-            finally
-            {
-                if(workbook != null)
-                {
-                    workbook.Close();
-                    Marshal.FinalReleaseComObject(workbook);
-                }
-            }
+            files.Add(new ConversionDetails(inPath, outPath));
         }
     }
 

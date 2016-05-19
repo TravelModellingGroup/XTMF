@@ -29,7 +29,7 @@ using System.IO;
 
 namespace Tasha.Validation.ModeChoice
 {
-
+    [ModuleInformation(Description = "This module reads in the output of ZonalModeSplits and aggregates it to the planning district level.")]
     public class ConvertZonalModeSplitToPDModeSplit : IPostIteration
     {
         public string Name { get; set; }

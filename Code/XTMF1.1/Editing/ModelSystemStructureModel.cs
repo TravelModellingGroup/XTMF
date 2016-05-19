@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -100,9 +100,10 @@ namespace XTMF
                             for (int i = 0; i < oldChildren.Count; i++)
                             {
                                 RealModelSystemStructure.Children[i] = oldChildren[i].RealModelSystemStructure;
+                                Children.Add(oldChildren[i]);
                             }
                         }
-                        UpdateChildren();
+                        //UpdateChildren();
                         Parameters = oldParameters;
                         SetRealParametersToModel();
                         Dirty = oldDirty;
@@ -249,6 +250,12 @@ namespace XTMF
                 {
                     error = "The copied model system is not pasteable at this location.";
                     return false;
+                }
+                // if we are not a collection update the name of the module that is going to replace us with our name and description
+                if(!IsCollection)
+                {
+                    copiedStructure.Name = Name;
+                    copiedStructure.Description = Description;
                 }
             }
             List<LinkedParameterModel> newLinkedParameters = new List<LinkedParameterModel>();
@@ -1060,6 +1067,29 @@ namespace XTMF
             {
                 this.RealModelSystemStructure.Name = newName;
                 ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                return true;
+            }), ref error);
+        }
+
+        public bool SetDescription(string newDescription, ref string error)
+        {
+            var oldDescription = "";
+            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            {
+                oldDescription = this.RealModelSystemStructure.Description;
+                this.RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                return true;
+            }, (ref string e) =>
+            {
+                this.RealModelSystemStructure.Description = oldDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                return true;
+            },
+            (ref string e) =>
+            {
+                this.RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
                 return true;
             }), ref error);
         }
