@@ -76,3 +76,9 @@
 /Code/XTMF.opensdf
 /Code/XTMF.sdf
 /Code/XTMF.sln.ide
+/Code
+/PythonApplication1/.vs/PythonApplication1/v14
+/PythonApplication1/PythonApplication1
+/PythonApplication1
+/PythonApplication2
+*.gitattributes
