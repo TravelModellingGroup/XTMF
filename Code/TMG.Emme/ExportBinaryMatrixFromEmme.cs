@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using TMG.Input;
@@ -50,7 +51,7 @@ namespace TMG.Emme
             if(mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.MatrixType, this.MatrixNumber, "\"" + this.Filepath.GetFilePath() + "\"", this.ScenarioNumber);
+            var args = string.Join(" ", this.MatrixType, this.MatrixNumber, "\"" + Path.GetFullPath(this.Filepath.GetFilePath()) + "\"", this.ScenarioNumber);
 
             /*
             

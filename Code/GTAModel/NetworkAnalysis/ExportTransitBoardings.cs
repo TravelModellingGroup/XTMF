@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using TMG.Emme;
@@ -28,7 +29,7 @@ namespace TMG.GTAModel.NetworkAnalysis
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var reportFilePath = "\"" + this.ReportFile.GetFilePath() + "\"";
+            var reportFilePath = "\"" + Path.GetFullPath(this.ReportFile.GetFilePath()) + "\"";
             var aggregationFilePath = this.LineAggregationFile == null ? "" :  "\"" + this.LineAggregationFile.GetFilePath() + "\"";
 
             var args = string.Join(" ", this.ScenarioNumber,
