@@ -18,6 +18,8 @@
 */
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Datastructure
 {
@@ -37,7 +39,8 @@ namespace Datastructure
         /// </summary>
         private CSVPartition[] Data = new CSVPartition[50];
 
-        private char[] DataBuffer = new char[0x400];
+        private char[] DataBuffer = new char[0x4000];
+        private char[] DataBuffer2;
 
         private int DataBufferLength;
 
@@ -174,83 +177,163 @@ namespace Datastructure
             int i = 0;
             char prevC = '\0';
             bool quote = false;
-            while (true)
+            if (SpacesAsSeperator)
             {
-                char c;
-                // make sure there is data
-                if (DataBufferPosition >= DataBufferLength)
+                while (true)
                 {
-                    LoadInData();
-                    // if we are at the end of file just end it
-                    if (DataBufferLength <= 0)
+                    char c;
+                    // make sure there is data
+                    if (DataBufferPosition >= DataBufferLength)
                     {
-                        if (addOne)
+                        LoadInData();
+                        // if we are at the end of file just end it
+                        if (DataBufferLength <= 0)
                         {
-                            Data[numberOfColumns].Start = prevEnd + 1;
-                            Data[numberOfColumns++].End = prevEnd = i - 1;
+                            if (addOne)
+                            {
+                                Data[numberOfColumns].Start = prevEnd + 1;
+                                Data[numberOfColumns++].End = prevEnd = i - 1;
+                            }
+                            columns = numberOfColumns;
+                            return true;
                         }
-                        columns = numberOfColumns;
-                        return true;
                     }
-                }
-                c = DataBuffer[DataBufferPosition++];
-                if ((c == '\n') | (c == '\0'))
-                {
-                    if (prevC != '\r')
+                    c = DataBuffer[DataBufferPosition++];
+                    if ((c == '\n') | (c == '\0'))
                     {
+                        if (prevC != '\r')
+                        {
+                            if (Data.Length <= numberOfColumns)
+                            {
+                                ExpandDataSections();
+                            }
+                            quote = false;
+                            Data[numberOfColumns].Start = prevEnd + 1;
+                            Data[numberOfColumns++].End = prevEnd = i;
+                        }
+                        else
+                        {
+                            prevEnd = i;
+                        }
+                        break;
+                    }
+                    else if ((c == '"'))
+                    {
+                        if (prevEnd == i - 1)
+                        {
+                            quote = true;
+                            continue;
+                        }
+                        else if (quote)
+                        {
+                            quote = false;
+                            continue;
+                        }
+                        // if it is just in the middle continue on
+                    }
+                    if (LinePosition >= LineBuffer.Length)
+                    {
+                        Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
+                    }
+                    LineBuffer[LinePosition++] = c;
+                    // if a comma or an end quote followed by a comma
+                    if ((!quote && (c == ',' || c == '\t' || (prevC != ' ' && c == ' ')))
+                        || c == '\r')
+                    {
+                        addOne = false;
                         if (Data.Length <= numberOfColumns)
                         {
                             ExpandDataSections();
                         }
-                        quote = false;
                         Data[numberOfColumns].Start = prevEnd + 1;
                         Data[numberOfColumns++].End = prevEnd = i;
                     }
                     else
                     {
-                        prevEnd = i;
+                        addOne = true;
                     }
-                    break;
+                    prevC = c;
+                    i++;
                 }
-                else if ((c == '"'))
+            }
+            else
+            {
+                while (true)
                 {
-                    if (prevEnd == i - 1)
+                    char c;
+                    // make sure there is data
+                    if (DataBufferPosition >= DataBufferLength)
                     {
-                        quote = true;
-                        continue;
+                        LoadInData();
+                        // if we are at the end of file just end it
+                        if (DataBufferLength <= 0)
+                        {
+                            if (addOne)
+                            {
+                                Data[numberOfColumns].Start = prevEnd + 1;
+                                Data[numberOfColumns++].End = prevEnd = i - 1;
+                            }
+                            columns = numberOfColumns;
+                            return true;
+                        }
                     }
-                    else if (quote)
+                    c = DataBuffer[DataBufferPosition++];
+                    if ((c == '\n') | (c == '\0'))
                     {
-                        quote = false;
-                        continue;
+                        if (prevC != '\r')
+                        {
+                            if (Data.Length <= numberOfColumns)
+                            {
+                                ExpandDataSections();
+                            }
+                            quote = false;
+                            Data[numberOfColumns].Start = prevEnd + 1;
+                            Data[numberOfColumns++].End = prevEnd = i;
+                        }
+                        else
+                        {
+                            prevEnd = i;
+                        }
+                        break;
                     }
-                    // if it is just in the middle continue on
-                }
-                if (LinePosition >= LineBuffer.Length)
-                {
-                    var temp = new char[LineBuffer.Length * 2];
-                    Array.Copy(LineBuffer, temp, LineBuffer.Length);
-                    LineBuffer = temp;
-                }
-                LineBuffer[LinePosition++] = c;
-                // if a comma or an end quote followed by a comma
-                if ((!quote & (c == ',' | c == '\t'))
-                    | c == '\r' | (SpacesAsSeperator & (prevC != ' ' & c == ' ')))
-                {
-                    addOne = false;
-                    if (Data.Length <= numberOfColumns)
+                    else if ((c == '"'))
                     {
-                        ExpandDataSections();
+                        if (prevEnd == i - 1)
+                        {
+                            quote = true;
+                            continue;
+                        }
+                        else if (quote)
+                        {
+                            quote = false;
+                            continue;
+                        }
+                        // if it is just in the middle continue on
                     }
-                    Data[numberOfColumns].Start = prevEnd + 1;
-                    Data[numberOfColumns++].End = prevEnd = i;
+                    if (LinePosition >= LineBuffer.Length)
+                    {
+                        Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
+                    }
+                    LineBuffer[LinePosition++] = c;
+                    // if a comma or an end quote followed by a comma
+                    if ((!quote && (c == ',' || c == '\t'))
+                        || c == '\r')
+                    {
+                        addOne = false;
+                        if (Data.Length <= numberOfColumns)
+                        {
+                            ExpandDataSections();
+                        }
+                        Data[numberOfColumns].Start = prevEnd + 1;
+                        Data[numberOfColumns++].End = prevEnd = i;
+                    }
+                    else
+                    {
+                        addOne = true;
+                    }
+                    prevC = c;
+                    i++;
                 }
-                else
-                {
-                    addOne = true;
-                }
-                prevC = c;
-                i++;
             }
             // check to see if there was actually no data
             if (LinePosition == 0 || (numberOfColumns == 1 && Data[0].End == 0))
@@ -282,19 +365,14 @@ namespace Datastructure
             else
             {
                 Reader.BaseStream.Seek(0, SeekOrigin.Begin);
+                DataBuffer2 = null;
             }
             DataBufferLength = -1;
         }
 
         private void ExpandDataSections()
         {
-            var temp = new CSVPartition[Data.Length * 2];
-            var local = Data;
-            for (int i = 0; i < local.Length; i++)
-            {
-                temp[i] = local[i];
-            }
-            Data = temp;
+            Array.Resize(ref Data, Data.Length * 2);
         }
 
         private bool FastEndOfFile()
@@ -302,10 +380,32 @@ namespace Datastructure
             return DataBufferLength == 0;
         }
 
+        private volatile bool NextDataReady = false;
+        private volatile int NextDataBufferLength = 0;
+
         private void LoadInData()
         {
+            if (DataBuffer2 == null)
+            {
+                DataBuffer2 = new char[0x4000];
+                NextDataBufferLength = Reader.Read(DataBuffer2, 0, DataBuffer.Length);
+                NextDataReady = true;
+            }
+            // spin-wait on this being ready until the data is ready
+            while (!NextDataReady) ;
             DataBufferPosition = 0;
-            DataBufferLength = Reader.Read(DataBuffer, 0, DataBuffer.Length);
+            var temp = DataBuffer;
+            DataBuffer = DataBuffer2;
+            DataBuffer2 = temp;
+            DataBufferLength = NextDataBufferLength;
+            NextDataReady = false;
+            // load the next set of data in parallel
+            Task.Run(() =>
+            {
+                NextDataBufferLength = Reader.Read(DataBuffer2, 0, DataBuffer.Length);
+                Thread.MemoryBarrier();
+                NextDataReady = true;
+            });
         }
 
         private struct CSVPartition
