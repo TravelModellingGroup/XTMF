@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,7 +78,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
                 AddQuotes(CountpostAttributeFlag),
                 AddQuotes(AlternateCountpostAttributeFlag),
                 AddQuotes(ScreenlineDefinitions),
-                AddQuotes(SaveTo),
+                AddQuotes(Path.GetFullPath(SaveTo)),
                 AddQuotes(lineFilter),
                 AddQuotes(RepresentativeHourFactor),
                 ExportPedestrians ? "true" : "false");

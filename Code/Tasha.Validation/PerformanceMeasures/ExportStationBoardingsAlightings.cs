@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,7 +59,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 
         private string GetParameters()
         {
-            return string.Join(" ", ScenarioNumber, AddQuotes(ResultsFile), AddQuotes(StationNodeFile));
+            return string.Join(" ", ScenarioNumber, AddQuotes(Path.GetFullPath(ResultsFile.GetFilePath())), AddQuotes(StationNodeFile));
         }
 
         private static string AddQuotes(string toQuote)
