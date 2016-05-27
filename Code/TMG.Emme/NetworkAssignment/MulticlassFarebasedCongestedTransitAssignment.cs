@@ -131,6 +131,8 @@ namespace TMG.Emme.NetworkAssignment
 
             var args = string.Join(" ", ScenarioNumber,
                                         ProduceMatrixString(c => c.DemandMatrixNumber),
+                                        "\"" + (string.Join(",", from c in Classes
+                                                                 select c.Name)).Replace('"', '\'') + "\"",
                                         mc.ToEmmeFloat(WalkSpeed),
                                         walkPerception,
                                         "\"" + (string.Join(",", from c in Classes
