@@ -164,6 +164,11 @@ namespace XTMF.Gui.UserControls
             CreateNewProject();
         }
 
+        private void ChangeDescription_Click(object sender, RoutedEventArgs e)
+        {
+            ChangeCurrentDescription();
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (!e.Handled)
@@ -171,7 +176,14 @@ namespace XTMF.Gui.UserControls
                 switch (e.Key)
                 {
                     case Key.F2:
-                        RenameCurrentProject();
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift))
+                        {
+                            ChangeCurrentDescription();
+                        }
+                        else
+                        {
+                            RenameCurrentProject();
+                        }
                         e.Handled = true;
                         break;
                     case Key.Delete:
@@ -243,6 +255,32 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void ChangeCurrentDescription()
+        {
+            var project = Display.SelectedItem as Project;
+            if (project != null)
+            {
+                var selectedModuleControl = GetCurrentlySelectedControl();
+                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
+                Renaming = true;
+                var adorn = new TextboxAdorner("Change Description", (result) =>
+                {
+                    string error = null;
+                    if (!Runtime.ProjectController.SetDescription(project, result, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
+                    else
+                    {
+                        RefreshProjects();
+                    }
+                }, selectedModuleControl, project.Description);
+                adorn.Unloaded += Adorn_Unloaded;
+                layer.Add(adorn);
+                adorn.Focus();
+            }
+        }
+
         private void RefreshProjects()
         {
             var selected = Display.SelectedItem;
@@ -278,7 +316,6 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
 
         private void DeleteCurrentProject()
         {

@@ -60,20 +60,20 @@ namespace XTMF
 
         public bool AddProject(IProject project)
         {
-            lock ( this )
+            lock (this)
             {
-                if ( !this.ValidateProjectName( project ) ) return false;
+                if (!this.ValidateProjectName(project)) return false;
                 // If everything is good, add it to the list of projects
-                this.Projects.Add( project );
-                ( this.Projects as List<IProject> ).Sort( delegate(IProject first, IProject second)
-                {
-                    return first.Name.CompareTo( second.Name );
-                } );
+                this.Projects.Add(project);
+                (this.Projects as List<IProject>).Sort(delegate (IProject first, IProject second)
+             {
+                 return first.Name.CompareTo(second.Name);
+             });
             }
             var pad = this.ProjectAdded;
-            if ( pad != null )
+            if (pad != null)
             {
-                pad( project );
+                pad(project);
             }
             return true;
         }
@@ -82,17 +82,17 @@ namespace XTMF
         {
             var projects = this.Projects;
             // make sure there are no projects with the same name
-            for(int i = 0; i < projects.Count; i++)
+            for (int i = 0; i < projects.Count; i++)
             {
                 // we need to ignore case because of the Windows directory code since
                 // they do not distinguish between case due to FAT32's structure
-                if ( projects[i].Name.Equals( project.Name, StringComparison.InvariantCultureIgnoreCase ) )
+                if (projects[i].Name.Equals(project.Name, StringComparison.InvariantCultureIgnoreCase))
                 {
                     return false;
                 }
             }
             // Make sure that there are no invalid characters for a project name
-            return Project.ValidateProjectName( project.Name );
+            return Project.ValidateProjectName(project.Name);
         }
 
         public IEnumerator<IProject> GetEnumerator()
@@ -102,30 +102,30 @@ namespace XTMF
 
         public bool Remove(IProject project)
         {
-            if ( this.ActiveProject == project )
+            if (this.ActiveProject == project)
             {
                 this.ActiveProject = null;
             }
-            lock ( this )
+            lock (this)
             {
                 var numberOfProjects = this.Projects.Count;
                 int found = -1;
-                for ( int i = 0; i < numberOfProjects; i++ )
+                for (int i = 0; i < numberOfProjects; i++)
                 {
-                    if ( this.Projects[i] == project )
+                    if (this.Projects[i] == project)
                     {
                         found = i;
-                        this.Projects.RemoveAt( i );
+                        this.Projects.RemoveAt(i);
                         numberOfProjects--;
                         i--;
                     }
                 }
-                if ( found >= 0 )
+                if (found >= 0)
                 {
                     try
                     {
                         // only delete the project file, losing run data is too bad to risk
-                        File.Delete( Path.Combine( this.Configuration.ProjectDirectory, project.Name, "Project.xml" ) );
+                        File.Delete(Path.Combine(this.Configuration.ProjectDirectory, project.Name, "Project.xml"));
                     }
                     catch
                     {
@@ -133,9 +133,9 @@ namespace XTMF
                     }
                 }
                 var prd = this.ProjectRemoved;
-                if ( prd != null )
+                if (prd != null)
                 {
-                    prd( project, found );
+                    prd(project, found);
                 }
                 return found >= 0;
             }
@@ -143,14 +143,14 @@ namespace XTMF
 
         public bool RenameProject(IProject project, string newName)
         {
-            if ( project == null )
+            if (project == null)
             {
-                throw new ArgumentNullException( "project" );
+                throw new ArgumentNullException("project");
             }
             // make sure that the new project name is valid
-            lock ( this )
+            lock (this)
             {
-                if ( !Project.ValidateProjectName( newName ) || this.Projects.Any( (p) => ( p.Name.Equals( newName, StringComparison.InvariantCultureIgnoreCase ) ) ) )
+                if (!Project.ValidateProjectName(newName) || this.Projects.Any((p) => (p.Name.Equals(newName, StringComparison.InvariantCultureIgnoreCase))))
                 {
                     return false;
                 }
@@ -158,8 +158,8 @@ namespace XTMF
                 var oldName = project.Name;
                 try
                 {
-                    Directory.Move( Path.Combine( this.Configuration.ProjectDirectory, oldName ),
-                        Path.Combine( this.Configuration.ProjectDirectory, newName ) );
+                    Directory.Move(Path.Combine(this.Configuration.ProjectDirectory, oldName),
+                        Path.Combine(this.Configuration.ProjectDirectory, newName));
                 }
                 catch
                 {
@@ -168,6 +168,17 @@ namespace XTMF
                 project.Name = newName;
             }
             return true;
+        }
+
+        public bool SetDescription(IProject project, string newDescription, ref string error)
+        {
+            var ourProject = project as Project;
+            if (ourProject == null)
+            {
+                return false;
+            }
+            ourProject.Description = newDescription;
+            return ourProject.Save(ref error);
         }
 
         /// <summary>
@@ -186,10 +197,10 @@ namespace XTMF
 
         public bool ValidateProjectName(string name)
         {
-            if ( !Project.ValidateProjectName( name ) ) return false;
-            foreach ( var project in this.Projects )
+            if (!Project.ValidateProjectName(name)) return false;
+            foreach (var project in this.Projects)
             {
-                if ( project.Name.Equals( name, StringComparison.InvariantCultureIgnoreCase ) )
+                if (project.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
                     return false;
             }
             return true;
@@ -197,36 +208,36 @@ namespace XTMF
 
         private void FindAndLoadProjects()
         {
-            if ( !Directory.Exists( this.Configuration.ProjectDirectory ) ) return;
-            string[] subDirectories = Directory.GetDirectories( this.Configuration.ProjectDirectory );
-            Parallel.For( 0, subDirectories.Length, (int i) =>
-            {
-                var files = Directory.GetFiles( subDirectories[i], "Project.xml", SearchOption.TopDirectoryOnly );
-                if ( files != null && files.Length > 0 )
-                {
-                    try
-                    {
-                        Project p = new Project( Path.GetFileName( subDirectories[i] ), this.Configuration );
-                        lock ( this )
-                        {
-                            if ( this.ValidateProjectName( p ) )
-                            {
+            if (!Directory.Exists(this.Configuration.ProjectDirectory)) return;
+            string[] subDirectories = Directory.GetDirectories(this.Configuration.ProjectDirectory);
+            Parallel.For(0, subDirectories.Length, (int i) =>
+           {
+               var files = Directory.GetFiles(subDirectories[i], "Project.xml", SearchOption.TopDirectoryOnly);
+               if (files != null && files.Length > 0)
+               {
+                   try
+                   {
+                       Project p = new Project(Path.GetFileName(subDirectories[i]), this.Configuration);
+                       lock (this)
+                       {
+                           if (this.ValidateProjectName(p))
+                           {
                                 // If everything is good, add it to the list of projects
-                                this.Projects.Add( p );
-                            }
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-            } );
-            lock ( this )
+                                this.Projects.Add(p);
+                           }
+                       }
+                   }
+                   catch
+                   {
+                   }
+               }
+           });
+            lock (this)
             {
-                ( this.Projects as List<IProject> ).Sort( delegate(IProject first, IProject second)
-                {
-                    return first.Name.CompareTo( second.Name );
-                } );
+                (this.Projects as List<IProject>).Sort(delegate (IProject first, IProject second)
+             {
+                 return first.Name.CompareTo(second.Name);
+             });
             }
         }
 
@@ -238,10 +249,10 @@ namespace XTMF
         /// <param name="replaceWith">The project to replace it with</param>
         internal void ReplaceProjectFromClone(Project baseProject, Project replaceWith)
         {
-            lock(this)
+            lock (this)
             {
                 var index = Projects.IndexOf(baseProject);
-                if(index >= 0)
+                if (index >= 0)
                 {
                     Projects[index] = replaceWith;
                 }

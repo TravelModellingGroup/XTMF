@@ -46,6 +46,16 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
+                        <MenuItem Header="Change _Description (Shift+F2)" Click="ChangeDescription_Click">
+                            <MenuItem.Icon>
+                                <Image>
+                                    <Image.Source>
+                                        <BitmapImage UriSource="/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
                         <MenuItem Header="_New Project (Ctrl+N)" Click="NewProject_Click">
                             <MenuItem.Icon>
                                 <Image>
@@ -75,11 +85,6 @@
                         </MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
-                <ListView.Resources>
-                    <Style TargetType="{x:Type ListViewItem}">
-                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    </Style>
-                </ListView.Resources>
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />
@@ -87,13 +92,8 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Text}"
+                        <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Description}"
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="Project_DoubleClicked">
-                            <my:BorderIconButton.Style>
-                                <Style TargetType="my:BorderIconButton">
-                                    <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                </Style>
-                            </my:BorderIconButton.Style>
                         </my:BorderIconButton>
                     </DataTemplate>
                 </ListView.ItemTemplate>

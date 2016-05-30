@@ -54,6 +54,10 @@ namespace XTMF.Gui.UserControls
             TextBlock.Text = question;
             TextBlock.Foreground = Brushes.White;
             TextBlock.FontSize = 14.0;
+            if(initialValue == null)
+            {
+                initialValue = String.Empty;
+            }
             Textbox.Text = initialValue;
             Textbox.CaretIndex = initialValue.Length;
             Grid.Children.Add(TextBlock);

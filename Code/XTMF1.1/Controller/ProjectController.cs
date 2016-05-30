@@ -138,6 +138,19 @@ namespace XTMF
             }
         }
 
+        public bool SetDescription(Project project, string newDescription, ref string error)
+        {
+            lock (EditingSessionLock)
+            {
+                if (!Runtime.Configuration.ProjectRepository.SetDescription(project, newDescription, ref error))
+                {
+                    error = "The new description was invalid!";
+                    return false;
+                }
+                return true;
+            }
+        }
+
         /// <summary>
         /// Remove a reference that a session is being edited
         /// </summary>

@@ -63,5 +63,13 @@ namespace XTMF
         /// <param name="name">The name that you wish to test</param>
         /// <returns>If the name is valid, true, otherwise false.</returns>
         bool ValidateProjectName(string name);
+
+        /// <summary>
+        /// Set the description of a project
+        /// </summary>
+        /// <param name="project">The project to change</param>
+        /// <param name="newDescription">The description to set it to.</param>
+        /// <returns>True if the operation completes successfully, false otherwise.</returns>
+        bool SetDescription(IProject project, string newDescription, ref string error);
     }
 }
