@@ -206,7 +206,11 @@ namespace XTMF.Gui.UserControls
 
         private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
         {
-            Keyboard.Focus(FilterBox);
+            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                FilterBox.Focus();
+            }));
         }
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)

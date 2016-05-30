@@ -33,7 +33,6 @@
         <Color x:Key="FocusColour" A="255" R="0x7E" G="0x93" B="0xB7" />
         <Color x:Key="MultiLayedLayerColour" A="200" R="0x50" G="0x50" B="0x60" />
         <Color x:Key="WindowBackgroundColour" A="255" R="0x09" G="0x18" B="0x32" />
-        <Color x:Key="AvalonDock_ThemeMetro_BaseColor5" A="255" R="0xFF" G="0x00" B="0x00" />
         <SolidColorBrush x:Key="SelectionBlueBrush" Color="{StaticResource ResourceKey=SelectionBlue}" />
         <SolidColorBrush x:Key="FocusBrush" Color="{StaticResource ResourceKey=FocusColour}" />
         <SolidColorBrush x:Key="AddingYellowBrush" Color="{StaticResource ResourceKey=AddingYellow}" />

@@ -601,8 +601,7 @@ namespace XTMF.Gui
                           });
                        }
                    }
-                   Application.Current.Shutdown();
-                   Environment.Exit(0);
+                   Application.Current.Dispatcher.InvokeShutdown();
                });
             }
         }
