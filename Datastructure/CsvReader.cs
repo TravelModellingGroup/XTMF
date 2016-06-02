@@ -177,178 +177,172 @@ namespace Datastructure
             int i = 0;
             char prevC = '\0';
             bool quote = false;
-            unsafe
+            if (SpacesAsSeperator)
             {
-                fixed (char* dataLinedBuffer = DataBuffer)
+                while (true)
                 {
-                    if (SpacesAsSeperator)
+                    char c;
+                    // make sure there is data
+                    if (DataBufferPosition >= DataBufferLength)
                     {
-                        while (true)
+                        LoadInData();
+                        // if we are at the end of file just end it
+                        if (DataBufferLength <= 0)
                         {
-                            char c;
-                            // make sure there is data
-                            if (DataBufferPosition >= DataBufferLength)
+                            if (addOne)
                             {
-                                LoadInData();
-                                // if we are at the end of file just end it
-                                if (DataBufferLength <= 0)
-                                {
-                                    if (addOne)
-                                    {
-                                        Data[numberOfColumns].Start = prevEnd + 1;
-                                        Data[numberOfColumns++].End = prevEnd = i - 1;
-                                    }
-                                    columns = numberOfColumns;
-                                    return true;
-                                }
-                            }
-                            c = dataLinedBuffer[DataBufferPosition++];
-                            if ((c == '\n') | (c == '\0'))
-                            {
-                                if (prevC != '\r')
-                                {
-                                    if (Data.Length <= numberOfColumns)
-                                    {
-                                        ExpandDataSections();
-                                    }
-                                    quote = false;
-                                    Data[numberOfColumns].Start = prevEnd + 1;
-                                    Data[numberOfColumns++].End = prevEnd = i;
-                                }
-                                else
-                                {
-                                    prevEnd = i;
-                                }
-                                break;
-                            }
-                            else if ((c == '"'))
-                            {
-                                if (prevEnd == i - 1)
-                                {
-                                    quote = true;
-                                    continue;
-                                }
-                                else if (quote)
-                                {
-                                    quote = false;
-                                    continue;
-                                }
-                                // if it is just in the middle continue on
-                            }
-                            if (LinePosition >= LineBuffer.Length)
-                            {
-                                Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
-                            }
-                            LineBuffer[LinePosition++] = c;
-                            // if a comma or an end quote followed by a comma
-                            if ((!quote && (c == ',' || c == '\t' || (prevC != ' ' && c == ' ')))
-                                || c == '\r')
-                            {
-                                addOne = false;
-                                if (Data.Length <= numberOfColumns)
-                                {
-                                    ExpandDataSections();
-                                }
                                 Data[numberOfColumns].Start = prevEnd + 1;
-                                Data[numberOfColumns++].End = prevEnd = i;
+                                Data[numberOfColumns++].End = prevEnd = i - 1;
                             }
-                            else
-                            {
-                                addOne = true;
-                            }
-                            prevC = c;
-                            i++;
+                            columns = numberOfColumns;
+                            return true;
                         }
+                    }
+                    c = DataBuffer[DataBufferPosition++];
+                    if ((c == '\n') | (c == '\0'))
+                    {
+                        if (prevC != '\r')
+                        {
+                            if (Data.Length <= numberOfColumns)
+                            {
+                                ExpandDataSections();
+                            }
+                            quote = false;
+                            Data[numberOfColumns].Start = prevEnd + 1;
+                            Data[numberOfColumns++].End = prevEnd = i;
+                        }
+                        else
+                        {
+                            prevEnd = i;
+                        }
+                        break;
+                    }
+                    else if ((c == '"'))
+                    {
+                        if (prevEnd == i - 1)
+                        {
+                            quote = true;
+                            continue;
+                        }
+                        else if (quote)
+                        {
+                            quote = false;
+                            continue;
+                        }
+                        // if it is just in the middle continue on
+                    }
+                    if (LinePosition >= LineBuffer.Length)
+                    {
+                        Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
+                    }
+                    LineBuffer[LinePosition++] = c;
+                    // if a comma or an end quote followed by a comma
+                    if ((!quote && (c == ',' || c == '\t' || (prevC != ' ' && c == ' ')))
+                        || c == '\r')
+                    {
+                        addOne = false;
+                        if (Data.Length <= numberOfColumns)
+                        {
+                            ExpandDataSections();
+                        }
+                        Data[numberOfColumns].Start = prevEnd + 1;
+                        Data[numberOfColumns++].End = prevEnd = i;
                     }
                     else
                     {
-                        while (true)
-                        {
-                            char c;
-                            // make sure there is data
-                            if (DataBufferPosition >= DataBufferLength)
-                            {
-                                LoadInData();
-                                // if we are at the end of file just end it
-                                if (DataBufferLength <= 0)
-                                {
-                                    if (addOne)
-                                    {
-                                        Data[numberOfColumns].Start = prevEnd + 1;
-                                        Data[numberOfColumns++].End = prevEnd = i - 1;
-                                    }
-                                    columns = numberOfColumns;
-                                    return true;
-                                }
-                            }
-                            c = dataLinedBuffer[DataBufferPosition++];
-                            if ((c == '\n') | (c == '\0'))
-                            {
-                                if (prevC != '\r')
-                                {
-                                    if (Data.Length <= numberOfColumns)
-                                    {
-                                        ExpandDataSections();
-                                    }
-                                    quote = false;
-                                    Data[numberOfColumns].Start = prevEnd + 1;
-                                    Data[numberOfColumns++].End = prevEnd = i;
-                                }
-                                else
-                                {
-                                    prevEnd = i;
-                                }
-                                break;
-                            }
-                            else if ((c == '"'))
-                            {
-                                if (prevEnd == i - 1)
-                                {
-                                    quote = true;
-                                    continue;
-                                }
-                                else if (quote)
-                                {
-                                    quote = false;
-                                    continue;
-                                }
-                                // if it is just in the middle continue on
-                            }
-                            if (LinePosition >= LineBuffer.Length)
-                            {
-                                Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
-                            }
-                            LineBuffer[LinePosition++] = c;
-                            // if a comma or an end quote followed by a comma
-                            if ((!quote && (c == ',' || c == '\t'))
-                                || c == '\r')
-                            {
-                                addOne = false;
-                                if (Data.Length <= numberOfColumns)
-                                {
-                                    ExpandDataSections();
-                                }
-                                Data[numberOfColumns].Start = prevEnd + 1;
-                                Data[numberOfColumns++].End = prevEnd = i;
-                            }
-                            else
-                            {
-                                addOne = true;
-                            }
-                            prevC = c;
-                            i++;
-                        }
+                        addOne = true;
                     }
-                    // check to see if there was actually no data
-                    if (LinePosition == 0 || (numberOfColumns == 1 && Data[0].End == 0))
-                    {
-                        columns = 0;
-                    }
-                    else
-                    {
-                        columns = addOne ? numberOfColumns + 1 : numberOfColumns;
-                    }
+                    prevC = c;
+                    i++;
                 }
+            }
+            else
+            {
+                while (true)
+                {
+                    char c;
+                    // make sure there is data
+                    if (DataBufferPosition >= DataBufferLength)
+                    {
+                        LoadInData();
+                        // if we are at the end of file just end it
+                        if (DataBufferLength <= 0)
+                        {
+                            if (addOne)
+                            {
+                                Data[numberOfColumns].Start = prevEnd + 1;
+                                Data[numberOfColumns++].End = prevEnd = i - 1;
+                            }
+                            columns = numberOfColumns;
+                            return true;
+                        }
+                    }
+                    c = DataBuffer[DataBufferPosition++];
+                    if ((c == '\n') | (c == '\0'))
+                    {
+                        if (prevC != '\r')
+                        {
+                            if (Data.Length <= numberOfColumns)
+                            {
+                                ExpandDataSections();
+                            }
+                            quote = false;
+                            Data[numberOfColumns].Start = prevEnd + 1;
+                            Data[numberOfColumns++].End = prevEnd = i;
+                        }
+                        else
+                        {
+                            prevEnd = i;
+                        }
+                        break;
+                    }
+                    else if ((c == '"'))
+                    {
+                        if (prevEnd == i - 1)
+                        {
+                            quote = true;
+                            continue;
+                        }
+                        else if (quote)
+                        {
+                            quote = false;
+                            continue;
+                        }
+                        // if it is just in the middle continue on
+                    }
+                    if (LinePosition >= LineBuffer.Length)
+                    {
+                        Array.Resize(ref LineBuffer, LineBuffer.Length * 2);
+                    }
+                    LineBuffer[LinePosition++] = c;
+                    // if a comma or an end quote followed by a comma
+                    if ((!quote && (c == ',' || c == '\t'))
+                        || c == '\r')
+                    {
+                        addOne = false;
+                        if (Data.Length <= numberOfColumns)
+                        {
+                            ExpandDataSections();
+                        }
+                        Data[numberOfColumns].Start = prevEnd + 1;
+                        Data[numberOfColumns++].End = prevEnd = i;
+                    }
+                    else
+                    {
+                        addOne = true;
+                    }
+                    prevC = c;
+                    i++;
+                }
+            }
+            // check to see if there was actually no data
+            if (LinePosition == 0 || (numberOfColumns == 1 && Data[0].End == 0))
+            {
+                columns = 0;
+            }
+            else
+            {
+                columns = addOne ? numberOfColumns + 1 : numberOfColumns;
             }
             return true;
         }

@@ -268,7 +268,12 @@ namespace XTMF
                 var disp = ms.Module as IDisposable;
                 if(disp != null)
                 {
-                    disp.Dispose();
+                    try
+                    {
+                        disp.Dispose();
+                    }
+                    catch
+                    { }
                 }
                 ms.Module = null;
             }
