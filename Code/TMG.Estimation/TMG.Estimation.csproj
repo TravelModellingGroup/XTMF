@@ -130,6 +130,7 @@
     <Compile Include="Utilities\HostFileAggregation.cs" />
     <Compile Include="Utilities\HostFileTransfer.cs" />
     <Compile Include="Utilities\ReportBestParameterValue.cs" />
+    <Compile Include="Utilities\ReportFloatDatasource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Datastructure\Datastructure.csproj">
