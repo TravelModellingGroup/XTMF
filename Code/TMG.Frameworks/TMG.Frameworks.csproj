@@ -66,6 +66,8 @@
     <Compile Include="Data\Processing\AST\Multiply.cs" />
     <Compile Include="Data\Processing\AST\Subtract.cs" />
     <Compile Include="Data\Processing\AST\Variable.cs" />
+    <Compile Include="Data\Processing\VectorMath.cs" />
+    <Compile Include="Data\Processing\ScalarMath.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
     <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
     <Compile Include="Extensibility\ExecuteInParallel.cs" />
