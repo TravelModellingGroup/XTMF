@@ -227,7 +227,12 @@ namespace Tasha.Scheduler
                 }
                 else if ( this.Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * this.Episodes[i].Duration )
                 {
-                    throw new XTMFRuntimeException( "Episode is smaller than the allowed overlap!" );
+                    throw new XTMFRuntimeException( "Episode is smaller than the allowed overlap!"
+                        + "\r\nActivity Type    :" + this.Episodes[i].ActivityType.ToString()
+                            + "\r\nStart Time       :" + this.Episodes[i].StartTime
+                            + "\r\nDuration         :" + this.Episodes[i].Duration
+                            + "\r\nOriginal Duration:" + this.Episodes[i].OriginalDuration
+                            + "\r\nEnd Time         :" + this.Episodes[i].EndTime);
                 }
                 lastEnd = this.Episodes[i].EndTime;
             }
