@@ -770,13 +770,13 @@ namespace Tasha
             if(NetworkData != null)
             {
                 _Status = () => "Loading Network Data for iteration " + (iteration + 1).ToString() + " of " + TotalIterations;
-                foreach(var network in NetworkData)
+                System.Threading.Tasks.Parallel.For(0, NetworkData.Count, (int i) =>
                 {
-                    if(!_ExitRequested)
+                    if (!_ExitRequested)
                     {
-                        network.LoadData();
+                        NetworkData[i].LoadData();
                     }
-                }
+                });
             }
         }
 
