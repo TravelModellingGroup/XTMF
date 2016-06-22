@@ -24,6 +24,7 @@ using XTMF;
 using TMG;
 using Tasha.Common;
 using Datastructure;
+using System.Threading.Tasks;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -53,10 +54,10 @@ namespace Tasha.PopulationSynthesis
         public void Execute(int iterationNumber, int totalIterations)
         {
             Console.WriteLine("Initializing PoRPoW Probabilities...");
-            foreach(var target in ToWakeup)
+            Parallel.For(0, ToWakeup.Length, (int i) =>
             {
-                target.AcquireResource<SparseTriIndex<float>>();
-            }
+                ToWakeup[i].AcquireResource<SparseTriIndex<float>>();
+            });
         }
 
         public void Load(int totalIterations)
