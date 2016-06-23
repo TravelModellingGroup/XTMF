@@ -177,31 +177,45 @@ namespace Tasha.StationAccess
                                 var zoneToAccess = zoneIndex * zones.Length + accessIndex;
                                 // calculate access' to access station this will include more factors
                                 AutoFromOriginToAccessStation[saveIndex] = (float)Math.Exp(
-                                    AIVTT * autoData[zoneToAccess * 2] 
+                                    AIVTT * autoData[zoneToAccess * 2]
                                     + AutoCost * autoData[zoneToAccess * 2 + 1]
                                         + (Capacity * capacity[accessIndex]
                                         + parkingUtil[i]
                                         + (closestStation[zoneIndex] == accessIndex ? ClosestStationFactor : 0))) * invStationFactor[i];
 
                                 // calculate egress' from access station
-                                AutoFromAccessStationToDestination[saveIndex] = (float)Math.Exp(
+                                AutoFromAccessStationToDestination[saveIndex] = 
                                     AIVTT * autoData[accessToZones * 2]
                                     + AutoCost * autoData[accessToZones * 2 + 1]
-                                    );
+                                    ;
 
-                                // calculate access' to destination
-                                TransitFromAccessStationToDestination[saveIndex] = (float)Math.Exp(
+                                // calculate access station to zone by transit
+                                TransitFromAccessStationToDestination[saveIndex] = 
                                     PerceivedTransitTime * transitData[zoneToAccess * 5 + 4]
                                     + TransitFare * transitData[zoneToAccess * 5 + 3]
-                                    );
-                                // calculate egress' to access station
-                                TransitFromDestinationToAccessStation[saveIndex] = (float)Math.Exp(
+                                    ;
+                                // calculate zone to access station by transit
+                                TransitFromDestinationToAccessStation[saveIndex] =
                                     PerceivedTransitTime * transitData[accessToZones * 5 + 4]
                                     + TransitFare * transitData[accessToZones * 5 + 3]
-                                    );
+                                    ;
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < stationZones.Length; i++)
+                            {
+                                var saveIndex = zoneIndex * stationZones.Length + i;
+                                AutoFromOriginToAccessStation[saveIndex] = 0.0f;
+                                AutoFromAccessStationToDestination[saveIndex] = float.NegativeInfinity;
+                                TransitFromAccessStationToDestination[saveIndex] = float.NegativeInfinity;
+                                TransitFromDestinationToAccessStation[saveIndex] = float.NegativeInfinity;
                             }
                         }
                     });
+                    VectorHelper.Exp(AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination.Length);
+                    VectorHelper.Exp(TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination.Length);
+                    VectorHelper.Exp(TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation.Length);
                 }
                 else
                 {
@@ -214,18 +228,18 @@ namespace Tasha.StationAccess
                             {
                                 var accessIndex = stationZones[i];
                                 var saveIndex = zoneIndex * stationZones.Length + i;
-                            // calculate access' to access station this will include more factors
-                            AutoFromOriginToAccessStation[saveIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, zoneIndex, accessIndex)
-                                    + (Capacity * capacity[accessIndex]
-                                    + parkingUtil[i]
-                                    + (closestStation[zoneIndex] == accessIndex ? ClosestStationFactor : 0))) * invStationFactor[i];
-                            // calculate egress' from access station
-                            AutoFromAccessStationToDestination[saveIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, zoneIndex));
+                                // calculate access' to access station this will include more factors
+                                AutoFromOriginToAccessStation[saveIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, zoneIndex, accessIndex)
+                                        + (Capacity * capacity[accessIndex]
+                                        + parkingUtil[i]
+                                        + (closestStation[zoneIndex] == accessIndex ? ClosestStationFactor : 0))) * invStationFactor[i];
+                                // calculate egress' from access station
+                                AutoFromAccessStationToDestination[saveIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, zoneIndex));
 
-                            // calculate access' to destination
-                            TransitFromAccessStationToDestination[saveIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, zoneIndex));
-                            // calculate egress' to access station
-                            TransitFromDestinationToAccessStation[saveIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, zoneIndex, accessIndex));
+                                // calculate access' to destination
+                                TransitFromAccessStationToDestination[saveIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, zoneIndex));
+                                // calculate egress' to access station
+                                TransitFromDestinationToAccessStation[saveIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, zoneIndex, accessIndex));
                             }
                         }
                     });
