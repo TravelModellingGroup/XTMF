@@ -26,7 +26,7 @@ using XTMF;
 namespace TMG.Frameworks.Data
 {
     [ModuleInformation(Description = "This module provides that ability to load a data source from a resource.")]
-    public class RemoteDataSource<T> : IDataSource<T>
+    public class RemoteSetableDataSource<T> : ISetableDataSource<T>
     {
         [RootModule]
         public IResourceSource Root;
@@ -58,6 +58,11 @@ namespace TMG.Frameworks.Data
             return Linked.AcquireResource<T>();
         }
 
+        public void SetData(T newValue)
+        {
+            throw new NotImplementedException();
+        }
+
 
         public void LoadData()
         {
@@ -87,6 +92,12 @@ namespace TMG.Frameworks.Data
             {
                 error = "In '" + Name + "' the resource was not of type '" + typeof(T).GetType().Name
                     + "' instead of was of type '" + linked.GetResourceType().Name + "'!";
+                return false;
+            }
+            var isSetable = (linked.GetDataSource() as ISetableDataSource<T>) != null;
+            if(!isSetable)
+            {
+                error = "In '" + Name + "' the resource was not an ISetableDataSource of type!";
                 return false;
             }
             Linked = linked;
