@@ -192,7 +192,7 @@ namespace Datastructure
                             if (addOne)
                             {
                                 Data[numberOfColumns].Start = prevEnd + 1;
-                                Data[numberOfColumns++].End = prevEnd = i - 1;
+                                Data[numberOfColumns++].End = prevEnd = i;
                             }
                             columns = numberOfColumns;
                             return true;
