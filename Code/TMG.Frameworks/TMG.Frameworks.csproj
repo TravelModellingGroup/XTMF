@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Data\DataModule.cs" />
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
+    <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
     <Compile Include="Data\Loading\RemoteDataSource.cs" />
     <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />
     <Compile Include="Data\Processing\AST\Add.cs" />
