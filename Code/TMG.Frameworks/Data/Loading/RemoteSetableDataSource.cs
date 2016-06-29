@@ -60,7 +60,7 @@ namespace TMG.Frameworks.Data
 
         public void SetData(T newValue)
         {
-            throw new NotImplementedException();
+            (Linked.GetDataSource() as ISetableDataSource<T>).SetData(newValue);
         }
 
 

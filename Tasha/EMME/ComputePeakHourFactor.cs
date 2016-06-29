@@ -48,6 +48,12 @@ namespace Tasha.EMME
         [SubModelInformation(Required = false, Description = "")]
         public ISetableDataSource<float> StoreResultTo;
 
+        [SubModelInformation(Required = false, Description = "")]
+        public ISetableDataSource<Time> PeakHourStart;
+
+        [SubModelInformation(Required = false, Description = "")]
+        public ISetableDataSource<Time> PeakHourEnd;
+
         public void HouseholdComplete(ITashaHousehold household, bool success)
         {
         }
@@ -134,24 +140,33 @@ namespace Tasha.EMME
         {
         }
 
+        private static bool SetIfExists<T>(ISetableDataSource<T> dataSource, T value)
+        {
+            if (dataSource != null)
+            {
+                if (!dataSource.Loaded)
+                {
+                    dataSource.LoadData();
+                }
+                dataSource.SetData(value);
+                return true;
+            }
+            return false;
+        }
+
         public void IterationFinished(int iteration, int totalIterations)
         {
-            var result = ComputeFactor();
-            if(StoreResultTo != null)
-            {
-                if(!StoreResultTo.Loaded)
-                {
-                    StoreResultTo.LoadData();
-                }
-                StoreResultTo.SetData(result);
-            }
-            else
+            int hourwindow;
+            var result = ComputeFactor(out hourwindow);
+            if (!(SetIfExists(PeakHourStart, Time.FromMinutes((hourwindow + 4) * 15))
+                || SetIfExists(PeakHourEnd, Time.FromMinutes((hourwindow + 5) * 15))
+                || SetIfExists(StoreResultTo, result)))
             {
                 Console.WriteLine(Name + "' Peak Hour Factor = " + result);
             }
         }
 
-        private float ComputeFactor()
+        private float ComputeFactor(out int startOfHourWindow)
         {
             // first find the max hour window
             var bins = TripBins;
@@ -170,6 +185,7 @@ namespace Tasha.EMME
                     maxValue = window;
                 }
             }
+            startOfHourWindow = bestIndex;
             return (bins[bestIndex] + bins[bestIndex + 1] + bins[bestIndex + 2] + bins[bestIndex + 3]) / sum;
         }
 

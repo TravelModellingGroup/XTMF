@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DataModule.cs" />
+    <Compile Include="Data\Loading\ArbitraryParameterDataSource.cs" />
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
     <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
     <Compile Include="Data\Loading\RemoteDataSource.cs" />
