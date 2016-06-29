@@ -81,6 +81,7 @@ namespace TMG.Frameworks.Data
             IResource linked;
             if ((linked = Link(ResourceName)) == null)
             {
+                error = "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!";
                 return false;
             }
             if (!linked.CheckResourceType<T>())
