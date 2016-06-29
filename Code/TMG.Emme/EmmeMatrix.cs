@@ -23,6 +23,8 @@ using System.Text;
 using System.IO;
 using Datastructure;
 using XTMF;
+using System.Runtime.InteropServices;
+using TMG.Functions;
 
 namespace TMG.Emme
 {
@@ -190,6 +192,8 @@ namespace TMG.Emme
             }
         }
 
+        
+
         private void LoadData(Stream baseStream)
         {
             int numberOfElements = 1;
@@ -201,11 +205,10 @@ namespace TMG.Emme
             {
                 case DataType.Float:
                     {
-                        var temp = new float[numberOfElements];
-                        var raw = new byte[numberOfElements * sizeof(float)];
-                        baseStream.Read(raw, 0, raw.Length);
-                        Buffer.BlockCopy(raw, 0, temp, 0, raw.Length);
-                        this.FloatData = temp;
+                        var bytes = numberOfElements * sizeof(float);
+                        var cb = new ConversionBuffer(bytes);
+                        cb.FillFrom(baseStream);
+                        this.FloatData = cb.FinalizeAsFloatArray(numberOfElements);
                     }
                     break;
                 case DataType.Double:

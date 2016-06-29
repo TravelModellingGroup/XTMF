@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EDD8E026-10A1-42A1-A606-483AA9618752}"
 	ProjectSection(SolutionItems) = preProject
@@ -84,6 +84,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMF.Run", "XTMF.Run\XTMF.Run.csproj", "{244DA4F1-F1DE-403C-AB93-D828C893BF2E}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		32Bit|Any CPU = 32Bit|Any CPU
 		64Bit|Any CPU = 64Bit|Any CPU

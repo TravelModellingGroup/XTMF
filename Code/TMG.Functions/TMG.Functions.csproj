@@ -109,6 +109,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConversionBuffer.cs" />
     <Compile Include="GravityModel3D.cs" />
     <Compile Include="BinaryHelpers.cs" />
     <Compile Include="Compression.cs" />
