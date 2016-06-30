@@ -123,7 +123,7 @@ namespace TMG.Functions
             }
             if ((trueValue = ArbitraryParameterParser.ArbitraryParameterParse(parameter.Type, value, ref error)) != null)
             {
-                AssignValue(parameter, trueValue);
+                AssignValueNoTypeCheck(parameter, trueValue);
             }
             else
             {
@@ -137,6 +137,11 @@ namespace TMG.Functions
             {
                 throw new XTMFRuntimeException("The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
             }
+            AssignValueNoTypeCheck(parameter, t);
+        }
+
+        private static void AssignValueNoTypeCheck<T>(IModuleParameter parameter, T t)
+        {
             var currentStructure = parameter.BelongsTo;
             if (currentStructure == null)
             {
