@@ -1262,6 +1262,26 @@ namespace XTMF.Gui.UserControls
                    {
                        first = selected;
                        parent = Session.GetParent(selected.BaseModel);
+                       Dispatcher.Invoke(() =>
+                      {
+                          if (!first.IsCollection)
+                          {
+                               // do this so we don't lose our place
+                               if (parent.IsCollection)
+                              {
+                                  if (parent.Children.IndexOf(first.BaseModel) < parent.Children.Count - 1)
+                                  {
+                                      MoveFocusNext(false);
+                                  }
+                                  else
+                                  {
+                                      MoveFocusNext(true);
+                                  }
+                              }
+                          }
+                      });
+                       RefreshParameters();
+                       Keyboard.Focus(ModuleDisplay);
                    }
                    string error = null;
                    if (!ModelSystem.Remove(selected.BaseModel, ref error))
@@ -1270,26 +1290,6 @@ namespace XTMF.Gui.UserControls
                    }
                }
            });
-            if (first != null)
-            {
-                if (!first.IsCollection)
-                {
-                    // do this so we don't lose our place
-                    if (parent.IsCollection)
-                    {
-                        if (parent.Children.IndexOf(first.BaseModel) < parent.Children.Count - 1)
-                        {
-                            MoveFocusNext(false);
-                        }
-                        else
-                        {
-                            MoveFocusNext(true);
-                        }
-                    }
-                }
-                RefreshParameters();
-                Keyboard.Focus(ModuleDisplay);
-            }
         }
 
         private void CleanUpParameters()
