@@ -990,9 +990,16 @@ namespace XTMF.Gui.UserControls
         private void CopyCurrentModule()
         {
             var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
-            if (selected != null)
+            if (CurrentlySelected.Count == 1)
             {
-                selected.CopyModule();
+                if (selected != null)
+                {
+                    selected.CopyModule();
+                }
+            }
+            else
+            {
+                ModelSystemStructureDisplayModel.CopyModules(CurrentlySelected);
             }
         }
 
