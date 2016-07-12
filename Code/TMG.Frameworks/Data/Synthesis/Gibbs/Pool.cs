@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,19 +56,73 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
 
         public int[][] PoolChoices;
 
+        [SubModelInformation(Required = false, Description = "Set this to save a copy for the pool.")]
+        public FileLocation Dump;
+
         public void GeneratePool()
         {
+            // load in the data we need to process our conditionals
+            System.Threading.Tasks.Parallel.For(0, Conditionals.Length, (int i) =>
+            {
+                Conditionals[i].LoadConditionalsData();
+            });
+            // once we have the required data process the pool segments
             var poolSegments = new PoolSegment[(int)Math.Ceiling((float)SizeToGenerate / SegmentSize)];
             Random r = new Random(RandomSeed);
             for (int i = 0; i < poolSegments.Length; i++)
             {
                 poolSegments[i] = new PoolSegment(this, r.Next());
             }
-            
+
             System.Threading.Tasks.Parallel.For(0, poolSegments.Length, (int i) =>
             {
                 poolSegments[i].ProcessSegment(SegmentSize);
             });
+
+            CopyResults(poolSegments);
+
+            if (Dump != null)
+            {
+                Save(Dump);
+            }
+        }
+
+        private void CopyResults(PoolSegment[] poolSegments)
+        {
+            int startIndex = 0;
+            PoolChoices = new int[poolSegments.Sum(seg => seg.Result.Length)][];
+            for (int i = 0; i < poolSegments.Length; i++)
+            {
+                var localResults = poolSegments[i].Result;
+                int length = localResults.Length;
+                Array.Copy(localResults, 0, PoolChoices, startIndex, length);
+                startIndex += length;
+            }
+        }
+
+        private void Save(FileLocation dump)
+        {
+            using (var writer = new StreamWriter(dump))
+            {
+                //write header
+                writer.WriteLine(string.Join(",", Attributes.Select(a => AddQuotes(a.Name))));
+                for (int i = 0; i < PoolChoices.Length; i++)
+                {
+                    var row = PoolChoices[i];
+                    writer.Write(row[0]);
+                    for (int j = 1; j < row.Length; j++)
+                    {
+                        writer.Write(',');
+                        writer.Write(row[j]);
+                    }
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        private static string AddQuotes(string inner)
+        {
+            return $"\"{inner}\"";
         }
 
         public bool RuntimeValidation(ref string error)

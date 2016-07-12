@@ -39,9 +39,16 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             return true;
         }
 
+        [SubModelInformation(Description = "The pools to generate.")]
+        public Pool[] Pools;
+
         public void Start()
         {
-            
+            // just generate things for now, later we will need to do recombination
+            foreach(var pool in Pools)
+            {
+                pool.GeneratePool();
+            }
         }
     }
 

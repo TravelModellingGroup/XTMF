@@ -40,19 +40,20 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
 
         public DataModule<string>[] ConditionalColumns;
 
-        public float[] Probability;
+        public float[] CDF;
 
         private int[] ColumnIndex;
 
         private int[] IndexMultiplier;
+
+        private int AttributeLength;
 
         [SubModelInformation(Required = true, Description = "A CSV file with each conditional attribute's value followed by the destination attribute value and probability [0,1].")]
         public FileLocation ConditionalSource;
 
         public void LoadConditionalsData()
         {
-            GenerateBackendData();
-            var prob = Probability;
+            var prob = GenerateBackendData();
             int expectedColumns = ColumnIndex.Length + 1;
             var currentIndex = new int[expectedColumns - 1];
             bool any = false;
@@ -69,10 +70,19 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                         {
                             reader.Get(out currentIndex[i], i);
                         }
-                        reader.Get(out prob[GetIndex(currentIndex)], currentIndex.Length);
+                        var probIndex = GetIndex(currentIndex);
+                        if (probIndex < prob.Length)
+                        {
+                            reader.Get(out prob[probIndex], currentIndex.Length);
+                        }
+                        else
+                        {
+                            throw new XTMFRuntimeException($"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
+                        }
                     }
                 }
             }
+            CDF = ConvertToCDF(prob);
             if (!any)
             {
                 throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource}'!  
@@ -80,39 +90,77 @@ This could be because the data does not have the expected number of columns ({ex
             }
         }
 
-        private void GenerateBackendData()
+        private float[] ConvertToCDF(float[] prob)
+        {
+            var stride = AttributeLength;
+            for (int i = 0; i < prob.Length; i += stride)
+            {
+                var tally = 0.0f;
+                for (int j = 0; j < stride; j++)
+                {
+                    tally += prob[i + j];
+                    prob[i + j] = tally;
+                }
+            }
+            return prob;
+        }
+
+        internal void Apply(int[] currentResult, float pop)
+        {
+            var columns = ColumnIndex;
+            var multipliers = IndexMultiplier;
+            var cdf = CDF;
+            int startIndex = 0;
+            var length = AttributeLength;
+            for (int i = 0; i < columns.Length - 1; i++)
+            {
+                startIndex += multipliers[i] * currentResult[columns[i]];
+            }
+            for (int i = 0; i < length; i++)
+            {
+                if (pop <= cdf[startIndex + i])
+                {
+                    currentResult[columns[columns.Length - 1]] = i;
+                    break;
+                }
+            }
+        }
+
+        private float[] GenerateBackendData()
         {
             int[] valuesByColumn = new int[ColumnIndex.Length];
             for (int i = 0; i < ColumnIndex.Length; i++)
             {
                 valuesByColumn[i] = Root.Attributes[ColumnIndex[i]].PossibleValues.Length;
             }
-            Probability = new float[valuesByColumn.Aggregate(1, (f, s) => f * s)];
+            var ret = new float[valuesByColumn.Aggregate(1, (f, s) => f * s)];
+            AttributeLength = valuesByColumn[valuesByColumn.Length - 1];
             // reuse the memory
             CreateIndexMultipliers(valuesByColumn);
+            return ret;
         }
 
-        public int GetIndex(int[] indices)
+        private int GetIndex(int[] indices)
         {
             var multipliers = IndexMultiplier;
             int ret = 0;
             for (int i = 0; i < indices.Length; i++)
             {
-                ret = (ret * multipliers[i]) + indices[i];
+                ret += multipliers[i] * indices[i];
             }
             return ret;
         }
 
-        public float GetProbability(int[] indices)
+        private float GetProbability(int[] indices)
         {
-            return Probability[GetIndex(indices)];
+            return CDF[GetIndex(indices)];
         }
 
         private void CreateIndexMultipliers(int[] valuesPerColumn)
         {
             var multiplier = 1;
             IndexMultiplier = new int[valuesPerColumn.Length];
-            for (int i = 0; i < IndexMultiplier.Length; i++)
+            for (int i = IndexMultiplier.Length - 1; i >= 0; i--)
             {
                 IndexMultiplier[i] = multiplier;
                 multiplier *= valuesPerColumn[i];

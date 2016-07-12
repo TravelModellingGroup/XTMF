@@ -50,11 +50,13 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             {
                 result[el] = CreateElement(r);
             }
+            Result = result;
         }
 
         private int[] CreateElement(Random r)
         {
             int[] result = new int[Attributes.Length];
+            var conditionals = Conditionals;
             //create the initial values
             for (int i = 0; i < Attributes.Length; i++)
             {
@@ -64,9 +66,10 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             //run the conditionals, going through them all the number of iterations before saving the state
             for (int iteration = 0; iteration < IterationsBeforeAccept; iteration++)
             {
-                for (int i = 0; i < Conditionals.Length; i++)
+                for (int i = 0; i < conditionals.Length; i++)
                 {
-
+                    var pop = (float)r.NextDouble();
+                    conditionals[i].Apply(result, pop);
                 }
             }
             return result;
