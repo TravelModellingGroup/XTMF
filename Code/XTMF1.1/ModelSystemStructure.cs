@@ -1532,7 +1532,7 @@ namespace XTMF
                     writer.WriteStartElement("Param");
                     writer.WriteAttributeString("Name", param.Name);
                     writer.WriteAttributeString("TIndex", lookup[param.Type == null ? param.Value.GetType() : param.Type].ToString());
-                    writer.WriteAttributeString("Value", param.Value.ToString());
+                    writer.WriteAttributeString("Value", param.Value == null ? String.Empty : param.Value.ToString());
                     if (param.QuickParameter)
                     {
                         writer.WriteAttributeString("QuickParameter", "true");

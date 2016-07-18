@@ -75,6 +75,7 @@
     <Compile Include="Data\Processing\ScalarMath.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
     <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\Aggregation.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Attribute.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Conditional.cs" />
     <Compile Include="Data\Synthesis\Gibbs\GibbsSampler.cs" />
