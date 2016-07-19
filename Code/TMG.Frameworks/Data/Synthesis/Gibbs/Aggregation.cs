@@ -19,6 +19,7 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -91,7 +92,8 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                     writer.WriteLine();
                     for (int i = 0; i < originalData.Length; i++)
                     {
-                        var candidates = candidatesByValue[originalData[i][primaryAttributeColumn]];
+                        var index = originalData[i][primaryAttributeColumn];
+                        var candidates = candidatesByValue[index];
                         if (candidates.Count > 0)
                         {
                             var candidate = candidates[(int)(r.NextDouble() * candidates.Count)];
@@ -109,10 +111,10 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
 
             private List<List<int[]>> SeperatePoolsToPrimaryAttributeValue(int[] factors, List<int>[] accepted)
             {
-                return (from acceptedSet in accepted.AsParallel()
+                return (from acceptedSet in accepted.AsParallel().AsOrdered()
                         select
                          (
-                             from rep in _SecondaryPool.PoolChoices.AsParallel()
+                             from rep in _SecondaryPool.PoolChoices.AsParallel().AsOrdered()
                              let setValue = GetIndex(rep, factors)
                              where acceptedSet.Any(set => setValue == set)
                              select rep
