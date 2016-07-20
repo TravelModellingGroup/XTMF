@@ -1,4 +1,23 @@
-﻿using System;
+﻿/*
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +65,10 @@ namespace Tasha.Validation.PerformanceMeasures
         [RunParameter("Domain", DomainTypes.Link, "What Emme domain type is the result? Options: Link, Node, Transit_Line, Transit_Segment")]
         public DomainTypes Domain;
 
-        [SubModelInformation(Required = true, Description = "Resource that will store the sum of the network calculation")]
+        [RunParameter("Result Attribute", "", "The attribute to save the result into, leave blank to not save.")]
+        public string Result;
+
+        [SubModelInformation(Required = false, Description = "Resource that will store the sum of the network calculation")]
         public IResource SumOfReport;
 
         public bool Execute(Controller controller)
@@ -60,14 +82,17 @@ namespace Tasha.Validation.PerformanceMeasures
             string result = null;
             if(modeller.Run(_ToolName, GetParameters(), ref result))
             {
-                if (float.TryParse(result, out value))
+                if (SumOfReport != null)
                 {
-                    ISetableDataSource<float> dataSource = ((ISetableDataSource<float>)SumOfReport.GetDataSource());
-                    if (!dataSource.Loaded)
+                    if (float.TryParse(result, out value))
                     {
-                        dataSource.LoadData();
+                        ISetableDataSource<float> dataSource = ((ISetableDataSource<float>)SumOfReport.GetDataSource());
+                        if (!dataSource.Loaded)
+                        {
+                            dataSource.LoadData();
+                        }
+                        dataSource.SetData(value);
                     }
-                    dataSource.SetData(value);
                 }
                 return true;
             }
@@ -76,7 +101,8 @@ namespace Tasha.Validation.PerformanceMeasures
 
         private string GetParameters()
         {
-            return string.Join(" ", ScenarioNumber, (int)Domain, AddQuotes(Expression), AddQuotes(Node_Selection), AddQuotes(Link_Selection), AddQuotes(Transit_Line_Selection));
+            return string.Join(" ", ScenarioNumber, (int)Domain, AddQuotes(Expression), AddQuotes(Node_Selection), AddQuotes(Link_Selection), AddQuotes(Transit_Line_Selection),
+                AddQuotes(Result));
         }
 
         private static string AddQuotes(string toQuote)
@@ -103,15 +129,18 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!SumOfReport.CheckResourceType<float>())
+            if (SumOfReport != null)
             {
-                error = "";
-                return false;
-            }
-            if (!(SumOfReport.GetDataSource() is ISetableDataSource<float>))
-            {
-                error = "";
-                return false;
+                if (!SumOfReport.CheckResourceType<float>())
+                {
+                    error = $"In {Name} the SumOfReport is not of type float!";
+                    return false;
+                }
+                if (!(SumOfReport.GetDataSource() is ISetableDataSource<float>))
+                {
+                    error = $"In {Name} the SumOfReport is not a settable data source!";
+                    return false;
+                }
             }
             return true;
         }
