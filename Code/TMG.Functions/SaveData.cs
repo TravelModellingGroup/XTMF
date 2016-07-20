@@ -109,6 +109,27 @@ namespace TMG.Functions
             }
         }
 
+        public static void SaveMatrixThirdNormalized(IZone[] zones, float[][] data, string saveLocation)
+        {
+            var zoneNumbers = zones.Select(z => z.ZoneNumber.ToString()).ToArray();
+            using (StreamWriter writer = new StreamWriter(saveLocation))
+            {
+                writer.WriteLine("Origin,Destination,Data");
+                for (int i = 0; i < data.Length; i++)
+                {
+                    var row = data[i];
+                    for (int j = 0; j < row.Length; j++)
+                    {
+                        writer.Write(zoneNumbers[i]);
+                        writer.Write(',');
+                        writer.Write(zoneNumbers[j]);
+                        writer.Write(',');
+                        writer.WriteLine(row[j]);
+                    }
+                }
+            }
+        }
+
         public static void SaveMatrixThirdNormalized(SparseTwinIndex<float> matrix, FileLocation saveLocation)
         {
             using (StreamWriter writer = new StreamWriter(saveLocation))
@@ -173,7 +194,7 @@ namespace TMG.Functions
                             {
                                 break;
                             }
-                            if(backlog.TryGetValue(nextRow, out task))
+                            if (backlog.TryGetValue(nextRow, out task))
                             {
                                 backlog.Remove(nextRow);
                                 continue;
@@ -190,7 +211,7 @@ namespace TMG.Functions
                     stringBuilder.Append(zones[i].ZoneNumber);
                 }
                 toWrite.Add(new SaveTask() { RowNumber = 0, Text = stringBuilder.ToString() });
-                Parallel.For(0, zones.Length,()=> new StringBuilder(),
+                Parallel.For(0, zones.Length, () => new StringBuilder(),
                     (int i, ParallelLoopState _, StringBuilder strBuilder) =>
                 {
                     strBuilder.Clear();
