@@ -146,6 +146,7 @@
     <Compile Include="PersonScheduleAnalysis.cs" />
     <Compile Include="ProjectScheduleAnalysis.cs" />
     <Compile Include="StartTimeIPostScheduler.cs" />
+    <Compile Include="TripExtraction\ExtractAccessStationOD.cs" />
     <Compile Include="TripExtraction\ExtractSelectedDemographicTripRecords.cs" />
     <Compile Include="TripExtraction\ExtractTripRecordsAndAutoAvailability.cs" />
     <Compile Include="TripExtraction\ODPuropseMode.cs" />
