@@ -47,9 +47,6 @@ namespace Tasha.Validation.TripExtraction
         [RunParameter("Minimum Age", 11, "The youngest a person can be and still be recorded.")]
         public int MinimumAge;
 
-        [SubModelInformation(Required = true, Description = "Which modes do you want to capture?")]
-        public Tasha.EMME.CreateEmmeBinaryMatrix.ModeLink[] AnalyzeModes;
-
         [SubModelInformation(Required = true, Description = "Where do you want to save the binary matrix?")]
         public FileLocation SaveTo;
 
