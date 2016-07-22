@@ -200,7 +200,7 @@ namespace XTMF
                 ref error);
         }
 
-        public bool Paste(string buffer, ref string error)
+        public bool Paste(ModelSystemEditingSession session, string buffer, ref string error)
         {
             // Get the data
             using (MemoryStream backing = new MemoryStream())
@@ -216,19 +216,27 @@ namespace XTMF
                     XmlElement node = doc["MultipleModules"];
                     if (node != null)
                     {
-                        foreach (XmlNode subNode in node)
-                        {
-                            if (subNode.Name == "CopiedModule")
-                            {
-                                if (!Paste(ref error,
-                                    GetModelSystemStructureFromXML(subNode["CopiedModules"]),
-                                    GetLinkedParametersFromXML(subNode["LinkedParameters"])))
-                                {
-                                    return false;
-                                }
-                            }
-                        }
-                        return true;
+                        var ret = true;
+                        string retError = null;
+                        session.ExecuteCombinedCommands(() =>
+                       {
+                           foreach (XmlNode subNode in node)
+                           {
+                               if (subNode.Name == "CopiedModule")
+                               {
+                                   string e = null;
+                                   if (!Paste(ref e,
+                                       GetModelSystemStructureFromXML(subNode["CopiedModules"]),
+                                       GetLinkedParametersFromXML(subNode["LinkedParameters"])))
+                                   {
+                                       retError = e;
+                                       ret = false;
+                                   }
+                               }
+                           }
+                       });
+                        error = retError;
+                        return ret;
                     }
                     else
                     {

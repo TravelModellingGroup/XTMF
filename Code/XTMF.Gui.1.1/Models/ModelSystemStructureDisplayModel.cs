@@ -242,9 +242,9 @@ namespace XTMF.Gui.Models
             System.Windows.Clipboard.SetDataObject(ModelSystemStructureModel.CopyModule(toCopy.Select(m => m.BaseModel).ToList()));
         }
 
-        internal bool Paste(string toPaste, ref string error)
+        internal bool Paste(ModelSystemEditingSession session, string toPaste, ref string error)
         {
-            return BaseModel.Paste(toPaste, ref error);
+            return BaseModel.Paste(session, toPaste, ref error);
         }
 
         internal List<ModelSystemStructureDisplayModel> BuildChainTo(ModelSystemStructureDisplayModel selected)

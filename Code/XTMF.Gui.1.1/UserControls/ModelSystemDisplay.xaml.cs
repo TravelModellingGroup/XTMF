@@ -1012,7 +1012,7 @@ namespace XTMF.Gui.UserControls
                 foreach (var selected in CurrentlySelected.ToList())
                 {
                     string error = null;
-                    if (!selected.Paste(pasteText, ref error))
+                    if (!selected.Paste(Session, pasteText, ref error))
                     {
                         MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
@@ -1213,8 +1213,8 @@ namespace XTMF.Gui.UserControls
                        string error = null;
                        if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
                        {
-                            //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
-                            System.Media.SystemSounds.Asterisk.Play();
+                           //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
+                           System.Media.SystemSounds.Asterisk.Play();
                            break;
                        }
                    }
@@ -1273,8 +1273,8 @@ namespace XTMF.Gui.UserControls
                       {
                           if (!first.IsCollection)
                           {
-                               // do this so we don't lose our place
-                               if (parent.IsCollection)
+                              // do this so we don't lose our place
+                              if (parent.IsCollection)
                               {
                                   if (parent.Children.IndexOf(first.BaseModel) < parent.Children.Count - 1)
                                   {
@@ -1687,15 +1687,16 @@ namespace XTMF.Gui.UserControls
                         var currentSelectedIndex = itemGenerator.IndexFromContainer(treeViewItem);
                         int minIndex = Math.Min(lastSelectedIndex, currentSelectedIndex);
                         int maxIndex = Math.Max(lastSelectedIndex, currentSelectedIndex);
-                        for (int i = minIndex + 1; i < maxIndex; i++)
+                        for (int i = minIndex; i <= maxIndex; i++)
                         {
                             var innerTreeViewItem = itemGenerator.ContainerFromIndex(i) as TreeViewItem;
                             var innerModule = itemGenerator.Items[i] as ModelSystemStructureDisplayModel;
-                            if (!CurrentlySelected.Contains(innerModule))
+                            if (CurrentlySelected.Contains(innerModule))
                             {
-                                CurrentlySelected.Add(innerModule);
-                                selectedItems.Add(innerTreeViewItem);
+                                CurrentlySelected.Remove(innerModule);
                             }
+                            CurrentlySelected.Add(innerModule);
+                            selectedItems.Add(innerTreeViewItem);
                         }
                     }
                     // select all of the modules that should be selected
@@ -1706,6 +1707,7 @@ namespace XTMF.Gui.UserControls
                       isSelectionChangeActive,
                       null
                     );
+                    return;
                 }
                 else
                 {
