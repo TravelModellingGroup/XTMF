@@ -28,7 +28,7 @@ using TMG;
 using XTMF;
 using TMG.Functions;
 using System.Numerics;
-
+using System.Collections.Concurrent;
 
 namespace Tasha.XTMFScheduler.LocationChoice
 {
@@ -110,46 +110,48 @@ namespace Tasha.XTMFScheduler.LocationChoice
             return GetLocationProbabilities(ep, (i > 0 ? episodes[i - 1] : null), null, startTime);
         }
 
-        [ThreadStatic]
-        private static float[] CalculationSpace;
-
-        private System.Collections.Concurrent.ConcurrentStack<float[]> CalculationPool = new System.Collections.Concurrent.ConcurrentStack<float[]>();
+        private ConcurrentQueue<float[]> CalculationPool;
+        private int Cores = Environment.ProcessorCount;
 
         private IZone GetLocation(IEpisode ep, Random random, IEpisode previous, IEpisode next, Time startTime)
         {
             var previousZone = GetZone(previous, ep);
             var nextZone = GetZone(next, ep);
-            var calculationSpace = CalculationSpace;
-            if (calculationSpace == null)
+            float[] calculationSpace;
+            if (!CalculationPool.TryDequeue(out calculationSpace))
             {
-                CalculationSpace = calculationSpace = new float[Root.ZoneSystem.ZoneArray.Count];
+                calculationSpace = new float[Root.ZoneSystem.ZoneArray.Count];
             }
             Time availableTime = ComputeAvailableTime(previous, next);
+            var result = ep.Zone;
             switch (ep.ActivityType)
             {
                 case Activity.Market:
                 case Activity.JointMarket:
-                    return MarketModel.GetLocation(previousZone, ep, nextZone, startTime, availableTime, calculationSpace, random);
+                    result = MarketModel.GetLocation(previousZone, ep, nextZone, startTime, availableTime, calculationSpace, random);
+                    break;
                 case Activity.JointOther:
                 case Activity.IndividualOther:
-                    return OtherModel.GetLocation(previousZone, ep, nextZone, startTime, availableTime, calculationSpace, random);
+                    result = OtherModel.GetLocation(previousZone, ep, nextZone, startTime, availableTime, calculationSpace, random);
+                    break;
                 case Activity.WorkBasedBusiness:
                 case Activity.SecondaryWork:
-                    return WorkBasedBusinessModel.GetLocation(previousZone, ep, nextZone, startTime, availableTime, calculationSpace, random);
+                    result = WorkBasedBusinessModel.GetLocation(previousZone, ep, nextZone, startTime, availableTime, calculationSpace, random);
+                    break;
             }
             // if it isn't something that we understand just accept its previous zone
-            return ep.Zone;
+            if (CalculationPool.Count <= Cores)
+            {
+                CalculationPool.Enqueue(calculationSpace);
+            }
+            return result;
         }
 
         private float[] GetLocationProbabilities(IEpisode ep, IEpisode previous, IEpisode next, Time startTime)
         {
             var previousZone = GetZone(previous, ep);
             var nextZone = GetZone(next, ep);
-            var calculationSpace = CalculationSpace;
-            if (calculationSpace == null)
-            {
-                CalculationSpace = calculationSpace = new float[Root.ZoneSystem.ZoneArray.Count];
-            }
+            float[] calculationSpace = new float[Root.ZoneSystem.ZoneArray.Count];
             Time availableTime = ComputeAvailableTime(previous, next);
             switch (ep.ActivityType)
             {
@@ -1012,6 +1014,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
         public void LoadLocationChoiceCache()
         {
+            CalculationPool = new ConcurrentQueue<float[]>();
             for (int i = 0; i < TimePeriods.Length; i++)
             {
                 TimePeriods[i].Load();
