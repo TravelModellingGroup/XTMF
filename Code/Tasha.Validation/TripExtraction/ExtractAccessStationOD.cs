@@ -108,7 +108,7 @@ namespace Tasha.Validation.TripExtraction
                                 {
                                     if (toRecord == ToRecord.Access || toRecord == ToRecord.AccessAndEgress)
                                     {
-                                        AddToMatrix(trip.ActivityStartTime, exp, Zones.GetFlatIndex(trip.OriginalZone.ZoneNumber),
+                                        AddToMatrix(trip.TripStartTime, exp, Zones.GetFlatIndex(trip.OriginalZone.ZoneNumber),
                                             Zones.GetFlatIndex(trip.DestinationZone.ZoneNumber),
                                             stationZone.ZoneNumber);
                                     }
@@ -118,7 +118,7 @@ namespace Tasha.Validation.TripExtraction
                                 {
                                     if (toRecord == ToRecord.Egress || toRecord == ToRecord.AccessAndEgress)
                                     {
-                                        AddToMatrix(trip.ActivityStartTime, exp, Zones.GetFlatIndex(trip.OriginalZone.ZoneNumber),
+                                        AddToMatrix(trip.TripStartTime, exp, Zones.GetFlatIndex(trip.OriginalZone.ZoneNumber),
                                             Zones.GetFlatIndex(trip.DestinationZone.ZoneNumber),
                                             stationZone.ZoneNumber);
                                     }
