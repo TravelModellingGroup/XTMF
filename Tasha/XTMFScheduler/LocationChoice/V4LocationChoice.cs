@@ -183,7 +183,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             [RunParameter("PDRange", "1", typeof(RangeSet), "The planning districts that constitute this spatial segment.")]
             public RangeSet Range;
 
-            [RunParameter("Constant", 0.0f, "The constant applied if the spacial category is met.")]
+            [RunParameter("Constant", 0.0f, "The constant applied if the spatial category is met.")]
             public float Constant;
 
             public string Name { get; set; }
@@ -209,7 +209,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             [RunParameter("Interest PD Range", "1", typeof(RangeSet), "The planning districts the zone we are interested in.")]
             public RangeSet Interest;
 
-            [RunParameter("Constant", 0.0f, "The constant applied if the spacial category is met.")]
+            [RunParameter("Constant", 0.0f, "The constant applied if the spatial category is met.")]
             public float Constant;
             internal float ExpConstant;
 
@@ -716,7 +716,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
                         else
                         {
-                            // if we are on anything besides the first iteration do a blended assignment for the utility to reduce saw toothing.
+                            // if we are on anything besides the first iteration do a blended assignment for the utility to help converge.
                             if (currentIteration == 0)
                             {
                                 for (int j = 0; j < zones.Length; j++)
