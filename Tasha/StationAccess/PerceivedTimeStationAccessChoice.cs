@@ -184,13 +184,13 @@ namespace Tasha.StationAccess
                                         + (closestStation[zoneIndex] == accessIndex ? ClosestStationFactor : 0))) * invStationFactor[i];
 
                                 // calculate egress' from access station
-                                AutoFromAccessStationToDestination[saveIndex] = 
+                                AutoFromAccessStationToDestination[saveIndex] =
                                     AIVTT * autoData[accessToZones * 2]
                                     + AutoCost * autoData[accessToZones * 2 + 1]
                                     ;
 
                                 // calculate access station to zone by transit
-                                TransitFromAccessStationToDestination[saveIndex] = 
+                                TransitFromAccessStationToDestination[saveIndex] =
                                     PerceivedTransitTime * transitData[zoneToAccess * 5 + 4]
                                     + TransitFare * transitData[zoneToAccess * 5 + 3]
                                     ;
@@ -213,9 +213,11 @@ namespace Tasha.StationAccess
                             }
                         }
                     });
-                    VectorHelper.Exp(AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination.Length);
-                    VectorHelper.Exp(TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination.Length);
-                    VectorHelper.Exp(TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation.Length);
+                    Parallel.Invoke(
+                        () => VectorHelper.Exp(AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination.Length),
+                        () => VectorHelper.Exp(TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination.Length),
+                        () => VectorHelper.Exp(TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation.Length)
+                        );
                 }
                 else
                 {
