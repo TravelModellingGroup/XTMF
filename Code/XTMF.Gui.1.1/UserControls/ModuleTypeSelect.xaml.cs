@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -115,9 +116,9 @@ namespace XTMF.Gui.UserControls
             return ret;
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyUp(e);
+            base.OnKeyDown(e);
             if (e.Handled == false)
             {
                 if (e.Key == Key.Escape)

@@ -29,33 +29,31 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" />
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <ListView x:Name="Display" Background="{StaticResource ControlBackgroundBrush}"  
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListView.Resources>
-                    <Style TargetType="{x:Type ListViewItem}">
-                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    </Style>
-                </ListView.Resources>
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <my:BorderIconButton Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+        <ListView x:Name="Display" Background="{StaticResource ControlBackgroundBrush}"  
+                      Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListView.Resources>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                </Style>
+            </ListView.Resources>
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" VirtualizingPanel.IsVirtualizing="True" />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <my:BorderIconButton Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
                                              Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
                                              DoubleClicked="BorderIconButton_Clicked">
-                            <my:BorderIconButton.Style>
-                                <Style TargetType="my:BorderIconButton">
-                                    <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                </Style>
-                            </my:BorderIconButton.Style>
-                        </my:BorderIconButton>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </ScrollViewer>
+                        <my:BorderIconButton.Style>
+                            <Style TargetType="my:BorderIconButton">
+                                <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            </Style>
+                        </my:BorderIconButton.Style>
+                    </my:BorderIconButton>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Window>
