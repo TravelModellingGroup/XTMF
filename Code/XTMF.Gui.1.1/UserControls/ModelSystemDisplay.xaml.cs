@@ -1471,7 +1471,7 @@ namespace XTMF.Gui.UserControls
             {
                 return RemoveRelativeDirectories(System.IO.Path.Combine(inputDirectory, parameterValue));
             }
-            return RemoveRelativeDirectories(System.IO.Path.Combine(Session.Configuration.ProjectDirectory, "AProject",
+            return RemoveRelativeDirectories(System.IO.Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Name,
             "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
         }
 
