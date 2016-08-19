@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace XTMF.Gui.Models
 {
@@ -40,6 +41,7 @@ namespace XTMF.Gui.Models
             RealParameter = realParameter;
             MultipleSelected = multipleSelected;
             realParameter.PropertyChanged += RealParameter_PropertyChanged;
+            FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
         }
 
         private void RealParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -47,7 +49,12 @@ namespace XTMF.Gui.Models
             var property = e.PropertyName;
             if (e.PropertyName == "IsLinked")
             {
-                property = "LinkedParameterVisibility";
+                property = nameof(LinkedParameterVisibility);
+            }
+            else if(e.PropertyName == "IsHidden")
+            {
+                FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
+                property = nameof(FontColour);
             }
             ModelHelper.PropertyChanged(PropertyChanged, this, property);
         }
@@ -170,6 +177,13 @@ namespace XTMF.Gui.Models
         {
             return RealParameter.RevertNameToDefault(ref error);
         }
+
+        public bool SetHidden(bool hidden, ref string error)
+        {
+            return RealParameter.SetHidden(hidden, ref error);
+        }
+
+        public Brush FontColour { get; set; }
 
         /// <summary>
         /// Create the display model from the parameter model.

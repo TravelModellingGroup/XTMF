@@ -72,6 +72,11 @@ namespace XTMF
         string VariableName { get; }
 
         /// <summary>
+        /// Get whether this variable should be set aside
+        /// </summary>
+        bool IsHidden { get; }
+
+        /// <summary>
         /// Create a copy of this parameter
         /// </summary>
         /// <returns>The copy of this parameter</returns>

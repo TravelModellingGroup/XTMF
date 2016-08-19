@@ -1157,6 +1157,7 @@ namespace XTMF
                         var paramTypeAttribute = paramChild.Attributes["Type"];
                         var paramValueAttribute = paramChild.Attributes["Value"];
                         var paramQuickParameterAttribute = paramChild.Attributes["QuickParameter"];
+                        var paramHiddenAttribute = paramChild.Attributes["Hidden"];
                         if (paramNameAttribute != null || paramTypeAttribute != null || paramValueAttribute != null)
                         {
                             string nameOnModule = paramNameAttribute.InnerText;
@@ -1176,6 +1177,10 @@ namespace XTMF
                                 // we will just ignore parameters that no longer exist
                                 if (selectedParam != null)
                                 {
+                                    if(paramHiddenAttribute != null)
+                                    {
+                                        selectedParam.IsHidden = true;
+                                    }
                                     if (paramFriendlyNameAttribute != null)
                                     {
                                         string error = null;
@@ -1472,6 +1477,10 @@ namespace XTMF
                     if (param.QuickParameter)
                     {
                         writer.WriteAttributeString("QuickParameter", "true");
+                    }
+                    if(p.IsHidden)
+                    {
+                        writer.WriteAttributeString("Hidden", "true");
                     }
                     writer.WriteEndElement();
                 }

@@ -89,6 +89,8 @@ namespace XTMF
             }
         }
 
+        public bool IsHidden { get { return RealParameter.IsHidden; } }
+
         public bool QuickParameter
         {
             get
@@ -99,7 +101,6 @@ namespace XTMF
             {
                 if (RealParameter.QuickParameter != value)
                 {
-                    var oldParameter = !value;
                     string error = null;
                     Session.RunCommand(XTMFCommand.CreateCommand(
                         (ref string erro) =>
@@ -117,10 +118,31 @@ namespace XTMF
                             RealParameter.QuickParameter = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
                             return true;
-                        }
-                        ), ref error);
+                        }), ref error);
+
                 }
             }
+        }
+
+        public bool SetHidden(bool hide, ref string error)
+        {
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                    (ref string erro) =>
+                    {
+                        RealParameter.IsHidden = hide;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsHidden));
+                        return true;
+                    }, (ref string erro) =>
+                    {
+                        RealParameter.IsHidden = !hide;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsHidden));
+                        return true;
+                    }, (ref string erro) =>
+                    {
+                        RealParameter.IsHidden = hide;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsHidden));
+                        return true;
+                    }), ref error);
         }
 
         public IModelSystemStructure BelongsTo { get { return RealParameter.BelongsTo; } }

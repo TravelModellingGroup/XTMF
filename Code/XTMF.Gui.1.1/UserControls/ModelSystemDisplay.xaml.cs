@@ -1051,7 +1051,7 @@ namespace XTMF.Gui.UserControls
                 FadeOut();
                 Task.Factory.StartNew(() =>
                 {
-                    var source = ParameterDisplayModel.CreateParameters(parameters.OrderBy(el => el.Name), CurrentlySelected.Count > 1);
+                    var source = ParameterDisplayModel.CreateParameters(parameters.OrderBy(el => el.Name).OrderBy(el => el.IsHidden), CurrentlySelected.Count > 1);
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         CleanUpParameters();
@@ -1358,6 +1358,16 @@ namespace XTMF.Gui.UserControls
             if (currentParameter != null)
             {
                 Clipboard.SetText(currentParameter.Name);
+            }
+        }
+
+        private void SetCurrentParameterHidden(bool hidden)
+        {
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            if (currentParameter != null)
+            {
+                string error = null;
+                currentParameter.SetHidden(hidden, ref error);
             }
         }
 
@@ -1802,6 +1812,16 @@ namespace XTMF.Gui.UserControls
         private void ResetParameterName_Click(object sender, RoutedEventArgs e)
         {
             ResetParameterName();
+        }
+
+        private void HideParameter_Click(object sender, RoutedEventArgs e)
+        {
+            SetCurrentParameterHidden(true);
+        }
+
+        private void ShowParameter_Click(object sender, RoutedEventArgs e)
+        {
+            SetCurrentParameterHidden(false);
         }
     }
 }

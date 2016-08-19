@@ -31,6 +31,7 @@ namespace XTMF
             VariableName = parameter.VariableName;
             SystemParameter = !(parameter is RunParameterAttribute);
             QuickParameter = false;
+            IsHidden = false;
             Type = t;
         }
 
@@ -103,6 +104,7 @@ namespace XTMF
         public object Value { get; set; }
 
         public string VariableName { get; set; }
+        public bool IsHidden { get; internal set; }
 
         public IModuleParameter Clone()
         {
@@ -133,6 +135,7 @@ namespace XTMF
             copy.QuickParameter = QuickParameter;
             copy.BelongsTo = BelongsTo;
             copy.Type = Type;
+            copy.IsHidden = IsHidden;
             return copy;
         }
 
