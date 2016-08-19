@@ -45,6 +45,8 @@ namespace XTMF
             Configuration = config;
         }
 
+        public bool IsMetaModule { get; set; }
+
         public IList<IModelSystemStructure> Children
         {
             get;
@@ -343,6 +345,7 @@ namespace XTMF
             cloneUs.Name = Name;
             cloneUs.Description = Description;
             cloneUs.Module = Module;
+            cloneUs.IsMetaModule = IsMetaModule;
             if (Parameters != null)
             {
                 if ((cloneUs.Parameters = Parameters.Clone()) != null)
@@ -621,94 +624,6 @@ namespace XTMF
             }
         }
 
-        private static void BackupTypeLoader(XmlAttribute paramTypeAttribute, XmlAttribute paramValueAttribute, IModuleParameter selectedParam)
-        {
-            switch (paramTypeAttribute.InnerText)
-            {
-                case "System.String":
-                    {
-                        selectedParam.Value = paramValueAttribute.InnerText;
-                    }
-                    break;
-
-                case "System.Int32":
-                    {
-                        Int32 temp;
-                        if (Int32.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Int64":
-                    {
-                        Int64 temp;
-                        if (Int64.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.DateTime":
-                    {
-                        DateTime temp;
-                        if (DateTime.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Single":
-                    {
-                        Single temp;
-                        if (Single.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Double":
-                    {
-                        Double temp;
-                        if (Double.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Boolean":
-                    {
-                        bool temp;
-                        if (Boolean.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Char":
-                    {
-                        char temp;
-                        if (Char.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                default:
-                    {
-                        //TODO: Unable to load a type we don't know about, should add this to a Log entry or something
-                    }
-                    break;
-            }
-        }
-
         /// <summary>
         /// Recursively find the last instance of a structure that is connected to the objective that
         /// is able to satisfy t's root requirement
@@ -929,9 +844,14 @@ namespace XTMF
             var parentFieldNameAttribute = currentNode.Attributes["ParentFieldName"];
             var parentFieldTypeAttribute = currentNode.Attributes["ParentFieldType"];
             var parentTIndexAttribute = currentNode.Attributes["ParentTIndex"];
+            var isMetaAttribute = currentNode.Attributes["IsMeta"];
             if (nameAttribute != null)
             {
                 projectStructure.Name = nameAttribute.InnerText;
+            }
+            if(isMetaAttribute != null)
+            {
+                projectStructure.IsMetaModule = true;
             }
             // Find the type
             if (tIndexAttribute != null)
@@ -1510,6 +1430,10 @@ namespace XTMF
                 writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
             }
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
+            if(s.IsMetaModule)
+            {
+                writer.WriteAttributeString("IsMeta", "true");
+            }
             SaveParameters(writer, s, lookup);
             if (s.Children != null)
             {

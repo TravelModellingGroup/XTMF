@@ -57,6 +57,8 @@ namespace XTMF
             get { return RealModelSystemStructure.ParentFieldName; }
         }
 
+        public bool IsMetaModule { get { return RealModelSystemStructure.IsMetaModule; } }
+
         public Type Type
         {
             get
@@ -583,9 +585,9 @@ namespace XTMF
             {
                 Parameters.Update();
             }
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Type));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
         }
 
         private bool IsAssignable(ModelSystemStructure rootStructure, ModelSystemStructure parentStructure, ModelSystemStructure copyBuffer)
@@ -597,12 +599,12 @@ namespace XTMF
                 if (copyBuffer.IsCollection)
                 {
                     // Make sure that we are doing collection to collection and that they are of the right types
-                    if (!this.IsCollection || !this.RealModelSystemStructure.ParentFieldType.IsAssignableFrom(copyBuffer.ParentFieldType))
+                    if (!IsCollection || !RealModelSystemStructure.ParentFieldType.IsAssignableFrom(copyBuffer.ParentFieldType))
                     {
                         return false;
                     }
                     // now make sure that every new element is alright with the parent and root
-                    var parentType = this.RealModelSystemStructure.ParentFieldType;
+                    var parentType = RealModelSystemStructure.ParentFieldType;
                     var arguements = parentType.IsArray ? parentType.GetElementType() : parentType.GetGenericArguments()[0];
                     foreach (var member in copyBuffer.Children)
                     {
@@ -617,11 +619,11 @@ namespace XTMF
                 {
                     var t = copyBuffer.Type;
                     rootStructure = ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) as ModelSystemStructure;
-                    if (this.IsCollection)
+                    if (IsCollection)
                     {
                         var parentType = Session.GetParent(this).Type;
                         var arguements = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
-                        if (arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parentType, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, this.RealModelSystemStructure, t) != null)
+                        if (arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parentType, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) != null)
                         {
                             return true;
                         }
@@ -629,7 +631,7 @@ namespace XTMF
                     }
                     else
                     {
-                        if (this.RealModelSystemStructure.ParentFieldType.IsAssignableFrom(t) &&
+                        if (RealModelSystemStructure.ParentFieldType.IsAssignableFrom(t) &&
                             (parent == null || ModelSystemStructure.CheckForParent(parent, t))
                             && ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) != null)
                         {
@@ -1116,20 +1118,43 @@ namespace XTMF
             var oldName = "";
             return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
             {
-                oldName = this.RealModelSystemStructure.Name;
-                this.RealModelSystemStructure.Name = newName;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                oldName = RealModelSystemStructure.Name;
+                RealModelSystemStructure.Name = newName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
                 return true;
             }, (ref string e) =>
             {
-                this.RealModelSystemStructure.Name = oldName;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                RealModelSystemStructure.Name = oldName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
                 return true;
             },
             (ref string e) =>
             {
-                this.RealModelSystemStructure.Name = newName;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                RealModelSystemStructure.Name = newName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+                return true;
+            }), ref error);
+        }
+
+        public bool SetMetaModule(bool isMetaModule, ref string error)
+        {
+            bool oldMeta = false;
+            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            {
+                oldMeta = RealModelSystemStructure.IsMetaModule;
+                RealModelSystemStructure.IsMetaModule = isMetaModule;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
+                return true;
+            }, (ref string e) =>
+            {
+                RealModelSystemStructure.IsMetaModule = oldMeta;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
+                return true;
+            },
+            (ref string e) =>
+            {
+                RealModelSystemStructure.IsMetaModule = isMetaModule;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
                 return true;
             }), ref error);
         }
@@ -1139,20 +1164,20 @@ namespace XTMF
             var oldDescription = "";
             return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
             {
-                oldDescription = this.RealModelSystemStructure.Description;
-                this.RealModelSystemStructure.Description = newDescription;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                oldDescription = RealModelSystemStructure.Description;
+                RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
                 return true;
             }, (ref string e) =>
             {
-                this.RealModelSystemStructure.Description = oldDescription;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                RealModelSystemStructure.Description = oldDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
                 return true;
             },
             (ref string e) =>
             {
-                this.RealModelSystemStructure.Description = newDescription;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
                 return true;
             }), ref error);
         }

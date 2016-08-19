@@ -396,6 +396,19 @@ namespace XTMF.Gui.UserControls
 
         }
 
+        private void SetMetaModuleStateForSelected(bool set)
+        {
+            Session.ExecuteCombinedCommands(() =>
+           {
+               foreach (var selected in CurrentlySelected)
+               {
+                   string error = null;
+                   selected.SetMetaModule(set, ref error);
+               }
+           });
+            UpdateParameters();
+        }
+
         private void RefreshParameters()
         {
             UpdateParameters();
@@ -1077,7 +1090,7 @@ namespace XTMF.Gui.UserControls
                 case 0:
                     return null;
                 case 1:
-                    return CurrentlySelected[0].ParametersModel.GetParameters().ToList();
+                    return CurrentlySelected[0].GetParameters().ToList();
                 default:
                     return GetParameterIntersection();
             }
@@ -1730,6 +1743,16 @@ namespace XTMF.Gui.UserControls
                     selectedItems.Remove(treeViewItem);
                 }
             };
+        }
+
+        private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
+        {
+            SetMetaModuleStateForSelected(true);
+        }
+
+        private void ConvertFromMetaModule_Click(object sender, RoutedEventArgs e)
+        {
+            SetMetaModuleStateForSelected(false);
         }
     }
 }

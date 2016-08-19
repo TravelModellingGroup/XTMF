@@ -83,6 +83,12 @@ namespace XTMF
         Type Type { get; set; }
 
         /// <summary>
+        /// Notify if the model system structure
+        /// should behave like a meta module
+        /// </summary>
+        bool IsMetaModule { get; set; }
+
+        /// <summary>
         /// Add a new child node
         /// </summary>
         /// <param name="name">The name of the child</param>
