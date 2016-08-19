@@ -298,6 +298,8 @@
                                         </Image>
                                     </MenuItem.Icon>
                                 </MenuItem>
+                                <MenuItem Header="Rename Parameter" Click="RenameParameter_Click"/>
+                                <MenuItem Header="Reset Parameter Name" Click="ResetParameterName_Click"/>
                                 <Separator />
                                 <MenuItem Header="Open">
                                     <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">

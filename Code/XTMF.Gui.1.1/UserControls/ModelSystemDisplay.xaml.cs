@@ -1361,6 +1361,45 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        private void RenameParameter()
+        {
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            if (currentParameter != null)
+            {
+                var selectedContainer = (UIElement)ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
+                if (selectedContainer != null)
+                {
+                    var layer = AdornerLayer.GetAdornerLayer(selectedContainer);
+                    var adorn = new TextboxAdorner("Rename", (result) =>
+                    {
+                        string error = null;
+                        Session.ExecuteCombinedCommands(() =>
+                        {
+                            if (!currentParameter.SetName(result, ref error))
+                            {
+                                throw new Exception(error);
+                            }
+                            RefreshParameters();
+                        });
+                    }, selectedContainer, currentParameter.GetBaseName());
+                    layer.Add(adorn);
+                    adorn.Focus();
+                }
+            }
+        }
+
+        private void ResetParameterName()
+        {
+            var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+            if (currentParameter != null)
+            {
+                string error = null;
+                currentParameter.RevertNameToDefault(ref error);
+                UpdateParameters();
+            }
+        }
+
         private void OpenParameterFileLocation(bool openWith, bool openDirectory)
         {
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
@@ -1753,6 +1792,16 @@ namespace XTMF.Gui.UserControls
         private void ConvertFromMetaModule_Click(object sender, RoutedEventArgs e)
         {
             SetMetaModuleStateForSelected(false);
+        }
+
+        private void RenameParameter_Click(object sender, RoutedEventArgs e)
+        {
+            RenameParameter();
+        }
+
+        private void ResetParameterName_Click(object sender, RoutedEventArgs e)
+        {
+            ResetParameterName();
         }
     }
 }

@@ -849,7 +849,7 @@ namespace XTMF
             {
                 projectStructure.Name = nameAttribute.InnerText;
             }
-            if(isMetaAttribute != null)
+            if (isMetaAttribute != null)
             {
                 projectStructure.IsMetaModule = true;
             }
@@ -1152,19 +1152,21 @@ namespace XTMF
                     if (paramChild.Name == "Param")
                     {
                         var paramNameAttribute = paramChild.Attributes["Name"];
+                        var paramFriendlyNameAttribute = paramChild.Attributes["FriendlyName"];
                         var paramTIndexAttribute = paramChild.Attributes["TIndex"];
                         var paramTypeAttribute = paramChild.Attributes["Type"];
                         var paramValueAttribute = paramChild.Attributes["Value"];
                         var paramQuickParameterAttribute = paramChild.Attributes["QuickParameter"];
                         if (paramNameAttribute != null || paramTypeAttribute != null || paramValueAttribute != null)
                         {
-                            string name = paramNameAttribute.InnerText;
+                            string nameOnModule = paramNameAttribute.InnerText;
                             if (modelSystemStructure.Parameters != null)
                             {
-                                IModuleParameter selectedParam = null;
-                                foreach (var p in modelSystemStructure.Parameters)
+                                ModuleParameter selectedParam = null;
+                                foreach (var param in modelSystemStructure.Parameters)
                                 {
-                                    if (p.Name == name)
+                                    var p = (ModuleParameter)param;
+                                    if (p.NameOnModule == nameOnModule)
                                     {
                                         selectedParam = p;
                                         break;
@@ -1174,6 +1176,11 @@ namespace XTMF
                                 // we will just ignore parameters that no longer exist
                                 if (selectedParam != null)
                                 {
+                                    if (paramFriendlyNameAttribute != null)
+                                    {
+                                        string error = null;
+                                        selectedParam.SetName(paramFriendlyNameAttribute.InnerText, ref error);
+                                    }
                                     if (paramQuickParameterAttribute != null)
                                     {
                                         bool quick;
@@ -1430,7 +1437,7 @@ namespace XTMF
                 writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
             }
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
-            if(s.IsMetaModule)
+            if (s.IsMetaModule)
             {
                 writer.WriteAttributeString("IsMeta", "true");
             }
@@ -1445,16 +1452,21 @@ namespace XTMF
             writer.WriteEndElement();
         }
 
-        private void SaveParameters(XmlWriter writer, IModelSystemStructure element, Dictionary<Type, int> lookup)
+        private static void SaveParameters(XmlWriter writer, IModelSystemStructure current, Dictionary<Type, int> lookup)
         {
             // make sure we are loaded before trying to save
             writer.WriteStartElement("Parameters");
-            if (element.Parameters != null)
+            if (current.Parameters != null)
             {
-                foreach (var param in element.Parameters)
+                foreach (var param in current.Parameters)
                 {
+                    var p = (ModuleParameter)param;
                     writer.WriteStartElement("Param");
-                    writer.WriteAttributeString("Name", param.Name);
+                    writer.WriteAttributeString("Name", p.NameOnModule);
+                    if (p.Name != p.NameOnModule)
+                    {
+                        writer.WriteAttributeString("FriendlyName", p.Name);
+                    }
                     writer.WriteAttributeString("TIndex", lookup[param.Type == null ? param.Value.GetType() : param.Type].ToString());
                     writer.WriteAttributeString("Value", param.Value == null ? String.Empty : param.Value.ToString());
                     if (param.QuickParameter)

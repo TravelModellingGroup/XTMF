@@ -35,7 +35,6 @@ namespace XTMF
             IsDirty = false;
             RealParameter = realParameter;
             Session = session;
-            Name = RealParameter.Name;
             _Value = _Value = RealParameter.Value != null ? RealParameter.Value.ToString() : string.Empty;
         }
 
@@ -43,7 +42,7 @@ namespace XTMF
 
         public bool IsDirty { get; private set; }
 
-        public string Name { get; private set; }
+        public string Name { get { return RealParameter.Name; } }
 
         private string _Value;
 
@@ -114,13 +113,12 @@ namespace XTMF
                             ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
                             return true;
                         }, (ref string erro) =>
-                         {
-                             RealParameter.QuickParameter = value;
-                             ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
-                             return true;
-                         }
+                        {
+                            RealParameter.QuickParameter = value;
+                            ModelHelper.PropertyChanged(PropertyChanged, this, "QuickParameter");
+                            return true;
+                        }
                         ), ref error);
-
                 }
             }
         }
@@ -249,6 +247,58 @@ namespace XTMF
                 return false;
             }
             return SetValue(def.ToString(), ref error);
+        }
+
+        /// <summary>
+        /// Give a parameter a friendly name
+        /// </summary>
+        /// <param name="newName">The name to assign to the parameter</param>
+        /// <param name="error">In case of an error, a message of why it occurred</param>
+        /// <returns>True if the operation succeeds, false with an error message otherwise.</returns>
+        public bool SetName(string newName, ref string error)
+        {
+            if (String.IsNullOrWhiteSpace(newName))
+            {
+                error = $"The parameter '{Name}'s new name must not be blank or whitespace only!";
+                return false;
+            }
+            var oldName = Name;
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                (ref string e) =>
+                {
+                    return RealParameter.SetName(newName, ref e);
+                },
+                (ref string e) =>
+                {
+                    return RealParameter.SetName(oldName, ref e);
+                },
+                (ref string e) =>
+                {
+                    return RealParameter.SetName(newName, ref e);
+                }), ref error);
+        }
+
+        /// <summary>
+        /// Revert the name of the parameter back to the default name
+        /// </summary>
+        /// <param name="error">In case of an error, a message of why it occurred</param>
+        /// <returns>True if the operation succeeds, false with an error message otherwise.</returns>
+        public bool RevertNameToDefault(ref string error)
+        {
+            var oldName = Name;
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                (ref string e) =>
+                {
+                    return RealParameter.SetName(RealParameter.NameOnModule, ref e);
+                },
+                (ref string e) =>
+                {
+                    return RealParameter.SetName(oldName, ref e);
+                },
+                (ref string e) =>
+                {
+                    return RealParameter.SetName(RealParameter.NameOnModule, ref e);
+                }), ref error);
         }
     }
 }
