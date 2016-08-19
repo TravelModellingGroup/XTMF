@@ -40,22 +40,59 @@ namespace TMG.Functions
         {
             if (currentIndex == parts.Length - 1)
             {
-                var p = currentStructure.Parameters;
-                if (p == null)
+                if (currentStructure.IsMetaModule)
                 {
-                    throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
-                }
-                var parameters = p.Parameters;
-                if (parameters != null)
-                {
-                    for (int i = 0; i < parameters.Count; i++)
+                    // if we are a meta-module any of our child modules might be being referenced.
+                    var toGet = new Stack<IModelSystemStructure>();
+                    toGet.Push(currentStructure);
+                    while (toGet.Count > 0)
                     {
-                        if (parameters[i].Name == parts[currentIndex])
+                        var current = toGet.Pop();
+                        var p = current.Parameters;
+                        if (p != null)
                         {
-                            return parameters[i];
+                            var parameters = p.Parameters;
+                            if (parameters != null)
+                            {
+                                for (int i = 0; i < parameters.Count; i++)
+                                {
+                                    if (parameters[i].Name == parts[currentIndex])
+                                    {
+                                        return parameters[i];
+                                    }
+                                }
+                                return null;
+                            }
+                        }
+                        if (current.Children != null)
+                        {
+                            foreach (var c in current.Children)
+                            {
+                                toGet.Push(c);
+                            }
                         }
                     }
                     return null;
+                }
+                else
+                {
+                    var p = currentStructure.Parameters;
+                    if (p == null)
+                    {
+                        throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
+                    }
+                    var parameters = p.Parameters;
+                    if (parameters != null)
+                    {
+                        for (int i = 0; i < parameters.Count; i++)
+                        {
+                            if (parameters[i].Name == parts[currentIndex])
+                            {
+                                return parameters[i];
+                            }
+                        }
+                        return null;
+                    }
                 }
             }
             if (currentStructure.Children != null)
