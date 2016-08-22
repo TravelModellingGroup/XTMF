@@ -168,8 +168,10 @@
                                 </Image>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Convert To Meta-Module" Click="ConvertToMetaModule_Click" />
-                        <MenuItem Header="Convert From Meta-Module" Click="ConvertFromMetaModule_Click" />
+                        <MenuItem Header="Meta-Module">
+                            <MenuItem Header="Convert To" Click="ConvertToMetaModule_Click" />
+                            <MenuItem Header="Convert From" Click="ConvertFromMetaModule_Click" />
+                        </MenuItem>
                         <MenuItem Header="Module (Ctrl+M)" Click="Module_Clicked" />
                         <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
                             <MenuItem.Icon>
@@ -289,18 +291,23 @@
                         </ListView.ItemsPanel>
                         <ListView.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
-                                    <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
-                                    </MenuItem.Icon>
+                                <MenuItem Header="Parameter">
+                                    <MenuItem Header="Copy (Ctrl+N)" Click="CopyParameterName_Click">
+                                        <MenuItem.Icon>
+                                            <Image>
+                                                <Image.Source>
+                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                                </Image.Source>
+                                            </Image>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator />
+                                    <MenuItem Header="Rename" Click="RenameParameter_Click"/>
+                                    <MenuItem Header="Reset Name" Click="ResetParameterName_Click"/>
+                                    <Separator />
+                                    <MenuItem Header="Hide Parameter" Click="HideParameter_Click" />
+                                    <MenuItem Header="Show Parameter" Click="ShowParameter_Click" />
                                 </MenuItem>
-                                <MenuItem Header="Rename Parameter" Click="RenameParameter_Click"/>
-                                <MenuItem Header="Reset Parameter Name" Click="ResetParameterName_Click"/>
-                                <Separator />
                                 <MenuItem Header="Open">
                                     <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
                                         <MenuItem.Icon>
@@ -366,8 +373,6 @@
                                         </Image>
                                     </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Header="Hide Parameter" Click="HideParameter_Click" />
-                                <MenuItem Header="Show Parameter" Click="ShowParameter_Click" />
                             </ContextMenu>
                         </ListView.ContextMenu>
                     </ListView>
