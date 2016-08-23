@@ -168,7 +168,7 @@ namespace TMG.Emme.Tools
                                     period.CleanedDescription.Replace('\"', '\''),
                                     ConvertTimeToSeconds(period.StartTime),
                                     ConvertTimeToSeconds(period.EndTime),
-                                    GetFileLocationOrNone(period.ScenarioNetworkUpdateFile)));
+                                    period.ScenarioNetworkUpdateFile.ToString()));
         }
 
         private static string GetFileLocationOrNone(FileLocation location)
