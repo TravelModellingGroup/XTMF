@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -92,19 +92,9 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Description}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="Project_DoubleClicked">
-                    </my:BorderIconButton>
+                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="Project_DoubleClicked" />
                 </DataTemplate>
             </ListView.ItemTemplate>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Style.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource FocusColour}"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource FocusColour}"/>
-                    </Style.Resources>
-                </Style>
-            </ListView.ItemContainerStyle>
         </ListView>
         <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">

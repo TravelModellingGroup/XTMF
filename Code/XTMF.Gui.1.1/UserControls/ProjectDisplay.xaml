@@ -48,9 +48,9 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" />
-                    <ListBox Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="Transparent"
+                    <ListView Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="Transparent"
                                  SelectionChanged="ModelSystemDisplay_SelectionChanged">
-                        <ListBox.ContextMenu>
+                        <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
                                     <MenuItem.Icon>
@@ -107,31 +107,23 @@
                                     </MenuItem.Icon>
                                 </MenuItem>
                             </ContextMenu>
-                        </ListBox.ContextMenu>
-                        <ListBox.ItemsPanel>
+                        </ListView.ContextMenu>
+                        <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                             </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
                             <DataTemplate>
                                 <my:BorderIconButton x:Name="DisplayButton" Icon="/XTMF.Gui;component/Resources/Settings.png"
                                                          Header="{Binding Name, Mode=OneWay}"
                                                          Selected="{Binding IsSelected, Mode=OneWay}"
                                                          Text="{Binding Description, Mode=OneWay}"
                                                          Width="300" Margin="5" DoubleClicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
-                                                         ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}, Path=ContextMenu}"
-                                                         />
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListViewItem}}" Value="True">
-                                        <Setter TargetName="DisplayButton" Property="BorderBrush" Value="{DynamicResource ResourceKey=AnimatedFocusBrush}" />
-                                        <Setter TargetName="DisplayButton" Property="BorderThickness" Value="2" />
-                                        <Setter TargetName="DisplayButton" Property="Margin" Value="2" />
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
+                                                         ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}, Path=ContextMenu}"/>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </Grid>
             </TabItem>
             <TabItem Header="PreviousRuns" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
