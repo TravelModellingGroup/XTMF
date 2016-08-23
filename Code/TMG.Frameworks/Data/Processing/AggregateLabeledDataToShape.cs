@@ -43,8 +43,10 @@ namespace TMG.Frameworks.Data.Processing
 
         private LabeledData<float> _Data;
 
+        [SubModelInformation(Required = true, Description = "The shape of the data to build towards.")]
         public IDataSource<LabeledData<float>> FitToShape;
 
+        [SubModelInformation(Required = true, Description = "The data to gather the results from.")]
         public IDataSource<LabeledData<float>> DataToAggregate;
 
         [SubModelInformation(Required = true, Description = "(DestinationName,OriginalName,Fraction)")]
