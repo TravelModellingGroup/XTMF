@@ -617,7 +617,7 @@
             </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
 
-        <Style TargetType="{x:Type XTMFControls:HintedTextBox}">
+<!--        <Style TargetType="{x:Type XTMFControls:HintedTextBox}">
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
@@ -664,6 +664,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-    </Application.Resources>
+        </Style>-->
+    </Application.Resources> 
 </Application>
