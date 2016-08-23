@@ -55,10 +55,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DataModule.cs" />
+    <Compile Include="Data\DataTypes\LabeledData.cs" />
     <Compile Include="Data\Loading\ArbitraryParameterDataSource.cs" />
+    <Compile Include="Data\Loading\LabeledDataFromCSV.cs" />
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
     <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
     <Compile Include="Data\Loading\RemoteDataSource.cs" />
+    <Compile Include="Data\Processing\AggregateLabeledDataToShape.cs" />
     <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />
     <Compile Include="Data\Processing\AssignParameterFromDataSource.cs" />
     <Compile Include="Data\Processing\AST\Add.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="Data\Processing\AST\Multiply.cs" />
     <Compile Include="Data\Processing\AST\Subtract.cs" />
     <Compile Include="Data\Processing\AST\Variable.cs" />
+    <Compile Include="Data\Processing\ConvertLabeledDataToSparseArray.cs" />
     <Compile Include="Data\Processing\VectorMath.cs" />
     <Compile Include="Data\Processing\ScalarMath.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
