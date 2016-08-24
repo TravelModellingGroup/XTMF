@@ -28,30 +28,19 @@
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" />
+        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
         <ListView x:Name="Display" Background="{StaticResource ControlBackgroundBrush}"  
                       Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListView.Resources>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                </Style>
-            </ListView.Resources>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal" VirtualizingPanel.IsVirtualizing="True" />
+                    <my:VirtualizingWrapPanel Orientation="Horizontal" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <my:BorderIconButton Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
                                              Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
-                                             DoubleClicked="BorderIconButton_Clicked">
-                        <my:BorderIconButton.Style>
-                            <Style TargetType="my:BorderIconButton">
-                                <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                            </Style>
-                        </my:BorderIconButton.Style>
-                    </my:BorderIconButton>
+                                             DoubleClicked="BorderIconButton_Clicked" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

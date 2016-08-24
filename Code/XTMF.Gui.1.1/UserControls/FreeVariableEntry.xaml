@@ -32,35 +32,23 @@
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" />
+        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)"/>
         <ListView Grid.Row="1" 
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ScrollViewer.CanContentScroll="True"
                   VirtualizingPanel.IsVirtualizing="True"
                   VirtualizingPanel.VirtualizationMode="Recycling"
                   x:Name="Display" Background="{StaticResource ControlBackgroundBrush}">
-            <ListView.Resources>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                </Style>
-            </ListView.Resources>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel IsVirtualizing="True"
-                                  VirtualizationMode="Recycling" />
+                    <my:VirtualizingWrapPanel Orientation="Horizontal" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <my:BorderIconButton Loaded="BorderIconButton_Loaded" Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
                                              Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
-                                             DoubleClicked="BorderIconButton_Clicked" ScrollViewer.CanContentScroll="True">
-                        <my:BorderIconButton.Style>
-                            <Style TargetType="my:BorderIconButton">
-                                <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                            </Style>
-                        </my:BorderIconButton.Style>
-                    </my:BorderIconButton>
+                                             DoubleClicked="BorderIconButton_Clicked" ScrollViewer.CanContentScroll="True" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

@@ -95,15 +95,23 @@ namespace XTMF.Gui.UserControls
             base.OnKeyUp(e);
             if (e.Handled == false)
             {
-                if (e.Key == Key.Escape)
+                switch(e.Key)
                 {
-                    e.Handled = true;
-                    Close();
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    e.Handled = true;
-                    Select();
+                    case Key.Escape:
+                        e.Handled = true;
+                        Close();
+                        break;
+                    case Key.E:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterBox);
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.Enter:
+                        e.Handled = true;
+                        Select();
+                        break;
                 }
             }
         }
