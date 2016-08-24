@@ -153,7 +153,6 @@
     <Compile Include="TestVector.cs" />
     <Compile Include="TMG\Data\TestCompiler.cs" />
     <Compile Include="TMG\Data\TestZoneMap.cs" />
-    <Compile Include="TMG\Parallel\ParallelWorkSerialRecombination.cs" />
     <Compile Include="XTMFPerformance.cs" />
     <Compile Include="XTMFTestBase.cs" />
   </ItemGroup>
