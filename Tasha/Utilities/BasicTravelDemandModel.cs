@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -28,7 +28,7 @@ using TMG;
 namespace Tasha.Utilities
 {
 
-    public class BasicTravelDemandModel : ITravelDemandModel
+    public class BasicTravelDemandModel : ITravelDemandModel, IResourceSource
     {
         [RunParameter("Input Base Directory", "../../Input", "The directory to use for getting input.")]
         public string InputBaseDirectory { get; set; }
@@ -45,6 +45,9 @@ namespace Tasha.Utilities
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
         public IZoneSystem ZoneSystem { get; set; }
+
+        [SubModelInformation(Required = false, Description = "Shared Resources")]
+        public List<IResource> Resources { get; set; }      
 
         [SubModelInformation(Required = false, Description = "Children to execute")]
         public ISelfContainedModule[] ToExecute;

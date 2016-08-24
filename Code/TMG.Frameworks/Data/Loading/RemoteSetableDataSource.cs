@@ -39,6 +39,13 @@ namespace TMG.Frameworks.Data
 
         private IResource Linked;
 
+        private IConfiguration Config;
+
+        public RemoteSetableDataSource(IConfiguration config)
+        {
+            Config = config;
+        }
+
         public bool Loaded
         {
             get
@@ -71,11 +78,19 @@ namespace TMG.Frameworks.Data
 
         private IResource Link(string resourceName)
         {
-            foreach (var resource in Root.Resources)
+            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+            for (int i = ancestry.Count - 1; i >= 0; i--)
             {
-                if (resource.ResourceName == resourceName)
+                var source = ancestry[i]?.Module as IResourceSource;
+                if (source != null)
                 {
-                    return resource;
+                    foreach (var resource in source.Resources)
+                    {
+                        if (resource.ResourceName == ResourceName)
+                        {
+                            return resource;
+                        }
+                    }
                 }
             }
             return null;
