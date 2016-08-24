@@ -140,6 +140,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CSVReaderTest.cs" />
     <Compile Include="RangeSetSeriesTest.cs" />
+    <Compile Include="TestDataSource.cs" />
     <Compile Include="TestMinHeap.cs" />
     <Compile Include="TestModelClass.cs" />
     <Compile Include="TestSparseArray.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="TestMessageQueue.cs" />
     <Compile Include="TestVector.cs" />
     <Compile Include="TMG\Data\TestCompiler.cs" />
+    <Compile Include="TMG\Data\TestLabeledData.cs" />
     <Compile Include="TMG\Data\TestZoneMap.cs" />
     <Compile Include="TMG\Parallel\ParallelWorkSerialRecombination.cs" />
     <Compile Include="XTMFPerformance.cs" />
