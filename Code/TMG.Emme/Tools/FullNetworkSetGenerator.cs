@@ -62,6 +62,8 @@ namespace TMG.Emme.Tools
         public string AttributeAggregator;
         [RunParameter("Line Filter Expression", "", "The formated string to use as an expression to filter lines.")]
         public string LineFilterExpression;
+        [RunParameter("Transfer Modes", "tuy", "A string of the transfer mode IDs.")]
+        public string TransferModeString;
 
         public string Name { get; set; }
 
@@ -133,11 +135,12 @@ namespace TMG.Emme.Tools
         private string GetParameters()
         {
             /*xtmf_ScenarioNumber, CustomScenarioSetString,
-                 TransitServiceTableFile, AggTypeSelectionFile, AlternativeDataFile,BatchEditFile,
-                 DefaultAgg, PublishFlag, OverwriteScenarioFlag, NodeFilterAttributeId,
+                 TransitServiceTableFile, AggTypeSelectionFile, AlternativeDataFile, BatchEditFile,
+                 DefaultAgg, PublishFlag, TransferModesString, OverwriteScenarioFlag, NodeFilterAttributeId,
                  StopFilterAttributeId, ConnectorFilterAttributeId, AttributeAggregatorString,
-                 LineFilterExpression*/
+                 LineFilterExpression, AdditionalAlternativeDataFiles*/
             // times are in seconds
+
             return string.Join(" ", BaseScenarioNumber.ToString(),
                                     "\"" + GetTimePeriodScenarioParameters() + "\"",
                                     GetFileLocationOrNone(TransitServiceTable),
@@ -146,6 +149,7 @@ namespace TMG.Emme.Tools
                                     GetFileLocationOrNone(BatchEditFile),
                                     DefaultAggregation == Aggregation.Naive ? "n" : "a",
                                     "True",
+                                    TransferModeString,
                                     "True",
                                     NodeFilterAttribute,
                                     StopFilterAttribute,
