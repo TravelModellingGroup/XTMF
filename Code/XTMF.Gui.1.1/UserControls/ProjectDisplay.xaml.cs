@@ -357,6 +357,13 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                         }
                         break;
+                    case Key.E:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterModelSystemsBox);
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.O:
                         if(Controllers.EditorController.IsControlDown())
                         {
