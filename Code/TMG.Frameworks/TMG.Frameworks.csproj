@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '32Bit|AnyCPU' ">
     <OutputPath>..\..\..\XTMF32\Modules\</OutputPath>
@@ -54,8 +55,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DataModule.cs" />
+    <Compile Include="Data\DataTypes\LabeledData.cs" />
+    <Compile Include="Data\Loading\ArbitraryParameterDataSource.cs" />
+    <Compile Include="Data\Loading\LabeledDataFromCSV.cs" />
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
+    <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
+    <Compile Include="Data\Loading\RemoteDataSource.cs" />
+    <Compile Include="Data\Processing\AggregateLabeledDataToShape.cs" />
     <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />
+    <Compile Include="Data\Processing\AssignParameterFromDataSource.cs" />
     <Compile Include="Data\Processing\AST\Add.cs" />
     <Compile Include="Data\Processing\AST\ASTNode.cs" />
     <Compile Include="Data\Processing\AST\Compiler.cs" />
@@ -66,8 +74,17 @@
     <Compile Include="Data\Processing\AST\Multiply.cs" />
     <Compile Include="Data\Processing\AST\Subtract.cs" />
     <Compile Include="Data\Processing\AST\Variable.cs" />
+    <Compile Include="Data\Processing\ConvertLabeledDataToSparseArray.cs" />
+    <Compile Include="Data\Processing\VectorMath.cs" />
+    <Compile Include="Data\Processing\ScalarMath.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
     <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\Aggregation.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\Attribute.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\Conditional.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\GibbsSampler.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\Pool.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\PoolSegment.cs" />
     <Compile Include="Extensibility\ExecuteInParallel.cs" />
     <Compile Include="Extensibility\LaunchProgram.cs" />
     <Compile Include="MultiRun\MultiRunModelSystem.cs" />

@@ -29,11 +29,8 @@ namespace Tasha.Data
     [ModuleInformation(Description = "This module provides a way of storing a single floating point number.  It also provides the interface to set its value.")]
     public class FloatData : ISetableDataSource<float>
     {
-        [RootModule]
-        public ITravelDemandModel Root;
-
         [RunParameter("Initial Value", 0.0f, "The value to initially set this data source to.")]
-        public float InitialValue;
+        public float InitialValue { get { return Data; } set { Data = value; } }
 
         private float Data;
 

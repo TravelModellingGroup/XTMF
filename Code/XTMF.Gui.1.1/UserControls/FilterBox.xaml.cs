@@ -85,7 +85,6 @@ namespace XTMF.Gui
                         {
                             throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.SourceCollection.GetType().FullName);
                         }
-
                         ItemsSource.Filter = new Predicate<object>((o) => _Filter(o, CurrentBoxText));
                     }
                 }

@@ -27,6 +27,13 @@ namespace Tasha.Common
         [RootModule]
         public IResourceSource Root;
 
+        private IConfiguration Config;
+
+        public ResourceLookup(IConfiguration config)
+        {
+            Config = config;
+        }
+
         private IResource LinkedResource;
 
         public string Name
@@ -54,33 +61,33 @@ namespace Tasha.Common
 
         public T AcquireResource<T>()
         {
-            return this.LinkedResource.AcquireResource<T>();
+            return LinkedResource.AcquireResource<T>();
         }
 
         public bool CheckResourceType(Type dataType)
         {
             EnsureLink();
-            return this.LinkedResource.CheckResourceType( dataType );
+            return LinkedResource.CheckResourceType( dataType );
         }
 
         public bool CheckResourceType<T>()
         {
             EnsureLink();
-            return this.LinkedResource.CheckResourceType<T>();
+            return LinkedResource.CheckResourceType<T>();
         }
 
         public Type GetResourceType()
         {
             EnsureLink();
-            return this.LinkedResource.GetResourceType();
+            return LinkedResource.GetResourceType();
         }
 
         private void EnsureLink()
         {
-            if ( this.LinkedResource == null )
+            if (LinkedResource == null )
             {
                 string error = null;
-                if ( !this.RuntimeValidation( ref error ) )
+                if ( !RuntimeValidation( ref error ) )
                 {
                     throw new XTMFRuntimeException( error );
                 }
@@ -91,20 +98,28 @@ namespace Tasha.Common
 
         public void ReleaseResource()
         {
-            this.LinkedResource.ReleaseResource();
+            LinkedResource.ReleaseResource();
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach ( var resource in this.Root.Resources )
+            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+            for (int i = ancestry.Count - 1; i >= 0; i--)
             {
-                if ( resource.ResourceName == this.ResourceName )
+                var source = ancestry[i]?.Module as IResourceSource;
+                if(source != null)
                 {
-                    this.LinkedResource = resource;
-                    return true;
+                    foreach (var resource in source.Resources)
+                    {
+                        if (resource.ResourceName == ResourceName)
+                        {
+                            LinkedResource = resource;
+                            return true;
+                        }
+                    }
                 }
             }
-            error = "In '" + this.Name + "' we were unable to find a resource in the closest resource source with the name '" + this.ResourceName + "'";
+            error = "In '" + Name + "' we were unable to find a resource in the closest resource source with the name '" + ResourceName + "'";
             return false;
         }
 

@@ -66,8 +66,11 @@ namespace XTMF.Gui.UserControls
 
         private void ModelSystemsDisplay_Loaded(object sender, RoutedEventArgs e)
         {
-            // when the page is loaded give focus to the filter box
-            Keyboard.Focus(FilterBox);
+            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                FilterBox.Focus();
+            }));
         }
 
         private Window GetWindow()
@@ -178,6 +181,13 @@ namespace XTMF.Gui.UserControls
                     case Key.F2:
                         RenameCurrentModelSystem();
                         e.Handled = true;
+                        break;
+                    case Key.E:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterBox);
+                            e.Handled = true;
+                        }
                         break;
                     case Key.Delete:
                         DeleteCurrentModelSystem();

@@ -31,6 +31,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Xceed.Wpf.AvalonDock.Controls;
+using Xceed.Wpf.AvalonDock.Layout;
 
 namespace XTMF.Gui.UserControls
 {
@@ -70,8 +72,11 @@ namespace XTMF.Gui.UserControls
 
         private void ProjectsDisplay_Loaded(object sender, RoutedEventArgs e)
         {
-            // when the page is loaded give focus to the filter box
-            Keyboard.Focus(FilterBox);
+            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
+            Dispatcher.BeginInvoke(new Action(() =>
+           {
+               FilterBox.Focus();
+           }));
         }
 
         private Window GetWindow()
@@ -82,6 +87,18 @@ namespace XTMF.Gui.UserControls
                 current = VisualTreeHelper.GetParent(current);
             }
             return current as Window;
+        }
+
+        private Type GetTopLevelType()
+        {
+            var current = this as DependencyObject;
+            var prev = null as DependencyObject;
+            while (current != null)
+            {
+                prev = current;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return prev.GetType();
         }
 
         private void Project_DoubleClicked(object obj)
@@ -164,6 +181,11 @@ namespace XTMF.Gui.UserControls
             CreateNewProject();
         }
 
+        private void ChangeDescription_Click(object sender, RoutedEventArgs e)
+        {
+            ChangeCurrentDescription();
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (!e.Handled)
@@ -171,8 +193,22 @@ namespace XTMF.Gui.UserControls
                 switch (e.Key)
                 {
                     case Key.F2:
-                        RenameCurrentProject();
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift))
+                        {
+                            ChangeCurrentDescription();
+                        }
+                        else
+                        {
+                            RenameCurrentProject();
+                        }
                         e.Handled = true;
+                        break;
+                    case Key.E:
+                        if(e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterBox);
+                            e.Handled = true;
+                        }
                         break;
                     case Key.Delete:
                         DeleteCurrentProject();
@@ -243,6 +279,32 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void ChangeCurrentDescription()
+        {
+            var project = Display.SelectedItem as Project;
+            if (project != null)
+            {
+                var selectedModuleControl = GetCurrentlySelectedControl();
+                var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
+                Renaming = true;
+                var adorn = new TextboxAdorner("Change Description", (result) =>
+                {
+                    string error = null;
+                    if (!Runtime.ProjectController.SetDescription(project, result, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
+                    else
+                    {
+                        RefreshProjects();
+                    }
+                }, selectedModuleControl, project.Description);
+                adorn.Unloaded += Adorn_Unloaded;
+                layer.Add(adorn);
+                adorn.Focus();
+            }
+        }
+
         private void RefreshProjects()
         {
             var selected = Display.SelectedItem;
@@ -278,7 +340,6 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
-
 
         private void DeleteCurrentProject()
         {

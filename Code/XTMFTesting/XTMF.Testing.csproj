@@ -140,6 +140,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CSVReaderTest.cs" />
     <Compile Include="RangeSetSeriesTest.cs" />
+    <Compile Include="TestDataSource.cs" />
     <Compile Include="TestMinHeap.cs" />
     <Compile Include="TestModelClass.cs" />
     <Compile Include="TestSparseArray.cs" />
@@ -152,7 +153,9 @@
     <Compile Include="TestMessageQueue.cs" />
     <Compile Include="TestVector.cs" />
     <Compile Include="TMG\Data\TestCompiler.cs" />
+    <Compile Include="TMG\Data\TestLabeledData.cs" />
     <Compile Include="TMG\Data\TestZoneMap.cs" />
+    <Compile Include="TMG\Parallel\ParallelWorkSerialRecombination.cs" />
     <Compile Include="XTMFPerformance.cs" />
     <Compile Include="XTMFTestBase.cs" />
   </ItemGroup>
@@ -181,9 +184,9 @@
       <Project>{036ae224-aa65-4c4c-a29f-502ded239a84}</Project>
       <Name>TMGInterfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\XTMF1.1\XTMF1.1.csproj">
+    <ProjectReference Include="..\XTMF1.1\XTMF.csproj">
       <Project>{8b983608-b6c7-49eb-a5dd-6cccf55b9c45}</Project>
-      <Name>XTMF1.1</Name>
+      <Name>XTMF</Name>
     </ProjectReference>
     <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
       <Project>{5A7C8449-BE6F-4CBB-AD7F-B38560DAE637}</Project>

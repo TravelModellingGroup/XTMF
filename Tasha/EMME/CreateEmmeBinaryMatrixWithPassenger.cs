@@ -174,7 +174,8 @@ namespace Tasha.EMME
             [RunParameter("Mode Name", "Auto", "The name of the mode")]
             public string ModeName;
 
-            internal ITashaMode Mode;
+            [DoNotAutomate]
+            public ITashaMode Mode;
 
             public string Name { get; set; }
 

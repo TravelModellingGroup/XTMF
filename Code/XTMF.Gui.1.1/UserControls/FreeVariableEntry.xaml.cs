@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace XTMF.Gui.UserControls
 {
@@ -45,29 +48,24 @@ namespace XTMF.Gui.UserControls
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            internal static List<Model> CreateModel(ICollection<Type> types)
+            internal static Task<ObservableCollection<Model>> CreateModel(ICollection<Type> types)
             {
-                return types.Select(t => new Model(t)).OrderBy(t => t.Name).ToList();
+
+                return Task.Run(() => new ObservableCollection<Model>(types.AsParallel().Select(t => new Model(t)).OrderBy(t => t.Name).ToList()));
             }
         }
 
-        private void FreeVariableEntry_Loaded(object sender, RoutedEventArgs e)
+        private async void FreeVariableEntry_Loaded(object sender, RoutedEventArgs e)
         {
-            Task.Run(() =>
-           {
-               var temp = Model.CreateModel(Session.GetValidGenericVariableTypes(Conditions));
-               Dispatcher.Invoke(() =>
-              {
-                  Display.ItemsSource = (AvailableModules = temp);
-                  FilterBox.Filter = CheckAgainstFilter;
-                  FilterBox.Display = Display;
-              });
-           });
+            var temp = await Model.CreateModel(Session.GetValidGenericVariableTypes(Conditions));
+            Display.ItemsSource = (AvailableModules = temp);
+            FilterBox.Filter = CheckAgainstFilter;
+            FilterBox.Display = Display;
         }
 
         public Type SelectedType { get; private set; }
 
-        private List<Model> AvailableModules;
+        private ObservableCollection<Model> AvailableModules;
 
         private bool CheckAgainstFilter(object o, string text)
         {
@@ -97,15 +95,23 @@ namespace XTMF.Gui.UserControls
             base.OnKeyUp(e);
             if (e.Handled == false)
             {
-                if (e.Key == Key.Escape)
+                switch(e.Key)
                 {
-                    e.Handled = true;
-                    Close();
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    e.Handled = true;
-                    Select();
+                    case Key.Escape:
+                        e.Handled = true;
+                        Close();
+                        break;
+                    case Key.E:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterBox);
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.Enter:
+                        e.Handled = true;
+                        Select();
+                        break;
                 }
             }
         }
@@ -157,6 +163,13 @@ namespace XTMF.Gui.UserControls
                     Close();
                 }
             }
+        }
+
+        int TimesLoaded = 0;
+
+        private void BorderIconButton_Loaded(object sender, RoutedEventArgs e)
+        {
+            TimesLoaded++;
         }
     }
 }

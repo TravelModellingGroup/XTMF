@@ -57,6 +57,8 @@ namespace XTMF
             get { return RealModelSystemStructure.ParentFieldName; }
         }
 
+        public bool IsMetaModule { get { return RealModelSystemStructure.IsMetaModule; } }
+
         public Type Type
         {
             get
@@ -200,10 +202,8 @@ namespace XTMF
                 ref error);
         }
 
-        public bool Paste(string buffer, ref string error)
+        public bool Paste(ModelSystemEditingSession session, string buffer, ref string error)
         {
-            ModelSystemStructure copiedStructure;
-            List<TempLinkedParameter> linkedParameters;
             // Get the data
             using (MemoryStream backing = new MemoryStream())
             {
@@ -211,13 +211,41 @@ namespace XTMF
                 writer.Write(buffer);
                 writer.Flush();
                 backing.Position = 0;
-
                 try
                 {
                     XmlDocument doc = new XmlDocument();
                     doc.Load(backing);
-                    copiedStructure = GetModelSystemStructureFromXML(doc["CopiedModule"]["CopiedModules"]);
-                    linkedParameters = GetLinkedParametersFromXML(doc["CopiedModule"]["LinkedParameters"]);
+                    XmlElement node = doc["MultipleModules"];
+                    if (node != null)
+                    {
+                        var ret = true;
+                        string retError = null;
+                        session.ExecuteCombinedCommands(() =>
+                       {
+                           foreach (XmlNode subNode in node)
+                           {
+                               if (subNode.Name == "CopiedModule")
+                               {
+                                   string e = null;
+                                   if (!Paste(ref e,
+                                       GetModelSystemStructureFromXML(subNode["CopiedModules"]),
+                                       GetLinkedParametersFromXML(subNode["LinkedParameters"])))
+                                   {
+                                       retError = e;
+                                       ret = false;
+                                   }
+                               }
+                           }
+                       });
+                        error = retError;
+                        return ret;
+                    }
+                    else
+                    {
+                        return Paste(ref error,
+                            GetModelSystemStructureFromXML(doc["CopiedModule"]["CopiedModules"]),
+                            GetLinkedParametersFromXML(doc["CopiedModule"]["LinkedParameters"]));
+                    }
                 }
                 catch (Exception e)
                 {
@@ -225,6 +253,10 @@ namespace XTMF
                     return false;
                 }
             }
+        }
+
+        private bool Paste(ref string error, ModelSystemStructure copiedStructure, List<TempLinkedParameter> linkedParameters)
+        {
             if (copiedStructure.IsCollection)
             {
                 if (!IsCollection)
@@ -252,7 +284,7 @@ namespace XTMF
                     return false;
                 }
                 // if we are not a collection update the name of the module that is going to replace us with our name and description
-                if(!IsCollection)
+                if (!IsCollection)
                 {
                     copiedStructure.Name = Name;
                     copiedStructure.Description = Description;
@@ -263,182 +295,182 @@ namespace XTMF
             var oldReal = RealModelSystemStructure;
             return Session.RunCommand(XTMFCommand.CreateCommand(
                 (ref string e) =>
-            {
-                ModelSystemStructureModel beingAdded;
-                int indexOffset = 0;
-                if (IsCollection)
                 {
-                    if (copiedStructure.IsCollection)
+                    ModelSystemStructureModel beingAdded;
+                    int indexOffset = 0;
+                    if (IsCollection)
                     {
-                        indexOffset = RealModelSystemStructure.Children != null ? RealModelSystemStructure.Children.Count : 0;
-                        foreach (var child in copiedStructure.Children)
+                        if (copiedStructure.IsCollection)
                         {
-                            RealModelSystemStructure.Add(child);
+                            indexOffset = RealModelSystemStructure.Children != null ? RealModelSystemStructure.Children.Count : 0;
+                            foreach (var child in copiedStructure.Children)
+                            {
+                                RealModelSystemStructure.Add(child);
+                            }
+                            UpdateChildren();
+                            beingAdded = this;
                         }
-                        UpdateChildren();
+                        else
+                        {
+                            RealModelSystemStructure.Add(copiedStructure);
+                            UpdateChildren();
+                            beingAdded = Children[Children.Count - 1];
+                        }
+                    }
+                    else
+                    {
+                        var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
+                        // if we are the root of the model system
+                        if (modelSystemRoot == RealModelSystemStructure)
+                        {
+                            copiedStructure.Required = RealModelSystemStructure.Required;
+                            copiedStructure.ParentFieldType = RealModelSystemStructure.ParentFieldType;
+                            copiedStructure.ParentFieldName = RealModelSystemStructure.ParentFieldName;
+                            Session.ModelSystemModel.Root.RealModelSystemStructure = copiedStructure;
+                        }
+                        else
+                        {
+                            var parent = ModelSystemStructure.GetParent(modelSystemRoot, RealModelSystemStructure);
+                            var index = parent.Children.IndexOf(RealModelSystemStructure);
+                            copiedStructure.Required = RealModelSystemStructure.Required;
+                            copiedStructure.ParentFieldType = RealModelSystemStructure.ParentFieldType;
+                            copiedStructure.ParentFieldName = RealModelSystemStructure.ParentFieldName;
+                            RealModelSystemStructure = copiedStructure;
+                            parent.Children[index] = copiedStructure;
+                        }
+                        UpdateAll();
                         beingAdded = this;
                     }
-                    else
+                    var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
+                    var realLinkedParameters = linkedParameterModel.GetLinkedParameters();
+                    var missing = from lp in linkedParameters
+                                  where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
+                                  select lp;
+                    var matching = linkedParameters.Join(realLinkedParameters, (p) => p.Name, (p) => p.Name, (t, r) => new { Real = r, Temp = t });
+                    // add links for the ones we've matched
+                    foreach (var lp in matching)
                     {
-                        RealModelSystemStructure.Add(copiedStructure);
-                        UpdateChildren();
-                        beingAdded = Children[Children.Count - 1];
-                    }
-                }
-                else
-                {
-                    var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
-                    // if we are the root of the model system
-                    if (modelSystemRoot == RealModelSystemStructure)
-                    {
-                        copiedStructure.Required = RealModelSystemStructure.Required;
-                        copiedStructure.ParentFieldType = RealModelSystemStructure.ParentFieldType;
-                        copiedStructure.ParentFieldName = RealModelSystemStructure.ParentFieldName;
-                        Session.ModelSystemModel.Root.RealModelSystemStructure = copiedStructure;
-                    }
-                    else
-                    {
-                        var parent = ModelSystemStructure.GetParent(modelSystemRoot, RealModelSystemStructure);
-                        var index = parent.Children.IndexOf(RealModelSystemStructure);
-                        copiedStructure.Required = RealModelSystemStructure.Required;
-                        copiedStructure.ParentFieldType = RealModelSystemStructure.ParentFieldType;
-                        copiedStructure.ParentFieldName = RealModelSystemStructure.ParentFieldName;
-                        RealModelSystemStructure = copiedStructure;
-                        parent.Children[index] = copiedStructure;
-                    }
-                    UpdateAll();
-                    beingAdded = this;
-                }
-                var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
-                var realLinkedParameters = linkedParameterModel.GetLinkedParameters();
-                var missing = from lp in linkedParameters
-                              where !realLinkedParameters.Any(rlp => rlp.Name == lp.Name)
-                              select lp;
-                var matching = linkedParameters.Join(realLinkedParameters, (p) => p.Name, (p) => p.Name, (t, r) => new { Real = r, Temp = t });
-                // add links for the ones we've matched
-                foreach (var lp in matching)
-                {
-                    foreach (var containedParameters in GetParametersFromTemp(lp.Temp, beingAdded, indexOffset))
-                    {
-                        if(!lp.Real.AddParameterWithoutCommand(containedParameters, ref e))
+                        foreach (var containedParameters in GetParametersFromTemp(lp.Temp, beingAdded, indexOffset))
                         {
-                            return false;
+                            if (!lp.Real.AddParameterWithoutCommand(containedParameters, ref e))
+                            {
+                                return false;
+                            }
+                            containedParameters.SignalIsLinkedChanged();
+                            additions.Add(new Tuple<ParameterModel, LinkedParameterModel>(containedParameters, lp.Real));
                         }
-                        containedParameters.SignalIsLinkedChanged();
-                        additions.Add(new Tuple<ParameterModel, LinkedParameterModel>(containedParameters, lp.Real));
                     }
-                }
-                // add links for the ones that didn't match
-                foreach (var missingLp in missing)
-                {
-                    var newLP = linkedParameterModel.AddWithoutCommand(missingLp.Name, missingLp.Value);
-                    newLinkedParameters.Add(newLP);
-                    foreach (var containedParameters in GetParametersFromTemp(missingLp, beingAdded, indexOffset))
+                    // add links for the ones that didn't match
+                    foreach (var missingLp in missing)
                     {
-                        if(!newLP.AddParameterWithoutCommand(containedParameters, ref e))
+                        var newLP = linkedParameterModel.AddWithoutCommand(missingLp.Name, missingLp.Value);
+                        newLinkedParameters.Add(newLP);
+                        foreach (var containedParameters in GetParametersFromTemp(missingLp, beingAdded, indexOffset))
                         {
-                            return false;
+                            if (!newLP.AddParameterWithoutCommand(containedParameters, ref e))
+                            {
+                                return false;
+                            }
+                            containedParameters.SignalIsLinkedChanged();
                         }
-                        containedParameters.SignalIsLinkedChanged();
                     }
-                }
-                return true;
-            },
+                    return true;
+                },
                   (ref string e) =>
-            {
-                if (IsCollection)
-                {
-                    if (copiedStructure.IsCollection)
-                    {
-                        foreach (var child in copiedStructure.Children)
-                        {
-                            RealModelSystemStructure.Children.Remove(child);
-                        }
-                    }
-                    else
-                    {
-                        RealModelSystemStructure.Children.Remove(copiedStructure);
-                    }
-                    UpdateChildren();
-                }
-                else
-                {
-                    var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
-                    // if we are the root of the model system
-                    if (modelSystemRoot == RealModelSystemStructure)
-                    {
-                        RealModelSystemStructure = oldReal;
-                        Session.ModelSystemModel.Root.RealModelSystemStructure = oldReal;
-                    }
-                    else
-                    {
-                        var parent = ModelSystemStructure.GetParent(Session.ModelSystemModel.Root.RealModelSystemStructure, RealModelSystemStructure);
-                        var index = parent.Children.IndexOf(RealModelSystemStructure);
-                        RealModelSystemStructure = oldReal;
-                        parent.Children[index] = RealModelSystemStructure;
-                    }
-                    UpdateAll();
-                }
-                var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
-                foreach (var newLP in newLinkedParameters)
-                {
-                    linkedParameterModel.RemoveWithoutCommand(newLP);
-                }
-                foreach (var addition in additions)
-                {
-                    addition.Item2.RemoveParameterWithoutCommand(addition.Item1);
-                }
-                return true;
-            },
+                  {
+                      if (IsCollection)
+                      {
+                          if (copiedStructure.IsCollection)
+                          {
+                              foreach (var child in copiedStructure.Children)
+                              {
+                                  RealModelSystemStructure.Children.Remove(child);
+                              }
+                          }
+                          else
+                          {
+                              RealModelSystemStructure.Children.Remove(copiedStructure);
+                          }
+                          UpdateChildren();
+                      }
+                      else
+                      {
+                          var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
+                          // if we are the root of the model system
+                          if (modelSystemRoot == RealModelSystemStructure)
+                          {
+                              RealModelSystemStructure = oldReal;
+                              Session.ModelSystemModel.Root.RealModelSystemStructure = oldReal;
+                          }
+                          else
+                          {
+                              var parent = ModelSystemStructure.GetParent(Session.ModelSystemModel.Root.RealModelSystemStructure, RealModelSystemStructure);
+                              var index = parent.Children.IndexOf(RealModelSystemStructure);
+                              RealModelSystemStructure = oldReal;
+                              parent.Children[index] = RealModelSystemStructure;
+                          }
+                          UpdateAll();
+                      }
+                      var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
+                      foreach (var newLP in newLinkedParameters)
+                      {
+                          linkedParameterModel.RemoveWithoutCommand(newLP);
+                      }
+                      foreach (var addition in additions)
+                      {
+                          addition.Item2.RemoveParameterWithoutCommand(addition.Item1);
+                      }
+                      return true;
+                  },
                     (ref string e) =>
-            {
-                if (IsCollection)
-                {
-                    if (copiedStructure.IsCollection)
                     {
-                        foreach (var child in copiedStructure.Children)
+                        if (IsCollection)
                         {
-                            RealModelSystemStructure.Add(child);
+                            if (copiedStructure.IsCollection)
+                            {
+                                foreach (var child in copiedStructure.Children)
+                                {
+                                    RealModelSystemStructure.Add(child);
+                                }
+                            }
+                            else
+                            {
+                                RealModelSystemStructure.Add(copiedStructure);
+                            }
+                            UpdateChildren();
                         }
-                    }
-                    else
-                    {
-                        RealModelSystemStructure.Add(copiedStructure);
-                    }
-                    UpdateChildren();
-                }
-                else
-                {
-                    var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
-                    // if we are the root of the model system
-                    if (modelSystemRoot == RealModelSystemStructure)
-                    {
-                        RealModelSystemStructure = copiedStructure;
-                        Session.ModelSystemModel.Root.RealModelSystemStructure = RealModelSystemStructure;
-                    }
-                    else
-                    {
-                        var parent = ModelSystemStructure.GetParent(Session.ModelSystemModel.Root.RealModelSystemStructure, RealModelSystemStructure);
-                        var index = parent.Children.IndexOf(RealModelSystemStructure);
-                        RealModelSystemStructure = copiedStructure;
-                        parent.Children[index] = RealModelSystemStructure;
-                    }
-                    UpdateAll();
-                }
-                var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
-                foreach (var newLP in newLinkedParameters)
-                {
-                    linkedParameterModel.AddWithoutCommand(newLP);
-                }
-                foreach (var addition in additions)
-                {
-                    if(!addition.Item2.AddParameterWithoutCommand(addition.Item1, ref e))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }), ref error);
+                        else
+                        {
+                            var modelSystemRoot = Session.ModelSystemModel.Root.RealModelSystemStructure;
+                            // if we are the root of the model system
+                            if (modelSystemRoot == RealModelSystemStructure)
+                            {
+                                RealModelSystemStructure = copiedStructure;
+                                Session.ModelSystemModel.Root.RealModelSystemStructure = RealModelSystemStructure;
+                            }
+                            else
+                            {
+                                var parent = ModelSystemStructure.GetParent(Session.ModelSystemModel.Root.RealModelSystemStructure, RealModelSystemStructure);
+                                var index = parent.Children.IndexOf(RealModelSystemStructure);
+                                RealModelSystemStructure = copiedStructure;
+                                parent.Children[index] = RealModelSystemStructure;
+                            }
+                            UpdateAll();
+                        }
+                        var linkedParameterModel = Session.ModelSystemModel.LinkedParameters;
+                        foreach (var newLP in newLinkedParameters)
+                        {
+                            linkedParameterModel.AddWithoutCommand(newLP);
+                        }
+                        foreach (var addition in additions)
+                        {
+                            if (!addition.Item2.AddParameterWithoutCommand(addition.Item1, ref e))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }), ref error);
         }
 
         private List<ParameterModel> GetParametersFromTemp(TempLinkedParameter temp, ModelSystemStructureModel root, int indexOffset)
@@ -553,9 +585,9 @@ namespace XTMF
             {
                 Parameters.Update();
             }
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Type");
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
-            ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Type));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
         }
 
         private bool IsAssignable(ModelSystemStructure rootStructure, ModelSystemStructure parentStructure, ModelSystemStructure copyBuffer)
@@ -567,12 +599,12 @@ namespace XTMF
                 if (copyBuffer.IsCollection)
                 {
                     // Make sure that we are doing collection to collection and that they are of the right types
-                    if (!this.IsCollection || !this.RealModelSystemStructure.ParentFieldType.IsAssignableFrom(copyBuffer.ParentFieldType))
+                    if (!IsCollection || !RealModelSystemStructure.ParentFieldType.IsAssignableFrom(copyBuffer.ParentFieldType))
                     {
                         return false;
                     }
                     // now make sure that every new element is alright with the parent and root
-                    var parentType = this.RealModelSystemStructure.ParentFieldType;
+                    var parentType = RealModelSystemStructure.ParentFieldType;
                     var arguements = parentType.IsArray ? parentType.GetElementType() : parentType.GetGenericArguments()[0];
                     foreach (var member in copyBuffer.Children)
                     {
@@ -587,11 +619,11 @@ namespace XTMF
                 {
                     var t = copyBuffer.Type;
                     rootStructure = ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) as ModelSystemStructure;
-                    if (this.IsCollection)
+                    if (IsCollection)
                     {
                         var parentType = Session.GetParent(this).Type;
                         var arguements = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
-                        if (arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parentType, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, this.RealModelSystemStructure, t) != null)
+                        if (arguements.IsAssignableFrom(t) && (ModelSystemStructure.CheckForParent(parentType, t)) && ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) != null)
                         {
                             return true;
                         }
@@ -599,7 +631,7 @@ namespace XTMF
                     }
                     else
                     {
-                        if (this.RealModelSystemStructure.ParentFieldType.IsAssignableFrom(t) &&
+                        if (RealModelSystemStructure.ParentFieldType.IsAssignableFrom(t) &&
                             (parent == null || ModelSystemStructure.CheckForParent(parent, t))
                             && ModelSystemStructure.CheckForRootModule(rootStructure, RealModelSystemStructure, t) != null)
                         {
@@ -661,35 +693,39 @@ namespace XTMF
         /// </summary>
         public string CopyModule()
         {
-            var children = GetAllChildren();
             using (MemoryStream backing = new MemoryStream())
             {
                 using (XmlTextWriter writer = new XmlTextWriter(backing, Encoding.Unicode))
                 {
                     writer.Formatting = Formatting.Indented;
-                    writer.WriteStartElement("CopiedModule");
-                    writer.WriteStartElement("CopiedModules");
-                    RealModelSystemStructure.Save(writer);
-                    writer.WriteEndElement();
-                    writer.WriteStartElement("LinkedParameters");
-                    foreach (var linkedParameter in GetLinkedParameters(children))
+                    CopyModule(writer);
+                    writer.Flush();
+                    backing.Position = 0;
+                    using (var reader = new StreamReader(backing))
                     {
-                        writer.WriteStartElement("LinkedParameter");
-                        writer.WriteAttributeString("Name", linkedParameter.Name);
-                        writer.WriteAttributeString("Value", linkedParameter.GetValue());
-                        foreach (var link in linkedParameter.GetParameters())
-                        {
-                            var match = children.FirstOrDefault(m => m.RealModelSystemStructure == link.RealParameter.BelongsTo);
-                            if (match != null)
-                            {
-                                writer.WriteStartElement("Parameter");
-                                writer.WriteAttributeString("Path", LookupName(link, this));
-                                writer.WriteEndElement();
-                            }
-                        }
-                        writer.WriteEndElement();
+                        return reader.ReadToEnd();
                     }
-                    writer.WriteEndElement();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return a representation of all of the given modules
+        /// </summary>
+        /// <param name="modules"></param>
+        /// <returns></returns>
+        public static string CopyModule(List<ModelSystemStructureModel> modules)
+        {
+            using (MemoryStream backing = new MemoryStream())
+            {
+                using (XmlTextWriter writer = new XmlTextWriter(backing, Encoding.Unicode))
+                {
+                    writer.Formatting = Formatting.Indented;
+                    writer.WriteStartElement("MultipleModules");
+                    foreach (var module in modules)
+                    {
+                        module.CopyModule(writer);
+                    }
                     writer.WriteEndElement();
                     writer.Flush();
                     backing.Position = 0;
@@ -699,6 +735,35 @@ namespace XTMF
                     }
                 }
             }
+        }
+
+        private void CopyModule(XmlTextWriter writer)
+        {
+            var children = GetAllChildren();
+            writer.WriteStartElement("CopiedModule");
+            writer.WriteStartElement("CopiedModules");
+            RealModelSystemStructure.Save(writer);
+            writer.WriteEndElement();
+            writer.WriteStartElement("LinkedParameters");
+            foreach (var linkedParameter in GetLinkedParameters(children))
+            {
+                writer.WriteStartElement("LinkedParameter");
+                writer.WriteAttributeString("Name", linkedParameter.Name);
+                writer.WriteAttributeString("Value", linkedParameter.GetValue());
+                foreach (var link in linkedParameter.GetParameters())
+                {
+                    var match = children.FirstOrDefault(m => m.RealModelSystemStructure == link.RealParameter.BelongsTo);
+                    if (match != null)
+                    {
+                        writer.WriteStartElement("Parameter");
+                        writer.WriteAttributeString("Path", LookupName(link, this));
+                        writer.WriteEndElement();
+                    }
+                }
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
+            writer.WriteEndElement();
         }
 
         private string LookupName(ParameterModel reference, ModelSystemStructureModel current)
@@ -913,7 +978,7 @@ namespace XTMF
         {
             if (realModelSystemStructure.Children == null)
             {
-                if(Children != null)
+                if (Children != null)
                 {
                     Children.Clear();
                     return Children;
@@ -1053,20 +1118,43 @@ namespace XTMF
             var oldName = "";
             return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
             {
-                oldName = this.RealModelSystemStructure.Name;
-                this.RealModelSystemStructure.Name = newName;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                oldName = RealModelSystemStructure.Name;
+                RealModelSystemStructure.Name = newName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
                 return true;
             }, (ref string e) =>
             {
-                this.RealModelSystemStructure.Name = oldName;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                RealModelSystemStructure.Name = oldName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
                 return true;
             },
             (ref string e) =>
             {
-                this.RealModelSystemStructure.Name = newName;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
+                RealModelSystemStructure.Name = newName;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
+                return true;
+            }), ref error);
+        }
+
+        public bool SetMetaModule(bool isMetaModule, ref string error)
+        {
+            bool oldMeta = false;
+            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            {
+                oldMeta = RealModelSystemStructure.IsMetaModule;
+                RealModelSystemStructure.IsMetaModule = isMetaModule;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
+                return true;
+            }, (ref string e) =>
+            {
+                RealModelSystemStructure.IsMetaModule = oldMeta;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
+                return true;
+            },
+            (ref string e) =>
+            {
+                RealModelSystemStructure.IsMetaModule = isMetaModule;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
                 return true;
             }), ref error);
         }
@@ -1076,20 +1164,20 @@ namespace XTMF
             var oldDescription = "";
             return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
             {
-                oldDescription = this.RealModelSystemStructure.Description;
-                this.RealModelSystemStructure.Description = newDescription;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                oldDescription = RealModelSystemStructure.Description;
+                RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
                 return true;
             }, (ref string e) =>
             {
-                this.RealModelSystemStructure.Description = oldDescription;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                RealModelSystemStructure.Description = oldDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
                 return true;
             },
             (ref string e) =>
             {
-                this.RealModelSystemStructure.Description = newDescription;
-                ModelHelper.PropertyChanged(PropertyChanged, this, "Description");
+                RealModelSystemStructure.Description = newDescription;
+                ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
                 return true;
             }), ref error);
         }

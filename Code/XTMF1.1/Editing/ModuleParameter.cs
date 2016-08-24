@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -22,16 +22,17 @@ namespace XTMF
 {
     public class ModuleParameter : IModuleParameter
     {
-        public ModuleParameter(ParameterAttribute param, Type t)
+        public ModuleParameter(ParameterAttribute parameter, Type t)
         {
-            this.Name = param.Name;
-            this.Value = param.DefaultValue;
-            this.Description = param.Description;
-            this.OnField = param.AttachedToField;
-            this.VariableName = param.VariableName;
-            this.SystemParameter = !( param is RunParameterAttribute );
-            this.QuickParameter = false;
-            this.Type = t;
+            Name = NameOnModule = parameter.Name;
+            Value = parameter.DefaultValue;
+            Description = parameter.Description;
+            OnField = parameter.AttachedToField;
+            VariableName = parameter.VariableName;
+            SystemParameter = !(parameter is RunParameterAttribute);
+            QuickParameter = false;
+            IsHidden = false;
+            Type = t;
         }
 
         private ModuleParameter()
@@ -44,27 +45,27 @@ namespace XTMF
         /// <returns>The default value for the parameter</returns>
         internal object GetDefault()
         {
-            if ( this.OnField )
+            if (OnField)
             {
-                var field = BelongsTo.Type.GetField( this.VariableName );
-                if ( field == null ) return null;
-                return GetDefault( field.GetCustomAttributes( typeof(ParameterAttribute), true ) );
+                var field = BelongsTo.Type.GetField(VariableName);
+                if (field == null) return null;
+                return GetDefault(field.GetCustomAttributes(typeof(ParameterAttribute), true));
             }
             else
             {
-                var field = BelongsTo.Type.GetProperty( this.VariableName );
-                if ( field == null ) return null;
-                return GetDefault( field.GetCustomAttributes( typeof(ParameterAttribute), true ) );
+                var field = BelongsTo.Type.GetProperty(VariableName);
+                if (field == null) return null;
+                return GetDefault(field.GetCustomAttributes(typeof(ParameterAttribute), true));
             }
         }
 
         private object GetDefault(object[] v)
         {
-            if ( v == null ) return null;
-            for ( int i = 0; i < v.Length; i++ )
+            if (v == null) return null;
+            for (int i = 0; i < v.Length; i++)
             {
                 var parameter = v[i] as ParameterAttribute;
-                if ( parameter != null )
+                if (parameter != null)
                 {
                     return parameter.DefaultValue;
                 }
@@ -72,11 +73,25 @@ namespace XTMF
             return null;
         }
 
-        public IModelSystemStructure BelongsTo { get; internal set; }
+        private IModelSystemStructure _BelongsTo;
+
+        public IModelSystemStructure BelongsTo
+        {
+            get
+            {
+                return _BelongsTo;
+            }
+            internal set
+            {
+                _BelongsTo = value;
+            }
+        }
 
         public string Description { get; set; }
 
         public string Name { get; private set; }
+
+        public string NameOnModule { get; private set; }
 
         public bool OnField { get; set; }
 
@@ -89,14 +104,16 @@ namespace XTMF
         public object Value { get; set; }
 
         public string VariableName { get; set; }
+        public bool IsHidden { get; internal set; }
 
         public IModuleParameter Clone()
         {
             ModuleParameter copy = new ModuleParameter();
-            copy.Name = this.Name;
-            if ( this.Value is ICloneable )
+            copy.Name = Name;
+            copy.NameOnModule = NameOnModule;
+            if (Value is ICloneable)
             {
-                copy.Value = ( this.Value as ICloneable ).Clone();
+                copy.Value = (Value as ICloneable).Clone();
             }
             else
             {
@@ -104,21 +121,28 @@ namespace XTMF
                 // we can't have them referencing the same object or changing one will change the original
                 if (Value != null)
                 {
-                    copy.Value = ArbitraryParameterParser.ArbitraryParameterParse(this.Type, this.Value.ToString(), ref error);
+                    copy.Value = ArbitraryParameterParser.ArbitraryParameterParse(Type, Value.ToString(), ref error);
                 }
                 else
                 {
                     copy.Value = null;
                 }
             }
-            copy.Description = this.Description;
-            copy.VariableName = this.VariableName;
-            copy.OnField = this.OnField;
-            copy.SystemParameter = this.SystemParameter;
-            copy.QuickParameter = this.QuickParameter;
-            copy.BelongsTo = this.BelongsTo;
-            copy.Type = this.Type;
+            copy.Description = Description;
+            copy.VariableName = VariableName;
+            copy.OnField = OnField;
+            copy.SystemParameter = SystemParameter;
+            copy.QuickParameter = QuickParameter;
+            copy.BelongsTo = BelongsTo;
+            copy.Type = Type;
+            copy.IsHidden = IsHidden;
             return copy;
+        }
+
+        internal bool SetName(string newName, ref string error)
+        {
+            Name = newName;
+            return true;
         }
     }
 }

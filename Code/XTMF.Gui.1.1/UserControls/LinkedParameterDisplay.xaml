@@ -51,47 +51,45 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" />
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <ListView x:Name="Display"  Background="{StaticResource WindowBackgroundBrush}"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                        <ListView.Resources>
-                            <Style TargetType="{x:Type ListViewItem}">
-                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                            </Style>
-                        </ListView.Resources>
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <my:BorderIconButton Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+                <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
+                          Background="{StaticResource WindowBackgroundBrush}">
+                    <ListView.Resources>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        </Style>
+                    </ListView.Resources>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <my:BorderIconButton Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" DoubleClicked="BorderIconButton_DoubleClicked" Width="300px">
-                                    <my:BorderIconButton.Style>
-                                        <Style TargetType="my:BorderIconButton">
-                                            <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                        </Style>
-                                    </my:BorderIconButton.Style>
-                                </my:BorderIconButton>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                        <ListView.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Rename (F2)" Click="Rename_Click">
-                                    <MenuItem.Icon>
-                                        <Image Source="/XTMF.Gui;component/Resources/base_cog_32.png" Width="16" Height="16" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
-                                    <MenuItem.Icon>
-                                        <Image Source="/XTMF.Gui;component/Images/Delete.png" Width="16" Height="16" />
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                            </ContextMenu>
-                        </ListView.ContextMenu>
-                    </ListView>
-                </ScrollViewer>
+                                <my:BorderIconButton.Style>
+                                    <Style TargetType="my:BorderIconButton">
+                                        <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                    </Style>
+                                </my:BorderIconButton.Style>
+                            </my:BorderIconButton>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Rename (F2)" Click="Rename_Click">
+                                <MenuItem.Icon>
+                                    <Image Source="/XTMF.Gui;component/Resources/base_cog_32.png" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
+                                <MenuItem.Icon>
+                                    <Image Source="/XTMF.Gui;component/Images/Delete.png" Width="16" Height="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                </ListView>
             </Grid>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
             <Grid Grid.Column="2">
@@ -100,43 +98,42 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" />
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <ListView x:Name="ContainedParameterDisplay"  Background="{StaticResource WindowBackgroundBrush}"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
-                        <ListView.Resources>
-                            <Style TargetType="{x:Type ListViewItem}">
-                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                            </Style>
-                        </ListView.Resources>
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                                
-                                </StackPanel>
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="White" BorderThickness="1" Margin="2" HorizontalAlignment="Stretch">
-                                    <Grid HorizontalAlignment="Stretch">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="AUTO" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="AUTO" />
-                                            <RowDefinition Height="AUTO" />
-                                        </Grid.RowDefinitions>
-                                        <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding KeepAttached}"
+                <ListView  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                               x:Name="ContainedParameterDisplay"  Background="{StaticResource WindowBackgroundBrush}"
+                     HorizontalContentAlignment="Stretch">
+                    <ListView.Resources>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        </Style>
+                    </ListView.Resources>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+
+                            </StackPanel>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="White" BorderThickness="1" Margin="2" HorizontalAlignment="Stretch">
+                                <Grid HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="AUTO" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="AUTO" />
+                                        <RowDefinition Height="AUTO" />
+                                    </Grid.RowDefinitions>
+                                    <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding KeepAttached}"
                                                   ToolTip="Uncheck to remove this parameter from the linked parameter."/>
-                                        <TextBlock Grid.Column="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
-                                        <TextBlock Grid.Column="1" Grid.Row="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </ScrollViewer>
+                                    <TextBlock Grid.Column="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
+                                    <TextBlock Grid.Column="1" Grid.Row="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </Grid>
         </Grid>
     </Grid>

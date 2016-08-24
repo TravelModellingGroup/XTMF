@@ -24,6 +24,8 @@ using TMG;
 using TMG.Input;
 using XTMF;
 using Datastructure;
+using System.Threading.Tasks;
+
 namespace Tasha.Network
 {
     [ModuleInformation(Description =
@@ -73,8 +75,9 @@ namespace Tasha.Network
                 // now that we have zones we can build our data
                 var data = Data == null || dataSize != Data.Length ? new float[dataSize] : Data;
                 //now we need to load in each type
-                LoadData(data, this.TravelTimeReader, TravelTimeIndex, zoneArray, TimesLoaded);
-                LoadData(data, this.CostReader, CostIndex, zoneArray, TimesLoaded);
+                Parallel.Invoke(
+                    () => LoadData(data, this.TravelTimeReader, TravelTimeIndex, zoneArray, TimesLoaded),
+                    () => LoadData(data, this.CostReader, CostIndex, zoneArray, TimesLoaded));
                 TimesLoaded++;
                 // now store it
                 this.Data = data;
@@ -225,8 +228,8 @@ namespace Tasha.Network
         {
             // setup our zones
             var zoneArray = this.Root.ZoneSystem.ZoneArray;
-            this.ZoneArray = zoneArray;
-            if (!this.Loaded)
+            ZoneArray = zoneArray;
+            if (!Loaded)
             {
                 var iterationModel = Root as IIterativeModel;
                 if (iterationModel != null)
@@ -239,11 +242,11 @@ namespace Tasha.Network
                         }
                     }
                 }
-                for (int i = 0; i < this.TimePeriods.Length; i++)
+                Parallel.For(0, TimePeriods.Length, (int i) =>
                 {
-                    this.TimePeriods[i].LoadData(zoneArray);
-                }
-                this.Loaded = true;
+                    TimePeriods[i].LoadData(zoneArray);
+                });
+                Loaded = true;
             }
         }
 

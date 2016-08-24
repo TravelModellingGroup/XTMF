@@ -74,6 +74,11 @@ namespace XTMF.RunProxy
             return RealRepository.RenameProject(project, newName);
         }
 
+        public bool SetDescription(IProject project, string newDescription, ref string error)
+        {
+            return RealRepository.SetDescription(project, newDescription, ref error);
+        }
+
         public bool ValidateProjectName(string name)
         {
             return RealRepository.ValidateProjectName(name);

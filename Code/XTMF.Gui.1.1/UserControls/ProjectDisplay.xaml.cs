@@ -255,8 +255,11 @@ namespace XTMF.Gui.UserControls
 
         private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
         {
-            Keyboard.Focus(FilterModelSystemsBox);
-            FilterModelSystemsBox.Focus();
+            // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                FilterModelSystemsBox.Focus();
+            }));
         }
 
         private static void OnProjectChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
@@ -351,6 +354,13 @@ namespace XTMF.Gui.UserControls
                         if (Controllers.EditorController.IsControlDown())
                         {
                             Close();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.E:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterModelSystemsBox);
                             e.Handled = true;
                         }
                         break;

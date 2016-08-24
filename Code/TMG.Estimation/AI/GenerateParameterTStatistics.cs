@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -34,6 +34,9 @@ namespace TMG.Estimation.AI
 
         [RunParameter("Delta", 0.0001f, "In relative parameter space the distance that will be used to estimate the derivatives.")]
         public float Delta;
+
+        [RunParameter("Maximize", true, "Is the estimation trying to maximize or minimize the fitness function (maximize = true)?")]
+        public bool Maximize;
 
         [SubModelInformation(Required = true, Description = "The location of the result file to read in.")]
         public FileLocation ResultFile;
@@ -209,7 +212,7 @@ namespace TMG.Estimation.AI
                 writer.Write(zeroValue);
                 writer.Write(',');
                 writer.WriteLine(GetRho(baseValue, zeroValue));
-                writer.WriteLine("ParameterName,Coefficient,Left,Right,SecondDerivative,t-statistic");
+                writer.WriteLine("ParameterName,Coefficient,LeftCoefficient,RightCoefficient,LeftFitness,RightFitness,SecondDerivative,t-statistic");
                 for(int i = 0; i < parameters.Count; i++)
                 {
                     var secondDerivative = SecondDerivative(i);
@@ -220,6 +223,10 @@ namespace TMG.Estimation.AI
                     writer.Write('"');
                     writer.Write(',');
                     writer.Write(current);
+                    writer.Write(',');
+                    writer.Write(jobs[offset].Parameters[i].Current);
+                    writer.Write(',');
+                    writer.Write(jobs[offset + 1].Parameters[i].Current);
                     writer.Write(',');
                     writer.Write(jobs[offset].Value);
                     writer.Write(',');
@@ -234,7 +241,7 @@ namespace TMG.Estimation.AI
 
         private double ComputeTStatistic(float current, int i, double secondDerivative)
         {
-            var variance = (-1) / secondDerivative;
+            var variance = (Maximize ? -1.0f : 1.0f) / secondDerivative;
             var std = Math.Sqrt(variance);
             return current / std;
         }

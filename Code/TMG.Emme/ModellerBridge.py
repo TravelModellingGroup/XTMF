@@ -181,8 +181,8 @@ class XTMFBridge:
             try:
                 paramVar = eval("tool.__class__." + str(param))
             except:
-                _m.logbook_write(param + " does not exist!")
-                self.SendParameterError(param + " does not exist!")
+                _m.logbook_write("A parameter with the name '" + param + "' does not exist in the executing EMME tool!  Make sure that the EMME tool defines this attribute as a class variable.")
+                self.SendParameterError("A parameter with the name '" + param + "' does not exist in the executing EMME tool!  Make sure that the EMME tool defines this attribute as a class variable.")
                 return None
             typeOfParam = paramVar.type
             if typeOfParam == _m.Attribute(float).type:
@@ -559,7 +559,13 @@ userInitials = args[2]
 performancFlag = bool(int(args[3]))
 pipeName = args[4]
 #sys.stderr.write(args)
-
-TheEmmeEnvironmentXMTF = _app.start_dedicated(visible=False, user_initials=userInitials, project=projectFile)
-XTMFBridge().Run(TheEmmeEnvironmentXMTF, performancFlag)
-TheEmmeEnvironmentXMTF.close()
+print userInitials
+print projectFile
+try:
+    TheEmmeEnvironmentXMTF = _app.start_dedicated(visible=False, user_initials=userInitials, project=projectFile)
+    XTMFBridge().Run(TheEmmeEnvironmentXMTF, performancFlag)
+    TheEmmeEnvironmentXMTF.close()
+except Exception as e:
+    print dir(e).__class__
+    print e.message
+    print e.args

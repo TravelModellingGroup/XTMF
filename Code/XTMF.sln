@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EDD8E026-10A1-42A1-A606-483AA9618752}"
 	ProjectSection(SolutionItems) = preProject
@@ -71,11 +71,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMF.ConsoleUpdate", "XTMF.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XTMFCore", "XTMFCore", "{6CB731FD-131F-4D60-B988-96F531D03679}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMF1.1", "XTMF1.1\XTMF1.1.csproj", "{8B983608-B6C7-49EB-A5DD-6CCCF55B9C45}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMF", "XTMF1.1\XTMF.csproj", "{8B983608-B6C7-49EB-A5DD-6CCCF55B9C45}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMFCoreTesting", "XTMFCoreTesting\XTMFCoreTesting.csproj", "{6638AE14-318A-4323-ACDF-9C01CBBA02BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMF.Gui.1.1", "XTMF.Gui.1.1\XTMF.Gui.1.1.csproj", "{63996C2B-6769-4305-8933-1A87944679DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMF.Gui", "XTMF.Gui.1.1\XTMF.Gui.csproj", "{63996C2B-6769-4305-8933-1A87944679DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMG.Distributed", "TMG.Distributed\TMG.Distributed.csproj", "{B803C3EF-1C09-47AE-80E6-6BB40520F516}"
 EndProject
@@ -84,6 +84,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XTMF.Run", "XTMF.Run\XTMF.Run.csproj", "{244DA4F1-F1DE-403C-AB93-D828C893BF2E}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		32Bit|Any CPU = 32Bit|Any CPU
 		64Bit|Any CPU = 64Bit|Any CPU

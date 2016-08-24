@@ -239,6 +239,8 @@ For specification about the language, and extensibility please consult the TMG F
             TryAddBatchCommand("template", Template, true);
             TryAddBatchCommand("executetemplate", ExecuteTemplate, true);
             TryAddBatchCommand("import", ImportMultiRunFile, true);
+            TryAddBatchCommand("define", DefineVariable, true);
+            TryAddBatchCommand("if", IfStatement, true);
         }
 
 
@@ -575,6 +577,8 @@ For specification about the language, and extensibility please consult the TMG F
 
         Dictionary<string, MultirunTemplate> Templates = new Dictionary<string, MultirunTemplate>();
 
+        Dictionary<string, float> Variables = new Dictionary<string, float>();
+
         private void Template(XmlNode command)
         {
             var name = GetAttributeOrError(command, "Name", "The template was not given a name!\r\n" + command.OuterXml);
@@ -605,6 +609,75 @@ For specification about the language, and extensibility please consult the TMG F
                 throw new XTMFRuntimeException("Unable to execute template\n\r" + error + "\r\n" + template.Node.OuterXml);
             }
             ExecutionStack.Push(toExecute.Node);
+        }
+
+        private void DefineVariable(XmlNode command)
+        {
+            var name = GetAttributeOrError(command, "Name", "The name of the variable was not given!\r\n" + command.OuterXml);
+            var value = GetAttributeOrError(command, "Value", "The value to assign the variable was not given!\r\n" + command.OuterXml);
+            float fValue;
+            if(!float.TryParse(value, out fValue))
+            {
+                throw new XTMFRuntimeException($"In '{Name}' we were unable to extract the value of {value} into a number!\r\n{command.OuterXml}");
+            }
+            Variables[name] = fValue;
+        }
+
+        private float GetVariableValue(string name, XmlNode command)
+        {
+            float value;
+            if(Variables.TryGetValue(name, out value))
+            {
+                return value; 
+            }
+            if(float.TryParse(name, out value))
+            {
+                return value;
+            }
+            throw new XTMFRuntimeException($"In '{Name}' we were unable to get a value from {name} while executing the command:\r\n{command.OuterXml}");
+        }
+
+        private void IfStatement(XmlNode command)
+        {
+            var lhs = GetVariableValue(GetAttributeOrError(command, "LHS", "The LHS was not defined!\r\n" + command.OuterXml), command);
+            var comp = GetAttributeOrError(command, "OP", "The comparison OPerator was not defined!\r\n" + command.OuterXml);
+            var rhs = GetVariableValue(GetAttributeOrError(command, "RHS", "The RHS was not defined!\r\n" + command.OuterXml), command);
+            bool isTrue = false;
+            switch(comp.ToLowerInvariant())
+            {
+                case "<":
+                case "lt":
+                    isTrue = lhs < rhs;
+                    break;
+                case "<=":
+                case "lte":
+                    isTrue = lhs <= rhs;
+                    break;
+                case "=":
+                case "==":
+                case "eq":
+                    isTrue = lhs == rhs;
+                    break;
+                case "!":
+                case "!=":
+                case "neq":
+                    isTrue = lhs != rhs;
+                    break;
+                case ">":
+                case "gt":
+                    isTrue = lhs > rhs;
+                    break;
+                case ">=":
+                case "gte":
+                    isTrue = lhs >= rhs;
+                    break;
+                default:
+                    throw new XTMFRuntimeException($"In '{Name}' we found an invalid operator while executing the multi-run script.\r\n" + command.OuterXml);
+            }
+            if (isTrue)
+            {
+                ExecutionStack.Push(command);
+            }
         }
 
         private void ImportMultiRunFile(XmlNode command)

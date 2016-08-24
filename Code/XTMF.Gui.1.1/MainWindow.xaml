@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -24,7 +24,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
-        Title="XTMF Version 1.1" Height="768" Width="1024"
+        Title="XTMF Version 1.2" Height="768" Width="1024"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}">
     <Grid>
         <Grid.RowDefinitions>
@@ -119,7 +119,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="12" Margin="1" Foreground="White" />
+                        <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="12" Margin="1" Foreground="Black" />
                     </Grid>
                 </DataTemplate>
             </xcad:DockingManager.DocumentTitleTemplate>
@@ -127,7 +127,7 @@
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="{StaticResource FocusBrush}">
+                        <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="Black">
                             <TextBlock.Style>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Style.Triggers>
@@ -135,14 +135,14 @@
                                             <Trigger.EnterActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </Trigger.EnterActions>
                                             <Trigger.ExitActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}"  Duration="0:0:0.1" />
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="Black"  Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </Trigger.ExitActions>
@@ -158,7 +158,7 @@
                 <SolidColorBrush Color="{StaticResource WindowBackgroundColour}" />
             </xcad:DockingManager.Background>
             <xcad:DockingManager.Theme>
-                <xcad:MetroTheme />
+                <xcad:AeroTheme />
             </xcad:DockingManager.Theme>
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">

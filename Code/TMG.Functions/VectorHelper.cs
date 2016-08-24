@@ -2024,68 +2024,6 @@ namespace TMG.Functions
             }
             return true;
         }
-
-        /// <summary>
-        /// This method provides a vectorized implementation of exp by unrolling the Taylor series.
-        /// </summary>
-        /// <param name="x">A vector containing the exponents.</param>
-        /// <returns>exp for each element in the vector</returns>
-        /// <remarks>The series is unrolled 30 times which approximates the .Net implementation from System.Math.Exp</remarks>
-        public static Vector<float> Exp(Vector<float> x)
-        {
-            // we are going to approximate x using the Taylor series, unrolled 30 times
-            Vector<float> ret1;
-            Vector<float> ret2;
-            Vector<float> x2 = x * x;
-            Vector<float> x3 = x2 * x;
-            Vector<float> x4 = x2 * x2;
-            Vector<float> x5 = x3 * x2;
-            Vector<float> invFact2 = new Vector<float>(0.5f);
-            Vector<float> invFact3 = new Vector<float>(0.1666666667f);
-            Vector<float> invFact4 = new Vector<float>(0.0416666667f);
-            Vector<float> invFact5 = new Vector<float>(0.00833333333f);
-            ret1 = Vector<float>.One + x +
-                x2 * invFact2 +
-                x3 * invFact3 +
-                x4 * invFact4 +
-                x5 * invFact5;
-            Vector<float> x10 = x5 * x5;
-            ret2 =
-            new Vector<float>(0.00138888889f) * x3 * x3
-            + new Vector<float>(0.000198412698f) * x4 * x3
-            + new Vector<float>(2.48015873E-5f) * x4 * x4
-            + new Vector<float>(2.75573192E-6f) * x5 * x4
-            + new Vector<float>(2.75573192E-7f) * x10;
-            var x15 = x10 * x5;
-            Vector<float> x20;
-            ret1 = ret1 +
-             new Vector<float>(2.50521084E-8f) * x10 * x
-            + new Vector<float>(2.0876757E-9f) * x10 * x2
-            + new Vector<float>(1.60590438E-10f) * x10 * x3
-            + new Vector<float>(1.14707456E-11f) * x10 * x4
-            + new Vector<float>(7.64716373E-13f) * x15
-            + new Vector<float>(4.77947733E-14f) * x15 * x
-            + new Vector<float>(2.81145725E-15f) * x15 * x2
-            + new Vector<float>(1.5619207E-16f) * x15 * x3
-            + new Vector<float>(8.22063525E-18f) * x15 * x4
-            + new Vector<float>(4.11031762E-19f) * (x20 = x15 * x5);
-            Vector<float> x25 = x15 + x10;
-            ret2 = ret2 +
-             new Vector<float>(1.95729411E-20f) * x20 * x
-            + new Vector<float>(8.89679139E-22f) * x20 * x2
-            + new Vector<float>(3.86817017E-23f) * x20 * x3
-            + new Vector<float>(1.61173757E-24f) * x20 * x4
-            + new Vector<float>(6.44695028E-26f) * x25
-            + new Vector<float>(2.47959626E-27f) * x25 * x
-            + new Vector<float>(9.18368986E-29f) * x25 * x2
-            + new Vector<float>(3.27988924E-30f) * x25 * x3
-            + new Vector<float>(1.13099629E-31f) * x25 * x4
-            + new Vector<float>(3.76998763E-33f) * x25 * x5;
-            // make sure that we don't underflow, e^x should never be less than zero
-            return Vector.Max(ret1 + ret2
-                , Vector<float>.Zero);
-        }
-
         /// <summary>
         /// Applies exp(x) for each element in the array
         /// </summary>
@@ -2097,16 +2035,12 @@ namespace TMG.Functions
         /// <remarks>The series is unrolled 30 times which approximates the .Net implementation from System.Math.Exp</remarks>
         public static void Exp(float[] destination, int destIndex, float[] x, int xIndex, int length)
         {
+            // This is still using scalar operations until we have an accurate replacement that runs faster when vectorized
             if (Vector.IsHardwareAccelerated)
             {
                 if ((destIndex | xIndex) == 0)
                 {
                     int i = 0;
-                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        Exp(new Vector<float>(x, i)).CopyTo(destination, i);
-                    }
-                    // copy the remainder
                     for (; i < length; i++)
                     {
                         destination[i] = (float)Math.Exp(x[i]);
@@ -2114,12 +2048,7 @@ namespace TMG.Functions
                 }
                 else
                 {
-                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
-                    {
-                        Exp(new Vector<float>(x, i + xIndex)).CopyTo(destination, i + destIndex);
-                    }
-                    // copy the remainder
-                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    for (int i = 0; i < length; i++)
                     {
                         destination[i + destIndex] = (float)Math.Exp(x[i + xIndex]);
                     }

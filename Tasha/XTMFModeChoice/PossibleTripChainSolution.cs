@@ -34,19 +34,17 @@ namespace Tasha.XTMFModeChoice
         {
             var numberOftrips = solution.Length;
             BaseData = baseTripData;
-            PickedModes = solution.Clone() as int[];
+            var modes = new int[solution.Length];
+            for (int i = 0; i < modes.Length; i++)
+            {
+                modes[i] = solution[i];
+            }
             if ( tourData != null )
             {
                 TourData = tourData;
-                var modifiers = TourData.TourUtilityModifiers;
-                var picked = PickedModes;
-                var localTotal = 0.0f;
-                for ( int i = 0; i < modifiers.Length; i++ )
-                {
-                    localTotal += modifiers[i];
-                }
-                TourDependentUtility = localTotal;
+                TourDependentUtility = TourData.TourUtilityModifiers;
             }
+            PickedModes = modes;
             RegenerateU();
         }
 

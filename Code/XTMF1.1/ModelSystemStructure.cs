@@ -45,6 +45,8 @@ namespace XTMF
             Configuration = config;
         }
 
+        public bool IsMetaModule { get; set; }
+
         public IList<IModelSystemStructure> Children
         {
             get;
@@ -343,6 +345,7 @@ namespace XTMF
             cloneUs.Name = Name;
             cloneUs.Description = Description;
             cloneUs.Module = Module;
+            cloneUs.IsMetaModule = IsMetaModule;
             if (Parameters != null)
             {
                 if ((cloneUs.Parameters = Parameters.Clone()) != null)
@@ -621,94 +624,6 @@ namespace XTMF
             }
         }
 
-        private static void BackupTypeLoader(XmlAttribute paramTypeAttribute, XmlAttribute paramValueAttribute, IModuleParameter selectedParam)
-        {
-            switch (paramTypeAttribute.InnerText)
-            {
-                case "System.String":
-                    {
-                        selectedParam.Value = paramValueAttribute.InnerText;
-                    }
-                    break;
-
-                case "System.Int32":
-                    {
-                        Int32 temp;
-                        if (Int32.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Int64":
-                    {
-                        Int64 temp;
-                        if (Int64.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.DateTime":
-                    {
-                        DateTime temp;
-                        if (DateTime.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Single":
-                    {
-                        Single temp;
-                        if (Single.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Double":
-                    {
-                        Double temp;
-                        if (Double.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Boolean":
-                    {
-                        bool temp;
-                        if (Boolean.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                case "System.Char":
-                    {
-                        char temp;
-                        if (Char.TryParse(paramValueAttribute.InnerText, out temp))
-                        {
-                            selectedParam.Value = temp;
-                        }
-                    }
-                    break;
-
-                default:
-                    {
-                        //TODO: Unable to load a type we don't know about, should add this to a Log entry or something
-                    }
-                    break;
-            }
-        }
-
         /// <summary>
         /// Recursively find the last instance of a structure that is connected to the objective that
         /// is able to satisfy t's root requirement
@@ -929,9 +844,14 @@ namespace XTMF
             var parentFieldNameAttribute = currentNode.Attributes["ParentFieldName"];
             var parentFieldTypeAttribute = currentNode.Attributes["ParentFieldType"];
             var parentTIndexAttribute = currentNode.Attributes["ParentTIndex"];
+            var isMetaAttribute = currentNode.Attributes["IsMeta"];
             if (nameAttribute != null)
             {
                 projectStructure.Name = nameAttribute.InnerText;
+            }
+            if (isMetaAttribute != null)
+            {
+                projectStructure.IsMetaModule = true;
             }
             // Find the type
             if (tIndexAttribute != null)
@@ -1232,19 +1152,22 @@ namespace XTMF
                     if (paramChild.Name == "Param")
                     {
                         var paramNameAttribute = paramChild.Attributes["Name"];
+                        var paramFriendlyNameAttribute = paramChild.Attributes["FriendlyName"];
                         var paramTIndexAttribute = paramChild.Attributes["TIndex"];
                         var paramTypeAttribute = paramChild.Attributes["Type"];
                         var paramValueAttribute = paramChild.Attributes["Value"];
                         var paramQuickParameterAttribute = paramChild.Attributes["QuickParameter"];
+                        var paramHiddenAttribute = paramChild.Attributes["Hidden"];
                         if (paramNameAttribute != null || paramTypeAttribute != null || paramValueAttribute != null)
                         {
-                            string name = paramNameAttribute.InnerText;
+                            string nameOnModule = paramNameAttribute.InnerText;
                             if (modelSystemStructure.Parameters != null)
                             {
-                                IModuleParameter selectedParam = null;
-                                foreach (var p in modelSystemStructure.Parameters)
+                                ModuleParameter selectedParam = null;
+                                foreach (var param in modelSystemStructure.Parameters)
                                 {
-                                    if (p.Name == name)
+                                    var p = (ModuleParameter)param;
+                                    if (p.NameOnModule == nameOnModule)
                                     {
                                         selectedParam = p;
                                         break;
@@ -1254,6 +1177,15 @@ namespace XTMF
                                 // we will just ignore parameters that no longer exist
                                 if (selectedParam != null)
                                 {
+                                    if(paramHiddenAttribute != null)
+                                    {
+                                        selectedParam.IsHidden = true;
+                                    }
+                                    if (paramFriendlyNameAttribute != null)
+                                    {
+                                        string error = null;
+                                        selectedParam.SetName(paramFriendlyNameAttribute.InnerText, ref error);
+                                    }
                                     if (paramQuickParameterAttribute != null)
                                     {
                                         bool quick;
@@ -1510,6 +1442,10 @@ namespace XTMF
                 writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
             }
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
+            if (s.IsMetaModule)
+            {
+                writer.WriteAttributeString("IsMeta", "true");
+            }
             SaveParameters(writer, s, lookup);
             if (s.Children != null)
             {
@@ -1521,21 +1457,30 @@ namespace XTMF
             writer.WriteEndElement();
         }
 
-        private void SaveParameters(XmlWriter writer, IModelSystemStructure element, Dictionary<Type, int> lookup)
+        private static void SaveParameters(XmlWriter writer, IModelSystemStructure current, Dictionary<Type, int> lookup)
         {
             // make sure we are loaded before trying to save
             writer.WriteStartElement("Parameters");
-            if (element.Parameters != null)
+            if (current.Parameters != null)
             {
-                foreach (var param in element.Parameters)
+                foreach (var param in current.Parameters)
                 {
+                    var p = (ModuleParameter)param;
                     writer.WriteStartElement("Param");
-                    writer.WriteAttributeString("Name", param.Name);
+                    writer.WriteAttributeString("Name", p.NameOnModule);
+                    if (p.Name != p.NameOnModule)
+                    {
+                        writer.WriteAttributeString("FriendlyName", p.Name);
+                    }
                     writer.WriteAttributeString("TIndex", lookup[param.Type == null ? param.Value.GetType() : param.Type].ToString());
-                    writer.WriteAttributeString("Value", param.Value.ToString());
+                    writer.WriteAttributeString("Value", param.Value == null ? String.Empty : param.Value.ToString());
                     if (param.QuickParameter)
                     {
                         writer.WriteAttributeString("QuickParameter", "true");
+                    }
+                    if(p.IsHidden)
+                    {
+                        writer.WriteAttributeString("Hidden", "true");
                     }
                     writer.WriteEndElement();
                 }

@@ -121,10 +121,15 @@ namespace Tasha.StationAccess
             internal float[] TransitFromAccessStationToDestination;
             internal float[] TransitFromDestinationToAccessStation;
 
+            [RunParameter("Reload Capacity Factors", true, "Set this to false during estimation to help increase performance.")]
+            public bool ReloadCapacityFactors;
 
             internal void Load(RangeSet stationRanges, RangeSet spatialZones, SparseArray<float> capacity, int[] closestStation)
             {
-                LoadCapacityFactors();
+                if (CapacityFactor == null || ReloadCapacityFactors)
+                {
+                    LoadCapacityFactors();
+                }
                 CalculateUtilities(stationRanges, spatialZones, capacity.GetFlatData(), closestStation);
             }
 
@@ -144,43 +149,103 @@ namespace Tasha.StationAccess
                     TransitFromDestinationToAccessStation = new float[stationZones.Length * zones.Length];
                     AutoFromAccessStationToDestination = new float[stationZones.Length * zones.Length];
                 }
-                // compute the toAccess utilities
-                Parallel.For(0, zones.Length, (int originIndex) =>
-                {
-                    var zoneNumber = zones[originIndex].ZoneNumber;
-                    if (spatialZones.Contains(zoneNumber))
-                    {
-                        for (int i = 0; i < stationZones.Length; i++)
-                        {
-                            var accessIndex = stationZones[i];
-                            var factor = ComputeCapacityFactor(flatCapacityFactor[accessIndex], Alpha);
-                            // calculate access' to access station this will include more factors
-                            AutoFromOriginToAccessStation[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, originIndex, accessIndex)
-                                + (Capacity * capacity[accessIndex]
-                                + ParkingCost * zones[accessIndex].ParkingCost
-                                + (closestStation[originIndex] == accessIndex ? ClosestStationFactor : 0))) / factor;
-                            // calculate egress' from access station
-                            AutoFromAccessStationToDestination[originIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, originIndex));
-                        }
-                    }
-                });
 
-                // compute the toDesinstination utilities
-                Parallel.For(0, zones.Length, (int destIndex) =>
+                var invStationFactor = new float[stationZones.Length];
+                var parkingUtil = new float[stationZones.Length];
+                for (int i = 0; i < stationZones.Length; i++)
                 {
-                    var zoneNumber = zones[destIndex].ZoneNumber;
-                    if (spatialZones.Contains(zoneNumber))
+                    invStationFactor[i] = 1.0f / ComputeCapacityFactor(flatCapacityFactor[stationZones[i]], Alpha);
+                    parkingUtil[i] = ParkingCost * zones[stationZones[i]].ParkingCost;
+                }
+
+                var fastAuto = autoNetwork as INetworkCompleteData;
+                var fastTransit = transitNetwork as ITripComponentCompleteData;
+                if (fastAuto != null && fastTransit != null)
+                {
+                    Parallel.For(0, zones.Length, (int zoneIndex) =>
                     {
-                        for (int i = 0; i < stationZones.Length; i++)
+                        var autoData = fastAuto.GetTimePeriodData(StartTime);
+                        var transitData = fastTransit.GetTimePeriodData(StartTime);
+                        var zoneNumber = zones[zoneIndex].ZoneNumber;
+                        if (spatialZones.Contains(zoneNumber))
                         {
-                            var accessIndex = stationZones[i];
-                            // calculate access' to destination
-                            TransitFromAccessStationToDestination[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, destIndex));
-                            // calculate egress' to access station
-                            TransitFromDestinationToAccessStation[destIndex * stationZones.Length + i] = (float)Math.Exp(ComputeUtility(transitNetwork, destIndex, accessIndex));
+                            for (int i = 0; i < stationZones.Length; i++)
+                            {
+                                var accessIndex = stationZones[i];
+                                var saveIndex = zoneIndex * stationZones.Length + i;
+                                var accessToZones = accessIndex * zones.Length + zoneIndex;
+                                var zoneToAccess = zoneIndex * zones.Length + accessIndex;
+                                // calculate access' to access station this will include more factors
+                                AutoFromOriginToAccessStation[saveIndex] = (float)Math.Exp(
+                                    AIVTT * autoData[zoneToAccess * 2]
+                                    + AutoCost * autoData[zoneToAccess * 2 + 1]
+                                        + (Capacity * capacity[accessIndex]
+                                        + parkingUtil[i]
+                                        + (closestStation[zoneIndex] == accessIndex ? ClosestStationFactor : 0))) * invStationFactor[i];
+
+                                // calculate egress' from access station
+                                AutoFromAccessStationToDestination[saveIndex] =
+                                    AIVTT * autoData[accessToZones * 2]
+                                    + AutoCost * autoData[accessToZones * 2 + 1]
+                                    ;
+
+                                // calculate access station to zone by transit
+                                TransitFromAccessStationToDestination[saveIndex] =
+                                    PerceivedTransitTime * transitData[zoneToAccess * 5 + 4]
+                                    + TransitFare * transitData[zoneToAccess * 5 + 3]
+                                    ;
+                                // calculate zone to access station by transit
+                                TransitFromDestinationToAccessStation[saveIndex] =
+                                    PerceivedTransitTime * transitData[accessToZones * 5 + 4]
+                                    + TransitFare * transitData[accessToZones * 5 + 3]
+                                    ;
+                            }
                         }
-                    }
-                });
+                        else
+                        {
+                            for (int i = 0; i < stationZones.Length; i++)
+                            {
+                                var saveIndex = zoneIndex * stationZones.Length + i;
+                                AutoFromOriginToAccessStation[saveIndex] = 0.0f;
+                                AutoFromAccessStationToDestination[saveIndex] = float.NegativeInfinity;
+                                TransitFromAccessStationToDestination[saveIndex] = float.NegativeInfinity;
+                                TransitFromDestinationToAccessStation[saveIndex] = float.NegativeInfinity;
+                            }
+                        }
+                    });
+                    Parallel.Invoke(
+                        () => VectorHelper.Exp(AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination, 0, AutoFromAccessStationToDestination.Length),
+                        () => VectorHelper.Exp(TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination, 0, TransitFromAccessStationToDestination.Length),
+                        () => VectorHelper.Exp(TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation, 0, TransitFromDestinationToAccessStation.Length)
+                        );
+                }
+                else
+                {
+                    Parallel.For(0, zones.Length, (int zoneIndex) =>
+                    {
+                        var zoneNumber = zones[zoneIndex].ZoneNumber;
+                        if (spatialZones.Contains(zoneNumber))
+                        {
+                            for (int i = 0; i < stationZones.Length; i++)
+                            {
+                                var accessIndex = stationZones[i];
+                                var saveIndex = zoneIndex * stationZones.Length + i;
+                                // calculate access' to access station this will include more factors
+                                AutoFromOriginToAccessStation[saveIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, zoneIndex, accessIndex)
+                                        + (Capacity * capacity[accessIndex]
+                                        + parkingUtil[i]
+                                        + (closestStation[zoneIndex] == accessIndex ? ClosestStationFactor : 0))) * invStationFactor[i];
+                                // calculate egress' from access station
+                                AutoFromAccessStationToDestination[saveIndex] = (float)Math.Exp(ComputeUtility(autoNetwork, accessIndex, zoneIndex));
+
+                                // calculate access' to destination
+                                TransitFromAccessStationToDestination[saveIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, accessIndex, zoneIndex));
+                                // calculate egress' to access station
+                                TransitFromDestinationToAccessStation[saveIndex] = (float)Math.Exp(ComputeUtility(transitNetwork, zoneIndex, accessIndex));
+                            }
+                        }
+                    });
+                }
             }
 
             private float ComputeCapacityFactor(float x, float a)
@@ -353,10 +418,10 @@ namespace Tasha.StationAccess
 
         private void LoadTimePeriods()
         {
-            for (int i = 0; i < TimePeriods.Length; i++)
+            Parallel.For(0, TimePeriods.Length, (int i) =>
             {
                 TimePeriods[i].Load(StationZoneRanges, SpatialZones, Capacity, ClosestStation);
-            }
+            });
         }
 
         private void LoadStationCapacity()

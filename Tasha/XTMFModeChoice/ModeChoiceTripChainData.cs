@@ -38,7 +38,7 @@ namespace Tasha.XTMFModeChoice
             BestPossibleAssignmentForVehicleType = new PossibleTripChainSolution[numberOfVehicleTypes];
             var tripData = new ModeChoiceTripData[trips.Count];
             PossibleAssignments = new List<PossibleTripChainSolution>((numberOfModes * trips.Count) >> 1);
-            for(int i = 0; i < tripData.Length; i++)
+            for (int i = 0; i < tripData.Length; i++)
             {
                 tripData[i] = new ModeChoiceTripData(numberOfModes);
             }
@@ -54,16 +54,16 @@ namespace Tasha.XTMFModeChoice
         public void GenerateRandomTerms(Random rand, float[] varianceScale)
         {
             var tripData = TripData;
-            for(int i = 0; i < tripData.Length; i++)
+            for (int i = 0; i < tripData.Length; i++)
             {
                 var tce = tripData[i].Error;
-                for(int j = 0; j < varianceScale.Length; j++)
+                for (int j = 0; j < varianceScale.Length; j++)
                 {
                     tce[j] = (float)TMG.Functions.RandomNumberHelper.SampleNormalDistribution(rand) * varianceScale[j];
                 }
             }
             var possibleAssignments = PossibleAssignments;
-            for(int i = 0; i < possibleAssignments.Count; i++)
+            for (int i = 0; i < possibleAssignments.Count; i++)
             {
                 possibleAssignments[i].RegenerateU();
             }
@@ -73,17 +73,17 @@ namespace Tasha.XTMFModeChoice
         {
             var trips = TripChain.Trips;
             var tripData = TripData;
-            for(int i = 0; i < tripData.Length; i++)
+            for (int i = 0; i < tripData.Length; i++)
             {
                 bool anyModeFeasible = false;
                 ModeChoiceTripData currentTrip = tripData[i];
-                for(int j = 0; j < modes.Length; j++)
+                for (int j = 0; j < modes.Length; j++)
                 {
                     // go through each non shared mode and if it is feasible get the V for that mode
-                    if(currentTrip.Feasible[j] = modes[j].Feasible(trips[i]))
+                    if (currentTrip.Feasible[j] = modes[j].Feasible(trips[i]))
                     {
                         var value = (float)modes[j].CalculateV(trips[i]);
-                        if(!(float.IsNaN(value) | float.IsInfinity(value)))
+                        if (!(float.IsNaN(value) | float.IsInfinity(value)))
                         {
                             currentTrip.V[j] = value;
                             anyModeFeasible = true;
@@ -99,7 +99,7 @@ namespace Tasha.XTMFModeChoice
                         currentTrip.V[j] = float.NegativeInfinity;
                     }
                 }
-                if(!anyModeFeasible)
+                if (!anyModeFeasible)
                 {
                     return false;
                 }
@@ -112,7 +112,7 @@ namespace Tasha.XTMFModeChoice
         {
             var trips = TripChain.Trips;
             BestPossibleAssignmentForVehicleType[useVehicle].PickSolution(TripChain);
-            for(int i = 0; i < TripData.Length; i++)
+            for (int i = 0; i < TripData.Length; i++)
             {
                 trips[i].Mode = modes[BestPossibleAssignmentForVehicleType[useVehicle].PickedModes[i]];
             }
@@ -121,10 +121,10 @@ namespace Tasha.XTMFModeChoice
         internal void FinalAssignment(int householdIteration)
         {
             var trips = TripChain.Trips;
-            if(TripChain.JointTrip && !TripChain.JointTripRep)
+            if (TripChain.JointTrip && !TripChain.JointTripRep)
             {
                 var otherTripChain = TripChain.GetRepTripChain.Trips;
-                for(int i = 0; i < TripData.Length; i++)
+                for (int i = 0; i < TripData.Length; i++)
                 {
                     trips[i].Mode = otherTripChain[i].Mode;
                     trips[i].ModesChosen[householdIteration] = otherTripChain[i].Mode;
@@ -133,7 +133,7 @@ namespace Tasha.XTMFModeChoice
             }
             else
             {
-                for(int i = 0; i < TripData.Length; i++)
+                for (int i = 0; i < TripData.Length; i++)
                 {
                     trips[i].ModesChosen[householdIteration] = (trips[i].Mode);
                 }
@@ -142,28 +142,22 @@ namespace Tasha.XTMFModeChoice
 
         internal void SelectBestPerVehicleType(List<ITashaMode> modes, List<IVehicleType> vehicleTypes)
         {
-            for(int i = 0; i < BestPossibleAssignmentForVehicleType.Length; i++)
+            for (int i = 0; i < BestPossibleAssignmentForVehicleType.Length; i++)
             {
                 BestPossibleAssignmentForVehicleType[i] = null;
             }
 
-            for(int i = 0; i < PossibleAssignments.Count; i++)
+            for (int i = 0; i < PossibleAssignments.Count; i++)
             {
                 var assignment = PossibleAssignments[i];
                 int vehicleType = vehicleTypes.IndexOf(modes[assignment.PickedModes[0]].RequiresVehicle);
                 var otherU = BestPossibleAssignmentForVehicleType[vehicleType + 1] != null ? BestPossibleAssignmentForVehicleType[vehicleType + 1].U : float.NegativeInfinity;
-                if(assignment.U > otherU)
+                if (assignment.U > otherU)
                 {
                     BestPossibleAssignmentForVehicleType[vehicleType + 1] = assignment;
                 }
             }
         }
-
-        [ThreadStatic]
-        private static int[] PossibleSolution;
-
-        [ThreadStatic]
-        private static ITourDependentMode[] TourDependentModes;
 
         private void ComputePossibleAssignments(ITashaMode[] modes)
         {
@@ -174,63 +168,60 @@ namespace Tasha.XTMFModeChoice
             var trips = TripChain.Trips;
             int chainLength = trips.Count;
             ITrip currentTrip = trips[0];
-            int[] possibleSolution;
+            int[] possibleSolution = new int[chainLength];
             ITourDependentMode[] tourDependentModes;
-            if((possibleSolution = PossibleSolution) == null || possibleSolution.Length < chainLength)
+            tourDependentModes = new ITourDependentMode[modes.Length];
+            for (int i = 0; i < tourDependentModes.Length; i++)
             {
-                PossibleSolution = possibleSolution = new int[chainLength];
+                tourDependentModes[i] = modes[i] as ITourDependentMode;
             }
-            if((tourDependentModes = TourDependentModes) == null)
+            while (level != -1)
             {
-                tourDependentModes = TourDependentModes = new ITourDependentMode[modes.Length];
-                for(int i = 0; i < tourDependentModes.Length; i++)
-                {
-                    tourDependentModes[i] = modes[i] as ITourDependentMode;
-                }
-            }
-            while(level != -1)
-            {
-                for(; mode < modes.Length; mode++)
+                for (; mode < modes.Length; mode++)
                 {
                     // For each feasible mode
                     var currentData = TripData[level];
-                    if(currentData.Feasible[mode])
+                    if (currentData.Feasible[mode])
                     {
                         // find the total utility
                         // store the mode into our set and chain
                         currentTrip.Mode = modes[mode];
                         possibleSolution[level] = mode;
                         // if we are at the end, store the set
-                        if(level >= topLevel)
+                        if (level >= topLevel)
                         {
                             bool feasible = true;
                             TourData tourData = null;
                             // make sure this chain is allowed
-                            for(int j = 0; j < modes.Length; j++)
+                            for (int j = 0; j < modes.Length; j++)
                             {
                                 // if this doesn't work don't save it
-                                if(!modes[j].Feasible(TripChain))
+                                if (!modes[j].Feasible(TripChain))
                                 {
                                     feasible = false;
                                     break;
                                 }
                             }
                             // if the modes think it is allowed calculate the tour level data
-                            if(feasible)
+                            if (feasible)
                             {
-                                for(int i = 0; i < chainLength; i++)
+                                for (int i = 0; i < chainLength; i++)
                                 {
-                                    if(tourDependentModes[possibleSolution[i]] != null)
+                                    if (tourDependentModes[possibleSolution[i]] != null)
                                     {
                                         float tourUtility;
                                         Action<ITripChain> onSelection;
-                                        if(tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out tourUtility, out onSelection))
+                                        if (tourDependentModes[possibleSolution[i]].CalculateTourDependentUtility(TripChain, i, out tourUtility, out onSelection))
                                         {
-                                            if(tourData == null)
+                                            
+                                            if (tourData == null)
                                             {
-                                                tourData = new TourData(new float[chainLength], new Action<ITripChain>[chainLength]);
+                                                tourData = new TourData(tourUtility, new Action<ITripChain>[chainLength]);
                                             }
-                                            tourData.TourUtilityModifiers[i] = tourUtility;
+                                            else
+                                            {
+                                                tourData.TourUtilityModifiers = tourData.TourUtilityModifiers + tourUtility;
+                                            }
                                             tourData.OnSolution[i] = onSelection;
                                         }
                                         else
@@ -242,7 +233,7 @@ namespace Tasha.XTMFModeChoice
                                 }
                             }
                             // if the tour level data thinks it is allowed, then it works and we can add it
-                            if(feasible)
+                            if (feasible)
                             {
                                 possibleAssignments.Add(new PossibleTripChainSolution(TripData, possibleSolution, tourData));
                             }
@@ -258,7 +249,7 @@ namespace Tasha.XTMFModeChoice
                     }
                 }
                 level--;
-                if(level >= 0)
+                if (level >= 0)
                 {
                     mode = possibleSolution[level] + 1;
                     currentTrip = trips[level];

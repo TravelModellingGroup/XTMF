@@ -34,7 +34,6 @@ namespace XTMF.Testing
             var configurationFileName = "";
             var config = new Configuration(configurationFileName);
             var xtmf = new XTMFRuntime( config );
-
         }
 
         public string GetXTMFTestConfiguration()

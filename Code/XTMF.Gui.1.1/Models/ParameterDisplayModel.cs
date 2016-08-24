@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace XTMF.Gui.Models
 {
@@ -40,6 +41,7 @@ namespace XTMF.Gui.Models
             RealParameter = realParameter;
             MultipleSelected = multipleSelected;
             realParameter.PropertyChanged += RealParameter_PropertyChanged;
+            FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
         }
 
         private void RealParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -47,9 +49,23 @@ namespace XTMF.Gui.Models
             var property = e.PropertyName;
             if (e.PropertyName == "IsLinked")
             {
-                property = "LinkedParameterVisibility";
+                property = nameof(LinkedParameterVisibility);
+            }
+            else if(e.PropertyName == "IsHidden")
+            {
+                FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
+                property = nameof(FontColour);
             }
             ModelHelper.PropertyChanged(PropertyChanged, this, property);
+        }
+
+        /// <summary>
+        /// Get the true name of the parameter without any module information
+        /// </summary>
+        /// <returns></returns>
+        internal string GetBaseName()
+        {
+            return RealParameter.Name;
         }
 
         ~ParameterDisplayModel()
@@ -147,6 +163,29 @@ namespace XTMF.Gui.Models
         }
 
         /// <summary>
+        /// Change the name of the parameter
+        /// </summary>
+        /// <param name="newName">The new name to give the parameter</param>
+        /// <param name="error">A message in case of an error</param>
+        /// <returns>True if successful, otherwise returns an error message</returns>
+        public bool SetName(string newName, ref string error)
+        {
+            return RealParameter.SetName(newName, ref error);
+        }
+
+        internal bool RevertNameToDefault(ref string error)
+        {
+            return RealParameter.RevertNameToDefault(ref error);
+        }
+
+        public bool SetHidden(bool hidden, ref string error)
+        {
+            return RealParameter.SetHidden(hidden, ref error);
+        }
+
+        public Brush FontColour { get; set; }
+
+        /// <summary>
         /// Create the display model from the parameter model.
         /// </summary>
         /// <param name="parameterModel">The parameters in the model</param>
@@ -227,3 +266,4 @@ namespace XTMF.Gui.Models
         }
     }
 }
+
