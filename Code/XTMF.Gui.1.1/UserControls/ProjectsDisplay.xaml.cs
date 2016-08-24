@@ -203,6 +203,13 @@ namespace XTMF.Gui.UserControls
                         }
                         e.Handled = true;
                         break;
+                    case Key.E:
+                        if(e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterBox);
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Delete:
                         DeleteCurrentProject();
                         e.Handled = true;

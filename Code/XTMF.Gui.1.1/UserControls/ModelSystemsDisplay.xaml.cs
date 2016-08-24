@@ -182,6 +182,13 @@ namespace XTMF.Gui.UserControls
                         RenameCurrentModelSystem();
                         e.Handled = true;
                         break;
+                    case Key.E:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            Keyboard.Focus(FilterBox);
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Delete:
                         DeleteCurrentModelSystem();
                         e.Handled = true;

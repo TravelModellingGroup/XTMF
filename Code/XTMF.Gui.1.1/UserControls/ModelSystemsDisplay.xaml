@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,7 +32,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
-        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" />
+        <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
         <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" 
                       Background="{StaticResource WindowBackgroundBrush}">
             <ListView.ContextMenu>
