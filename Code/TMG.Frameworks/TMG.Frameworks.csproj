@@ -58,6 +58,7 @@
     <Compile Include="Data\DataTypes\LabeledData.cs" />
     <Compile Include="Data\Loading\ArbitraryParameterDataSource.cs" />
     <Compile Include="Data\Loading\LabeledDataFromCSV.cs" />
+    <Compile Include="Data\Loading\LoadODDataFromCSV.cs" />
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
     <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
     <Compile Include="Data\Loading\RemoteDataSource.cs" />
