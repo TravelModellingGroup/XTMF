@@ -56,13 +56,19 @@ by the Line Aggregation File.  It will be saved into the Save To Directory/[clas
             }
             return mc.Run("tmg.XTMF_internal.return_boardings_multiclass", string.Join(" ",
                 ScenarioNumber,
-                $"\"{LineAggregationFile.ToString()}\"",
-                $"\"{SaveToDirectory.ToString()}\""
+                $"\"{LineAggregationFile.GetFilePath()}\"",
+                $"\"{SaveToDirectory.GetFilePath()}\""
                 ));
         }
 
         public bool RuntimeValidation(ref string error)
         {
+            if (ScenarioNumber <= 0)
+            {
+                error = "The scenario number '" + ScenarioNumber
+                    + "' is an invalid scenario number!";
+                return false;
+            }
             return true;
         }
     }
