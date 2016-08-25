@@ -73,7 +73,7 @@ namespace XTMF.Gui.Models
 
         internal static ObservableCollection<LinkedParameterDisplayModel> CreateDisplayModel(ObservableCollection<LinkedParameterModel> observableCollection)
         {
-            return new ObservableCollection<LinkedParameterDisplayModel>(observableCollection.Select(lp => new LinkedParameterDisplayModel(lp)));
+            return new ObservableCollection<LinkedParameterDisplayModel>(observableCollection.Select(lp => new LinkedParameterDisplayModel(lp)).OrderBy(lp => lp.Name));
         }
     }
 }
