@@ -159,7 +159,7 @@ namespace XTMF.Gui.UserControls
             if (model != null)
             {
                 SelectedType = model.type;
-                if (ConstainsFreeVariables(SelectedType))
+                if (ContainsFreeVariables(SelectedType))
                 {
                     // then we need to fill in the free parameters
                     List<Type> selectedForFreeVariables = new List<Type>();
@@ -201,7 +201,7 @@ namespace XTMF.Gui.UserControls
             return selectedType.GetGenericArguments().Where(t => t.IsGenericParameter);
         }
 
-        private bool ConstainsFreeVariables(Type selectedType)
+        private bool ContainsFreeVariables(Type selectedType)
         {
             return selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
         }
