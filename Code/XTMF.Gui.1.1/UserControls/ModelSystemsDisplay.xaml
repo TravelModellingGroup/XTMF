@@ -91,20 +91,11 @@
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate DataType="{x:Type xtmf:ModelSystem}">
-                    <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Description}"
+                    <my:BorderIconButton Margin="5" Header="{Binding Name}" Text="{Binding Description}"
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
                                              DoubleClicked="ModelSystem_DoubleClicked" />
                 </DataTemplate>
             </ListView.ItemTemplate>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Style.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource FocusColour}"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource FocusColour}"/>
-                    </Style.Resources>
-                </Style>
-            </ListView.ItemContainerStyle>
         </ListView>
         <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">

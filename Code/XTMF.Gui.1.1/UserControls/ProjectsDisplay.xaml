@@ -91,7 +91,7 @@
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Description}"
+                    <my:BorderIconButton Margin="4" Header="{Binding Name}" Text="{Binding Description}"
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="Project_DoubleClicked" />
                 </DataTemplate>
             </ListView.ItemTemplate>
