@@ -588,6 +588,7 @@ namespace XTMF
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Type));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
         }
 
         private bool IsAssignable(ModelSystemStructure rootStructure, ModelSystemStructure parentStructure, ModelSystemStructure copyBuffer)
