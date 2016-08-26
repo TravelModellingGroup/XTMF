@@ -80,7 +80,7 @@ namespace XTMF.Gui.UserControls
 
         private void Textbox_LostFocus(object sender, RoutedEventArgs e)
         {
-            ExitAdorner();
+            ExitAdorner(true);
         }
 
         private void ExitAdorner(bool save = false)
@@ -92,11 +92,7 @@ namespace XTMF.Gui.UserControls
             Keyboard.Focus(PreviousFocus);
             if(save)
             {
-                var ev = GiveResult;
-                if(ev != null)
-                {
-                    ev(Textbox.Text);
-                }
+                GiveResult?.Invoke(Textbox.Text);
             }
         }
 
