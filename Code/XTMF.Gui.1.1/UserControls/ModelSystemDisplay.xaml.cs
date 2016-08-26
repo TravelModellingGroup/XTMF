@@ -833,8 +833,20 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                         }
                         break;
+                    case Key.F2:
+                        RenameParameter();
+                        e.Handled = true;
+                        break;
+                    case Key.H:
+                        if (ctrlDown)
+                        {
+                            SetCurrentParameterHidden(!shiftDown);
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Enter:
                         MoveFocusNext(shiftDown);
+                        e.Handled = true;
                         break;
                     case Key.Up:
                         if (shiftDown)

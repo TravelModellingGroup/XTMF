@@ -302,11 +302,11 @@
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <Separator />
-                                    <MenuItem Header="Rename" Click="RenameParameter_Click"/>
-                                    <MenuItem Header="Reset Name" Click="ResetParameterName_Click"/>
+                                    <MenuItem Header="Rename        (F2)" Click="RenameParameter_Click"/>
+                                    <MenuItem Header="Reset Name     " Click="ResetParameterName_Click"/>
                                     <Separator />
-                                    <MenuItem Header="Hide Parameter" Click="HideParameter_Click" />
-                                    <MenuItem Header="Show Parameter" Click="ShowParameter_Click" />
+                                    <MenuItem Header="Hide Parameter(Ctrl+H)" Click="HideParameter_Click" />
+                                    <MenuItem Header="Show Parameter(Ctrl+Shift+H)" Click="ShowParameter_Click" />
                                 </MenuItem>
                                 <MenuItem Header="Open">
                                     <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
