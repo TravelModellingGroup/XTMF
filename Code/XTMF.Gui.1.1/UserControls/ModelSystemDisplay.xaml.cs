@@ -403,7 +403,10 @@ namespace XTMF.Gui.UserControls
                foreach (var selected in CurrentlySelected)
                {
                    string error = null;
-                   selected.SetMetaModule(set, ref error);
+                   if(!selected.SetMetaModule(set, ref error))
+                   {
+                       MessageBox.Show(GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK, MessageBoxImage.Error);
+                   }
                }
            });
             UpdateParameters();
@@ -1697,7 +1700,7 @@ namespace XTMF.Gui.UserControls
                 {
                     // disable the event to avoid recursion
                     var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
-                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
+                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null); 
                     selectedItems.ForEach(item => item.IsSelected = true);
                     // enable the event to avoid recursion
                     IsSelectionChangeActiveProperty.SetValue

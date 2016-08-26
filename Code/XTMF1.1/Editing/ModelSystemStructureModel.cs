@@ -1142,6 +1142,11 @@ namespace XTMF
             bool oldMeta = false;
             return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
             {
+                if(isMetaModule && RealModelSystemStructure.IsCollection)
+                {
+                    e = "You can not create a meta-module from a collection!";
+                    return false;
+                }
                 oldMeta = RealModelSystemStructure.IsMetaModule;
                 RealModelSystemStructure.IsMetaModule = isMetaModule;
                 ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
