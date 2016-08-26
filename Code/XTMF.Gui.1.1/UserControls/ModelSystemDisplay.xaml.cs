@@ -516,7 +516,18 @@ namespace XTMF.Gui.UserControls
                     switch (e.Key)
                     {
                         case Key.M:
-                            SelectReplacement();
+                            if (Controllers.EditorController.IsAltDown())
+                            {
+                                SetMetaModuleStateForSelected(false);
+                            }
+                            else if(Controllers.EditorController.IsShiftDown())
+                            {
+                                SetMetaModuleStateForSelected(true);
+                            }
+                            else
+                            {
+                                SelectReplacement();
+                            }
                             e.Handled = true;
                             break;
                         case Key.P:
