@@ -33,7 +33,7 @@ using XTMF.Networking;
 
 namespace XTMF
 {
-    public class Configuration : IConfiguration, IDisposable, INotifyPropertyChanged
+    public sealed class Configuration : IConfiguration, IDisposable, INotifyPropertyChanged
     {
         public Dictionary<string, string> AdditionalSettings = new Dictionary<string, string>();
 
@@ -42,7 +42,7 @@ namespace XTMF
         private IClient CurrentClient = null;
         private IHost CurrentHost = null;
         private string ModuleDirectory = "Modules";
-
+        public Version XTMFVersion { get; private set; }
         public Configuration(Assembly baseAssembly = null)
             : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml"))
         {
@@ -58,6 +58,7 @@ namespace XTMF
             Directory.SetCurrentDirectory(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
             this.ModelRepository = new ModuleRepository();
             this.ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
+            LoadVersion();
             LoadModules();
             try
             {
@@ -81,6 +82,25 @@ namespace XTMF
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
+        }
+
+        private void LoadVersion()
+        {
+            var assemblyLocation = Assembly.GetEntryAssembly().Location;
+            var versionFile = Path.Combine(Path.GetDirectoryName(assemblyLocation), "version.txt");
+            Version version;
+            try
+            {
+                using (StreamReader reader = new StreamReader(versionFile))
+                {
+                    version = new Version(reader.ReadLine());
+                }
+            }
+            catch
+            {
+                version = new Version(0, 0, 0);
+            }
+            XTMFVersion = version;
         }
 
         public event Action OnModelSystemExit;
@@ -860,7 +880,7 @@ namespace XTMF
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool all)
+        private void Dispose(bool all)
         {
             if (this.CurrentHost != null)
             {
