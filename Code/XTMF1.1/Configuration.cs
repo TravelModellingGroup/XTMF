@@ -86,11 +86,11 @@ namespace XTMF
 
         private void LoadVersion()
         {
-            var assemblyLocation = Assembly.GetEntryAssembly().Location;
-            var versionFile = Path.Combine(Path.GetDirectoryName(assemblyLocation), "version.txt");
             Version version;
             try
             {
+                var assemblyLocation = Assembly.GetEntryAssembly().Location;
+                var versionFile = Path.Combine(Path.GetDirectoryName(assemblyLocation), "version.txt");
                 using (StreamReader reader = new StreamReader(versionFile))
                 {
                     version = new Version(reader.ReadLine());
