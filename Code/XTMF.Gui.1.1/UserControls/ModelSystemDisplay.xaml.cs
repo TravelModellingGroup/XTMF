@@ -403,7 +403,7 @@ namespace XTMF.Gui.UserControls
                foreach (var selected in CurrentlySelected)
                {
                    string error = null;
-                   if(!selected.SetMetaModule(set, ref error))
+                   if (!selected.SetMetaModule(set, ref error))
                    {
                        MessageBox.Show(GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK, MessageBoxImage.Error);
                    }
@@ -1700,7 +1700,7 @@ namespace XTMF.Gui.UserControls
                 {
                     // disable the event to avoid recursion
                     var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
-                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null); 
+                    IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
                     selectedItems.ForEach(item => item.IsSelected = true);
                     // enable the event to avoid recursion
                     IsSelectionChangeActiveProperty.SetValue
@@ -1723,11 +1723,10 @@ namespace XTMF.Gui.UserControls
                     // suppress selection change notification
                     // select all selected items
                     // then restore selection change notifications
-                    var isSelectionChangeActive =
-                      IsSelectionChangeActiveProperty.GetValue(treeView, null);
-
+                    var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
                     IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
-                    selectedItems.ForEach(item => item.IsSelected = true);
+
+                    selectedItems.ForEach(item => item.IsSelected = (item != treeViewItem || !selectedItems.Contains(treeViewItem)));
 
                     IsSelectionChangeActiveProperty.SetValue
                     (
