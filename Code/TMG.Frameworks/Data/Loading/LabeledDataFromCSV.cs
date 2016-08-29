@@ -65,6 +65,15 @@ namespace TMG.Frameworks.Data.Loading
             return _Data;
         }
 
+        private void Add<K>(LabeledData<K> set, string label, K data)
+        {
+            if(set.ContainsKey(label))
+            {
+                throw new XTMFRuntimeException($"In '{Name}' while loading in labeled data a label was loaded multiple times '{label}'!");
+            }
+            set.Add(label, data);
+        }
+
         public void LoadData()
         {
             var ret = new LabeledData<T>();
@@ -88,7 +97,7 @@ namespace TMG.Frameworks.Data.Loading
                             float parsedData;
                             LabeledData<float> fRet = ret as LabeledData<float>;
                             reader.Get(out parsedData, 1);
-                            fRet.Add(label, parsedData);
+                            Add(fRet, label, parsedData);
                         }
                         else
                         {
@@ -99,7 +108,7 @@ namespace TMG.Frameworks.Data.Loading
                             {
                                 throw new XTMFRuntimeException($"In '{Name}' we were unable to parse the data in line number {lineNumber}!\r\n{error}");
                             }
-                            ret.Add(label, (T)parsedData);
+                            Add(ret, label, (T)parsedData);
                         }
                     }
                 }
