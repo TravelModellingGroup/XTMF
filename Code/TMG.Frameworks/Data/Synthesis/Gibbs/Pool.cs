@@ -64,7 +64,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             // load in the data we need to process our conditionals
             System.Threading.Tasks.Parallel.For(0, Conditionals.Length, (int i) =>
             {
-                Conditionals[i].LoadConditionalsData();
+                Conditionals[i].LoadConditionalsData(0);
             });
             // once we have the required data process the pool segments
             var poolSegments = new PoolSegment[(int)Math.Ceiling((float)SizeToGenerate / SegmentSize)];

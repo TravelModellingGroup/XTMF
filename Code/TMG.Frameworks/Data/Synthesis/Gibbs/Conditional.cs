@@ -27,7 +27,7 @@ using XTMF;
 namespace TMG.Frameworks.Data.Synthesis.Gibbs
 {
 
-    public class Conditional : XTMF.IModule
+    public class Conditional : IDataSource
     {
         [RootModule]
         public Pool Root;
@@ -51,46 +51,59 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
         [SubModelInformation(Required = true, Description = "A CSV file with each conditional attribute's value followed by the destination attribute value and probability [0,1].")]
         public FileLocation ConditionalSource;
 
-        public void LoadConditionalsData()
+        private bool Loaded = false;
+
+        public virtual bool RequiresReloadingPerZone { get { return false; } }
+
+        bool IDataSource.Loaded
         {
-            var prob = GenerateBackendData();
-            int expectedColumns = ColumnIndex.Length + 1;
-            var currentIndex = new int[expectedColumns - 1];
-            bool any = false;
-            using (var reader = new CsvReader(ConditionalSource))
+            get { return Loaded; }
+        }
+
+        public virtual void LoadConditionalsData(int currentZone)
+        {
+            if (!Loaded)
             {
-                int columns;
-                reader.LoadLine();
-                while (reader.LoadLine(out columns))
+                var prob = GenerateBackendData();
+                int expectedColumns = ColumnIndex.Length + 1;
+                var currentIndex = new int[expectedColumns - 1];
+                bool any = false;
+                using (var reader = new CsvReader(ConditionalSource))
                 {
-                    if (columns >= expectedColumns)
+                    int columns;
+                    reader.LoadLine();
+                    while (reader.LoadLine(out columns))
                     {
-                        any = true;
-                        for (int i = 0; i < currentIndex.Length; i++)
+                        if (columns >= expectedColumns)
                         {
-                            reader.Get(out currentIndex[i], i);
-                        }
-                        var probIndex = GetIndex(currentIndex);
-                        if (probIndex < prob.Length)
-                        {
-                            reader.Get(out prob[probIndex], currentIndex.Length);
-                        }
-                        else
-                        {
-                            throw new XTMFRuntimeException($"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
+                            any = true;
+                            for (int i = 0; i < currentIndex.Length; i++)
+                            {
+                                reader.Get(out currentIndex[i], i);
+                            }
+                            var probIndex = GetIndex(currentIndex);
+                            if (probIndex < prob.Length)
+                            {
+                                reader.Get(out prob[probIndex], currentIndex.Length);
+                            }
+                            else
+                            {
+                                throw new XTMFRuntimeException($"In '{Name}' we found an invalid index to assign to {probIndex} but the max index was only {prob.Length}!");
+                            }
                         }
                     }
                 }
-            }
-            CDF = ConvertToCDF(prob);
-            if (!any)
-            {
-                throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource}'!  
+                CDF = ConvertToCDF(prob);
+                if (!any)
+                {
+                    throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource}'!  
 This could be because the data does not have the expected number of columns ({expectedColumns}) as interpreted by the given attributes.");
+                }
+                Loaded = true;
             }
         }
 
-        private float[] ConvertToCDF(float[] prob)
+        protected float[] ConvertToCDF(float[] prob)
         {
             var stride = AttributeLength;
             for (int i = 0; i < prob.Length; i += stride)
@@ -194,6 +207,16 @@ This could be because the data does not have the expected number of columns ({ex
                 }
             }
             return true;
+        }
+
+        public void LoadData()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnloadData()
+        {
+            Loaded = false;
         }
     }
 }
