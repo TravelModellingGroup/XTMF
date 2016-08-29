@@ -26,6 +26,11 @@ namespace XTMF.Testing
     {
         private class TestCommand : XTMFCommand
         {
+            public TestCommand(string name = "") : base(name)
+            {
+
+            }
+
             public override bool CanUndo()
             {
                 return false;

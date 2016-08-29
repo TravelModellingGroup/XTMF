@@ -365,7 +365,7 @@ namespace XTMF
 
         private List<XTMFCommand> CombinedCommands;
 
-        public void ExecuteCombinedCommands(Action combinedCommandContext)
+        public void ExecuteCombinedCommands(string name, Action combinedCommandContext)
         {
             lock (SessionLock)
             {
@@ -376,7 +376,7 @@ namespace XTMF
                 if (list.Count > 0)
                 {
                     // create a command to undo everything in a single shot [do is empty]
-                    UndoStack.Add(XTMFCommand.CreateCommand((ref string error) => { return true; },
+                    UndoStack.Add(XTMFCommand.CreateCommand(name, (ref string error) => { return true; },
                         (ref string error) =>
                         {
                             foreach (var command in ((IEnumerable<XTMFCommand>)list).Reverse())
@@ -439,6 +439,7 @@ namespace XTMF
                     }
                     // if we do something new, redo no long is available
                     RedoStack.Clear();
+                    CommandExecuted?.Invoke(this, new EventArgs());
                     return true;
                 }
                 return false;
@@ -467,6 +468,14 @@ namespace XTMF
             }
         }
 
+        public bool CanUndo { get { lock (SessionLock) { return UndoStack.Count > 0; } } }
+        public bool CanRedo { get { lock (SessionLock) { return RedoStack.Count > 0; } } }
+
+        /// <summary>
+        /// This event occurs whenever a command is executed, undone, or redone
+        /// </summary>
+        public event EventHandler CommandExecuted;
+
         public bool SaveAs(string modelSystemName, ref string error)
         {
             lock (SessionLock)
@@ -494,6 +503,7 @@ namespace XTMF
                         {
                             HasChanged = true;
                             RedoStack.Add(command);
+                            CommandExecuted?.Invoke(this, new EventArgs());
                             return true;
                         }
                         return false;
@@ -521,6 +531,7 @@ namespace XTMF
                         {
                             HasChanged = true;
                             UndoStack.Add(command);
+                            CommandExecuted?.Invoke(this, new EventArgs());
                             return true;
                         }
                         return false;

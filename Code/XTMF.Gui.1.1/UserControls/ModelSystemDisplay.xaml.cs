@@ -371,7 +371,9 @@ namespace XTMF.Gui.UserControls
                     var selectedType = findReplacement.SelectedType;
                     if (selectedType != null)
                     {
-                        Session.ExecuteCombinedCommands(() =>
+                        Session.ExecuteCombinedCommands(
+                            "Set Module Types",
+                            () =>
                        {
                            foreach (var selectedModule in CurrentlySelected)
                            {
@@ -398,7 +400,9 @@ namespace XTMF.Gui.UserControls
 
         private void SetMetaModuleStateForSelected(bool set)
         {
-            Session.ExecuteCombinedCommands(() =>
+            Session.ExecuteCombinedCommands(
+                set ? "Compose to Meta-Modules" : "Decompose Meta-Modules",
+                () =>
            {
                foreach (var selected in CurrentlySelected)
                {
@@ -520,7 +524,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 SetMetaModuleStateForSelected(false);
                             }
-                            else if(Controllers.EditorController.IsShiftDown())
+                            else if (Controllers.EditorController.IsShiftDown())
                             {
                                 SetMetaModuleStateForSelected(true);
                             }
@@ -1180,7 +1184,9 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename", (result) =>
                 {
                     string error = null;
-                    Session.ExecuteCombinedCommands(() =>
+                    Session.ExecuteCombinedCommands(
+                        "Rename ModelSystem",
+                        () =>
                    {
                        foreach (var sel in CurrentlySelected)
                        {
@@ -1209,7 +1215,9 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename Description", (result) =>
                 {
                     string error = null;
-                    Session.ExecuteCombinedCommands(() =>
+                    Session.ExecuteCombinedCommands(
+                        "Set ModelSystem Description",
+                        () =>
                     {
                         foreach (var sel in CurrentlySelected)
                         {
@@ -1244,7 +1252,9 @@ namespace XTMF.Gui.UserControls
                 var mul = deltaPosition < 0 ? 1 : -1;
                 var moveOrder = CurrentlySelected.Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) }).OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
-                Session.ExecuteCombinedCommands(() =>
+                Session.ExecuteCombinedCommands(
+                    "Move Selected Modules",
+                    () =>
                {
                    foreach (var el in moveOrder)
                    {
@@ -1300,7 +1310,9 @@ namespace XTMF.Gui.UserControls
             ModelSystemStructureModel parent = null;
             // we need to make a copy of the currently selected in
             // order to not operate on the list as it is changing
-            Session.ExecuteCombinedCommands(() =>
+            Session.ExecuteCombinedCommands(
+                "Remove Selected Modules",
+                () =>
            {
                foreach (var selected in CurrentlySelected.ToList())
                {
@@ -1410,14 +1422,14 @@ namespace XTMF.Gui.UserControls
                     var adorn = new TextboxAdorner("Rename", (result) =>
                     {
                         string error = null;
-                        Session.ExecuteCombinedCommands(() =>
+                        if (!currentParameter.SetName(result, ref error))
                         {
-                            if (!currentParameter.SetName(result, ref error))
-                            {
-                                throw new Exception(error);
-                            }
+                            MessageBox.Show(GetWindow(), error, "Unable to Set Parameter Name", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else
+                        {
                             RefreshParameters();
-                        });
+                        }
                     }, selectedContainer, currentParameter.GetBaseName());
                     layer.Add(adorn);
                     adorn.Focus();

@@ -91,6 +91,7 @@ namespace XTMF
                     string error = null;
                     // run the command to change the type so we can undo it later
                     Session.RunCommand(XTMFCommand.CreateCommand(
+                        "Set Module Type",
                      apply,
                      (ref string e) =>
                     {
@@ -164,6 +165,7 @@ namespace XTMF
 
             CollectionChangeData data = new CollectionChangeData();
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Add Collection Member",
                 (ref string e) =>
                 {
                     if (!ValidateType(type, ref e))
@@ -220,7 +222,9 @@ namespace XTMF
                     {
                         var ret = true;
                         string retError = null;
-                        session.ExecuteCombinedCommands(() =>
+                        session.ExecuteCombinedCommands(
+                            "Pasting Modules",
+                            () =>
                        {
                            foreach (XmlNode subNode in node)
                            {
@@ -294,6 +298,7 @@ namespace XTMF
             var additions = new List<Tuple<ParameterModel, LinkedParameterModel>>();
             var oldReal = RealModelSystemStructure;
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Paste Module",
                 (ref string e) =>
                 {
                     ModelSystemStructureModel beingAdded;
@@ -849,6 +854,7 @@ namespace XTMF
             }
             CollectionChangeData data = new CollectionChangeData();
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Remove Collection Member",
                 (ref string e) =>
                 {
                     var children = RealModelSystemStructure.Children;
@@ -891,6 +897,7 @@ namespace XTMF
             IList<ModelSystemStructureModel> oldChildren = null;
             IList<IModelSystemStructure> oldRealChildren = null;
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Remove All Collection Members",
                 (ref string e) =>
                 {
                     if (RealModelSystemStructure.Children == null || RealModelSystemStructure.Children.Count <= 0)
@@ -1081,6 +1088,7 @@ namespace XTMF
             MoveChildData move = new MoveChildData();
             return Session.RunCommand(
                 XTMFCommand.CreateCommand(
+                    "Move Collection Member",
                     // do
                     (ref string e) =>
                     {
@@ -1117,7 +1125,9 @@ namespace XTMF
         public bool SetName(string newName, ref string error)
         {
             var oldName = "";
-            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Set Module Name",
+                (ref string e) =>
             {
                 oldName = RealModelSystemStructure.Name;
                 RealModelSystemStructure.Name = newName;
@@ -1140,7 +1150,9 @@ namespace XTMF
         public bool SetMetaModule(bool isMetaModule, ref string error)
         {
             bool oldMeta = false;
-            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                isMetaModule ? "Compose Meta-Module" : "Decompose Meta-Module",
+                (ref string e) =>
             {
                 if(isMetaModule && RealModelSystemStructure.IsCollection)
                 {
@@ -1168,7 +1180,9 @@ namespace XTMF
         public bool SetDescription(string newDescription, ref string error)
         {
             var oldDescription = "";
-            return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+            return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Set Module Description",
+                (ref string e) =>
             {
                 oldDescription = RealModelSystemStructure.Description;
                 RealModelSystemStructure.Description = newDescription;
