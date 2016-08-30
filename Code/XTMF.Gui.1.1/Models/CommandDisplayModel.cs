@@ -26,14 +26,17 @@ using XTMF.Editing;
 
 namespace XTMF.Gui.Models
 {
-    public class CommandDisplayModel : INotifyPropertyChanged
+    public sealed class CommandDisplayModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string Name { get; private set; }
 
+        internal XTMFCommand Command { get; private set; }
+
         public CommandDisplayModel(XTMFCommand command)
         {
+            Command = command;
             Name = command.Name;
         }
     }

@@ -47,6 +47,24 @@ namespace XTMF
         /// </summary>
         private EditingStack RedoStack = new EditingStack(100);
 
+        private static IEnumerable<XTMFCommand> StreamCommands(EditingStack stack)
+        {
+            foreach (var command in stack)
+            {
+                yield return command;
+            }
+        }
+
+        public List<XTMFCommand> CopyOnUndo()
+        {
+            return StreamCommands(UndoStack).ToList();
+        }
+
+        public List<XTMFCommand> CopyOnRedo()
+        {
+            return StreamCommands(RedoStack).ToList();
+        }
+
         /// <summary>
         /// This event fires when the project containing this model system
         /// was saved externally

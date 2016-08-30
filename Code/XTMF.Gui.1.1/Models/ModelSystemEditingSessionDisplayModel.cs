@@ -18,14 +18,16 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XTMF.Editing;
 
 namespace XTMF.Gui.Models
 {
-    public class ModelSystemEditingSessionDisplayModel : INotifyPropertyChanged
+    public sealed class ModelSystemEditingSessionDisplayModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -36,13 +38,43 @@ namespace XTMF.Gui.Models
             Session = session;
             _CanUndo = Session.CanUndo;
             _CanRedo = Session.CanRedo;
+            UndoList = new ObservableCollection<CommandDisplayModel>();
+            RedoList = new ObservableCollection<CommandDisplayModel>();
             Session.CommandExecuted += Session_CommandExecuted;
         }
+
+        public ObservableCollection<CommandDisplayModel> UndoList;
+
+        public ObservableCollection<CommandDisplayModel> RedoList;
 
         private void Session_CommandExecuted(object sender, EventArgs e)
         {
             CanUndo = Session.CanUndo;
             CanRedo = Session.CanRedo;
+            RebuildCommandList(UndoList, Session.CopyOnUndo());
+            RebuildCommandList(RedoList, Session.CopyOnRedo());
+        }
+
+        private static void RebuildCommandList(ObservableCollection<CommandDisplayModel> list,
+            List<XTMFCommand> commands)
+        {
+            //Step 1 find things that are removed
+            var removed = list.Where(e => !commands.Contains(e.Command)).ToList();
+            //Step 2 remove
+            foreach (var toRemove in removed)
+            {
+                list.Remove(toRemove);
+            }
+            //Step 3 find new things
+            var newCommands = commands.Where(c => !list.Any(m => m.Command == c))
+                                .Select((c, i)=>new { Command = c, Index = i })
+                                .OrderBy(c => c.Index)
+                                .ToList();
+            //Step 4 add new things
+            foreach(var toAdd in newCommands)
+            {
+                list.Insert(toAdd.Index, new CommandDisplayModel(toAdd.Command));
+            }
         }
 
         private bool _CanUndo;
