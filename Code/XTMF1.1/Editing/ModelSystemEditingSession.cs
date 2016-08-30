@@ -158,13 +158,13 @@ namespace XTMF
                 UndoStack.Clear();
                 HasChanged = false;
             }
-            ModelSystemModel = new ModelSystemModel(this, this.ProjectEditingSession.Project, ModelSystemIndex);
+            ModelSystemModel = new ModelSystemModel(this, ProjectEditingSession.Project, ModelSystemIndex);
             ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
         }
 
         internal bool IsEditing(IModelSystemStructure root)
         {
-            return (EditingProject && this.ProjectEditingSession.Project.ModelSystemStructure[ModelSystemIndex] == root);
+            return (EditingProject && ProjectEditingSession.Project.ModelSystemStructure[ModelSystemIndex] == root);
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace XTMF
         /// <param name="runFile">The location of the previous run.</param>
         public ModelSystemEditingSession(XTMFRuntime runtime, ProjectEditingSession projectSession, string runFile)
         {
-            this.Runtime = runtime;
+            Runtime = runtime;
             ProjectEditingSession = projectSession;
             ModelSystemIndex = -1;
             ModelSystemModel = new ModelSystemModel(Runtime, this, projectSession.Project, runFile);
@@ -188,7 +188,7 @@ namespace XTMF
         /// <returns>If you can run this model system.</returns>
         public bool CanRun
         {
-            get { return this.EditingProject; }
+            get { return EditingProject; }
         }
 
         private static volatile bool AnyRunning = false;
@@ -231,7 +231,7 @@ namespace XTMF
                     {
                         run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName);
                     }
-                    this._Run.Add(run);
+                    _Run.Add(run);
                     AnyRunning = true;
                     _IsRunning = true;
                     run.RunComplete += () => TerminateRun(run);
@@ -340,13 +340,13 @@ namespace XTMF
             {
                 lock (SessionLock)
                 {
-                    if (this.EditingModelSystem)
+                    if (EditingModelSystem)
                     {
                         return Runtime.ModelSystemController.WillCloseTerminate(this);
                     }
                     else
                     {
-                        return this.ProjectEditingSession.WillCloseTerminate(this.ModelSystemIndex);
+                        return ProjectEditingSession.WillCloseTerminate(ModelSystemIndex);
                     }
                 }
             }
@@ -425,6 +425,7 @@ namespace XTMF
                              return true;
                          }
                     ));
+                    CommandExecuted?.Invoke(this, new EventArgs());
                 }
                 InCombinedContext = false;
                 CombinedCommands = null;
@@ -454,10 +455,10 @@ namespace XTMF
                         {
                             UndoStack.Add(command);
                         }
+                        CommandExecuted?.Invoke(this, new EventArgs());
                     }
                     // if we do something new, redo no long is available
                     RedoStack.Clear();
-                    CommandExecuted?.Invoke(this, new EventArgs());
                     return true;
                 }
                 return false;
@@ -574,7 +575,7 @@ namespace XTMF
                     error = "The project has changed and has not been saved.";
                     return false;
                 }
-                this.Dispose();
+                Dispose();
                 return true;
             }
         }
@@ -596,13 +597,13 @@ namespace XTMF
         {
             lock (SessionLock)
             {
-                if (this.EditingModelSystem)
+                if (EditingModelSystem)
                 {
                     Runtime.ModelSystemController.ReleaseEditingSession(this);
                 }
                 else
                 {
-                    this.ProjectEditingSession.ModelSystemEditingSessionClosed(this, this.ModelSystemIndex);
+                    ProjectEditingSession.ModelSystemEditingSessionClosed(this, ModelSystemIndex);
                 }
             }
         }
@@ -623,16 +624,12 @@ namespace XTMF
         /// </summary>
         internal void SessionTerminated()
         {
-            var temp = SessionClosed;
-            if (temp != null)
-            {
-                temp(this, new EventArgs());
-            }
+            SessionClosed?.Invoke(this, new EventArgs());
         }
 
         private void Dispose(bool destructor)
         {
-            this.ForceClose();
+            ForceClose();
         }
 
         public void Dispose()

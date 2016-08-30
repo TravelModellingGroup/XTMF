@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -36,6 +37,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Xceed.Wpf.AvalonDock.Layout;
 using XTMF.Gui.Controllers;
+using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
 
 namespace XTMF.Gui
@@ -45,8 +47,23 @@ namespace XTMF.Gui
     /// </summary>
     public partial class MainWindow : Window
     {
+        public ActiveEditingSessionDisplayModel EditingDisplayModel
+        {
+            get { return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty); }
+            set { SetValue(EditingDisplayModelProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for EditingDisplayModel.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty EditingDisplayModelProperty =
+            DependencyProperty.Register("EditingDisplayModel", typeof(ActiveEditingSessionDisplayModel), typeof(MainWindow), new PropertyMetadata(null));
+
+        private ConcurrentDictionary<LayoutDocument, ActiveEditingSessionDisplayModel> DisplaysForLayout = new ConcurrentDictionary<LayoutDocument, ActiveEditingSessionDisplayModel>();
+        private ActiveEditingSessionDisplayModel NullEditingDisplayModel;
         public MainWindow()
         {
+            // start it with a blank editing display model
+            DataContext = this;
+            EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             InitializeComponent();
             Loaded += FrameworkElement_Loaded;
             Us = this;
@@ -152,21 +169,8 @@ namespace XTMF.Gui
             {
                 //integrate into the main window
                 OpenPages.Remove(source as LayoutDocument);
-                if (OpenPages.Count <= 0)
-                {
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        SetSaveButtons(null);
-                        UndoButton.IsEnabled = false;
-                        RedoButton.IsEnabled = false;
-                        CloseMenu.IsEnabled = false;
-                    }));
-                }
                 // run the default code
-                if (onClose != null)
-                {
-                    onClose();
-                }
+                onClose?.Invoke();
                 Focus();
             };
             OpenPages.Add(document);
@@ -177,60 +181,32 @@ namespace XTMF.Gui
             return document;
         }
 
-        private void SetSaveButtons(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                SaveMenu.Header = "_Save";
-                SaveAsMenu.Header = "Save _As";
-                SaveMenu.IsEnabled = false;
-                SaveAsMenu.IsEnabled = false;
-                UndoButton.IsEnabled = false;
-                RedoButton.IsEnabled = false;
-            }
-            else
-            {
-                if (name.Length > 20)
-                {
-                    name = name.Substring(0, 17) + "...";
-                }
-                SaveMenu.Header = "_Save " + name;
-                SaveAsMenu.Header = "Save " + name + " _As";
-                SaveMenu.Header = "_Save " + name;
-                SaveAsMenu.Header = "Save " + name + " _As";
-                SaveMenu.IsEnabled = true;
-                SaveAsMenu.IsEnabled = true;
-                UndoButton.IsEnabled = true;
-                RedoButton.IsEnabled = true;
-            }
-        }
-
         private void Document_IsActive(object sender, EventArgs e)
         {
             var document = sender as LayoutDocument;
             if (document != null)
             {
                 CurrentDocument = document;
-                SaveMenu.IsEnabled = false;
-                SaveAsMenu.IsEnabled = false;
-                CloseMenu.IsEnabled = true;
-                SetupSaveButtons(document);
-                SetupRunButton(document);
+                ActiveEditingSessionDisplayModel displayModel;
+                if (DisplaysForLayout.TryGetValue(CurrentDocument, out displayModel))
+                {
+                    EditingDisplayModel = displayModel;
+                }
+                else
+                {
+                    EditingDisplayModel = NullEditingDisplayModel;
+                }
             }
         }
 
         private void SetupRunButton(LayoutDocument document)
         {
             var modelSystem = document.Content as ModelSystemDisplay;
-            RunMenu.IsEnabled = false;
-            RunLabel.IsEnabled = false;
             if (modelSystem != null)
             {
                 var session = modelSystem.Session;
                 if (session.CanRun)
                 {
-                    RunMenu.IsEnabled = true;
-                    RunLabel.IsEnabled = true;
                     _CurrentRun = () =>
                     {
                         var runName = "Run Name";
@@ -292,56 +268,14 @@ namespace XTMF.Gui
         private Action _CurrentRun;
         private LayoutDocument CurrentDocument;
 
-        private void SetupSaveButtons(LayoutDocument document)
-        {
-            _CurrentRun = null;
-            //Setup anything that needs to happen when we change focus
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // you can't save a project (but we need to reset the menu)
-                SetSaveButtons(null);
-            }
-            else if (modelSystem != null)
-            {
-                var name = modelSystem.ModelSystemName;
-                SetSaveButtons(name);
-            }
-            else
-            {
-                SetSaveButtons(null);
-            }
-        }
-
         private void SaveMenu_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.SaveRequested(false);
-            }
+            EditingDisplayModel.Save();
         }
 
         private void SaveAsMenu_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.SaveRequested(true);
-            }
+            EditingDisplayModel.SaveAs();
         }
 
         public static string OpenFile(string title, KeyValuePair<string, string>[] extensions, bool alreadyExists)
@@ -430,32 +364,12 @@ namespace XTMF.Gui
 
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.UndoRequested();
-            }
+            EditingDisplayModel.Undo();
         }
 
         private void Redo_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.RedoRequested();
-            }
+            EditingDisplayModel.Redo();
         }
 
         private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
@@ -503,11 +417,12 @@ namespace XTMF.Gui
                     Session = modelSystemSession,
                     ModelSystem = modelSystemSession.ModelSystemModel,
                 };
-
+                var displayModel = new ModelSystemEditingSessionDisplayModel(display);
                 var titleBarName = modelSystemSession.EditingProject ?
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name;
                 var doc = AddNewWindow(titleBarName, display);
+                DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
                 {
                     Dispatcher.Invoke(() =>
@@ -624,6 +539,11 @@ namespace XTMF.Gui
             LayoutDocument activeDocument = OpenPages.FirstOrDefault(x => x.IsActive);
             if (activeDocument != null)
             {
+                ActiveEditingSessionDisplayModel _;
+                if (DisplaysForLayout.TryRemove(activeDocument, out _))
+                {
+                    EditingDisplayModel = NullEditingDisplayModel;
+                }
                 activeDocument.Close();
             }
         }
@@ -689,10 +609,7 @@ namespace XTMF.Gui
 
         public void ExecuteRun()
         {
-            if (_CurrentRun != null)
-            {
-                _CurrentRun();
-            }
+            _CurrentRun?.Invoke();
         }
 
         internal void CloseWindow(UIElement window)

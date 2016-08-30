@@ -640,21 +640,21 @@ namespace XTMF.Gui.UserControls
            }));
         }
 
-        private void Redo()
+        public void Redo()
         {
             string error = null;
             Session.Redo(ref error);
             UpdateParameters();
         }
 
-        private void Undo()
+        public void Undo()
         {
             string error = null;
             Session.Undo(ref error);
             UpdateParameters();
         }
 
-        private void Close()
+        public void Close()
         {
             var e = RequestClose;
             if (e != null)
@@ -1018,16 +1018,6 @@ namespace XTMF.Gui.UserControls
                         }
                     });
             }
-        }
-
-        public void UndoRequested()
-        {
-            Undo();
-        }
-
-        public void RedoRequested()
-        {
-            Redo();
         }
 
         private void CopyCurrentModule()

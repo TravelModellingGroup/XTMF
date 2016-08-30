@@ -25,7 +25,9 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="XTMF Version 1.2" Height="768" Width="1024"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}">
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}"
+        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
+        >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
@@ -46,14 +48,14 @@
                     <MenuItem Header="_Project" Click="OpenProject_Click" />
                     <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
                 </MenuItem>
-                <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="False" />
+                <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="{Binding CanClose, Mode=OneWay}" />
                 <Separator Background="{StaticResource ControlBackgroundBrush}" />
-                <MenuItem x:Name="SaveMenu" Header="_Save (Ctrl+S)" Click="SaveMenu_Click" IsEnabled="False">
+                <MenuItem x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click" IsEnabled="{Binding CanSave, Mode=OneWay}">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="SaveAsMenu" Header="Save _As" Click="SaveAsMenu_Click"  IsEnabled="False" />
+                <MenuItem x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"  IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
                 <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/Plus.png" Width="20" Height="20"/>
@@ -69,11 +71,11 @@
                 <MenuItem Header="E_xit" Click="Exit_Click" />
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem x:Name="UndoButton" Header="_Undo (Ctrl+Z)" Click="Undo_Click" IsEnabled="False" />
-                <MenuItem x:Name="RedoButton" Header="_Redo (Ctrl+Y)" Click="Redo_Click" IsEnabled="False"/>
+                <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click" IsEnabled="{Binding CanUndo, Mode=OneWay}" />
+                <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click" IsEnabled="{Binding CanRedo, Mode=OneWay}"/>
             </MenuItem>
             <MenuItem Header="_Run">
-                <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click" IsEnabled="False">
+                <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click" IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
                     </MenuItem.Icon>

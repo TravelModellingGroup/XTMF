@@ -24,17 +24,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XTMF.Editing;
+using XTMF.Gui.UserControls;
 
 namespace XTMF.Gui.Models
 {
-    public sealed class ModelSystemEditingSessionDisplayModel : INotifyPropertyChanged
+    public sealed class ModelSystemEditingSessionDisplayModel : ActiveEditingSessionDisplayModel
     {
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly ModelSystemEditingSession Session;
 
-        public ModelSystemEditingSessionDisplayModel(ModelSystemEditingSession session)
+        private readonly ModelSystemDisplay Display;
+
+        public ModelSystemEditingSessionDisplayModel(ModelSystemDisplay display) : base(true)
         {
+            var session = display.Session;
+            Display = display;
             Session = session;
             _CanUndo = Session.CanUndo;
             _CanRedo = Session.CanRedo;
@@ -49,10 +53,39 @@ namespace XTMF.Gui.Models
 
         private void Session_CommandExecuted(object sender, EventArgs e)
         {
-            CanUndo = Session.CanUndo;
-            CanRedo = Session.CanRedo;
             RebuildCommandList(UndoList, Session.CopyOnUndo());
             RebuildCommandList(RedoList, Session.CopyOnRedo());
+            SetUndo(Session.CanUndo);
+            SetRedo(Session.CanRedo);
+            InvokeParameterChanged(nameof(CanUndo));
+            InvokeParameterChanged(nameof(CanRedo));
+            InvokeParameterChanged(nameof(UndoName));
+            InvokeParameterChanged(nameof(RedoName));
+        }
+
+        public override string UndoName
+        {
+            get
+            {
+                return $"Undo {(UndoList.Count > 0 ? MaxLength(UndoList[0].Command.Name, 10) : String.Empty)} (Ctrl+Z)";
+            }
+        }
+
+        public override string RedoName
+        {
+            get
+            {
+                return $"Redo {(RedoList.Count > 0 ? MaxLength(RedoList[0].Command.Name, 10) : String.Empty)} (Ctrl+Y)";
+            }
+        }
+
+        private string MaxLength(string str, int length)
+        {
+            if(str.Length < length)
+            {
+                return str;
+            }
+            return str.Substring(0, length);
         }
 
         private static void RebuildCommandList(ObservableCollection<CommandDisplayModel> list,
@@ -79,35 +112,81 @@ namespace XTMF.Gui.Models
 
         private bool _CanUndo;
         private bool _CanRedo;
-        public bool CanUndo
+        override public bool CanUndo
         {
             get
             {
                 return _CanUndo;
             }
-            private set
-            {
-                if(_CanUndo != value)
-                {
-                    _CanUndo = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(CanUndo));
-                }
-            }
         }
 
-        public bool CanRedo
+        override public bool CanRedo
         {
             get
             {
                 return _CanRedo;
             }
-            private set
+        }
+
+        private void SetUndo(bool value)
+        {
+            if (_CanUndo != value)
             {
-                if (_CanRedo != value)
-                {
-                    _CanRedo = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, nameof(CanRedo));
-                }
+                _CanUndo = value;
+                InvokeParameterChanged(nameof(CanUndo));
+            }
+        }
+
+        private void SetRedo(bool value)
+        {
+            if (_CanRedo != value)
+            {
+                _CanRedo = value;
+                InvokeParameterChanged(nameof(CanRedo));
+            }
+        }
+
+        public override bool CanSave
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override bool CanSaveAs
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        internal override void Undo()
+        {
+            Display.Undo();
+        }
+
+        internal override void Redo()
+        {
+            Display.Redo();
+        }
+
+        public override void Save()
+        {
+            Display.SaveRequested(false);
+        }
+
+        public override void SaveAs()
+        {
+            Display.SaveRequested(true);
+        }
+
+        public override bool CanExecuteRun
+        {
+            get
+            {
+                return !Session.IsRunning;
             }
         }
 
