@@ -25,6 +25,7 @@ using TMG.Frameworks.Data.DataTypes;
 using XTMF;
 using Datastructure;
 using TMG.Input;
+using Agg = TMG.Frameworks.Data.Loading.LabeledDataFromCSV<float>.Aggregation;
 
 namespace TMG.Frameworks.Data.Loading
 {
@@ -35,6 +36,18 @@ namespace TMG.Frameworks.Data.Loading
     {
         [SubModelInformation(Required = true, Description = "")]
         public FileLocation LoadFrom;
+
+        public enum Aggregation
+        {
+            None,
+            Sum,
+            Multiply,
+            Count
+        }
+
+        [RunParameter("Aggregation", "None", typeof(Agg), "The aggregation to apply to the data while loading.")]
+        public Agg AggregationToApply;
+
 
         public bool Loaded { get; set; }
 
@@ -67,11 +80,50 @@ namespace TMG.Frameworks.Data.Loading
 
         private void Add<K>(LabeledData<K> set, string label, K data)
         {
-            if(set.ContainsKey(label))
+            switch(AggregationToApply)
             {
-                throw new XTMFRuntimeException($"In '{Name}' while loading in labeled data a label was loaded multiple times '{label}'!");
+                case Agg.None:
+                    if (set.ContainsKey(label))
+                    {
+                        throw new XTMFRuntimeException($"In '{Name}' while loading in labeled data a label was loaded multiple times '{label}'!");
+                    }
+                    set.Add(label, data);
+                    break;
+                case Agg.Sum:
+                    if (typeof(K) == typeof(float))
+                    {
+                        // the optimizer should be able to solve this
+                        var fData = (float)(object)data;
+                        float alreadyContained;
+                        var fSet = set as LabeledData<float>;
+                        fSet.TryGetValue(label, out alreadyContained);
+                        fSet[label] = fData + alreadyContained;
+                    }
+                    break;
+                case Agg.Multiply:
+                    if (typeof(K) == typeof(float))
+                    {
+                        // the optimizer should be able to solve this
+                        var fData = (float)(object)data;
+                        float alreadyContained;
+                        var fSet = set as LabeledData<float>;
+                        if(!fSet.TryGetValue(label, out alreadyContained))
+                        {
+                            alreadyContained = 1.0f;
+                        }
+                        fSet[label] = fData * alreadyContained;
+                    }
+                    break;
+                case Agg.Count:
+                    if (typeof(K) == typeof(float))
+                    {
+                        float alreadyContained;
+                        var fSet = set as LabeledData<float>;
+                        fSet.TryGetValue(label, out alreadyContained);
+                        fSet[label] = 1 + alreadyContained;
+                    }
+                    break;
             }
-            set.Add(label, data);
         }
 
         public void LoadData()
@@ -119,6 +171,11 @@ namespace TMG.Frameworks.Data.Loading
 
         public bool RuntimeValidation(ref string error)
         {
+            if(AggregationToApply != Agg.None && typeof(T) != typeof(float))
+            {
+                error = $"In '{Name}' only System.Single data can be aggregated.  Please set the aggregation type to null.";
+                return false;
+            }
             return true;
         }
 
