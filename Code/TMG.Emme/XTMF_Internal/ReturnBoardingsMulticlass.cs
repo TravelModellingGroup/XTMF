@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,8 +57,8 @@ by the Line Aggregation File.  It will be saved into the Save To Directory/[clas
             }
             return mc.Run("tmg.XTMF_internal.return_boardings_multiclass", string.Join(" ",
                 ScenarioNumber,
-                $"\"{LineAggregationFile.GetFilePath()}\"",
-                $"\"{SaveToDirectory.GetFilePath()}\""
+                $"\"{Path.GetFullPath(LineAggregationFile.GetFilePath())}\"",
+                $"\"{Path.GetFullPath(SaveToDirectory.GetFilePath())}\""
                 ));
         }
 
