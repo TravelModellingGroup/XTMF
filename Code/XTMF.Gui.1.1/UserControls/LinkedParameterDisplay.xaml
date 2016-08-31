@@ -50,7 +50,7 @@
                     <RowDefinition Height="AUTO" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" />
+                <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
                 <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
                           Background="{StaticResource WindowBackgroundBrush}">
                     <ListView.Resources>
