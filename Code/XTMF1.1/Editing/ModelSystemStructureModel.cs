@@ -99,6 +99,7 @@ namespace XTMF
                         RealModelSystemStructure.Type = oldType;
                         if (Children != null)
                         {
+                            Children.Clear();
                             // move the old children back into place
                             for (int i = 0; i < oldChildren.Count; i++)
                             {
