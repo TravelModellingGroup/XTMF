@@ -67,7 +67,7 @@ namespace XTMF.Gui.Models
         {
             get
             {
-                return $"Undo {(UndoList.Count > 0 ? MaxLength(UndoList[0].Command.Name, 10) : String.Empty)} (Ctrl+Z)";
+                return $"Undo {(UndoList.Count > 0 ? MaxLength(UndoList[0].Command.Name, 20) : String.Empty)} (Ctrl+Z)";
             }
         }
 
@@ -75,7 +75,7 @@ namespace XTMF.Gui.Models
         {
             get
             {
-                return $"Redo {(RedoList.Count > 0 ? MaxLength(RedoList[0].Command.Name, 10) : String.Empty)} (Ctrl+Y)";
+                return $"Redo {(RedoList.Count > 0 ? MaxLength(RedoList[0].Command.Name, 20) : String.Empty)} (Ctrl+Y)";
             }
         }
 
@@ -85,7 +85,7 @@ namespace XTMF.Gui.Models
             {
                 return str;
             }
-            return str.Substring(0, length);
+            return str.Substring(0, length - 3) + "...";
         }
 
         private static void RebuildCommandList(ObservableCollection<CommandDisplayModel> list,
