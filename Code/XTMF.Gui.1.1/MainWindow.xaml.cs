@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -106,7 +106,7 @@ namespace XTMF.Gui
 
         public void OpenProject()
         {
-            var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime));
+            var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime), typeof(ActiveEditingSessionDisplayModel));
             doc.IsActive = true;
         }
 
@@ -121,7 +121,7 @@ namespace XTMF.Gui
                         Session = projectSession,
                     };
                     display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession);
-                    var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, () => { projectSession.Dispose(); });
+                    var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, typeof(ActiveEditingSessionDisplayModel), () => { projectSession.Dispose(); });
                     doc.IsSelected = true;
                     PropertyChangedEventHandler onRename = (o, e) =>
                     {
@@ -148,7 +148,7 @@ namespace XTMF.Gui
 
         public void OpenModelSystem()
         {
-            var doc = AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime));
+            var doc = AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime), typeof(ActiveEditingSessionDisplayModel));
             doc.IsActive = true;
         }
 
@@ -158,7 +158,7 @@ namespace XTMF.Gui
         /// </summary>
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
 
-        internal LayoutDocument AddNewWindow(string name, UIElement content, Action onClose = null)
+        internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null)
         {
             var document = new LayoutDocument()
             {
@@ -168,7 +168,10 @@ namespace XTMF.Gui
             document.Closed += (source, ev) =>
             {
                 //integrate into the main window
-                OpenPages.Remove(source as LayoutDocument);
+                var layout = source as LayoutDocument;
+                OpenPages.Remove(layout);
+                ActiveEditingSessionDisplayModel _;
+                DisplaysForLayout.TryRemove(layout, out _);
                 // run the default code
                 onClose?.Invoke();
                 Focus();
@@ -176,6 +179,10 @@ namespace XTMF.Gui
             OpenPages.Add(document);
             DocumentPane.Children.Add(document);
             document.IsActiveChanged += Document_IsActive;
+            if(typeof(ActiveEditingSessionDisplayModel) == typeOfController)
+            {
+                DisplaysForLayout.TryAdd(document, new ActiveEditingSessionDisplayModel(true));
+            }
             // initialize the new window
             Document_IsActive(document, null);
             return document;
@@ -359,7 +366,7 @@ namespace XTMF.Gui
                 var titleBarName = modelSystemSession.EditingProject ?
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name;
-                var doc = AddNewWindow(titleBarName, display);
+                var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel));
                 DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
                 {
@@ -469,7 +476,7 @@ namespace XTMF.Gui
 
         private void ShowStart_Click(object sender, RoutedEventArgs e)
         {
-            AddNewWindow("Start", new StartWindow(), null);
+            var doc = AddNewWindow("Start", new StartWindow(), typeof(ActiveEditingSessionDisplayModel));
         }
 
         private void CloseMenu_Click(object sender, RoutedEventArgs e)
@@ -518,7 +525,7 @@ namespace XTMF.Gui
 
         internal void NewDocumentationWindow(DocumentationControl documentationControl)
         {
-            var doc = AddNewWindow("Documentation - " + documentationControl.TypeNameText, documentationControl);
+            var doc = AddNewWindow("Documentation - " + documentationControl.TypeNameText, documentationControl, typeof(ActiveEditingSessionDisplayModel));
             documentationControl.RequestClose += (ignored) => doc.Close();
             doc.IsSelected = true;
             Keyboard.Focus(documentationControl);
@@ -538,7 +545,7 @@ namespace XTMF.Gui
         private void RunRemoteMenu_Click(object sender, RoutedEventArgs e)
         {
             var remoteWindow = new LaunchRemoteClientWindow();
-            var doc = AddNewWindow("Launch Remote Client", remoteWindow);
+            var doc = AddNewWindow("Launch Remote Client", remoteWindow, typeof(ActiveEditingSessionDisplayModel));
             remoteWindow.RequestClose += (ignored) => doc.Close();
             doc.IsSelected = true;
             Keyboard.Focus(remoteWindow);
@@ -578,7 +585,7 @@ namespace XTMF.Gui
                         if (run != null)
                         {
                             RunWindow window = new RunWindow(session, run, runName);
-                            var doc = AddNewWindow("New Run", window);
+                            var doc = AddNewWindow("New Run", window, typeof(ActiveEditingSessionDisplayModel));
                             doc.Closing += (o, e) =>
                             {
                                 if (!window.CloseRequested())
@@ -648,7 +655,7 @@ namespace XTMF.Gui
             {
                 helpUI.SelectModuleContent(getHelpFor);
             }
-            var document = AddNewWindow("Help", helpUI);
+            var document = AddNewWindow("Help", helpUI, typeof(ActiveEditingSessionDisplayModel));
             document.IsSelected = true;
             Keyboard.Focus(helpUI);
         }
@@ -656,7 +663,7 @@ namespace XTMF.Gui
         private void LaunchSettingsPage()
         {
             var settingsPage = new UserControls.SettingsPage(EditorController.Runtime.Configuration);
-            var document = AddNewWindow("Settings", settingsPage);
+            var document = AddNewWindow("Settings", settingsPage, typeof(ActiveEditingSessionDisplayModel));
             document.Closing += (o, e) =>
             {
                 settingsPage.Close();
