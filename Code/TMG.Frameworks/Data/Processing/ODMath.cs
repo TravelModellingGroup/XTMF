@@ -159,6 +159,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
 
         public void UnloadData()
         {
+            Loaded = false;
             Data = null;
         }
     }

@@ -88,6 +88,7 @@
     <Compile Include="Data\Synthesis\Gibbs\GibbsSampler.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Pool.cs" />
     <Compile Include="Data\Synthesis\Gibbs\PoolSegment.cs" />
+    <Compile Include="Data\Testing\IncrementOnLoad.cs" />
     <Compile Include="Extensibility\ExecuteInParallel.cs" />
     <Compile Include="Extensibility\LaunchProgram.cs" />
     <Compile Include="MultiRun\MultiRunModelSystem.cs" />
