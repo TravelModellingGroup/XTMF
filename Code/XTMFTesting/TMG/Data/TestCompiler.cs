@@ -496,6 +496,23 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(78125.0f, flat[1][1], 0.00001f);
         }
 
+        [TestMethod]
+        public void TestMatrixLength()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("Length(A + 1) + Length(B - 1)", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsValue);
+            var flat = result.LiteralValue;
+            Assert.AreEqual(8.0f, flat, 0.00001f);
+        }
+
         class MatrixSource : IDataSource<SparseTwinIndex<float>>
         {
             public bool Loaded { get; set; }

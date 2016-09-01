@@ -371,7 +371,9 @@ namespace XTMF.Gui.UserControls
                     var selectedType = findReplacement.SelectedType;
                     if (selectedType != null)
                     {
-                        Session.ExecuteCombinedCommands(() =>
+                        Session.ExecuteCombinedCommands(
+                            "Set Module Types",
+                            () =>
                        {
                            foreach (var selectedModule in CurrentlySelected)
                            {
@@ -398,12 +400,17 @@ namespace XTMF.Gui.UserControls
 
         private void SetMetaModuleStateForSelected(bool set)
         {
-            Session.ExecuteCombinedCommands(() =>
+            Session.ExecuteCombinedCommands(
+                set ? "Compose to Meta-Modules" : "Decompose Meta-Modules",
+                () =>
            {
                foreach (var selected in CurrentlySelected)
                {
                    string error = null;
-                   selected.SetMetaModule(set, ref error);
+                   if (!selected.SetMetaModule(set, ref error))
+                   {
+                       MessageBox.Show(GetWindow(), error, "Failed to convert meta module.", MessageBoxButton.OK, MessageBoxImage.Error);
+                   }
                }
            });
             UpdateParameters();
@@ -513,7 +520,18 @@ namespace XTMF.Gui.UserControls
                     switch (e.Key)
                     {
                         case Key.M:
-                            SelectReplacement();
+                            if (Controllers.EditorController.IsAltDown())
+                            {
+                                SetMetaModuleStateForSelected(false);
+                            }
+                            else if (Controllers.EditorController.IsShiftDown())
+                            {
+                                SetMetaModuleStateForSelected(true);
+                            }
+                            else
+                            {
+                                SelectReplacement();
+                            }
                             e.Handled = true;
                             break;
                         case Key.P:
@@ -622,21 +640,21 @@ namespace XTMF.Gui.UserControls
            }));
         }
 
-        private void Redo()
+        public void Redo()
         {
             string error = null;
             Session.Redo(ref error);
             UpdateParameters();
         }
 
-        private void Undo()
+        public void Undo()
         {
             string error = null;
             Session.Undo(ref error);
             UpdateParameters();
         }
 
-        private void Close()
+        public void Close()
         {
             var e = RequestClose;
             if (e != null)
@@ -830,8 +848,20 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                         }
                         break;
+                    case Key.F2:
+                        RenameParameter();
+                        e.Handled = true;
+                        break;
+                    case Key.H:
+                        if (ctrlDown)
+                        {
+                            SetCurrentParameterHidden(!shiftDown);
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Enter:
                         MoveFocusNext(shiftDown);
+                        e.Handled = true;
                         break;
                     case Key.Up:
                         if (shiftDown)
@@ -990,16 +1020,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public void UndoRequested()
-        {
-            Undo();
-        }
-
-        public void RedoRequested()
-        {
-            Redo();
-        }
-
         private void CopyCurrentModule()
         {
             var selected = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
@@ -1154,7 +1174,9 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename", (result) =>
                 {
                     string error = null;
-                    Session.ExecuteCombinedCommands(() =>
+                    Session.ExecuteCombinedCommands(
+                        "Rename ModelSystem",
+                        () =>
                    {
                        foreach (var sel in CurrentlySelected)
                        {
@@ -1183,7 +1205,9 @@ namespace XTMF.Gui.UserControls
                 var adorn = new TextboxAdorner("Rename Description", (result) =>
                 {
                     string error = null;
-                    Session.ExecuteCombinedCommands(() =>
+                    Session.ExecuteCombinedCommands(
+                        "Set ModelSystem Description",
+                        () =>
                     {
                         foreach (var sel in CurrentlySelected)
                         {
@@ -1218,7 +1242,9 @@ namespace XTMF.Gui.UserControls
                 var mul = deltaPosition < 0 ? 1 : -1;
                 var moveOrder = CurrentlySelected.Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) }).OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
-                Session.ExecuteCombinedCommands(() =>
+                Session.ExecuteCombinedCommands(
+                    "Move Selected Modules",
+                    () =>
                {
                    foreach (var el in moveOrder)
                    {
@@ -1274,7 +1300,9 @@ namespace XTMF.Gui.UserControls
             ModelSystemStructureModel parent = null;
             // we need to make a copy of the currently selected in
             // order to not operate on the list as it is changing
-            Session.ExecuteCombinedCommands(() =>
+            Session.ExecuteCombinedCommands(
+                "Remove Selected Modules",
+                () =>
            {
                foreach (var selected in CurrentlySelected.ToList())
                {
@@ -1384,14 +1412,14 @@ namespace XTMF.Gui.UserControls
                     var adorn = new TextboxAdorner("Rename", (result) =>
                     {
                         string error = null;
-                        Session.ExecuteCombinedCommands(() =>
+                        if (!currentParameter.SetName(result, ref error))
                         {
-                            if (!currentParameter.SetName(result, ref error))
-                            {
-                                throw new Exception(error);
-                            }
+                            MessageBox.Show(GetWindow(), error, "Unable to Set Parameter Name", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        else
+                        {
                             RefreshParameters();
-                        });
+                        }
                     }, selectedContainer, currentParameter.GetBaseName());
                     layer.Add(adorn);
                     adorn.Focus();
@@ -1720,11 +1748,10 @@ namespace XTMF.Gui.UserControls
                     // suppress selection change notification
                     // select all selected items
                     // then restore selection change notifications
-                    var isSelectionChangeActive =
-                      IsSelectionChangeActiveProperty.GetValue(treeView, null);
-
+                    var isSelectionChangeActive = IsSelectionChangeActiveProperty.GetValue(treeView, null);
                     IsSelectionChangeActiveProperty.SetValue(treeView, true, null);
-                    selectedItems.ForEach(item => item.IsSelected = true);
+
+                    selectedItems.ForEach(item => item.IsSelected = (item != treeViewItem || !selectedItems.Contains(treeViewItem)));
 
                     IsSelectionChangeActiveProperty.SetValue
                     (

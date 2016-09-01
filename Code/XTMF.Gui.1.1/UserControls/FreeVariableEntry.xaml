@@ -46,7 +46,7 @@
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <my:BorderIconButton Loaded="BorderIconButton_Loaded" Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+                    <my:BorderIconButton Loaded="BorderIconButton_Loaded" Margin="5" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
                                              Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
                                              DoubleClicked="BorderIconButton_Clicked" ScrollViewer.CanContentScroll="True" />
                 </DataTemplate>

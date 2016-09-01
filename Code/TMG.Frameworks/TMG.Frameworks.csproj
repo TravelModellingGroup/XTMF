@@ -58,6 +58,8 @@
     <Compile Include="Data\DataTypes\LabeledData.cs" />
     <Compile Include="Data\Loading\ArbitraryParameterDataSource.cs" />
     <Compile Include="Data\Loading\LabeledDataFromCSV.cs" />
+    <Compile Include="Data\Loading\LoadDataSource.cs" />
+    <Compile Include="Data\Loading\LoadODDataFromCSV.cs" />
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
     <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
     <Compile Include="Data\Loading\RemoteDataSource.cs" />
@@ -78,6 +80,7 @@
     <Compile Include="Data\Processing\VectorMath.cs" />
     <Compile Include="Data\Processing\ScalarMath.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
+    <Compile Include="Data\Saving\SaveLabeledDataToCSV.cs" />
     <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Aggregation.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Attribute.cs" />

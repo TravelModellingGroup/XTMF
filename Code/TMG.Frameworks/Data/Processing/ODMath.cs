@@ -41,8 +41,15 @@ of the matrix will match the zone system otherwise the size of the matrices are 
         [SubModelInformation(Required = false, Description = "The matrices to refer to.")]
         public IDataSource[] DataSources;
 
-        [RootModule]
+        [DoNotAutomate]
         public ITravelDemandModel Root;
+
+        private IConfiguration Config;
+
+        public ODMath(IConfiguration config)
+        {
+            Config = config;
+        }
 
         public bool Loaded
         {
@@ -75,19 +82,26 @@ of the matrix will match the zone system otherwise the size of the matrices are 
                 // check to see if the result is a scalar
                 if (result.IsValue)
                 {
-                    var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-                    var flat = data.GetFlatData();
-                    var row = flat[0];
-                    var val = result.LiteralValue;
-                    for (int i = 0; i < row.Length; i++)
+                    if (Root != null)
                     {
-                        row[i] = val;
+                        var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                        var flat = data.GetFlatData();
+                        var row = flat[0];
+                        var val = result.LiteralValue;
+                        for (int i = 0; i < row.Length; i++)
+                        {
+                            row[i] = val;
+                        }
+                        for (int i = 1; i < flat.Length; i++)
+                        {
+                            Array.Copy(row, flat[i], row.Length);
+                        }
+                        Data = data;
                     }
-                    for (int i = 1; i < flat.Length; i++)
+                    else
                     {
-                        Array.Copy(row, flat[i], row.Length);
+                        throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Scalar instead of a Matrix and there was no ITravelDemandModel in the ancestry to copy the zone system from!");
                     }
-                    Data = data;
                 }
                 else if (result.IsVectorResult)
                 {
@@ -112,8 +126,23 @@ of the matrix will match the zone system otherwise the size of the matrices are 
             Loaded = true;
         }
 
+        private void FindRoot()
+        {
+            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+            for (int i = ancestry.Count - 1; i >= 0; i--)
+            {
+                var tdm = ancestry[i] as ITravelDemandModel;
+                if (tdm != null)
+                {
+                    Root = tdm;
+                    return;
+                }
+            }
+        }
+
         public bool RuntimeValidation(ref string error)
         {
+            FindRoot();
             if (!CompileAST(ref error))
             {
                 return false;

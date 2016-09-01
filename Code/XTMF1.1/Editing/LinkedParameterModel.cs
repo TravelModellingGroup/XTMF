@@ -98,7 +98,7 @@ namespace XTMF
             lock (ParameterModelsLock)
             {
                 string oldName = RealLinkedParameter.Name;
-                return Session.RunCommand(XTMFCommand.CreateCommand((ref string e) =>
+                return Session.RunCommand(XTMFCommand.CreateCommand("Set Name", (ref string e) =>
                 {
                     RealLinkedParameter.Name = newName;
                     return true;
@@ -151,6 +151,7 @@ namespace XTMF
             LinkedParameterChange change = new LinkedParameterChange();
             var originalValue = toAdd.Value;
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Add Parameter to Linked Parameter",
                 // do
                 (ref string e) =>
                 {
@@ -234,6 +235,7 @@ namespace XTMF
         {
             LinkedParameterChange change = new LinkedParameterChange();
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Remove Parameter from Linked Parameter",
                 // do
                 (ref string e) =>
                 {
@@ -296,6 +298,7 @@ namespace XTMF
             string oldValue = RealLinkedParameter.Value;
             return Session.RunCommand(
                 XTMFCommand.CreateCommand(
+                    "Set Linked Parameter Value",
                     // do
                     (ref string e) =>
                     {

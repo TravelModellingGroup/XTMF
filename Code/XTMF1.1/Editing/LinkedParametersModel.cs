@@ -72,7 +72,7 @@ namespace XTMF
         {
             var lp = new LinkedParameterChange();
             return this.Session.RunCommand(
-                XTMFCommand.CreateCommand((ref string e) =>
+                XTMFCommand.CreateCommand("New Linked Parameter",(ref string e) =>
                 {
                     LinkedParameter linkedParameter = new LinkedParameter(name);
                     LinkedParameterModel newModel = new LinkedParameterModel(linkedParameter, Session, ModelSystem);
@@ -115,7 +115,9 @@ namespace XTMF
         {
             var lp = new LinkedParameterChange();
             return this.Session.RunCommand(
-                XTMFCommand.CreateCommand((ref string e) =>
+                XTMFCommand.CreateCommand(
+                    "Remove Linked Parameter",
+                    (ref string e) =>
                 {
                     if ((lp.Index = this.LinkedParameters.IndexOf(linkedParameter)) < 0)
                     {

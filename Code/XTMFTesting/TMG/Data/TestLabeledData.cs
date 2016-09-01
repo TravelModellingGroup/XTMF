@@ -148,6 +148,53 @@ namespace XTMF.Testing.TMG.Data
         }
 
         [TestMethod]
+        public void TestAggregatingLabeledDataWithoutMapFile()
+        {
+            const string originalData = "Data.csv";
+            const string mapToLocation = "MapTo.csv";
+            try
+            {
+                // create the data that is going to be mapped
+                using (var writer = new StreamWriter(originalData))
+                {
+                    writer.WriteLine("Label,Data");
+                    for (int i = 0; i < 26; i++)
+                    {
+                        writer.Write((char)('a' + i));
+                        writer.Write(',');
+                        writer.WriteLine(i);
+                    }
+                }
+                // create the data that will define the new shape
+                using (var writer = new StreamWriter(mapToLocation))
+                {
+                    writer.WriteLine("Label,Data");
+                    for (int i = 0; i < 26; i+=2)
+                    {
+                        writer.Write((char)('a' + i));
+                        writer.Write(',');
+                        writer.WriteLine(i);
+                    }
+                }
+                // now that our data files have been created create the aggregation
+                AggregateLabeledDataToShape agg = new AggregateLabeledDataToShape();
+                agg.DataToAggregate = new TestDataSource<LabeledData<float>>(LoadLabeledData(originalData));
+                agg.FitToShape = new TestDataSource<LabeledData<float>>(LoadLabeledData(mapToLocation));
+                agg.LoadData();
+                var combinedData = agg.GiveData();
+                agg.UnloadData();
+                // now test the properties
+                Assert.AreEqual(13, combinedData.Count);
+                Assert.AreEqual(156.00, combinedData.Sum(val => val.Value), 0.00001);
+            }
+            finally
+            {
+                File.Delete(originalData);
+                File.Delete(mapToLocation);
+            }
+        }
+
+        [TestMethod]
         public void TestLabeledDataToSparseArray()
         {
             const string originalData = "Data.csv";

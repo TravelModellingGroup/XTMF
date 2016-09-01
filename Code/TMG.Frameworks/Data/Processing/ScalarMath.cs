@@ -40,9 +40,6 @@ You can also use brackets () to order the operations.  Math using literals will 
         [SubModelInformation(Required = false, Description = "The matrices to refer to.")]
         public IDataSource[] DataSources;
 
-        [RootModule]
-        public ITravelDemandModel Root;
-
         public bool Loaded
         {
             get; set;

@@ -119,37 +119,6 @@ namespace TMG.Functions
             }
         }
 
-        private static void AssignValue(string fullPath, string variableName, IModelSystemStructure currentStructure, string value)
-        {
-            if (currentStructure == null)
-            {
-                throw new XTMFRuntimeException("Unable to assign '" + variableName + "', the module is null!");
-            }
-            var p = currentStructure.Parameters;
-            if (p == null)
-            {
-                throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
-            }
-            var parameters = p.Parameters;
-            bool any = false;
-            if (parameters != null)
-            {
-                for (int i = 0; i < parameters.Count; i++)
-                {
-                    if (parameters[i].Name == variableName)
-                    {
-                        AssignValue(parameters[i], value);
-                        any = true;
-                    }
-                }
-            }
-            if (!any)
-            {
-                throw new XTMFRuntimeException("Unable to find a parameter named '" + variableName
-                    + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!\r\nFull Path:'" + fullPath + "'");
-            }
-        }
-
         public static void AssignValue(IModuleParameter parameter, string value)
         {
             string error = null;

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -36,6 +37,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Xceed.Wpf.AvalonDock.Layout;
 using XTMF.Gui.Controllers;
+using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
 
 namespace XTMF.Gui
@@ -45,8 +47,23 @@ namespace XTMF.Gui
     /// </summary>
     public partial class MainWindow : Window
     {
+        public ActiveEditingSessionDisplayModel EditingDisplayModel
+        {
+            get { return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty); }
+            set { SetValue(EditingDisplayModelProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for EditingDisplayModel.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty EditingDisplayModelProperty =
+            DependencyProperty.Register("EditingDisplayModel", typeof(ActiveEditingSessionDisplayModel), typeof(MainWindow), new PropertyMetadata(null));
+
+        private ConcurrentDictionary<LayoutDocument, ActiveEditingSessionDisplayModel> DisplaysForLayout = new ConcurrentDictionary<LayoutDocument, ActiveEditingSessionDisplayModel>();
+        private ActiveEditingSessionDisplayModel NullEditingDisplayModel;
         public MainWindow()
         {
+            // start it with a blank editing display model
+            DataContext = this;
+            EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
             InitializeComponent();
             Loaded += FrameworkElement_Loaded;
             Us = this;
@@ -89,7 +106,7 @@ namespace XTMF.Gui
 
         public void OpenProject()
         {
-            var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime));
+            var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime), typeof(ActiveEditingSessionDisplayModel));
             doc.IsActive = true;
         }
 
@@ -104,7 +121,7 @@ namespace XTMF.Gui
                         Session = projectSession,
                     };
                     display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession);
-                    var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, () => { projectSession.Dispose(); });
+                    var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, typeof(ActiveEditingSessionDisplayModel), () => { projectSession.Dispose(); });
                     doc.IsSelected = true;
                     PropertyChangedEventHandler onRename = (o, e) =>
                     {
@@ -131,7 +148,7 @@ namespace XTMF.Gui
 
         public void OpenModelSystem()
         {
-            var doc = AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime));
+            var doc = AddNewWindow("Model Systems", new ModelSystemsDisplay(EditorController.Runtime), typeof(ActiveEditingSessionDisplayModel));
             doc.IsActive = true;
         }
 
@@ -141,7 +158,7 @@ namespace XTMF.Gui
         /// </summary>
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
 
-        internal LayoutDocument AddNewWindow(string name, UIElement content, Action onClose = null)
+        internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null)
         {
             var document = new LayoutDocument()
             {
@@ -151,58 +168,24 @@ namespace XTMF.Gui
             document.Closed += (source, ev) =>
             {
                 //integrate into the main window
-                OpenPages.Remove(source as LayoutDocument);
-                if (OpenPages.Count <= 0)
-                {
-                    Dispatcher.Invoke(new Action(() =>
-                    {
-                        SetSaveButtons(null);
-                        UndoButton.IsEnabled = false;
-                        RedoButton.IsEnabled = false;
-                        CloseMenu.IsEnabled = false;
-                    }));
-                }
+                var layout = source as LayoutDocument;
+                OpenPages.Remove(layout);
+                ActiveEditingSessionDisplayModel _;
+                DisplaysForLayout.TryRemove(layout, out _);
                 // run the default code
-                if (onClose != null)
-                {
-                    onClose();
-                }
+                onClose?.Invoke();
                 Focus();
             };
             OpenPages.Add(document);
             DocumentPane.Children.Add(document);
             document.IsActiveChanged += Document_IsActive;
+            if(typeof(ActiveEditingSessionDisplayModel) == typeOfController)
+            {
+                DisplaysForLayout.TryAdd(document, new ActiveEditingSessionDisplayModel(true));
+            }
             // initialize the new window
             Document_IsActive(document, null);
             return document;
-        }
-
-        private void SetSaveButtons(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                SaveMenu.Header = "_Save";
-                SaveAsMenu.Header = "Save _As";
-                SaveMenu.IsEnabled = false;
-                SaveAsMenu.IsEnabled = false;
-                UndoButton.IsEnabled = false;
-                RedoButton.IsEnabled = false;
-            }
-            else
-            {
-                if (name.Length > 20)
-                {
-                    name = name.Substring(0, 17) + "...";
-                }
-                SaveMenu.Header = "_Save " + name;
-                SaveAsMenu.Header = "Save " + name + " _As";
-                SaveMenu.Header = "_Save " + name;
-                SaveAsMenu.Header = "Save " + name + " _As";
-                SaveMenu.IsEnabled = true;
-                SaveAsMenu.IsEnabled = true;
-                UndoButton.IsEnabled = true;
-                RedoButton.IsEnabled = true;
-            }
         }
 
         private void Document_IsActive(object sender, EventArgs e)
@@ -211,75 +194,14 @@ namespace XTMF.Gui
             if (document != null)
             {
                 CurrentDocument = document;
-                SaveMenu.IsEnabled = false;
-                SaveAsMenu.IsEnabled = false;
-                CloseMenu.IsEnabled = true;
-                SetupSaveButtons(document);
-                SetupRunButton(document);
-            }
-        }
-
-        private void SetupRunButton(LayoutDocument document)
-        {
-            var modelSystem = document.Content as ModelSystemDisplay;
-            RunMenu.IsEnabled = false;
-            RunLabel.IsEnabled = false;
-            if (modelSystem != null)
-            {
-                var session = modelSystem.Session;
-                if (session.CanRun)
+                ActiveEditingSessionDisplayModel displayModel;
+                if (DisplaysForLayout.TryGetValue(CurrentDocument, out displayModel))
                 {
-                    RunMenu.IsEnabled = true;
-                    RunLabel.IsEnabled = true;
-                    _CurrentRun = () =>
-                    {
-                        var runName = "Run Name";
-                        StringRequest req = new StringRequest("Run Name", ValidateName);
-                        var trueWindow = Window.GetWindow(document.Content as DependencyObject);
-                        var testWindow = GetWindow(document.Content as DependencyObject);
-                        var vis = document.Content as UserControl;
-                        if (vis != null && testWindow != trueWindow)
-                        {
-                            var topLeft = vis.PointToScreen(new Point());
-                            // Since the string request dialog isn't shown yet we need to use some defaults as width and height are not available.
-                            req.Left = topLeft.X + ((vis.ActualWidth - StringRequest.DefaultWidth) / 2);
-                            req.Top = topLeft.Y + ((vis.ActualHeight - StringRequest.DefaultHeight) / 2);
-                        }
-                        else
-                        {
-                            req.Owner = trueWindow;
-                        }
-                        if (req.ShowDialog() == true)
-                        {
-                            runName = req.Answer;
-                            string error = null;
-                            if (!RunAlreadyExists(runName, session) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
-                            {
-                                var run = session.Run(runName, ref error);
-                                if (run != null)
-                                {
-                                    RunWindow window = new RunWindow(session, run, runName);
-                                    var doc = AddNewWindow("New Run", window);
-                                    doc.Closing += (o, e) =>
-                                    {
-                                        if (!window.CloseRequested())
-                                        {
-                                            e.Cancel = true;
-                                            return;
-                                        }
-                                    };
-                                    doc.CanClose = true;
-                                    doc.IsSelected = true;
-                                    Keyboard.Focus(window);
-                                    window.Focus();
-                                }
-                                else
-                                {
-                                    MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
-                                }
-                            }
-                        }
-                    };
+                    EditingDisplayModel = displayModel;
+                }
+                else
+                {
+                    EditingDisplayModel = NullEditingDisplayModel;
                 }
             }
         }
@@ -289,59 +211,16 @@ namespace XTMF.Gui
             return session.RunNameExists(runName);
         }
 
-        private Action _CurrentRun;
         private LayoutDocument CurrentDocument;
-
-        private void SetupSaveButtons(LayoutDocument document)
-        {
-            _CurrentRun = null;
-            //Setup anything that needs to happen when we change focus
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // you can't save a project (but we need to reset the menu)
-                SetSaveButtons(null);
-            }
-            else if (modelSystem != null)
-            {
-                var name = modelSystem.ModelSystemName;
-                SetSaveButtons(name);
-            }
-            else
-            {
-                SetSaveButtons(null);
-            }
-        }
 
         private void SaveMenu_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.SaveRequested(false);
-            }
+            EditingDisplayModel.Save();
         }
 
         private void SaveAsMenu_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.SaveRequested(true);
-            }
+            EditingDisplayModel.SaveAs();
         }
 
         public static string OpenFile(string title, KeyValuePair<string, string>[] extensions, bool alreadyExists)
@@ -430,32 +309,12 @@ namespace XTMF.Gui
 
         private void Undo_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.UndoRequested();
-            }
+            EditingDisplayModel.Undo();
         }
 
         private void Redo_Click(object sender, RoutedEventArgs e)
         {
-            var document = CurrentDocument;
-            var projectPage = document.Content as ProjectDisplay;
-            var modelSystem = document.Content as ModelSystemDisplay;
-            if (projectPage != null)
-            {
-                // TODO
-            }
-            else if (modelSystem != null)
-            {
-                modelSystem.RedoRequested();
-            }
+            EditingDisplayModel.Redo();
         }
 
         private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
@@ -503,11 +362,12 @@ namespace XTMF.Gui
                     Session = modelSystemSession,
                     ModelSystem = modelSystemSession.ModelSystemModel,
                 };
-
+                var displayModel = new ModelSystemEditingSessionDisplayModel(display);
                 var titleBarName = modelSystemSession.EditingProject ?
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name;
-                var doc = AddNewWindow(titleBarName, display);
+                var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel));
+                DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
                 {
                     Dispatcher.Invoke(() =>
@@ -616,7 +476,7 @@ namespace XTMF.Gui
 
         private void ShowStart_Click(object sender, RoutedEventArgs e)
         {
-            AddNewWindow("Start", new StartWindow(), null);
+            var doc = AddNewWindow("Start", new StartWindow(), typeof(ActiveEditingSessionDisplayModel));
         }
 
         private void CloseMenu_Click(object sender, RoutedEventArgs e)
@@ -624,6 +484,11 @@ namespace XTMF.Gui
             LayoutDocument activeDocument = OpenPages.FirstOrDefault(x => x.IsActive);
             if (activeDocument != null)
             {
+                ActiveEditingSessionDisplayModel _;
+                if (DisplaysForLayout.TryRemove(activeDocument, out _))
+                {
+                    EditingDisplayModel = NullEditingDisplayModel;
+                }
                 activeDocument.Close();
             }
         }
@@ -660,7 +525,7 @@ namespace XTMF.Gui
 
         internal void NewDocumentationWindow(DocumentationControl documentationControl)
         {
-            var doc = AddNewWindow("Documentation - " + documentationControl.TypeNameText, documentationControl);
+            var doc = AddNewWindow("Documentation - " + documentationControl.TypeNameText, documentationControl, typeof(ActiveEditingSessionDisplayModel));
             documentationControl.RequestClose += (ignored) => doc.Close();
             doc.IsSelected = true;
             Keyboard.Focus(documentationControl);
@@ -680,7 +545,7 @@ namespace XTMF.Gui
         private void RunRemoteMenu_Click(object sender, RoutedEventArgs e)
         {
             var remoteWindow = new LaunchRemoteClientWindow();
-            var doc = AddNewWindow("Launch Remote Client", remoteWindow);
+            var doc = AddNewWindow("Launch Remote Client", remoteWindow, typeof(ActiveEditingSessionDisplayModel));
             remoteWindow.RequestClose += (ignored) => doc.Close();
             doc.IsSelected = true;
             Keyboard.Focus(remoteWindow);
@@ -689,9 +554,57 @@ namespace XTMF.Gui
 
         public void ExecuteRun()
         {
-            if (_CurrentRun != null)
+            var document = CurrentDocument;
+            var modelSystem = document.Content as ModelSystemDisplay;
+            if (modelSystem != null)
             {
-                _CurrentRun();
+                var session = modelSystem.Session;
+                var runName = "Run Name";
+                StringRequest req = new StringRequest("Run Name", ValidateName);
+                var trueWindow = Window.GetWindow(document.Content as DependencyObject);
+                var testWindow = GetWindow(document.Content as DependencyObject);
+                var vis = document.Content as UserControl;
+                if (vis != null && testWindow != trueWindow)
+                {
+                    var topLeft = vis.PointToScreen(new Point());
+                    // Since the string request dialog isn't shown yet we need to use some defaults as width and height are not available.
+                    req.Left = topLeft.X + ((vis.ActualWidth - StringRequest.DefaultWidth) / 2);
+                    req.Top = topLeft.Y + ((vis.ActualHeight - StringRequest.DefaultHeight) / 2);
+                }
+                else
+                {
+                    req.Owner = trueWindow;
+                }
+                if (req.ShowDialog() == true)
+                {
+                    runName = req.Answer;
+                    string error = null;
+                    if (!RunAlreadyExists(runName, session) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                    {
+                        var run = session.Run(runName, ref error);
+                        if (run != null)
+                        {
+                            RunWindow window = new RunWindow(session, run, runName);
+                            var doc = AddNewWindow("New Run", window, typeof(ActiveEditingSessionDisplayModel));
+                            doc.Closing += (o, e) =>
+                            {
+                                if (!window.CloseRequested())
+                                {
+                                    e.Cancel = true;
+                                    return;
+                                }
+                            };
+                            doc.CanClose = true;
+                            doc.IsSelected = true;
+                            Keyboard.Focus(window);
+                            window.Focus();
+                        }
+                        else
+                        {
+                            MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
             }
         }
 
@@ -742,7 +655,7 @@ namespace XTMF.Gui
             {
                 helpUI.SelectModuleContent(getHelpFor);
             }
-            var document = AddNewWindow("Help", helpUI);
+            var document = AddNewWindow("Help", helpUI, typeof(ActiveEditingSessionDisplayModel));
             document.IsSelected = true;
             Keyboard.Focus(helpUI);
         }
@@ -750,7 +663,7 @@ namespace XTMF.Gui
         private void LaunchSettingsPage()
         {
             var settingsPage = new UserControls.SettingsPage(EditorController.Runtime.Configuration);
-            var document = AddNewWindow("Settings", settingsPage);
+            var document = AddNewWindow("Settings", settingsPage, typeof(ActiveEditingSessionDisplayModel));
             document.Closing += (o, e) =>
             {
                 settingsPage.Close();

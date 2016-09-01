@@ -182,25 +182,35 @@ namespace XTMF.Gui.UserControls
                 switch (e.Key)
                 {
                     case Key.Enter:
-                        Assign();
+                        AssignCurrentlySelected();
                         break;
                 }
             }
             base.OnPreviewKeyDown(e);
         }
 
-        private void Assign()
+        private void AssignCurrentlySelected()
         {
             var selected = Display.SelectedItem as LinkedParameterDisplayModel;
             if (selected != null)
             {
-                CleanupSelectedParameters();
-                SelectedLinkParameter = selected.LinkedParameter;
-                DialogResult = true;
-                ChangesMade = true;
-                Close();
+                Select(selected, true);
             }
         }
+
+        private void Select(LinkedParameterDisplayModel selected, bool cleanup)
+        {
+            CurrentlySelected = selected;
+            if (cleanup)
+            {
+                CleanupSelectedParameters();
+            }
+            SelectedLinkParameter = selected.LinkedParameter;
+            DialogResult = true;
+            ChangesMade = true;
+            Close();
+        }
+
         bool Renaming = false;
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -298,7 +308,32 @@ namespace XTMF.Gui.UserControls
         {
             if (AssignMode)
             {
-                Assign();
+                AssignCurrentlySelected();
+            }
+        }
+
+        private LinkedParameterDisplayModel GetFirstItem()
+        {
+            if (Display.ItemContainerGenerator.Items.Count > 0)
+            {
+                return Display.ItemContainerGenerator.Items[0] as LinkedParameterDisplayModel;
+            }
+            return null;
+        }
+
+        private void LinkedParameterFilterBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(!e.Handled)
+            {
+                if (e.Key == Key.Enter)
+                {
+                    var first = GetFirstItem();
+                    if (first != null)
+                    {
+                        Select(first, false);
+                        e.Handled = true;
+                    }
+                }
             }
         }
     }

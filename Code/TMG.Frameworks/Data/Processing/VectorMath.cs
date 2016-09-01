@@ -41,8 +41,15 @@ of the matrix will match the zone system otherwise the size of the vector are lo
         [SubModelInformation(Required = false, Description = "The matrices to refer to.")]
         public IDataSource[] DataSources;
 
-        [RootModule]
+        [DoNotAutomate]
         public ITravelDemandModel Root;
+
+        private IConfiguration Config;
+
+        public VectorMath(IConfiguration config)
+        {
+            Config = config;
+        }
 
         public bool Loaded
         {
@@ -75,14 +82,21 @@ of the matrix will match the zone system otherwise the size of the vector are lo
                 // check to see if the result is a scalar
                 if (result.IsValue)
                 {
-                    var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                    var flat = data.GetFlatData();
-                    var val = result.LiteralValue;
-                    for (int i = 0; i < flat.Length; i++)
+                    if (Root != null)
                     {
-                        flat[i] = val;
+                        var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                        var flat = data.GetFlatData();
+                        var val = result.LiteralValue;
+                        for (int i = 0; i < flat.Length; i++)
+                        {
+                            flat[i] = val;
+                        }
+                        Data = data;
                     }
-                    Data = data;
+                    else
+                    {
+                        throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Scalar instead of a Vector and there was no ITravelDemandModel in the ancestry to copy the zone system from!");
+                    }
                 }
                 else if (result.IsVectorResult)
                 {
@@ -90,7 +104,7 @@ of the matrix will match the zone system otherwise the size of the vector are lo
                 }
                 else
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Vector instead of a matrix!");
+                    throw new XTMFRuntimeException("In '" + Name + "' the result of the expression was a Matrix instead of a Vector!");
                 }
             }
             finally
@@ -107,8 +121,23 @@ of the matrix will match the zone system otherwise the size of the vector are lo
             Loaded = true;
         }
 
+        private void FindRoot()
+        {
+            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+            for (int i = ancestry.Count - 1; i >= 0; i--)
+            {
+                var tdm = ancestry[i] as ITravelDemandModel;
+                if(tdm != null)
+                {
+                    Root = tdm;
+                    return;
+                }
+            }
+        }
+
         public bool RuntimeValidation(ref string error)
         {
+            FindRoot();
             if (!CompileAST(ref error))
             {
                 return false;

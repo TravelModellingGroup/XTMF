@@ -29,6 +29,16 @@ namespace XTMF.Editing
     public abstract class XTMFCommand
     {
         /// <summary>
+        /// The name of the executing command
+        /// </summary>
+        public readonly string Name;
+
+        public XTMFCommand(string name)
+        {
+            Name = name;
+        }
+
+        /// <summary>
         /// Check to see if a command can be undone
         /// </summary>
         /// <returns></returns>
@@ -60,7 +70,7 @@ namespace XTMF.Editing
             private XTMFCommandMethod OnUndo = null;
             private XTMFCommandMethod OnRedo = null;
 
-            public DelegateCommand(XTMFCommandMethod onDo, XTMFCommandMethod onUndo = null, XTMFCommandMethod onRedo = null)
+            public DelegateCommand(string name, XTMFCommandMethod onDo, XTMFCommandMethod onUndo = null, XTMFCommandMethod onRedo = null) : base(name)
             {
                 OnDo = onDo;
                 OnUndo = onUndo;
@@ -95,7 +105,7 @@ namespace XTMF.Editing
         /// <param name="OnUndo">The inverse of the action to perform</param>
         /// <param name="OnRedo">The inverse of the inverse of the action to perform</param>
         /// <returns>A command with this behaviour.</returns>
-        public static XTMFCommand CreateCommand(XTMFCommandMethod OnDo, XTMFCommandMethod OnUndo = null, XTMFCommandMethod OnRedo = null)
+        public static XTMFCommand CreateCommand(string name, XTMFCommandMethod OnDo, XTMFCommandMethod OnUndo = null, XTMFCommandMethod OnRedo = null)
         {
             if ( OnDo == null )
             {
@@ -105,7 +115,7 @@ namespace XTMF.Editing
             {
                 throw new ArgumentException( "Both OnUndo and OnRedo must be null or both have delegates." );
             }
-            return new DelegateCommand( OnDo, OnUndo, OnRedo );
+            return new DelegateCommand( name, OnDo, OnUndo, OnRedo );
         }
     }
 }

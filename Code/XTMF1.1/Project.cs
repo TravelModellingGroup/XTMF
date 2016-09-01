@@ -132,7 +132,7 @@ namespace XTMF
         }
 
         /// <summary>
-        /// This constructo
+        /// This constructor is will clone a project.
         /// </summary>
         private Project(Project toClone)
         {
@@ -494,64 +494,6 @@ namespace XTMF
                     temp.AttachedToField = field;
                     temp.VariableName = fieldName;
                     parameters.Add(temp, t);
-                }
-            }
-        }
-
-        private static void AssignTypeValue(XmlAttribute paramValueAttribute, IModuleParameter selectedParam)
-        {
-            string error = null;
-            var temp = ArbitraryParameterParser.ArbitraryParameterParse(selectedParam.Type, paramValueAttribute.InnerText, ref error);
-            if (temp != null)
-            {
-                // don't overwrite the default if we are loading something bad
-                selectedParam.Value = temp;
-            }
-        }
-
-        private static void LoadParameters(IModelSystemStructure projectStructure, XmlNode child)
-        {
-            if (child.HasChildNodes)
-            {
-                foreach (XmlNode paramChild in child.ChildNodes)
-                {
-                    if (paramChild.Name == "Param")
-                    {
-                        // we can ignore the parameter type since we can inspect the code for that value
-                        var paramNameAttribute = paramChild.Attributes["Name"];
-                        var paramValueAttribute = paramChild.Attributes["Value"];
-                        var paramQuickAttribute = paramChild.Attributes["QuickParameter"];
-
-                        if (paramNameAttribute != null || paramValueAttribute != null)
-                        {
-                            string name = paramNameAttribute.InnerText;
-                            if (projectStructure.Parameters != null)
-                            {
-                                IModuleParameter selectedParam = null;
-                                foreach (var p in projectStructure.Parameters)
-                                {
-                                    if (p.Name == name)
-                                    {
-                                        selectedParam = p;
-                                        break;
-                                    }
-                                }
-                                // we will just ignore parameters that no longer exist
-                                if (selectedParam != null)
-                                {
-                                    if (paramQuickAttribute != null)
-                                    {
-                                        bool quick;
-                                        if (bool.TryParse(paramQuickAttribute.InnerText, out quick))
-                                        {
-                                            selectedParam.QuickParameter = quick;
-                                        }
-                                    }
-                                    AssignTypeValue(paramValueAttribute, selectedParam);
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -1415,86 +1357,6 @@ namespace XTMF
             }
             ret.Add(builder.ToString());
             return ret.ToArray();
-        }
-
-        private void Save(XmlTextWriter writer, IModelSystemStructure s)
-        {
-            if (s.IsCollection)
-            {
-                SaveCollection(writer, s);
-            }
-            else
-            {
-                SaveModel(writer, s);
-            }
-        }
-
-        private void SaveCollection(XmlTextWriter writer, IModelSystemStructure s)
-        {
-            writer.WriteStartElement("Collection");
-            writer.WriteAttributeString("ParentFieldType", s.ParentFieldType.AssemblyQualifiedName);
-            writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
-            if (s.Children != null)
-            {
-                foreach (var model in s.Children)
-                {
-                    Save(writer, model);
-                }
-            }
-            writer.WriteEndElement();
-        }
-
-        private void SaveModel(XmlTextWriter writer, IModelSystemStructure s)
-        {
-            writer.WriteStartElement("Module");
-            writer.WriteAttributeString("Name", s.Name);
-            writer.WriteAttributeString("Description", s.Description);
-            if (s.Type == null)
-            {
-                writer.WriteAttributeString("Type", "null");
-            }
-            else
-            {
-                writer.WriteAttributeString("Type", s.Type.AssemblyQualifiedName);
-            }
-            if (s.ParentFieldType == null)
-            {
-                writer.WriteAttributeString("Type", "null");
-            }
-            else
-            {
-                writer.WriteAttributeString("ParentFieldType", s.ParentFieldType.AssemblyQualifiedName);
-            }
-            writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
-            SaveParameters(writer, s);
-            if (s.Children != null)
-            {
-                foreach (var c in s.Children)
-                {
-                    Save(writer, c);
-                }
-            }
-            writer.WriteEndElement();
-        }
-
-        private void SaveParameters(XmlWriter writer, IModelSystemStructure element)
-        {
-            // make sure we are loaded before trying to save
-            writer.WriteStartElement("Parameters");
-            if (element.Parameters != null)
-            {
-                foreach (var param in element.Parameters)
-                {
-                    writer.WriteStartElement("Param");
-                    writer.WriteAttributeString("Name", param.Name);
-                    writer.WriteAttributeString("Type", param.Type.AssemblyQualifiedName);
-                    writer.WriteAttributeString("Value", param.Value.ToString());
-                    writer.WriteAttributeString("QuickParameter", param.QuickParameter.ToString());
-
-                    writer.WriteEndElement();
-                }
-            }
-            writer.WriteEndElement();
         }
 
         private bool ValidateModelName(IModelSystemStructure iProjectStructure, string name)

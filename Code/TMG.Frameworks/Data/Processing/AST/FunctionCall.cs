@@ -44,7 +44,10 @@ namespace TMG.Frameworks.Data.Processing.AST
             AvgRows,
             AvgColumns,
             E,
-            PI
+            PI,
+            Length,
+            LengthColumns,
+            LengthRows
         }
 
         private FunctionType Type;
@@ -111,6 +114,15 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "pi":
                     type = FunctionType.PI;
+                    return true;
+                case "length":
+                    type = FunctionType.Length;
+                    return true;
+                case "lengthrows":
+                    type = FunctionType.LengthRows;
+                    return true;
+                case "lengthcolumns":
+                    type = FunctionType.LengthColumns;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -251,6 +263,36 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return new ComputationResult((float)Math.E);
                 case FunctionType.PI:
                     return new ComputationResult((float)Math.PI);
+                case FunctionType.Length:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("Length was executed with the wrong number of parameters!");
+                    }
+                    if(values[0].IsValue)
+                    {
+                        return new ComputationResult("Length can not be applied to a scalar!");
+                    }
+                    return Length(values[0]);
+                case FunctionType.LengthColumns:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("LengthColumns was executed with the wrong number of parameters!");
+                    }
+                    if (values[0].IsODResult)
+                    {
+                        return new ComputationResult("LengthColumns can not be applied to a must be applied to a Matrix!");
+                    }
+                    return LengthColumns(values[0]);
+                case FunctionType.LengthRows:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("LengthRows was executed with the wrong number of parameters!");
+                    }
+                    if (values[0].IsODResult)
+                    {
+                        return new ComputationResult("LengthRows can not be applied to a must be applied to a Matrix!");
+                    }
+                    return LengthRows(values[0]);
             }
             return new ComputationResult("An undefined function was executed!");
         }
@@ -393,6 +435,61 @@ namespace TMG.Frameworks.Data.Processing.AST
                 flatRet[i] = VectorHelper.Sum(flatData[i], 0, flatData[i].Length) / flatData[i].Length;
             }
             return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
+        }
+
+        private ComputationResult Length(ComputationResult computationResult)
+        {
+            if (computationResult.IsODResult)
+            {
+                return new ComputationResult((float)computationResult.ODData.Count);
+            }
+            if (computationResult.IsVectorResult)
+            {
+                return new ComputationResult((float)computationResult.VectorData.Count);
+            }
+            return new ComputationResult("An unknown data type was processed through Length!");
+        }
+
+        private ComputationResult LengthRows(ComputationResult computationResult)
+        {
+            if (computationResult.IsODResult)
+            {
+                var data = computationResult.ODData;
+                var ret = new SparseArray<float>(data.Indexes);
+                var flatRet = ret.GetFlatData();
+                var flatData = data.GetFlatData();
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    flatRet[i] = flatData[i].Length;
+                }
+                return new ComputationResult(ret, true, ComputationResult.VectorDirection.Vertical);
+            }
+            return new ComputationResult("An unknown data type was processed through LengthRows!");
+        }
+
+        private ComputationResult LengthColumns(ComputationResult computationResult)
+        {
+            if (computationResult.IsODResult)
+            {
+                var data = computationResult.ODData;
+                var ret = new SparseArray<float>(data.Indexes);
+                var flatRet = ret.GetFlatData();
+                var flatData = data.GetFlatData();
+                for (int i = 0; i < flatData.Length; i++)
+                {
+                    int temp = 0;
+                    for (int j = 0; j < flatData.Length; j++)
+                    {
+                        if (flatData[j].Length > i)
+                        {
+                            temp++;
+                        }
+                    }
+                    flatRet[i] = temp;
+                }
+                return new ComputationResult(ret, true, ComputationResult.VectorDirection.Horizontal);
+            }
+            return new ComputationResult("An unknown data type was processed through LengthColumns!");
         }
     }
 }

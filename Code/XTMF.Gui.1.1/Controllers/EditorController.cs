@@ -44,18 +44,20 @@ namespace XTMF.Gui.Controllers
                    {
                        Runtime = new XTMFRuntime();
                        var loadError = ((Configuration)Runtime.Configuration).LoadError;
-                       if (loadError != null)
-                       {
+                       
                            window.Dispatcher.BeginInvoke(new Action(() =>
                          {
-                             MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
-                             Clipboard.SetText(loadError);
-                             if(((Configuration)Runtime.Configuration).LoadErrorTerminal)
+                             window.Title = "XTMF Version " + Runtime.Configuration.XTMFVersion.ToString();
+                             if (loadError != null)
                              {
-                                 Application.Current.Shutdown(-1);
+                                 MessageBox.Show(window, loadError + "\r\nA copy of this error has been saved to your clipboard.", "Error Loading XTMF", MessageBoxButton.OK, MessageBoxImage.Error);
+                                 Clipboard.SetText(loadError);
+                                 if (((Configuration)Runtime.Configuration).LoadErrorTerminal)
+                                 {
+                                     Application.Current.Shutdown(-1);
+                                 }
                              }
                          }));
-                       }
                    }
                    if (!list.Contains(window))
                    {
@@ -82,6 +84,11 @@ namespace XTMF.Gui.Controllers
         internal static bool IsShiftDown()
         {
             return (Keyboard.IsKeyDown(Key.LeftShift) | Keyboard.IsKeyDown(Key.RightShift));
+        }
+
+        internal static bool IsAltDown()
+        {
+            return (Keyboard.IsKeyDown(Key.LeftAlt) | Keyboard.IsKeyDown(Key.RightAlt));
         }
     }
 }

@@ -103,6 +103,7 @@ namespace XTMF
                 {
                     string error = null;
                     Session.RunCommand(XTMFCommand.CreateCommand(
+                        value ? "Add Quick Parameter" : "Remove Quick Parameter",
                         (ref string erro) =>
                         {
                             RealParameter.QuickParameter = value;
@@ -127,6 +128,7 @@ namespace XTMF
         public bool SetHidden(bool hide, ref string error)
         {
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                hide == true ? "Hide Parameter" : "Show Parameter",
                     (ref string erro) =>
                     {
                         RealParameter.IsHidden = hide;
@@ -188,6 +190,7 @@ namespace XTMF
         {
             ParameterChange change = new ParameterChange();
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Change Parameter",
                 // do
                 ((ref string e) =>
                 {
@@ -286,6 +289,7 @@ namespace XTMF
             }
             var oldName = Name;
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Set Parameter Name",
                 (ref string e) =>
                 {
                     return RealParameter.SetName(newName, ref e);
@@ -309,6 +313,7 @@ namespace XTMF
         {
             var oldName = Name;
             return Session.RunCommand(XTMFCommand.CreateCommand(
+                "Revert Parameter Name",
                 (ref string e) =>
                 {
                     return RealParameter.SetName(RealParameter.NameOnModule, ref e);

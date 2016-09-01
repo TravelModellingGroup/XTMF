@@ -127,6 +127,35 @@ namespace XTMF.Testing.Editing
         }
 
         [TestMethod]
+        public void TestUndoAndChildrenSize()
+        {
+            var runtime = TestXTMFCore.CreateRuntime();
+            var controller = runtime.ModelSystemController;
+            var msName = "TestModelSystem";
+            controller.Delete(msName);
+            var ms = controller.LoadOrCreate(msName);
+            Assert.AreNotEqual(null, ms, "The model system 'TestModelSystem' was null!");
+            using (var session = controller.EditModelSystem(ms))
+            {
+                var model = session.ModelSystemModel;
+                Assert.IsNotNull(model, "No model system model was created!");
+                ModelSystemStructureModel root = model.Root;
+                Assert.IsNotNull(root, "No root object was made!");
+
+                root.Type = typeof(TestModelSystemTemplate);
+                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type!");
+                Assert.AreEqual(1, root.Children.Count);
+                string error = null;
+                Assert.IsTrue(session.Undo(ref error), "The undo failed!");
+                Assert.AreEqual(null, root.Type, "The root was not updated to the proper type after undo!");
+                Assert.AreEqual(0, root.Children.Count, "There should be no children!");
+
+                Assert.IsTrue(session.Redo(ref error), "The undo failed!");
+                Assert.AreEqual(typeof(TestModelSystemTemplate), root.Type, "The root was not updated to the proper type after redo!");
+            }
+        }
+
+        [TestMethod]
         public void TestAddingACollectionMember()
         {
             var runtime = TestXTMFCore.CreateRuntime();

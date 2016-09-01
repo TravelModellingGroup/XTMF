@@ -52,6 +52,12 @@ namespace TMG.Emme.XTMF_Internal
 
         public bool RuntimeValidation(ref string error)
         {
+            if (Scenario <= 0)
+            {
+                error = "The scenario number '" + Scenario
+                    + "' is an invalid scenario number!";
+                return false;
+            }
             return true;
         }
     }

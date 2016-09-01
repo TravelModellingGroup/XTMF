@@ -159,10 +159,47 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
+                    if(ContainsFreeVariables(SelectedType))
+                    {
+                        // then we need to fill in the free parameters
+                        List<Type> selectedForFreeVariables = new List<Type>();
+                        foreach (var variable in GetFreeVariables(SelectedType))
+                        {
+                            var dialog = new FreeVariableEntry(variable, Session) { Owner = this };
+                            if (dialog.ShowDialog() != true)
+                            {
+                                return;
+                            }
+                            selectedForFreeVariables.Add(dialog.SelectedType);
+                        }
+                        SelectedType = CreateConcreteType(SelectedType, selectedForFreeVariables);
+                    }
                     DialogResult = true;
                     Close();
                 }
             }
+        }
+
+        private Type CreateConcreteType(Type selectedType, List<Type> selectedForFreeVariables)
+        {
+            var originalTypes = selectedType.GetGenericArguments();
+            var newTypes = new Type[originalTypes.Length];
+            int j = 0;
+            for (int i = 0; i < originalTypes.Length; i++)
+            {
+                newTypes[i] = originalTypes[i].IsGenericParameter ? selectedForFreeVariables[j++] : originalTypes[i];
+            }
+            return selectedType.MakeGenericType(newTypes);
+        }
+
+        private IEnumerable<Type> GetFreeVariables(Type selectedType)
+        {
+            return selectedType.GetGenericArguments().Where(t => t.IsGenericParameter);
+        }
+
+        private bool ContainsFreeVariables(Type selectedType)
+        {
+            return selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
         }
 
         int TimesLoaded = 0;

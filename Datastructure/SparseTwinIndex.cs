@@ -38,6 +38,13 @@ namespace Datastructure
             {
                 GenerateStructure();
             }
+            //Generate count
+            int count = 0;
+            for (int i = 0; i < Data.Length; i++)
+            {
+                count += Data[i].Length;
+            }
+            Count = count;
         }
 
         public int Count

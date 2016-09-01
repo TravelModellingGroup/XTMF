@@ -29,7 +29,8 @@ using XTMF;
 namespace TMG.Frameworks.Data.Processing
 {
     [ModuleInformation( Description =
-@"This module is designed to aggregate the labeled data shaping it to be similar to another data source.  Afterwards the data can then be operated on by ODMath or used as a SparseArray."        
+@"This module is designed to aggregate the labeled data shaping it to be similar to another data source.  Afterwards the data can then be operated on by ODMath or used as a SparseArray. 
+If a mapping file is not provided it will do a left join onto the DataToAggregate's shape."        
         )]
     public class AggregateLabeledDataToShape : IDataSource<LabeledData<float>>
     {
@@ -49,7 +50,7 @@ namespace TMG.Frameworks.Data.Processing
         [SubModelInformation(Required = true, Description = "The data to gather the results from.")]
         public IDataSource<LabeledData<float>> DataToAggregate;
 
-        [SubModelInformation(Required = true, Description = "(DestinationName,OriginalName,Fraction)")]
+        [SubModelInformation(Required = false, Description = "(DestinationName,OriginalName,Fraction)")]
         public FileLocation DataMap;
 
         public LabeledData<float> GiveData()
@@ -67,31 +68,46 @@ namespace TMG.Frameworks.Data.Processing
             {
                 ret.Add(e.Key, 0.0f);
             }
-            //Load in the map
-            using (var reader = new CsvReader(DataMap, true))
+            if (DataMap != null)
             {
-                //burn header
-                reader.LoadLine();
-                int columns;
-                while(reader.LoadLine(out columns))
+                //Load in the map
+                using (var reader = new CsvReader(DataMap, true))
                 {
-                    if (columns >= 3)
+                    //burn header
+                    reader.LoadLine();
+                    int columns;
+                    while (reader.LoadLine(out columns))
                     {
-                        string destName, originName;
-                        float toApply;
-                        reader.Get(out destName, 0);
-                        reader.Get(out originName, 1);
-                        reader.Get(out toApply, 2);
-                        float destValue, originValue;
-                        if(!ret.TryGetValue(destName, out destValue))
+                        if (columns >= 3)
                         {
-                            continue;
+                            string destName, originName;
+                            float toApply;
+                            reader.Get(out destName, 0);
+                            reader.Get(out originName, 1);
+                            reader.Get(out toApply, 2);
+                            float destValue, originValue;
+                            if (!ret.TryGetValue(destName, out destValue))
+                            {
+                                continue;
+                            }
+                            if (!toAggregate.TryGetValue(originName, out originValue))
+                            {
+                                continue;
+                            }
+                            ret[destName] = originValue * toApply + destValue;
                         }
-                        if(!toAggregate.TryGetValue(originName, out originValue))
-                        {
-                            continue;
-                        }
-                        ret[destName] = originValue * toApply + destValue;
+                    }
+                }
+            }
+            else
+            {
+                var keys = ret.Keys.ToList();
+                foreach(var key in keys)
+                {
+                    float data;
+                    if(toAggregate.TryGetValue(key, out data))
+                    {
+                        ret[key] = data;
                     }
                 }
             }
