@@ -114,6 +114,7 @@ You can also use brackets () to order the operations.  Math using literals will 
 
         public void UnloadData()
         {
+            Loaded = false;
             Data = 0.0f;
         }
     }

@@ -154,6 +154,7 @@ of the matrix will match the zone system otherwise the size of the vector are lo
 
         public void UnloadData()
         {
+            Loaded = false;
             Data = null;
         }
     }
