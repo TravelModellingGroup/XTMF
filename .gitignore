@@ -91,3 +91,8 @@
 *.vspx
 *.psess
 /Code/Packages
+/Code/GTAModel/Input/ConvertCSVtoLD.cs
+/Code/NetworkEstimation/CalcRMSE.cs
+/Code/TMG.Estimation/CalcFitness.cs
+/Code/TMG.Frameworks/Data/ConvertLabelledArrayToSparse.cs
+/Code/TMG.Frameworks/LabelledData.cs
