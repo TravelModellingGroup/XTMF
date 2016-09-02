@@ -53,7 +53,13 @@ namespace TMG.Emme.XTMF_Internal
             {
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
             }
-            return mc.Run("tmg.XTMF_internal.copy_scenario", string.Join(" ", BaseScenario, DestinationScenario, CopyAssignments));
+            return mc.Run("tmg.XTMF_internal.copy_scenario",
+                new ModellerControllerParameter[]
+                {
+                    new ModellerControllerParameter("FromScenario", BaseScenario.ToString()),
+                    new ModellerControllerParameter("ToScenario", DestinationScenario.ToString()),
+                    new ModellerControllerParameter("CopyStrategy", CopyAssignments.ToString()),
+                });
         }
 
         public bool RuntimeValidation(ref string error)

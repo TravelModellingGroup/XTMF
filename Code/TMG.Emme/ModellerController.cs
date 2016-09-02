@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -72,6 +72,11 @@ namespace TMG.Emme
         private const int SignalStartModule = 2;
 
         /// <summary>
+        /// We will send this signal when we want to start to run a new module with binary parameters
+        /// </summary>
+        private const int SignalStartModuleBinaryParameters = 14;
+
+        /// <summary>
         /// This is the message that we will send when it is time to shutdown the bridge.
         /// If we receive it, then we know that the bridge is in a panic and has exited
         /// </summary>
@@ -114,7 +119,7 @@ namespace TMG.Emme
                     }
                     catch (IOException e)
                     {
-                        throw new XTMFRuntimeException("I/O Connection with emme while sending data, with:\r\n" + e.Message);
+                        throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                     }
                 }
             }
@@ -166,7 +171,7 @@ namespace TMG.Emme
             // Since the modules are always located in the ~/Modules subdirectory for XTMF,
             // we can just go in there to find the script
             var modulesDirectory = Path.Combine(Path.GetDirectoryName(programPath), "Modules");
-            // When emme is installed it will link the .py to their python interpreter properly
+            // When EMME is installed it will link the .py to their python interpreter properly
             string argumentString = AddQuotes(Path.Combine(modulesDirectory, "ModellerBridge.py"));
             PipeName = Guid.NewGuid().ToString();
             PipeFromEmme = new NamedPipeServerStream(PipeName, PipeDirection.In);
@@ -305,7 +310,7 @@ namespace TMG.Emme
             }
             catch (IOException e)
             {
-                throw new XTMFRuntimeException("I/O Connection with emme ended while waiting for data, with:\r\n" + e.Message);
+                throw new XTMFRuntimeException("I/O Connection with EMME ended while waiting for data, with:\r\n" + e.Message);
             }
         }
 
@@ -337,7 +342,7 @@ namespace TMG.Emme
             string unused = null;
             return this.Run(macroName, arguments, null, ref unused);
         }
-
+    
         public bool Run(string macroName, string arguments, ref string returnValue)
         {
             return this.Run(macroName, arguments, null, ref returnValue);
@@ -360,7 +365,56 @@ namespace TMG.Emme
                 }
                 catch (IOException e)
                 {
-                    throw new XTMFRuntimeException("I/O Connection with emme while sending data, with:\r\n" + e.Message);
+                    throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
+                }
+                return WaitForEmmeResponce(ref returnValue, progressUpdate);
+            }
+        }
+
+        public bool Run(string macroName, ModellerControllerParameter[] arguments)
+        {
+            string unused = null;
+            return this.Run(macroName, arguments, null, ref unused);
+        }
+
+        public bool Run(string macroName, ModellerControllerParameter[] arguments, ref string returnValue)
+        {
+            return this.Run(macroName, arguments, null, ref returnValue);
+        }
+
+        public bool Run(string macroName, ModellerControllerParameter[] arguments, Action<float> progressUpdate, ref string returnValue)
+        {
+            lock (this)
+            {
+                try
+                {
+                    // clear out all of the old input before starting
+                    BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
+                    writer.Write(ModellerController.SignalStartModuleBinaryParameters);
+                    writer.Write(macroName);
+                    if (arguments != null)
+                    {
+                        writer.Write(arguments.Length.ToString());
+                        for (int i = 0; i < arguments.Length; i++)
+                        {
+                            writer.Write(arguments[i].Name);
+                        }
+                        for (int i = 0; i < arguments.Length; i++)
+                        {
+                            writer.Write(arguments[i].Value);
+                        }
+                    }
+                    else
+                    {
+                        writer.Write("0");
+                    }
+                    writer.Flush();
+                    // now that we have setup the macro, we can force the writer out of scope
+                    writer = null;
+                }
+                catch (IOException e)
+                {
+                    throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                 }
                 return WaitForEmmeResponce(ref returnValue, progressUpdate);
             }

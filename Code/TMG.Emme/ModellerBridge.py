@@ -68,11 +68,11 @@ class RedirectToXTMFConsole:
     def write(self, data):
         self.bridge.SendPrintSignal(str(data))
 
-def RedirectLogbookWrite(name, attributes= None, value= None):
+def RedirectLogbookWrite(name, attributes=None, value=None):
     pass
 
 @contextmanager
-def RedirectLogbookTrace(name, attributes= None, value= None):
+def RedirectLogbookTrace(name, attributes=None, value=None):
     try:
         yield None
     finally:
@@ -117,6 +117,8 @@ class XTMFBridge:
     SignalDisableLogbook = 12
     """Signal from XTMF to enable writing to logbook"""
     SignalEnableLogbook = 13    
+    """Signal from XTMF to start up a tool using binary parameters"""
+    SignalStartModuleBinaryParameters = 14
         
     """Initialize the bridge so that the tools that we run will not accidentally access the standard I/O"""
     def __init__(self):
@@ -125,7 +127,7 @@ class XTMFBridge:
         
         # Redirect sys.stdout
         sys.stdin.close()
-        self.ToXTMF = open('\\\\.\\pipe\\'+pipeName, 'wb', 0)
+        self.ToXTMF = open('\\\\.\\pipe\\' + pipeName, 'wb', 0)
         self.FromXTMF = os.fdopen(0, "rb")
         #sys.stdout = NullStream()
         self.IOLock = threading.Lock()
@@ -194,8 +196,8 @@ class XTMFBridge:
             elif typeOfParam == _m.Attribute(bool).type:
                 ret.append("bool")
             else:
-                _m.logbook_write(param + " uses a type unsupported by the ModellerBridge '"+str(typeOfParam)+"'!")
-                self.SendParameterError(param + " uses a type unsupported by the ModellerBridge '"+str(typeOfParam)+"'!")
+                _m.logbook_write(param + " uses a type unsupported by the ModellerBridge '" + str(typeOfParam) + "'!")
+                self.SendParameterError(param + " uses a type unsupported by the ModellerBridge '" + str(typeOfParam) + "'!")
                 return None
         return ret 
     
@@ -321,7 +323,7 @@ class XTMFBridge:
     def SendToolDoesNotExistError(self, namespace):
         self.IOLock.acquire()
         self.SendSignal(self.SignalSendToolDoesNotExistsError)
-        self.SendString("A tool with the following namespace could not be found: %s" %namespace)
+        self.SendString("A tool with the following namespace could not be found: %s" % namespace)
         self.ToXTMF.flush()
         self.IOLock.release()
         return
@@ -388,11 +390,46 @@ class XTMFBridge:
             if macroName in self.Modeller.tool_namespaces():       
                 return True
             time.sleep(1)
-        _m.logbook_write("A tool with the following namespace could not be found: %s" %macroName)
-        self.SendToolDoesNotExistError(macroName);
+        _m.logbook_write("A tool with the following namespace could not be found: %s" % macroName)
+        self.SendToolDoesNotExistError(macroName)
         return False
+
+    def ReorderParametersToMatch(self, toolName, expectedParameterNames, sentParameterNames, parameterList):
+        #do a quick check to see if everything is in order
+        sizeDifference = len(expectedParameterNames) - len(sentParameterNames)
+        if sizeDifference < 0:
+            #if the call is using less parameters than expected, then find the
+            #parameter we are missing
+            missing = []
+            for param in sentParameterNames:
+                if expectedParameterNames.count(param) == 0:
+                    missing.append(param)
+            self.SendParameterError(str.join("\r\n", ["Unable to find a parameter in the EMME tool '" + toolName + "' called '" + param + "' that was sent!" for param in missing]))
+            return False
+        elif sizeDifference > 0:
+            #if the call has more parameters than the tool
+            missing = []
+            for param in expectedParameterNames:
+                if sentParameterNames.count(param) == 0:
+                    missing.append(param)
+            self.SendParameterError(str.join("\r\n", ["A parameter called '" + param + "' was not sent while calling the tool '" + toolName + "'!" for param in missing]))
+            return False
+        #We know we have the right number of parameters now
+        for i in range(0, len(expectedParameterNames)):
+            if expectedParameterNames[i] != sentParameterNames[i]:
+                count = expectedParameterNames.count(sentParameterNames[i])
+                if count == 0:
+                    self.SendParameterError("Unable to find a parameter in the EMME tool '" + toolName + "' called '" + sentParameterNames[i] + "'!")
+                    return False
+                else:
+                    index = expectedParameterNames.index(sentParameterNames[i])
+                    #then we know there is a miss ordering for this parameter we can just swap
+                    temp = sentParameterNames[i]
+                    sentParameterNames[i] = sentParameterNames[index]
+                    sentParameterNames[index] = temp
+        return True
     
-    def ExecuteModule(self):
+    def ExecuteModule(self, useBinaryParameters):
         macroName = None
         parameterString = None
         timer = None
@@ -400,22 +437,25 @@ class XTMFBridge:
         try:
             #figure out how long the macro's name is
             macroName = self.ReadString()
-            parameterString = self.ReadString()
             if not self.EnsureModellerToolExists(macroName):
                 return
-            if not macroName in self.Modeller.tool_namespaces():
-                _m.logbook_write("A tool with the following namespace could not be found: %s" %macroName)
-                self.SendToolDoesNotExistError(macroName);
-                return
             tool = self.CreateTool(macroName)
-            
             toolParameterTypes = self.GetToolParameterTypes(tool)
             if toolParameterTypes == None:
                 return
-            parameterList = self.BreakIntoParametersStrings(parameterString)
+            if useBinaryParameters:
+                #Read in the number of strings, one for each parameter
+                numberOfParameters = int(self.ReadString())
+                sentParameterNames = [self.ReadString() for p in range(0, numberOfParameters)]
+                parameterList = [self.ReadString() for p in range(0, numberOfParameters)]
+                expectedParameterNames = inspect.getargspec(tool.__call__)[0][1:]
+                if not self.ReorderParametersToMatch(macroName, expectedParameterNames, sentParameterNames, parameterList):
+                    return
+            else:
+                parameterList = self.BreakIntoParametersStrings(self.ReadString())
             parameterList = self.ConvertIntoTypes(parameterList, toolParameterTypes)
             if parameterList == None:
-                _m.logbook_write("We were unable to create the parameters to their given types, or there was the wrong number of arguments for the tool "+macroName+".")
+                _m.logbook_write("We were unable to create the parameters to their given types, or there was the wrong number of arguments for the tool " + macroName + ".")
                 _m.logbook_write("The parameter string was \r\n" + parameterString)
                 self.SendParameterError("The module \"" + macroName + "\" was executed with the wrong number of arguments or of invalid types.")
                 return
@@ -464,10 +504,10 @@ class XTMFBridge:
 
             etype, evalue, etb = sys.exc_info()
             stackList = _traceback.extract_tb(etb)
-            msg = "%s: %s\n\nStack trace below:" %(evalue.__class__.__name__, str(evalue))
+            msg = "%s: %s\n\nStack trace below:" % (evalue.__class__.__name__, str(evalue))
             stackList.reverse()
             for file, line, func, text in stackList:
-                msg += "\n  File '%s', line %s, in %s" %(file, line, func)
+                msg += "\n  File '%s', line %s, in %s" % (file, line, func)
             self.SendRuntimeError(msg)
         return
     
@@ -518,7 +558,13 @@ class XTMFBridge:
                     t = timeit.Timer(self.ExecuteModule).timeit(1)
                     _m.logbook_write(str(t) + " seconds to execute.")
                 else:
-                    self.ExecuteModule()
+                    self.ExecuteModule(False)
+            elif input == self.SignalStartModuleBinaryParameters:
+                if performanceMode:
+                    t = timeit.Timer(self.ExecuteModule).timeit(1)
+                    _m.logbook_write(str(t) + " seconds to execute.")
+                else:
+                    self.ExecuteModule(True)
             elif input == self.SignalCleanLogbook:
                 self.CleanLogbook()
             elif input == self.SignalCheckToolExists:
@@ -553,7 +599,8 @@ class XTMFBridge:
 #end XTMFBridge
 
 #Get the project file
-args = sys.argv # 0: This script's location, 1: Emme project file, 2: User initials, 3: Performance flag
+args = sys.argv # 0: This script's location, 1: Emme project file, 2: User initials, 3:
+                # Performance flag
 projectFile = args[1]
 userInitials = args[2]
 performancFlag = bool(int(args[3]))
