@@ -452,7 +452,8 @@ class XTMFBridge:
                 if not self.ReorderParametersToMatch(macroName, expectedParameterNames, sentParameterNames, parameterList):
                     return
             else:
-                parameterList = self.BreakIntoParametersStrings(self.ReadString())
+                parameterString = self.ReadString()
+                parameterList = self.BreakIntoParametersStrings(parameterString)
             parameterList = self.ConvertIntoTypes(parameterList, toolParameterTypes)
             if parameterList == None:
                 _m.logbook_write("We were unable to create the parameters to their given types, or there was the wrong number of arguments for the tool " + macroName + ".")
