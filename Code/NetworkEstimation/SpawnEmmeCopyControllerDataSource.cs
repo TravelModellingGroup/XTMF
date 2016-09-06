@@ -63,7 +63,7 @@ namespace TMG.NetworkEstimation
                         var projectFile = this.ProjectFile.GetFilePath();
                         var originalDir = Path.GetDirectoryName( projectFile );
                         projectFile = Path.GetFileName( projectFile );
-                        var dir = this.TempDirectory = Path.Combine( TempBaseDirectory.GetFilePath(), DateTime.Now.Ticks.ToString() );
+                        var dir = this.TempDirectory = TempBaseDirectory.GetFilePath();
                         DirectoryCopy( originalDir, dir );
                         var actuallyRunning = Path.GetFullPath( Path.Combine( dir, projectFile ) );
                         Console.WriteLine( "Opening EMME at " + actuallyRunning );
