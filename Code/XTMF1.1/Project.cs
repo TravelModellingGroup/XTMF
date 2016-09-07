@@ -437,6 +437,10 @@ namespace XTMF
                 error = e.Message;
                 return false;
             }
+            if(File.Exists(path))
+            {
+                File.Copy(path, Path.Combine(Path.GetDirectoryName(path), "Project.bak.xml"));
+            }
             File.Copy(tempFileName, path, true);
             File.Delete(tempFileName);
             HasChanged = false;
