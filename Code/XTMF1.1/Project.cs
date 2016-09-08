@@ -439,7 +439,7 @@ namespace XTMF
             }
             if(File.Exists(path))
             {
-                File.Copy(path, Path.Combine(Path.GetDirectoryName(path), "Project.bak.xml"));
+                File.Copy(path, Path.Combine(Path.GetDirectoryName(path), "Project.bak.xml"), true);
             }
             File.Copy(tempFileName, path, true);
             File.Delete(tempFileName);
