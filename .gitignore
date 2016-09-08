@@ -91,3 +91,4 @@
 *.vspx
 *.psess
 /Code/Packages
+/Code/TMG.Estimation/CalcFitness.cs
