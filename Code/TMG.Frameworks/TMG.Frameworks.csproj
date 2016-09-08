@@ -91,6 +91,7 @@
     <Compile Include="Data\Testing\IncrementOnLoad.cs" />
     <Compile Include="Extensibility\ExecuteInParallel.cs" />
     <Compile Include="Extensibility\LaunchProgram.cs" />
+    <Compile Include="FileManagement\DeleteFilesOfType.cs" />
     <Compile Include="MultiRun\MultiRunModelSystem.cs" />
     <Compile Include="Office\ConvertCSVToXLSX.cs" />
     <Compile Include="Parallel\ParallelWorkSerialRecombination.cs" />
