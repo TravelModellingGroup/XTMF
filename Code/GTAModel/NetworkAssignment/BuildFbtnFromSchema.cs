@@ -26,11 +26,11 @@ using XTMF;
 
 namespace TMG.GTAModel.NetworkAssignment
 {
-    [ModuleInformation(Description = "Generates a hyper-network to support fare-based transit "+
-                     "assignment(FBTA), from an XML schema file.Links and segments with negative "+
-                     "fare values will be reported to the Logbook for further inspection. "+
+    [ModuleInformation(Description = "Generates a hyper-network to support fare-based transit " +
+                     "assignment(FBTA), from an XML schema file.Links and segments with negative " +
+                     "fare values will be reported to the Logbook for further inspection. " +
                      "For fare schema specification, please consult TMG documentation." +
-                     "<br><br><b> Temporary storage requirements:</b> one transit line extra "+
+                     "<br><br><b> Temporary storage requirements:</b> one transit line extra " +
                      "attribute, one node extra attribute.",
         Name = "Build Fare Based Transit Network From Schema")]
     public class BuildFbtnFromSchema : IEmmeTool
@@ -59,6 +59,12 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
         public bool StationConnectorFlag;
 
+        [RunParameter("Transfer Mode List", "tu", "A list of the modes eligible to changed to the invalid transit mode in cases of link fare circumvention.")]
+        public string ModeList;
+
+        [RunParameter("Invalid Transit Mode", 'n', "The transit mode to assign to invalid transfers.")]
+        public char InvalidTransferMode;
+
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         private const string _ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
@@ -69,24 +75,18 @@ namespace TMG.GTAModel.NetworkAssignment
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", "\"" + this.SchemaFile.GetFilePath() + "\"",
-                                        this.BaseScenarioNumber,
-                                        this.NewScenarioNumber,
-                                        this.TransferModeId,
-                                        this.SegmentFareAttribute,
-                                        this.LinkFareAttribute,
-                                        this.VirtualNodeDomain,
-                                        this.StationConnectorFlag);
-
-            /*
-            
-                def __call__(self, XMLSchemaFile, xtmf_BaseScenarioNumber, NewScenarioNumber,
-                 TransferModeId, SegmentFareAttributeId, LinkFareAttributeId, 
-                 VirtualNodeDomain, StationConnectorFlag):
-            */
-
+            var args = string.Join(" ", "\"" + SchemaFile.GetFilePath() + "\"",
+                                        BaseScenarioNumber,
+                                        NewScenarioNumber,
+                                        TransferModeId,
+                                        SegmentFareAttribute,
+                                        LinkFareAttribute,
+                                        VirtualNodeDomain,
+                                        StationConnectorFlag,
+                                        AddQuotes(ModeList),
+                                        InvalidTransferMode);
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
         }
 
         private string AddQuotes(string modeList)
