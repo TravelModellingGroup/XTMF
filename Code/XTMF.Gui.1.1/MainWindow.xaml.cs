@@ -438,32 +438,31 @@ namespace XTMF.Gui
                         return;
                     }
                 }
-
             }
-            EditorController.Unregister(this);
-            base.OnClosing(e);
             if (!e.Cancel)
             {
+                EditorController.Unregister(this);
                 Task.Run(() =>
-               {
-                   if (LaunchUpdate)
-                   {
-                       string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                       try
-                       {
-                           Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), Process.GetCurrentProcess().Id + " \"" + path + "\"");
-                       }
-                       catch
-                       {
-                           Dispatcher.Invoke(() =>
-                          {
-                              MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
-                          });
-                       }
-                   }
-                   Application.Current.Dispatcher.InvokeShutdown();
-               });
+                {
+                    if (LaunchUpdate)
+                    {
+                        string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                        try
+                        {
+                            Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), Process.GetCurrentProcess().Id + " \"" + path + "\"");
+                        }
+                        catch
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                        }
+                    }
+                }).Wait();
             }
+            base.OnClosing(e);
+            Environment.Exit(0);
         }
 
         private void AboutXTMF_Click(object sender, RoutedEventArgs e)
