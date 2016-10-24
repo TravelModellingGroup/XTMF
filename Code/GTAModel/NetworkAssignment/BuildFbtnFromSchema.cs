@@ -59,12 +59,6 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
         public bool StationConnectorFlag;
 
-        [RunParameter("Transfer Mode List", "tu", "A list of the modes eligible to changed to the invalid transit mode in cases of link fare circumvention.")]
-        public string ModeList;
-
-        [RunParameter("Invalid Transit Mode", 'n', "The transit mode to assign to invalid transfers.")]
-        public char InvalidTransferMode;
-
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         private const string _ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
@@ -75,18 +69,16 @@ namespace TMG.GTAModel.NetworkAssignment
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", "\"" + SchemaFile.GetFilePath() + "\"",
-                                        BaseScenarioNumber,
-                                        NewScenarioNumber,
-                                        TransferModeId,
-                                        SegmentFareAttribute,
-                                        LinkFareAttribute,
-                                        VirtualNodeDomain,
-                                        StationConnectorFlag,
-                                        AddQuotes(ModeList),
-                                        InvalidTransferMode);
+            var args = string.Join(" ", "\"" + this.SchemaFile.GetFilePath() + "\"",
+                                        this.BaseScenarioNumber,
+                                        this.NewScenarioNumber,
+                                        this.TransferModeId,
+                                        this.SegmentFareAttribute,
+                                        this.LinkFareAttribute,
+                                        this.VirtualNodeDomain,
+                                        this.StationConnectorFlag);
             var result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
         }
 
         private string AddQuotes(string modeList)
