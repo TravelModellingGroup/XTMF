@@ -179,7 +179,7 @@ namespace XTMF.Gui
             OpenPages.Add(document);
             DocumentPane.Children.Add(document);
             document.IsActiveChanged += Document_IsActive;
-            if(typeof(ActiveEditingSessionDisplayModel) == typeOfController)
+            if (typeof(ActiveEditingSessionDisplayModel) == typeOfController)
             {
                 DisplaysForLayout.TryAdd(document, new ActiveEditingSessionDisplayModel(true));
             }
@@ -418,51 +418,59 @@ namespace XTMF.Gui
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            foreach (var document in OpenPages.Select(page => page.Content))
+            try
             {
-                var modelSystemPage = document as ModelSystemDisplay;
-                var runPage = document as RunWindow;
-                if (modelSystemPage != null)
+                foreach (var document in OpenPages.Select(page => page.Content))
                 {
-                    if (!modelSystemPage.CloseRequested())
+                    var modelSystemPage = document as ModelSystemDisplay;
+                    var runPage = document as RunWindow;
+                    if (modelSystemPage != null)
                     {
-                        e.Cancel = true;
-                        return;
-                    }
-                }
-                if (runPage != null)
-                {
-                    if (!runPage.CloseRequested())
-                    {
-                        e.Cancel = true;
-                        return;
-                    }
-                }
-            }
-            if (!e.Cancel)
-            {
-                EditorController.Unregister(this);
-                Task.Run(() =>
-                {
-                    if (LaunchUpdate)
-                    {
-                        string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                        try
+                        if (!modelSystemPage.CloseRequested())
                         {
-                            Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), Process.GetCurrentProcess().Id + " \"" + path + "\"");
+                            e.Cancel = true;
+                            return;
                         }
-                        catch
+                    }
+                    if (runPage != null)
+                    {
+                        if (!runPage.CloseRequested())
                         {
-                            Dispatcher.Invoke(() =>
+                            e.Cancel = true;
+                            return;
+                        }
+                    }
+                }
+                if (!e.Cancel)
+                {
+                    EditorController.Unregister(this);
+                    Task.Run(() =>
+                    {
+                        if (LaunchUpdate)
+                        {
+                            string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                            try
                             {
-                                MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
+                                Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), Process.GetCurrentProcess().Id + " \"" + path + "\"");
+                            }
+                            catch
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
+                                });
+                            }
                         }
-                    }
-                }).Wait();
+                    }).Wait();
+                }
+
+                base.OnClosing(e);
+                Environment.Exit(0);
             }
-            base.OnClosing(e);
-            Environment.Exit(0);
+            catch
+            {
+
+            }
         }
 
         private void AboutXTMF_Click(object sender, RoutedEventArgs e)
