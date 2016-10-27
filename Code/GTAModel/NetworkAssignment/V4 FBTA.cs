@@ -82,6 +82,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Impedance Matrix", 0, "The number of the FULL matrix in which to save the perceived travel times. Enter 0 to skip saving this matrix")]
         public int ImpedanceMatrix;
 
+        [RunParameter("Distance Matrix", 0, "The number of the FULL matrix in which to save distances. Enter 0 to skip saving this matrix")]
+        public int DistanceMatrixNumber;
+
         //-------------------------------------------
 
         [RunParameter("Effective Headway Slope", 0.5f, "")]
@@ -203,6 +206,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                         FareMatrixNumber,
                                         CongestionMatrixNumber,
                                         BoardingMatrixNumber,
+                                        DistanceMatrixNumber,
                                         mc.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
                                         string.Join(",", from ttf in TTF
