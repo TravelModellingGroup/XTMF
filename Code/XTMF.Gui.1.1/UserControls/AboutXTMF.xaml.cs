@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -31,6 +31,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using XTMF.Gui.Controllers;
 using IOPath = System.IO.Path;
 
 namespace XTMF.Gui.UserControls
@@ -45,6 +46,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             Owner = Application.Current.MainWindow;
             VersionBlock.Text = GetVersionText();
+            NumberOfModules.Text = EditorController.Runtime.Configuration.ModelRepository.Modules.Count.ToString();
         }
 
         private string GetVersionText()
