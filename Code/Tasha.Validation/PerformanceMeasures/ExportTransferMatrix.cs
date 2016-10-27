@@ -52,7 +52,12 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         public string xtmf_AggregationParition;
 
         [SubModelInformation(Required = false, Description = "The location to save the walk all way matrix to")]
-        public FileLocation WalkAllWayMatrixFile;                                                                           
+        public FileLocation WalkAllWayMatrixFile;
+
+
+        [RunParameter("LineGroupOptionOrAttributeId", "", "Description")]
+        public string LineGroupOptionOrAttributeId;
+
 
         public bool Execute(Controller controller)
         {
@@ -64,24 +69,18 @@ namespace TMG.Emme.Tools.Analysis.Traffic
             return modeller.Run(ToolName, GetParameters());
         }
 
-        private string GetParameters()
+        private ModellerControllerParameter[] GetParameters()
         {
-            if (ExportWalkAllWayMatrixFlag)
+            return new ModellerControllerParameter[]
             {
-                return string.Join(" ", ScenarioNumber, ExportTransferMatrixFlag.ToString(), ExportWalkAllWayMatrixFlag.ToString(),
-                    AddQuotes(TransferMatrixFile.GetFilePath()), AddQuotes(xtmf_AggregationParition), AddQuotes(WalkAllWayMatrixFile));
-            }
-            else
-            {
-                return string.Join(" ", ScenarioNumber, ExportTransferMatrixFlag.ToString(), ExportWalkAllWayMatrixFlag.ToString(),
-                    AddQuotes(TransferMatrixFile.GetFilePath()), AddQuotes(xtmf_AggregationParition), "none");
-            }
-            
-        }
-
-        private static string AddQuotes(string toQuote)
-        {
-            return String.Concat("\"", toQuote, "\"");
+                new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+                new ModellerControllerParameter("ExportTransferMatrixFlag", ExportTransferMatrixFlag.ToString()),
+                new ModellerControllerParameter("ExportWalkAllWayMatrixFlag",ExportWalkAllWayMatrixFlag.ToString()),
+                new ModellerControllerParameter("TransferMatrixFile",TransferMatrixFile.GetFilePath()),
+                new ModellerControllerParameter("xtmf_AggregationPartition",xtmf_AggregationParition),
+                new ModellerControllerParameter("WalkAllWayExportFile",ExportWalkAllWayMatrixFlag ? WalkAllWayMatrixFile.GetFilePath() : "none" ),
+                new ModellerControllerParameter("LineGroupOptionOrAttributeId",LineGroupOptionOrAttributeId.ToString())
+            };
         }
 
         public bool RuntimeValidation(ref string error)

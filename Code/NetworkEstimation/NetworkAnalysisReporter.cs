@@ -24,34 +24,45 @@ using System.Threading.Tasks;
 using System.Windows.Forms.DataVisualization.Charting;
 using Datastructure;
 using XTMF;
+using TMG.Input;
+using System.Text;
+using System.Linq;
+using System.IO.Compression;
 
 namespace TMG.NetworkEstimation
 {
     public class NetworkAnalysisReporter : IModelSystemTemplate
     {
-        [RunParameter( "Limit Space", false, "Use the Best Space Radius to limit the space to be around the best point." )]
+        [RunParameter("Limit Space", false, "Use the Best Space Radius to limit the space to be around the best point.")]
         public bool AlphaSpace;
 
-        [RunParameter( "Value Col", 1, "The 0 indexed column number where the value is." )]
+        [RunParameter("Value Col", 1, "The 0 indexed column number where the value is.")]
         public int ColourAxisCol;
 
-        [RunParameter( "First Data Col", 2, "The 0 indexed column number where data starts." )]
+        [RunParameter("First Data Col", 2, "The 0 indexed column number where data starts.")]
         public int FirstDataCol;
 
-        [RunParameter( "Chart Height", 600, "The height in pixels you would like your chart to be." )]
+        [RunParameter("Chart Height", 600, "The height in pixels you would like your chart to be.")]
         public int Height;
 
-        [RunParameter( "Input File", "../ParameterEvaluation.csv", "The parameter file to analyse" )]
-        public string InputName;
+        [SubModelInformation(Required = true, Description = "The location of the estimation results to analyse.")]
+        public FileLocation EstimationFile;
 
-        [RunParameter( "Last Data Col", 3, "The 0 indexed column number where data ends starts." )]
+        [SubModelInformation(Required = true, Description = "The location to save the combined file to.")]
+        public FileLocation OutputFile;
+
+        [RunParameter("Last Data Col", 3, "The 0 indexed column number where data ends starts.")]
         public int LastDataCol;
 
-        [RunParameter( "Chart Width", 800, "The width  in pixels you would like your chart to be." )]
+        [RunParameter("Chart Width", 800, "The width  in pixels you would like your chart to be.")]
         public int Width;
 
-        private static Tuple<byte, byte, byte> ProgressColourT = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        [RunParameter("Remove Parameter Path Header", "", "Remove this string from headers")]
+        public string RemoveParamterPathHeader;
 
+        private static Tuple<byte, byte, byte> ProgressColourT = new Tuple<byte, byte, byte>(50, 150, 50);
+
+        [RunParameter("Input Directory", "../../Input", "The location of the input files for this model system.")]
         public string InputBaseDirectory
         {
             get;
@@ -83,7 +94,7 @@ namespace TMG.NetworkEstimation
 
         public bool ExitRequest()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -93,144 +104,165 @@ namespace TMG.NetworkEstimation
 
         public void Start()
         {
-            var start = this.FirstDataCol;
-            var end = this.LastDataCol;
-            var halfWay = (int)Math.Ceiling( end / 2f );
-            this.Progress = 0;
-            var delta = ( end - start + 1 );
-            var individualIncrease = 1f / ( ( ( delta * delta ) + delta ) / 2 );
-            if ( this.AlphaSpace )
+            var start = FirstDataCol;
+            var end = LastDataCol;
+            var halfWay = (int)Math.Ceiling(end / 2f);
+            Progress = 0;
+            var delta = (end - start + 1);
+            var individualIncrease = 1f / (((delta * delta) + delta) / 2);
+            if (AlphaSpace)
             {
                 string[] headers = null;
                 int bestIndex;
-                var data = this.LoadData( ref headers, out bestIndex ).ToArray();
-                try
-                {
-                    Parallel.For( 0, delta,
-                    delegate(int i)
-                    //for(int i = start; i <= end; i++)
+                var data = LoadData(ref headers, out bestIndex).ToArray();
+                SanitizeHeaders(headers);
+                using (BinaryWriter writer = new BinaryWriter(File.OpenWrite(OutputFile)))
+                { 
+                    writer.Write(headers.Length);
+                    for (int i = 0; i < headers.Length; i++)
                     {
-                        System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.BelowNormal;
-                        for ( int j = i; j < delta; j++ )
-                        {
-                            using ( Chart chart = new Chart() )
-                            {
-                                chart.Width = this.Width;
-                                chart.Height = this.Height;
-                                ChartArea ca;
-                                chart.ChartAreas.Add( ca = new ChartArea() );
-                                Series ourSeries = new Series();
+                        writer.Write(headers[i]);
+                    }
+                    var chartStream = from i in Enumerable.Range(0, headers.Length).AsParallel().AsOrdered()
+                                      from j in Enumerable.Range(0, i).AsParallel().AsOrdered()
+                                      select BuildChart(headers, i, j, data, bestIndex);
+                    List<byte[]> charts = new List<byte[]>();
+                    foreach (var chart in chartStream)
+                    {
+                        charts.Add(chart);
+                        Progress += individualIncrease;
+                    }
 
-                                ourSeries.ChartType = SeriesChartType.Point;
-                                this.ProcessData( data, bestIndex, ca, ourSeries, i, j );
-                                chart.Series.Add( ourSeries );
-                                if ( headers != null )
-                                {
-                                    ca.AxisX.Title = headers[i];
-                                    ca.AxisY.Title = headers[j];
-                                    chart.SaveImage( String.Format( "{0}-{1}.png", headers[i], headers[j] ), ChartImageFormat.Png );
-                                }
-                                else
-                                {
-                                    chart.SaveImage( String.Format( "{0}-{1}.png", i + start, j + start ), ChartImageFormat.Png );
-                                }
-                            }
-                            this.Progress += individualIncrease;
-                        }
-                    } );
-                }
-                catch ( AggregateException aggex )
-                {
-                    if ( aggex != null )
+                    for (int i = 0; i < charts.Count; i++)
                     {
-                        if ( aggex.InnerException != null )
-                        {
-                            throw new XTMFRuntimeException( aggex.InnerException.Message );
-                        }
-                        throw new XTMFRuntimeException( "Error trying to save the graph image file!" );
+                        writer.Write(charts[i].Length);
+                    }
+                    foreach (var chart in charts)
+                    {
+                        writer.Write(chart, 0, chart.Length);
                     }
                 }
             }
             else
             {
-                try
+                Parallel.For(start, end + 1,
+                delegate (int i)
                 {
-                    Parallel.For( start, end + 1,
-                    delegate(int i)
+                    System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.BelowNormal;
+                    for (int j = i; j <= end; j++)
                     {
-                        System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.BelowNormal;
-                        for ( int j = i; j <= end; j++ )
+                        using (Chart chart = new Chart())
                         {
-                            using ( Chart chart = new Chart() )
-                            {
-                                chart.Width = this.Width;
-                                chart.Height = this.Height;
-                                ChartArea ca;
-                                chart.ChartAreas.Add( ca = new ChartArea() );
-                                Series ourSeries = new Series();
-                                ourSeries.ChartType = SeriesChartType.Point;
-                                this.AddData( ca, ourSeries, i, j );
-                                chart.Series.Add( ourSeries );
-                                chart.SaveImage( String.Format( "{0}-{1}.png", i, j ), ChartImageFormat.Png );
-                            }
-                            this.Progress += individualIncrease;
+                            chart.Width = Width;
+                            chart.Height = Height;
+                            ChartArea ca;
+                            chart.ChartAreas.Add(ca = new ChartArea());
+                            Series ourSeries = new Series();
+                            ourSeries.ChartType = SeriesChartType.Point;
+                            AddData(ca, ourSeries, i, j);
+                            chart.Series.Add(ourSeries);
+                            chart.SaveImage(String.Format("{0}-{1}.png", i, j), ChartImageFormat.Png);
                         }
-                    } );
+                        Progress += individualIncrease;
+                    }
+                });
+            }
+            Progress = 1;
+        }
+
+        private byte[] BuildChart(string[] headers, int i, int j, Pair<double[], double>[] data, int bestIndex)
+        {
+            using (Chart chart = new Chart())
+            {
+                chart.Width = Width;
+                chart.Height = Height;
+                ChartArea ca;
+                chart.ChartAreas.Add(ca = new ChartArea());
+                Series ourSeries = new Series();
+
+                ourSeries.ChartType = SeriesChartType.Point;
+                ProcessData(data, bestIndex, ca, ourSeries, i, j);
+                chart.Series.Add(ourSeries);
+                if (headers != null)
+                {
+                    ca.AxisX.Title = headers[i];
+                    ca.AxisY.Title = headers[j];
                 }
-                catch ( AggregateException aggex )
+                var fileName = Path.GetTempFileName();
+                chart.SaveImage(String.Format(fileName, headers[i], headers[j]), ChartImageFormat.Png);
+                var asWritten = File.ReadAllBytes(fileName);
+                File.Delete(fileName);
+                return asWritten;
+            }
+        }
+
+        /// <summary>
+        /// Ensure the headers are valid file paths.
+        /// </summary>
+        /// <param name="headers"></param>
+        private void SanitizeHeaders(string[] headers)
+        {
+            if (headers == null)
+            {
+                return;
+            }
+            var invalidCharacters = Path.GetInvalidPathChars();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < headers.Length; i++)
+            {
+                sb.Clear();
+                sb.Append(headers[i].Replace(RemoveParamterPathHeader, ""));
+                for (int j = 0; j < sb.Length; j++)
                 {
-                    if ( aggex != null )
+                    if (invalidCharacters.Contains(sb[j]))
                     {
-                        if ( aggex.InnerException != null )
-                        {
-                            throw new XTMFRuntimeException( aggex.InnerException.Message );
-                        }
-                        throw new XTMFRuntimeException( "Error trying to save the graph image file!" );
+                        sb.Remove(j, 1);
+                        j--;
                     }
                 }
+                headers[i] = sb.ToString();
             }
-            this.Progress = 1;
         }
 
         private void AddData(ChartArea area, Series ourSeries, int first, int second)
         {
             List<DataPoint> points = new List<DataPoint>();
             List<double> pointHeight = new List<double>();
-            using ( StreamReader reader = new StreamReader( this.InputName ) )
+            using (StreamReader reader = new StreamReader(EstimationFile))
             {
                 int minNumberOfColumns = first + 1;
                 string line = null;
                 string[] parts = null;
                 double minHeight = double.MaxValue;
                 double maxHeight = double.MinValue;
-                minNumberOfColumns = Math.Max( minNumberOfColumns, this.LastDataCol + 1 );
-                minNumberOfColumns = Math.Max( minNumberOfColumns, this.ColourAxisCol + 1 );
+                minNumberOfColumns = Math.Max(minNumberOfColumns, LastDataCol + 1);
+                minNumberOfColumns = Math.Max(minNumberOfColumns, ColourAxisCol + 1);
                 do
                 {
                     try
                     {
-                        while ( ( line = reader.ReadLine() ) != null && ( ( parts = line.Split( ',' ) ).Length >= minNumberOfColumns ) )
+                        while ((line = reader.ReadLine()) != null && ((parts = line.Split(',')).Length >= minNumberOfColumns))
                         {
-                            double height = double.Parse( parts[this.ColourAxisCol] );
+                            double height = double.Parse(parts[ColourAxisCol]);
                             DataPoint point = new DataPoint();
-                            point.XValue = double.Parse( parts[first] );
-                            point.YValues = new double[] { double.Parse( parts[second] ) };
-                            if ( height > maxHeight ) maxHeight = height;
-                            if ( height < minHeight ) minHeight = height;
-                            points.Add( point );
-                            pointHeight.Add( height );
+                            point.XValue = double.Parse(parts[first]);
+                            point.YValues = new double[] { double.Parse(parts[second]) };
+                            if (height > maxHeight) maxHeight = height;
+                            if (height < minHeight) minHeight = height;
+                            points.Add(point);
+                            pointHeight.Add(height);
                             parts = null;
                         }
                     }
                     catch
                     {
-                        if ( parts != null )
+                        if (parts != null)
                         {
                             area.AxisX.Title = parts[first];
                             area.AxisY.Title = parts[second];
                         }
                     }
-                } while ( line != null );
+                } while (line != null);
             }
             // now process the colours
             Color red = Color.DarkBlue;
@@ -238,34 +270,34 @@ namespace TMG.NetworkEstimation
             var numberOfPoints = points.Count;
             int[] rank = new int[numberOfPoints];
             // pass 1, assign values
-            for ( int i = 0; i < numberOfPoints; i++ )
+            for (int i = 0; i < numberOfPoints; i++)
             {
                 rank[i] = i;
             }
             // pass 2 sort
-            Array.Sort( rank, new Comparison<int>( delegate(int f, int s)
-                {
-                    var res = ( pointHeight[f] - pointHeight[s] );
-                    if ( res < 0 ) return -1; if ( res > 0 ) return 1; return 0;
-                } ) );
+            Array.Sort(rank, new Comparison<int>(delegate (int f, int s)
+              {
+                  var res = (pointHeight[f] - pointHeight[s]);
+                  if (res < 0) return -1; if (res > 0) return 1; return 0;
+              }));
 
-            for ( int i = 0; i < numberOfPoints; i++ )
+            for (int i = 0; i < numberOfPoints; i++)
             {
-                if ( i == 0 )
+                if (i == 0)
                 {
                     points[rank[i]].Label = "Best";
                     points[rank[i]].Color = Color.MediumPurple;
                 }
-                else if ( i == numberOfPoints - 1 )
+                else if (i == numberOfPoints - 1)
                 {
                     points[rank[i]].Label = "Worst";
                     points[rank[i]].Color = Color.IndianRed;
                 }
                 else
                 {
-                    points[rank[i]].Color = Lerp( blue, red, (double)i / ( numberOfPoints - 1 ) );
+                    points[rank[i]].Color = Lerp(blue, red, (double)i / (numberOfPoints - 1));
                 }
-                ourSeries.Points.Add( points[rank[i]] );
+                ourSeries.Points.Add(points[rank[i]]);
             }
         }
 
@@ -273,11 +305,11 @@ namespace TMG.NetworkEstimation
         {
             int dim = XValues.Length;
             double distance = 0;
-            for ( int i = 0; i < dim; i++ )
+            for (int i = 0; i < dim; i++)
             {
-                if ( i != first && i != second )
+                if (i != first && i != second)
                 {
-                    distance += Math.Abs( BestValues[i] - XValues[i] );
+                    distance += Math.Abs(BestValues[i] - XValues[i]);
                 }
             }
             return (float)distance;
@@ -285,63 +317,63 @@ namespace TMG.NetworkEstimation
 
         private Color Lerp(Color lowColour, Color highColour, double distance)
         {
-            return Color.FromArgb( Lerp( lowColour.R, highColour.R, distance ), Lerp( lowColour.G, highColour.G, distance ), Lerp( lowColour.B, highColour.B, distance ) );
+            return Color.FromArgb(Lerp(lowColour.R, highColour.R, distance), Lerp(lowColour.G, highColour.G, distance), Lerp(lowColour.B, highColour.B, distance));
         }
 
         private int Lerp(byte l, byte h, double distance)
         {
-            return (byte)( ( h - l ) * distance + l );
+            return (byte)((h - l) * distance + l);
         }
 
         private List<Pair<double[], double>> LoadData(ref string[] headers, out int bestIndex)
         {
             List<Pair<double[], double>> Data = new List<Pair<double[], double>>();
             bestIndex = -1;
-            using ( StreamReader reader = new StreamReader( this.InputName ) )
+            using (StreamReader reader = new StreamReader(EstimationFile))
             {
-                int minNumberOfColumns = this.FirstDataCol + 1;
+                int minNumberOfColumns = FirstDataCol + 1;
                 string line = null;
                 string[] parts = null;
-                var dataColumns = this.LastDataCol - this.FirstDataCol + 1;
+                var dataColumns = LastDataCol - FirstDataCol + 1;
                 double minHeight = double.MaxValue;
-                minNumberOfColumns = Math.Max( minNumberOfColumns, this.LastDataCol + 1 );
-                minNumberOfColumns = Math.Max( minNumberOfColumns, this.ColourAxisCol + 1 );
+                minNumberOfColumns = Math.Max(minNumberOfColumns, LastDataCol + 1);
+                minNumberOfColumns = Math.Max(minNumberOfColumns, ColourAxisCol + 1);
                 do
                 {
                     try
                     {
-                        while ( ( line = reader.ReadLine() ) != null && ( ( parts = line.Split( ',' ) ).Length >= minNumberOfColumns ) )
+                        while ((line = reader.ReadLine()) != null && ((parts = line.Split(',')).Length >= minNumberOfColumns))
                         {
-                            double height = double.Parse( parts[this.ColourAxisCol] );
+                            double height = double.Parse(parts[ColourAxisCol]);
                             double[] data = new double[dataColumns];
-                            for ( int i = 0; i < dataColumns; i++ )
+                            for (int i = 0; i < dataColumns; i++)
                             {
-                                data[i] = double.Parse( parts[i + this.FirstDataCol] );
+                                data[i] = double.Parse(parts[i + FirstDataCol]);
                             }
-                            if ( height < minHeight )
+                            if (height < minHeight)
                             {
                                 minHeight = height;
                                 bestIndex = Data.Count;
                             }
-                            Data.Add( new Pair<double[], double>( data, height ) );
+                            Data.Add(new Pair<double[], double>(data, height));
                             parts = null;
                         }
                     }
                     catch
                     {
-                        if ( parts != null )
+                        if (parts != null)
                         {
-                            if ( headers == null )
+                            if (headers == null)
                             {
                                 headers = new string[dataColumns];
-                                for ( int i = 0; i < dataColumns; i++ )
+                                for (int i = 0; i < dataColumns; i++)
                                 {
-                                    headers[i] = parts[i + this.FirstDataCol];
+                                    headers[i] = parts[i + FirstDataCol];
                                 }
                             }
                         }
                     }
-                } while ( line != null );
+                } while (line != null);
             }
             return Data;
         }
@@ -357,46 +389,46 @@ namespace TMG.NetworkEstimation
             int[] distanceToBestRank = new int[numberOfPoints];
             double[] distanceFromBest = new double[numberOfPoints];
             // pass 1, assign values
-            for ( int i = 0; i < numberOfPoints; i++ )
+            for (int i = 0; i < numberOfPoints; i++)
             {
-                points[i] = new DataPoint( data[i].First[first], data[i].First[second] );
+                points[i] = new DataPoint(data[i].First[first], data[i].First[second]);
                 goodnessOfFitRank[i] = i;
                 distanceToBestRank[i] = i;
-                distanceFromBest[i] = this.CalculateCloseness( data[i].First, data[bestIndex].First, first, second );
+                distanceFromBest[i] = CalculateCloseness(data[i].First, data[bestIndex].First, first, second);
             }
             // pass 2 sort
-            Array.Sort( goodnessOfFitRank, new Comparison<int>( delegate(int f, int s)
+            Array.Sort(goodnessOfFitRank, new Comparison<int>(delegate (int f, int s)
+          {
+              var res = (data[f].Second - data[s].Second);
+              if (res < 0) return -1; if (res > 0) return 1; return 0;
+          }));
+            Array.Sort(distanceToBestRank, new Comparison<int>(delegate (int f, int s)
+          {
+              var res = (distanceFromBest[f] - distanceFromBest[s]);
+              if (res < 0) return -1; if (res > 0) return 1; return 0;
+          }));
+            for (int i = 0; i < numberOfPoints; i++)
             {
-                var res = ( data[f].Second - data[s].Second );
-                if ( res < 0 ) return -1; if ( res > 0 ) return 1; return 0;
-            } ) );
-            Array.Sort( distanceToBestRank, new Comparison<int>( delegate(int f, int s)
-            {
-                var res = ( distanceFromBest[f] - distanceFromBest[s] );
-                if ( res < 0 ) return -1; if ( res > 0 ) return 1; return 0;
-            } ) );
-            for ( int i = 0; i < numberOfPoints; i++ )
-            {
-                if ( i == 0 )
+                if (i == 0)
                 {
                     points[goodnessOfFitRank[i]].Label = "Best";
                     points[goodnessOfFitRank[i]].Color = Color.MediumPurple;
                 }
-                else if ( i == numberOfPoints - 1 )
+                else if (i == numberOfPoints - 1)
                 {
                     points[goodnessOfFitRank[i]].Label = "Worst";
                     points[goodnessOfFitRank[i]].Color = Color.IndianRed;
                 }
                 else
                 {
-                    points[goodnessOfFitRank[i]].Color = Lerp( blue, red, (double)i / ( numberOfPoints - 1 ) );
+                    points[goodnessOfFitRank[i]].Color = Lerp(blue, red, (double)i / (numberOfPoints - 1));
                 }
-                ourSeries.Points.Add( points[goodnessOfFitRank[i]] );
+                ourSeries.Points.Add(points[goodnessOfFitRank[i]]);
             }
-            for ( int i = 0; i < numberOfPoints; i++ )
+            for (int i = 0; i < numberOfPoints; i++)
             {
-                points[distanceToBestRank[i]].Color = Color.FromArgb( (byte)( 255 * ( 1 - ( (float)i / numberOfPoints ) ) ),
-                    points[distanceToBestRank[i]].Color.R, points[distanceToBestRank[i]].Color.G, points[distanceToBestRank[i]].Color.B );
+                points[distanceToBestRank[i]].Color = Color.FromArgb((byte)(255 * (1 - ((float)i / numberOfPoints))),
+                    points[distanceToBestRank[i]].Color.R, points[distanceToBestRank[i]].Color.G, points[distanceToBestRank[i]].Color.B);
             }
         }
     }
