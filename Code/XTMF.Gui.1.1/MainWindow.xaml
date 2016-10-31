@@ -48,6 +48,7 @@
                     <MenuItem Header="_Project" Click="OpenProject_Click" />
                     <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
                 </MenuItem>
+                <MenuItem x:Name="RecentProjectsMenuItem" Header="_RecentProjects"/>
                 <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="{Binding CanClose, Mode=OneWay}" />
                 <Separator Background="{StaticResource ControlBackgroundBrush}" />
                 <MenuItem x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click" IsEnabled="{Binding CanSave, Mode=OneWay}">

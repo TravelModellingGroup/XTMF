@@ -149,6 +149,20 @@ namespace XTMF
 
         public BindingListWithRemoving<IProgressReport> ProgressReports { get; private set; }
 
+        private List<string> _recentProjects;
+
+        public List<string> RecentProjects
+        {
+            get
+            {
+                return _recentProjects;
+            }
+            private set
+            {
+                this._recentProjects = value;
+            }
+        }
+
         private string _ProjectDirectory;
         public string ProjectDirectory
         {
@@ -626,12 +640,30 @@ namespace XTMF
             }
             return false;
         }
+        public void AddRecentProject(string name)
+        {
+            this._recentProjects.Remove(name);
+            this._recentProjects.Insert(0, name);
+        }
 
         private void LoadConfigurationFile(string configFileName)
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(configFileName);
-            var root = doc["Root"];
+         
+
+            XmlElement root;
+            try
+            {
+                doc.Load(configFileName);
+               
+            }
+            catch(XmlException exception)
+            {
+                SaveConfiguration(configFileName);
+                return;
+            }
+
+            root = doc["Root"];
             if (root == null || !root.HasChildNodes)
             {
                 SaveConfiguration(configFileName);
@@ -642,6 +674,16 @@ namespace XTMF
             {
                 switch (child.Name)
                 {
+                    case "RecentProjects":
+
+                        foreach(XmlNode recentProjectNode in child.ChildNodes)
+                        {
+                            this.AddRecentProject(recentProjectNode.Attributes["Name"].Value);
+  
+                            
+                        }
+
+                        break;
                     case "ProjectDirectory":
                         {
                             var attribute = child.Attributes["Value"];
@@ -784,6 +826,7 @@ namespace XTMF
 
         private void LoadUserConfiguration(string configFile)
         {
+            this.RecentProjects = new List<string>();
             this.ConfigurationFileName = configFile;
             var directory = this.ConfigurationDirectory;
             var defaultProjectDirectory =
@@ -820,6 +863,8 @@ namespace XTMF
                 writer.WriteAttributeString("Value", this.ProjectDirectory);
                 writer.WriteEndElement();
 
+          
+
                 writer.WriteStartElement("ModelSystemDirectory");
                 writer.WriteAttributeString("Value", this.ModelSystemDirectory);
                 writer.WriteEndElement();
@@ -847,6 +892,22 @@ namespace XTMF
                         }
                     }
                 }
+
+                // Write recent projects to configuration
+                writer.WriteStartElement("RecentProjects");
+
+
+              
+                foreach(string project in this._recentProjects)
+                {
+                    writer.WriteStartElement("Project");
+                    writer.WriteAttributeString("Name", project);
+                    writer.WriteEndElement();
+
+                }
+
+
+                writer.WriteEndElement();
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();
                 writer.WriteEndDocument();

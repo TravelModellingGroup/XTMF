@@ -112,8 +112,9 @@ namespace XTMF.Gui.UserControls
             LoadProject(project);
         }
 
-        private void LoadProject(Project project)
+        public void LoadProject(Project project)
         {
+            
             if (project != null)
             {
                 ProjectEditingSession session = null;
@@ -138,6 +139,10 @@ namespace XTMF.Gui.UserControls
                 {
                     progressing.Close();
                 }));
+                this.Runtime.Configuration.AddRecentProject(project.Name);
+                this.Runtime.Configuration.Save();
+
+
             }
         }
 

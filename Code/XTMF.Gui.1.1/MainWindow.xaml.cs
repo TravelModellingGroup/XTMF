@@ -67,6 +67,37 @@ namespace XTMF.Gui
             InitializeComponent();
             Loaded += FrameworkElement_Loaded;
             Us = this;
+
+            //List<string> recentProjects = EditorController.Runtime.Configuration.RecentProjects;
+         
+        }
+
+        /// <summary>
+        /// Updates GUI with recently opened projects.
+        /// </summary>
+        private void UpdateRecentProjectsMenu()
+        {
+            List<string> recentProjects = EditorController.Runtime.Configuration.RecentProjects;
+
+            RecentProjectsMenuItem.Items.Clear();
+            foreach(string recentProject in recentProjects)
+            {
+                MenuItem recentProjectMenuItem = new MenuItem();
+                recentProjectMenuItem.Header = recentProject;
+                RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
+
+                recentProjectMenuItem.Click += (sender, EventArgs) =>
+                {
+                    RecentProjectMenuItem_Click(sender, EventArgs, recentProject);
+                };
+                
+            }
+        }
+
+        private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName)
+        {
+            Project project = new Project(projectName, EditorController.Runtime.Configuration, false);
+            LoadProject(project);
         }
 
         private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)
@@ -79,9 +110,46 @@ namespace XTMF.Gui
                     {
                         IsEnabled = true;
                         StatusDisplay.Text = "Ready";
+                        UpdateRecentProjectsMenu();
+                    
                     }));
             });
             ShowStart_Click(this, null);
+
+        }
+
+        public void LoadProject(Project project)
+        {
+
+            if (project != null)
+            {
+                ProjectEditingSession session = null;
+                OperationProgressing progressing = new OperationProgressing()
+                {
+                    Owner = this
+                };
+                var loadingTask = Task.Run(() =>
+                {
+                    session = EditorController.Runtime.ProjectController.EditProject(project);
+                });
+                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    progressing.ShowDialog();
+                }));
+                loadingTask.Wait();
+                if (session != null)
+                {
+                    MainWindow.Us.EditProject(session);
+                }
+                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    progressing.Close();
+                }));
+                EditorController.Runtime.Configuration.AddRecentProject(project.Name);
+                EditorController.Runtime.Configuration.Save();
+
+
+            }
         }
 
         internal static MainWindow Us;
@@ -96,6 +164,7 @@ namespace XTMF.Gui
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
+
             Close();
         }
 
