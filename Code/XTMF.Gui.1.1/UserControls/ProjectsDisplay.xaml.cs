@@ -141,6 +141,7 @@ namespace XTMF.Gui.UserControls
                 }));
                 this.Runtime.Configuration.AddRecentProject(project.Name);
                 this.Runtime.Configuration.Save();
+                this.RefreshProjects();
 
 
             }
@@ -261,6 +262,7 @@ namespace XTMF.Gui.UserControls
         private void RenameCurrentProject()
         {
             var project = Display.SelectedItem as Project;
+            var name = project.Name;
             if (project != null)
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
@@ -275,6 +277,9 @@ namespace XTMF.Gui.UserControls
                     }
                     else
                     {
+                        Runtime.Configuration.RenameRecentProject(name, result);
+                        Runtime.Configuration.Save();
+
                         RefreshProjects();
                     }
                 }, selectedModuleControl, project.Name);
@@ -316,6 +321,9 @@ namespace XTMF.Gui.UserControls
             Display.Items.Refresh();
             FilterBox.RefreshFilter();
             Display.SelectedItem = selected;
+
+            MainWindow window = this.GetWindow() as MainWindow;
+            window.UpdateRecentProjectsMenu();
         }
 
         private void Adorn_Unloaded(object sender, RoutedEventArgs e)
@@ -341,8 +349,15 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
+                   
+
+                    Runtime.Configuration.AddRecentProject(sr.Answer);
+                    Runtime.Configuration.Save();
+
                     RefreshProjects();
+
                 }
+
             }
         }
 
@@ -360,8 +375,15 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
-                    RefreshProjects();
+                   
                 }
+
+                //remove from recent projects
+                Runtime.Configuration.RemoveRecentProject(project.Name);
+                Runtime.Configuration.Save();
+
+                RefreshProjects();
+   
             }
         }
 

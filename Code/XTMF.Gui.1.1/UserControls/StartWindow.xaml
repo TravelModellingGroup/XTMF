@@ -77,7 +77,7 @@
                             <RowDefinition Height="AUTO" MinHeight="200" />
                             <RowDefinition Height="*" MinHeight="200" />
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left">
+                        <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
                             <Label Content="Projects" FontSize="18" Foreground="White" />
                             <Label Style="{StaticResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
                             <Label Style="{StaticResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
@@ -87,6 +87,19 @@
                             <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
                             <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
                         </StackPanel>
+                        <ListView x:Name="RecentProjectsListView" HorizontalAlignment="Left" Height="100" Margin="10,100,0,0" VerticalAlignment="Top" Width="170" Background="{x:Null}" Foreground="White" BorderThickness="0">
+                            <ListView.View>
+                                
+                                <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
                     </Grid>
                 </Border>
             </Grid>

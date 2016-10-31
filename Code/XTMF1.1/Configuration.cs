@@ -640,6 +640,17 @@ namespace XTMF
             }
             return false;
         }
+
+        public void RenameRecentProject(string oldProjectName, string newProjectName)
+        {
+            this.RemoveRecentProject(oldProjectName);
+            this.AddRecentProject(newProjectName);
+        }
+
+        public void RemoveRecentProject(string name)
+        {
+            this._recentProjects.Remove(name);
+        }
         public void AddRecentProject(string name)
         {
             this._recentProjects.Remove(name);

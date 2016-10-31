@@ -19,9 +19,14 @@ namespace XTMF.Gui
     /// </summary>
     public partial class StartWindow : UserControl
     {
+
+        private List<Label> recentProjectLabels = new List<Label>();
         public StartWindow()
         {
             InitializeComponent();
+
+
+          
         }
 
         private void NewProject_MouseUp(object sender, MouseButtonEventArgs e)
@@ -44,5 +49,6 @@ namespace XTMF.Gui
             MainWindow.Us.OpenModelSystem();
         }
 
+      
     }
 }

@@ -47,6 +47,10 @@ namespace XTMF.Gui
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        private StartWindow startWindow;
+
+
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
             get { return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty); }
@@ -75,7 +79,7 @@ namespace XTMF.Gui
         /// <summary>
         /// Updates GUI with recently opened projects.
         /// </summary>
-        private void UpdateRecentProjectsMenu()
+        public void UpdateRecentProjectsMenu()
         {
             List<string> recentProjects = EditorController.Runtime.Configuration.RecentProjects;
 
@@ -147,6 +151,7 @@ namespace XTMF.Gui
                 }));
                 EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                 EditorController.Runtime.Configuration.Save();
+                UpdateRecentProjectsMenu();
 
 
             }
@@ -389,6 +394,7 @@ namespace XTMF.Gui
         private void NewModelSystemButton_Click(object sender, RoutedEventArgs e)
         {
             NewModelSystem();
+
         }
 
         public void NewModelSystem()
@@ -412,6 +418,9 @@ namespace XTMF.Gui
                 string error = null;
                 var ms = EditorController.Runtime.ProjectController.LoadOrCreate(name, ref error);
                 EditProject(EditorController.Runtime.ProjectController.EditProject(ms));
+                EditorController.Runtime.Configuration.AddRecentProject(ms.Name);
+                EditorController.Runtime.Configuration.Save();
+                UpdateRecentProjectsMenu();
             }
         }
 
@@ -552,7 +561,8 @@ namespace XTMF.Gui
 
         private void ShowStart_Click(object sender, RoutedEventArgs e)
         {
-            var doc = AddNewWindow("Start", new StartWindow(), typeof(ActiveEditingSessionDisplayModel));
+            this.startWindow = new StartWindow();
+            var doc = AddNewWindow("Start", startWindow, typeof(ActiveEditingSessionDisplayModel));
         }
 
         private void CloseMenu_Click(object sender, RoutedEventArgs e)
