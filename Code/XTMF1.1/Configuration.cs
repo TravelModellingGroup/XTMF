@@ -644,6 +644,11 @@ namespace XTMF
         {
             this._recentProjects.Remove(name);
             this._recentProjects.Insert(0, name);
+
+            if(this._recentProjects.Count > 5)
+            {
+                this._recentProjects.RemoveAt(5);
+            }
         }
 
         private void LoadConfigurationFile(string configFileName)
