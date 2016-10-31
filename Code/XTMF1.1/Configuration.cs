@@ -52,17 +52,17 @@ namespace XTMF
         public Configuration(string configurationFileName, Assembly baseAssembly = null)
         {
             HostPort = 1447;
-            this.BaseAssembly = baseAssembly;
-            this.ProgressReports = new BindingListWithRemoving<IProgressReport>();
-            this.LoadUserConfiguration(configurationFileName);
+            BaseAssembly = baseAssembly;
+            ProgressReports = new BindingListWithRemoving<IProgressReport>();
+            LoadUserConfiguration(configurationFileName);
             Directory.SetCurrentDirectory(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
-            this.ModelRepository = new ModuleRepository();
-            this.ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
+            ModelRepository = new ModuleRepository();
+            ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
             LoadVersion();
             LoadModules();
             try
             {
-                this.ModelSystemRepository = new ModelSystemRepository(this);
+                ModelSystemRepository = new ModelSystemRepository(this);
             }
             catch (Exception e)
             {
@@ -72,7 +72,7 @@ namespace XTMF
             
             try
             {
-                this.ProjectRepository = new ProjectRepository(this);
+                ProjectRepository = new ProjectRepository(this);
             }
             catch(Exception e)
             {
@@ -159,7 +159,7 @@ namespace XTMF
             }
             private set
             {
-                this._recentProjects = value;
+                _recentProjects = value;
             }
         }
 
@@ -215,7 +215,7 @@ namespace XTMF
         {
             lock (this)
             {
-                foreach (var report in this.ProgressReports)
+                foreach (var report in ProgressReports)
                 {
                     if (report.Name == name)
                     {
@@ -223,7 +223,7 @@ namespace XTMF
                         return;
                     }
                 }
-                this.ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = c });
+                ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = c });
             }
         }
 
@@ -231,7 +231,7 @@ namespace XTMF
         {
             lock (this)
             {
-                this.ProgressReports.Clear();
+                ProgressReports.Clear();
             }
         }
 
@@ -239,11 +239,11 @@ namespace XTMF
         {
             lock (this)
             {
-                for (int i = 0; i < this.ProgressReports.Count; i++)
+                for (int i = 0; i < ProgressReports.Count; i++)
                 {
-                    if (this.ProgressReports[i].Name == name)
+                    if (ProgressReports[i].Name == name)
                     {
-                        this.ProgressReports.RemoveAt(i);
+                        ProgressReports.RemoveAt(i);
                         break;
                     }
                 }
@@ -255,7 +255,7 @@ namespace XTMF
             lock (this)
             {
                 Thread.MemoryBarrier();
-                return this.CurrentHost;
+                return CurrentHost;
             }
         }
 
@@ -265,7 +265,7 @@ namespace XTMF
             {
                 return false;
             }
-            var destName = Path.Combine(this.ModuleDirectory, Path.GetFileName(moduleFileName));
+            var destName = Path.Combine(ModuleDirectory, Path.GetFileName(moduleFileName));
             if (File.Exists(destName))
             {
                 return false;
@@ -278,63 +278,49 @@ namespace XTMF
             {
                 return false;
             }
-            this.LoadAssembly(Assembly.LoadFrom(destName));
+            LoadAssembly(Assembly.LoadFrom(destName));
             return true;
         }
 
         public void ModelSystemExited()
         {
-            if (this.OnModelSystemExit != null)
+            if (OnModelSystemExit != null)
             {
                 try
                 {
-                    this.OnModelSystemExit();
+                    OnModelSystemExit();
                 }
                 catch
                 {
                 }
-                var dels = this.OnModelSystemExit.GetInvocationList();
+                var dels = OnModelSystemExit.GetInvocationList();
                 foreach (Delegate d in dels)
                 {
-                    this.OnModelSystemExit -= (Action)d;
+                    OnModelSystemExit -= (Action)d;
                 }
-                this.OnModelSystemExit = null;
+                OnModelSystemExit = null;
             }
         }
 
         public IClient RetriveCurrentNetworkingClient()
         {
-            return this.CurrentClient;
+            return CurrentClient;
         }
 
         public void Save()
         {
-            this.SaveConfiguration(this.ConfigurationFileName);
+            SaveConfiguration(ConfigurationFileName);
         }
 
         public bool CheckProjectExists(string name)
         {
-            if (!Directory.Exists(this.ProjectDirectory)) return false;
-
-            // string [] projectFiles = Directory.GetFiles(this.Configuration.ProjectDirectory + "/" + name);
-
-            var files = Directory.GetFiles(this.ProjectDirectory + "/" + name, "Project.xml", SearchOption.TopDirectoryOnly);
-
-            if (files.Length <= 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-
-
+            DirectoryInfo info = new DirectoryInfo(Path.Combine(ProjectDirectory, name));
+            return (info.Exists && info.GetFiles().Any(fileInfo => fileInfo.Name == "Project.xml"));
         }
 
         public bool SetProjectDirectory(string dir, ref string error)
         {
-            if (!this.ValidateProjectDirectory(dir, ref error))
+            if (!ValidateProjectDirectory(dir, ref error))
             {
                 return false;
             }
@@ -364,7 +350,7 @@ namespace XTMF
                     return false;
                 }
             }
-            this.ProjectDirectory = dir;
+            ProjectDirectory = dir;
             return true;
         }
 
@@ -423,7 +409,7 @@ namespace XTMF
 
         public bool SetModelSystemDirectory(string dir, ref string error)
         {
-            if (!this.ValidateProjectDirectory(dir, ref error))
+            if (!ValidateProjectDirectory(dir, ref error))
             {
                 return false;
             }
@@ -452,7 +438,7 @@ namespace XTMF
                     return false;
                 }
             }
-            this.ModelSystemDirectory = dir;
+            ModelSystemDirectory = dir;
             return true;
         }
 
@@ -462,23 +448,23 @@ namespace XTMF
             lock (this)
             {
                 Thread.MemoryBarrier();
-                if (this.CurrentClient != null)
+                if (CurrentClient != null)
                 {
-                    networkingClient = this.CurrentClient;
+                    networkingClient = CurrentClient;
                     return true;
                 }
                 else
                 {
                     try
                     {
-                        this.CurrentClient = new Client(this.RemoteServerAddress, this.RemoteServerPort, this);
+                        CurrentClient = new Client(RemoteServerAddress, RemoteServerPort, this);
                     }
                     catch
                     {
                         return false;
                     }
                     Thread.MemoryBarrier();
-                    networkingClient = this.CurrentClient;
+                    networkingClient = CurrentClient;
                     return true;
                 }
             }
@@ -490,11 +476,11 @@ namespace XTMF
             lock (this)
             {
                 Thread.MemoryBarrier();
-                if (this.CurrentHost == null || this.CurrentHost.IsShutdown)
+                if (CurrentHost == null || CurrentHost.IsShutdown)
                 {
                     try
                     {
-                        this.CurrentHost = new Host(this);
+                        CurrentHost = new Host(this);
                     }
                     catch
                     {
@@ -503,10 +489,10 @@ namespace XTMF
                 }
                 else
                 {
-                    ((Host)this.CurrentHost).ReleaseRegisteredHandlers();
+                    ((Host)CurrentHost).ReleaseRegisteredHandlers();
                 }
                 Thread.MemoryBarrier();
-                networkingHost = this.CurrentHost;
+                networkingHost = CurrentHost;
             }
             return true;
         }
@@ -515,7 +501,7 @@ namespace XTMF
         {
             lock (this)
             {
-                foreach (var report in this.ProgressReports)
+                foreach (var report in ProgressReports)
                 {
                     if (report.Name == name)
                     {
@@ -582,15 +568,15 @@ namespace XTMF
                         LoadError = error;
                     }
                     // we know then that this is an IModel
-                    lock (this.ModelRepository)
+                    lock (ModelRepository)
                     {
-                        this.ModelRepository.AddModule(type);
+                        ModelRepository.AddModule(type);
                     }
                     if (modelSystem.IsAssignableFrom(type))
                     {
-                        lock (this.ModelSystemTemplateRepository)
+                        lock (ModelSystemTemplateRepository)
                         {
-                            this.ModelSystemTemplateRepository.Add(type);
+                            ModelSystemTemplateRepository.Add(type);
                         }
                     }
                 }
@@ -663,22 +649,22 @@ namespace XTMF
 
         public void RenameRecentProject(string oldProjectName, string newProjectName)
         {
-            this.RemoveRecentProject(oldProjectName);
-            this.AddRecentProject(newProjectName);
+            RemoveRecentProject(oldProjectName);
+            AddRecentProject(newProjectName);
         }
 
         public void RemoveRecentProject(string name)
         {
-            this._recentProjects.Remove(name);
+            _recentProjects.Remove(name);
         }
         public void AddRecentProject(string name)
         {
-            this._recentProjects.Remove(name);
-            this._recentProjects.Insert(0, name);
+            _recentProjects.Remove(name);
+            _recentProjects.Insert(0, name);
 
-            if(this._recentProjects.Count > 5)
+            if(_recentProjects.Count > 5)
             {
-                this._recentProjects.RemoveAt(5);
+                _recentProjects.RemoveAt(5);
             }
         }
 
@@ -718,7 +704,7 @@ namespace XTMF
                             var projectName = recentProjectNode.Attributes["Name"].Value;
                             if (CheckProjectExists(projectName))
                             {
-                                this.AddRecentProject(projectName);
+                                AddRecentProject(projectName);
                             }
   
                             
@@ -732,7 +718,7 @@ namespace XTMF
                             {
                                 var dir = attribute.InnerText;
                                 string error = null;
-                                if(!this.SetProjectDirectory(dir, ref error))
+                                if(!SetProjectDirectory(dir, ref error))
                                 {
                                     LoadError = error;
                                     LoadErrorTerminal = true;
@@ -747,7 +733,7 @@ namespace XTMF
                             {
                                 var dir = attribute.InnerText;
                                 string error = null;
-                                if (!this.SetModelSystemDirectory(dir, ref error))
+                                if (!SetModelSystemDirectory(dir, ref error))
                                 {
                                     LoadError = error;
                                     LoadErrorTerminal = true;
@@ -788,7 +774,7 @@ namespace XTMF
                             var attribute = child.Attributes["Value"];
                             if (attribute != null)
                             {
-                                this.AdditionalSettings[child.Name] = attribute.InnerText;
+                                AdditionalSettings[child.Name] = attribute.InnerText;
                             }
                         }
                         break;
@@ -832,7 +818,7 @@ namespace XTMF
             // load in the types from system
             LoadAssembly(typeof(float).GetType().Assembly);
             // Load the given base assembly
-            if (this.BaseAssembly != null)
+            if (BaseAssembly != null)
             {
                 LoadAssembly(BaseAssembly);
             }
@@ -845,15 +831,15 @@ namespace XTMF
                     LoadAssembly(baseAssembly);
                 }
             }
-            if (Directory.Exists(this.ModuleDirectory))
+            if (Directory.Exists(ModuleDirectory))
             {
-                var files = Directory.GetFiles(this.ModuleDirectory, "*.dll");
+                var files = Directory.GetFiles(ModuleDirectory, "*.dll");
                 Parallel.For(0, files.Length,
                     (int i) =>
                     {
                         try
                         {
-                            this.LoadAssembly((Assembly.Load(Path.GetFileNameWithoutExtension(files[i]))));
+                            LoadAssembly((Assembly.Load(Path.GetFileNameWithoutExtension(files[i]))));
                         }
                         catch (Exception e)
                         {
@@ -867,28 +853,28 @@ namespace XTMF
 
         private void LoadUserConfiguration(string configFile)
         {
-            this.RecentProjects = new List<string>();
-            this.ConfigurationFileName = configFile;
-            var directory = this.ConfigurationDirectory;
+            RecentProjects = new List<string>();
+            ConfigurationFileName = configFile;
+            var directory = ConfigurationDirectory;
             var defaultProjectDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "XTMF", "Projects");
-            this.ProjectDirectory = defaultProjectDirectory;
-            this.AutoSave = true;
+            ProjectDirectory = defaultProjectDirectory;
+            AutoSave = true;
             var msDir = Path.Combine(directory, "ModelSystems");
             if (!Directory.Exists(msDir))
             {
                 Directory.CreateDirectory(msDir);
             }
-            this.ModelSystemDirectory = msDir;
-            this.AdditionalSettings["UseGlass"] = "false";
-            this.AdditionalSettings["EditProjects"] = "false";
+            ModelSystemDirectory = msDir;
+            AdditionalSettings["UseGlass"] = "false";
+            AdditionalSettings["EditProjects"] = "false";
             if (!File.Exists(configFile))
             {
-                this.SaveConfiguration(configFile);
+                SaveConfiguration(configFile);
             }
             else
             {
-                this.LoadConfigurationFile(configFile);
+                LoadConfigurationFile(configFile);
             }
         }
 
@@ -901,28 +887,28 @@ namespace XTMF
                 writer.WriteStartElement("Root");
                 // Now that we have it all started we can go and write in all of the setting that we are going to need
                 writer.WriteStartElement("ProjectDirectory");
-                writer.WriteAttributeString("Value", this.ProjectDirectory);
+                writer.WriteAttributeString("Value", ProjectDirectory);
                 writer.WriteEndElement();
 
           
 
                 writer.WriteStartElement("ModelSystemDirectory");
-                writer.WriteAttributeString("Value", this.ModelSystemDirectory);
+                writer.WriteAttributeString("Value", ModelSystemDirectory);
                 writer.WriteEndElement();
                 // Auto Save
                 writer.WriteStartElement("AutoSave");
-                writer.WriteAttributeString("Value", this.AutoSave.ToString());
+                writer.WriteAttributeString("Value", AutoSave.ToString());
                 writer.WriteEndElement();
                 // Host Port
                 writer.WriteStartElement("HostPort");
                 writer.WriteAttributeString("Value", HostPort.ToString());
                 writer.WriteEndElement();
 
-                if (this.AdditionalSettings != null)
+                if (AdditionalSettings != null)
                 {
-                    if (this.AdditionalSettings.Count > 0)
+                    if (AdditionalSettings.Count > 0)
                     {
-                        foreach (var setting in this.AdditionalSettings)
+                        foreach (var setting in AdditionalSettings)
                         {
                             if (setting.Value != null && setting.Key != null)
                             {
@@ -939,7 +925,7 @@ namespace XTMF
 
 
               
-                foreach(string project in this._recentProjects)
+                foreach(string project in _recentProjects)
                 {
                     writer.WriteStartElement("Project");
                     writer.WriteAttributeString("Name", project);
@@ -978,29 +964,29 @@ namespace XTMF
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool all)
         {
-            if (this.CurrentHost != null)
+            if (CurrentHost != null)
             {
-                var disp = this.CurrentHost as IDisposable;
+                var disp = CurrentHost as IDisposable;
                 if (disp != null)
                 {
                     disp.Dispose();
                 }
-                this.CurrentHost = null;
+                CurrentHost = null;
             }
-            if (this.CurrentClient != null)
+            if (CurrentClient != null)
             {
-                var disp = this.CurrentClient as IDisposable;
+                var disp = CurrentClient as IDisposable;
                 if (disp != null)
                 {
                     disp.Dispose();
                 }
-                this.CurrentClient = null;
+                CurrentClient = null;
             }
         }
     }
