@@ -1328,7 +1328,13 @@ namespace XTMF.Gui.UserControls
                               }
                           }
                       });
-                       RefreshParameters();
+
+                       /* Remove the module from selected items */
+                       CurrentlySelected.Remove(selected);
+                      
+                 
+           
+                       UpdateParameters();
                        Keyboard.Focus(ModuleDisplay);
                    }
                    string error = null;
