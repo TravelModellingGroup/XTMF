@@ -312,6 +312,26 @@ namespace XTMF
             this.SaveConfiguration(this.ConfigurationFileName);
         }
 
+        public bool CheckProjectExists(string name)
+        {
+            if (!Directory.Exists(this.ProjectDirectory)) return false;
+
+            // string [] projectFiles = Directory.GetFiles(this.Configuration.ProjectDirectory + "/" + name);
+
+            var files = Directory.GetFiles(this.ProjectDirectory + "/" + name, "Project.xml", SearchOption.TopDirectoryOnly);
+
+            if (files.Length <= 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+
+
+        }
+
         public bool SetProjectDirectory(string dir, ref string error)
         {
             if (!this.ValidateProjectDirectory(dir, ref error))
@@ -694,7 +714,12 @@ namespace XTMF
 
                         foreach(XmlNode recentProjectNode in child.ChildNodes)
                         {
-                            this.AddRecentProject(recentProjectNode.Attributes["Name"].Value);
+
+                            var projectName = recentProjectNode.Attributes["Name"].Value;
+                            if (CheckProjectExists(projectName))
+                            {
+                                this.AddRecentProject(projectName);
+                            }
   
                             
                         }

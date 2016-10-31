@@ -206,6 +206,8 @@ namespace XTMF
             return true;
         }
 
+       
+
         private void FindAndLoadProjects()
         {
             if (!Directory.Exists(this.Configuration.ProjectDirectory)) return;
