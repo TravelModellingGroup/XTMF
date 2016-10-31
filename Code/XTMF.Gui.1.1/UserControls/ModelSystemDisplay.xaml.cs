@@ -1333,7 +1333,6 @@ namespace XTMF.Gui.UserControls
                        CurrentlySelected.Remove(selected);
                       
                  
-           
                        UpdateParameters();
                        Keyboard.Focus(ModuleDisplay);
                    }
