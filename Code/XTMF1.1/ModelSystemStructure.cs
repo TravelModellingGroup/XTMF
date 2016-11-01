@@ -835,8 +835,42 @@ namespace XTMF
             return null;
         }
 
+        /// <summary>
+        /// Discern the type of the passed XmlNode. Currently either collection or single module type.
+        /// This is done to somewhat prevent broken project / model system loading of the underlying DLL definition changes.
+        /// </summary>
+        /// <param name="parent">The parent ModelSystemStructure element to this passed node.</param>
+        /// <param name="currentNode">The node being investigated for its "code" type.</param>
+        /// <returns>Returns the Type of the passed node, null if no type could be matched.</returns>
+        private static Type DiscernType(IModelSystemStructure parent, XmlNode currentNode)
+        {
+
+            Type type = parent.Type;
+            if (type == null)
+            {
+                return null;
+            }
+            if (currentNode.Attributes["Name"] != null)
+            {
+                System.Reflection.FieldInfo[] fieldsInfo = type.GetFields();
+                foreach (var field in fieldsInfo)
+                {
+
+                    if (field.Name == currentNode.Attributes["Name"].Value)
+                    {
+               
+                        return field.FieldType;
+                    }
+                }
+            }
+      
+
+            return null;
+        }
+
         private static void Load(IModelSystemStructure projectStructure, IModelSystemStructure parent, XmlNode currentNode, IConfiguration config, Dictionary<int, Type> lookup)
         {
+
             var nameAttribute = currentNode.Attributes["Name"];
             var descriptionAttribute = currentNode.Attributes["Description"];
             var typeAttribute = currentNode.Attributes["Type"];
@@ -863,6 +897,7 @@ namespace XTMF
                 }
                 if (index >= 0)
                 {
+
                     Type t;
                     if (lookup.TryGetValue(index, out t))
                     {
@@ -1015,27 +1050,49 @@ namespace XTMF
             }
         }
 
+
+
         private static void LoadChildNode(IModelSystemStructure modelSystemStructure, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
-            switch (child.Name)
+            /* Check the parent class type */
+            Type type = DiscernType(modelSystemStructure, child);
+           // Console.WriteLine(type);
+        
+            if(type != null)
             {
-                case "Module":
-                    {
-                        LoadModule(modelSystemStructure, child, config, lookUp);
-                    }
-                    break;
+                if(typeof(ICollection<IModule>).IsAssignableFrom(type))
+                {
+                    LoadCollection(modelSystemStructure, child, config, lookUp);
+                }
+                else if(typeof(IModule).IsAssignableFrom(type))
+                {
+                    LoadModule(modelSystemStructure, child, config, lookUp);
+                }
+            }
+            else
+            {
 
-                case "Collection":
-                    {
-                        LoadCollection(modelSystemStructure, child, config, lookUp);
-                    }
-                    break;
+        
+                switch (child.Name)
+                {
+                    case "Module":
+                        {
+                            LoadModule(modelSystemStructure, child, config, lookUp);
+                        }
+                        break;
 
-                case "Parameters":
-                    {
-                        LoadParameters(modelSystemStructure, child, lookUp);
-                    }
-                    break;
+                    case "Collection":
+                        {
+                            LoadCollection(modelSystemStructure, child, config, lookUp);
+                        }
+                        break;
+
+                    case "Parameters":
+                        {
+                            LoadParameters(modelSystemStructure, child, lookUp);
+                        }
+                        break;
+                }
             }
         }
 
@@ -1209,6 +1266,7 @@ namespace XTMF
 
         private static void LoadRoot(IConfiguration config, ModelSystemStructure root, XmlNodeList list)
         {
+
             if (list != null)
             {
                 var lookUp = new Dictionary<int, Type>(20);
@@ -1363,6 +1421,8 @@ namespace XTMF
         private void GetPossibleModulesCollection(ConcurrentBag<Type> possibleTypes, Type parent, IModelSystemStructure topModule)
         {
             if (ParentFieldType == null) return;
+
+            int count = ParentFieldType.GetGenericArguments().Count();
             var innerCollectionType = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
             var modules = Configuration.ModelRepository.Modules;
             Parallel.For(0, modules.Count, delegate (int i)

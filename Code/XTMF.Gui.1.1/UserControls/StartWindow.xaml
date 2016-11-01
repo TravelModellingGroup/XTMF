@@ -87,11 +87,16 @@
                             <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
                             <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
                         </StackPanel>
-                        <ListView x:Name="RecentProjectsListView" HorizontalAlignment="Left" Height="100" Margin="10,100,0,0" VerticalAlignment="Top" Width="170" Background="{x:Null}" Foreground="White" BorderThickness="0">
+                        <ListView Visibility="Hidden" x:Name="RecentProjectsListView" HorizontalAlignment="Left" Height="100" Margin="10,100,0,0" VerticalAlignment="Top" Width="170" Background="{x:Null}" Foreground="White" BorderThickness="0">
+
+                            
                             <ListView.View>
-                                
+                              
+
                                 <GridView>
+                                    
                                     <GridView.ColumnHeaderContainerStyle>
+                                        
                                         <Style TargetType="GridViewColumnHeader">
                                             <Setter Property="Visibility" Value="Collapsed" />
                                         </Style>
