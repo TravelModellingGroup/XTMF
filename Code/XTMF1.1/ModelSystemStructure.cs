@@ -842,7 +842,7 @@ namespace XTMF
         /// <param name="parent">The parent ModelSystemStructure element to this passed node.</param>
         /// <param name="currentNode">The node being investigated for its "code" type.</param>
         /// <returns>Returns the Type of the passed node, null if no type could be matched.</returns>
-        private static Type DiscernType(IModelSystemStructure parent, XmlNode currentNode)
+        private static Type DiscernType(IModelSystemStructure parent, string fieldName)
         {
 
             Type type = parent.Type;
@@ -850,19 +850,18 @@ namespace XTMF
             {
                 return null;
             }
-            if (currentNode.Attributes["Name"] != null)
-            {
+
                 System.Reflection.FieldInfo[] fieldsInfo = type.GetFields();
                 foreach (var field in fieldsInfo)
                 {
 
-                    if (field.Name == currentNode.Attributes["Name"].Value)
+                    if (field.Name == fieldName)
                     {
                
                         return field.FieldType;
                     }
                 }
-            }
+            
       
 
             return null;
@@ -1055,7 +1054,12 @@ namespace XTMF
         private static void LoadChildNode(IModelSystemStructure modelSystemStructure, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
             /* Check the parent class type */
-            Type type = DiscernType(modelSystemStructure, child);
+
+            Type type = null;
+            if (child.Attributes["Name"] != null)
+            {
+                 type = DiscernType(modelSystemStructure, child.Attributes["Name"].Value);
+            }
         
         
             if(type != null)
