@@ -1056,7 +1056,7 @@ namespace XTMF
         {
             /* Check the parent class type */
             Type type = DiscernType(modelSystemStructure, child);
-           // Console.WriteLine(type);
+        
         
             if(type != null)
             {
