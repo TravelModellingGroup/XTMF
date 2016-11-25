@@ -47,22 +47,14 @@ namespace XTMF
         /// </summary>
         private EditingStack RedoStack = new EditingStack(100);
 
-        private static IEnumerable<XTMFCommand> StreamCommands(EditingStack stack)
-        {
-            foreach (var command in stack)
-            {
-                yield return command;
-            }
-        }
-
         public List<XTMFCommand> CopyOnUndo()
         {
-            return StreamCommands(UndoStack).ToList();
+            return UndoStack.ToList();
         }
 
         public List<XTMFCommand> CopyOnRedo()
         {
-            return StreamCommands(RedoStack).ToList();
+            return RedoStack.ToList();
         }
 
         /// <summary>

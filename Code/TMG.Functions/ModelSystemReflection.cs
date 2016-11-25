@@ -36,6 +36,30 @@ namespace TMG.Functions
             return null;
         }
 
+        /// <summary>
+        /// Find the closest ancestor of the given module that implements
+        /// the given type.
+        /// </summary>
+        /// <param name="config">The XTMF configuration</param>
+        /// <param name="type">The type to search for</param>
+        /// <param name="currentModule">The module to find the ancestor of.</param>
+        /// <param name="result">The model system structure that implements this.</param>
+        /// <returns>True if a module satisfied the query, False otherwise with a null for result.</returns>
+        public static bool GetRootOfType(IConfiguration config, Type type, IModule currentModule, out IModelSystemStructure result)
+        {
+            var chain = BuildModelStructureChain(config, currentModule);
+            for (int i = chain.Count - 1; i >= 0; i--)
+            {
+                if(chain[i].Type == type)
+                {
+                    result = chain[i];
+                    return true;
+                }
+            }
+            result = null;
+            return false;
+        }
+
         private static IModuleParameter FindParameter(IModelSystemStructure currentStructure, int currentIndex, string[] parts, string fullPath)
         {
             if (currentIndex == parts.Length - 1)

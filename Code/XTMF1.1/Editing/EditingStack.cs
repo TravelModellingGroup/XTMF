@@ -155,7 +155,8 @@ namespace XTMF.Editing
             {
                 for(int i = 0; i < Count; i++)
                 {
-                    var index = (Head - i) % Capacity;
+                    var headoffset = (Head - i);
+                    int index = headoffset < 0 ? Capacity + headoffset : headoffset;
                     yield return Data[index];
                 }
             }
