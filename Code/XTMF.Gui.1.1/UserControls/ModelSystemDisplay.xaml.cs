@@ -1449,7 +1449,23 @@ namespace XTMF.Gui.UserControls
             var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if (currentParameter != null && currentModule != null)
             {
-                var currentRoot = Session.GetRoot(currentModule.BaseModel);
+                ModelSystemStructureModel currentRoot = currentModule.BaseModel;
+                ModelSystemStructureModel previousRoot = null;
+                do
+                {
+                    currentRoot = Session.GetRoot(currentRoot);
+                    if (currentRoot.Type.GetInterfaces().Any(t => t == typeof(IModelSystemTemplate)))
+                    {
+                        break;
+                    }
+                    // detect a loop
+                    if(previousRoot == currentRoot)
+                    {
+                        // just terminate
+                        return;
+                    }
+                    previousRoot = currentRoot;
+                } while (true);
                 ParameterModel inputParameter = null;
                 var inputDirectory = GetInputDirectory(currentRoot, out inputParameter);
                 var isInputParameter = inputParameter == currentParameter.RealParameter;
