@@ -1331,8 +1331,8 @@ namespace XTMF.Gui.UserControls
 
                        /* Remove the module from selected items */
                        CurrentlySelected.Remove(selected);
-                      
-                 
+
+
                        UpdateParameters();
                        Keyboard.Focus(ModuleDisplay);
                    }
@@ -1443,54 +1443,65 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private ParameterModel GetInputParameter(ModelSystemStructureModel currentRoot, out string directory)
+        {
+            directory = null;
+            ModelSystemStructureModel previousRoot = null;
+            do
+            {
+                currentRoot = Session.GetRoot(currentRoot);
+                if (currentRoot.Type.GetInterfaces().Any(t => t == typeof(IModelSystemTemplate)))
+                {
+                    break;
+                }
+                // detect a loop
+                if (previousRoot == currentRoot)
+                {
+                    // just terminate
+                    return null;
+                }
+                previousRoot = currentRoot;
+            } while (true);
+            ParameterModel inputParameter = null;
+            directory = GetInputDirectory(currentRoot, out inputParameter);
+            return inputParameter;
+        }
+
         private void OpenParameterFileLocation(bool openWith, bool openDirectory)
         {
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
             var currentModule = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
             if (currentParameter != null && currentModule != null)
             {
-                ModelSystemStructureModel currentRoot = currentModule.BaseModel;
-                ModelSystemStructureModel previousRoot = null;
-                do
+                string inputDirectory;
+                ParameterModel inputParameter = GetInputParameter(currentModule.BaseModel, out inputDirectory);
+                if (inputParameter != null)
                 {
-                    currentRoot = Session.GetRoot(currentRoot);
-                    if (currentRoot.Type.GetInterfaces().Any(t => t == typeof(IModelSystemTemplate)))
+                    // Check to see if the parameter that contains the input directory IS this parameter
+                    var isInputParameter = inputParameter == currentParameter.RealParameter;
+                    var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value, isInputParameter);
+                    if (openDirectory)
                     {
-                        break;
+                        pathToFile = System.IO.Path.GetDirectoryName(pathToFile);
                     }
-                    // detect a loop
-                    if(previousRoot == currentRoot)
+                    try
                     {
-                        // just terminate
-                        return;
+                        Process toRun = new Process();
+                        if (openWith)
+                        {
+                            toRun.StartInfo.FileName = "Rundll32.exe";
+                            toRun.StartInfo.Arguments = "Shell32.dll,OpenAs_RunDLL " + pathToFile;
+                        }
+                        else
+                        {
+                            toRun.StartInfo.FileName = pathToFile;
+                        }
+                        toRun.Start();
                     }
-                    previousRoot = currentRoot;
-                } while (true);
-                ParameterModel inputParameter = null;
-                var inputDirectory = GetInputDirectory(currentRoot, out inputParameter);
-                var isInputParameter = inputParameter == currentParameter.RealParameter;
-                var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value, isInputParameter);
-                if (openDirectory)
-                {
-                    pathToFile = System.IO.Path.GetDirectoryName(pathToFile);
-                }
-                try
-                {
-                    Process toRun = new Process();
-                    if (openWith)
+                    catch
                     {
-                        toRun.StartInfo.FileName = "Rundll32.exe";
-                        toRun.StartInfo.Arguments = "Shell32.dll,OpenAs_RunDLL " + pathToFile;
+                        MessageBox.Show(GetWindow(), "Unable to load the file at '" + pathToFile + "'!", "Unable to Load", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                    else
-                    {
-                        toRun.StartInfo.FileName = pathToFile;
-                    }
-                    toRun.Start();
-                }
-                catch
-                {
-                    MessageBox.Show(GetWindow(), "Unable to load the file at '" + pathToFile + "'!", "Unable to Load", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1500,9 +1511,8 @@ namespace XTMF.Gui.UserControls
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
             if (currentParameter != null)
             {
-                var currentRoot = Session.GetRoot(currentParameter.BelongsTo as ModelSystemStructure);
-                ParameterModel _;
-                var inputDirectory = GetInputDirectory(currentRoot, out _);
+                string inputDirectory;
+                ParameterModel _ = GetInputParameter(Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure), out inputDirectory);
                 if (inputDirectory != null)
                 {
                     string directoryName = MainWindow.OpenDirectory();
@@ -1521,9 +1531,8 @@ namespace XTMF.Gui.UserControls
             var currentParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
             if (currentParameter != null)
             {
-                var currentRoot = Session.GetRoot(currentParameter.BelongsTo as ModelSystemStructure);
-                ParameterModel _;
-                var inputDirectory = GetInputDirectory(currentRoot, out _);
+                string inputDirectory;
+                ParameterModel _ = GetInputParameter(Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure), out inputDirectory);
                 if (inputDirectory != null)
                 {
                     string fileName = MainWindow.OpenFile("Select File", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("All Files", "*") }, true);
