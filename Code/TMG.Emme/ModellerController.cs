@@ -320,7 +320,8 @@ namespace TMG.Emme
             {
                 try
                 {
-                    BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
+                    EnsureWriteAvailable();
+                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
                     writer.Write(ModellerController.SignalCheckToolExists);
                     writer.Write(toolNamespace);
                     writer.Flush();
@@ -354,6 +355,7 @@ namespace TMG.Emme
             {
                 try
                 {
+                    EnsureWriteAvailable();
                     // clear out all of the old input before starting
                     BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
                     writer.Write(ModellerController.SignalStartModule);
@@ -368,6 +370,17 @@ namespace TMG.Emme
                     throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                 }
                 return WaitForEmmeResponce(ref returnValue, progressUpdate);
+            }
+        }
+
+        /// <summary>
+        /// Throws an exception if the bridge has been disposed
+        /// </summary>
+        private void EnsureWriteAvailable()
+        {
+            if (ToEmme == null)
+            {
+                throw new XTMFRuntimeException("EMME Bridge was invoked even though it has already been disposed.");
             }
         }
 
@@ -388,6 +401,7 @@ namespace TMG.Emme
             {
                 try
                 {
+                    EnsureWriteAvailable();
                     // clear out all of the old input before starting
                     BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
                     writer.Write(ModellerController.SignalStartModuleBinaryParameters);
