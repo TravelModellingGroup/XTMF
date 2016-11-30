@@ -47,9 +47,7 @@ namespace XTMF.Gui
     /// </summary>
     public partial class MainWindow : Window
     {
-
         private StartWindow startWindow;
-
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
@@ -71,9 +69,6 @@ namespace XTMF.Gui
             InitializeComponent();
             Loaded += FrameworkElement_Loaded;
             Us = this;
-
-            //List<string> recentProjects = EditorController.Runtime.Configuration.RecentProjects;
-         
         }
 
         /// <summary>
@@ -84,7 +79,7 @@ namespace XTMF.Gui
             List<string> recentProjects = EditorController.Runtime.Configuration.RecentProjects;
 
             RecentProjectsMenuItem.Items.Clear();
-            foreach(string recentProject in recentProjects)
+            foreach (string recentProject in recentProjects)
             {
                 MenuItem recentProjectMenuItem = new MenuItem();
                 recentProjectMenuItem.Header = recentProject;
@@ -94,7 +89,7 @@ namespace XTMF.Gui
                 {
                     RecentProjectMenuItem_Click(sender, EventArgs, recentProject);
                 };
-                
+
             }
         }
 
@@ -115,16 +110,14 @@ namespace XTMF.Gui
                         IsEnabled = true;
                         StatusDisplay.Text = "Ready";
                         UpdateRecentProjectsMenu();
-                    
+
                     }));
             });
             ShowStart_Click(this, null);
-
         }
 
         public void LoadProject(Project project)
         {
-
             if (project != null)
             {
                 ProjectEditingSession session = null;
@@ -152,8 +145,6 @@ namespace XTMF.Gui
                 EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                 EditorController.Runtime.Configuration.Save();
                 UpdateRecentProjectsMenu();
-
-
             }
         }
 
@@ -350,8 +341,6 @@ namespace XTMF.Gui
             return null;
         }
 
-
-
         private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
         {
             var fileName = OpenFile("Import Model System", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, true);
@@ -493,62 +482,55 @@ namespace XTMF.Gui
                 result.IsActive = true;
             }
         }
-
         protected override void OnClosing(CancelEventArgs e)
         {
-            try
+            foreach (var document in OpenPages.Select(page => page.Content))
             {
-                foreach (var document in OpenPages.Select(page => page.Content))
+                var modelSystemPage = document as ModelSystemDisplay;
+                var runPage = document as RunWindow;
+                if (modelSystemPage != null)
                 {
-                    var modelSystemPage = document as ModelSystemDisplay;
-                    var runPage = document as RunWindow;
-                    if (modelSystemPage != null)
+                    if (!modelSystemPage.CloseRequested())
                     {
-                        if (!modelSystemPage.CloseRequested())
-                        {
-                            e.Cancel = true;
-                            return;
-                        }
-                    }
-                    if (runPage != null)
-                    {
-                        if (!runPage.CloseRequested())
-                        {
-                            e.Cancel = true;
-                            return;
-                        }
+                        e.Cancel = true;
+                        return;
                     }
                 }
-                if (!e.Cancel)
+                if (runPage != null)
                 {
-                    EditorController.Unregister(this);
+                    if (!runPage.CloseRequested())
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            }
+            if (!e.Cancel)
+            {
+                EditorController.Unregister(this);
+                if (LaunchUpdate)
+                {
                     Task.Run(() =>
                     {
-                        if (LaunchUpdate)
+
+                        string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                        try
                         {
-                            string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                            try
-                            {
-                                Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), Process.GetCurrentProcess().Id + " \"" + path + "\"");
-                            }
-                            catch
-                            {
-                                Dispatcher.Invoke(() =>
-                                {
-                                    MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
-                                });
-                            }
+                            Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), UpdateProgram), Process.GetCurrentProcess().Id + " \"" + path + "\"");
                         }
+                        catch
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                MessageBox.Show("We were unable to find XTMF.Update2.exe!", "Updater Missing!", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                        }
+
                     }).Wait();
                 }
-
-                base.OnClosing(e);
-                Environment.Exit(0);
             }
-            catch
-            {
-
-            }
+            base.OnClosing(e);
+            Environment.Exit(0);
         }
 
         private void AboutXTMF_Click(object sender, RoutedEventArgs e)

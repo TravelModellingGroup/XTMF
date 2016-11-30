@@ -43,6 +43,7 @@ namespace XTMF
         private IHost CurrentHost = null;
         private string ModuleDirectory = "Modules";
         public Version XTMFVersion { get; private set; }
+        public string BuildDate { get; private set; }
         public Configuration(Assembly baseAssembly = null)
             : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml"))
         {
@@ -87,6 +88,7 @@ namespace XTMF
         private void LoadVersion()
         {
             Version version;
+            string buildDate = "Unknown Build Date";
             try
             {
                 var assemblyLocation = Assembly.GetEntryAssembly().Location;
@@ -94,6 +96,10 @@ namespace XTMF
                 using (StreamReader reader = new StreamReader(versionFile))
                 {
                     version = new Version(reader.ReadLine());
+                    if(!reader.EndOfStream)
+                    {
+                        buildDate = reader.ReadLine();
+                    }
                 }
             }
             catch
@@ -101,6 +107,7 @@ namespace XTMF
                 version = new Version(0, 0, 0);
             }
             XTMFVersion = version;
+            BuildDate = buildDate;
         }
 
         public event Action OnModelSystemExit;
