@@ -77,12 +77,10 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 EnsureAllColumnsExist(columns);
                 var factors = BuildFactors();
                 var accepted = LoadAggregationFile(columns, factors);
-                var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, accepted);
-                var r = new Random(RandomSeed);
-                var originalData = Parent._PrimaryPool.PoolChoices;
-                var primaryAttributeColumn = Array.IndexOf(Parent._PrimaryPool.Attributes, _PrimaryAttribute);
                 using (var writer = new StreamWriter(SaveAggregationTo))
                 {
+                    writer.Write("Zone");
+                    writer.Write(',');
                     writer.Write(Parent._PrimaryPool.Name);
                     for (int i = 0; i < _SecondaryPool.Attributes.Length; i++)
                     {
@@ -90,31 +88,38 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                         writer.Write(_SecondaryPool.Attributes[i].Name);
                     }
                     writer.WriteLine();
-                    for (int i = 0; i < originalData.Length; i++)
+                    var originalData = Parent._PrimaryPool.PoolChoices;
+                    for (int zoneIndex = 0; zoneIndex < originalData.Length; zoneIndex++)
                     {
-                        var index = originalData[i][primaryAttributeColumn];
-                        var candidates = candidatesByValue[index];
-                        if (candidates.Count > 0)
+                        var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, accepted, zoneIndex);
+                        var r = new Random(RandomSeed);
+                        var primaryAttributeColumn = Array.IndexOf(Parent._PrimaryPool.Attributes, _PrimaryAttribute);
+                        for (int i = 0; i < originalData[zoneIndex].Length; i++)
                         {
-                            var candidate = candidates[(int)(r.NextDouble() * candidates.Count)];
-                            writer.Write(i);
-                            for (int j = 0; j < candidate.Length; j++)
+                            var index = originalData[zoneIndex][i][primaryAttributeColumn];
+                            var candidates = candidatesByValue[index];
+                            if (candidates.Count > 0)
                             {
-                                writer.Write(',');
-                                writer.Write(candidate[j]);
+                                var candidate = candidates[(int)(r.NextDouble() * candidates.Count)];
+                                writer.Write(i);
+                                for (int j = 0; j < candidate.Length; j++)
+                                {
+                                    writer.Write(',');
+                                    writer.Write(candidate[j]);
+                                }
+                                writer.WriteLine();
                             }
-                            writer.WriteLine();
                         }
                     }
                 }
             }
 
-            private List<List<int[]>> SeperatePoolsToPrimaryAttributeValue(int[] factors, List<int>[] accepted)
+            private List<List<int[]>> SeperatePoolsToPrimaryAttributeValue(int[] factors, List<int>[] accepted, int zoneIndex)
             {
                 return (from acceptedSet in accepted.AsParallel().AsOrdered()
                         select
                          (
-                             from rep in _SecondaryPool.PoolChoices.AsParallel().AsOrdered()
+                             from rep in _SecondaryPool.PoolChoices[zoneIndex].AsParallel().AsOrdered()
                              let setValue = GetIndex(rep, factors)
                              where acceptedSet.Any(set => setValue == set)
                              select rep

@@ -63,6 +63,10 @@ namespace TMG.Frameworks.Data
 
         public T GiveData()
         {
+            if(Linked == null)
+            {
+                Link();
+            }
             return Linked.AcquireResource<T>();
         }
 
@@ -90,6 +94,22 @@ namespace TMG.Frameworks.Data
                 }
             }
             return null;
+        }
+
+        private bool Link()
+        {
+            IResource linked;
+            if ((linked = Link(ResourceName)) == null)
+            {
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a resource with the name " + ResourceName + "!");
+            }
+            if (!linked.CheckResourceType<T>())
+            {
+                throw new XTMFRuntimeException("In '" + Name + "' the resource was not of type '" + typeof(T).GetType().Name
+                    + "' instead of was of type '" + linked.GetResourceType().Name + "'!");
+            }
+            Linked = linked;
+            return true;
         }
 
         public bool RuntimeValidation(ref string error)

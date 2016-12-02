@@ -42,7 +42,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
 
         public float[] CDF;
 
-        private int[] ColumnIndex;
+        protected int[] ColumnIndex;
 
         private int[] IndexMultiplier;
 
@@ -51,7 +51,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
         [SubModelInformation(Required = true, Description = "A CSV file with each conditional attribute's value followed by the destination attribute value and probability [0,1].")]
         public FileLocation ConditionalSource;
 
-        private bool Loaded = false;
+        protected bool Loaded = false;
 
         public virtual bool RequiresReloadingPerZone { get { return false; } }
 
@@ -139,7 +139,7 @@ This could be because the data does not have the expected number of columns ({ex
             }
         }
 
-        private float[] GenerateBackendData()
+        protected float[] GenerateBackendData()
         {
             int[] valuesByColumn = new int[ColumnIndex.Length];
             for (int i = 0; i < ColumnIndex.Length; i++)
@@ -153,7 +153,7 @@ This could be because the data does not have the expected number of columns ({ex
             return ret;
         }
 
-        private int GetIndex(int[] indices)
+        protected int GetIndex(int[] indices)
         {
             var multipliers = IndexMultiplier;
             int ret = 0;
@@ -193,7 +193,7 @@ This could be because the data does not have the expected number of columns ({ex
             return -1;
         }
 
-        public bool RuntimeValidation(ref string error)
+        public virtual bool RuntimeValidation(ref string error)
         {
             ColumnIndex = new int[ConditionalColumns.Length];
             for (int i = 0; i < ConditionalColumns.Length; i++)

@@ -85,6 +85,7 @@
     <Compile Include="Data\Synthesis\Gibbs\Aggregation.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Attribute.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Conditional.cs" />
+    <Compile Include="Data\Synthesis\Gibbs\ConditionalByPD.cs" />
     <Compile Include="Data\Synthesis\Gibbs\GibbsSampler.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Pool.cs" />
     <Compile Include="Data\Synthesis\Gibbs\PoolSegment.cs" />
