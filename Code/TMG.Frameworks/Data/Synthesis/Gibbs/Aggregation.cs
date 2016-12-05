@@ -34,7 +34,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
         [RootModule]
         public GibbsSampler Root;
 
-        public class Join : XTMF.IModule
+        public sealed class Join : XTMF.IModule
         {
             [RootModule]
             public GibbsSampler Root;
@@ -43,6 +43,13 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             public Aggregation Parent;
 
             public DataModule<string> SecondaryPool;
+
+            private IConfiguration Config;
+
+            public Join(IConfiguration config)
+            {
+                Config = config;
+            }
 
             [SubModelInformation(Required = true, Description = "The attribute to bind to.")]
             public DataModule<string> PrimaryAttribute;
@@ -71,6 +78,11 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
 
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
+            [SubModelInformation(Required = false, Description = "An optional source to load the zone system from.  If left blank the Travel Demand Model Zone system will be used.")]
+            public IDataSource<IZoneSystem> ZoneSystemSource;
+
+            private IZoneSystem ZoneSystem;
+
             public void Execute()
             {
                 var columns = _SecondaryAttributes.Select(a => Array.IndexOf(_SecondaryPool.Attributes, a)).ToArray();
@@ -79,8 +91,11 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 var accepted = LoadAggregationFile(columns, factors);
                 using (var writer = new StreamWriter(SaveAggregationTo))
                 {
-                    writer.Write("Zone");
-                    writer.Write(',');
+                    if (ZoneSystem != null)
+                    {
+                        writer.Write("Zone");
+                        writer.Write(',');
+                    }
                     writer.Write(Parent._PrimaryPool.Name);
                     for (int i = 0; i < _SecondaryPool.Attributes.Length; i++)
                     {
@@ -91,8 +106,13 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                     var originalData = Parent._PrimaryPool.PoolChoices;
                     for (int zoneIndex = 0; zoneIndex < originalData.Length; zoneIndex++)
                     {
-                        var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, accepted, zoneIndex);
+                        var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, columns, accepted, zoneIndex);
                         var r = new Random(RandomSeed);
+                        string zoneString = null;
+                        if(ZoneSystem != null)
+                        {
+                            zoneString = ZoneSystem.ZoneArray.GetFlatData()[zoneIndex].ZoneNumber.ToString();
+                        }
                         var primaryAttributeColumn = Array.IndexOf(Parent._PrimaryPool.Attributes, _PrimaryAttribute);
                         for (int i = 0; i < originalData[zoneIndex].Length; i++)
                         {
@@ -101,6 +121,11 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                             if (candidates.Count > 0)
                             {
                                 var candidate = candidates[(int)(r.NextDouble() * candidates.Count)];
+                                if (ZoneSystem != null)
+                                {
+                                    writer.Write(zoneString);
+                                    writer.Write(',');
+                                }
                                 writer.Write(i);
                                 for (int j = 0; j < candidate.Length; j++)
                                 {
@@ -114,25 +139,25 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 }
             }
 
-            private List<List<int[]>> SeperatePoolsToPrimaryAttributeValue(int[] factors, List<int>[] accepted, int zoneIndex)
+            private List<List<int[]>> SeperatePoolsToPrimaryAttributeValue(int[] factors, int[] setIndirection, List<int>[] accepted, int zoneIndex)
             {
                 return (from acceptedSet in accepted.AsParallel().AsOrdered()
                         select
                          (
                              from rep in _SecondaryPool.PoolChoices[zoneIndex].AsParallel().AsOrdered()
-                             let setValue = GetIndex(rep, factors)
+                             let setValue = GetIndex(rep, setIndirection, factors)
                              where acceptedSet.Any(set => setValue == set)
                              select rep
                          ).ToList()
                        ).ToList();
             }
 
-            private static int GetIndex(int[] set, int[] factors)
+            private static int GetIndex(int[] set, int[] setIndirection, int[] factors)
             {
                 int index = 0;
                 for (int i = 0; i < factors.Length; i++)
                 {
-                    index += set[i] * factors[i];
+                    index += set[setIndirection[i]] * factors[i];
                 }
                 return index;
             }
@@ -218,6 +243,24 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                     {
                         error = $"In '{Name}' we were unable to find an attribute named '{SecondaryAttributes[i].Data}' in the pool '{SecondaryPool.Name}'";
                         return false;
+                    }
+                }
+                // Get the zone system from the travel demand model
+                if (ZoneSystemSource != null)
+                {
+                    ZoneSystemSource.LoadData();
+                    ZoneSystem = ZoneSystemSource.GiveData();
+                }
+                else
+                {
+                    IModelSystemStructure tdm;
+                    if (TMG.Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
+                    {
+                        ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
+                        if (ZoneSystem != null && !ZoneSystem.Loaded)
+                        {
+                            ZoneSystem.LoadData();
+                        }
                     }
                 }
                 return true;

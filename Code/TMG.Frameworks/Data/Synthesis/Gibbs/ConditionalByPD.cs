@@ -79,7 +79,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
 
         public override void LoadConditionalsData(int currentZone)
         {
-            var zone = ZoneSystem.ZoneArray[currentZone];
+            var zone = ZoneSystem.ZoneArray.GetFlatData()[currentZone];
             if(zone == null)
             {
                 throw new XTMFRuntimeException($"In {Name} we were asked to process a zone that we do not have defined! Zone#{currentZone}!");
@@ -88,7 +88,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             var prob = GenerateBackendData();
             // an extra column since the first one is for the planning district
             int expectedColumns = ColumnIndex.Length + 2;
-            var currentIndex = new int[expectedColumns - 1];
+            var currentIndex = new int[expectedColumns - 2];
             bool any = false;
             using (var reader = new CsvReader(ConditionalSource))
             {
@@ -125,7 +125,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             CDF = ConvertToCDF(prob);
             if (!any)
             {
-                throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource}'!  
+                throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
 This could be because the data does not have the expected number of columns ({expectedColumns}) as interpreted by the given attributes.");
             }
             Loaded = true;

@@ -96,7 +96,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 CDF = ConvertToCDF(prob);
                 if (!any)
                 {
-                    throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource}'!  
+                    throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
 This could be because the data does not have the expected number of columns ({expectedColumns}) as interpreted by the given attributes.");
                 }
                 Loaded = true;
