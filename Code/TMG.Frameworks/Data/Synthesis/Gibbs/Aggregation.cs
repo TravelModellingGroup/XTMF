@@ -104,6 +104,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                     }
                     writer.WriteLine();
                     var originalData = Parent._PrimaryPool.PoolChoices;
+                    var baseHouseholdID = 1;
                     for (int zoneIndex = 0; zoneIndex < originalData.Length; zoneIndex++)
                     {
                         var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, columns, accepted, zoneIndex);
@@ -126,7 +127,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                                     writer.Write(zoneString);
                                     writer.Write(',');
                                 }
-                                writer.Write(i);
+                                writer.Write(baseHouseholdID + i);
                                 for (int j = 0; j < candidate.Length; j++)
                                 {
                                     writer.Write(',');
@@ -135,6 +136,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                                 writer.WriteLine();
                             }
                         }
+                        baseHouseholdID += originalData[zoneIndex].Length;
                     }
                 }
             }
