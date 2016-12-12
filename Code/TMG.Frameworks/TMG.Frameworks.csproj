@@ -59,6 +59,8 @@
     <Compile Include="Data\Loading\ArbitraryParameterDataSource.cs" />
     <Compile Include="Data\Loading\LabeledDataFromCSV.cs" />
     <Compile Include="Data\Loading\LoadDataSource.cs" />
+    <Compile Include="Data\Loading\LoadITripComponentDataMatrix.cs" />
+    <Compile Include="Data\Loading\LoadINetworkDataMatrix.cs" />
     <Compile Include="Data\Loading\LoadODDataFromCSV.cs" />
     <Compile Include="Data\Loading\LoadZoneMapFromCSV.cs" />
     <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
