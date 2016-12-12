@@ -25,7 +25,7 @@ using TMG.Functions;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public class Exponent : BinaryExpression
+    public sealed class Exponent : BinaryExpression
     {
         public Exponent(int start) : base(start)
         {

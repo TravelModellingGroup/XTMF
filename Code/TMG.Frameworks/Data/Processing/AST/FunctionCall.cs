@@ -27,7 +27,7 @@ using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public class FunctionCall : Value
+    public sealed class FunctionCall : Value
     {
 
         public enum FunctionType

@@ -25,7 +25,7 @@ using TMG.Functions;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public class Subtract : BinaryExpression
+    public sealed class Subtract : BinaryExpression
     {
         public Subtract(int start) : base(start)
         {

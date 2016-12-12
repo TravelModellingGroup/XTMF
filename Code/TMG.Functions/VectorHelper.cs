@@ -60,6 +60,7 @@ namespace TMG.Functions
             return Vector.Dot(v, Vector<float>.One);
         }
 
+
         /// <summary>
         /// Sum an array
         /// </summary>
@@ -1714,6 +1715,743 @@ namespace TMG.Functions
                 {
                     destination[i + destIndex] = first[i + firstIndex] - second[i + secondIndex];
                 }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        /// <param name="dest"></param>
+        /// <param name="value"></param>
+        /// <param name="data"></param>
+        public static void FlagIfEqual(float[] dest, float value, float[] data)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                if (dest.Length != data.Length)
+                {
+                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                }
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                Vector<float> vValue = new Vector<float>(value);
+                for (i = 0; i < data.Length - Vector<float>.Count; i++)
+                {
+                    var vData = new Vector<float>(data, i);
+                    Vector.ConditionalSelect(Vector.Equals(vData, vValue), one, zero).CopyTo(dest, i);
+                }
+                for (; i < data.Length; i++)
+                {
+                    dest[i] = data[i] == value ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    dest[i] = data[i] == value ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfEqual(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(lhs, i);
+                        var s = new Vector<float>(rhs, i);
+                        Vector.ConditionalSelect(Vector.Equals(f, s), one, zero).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] == rhs[i] ? 1 : 0;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Vector.ConditionalSelect(Vector.Equals(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
+                            .CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] == rhs[i + rhsIndex] ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] == rhs[i + rhsIndex] ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfEqual(float[][] dest, float[][] data, float literalValue)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfEqual(dest[i], data[i], literalValue);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfEqual(float[] dest, float[] data, float literalValue)
+        {
+            FlagIfEqual(dest, literalValue, data);
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfEqual(float[][] dest, float[][] lhs, float[][] rhs)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfEqual(float[][] dest, float literalValue, float[][] data)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfEqual(dest[i], literalValue, data[i]);
+            }
+        }
+
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfNotEqual(float[] dest, float value, float[] data)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                if (dest.Length != data.Length)
+                {
+                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                }
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                Vector<float> vValue = new Vector<float>(value);
+                for (i = 0; i < data.Length - Vector<float>.Count; i++)
+                {
+                    var vData = new Vector<float>(data, i);
+                    Vector.ConditionalSelect(Vector.Equals(vData, vValue), zero, one).CopyTo(dest, i);
+                }
+                for (; i < data.Length; i++)
+                {
+                    dest[i] = data[i] != value ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    dest[i] = data[i] != value ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfNotEqual(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(lhs, i);
+                        var s = new Vector<float>(rhs, i);
+                        Vector.ConditionalSelect(Vector.Equals(f, s), zero, one).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] != rhs[i] ? 1 : 0;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Vector.ConditionalSelect(Vector.Equals(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
+                            .CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] != rhs[i + rhsIndex] ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] != rhs[i + rhsIndex] ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfNotEqual(float[][] dest, float[][] data, float literalValue)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfNotEqual(dest[i], data[i], literalValue);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfNotEqual(float[] dest, float[] data, float literalValue)
+        {
+            FlagIfNotEqual(dest, literalValue, data);
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfNotEqual(float[][] dest, float[][] lhs, float[][] rhs)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfNotEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfNotEqual(float[][] dest, float literalValue, float[][] data)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfNotEqual(dest[i], literalValue, data[i]);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThanOrEqual(float[] dest, float value, float[] data)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                if (dest.Length != data.Length)
+                {
+                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                }
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                Vector<float> vValue = new Vector<float>(value);
+                for (i = 0; i < data.Length - Vector<float>.Count; i++)
+                {
+                    var vData = new Vector<float>(data, i);
+                    Vector.ConditionalSelect(Vector.GreaterThanOrEqual(vData, vValue), one, zero).CopyTo(dest, i);
+                }
+                for (; i < data.Length; i++)
+                {
+                    dest[i] = data[i] >= value ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    dest[i] = data[i] >= value ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThanOrEqual(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(lhs, i);
+                        var s = new Vector<float>(rhs, i);
+                        Vector.ConditionalSelect(Vector.GreaterThanOrEqual(f, s), one, zero).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] >= rhs[i] ? 1 : 0;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Vector.ConditionalSelect(Vector.GreaterThanOrEqual(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
+                            .CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] >= rhs[i + rhsIndex] ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] >= rhs[i + rhsIndex] ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThanOrEqual(float[][] dest, float[][] data, float literalValue)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfGreaterThanOrEqual(dest[i], data[i], literalValue);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThanOrEqual(float[] dest, float[] data, float literalValue)
+        {
+            FlagIfGreaterThanOrEqual(dest, literalValue, data);
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThanOrEqual(float[][] dest, float[][] lhs, float[][] rhs)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfGreaterThanOrEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThanOrEqual(float[][] dest, float literalValue, float[][] data)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfGreaterThanOrEqual(dest[i], literalValue, data[i]);
+            }
+        }
+
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThan(float[] dest, float value, float[] data)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                if (dest.Length != data.Length)
+                {
+                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                }
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                Vector<float> vValue = new Vector<float>(value);
+                for (i = 0; i < data.Length - Vector<float>.Count; i++)
+                {
+                    var vData = new Vector<float>(data, i);
+                    Vector.ConditionalSelect(Vector.GreaterThan(vData, vValue), one, zero).CopyTo(dest, i);
+                }
+                for (; i < data.Length; i++)
+                {
+                    dest[i] = data[i] > value ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    dest[i] = data[i] > value ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThan(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(lhs, i);
+                        var s = new Vector<float>(rhs, i);
+                        Vector.ConditionalSelect(Vector.GreaterThan(f, s), one, zero).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] > rhs[i] ? 1 : 0;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Vector.ConditionalSelect(Vector.GreaterThanOrEqual(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
+                            .CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] > rhs[i + rhsIndex] ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] > rhs[i + rhsIndex] ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThan(float[][] dest, float[][] data, float literalValue)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfGreaterThan(dest[i], data[i], literalValue);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThan(float[] dest, float[] data, float literalValue)
+        {
+            FlagIfGreaterThan(dest, literalValue, data);
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThan(float[][] dest, float[][] lhs, float[][] rhs)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfGreaterThan(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfGreaterThan(float[][] dest, float literalValue, float[][] data)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfGreaterThan(dest[i], literalValue, data[i]);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThanOrEqual(float[] dest, float value, float[] data)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                if (dest.Length != data.Length)
+                {
+                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                }
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                Vector<float> vValue = new Vector<float>(value);
+                for (i = 0; i < data.Length - Vector<float>.Count; i++)
+                {
+                    var vData = new Vector<float>(data, i);
+                    Vector.ConditionalSelect(Vector.LessThanOrEqual(vData, vValue), one, zero).CopyTo(dest, i);
+                }
+                for (; i < data.Length; i++)
+                {
+                    dest[i] = data[i] <= value ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    dest[i] = data[i] <= value ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThanOrEqual(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(lhs, i);
+                        var s = new Vector<float>(rhs, i);
+                        Vector.ConditionalSelect(Vector.LessThanOrEqual(f, s), one, zero).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] <= rhs[i] ? 1 : 0;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Vector.ConditionalSelect(Vector.LessThanOrEqual(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
+                            .CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] <= rhs[i + rhsIndex] ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] <= rhs[i + rhsIndex] ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThanOrEqual(float[][] dest, float[][] data, float literalValue)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfLessThanOrEqual(dest[i], data[i], literalValue);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThanOrEqual(float[] dest, float[] data, float literalValue)
+        {
+            FlagIfLessThanOrEqual(dest, literalValue, data);
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThanOrEqual(float[][] dest, float[][] lhs, float[][] rhs)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfGreaterThanOrEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThanOrEqual(float[][] dest, float literalValue, float[][] data)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfLessThanOrEqual(dest[i], literalValue, data[i]);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThan(float[] dest, float value, float[] data)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                int i;
+                if (dest.Length != data.Length)
+                {
+                    throw new ArgumentException("The size of the arrays are not the same!", nameof(dest));
+                }
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                Vector<float> vValue = new Vector<float>(value);
+                for (i = 0; i < data.Length - Vector<float>.Count; i++)
+                {
+                    var vData = new Vector<float>(data, i);
+                    Vector.ConditionalSelect(Vector.LessThan(vData, vValue), one, zero).CopyTo(dest, i);
+                }
+                for (; i < data.Length; i++)
+                {
+                    dest[i] = data[i] < value ? 1 : 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    dest[i] = data[i] < value ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThan(float[] destination, int destIndex, float[] lhs, int lhsIndex, float[] rhs, int rhsIndex, int length)
+        {
+            if (Vector.IsHardwareAccelerated)
+            {
+                Vector<float> zero = Vector<float>.Zero;
+                Vector<float> one = Vector<float>.One;
+                if ((destIndex | lhsIndex | rhsIndex) == 0)
+                {
+                    int i = 0;
+                    for (; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        var f = new Vector<float>(lhs, i);
+                        var s = new Vector<float>(rhs, i);
+                        Vector.ConditionalSelect(Vector.LessThan(f, s), one, zero).CopyTo(destination, i);
+                    }
+                    // copy the remainder
+                    for (; i < length; i++)
+                    {
+                        destination[i] = lhs[i] < rhs[i] ? 1 : 0;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= length - Vector<float>.Count; i += Vector<float>.Count)
+                    {
+                        Vector.ConditionalSelect(Vector.LessThanOrEqual(new Vector<float>(lhs, i + lhsIndex), new Vector<float>(rhs, i + rhsIndex)), one, zero)
+                            .CopyTo(destination, i + destIndex);
+                    }
+                    // copy the remainder
+                    for (int i = length - (length % Vector<float>.Count); i < length; i++)
+                    {
+                        destination[i + destIndex] = lhs[i + lhsIndex] < rhs[i + rhsIndex] ? 1 : 0;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    destination[i + destIndex] = lhs[i + lhsIndex] < rhs[i + rhsIndex] ? 1 : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThan(float[][] dest, float[][] data, float literalValue)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfLessThan(dest[i], data[i], literalValue);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThan(float[] dest, float[] data, float literalValue)
+        {
+            FlagIfLessThan(dest, literalValue, data);
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThan(float[][] dest, float[][] lhs, float[][] rhs)
+        {
+            for (int i = 0; i < dest.Length; i++)
+            {
+                FlagIfLessThan(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+            }
+        }
+
+        /// <summary>
+        /// Set the value to one if the condition is met.
+        /// </summary>
+        public static void FlagIfLessThan(float[][] v1, float literalValue, float[][] v2)
+        {
+            for (int i = 0; i < v1.Length; i++)
+            {
+                FlagIfLessThan(v1[i], literalValue, v2[i]);
             }
         }
 

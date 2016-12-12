@@ -22,12 +22,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMG.Functions;
+using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public sealed class Divide : BinaryExpression
+    public sealed class CompareNotEquals : BinaryExpression
     {
-        public Divide(int start) : base(start)
+        public CompareNotEquals(int start) : base(start)
         {
 
         }
@@ -37,7 +38,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             // see if we have two values, in this case we can skip doing the matrix operation
             if (lhs.IsValue && rhs.IsValue)
             {
-                return new ComputationResult(lhs.LiteralValue / rhs.LiteralValue);
+                return new ComputationResult(lhs.LiteralValue != rhs.LiteralValue ? 1 : 0);
             }
             // float / matrix
             if (lhs.IsValue)
@@ -46,13 +47,13 @@ namespace TMG.Frameworks.Data.Processing.AST
                 {
                     var retVector = rhs.Accumulator ? rhs.VectorData : rhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
-                    VectorHelper.Divide(flat, lhs.LiteralValue, rhs.VectorData.GetFlatData());
+                    VectorHelper.FlagIfNotEqual(flat, lhs.LiteralValue, rhs.VectorData.GetFlatData());
                     return new ComputationResult(retVector, true);
                 }
                 else
                 {
                     var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Divide(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.ODData.GetFlatData());
+                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.ODData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -62,14 +63,14 @@ namespace TMG.Frameworks.Data.Processing.AST
                 {
                     var retVector = lhs.Accumulator ? lhs.VectorData : lhs.VectorData.CreateSimilarArray<float>();
                     var flat = retVector.GetFlatData();
-                    VectorHelper.Divide(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue);
+                    VectorHelper.FlagIfNotEqual(flat, lhs.VectorData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retVector, true);
                 }
                 else
                 {
                     // matrix / float
                     var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Divide(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.LiteralValue);
+                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -80,7 +81,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     if (lhs.IsVectorResult && rhs.IsVectorResult)
                     {
                         var retMatrix = lhs.Accumulator ? lhs.VectorData : (rhs.Accumulator ? rhs.VectorData : lhs.VectorData.CreateSimilarArray<float>());
-                        VectorHelper.Divide(retMatrix.GetFlatData(), 0, lhs.VectorData.GetFlatData(), 0, rhs.VectorData.GetFlatData(), 0, retMatrix.GetFlatData().Length);
+                        VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), 0, lhs.VectorData.GetFlatData(), 0, rhs.VectorData.GetFlatData(), 0, retMatrix.GetFlatData().Length);
                         return new ComputationResult(retMatrix, true, lhs.Direction);
                     }
                     else if (lhs.IsVectorResult)
@@ -93,14 +94,14 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatRHS.Length; i++)
                             {
-                                VectorHelper.Divide(flatRet[i], flatRHS[i], flatLHS[i]);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], flatRHS[i], flatLHS[i]);
                             }
                         }
                         else if (lhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
                             for (int i = 0; i < flatRHS.Length; i++)
                             {
-                                VectorHelper.Divide(flatRet[i], 0, flatLHS, 0, flatRHS[i], 0, flatRet[i].Length);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], 0, flatLHS, 0, flatRHS[i], 0, flatRet[i].Length);
                             }
                         }
                         else
@@ -119,14 +120,14 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             for (int i = 0; i < flatLHS.Length; i++)
                             {
-                                VectorHelper.Divide(flatRet[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], flatLHS[i], flatRHS[i]);
                             }
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
                             for (int i = 0; i < flatRet.Length; i++)
                             {
-                                VectorHelper.Divide(flatRet[i], 0, flatLHS[i], 0, flatRHS, 0, flatRet[i].Length);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], 0, flatRHS, 0, flatLHS[i], 0, flatRet[i].Length);
                             }
                         }
                         else
@@ -139,7 +140,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                 else
                 {
                     var retMatrix = lhs.Accumulator ? lhs.ODData : (rhs.Accumulator ? rhs.ODData : lhs.ODData.CreateSimilarArray<float>());
-                    VectorHelper.Divide(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.ODData.GetFlatData());
+                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.ODData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }

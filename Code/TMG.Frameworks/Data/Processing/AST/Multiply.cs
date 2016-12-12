@@ -25,7 +25,7 @@ using TMG.Functions;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public class Multiply : BinaryExpression
+    public sealed class Multiply : BinaryExpression
     {
         public Multiply(int start) : base(start)
         {

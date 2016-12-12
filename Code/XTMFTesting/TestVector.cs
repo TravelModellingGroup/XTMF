@@ -213,5 +213,22 @@ namespace XTMF.Testing
                 }
             }
         }
+
+        [TestMethod]
+        public void TestEq()
+        {
+            var temp = new float[0x100];
+            var dest = new float[temp.Length];
+            const float incrementFactor = 1f;
+            for (int i = 0; i < temp.Length; i++)
+            {
+                temp[i] = incrementFactor * i;
+            }
+            VectorHelper.FlagIfEqual(dest, 5.0f, temp);
+            for (int i = 0; i < dest.Length; i++)
+            {
+                Assert.AreEqual(i == 5 ? 1.0f : 0.0f, dest[i]);
+            }
+        }
     }
 }

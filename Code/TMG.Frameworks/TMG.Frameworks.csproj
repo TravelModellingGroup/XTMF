@@ -70,6 +70,12 @@
     <Compile Include="Data\Processing\AssignParameterFromDataSource.cs" />
     <Compile Include="Data\Processing\AST\Add.cs" />
     <Compile Include="Data\Processing\AST\ASTNode.cs" />
+    <Compile Include="Data\Processing\AST\CompareLessThanOrEqual.cs" />
+    <Compile Include="Data\Processing\AST\CompareLessThan.cs" />
+    <Compile Include="Data\Processing\AST\CompareGreaterThanOrEqual.cs" />
+    <Compile Include="Data\Processing\AST\CompareGreaterThan.cs" />
+    <Compile Include="Data\Processing\AST\CompareNotEquals.cs" />
+    <Compile Include="Data\Processing\AST\CompareEqual.cs" />
     <Compile Include="Data\Processing\AST\Compiler.cs" />
     <Compile Include="Data\Processing\AST\Divide.cs" />
     <Compile Include="Data\Processing\AST\Exponent.cs" />

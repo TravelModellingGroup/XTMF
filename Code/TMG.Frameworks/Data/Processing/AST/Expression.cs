@@ -87,7 +87,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             return -1;
         }
 
-        private static bool AnyNoneWhitespace(char[] buffer, int start, int length)
+        private static bool AnyNonWhitespace(char[] buffer, int start, int length)
         {
             for (int i = start; i < start + length; i++)
             {
@@ -247,7 +247,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                                         lastStart = j + 1;
                                     }
                                 }
-                                if (AnyNoneWhitespace(buffer, lastStart, endIndex - lastStart))
+                                if (AnyNonWhitespace(buffer, lastStart, endIndex - lastStart))
                                 {
                                     // add the final parameter
                                     if (!Compile(buffer, lastStart, endIndex - lastStart, out p, ref error))

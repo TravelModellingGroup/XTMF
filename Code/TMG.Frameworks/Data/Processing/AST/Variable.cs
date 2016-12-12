@@ -26,7 +26,7 @@ using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public class Variable : Value
+    public sealed class Variable : Value
     {
         public readonly string Name;
 
