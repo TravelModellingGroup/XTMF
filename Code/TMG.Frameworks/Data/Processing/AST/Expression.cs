@@ -103,6 +103,93 @@ namespace TMG.Frameworks.Data.Processing.AST
         {
             ex = null;
             var endPlusOne = (length + start);
+            // support compare
+            for (int i = start; i < endPlusOne; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        {
+                            int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            i = endIndex;
+                        }
+                        break;
+                    case '=':
+                        {
+                            if (i + 1 < endPlusOne && buffer[i + 1] == '=')
+                            {
+                                BinaryExpression toReturn = (BinaryExpression)new CompareEqual(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                ex = toReturn;
+                                return true;
+                            }
+                            else
+                            {
+                                error = $"At position {i} we found an '=' character without an accompanying '='!";
+                                return false;
+                            }
+                        }
+                    case '!':
+                        {
+                            if (i + 1 < endPlusOne && buffer[i + 1] == '=')
+                            {
+                                BinaryExpression toReturn = (BinaryExpression)new CompareNotEquals(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                ex = toReturn;
+                                return true;
+                            }
+                            else
+                            {
+                                error = $"At position {i} we found an '!' character without an accompanying '='!";
+                                return false;
+                            }
+                        }
+                    case '>':
+                        {
+                            if (i + 1 < endPlusOne && buffer[i + 1] == '=')
+                            {
+                                BinaryExpression toReturn = (BinaryExpression)new CompareGreaterThanOrEqual(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                ex = toReturn;
+                                return true;
+                            }
+                            else
+                            {
+                                BinaryExpression toReturn = (BinaryExpression)new CompareGreaterThan(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                                if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                                ex = toReturn;
+                                return true;
+                            }
+                        }
+                    case '<':
+                        {
+                            if (i + 1 < endPlusOne && buffer[i + 1] == '=')
+                            {
+                                BinaryExpression toReturn = (BinaryExpression)new CompareLessThanOrEqual(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                ex = toReturn;
+                                return true;
+                            }
+                            else
+                            {
+                                BinaryExpression toReturn = (BinaryExpression)new CompareLessThan(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                                if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                                ex = toReturn;
+                                return true;
+                            }
+                        }
+                }
+            }
             // try to extract + and -
             for (int i = start; i < endPlusOne; i++)
             {

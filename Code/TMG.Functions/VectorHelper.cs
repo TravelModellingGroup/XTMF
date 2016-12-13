@@ -2318,7 +2318,7 @@ namespace TMG.Functions
         {
             for (int i = 0; i < dest.Length; i++)
             {
-                FlagIfGreaterThanOrEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
+                FlagIfLessThanOrEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
             }
         }
 

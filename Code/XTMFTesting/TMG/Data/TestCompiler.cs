@@ -497,6 +497,146 @@ namespace XTMF.Testing.TMG.Data
         }
 
         [TestMethod]
+        public void TestMatrixEqual()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A == B", out ex, ref error), $"Unable to compile 'A == B'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixNotEqual()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A != B", out ex, ref error), $"Unable to compile 'A != B'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(0.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixLessThan()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A < B", out ex, ref error), $"Unable to compile 'A < B'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(0.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixGreaterThan()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A > B", out ex, ref error), $"Unable to compile 'A > B'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(0.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixLessThanOrEqual()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A <= B", out ex, ref error), $"Unable to compile 'A <= B'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixGreaterThanOrEqual()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A >= B", out ex, ref error), $"Unable to compile 'A >= B'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrixCompareAdvanced()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("(A == B) + (A != B)", out ex, ref error), $"Unable to compile '(A == B) + (A != B)'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
         public void TestMatrixLength()
         {
             var data = new IDataSource[]
