@@ -87,21 +87,15 @@ namespace TMG.Functions
             var balanced = false;
             do
             {
-                if (ProgressCallback != null)
-                {
-                    // this doesn't go to 100%, but that is alright since when we end, the progress
-                    // of the calling model should assume we hit 100%
-                    ProgressCallback(iteration / (float)MaxIterations);
-                }
+                // this doesn't go to 100%, but that is alright since when we end, the progress
+                // of the calling model should assume we hit 100%
+                ProgressCallback?.Invoke(iteration / (float)MaxIterations);
                 Array.Clear(columnTotals, 0, columnTotals.Length);
                 VectorProcessFlow(columnTotals, FlowMatrix.GetFlatData());
                 balanced = Balance(columnTotals, oldTotal);
             } while ((++iteration) < MaxIterations && !balanced);
 
-            if (ProgressCallback != null)
-            {
-                ProgressCallback(1f);
-            }
+            ProgressCallback?.Invoke(1f);
             return FlowMatrix;
         }
 
