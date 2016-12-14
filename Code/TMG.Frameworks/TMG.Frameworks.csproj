@@ -66,6 +66,8 @@
     <Compile Include="Data\Loading\ZoneSystemVector.cs" />
     <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
     <Compile Include="Data\Loading\RemoteDataSource.cs" />
+    <Compile Include="Data\Processing\AST\CompareOr.cs" />
+    <Compile Include="Data\Processing\AST\CompareAnd.cs" />
     <Compile Include="Data\Processing\GravityModel2D.cs" />
     <Compile Include="Data\Processing\AggregateLabeledDataToShape.cs" />
     <Compile Include="Data\Processing\AggregateZoneODByZoneMap.cs" />

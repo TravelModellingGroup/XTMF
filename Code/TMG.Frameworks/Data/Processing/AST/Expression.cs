@@ -91,7 +91,7 @@ namespace TMG.Frameworks.Data.Processing.AST
         {
             for (int i = start; i < start + length; i++)
             {
-                if(buffer[i] != ' ')
+                if (buffer[i] != ' ')
                 {
                     return true;
                 }
@@ -99,10 +99,78 @@ namespace TMG.Frameworks.Data.Processing.AST
             return false;
         }
 
+        private static bool IsCompareType(Expression e)
+        {
+            var t = e.GetType();
+            if(t == typeof(Bracket))
+            {
+                return IsCompareType(((Bracket)e).InnerExpression);
+            }
+            return t == typeof(CompareEqual)
+                || t == typeof(CompareNotEquals)
+                || t == typeof(CompareLessThan)
+                || t == typeof(CompareGreaterThan)
+                || t == typeof(CompareLessThanOrEqual)
+                || t == typeof(CompareGreaterThanOrEqual)
+                || t == typeof(CompareAnd)
+                || t == typeof(CompareOr);
+        }
+
         public static bool Compile(char[] buffer, int start, int length, out Expression ex, ref string error)
         {
             ex = null;
             var endPlusOne = (length + start);
+            // support AND and OR for our compare operations
+            for (int i = start; i < endPlusOne; i++)
+            {
+                switch (buffer[i])
+                {
+                    case '(':
+                        {
+                            int endIndex = FindEndOfBracket(buffer, i + 1, endPlusOne - (i + 1), ref error);
+                            if (endIndex < 0)
+                            {
+                                return false;
+                            }
+                            i = endIndex;
+                        }
+                        break;
+                    case '&':
+                        {
+                            BinaryExpression toReturn = (BinaryExpression)new CompareAnd(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            // test LHS to make sure it is a compare
+                            if(!IsCompareType(toReturn.LHS) && !IsCompareType(toReturn.RHS))
+                            {
+                                error = $"At position {i} we found an '&' character where neither the LHS and the RHS were flag types, at least one is required!";
+                                return false;
+                            }
+                            ex = toReturn;
+                            return true;
+                        }
+                    case '|':
+                        {
+                            BinaryExpression toReturn = (BinaryExpression)new CompareOr(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            // test LHS to make sure it is a compare
+                            if (!IsCompareType(toReturn.LHS))
+                            {
+                                error = $"At position {i} we found a '|' character where the LHS was not a flag type!";
+                                return false;
+                            }
+                            // test RHS to make sure it is a compare
+                            if (!IsCompareType(toReturn.RHS))
+                            {
+                                error = $"At position {i} we found a '|' character where the RHS was not a flag type!";
+                                return false;
+                            }
+                            ex = toReturn;
+                            return true;
+                        }
+                }
+            }
             // support compare
             for (int i = start; i < endPlusOne; i++)
             {
