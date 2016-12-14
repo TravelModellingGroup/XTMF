@@ -47,7 +47,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             PI,
             Length,
             LengthColumns,
-            LengthRows
+            LengthRows,
+            ZeroMatrix
         }
 
         private FunctionType Type;
@@ -123,6 +124,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "lengthcolumns":
                     type = FunctionType.LengthColumns;
+                    return true;
+                case "zeromatrix":
+                    type = FunctionType.ZeroMatrix;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -268,7 +272,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         return new ComputationResult("Length was executed with the wrong number of parameters!");
                     }
-                    if(values[0].IsValue)
+                    if (values[0].IsValue)
                     {
                         return new ComputationResult("Length can not be applied to a scalar!");
                     }
@@ -280,7 +284,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                     if (values[0].IsODResult)
                     {
-                        return new ComputationResult("LengthColumns can not be applied to a must be applied to a Matrix!");
+                        return new ComputationResult("LengthColumns must be applied to a Matrix!");
                     }
                     return LengthColumns(values[0]);
                 case FunctionType.LengthRows:
@@ -290,11 +294,33 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                     if (values[0].IsODResult)
                     {
-                        return new ComputationResult("LengthRows can not be applied to a must be applied to a Matrix!");
+                        return new ComputationResult("LengthRows must be applied to a Matrix!");
                     }
                     return LengthRows(values[0]);
+                case FunctionType.ZeroMatrix:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("ZeroMatrix was executed with the wrong number of parameters!");
+                    }
+                    if (values[0].IsValue)
+                    {
+                        return new ComputationResult("ZeroMatrix must be applied to a vector, or a matrix!");
+                    }
+                    return ZeroMatrix(values);
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult ZeroMatrix(ComputationResult[] values)
+        {
+            if (values[0].VectorData != null)
+            {
+                return new ComputationResult(values[0].VectorData.CreateSquareTwinArray<float>(), true);
+            }
+            else
+            {
+                return new ComputationResult(values[0].ODData.CreateSimilarArray<float>(), true);
+            }
         }
 
         private ComputationResult Avg(ComputationResult computationResult)
@@ -320,11 +346,11 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult Abs(ComputationResult computationResult)
         {
-            if(computationResult.IsValue)
+            if (computationResult.IsValue)
             {
                 return new ComputationResult(Math.Abs(computationResult.LiteralValue));
             }
-            else if(computationResult.IsVectorResult)
+            else if (computationResult.IsVectorResult)
             {
                 var retVector = computationResult.Accumulator ? computationResult.VectorData : computationResult.VectorData.CreateSimilarArray<float>();
                 var flat = retVector.GetFlatData();
