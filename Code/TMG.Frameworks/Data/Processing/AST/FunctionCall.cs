@@ -48,7 +48,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             Length,
             LengthColumns,
             LengthRows,
-            ZeroMatrix
+            ZeroMatrix,
+            Matrix
         }
 
         private FunctionType Type;
@@ -127,6 +128,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "zeromatrix":
                     type = FunctionType.ZeroMatrix;
+                    return true;
+                case "matrix":
+                    type = FunctionType.Matrix;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -307,8 +311,46 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("ZeroMatrix must be applied to a vector, or a matrix!");
                     }
                     return ZeroMatrix(values);
+                case FunctionType.Matrix:
+                    if(values.Length != 1)
+                    {
+                        return new ComputationResult("Matrix was executed with the wrong number of parameters!");
+                    }
+                    if(!values[0].IsVectorResult)
+                    {
+                        return new ComputationResult("Matrix must be applied to a vector!");
+                    }
+                    return Matrix(values[0]);
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult Matrix(ComputationResult computationResult)
+        {
+            var vectorData = computationResult.VectorData;
+            var newMatrix = vectorData.CreateSquareTwinArray<float>();
+            var flatVector = vectorData.GetFlatData();
+            var flatMatrix = newMatrix.GetFlatData();
+            switch (computationResult.Direction)
+            {
+                case ComputationResult.VectorDirection.Unassigned:
+                    return new ComputationResult("Matrix was executed with an unassigned orientation vector!");
+                case ComputationResult.VectorDirection.Vertical:
+                    // each row is the single value
+                    for (int i = 0; i < flatMatrix.Length; i++)
+                    {
+                        VectorHelper.Set(flatMatrix[i], flatVector[i]);
+                    }
+                    break;
+                case ComputationResult.VectorDirection.Horizontal:
+                    // each column is the single value
+                    for (int i = 0; i < flatMatrix.Length; i++)
+                    {
+                        Array.Copy(flatVector, flatMatrix[i], flatVector.Length);
+                    }
+                    break;
+            }
+            return new ComputationResult(newMatrix, true);
         }
 
         private ComputationResult ZeroMatrix(ComputationResult[] values)

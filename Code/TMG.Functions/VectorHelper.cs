@@ -382,6 +382,35 @@ namespace TMG.Functions
             }
         }
 
+        /// <summary>
+        /// Assign the given value to the whole array
+        /// </summary>
+        /// <param name="dest">The array to set</param>
+        /// <param name="value">The value to set it to</param>
+        public static void Set(float[] dest, float value)
+        {
+            if(Vector.IsHardwareAccelerated)
+            {
+                int i = 0;
+                var vValue = new Vector<float>(value);
+                for (; i < dest.Length - Vector<float>.Count; i++)
+                {
+                    vValue.CopyTo(dest, i);
+                }
+                for (; i < dest.Length; i++)
+                {
+                    dest[i] = value;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dest.Length; i++)
+                {
+                    dest[i] = value;
+                }
+            }
+        }
+
         public static void Divide(float[][] destination, float numerator, float[][] denominator)
         {
             if (Vector.IsHardwareAccelerated)

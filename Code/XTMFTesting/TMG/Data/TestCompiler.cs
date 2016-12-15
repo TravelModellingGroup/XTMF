@@ -61,10 +61,32 @@ namespace XTMF.Testing.TMG.Data
             return new MatrixSource(new SparseTwinIndex<float>(indexes, data)) { Name = name };
         }
 
+        /// <summary>
+        /// Createa a new simple vector for testing.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <returns></returns>
+        private IDataSource<SparseArray<float>> CreateData(string name, float m1, float m2)
+        {
+            SparseIndexing indexes = new SparseIndexing();
+            indexes.Indexes = new SparseSet[]
+            {
+                new SparseSet()
+                {
+                    Start = 1,
+                    Stop = 2,
+                }
+            };
+            float[] data = new float[] { m1, m2 };
+            return new VectorSource(new SparseArray<float>(indexes, data)) { Name = name };
+        }
+
         [TestMethod]
         public void TestMatrixAdd()
         {
-            var data = new IDataSource[] 
+            var data = new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
@@ -691,6 +713,73 @@ namespace XTMF.Testing.TMG.Data
             Assert.IsTrue(result.IsValue);
             var flat = result.LiteralValue;
             Assert.AreEqual(8.0f, flat, 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestMatrix()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("E", 9, 10)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("Matrix(asHorizontal(E)) + Matrix(asVertical(E))", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(18.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(19.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(19.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(20.0f, flat[1][1], 0.00001f);
+        }
+
+        class VectorSource : IDataSource<SparseArray<float>>
+        {
+            public bool Loaded { get; set; }
+
+
+            public string Name { get; set; }
+
+
+            public float Progress { get; set; }
+
+            SparseArray<float> Data;
+
+            public VectorSource(SparseArray<float> vector)
+            {
+                Data = vector;
+                Loaded = true;
+            }
+
+
+            public Tuple<byte, byte, byte> ProgressColour
+            {
+                get
+                {
+                    return null;
+                }
+            }
+
+            public SparseArray<float> GiveData()
+            {
+                return Data;
+            }
+
+            public void LoadData()
+            {
+
+            }
+
+            public bool RuntimeValidation(ref string error)
+            {
+                return true;
+            }
+
+            public void UnloadData()
+            {
+
+            }
         }
 
         class MatrixSource : IDataSource<SparseTwinIndex<float>>
