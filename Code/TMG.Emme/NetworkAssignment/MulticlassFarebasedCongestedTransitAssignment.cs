@@ -73,8 +73,11 @@ namespace TMG.Emme.NetworkAssignment
         [Parameter("Add Congestion to IVTT", true, "Set to TRUE to extract the congestion matrix and add its weighted value to the in vehicle time (IVTT) matrix.")]
         public bool ExtractCongestedInVehicleTimeFlag;
 
-                    [Parameter("Connector Logit Scale", 0.2f, "Scale parameter for logit model at origin connectors.")]
-            public float ConnectorLogitScale;
+        [Parameter("Connector Logit Scale", 0.2f, "Scale parameter for logit model at origin connectors.")]
+        public float ConnectorLogitScale;
+
+        [RunParameter("Apply Congestion", true, "Set this to false in order to not apply congestion during assignment.")]
+        public bool ApplyCongestion;
 
         private const string ToolName = "tmg.assignment.transit.multi_class_congested_FBTA";
 
@@ -125,7 +128,7 @@ namespace TMG.Emme.NetworkAssignment
         \
         xtmf_InVehicleTimeMatrixString, xtmf_WaitTimeMatrixString, xtmf_WalkTimeMatrixString, xtmf_FareMatrixString, xtmf_CongestionMatrixString, xtmf_PenaltyMatrixString, \
         
-            xtmf_OriginDistributionLogitScale, CalculateCongestedIvttFlag, CongestionExponentString):
+            xtmf_OriginDistributionLogitScale, CalculateCongestedIvttFlag, CongestionExponentString, xtmf_congestedAssignment):
             */
 
 
@@ -167,7 +170,8 @@ namespace TMG.Emme.NetworkAssignment
                                         string.Join(",", from ttf in TTF
                                                          select ttf.TTFNumber.ToString() + ":"
                                                          + mc.ToEmmeFloat(ttf.CongestionPerception).ToString() + ":"
-                                                         + mc.ToEmmeFloat(ttf.CongestionExponent))
+                                                         + mc.ToEmmeFloat(ttf.CongestionExponent)),
+                                        ApplyCongestion
                                        );
 
             var result = "";
@@ -301,7 +305,7 @@ namespace TMG.Emme.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
-            if(ScenarioNumber <= 0)
+            if (ScenarioNumber <= 0)
             {
                 error = "In '" + Name + "' the scenario number must be greater than zero!";
                 return false;
