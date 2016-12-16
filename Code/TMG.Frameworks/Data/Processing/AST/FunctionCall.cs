@@ -49,7 +49,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             LengthColumns,
             LengthRows,
             ZeroMatrix,
-            Matrix
+            Matrix,
+            IdentityMatrix
         }
 
         private FunctionType Type;
@@ -131,6 +132,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "matrix":
                     type = FunctionType.Matrix;
+                    return true;
+                case "identitymatrix":
+                    type = FunctionType.IdentityMatrix;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -321,8 +325,39 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("Matrix must be applied to a vector!");
                     }
                     return Matrix(values[0]);
+                case FunctionType.IdentityMatrix:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("IdentityMatrix was executed with the wrong number of parameters!");
+                    }
+                    if (values[0].IsValue)
+                    {
+                        return new ComputationResult("IdentityMatrix must be applied to a vector, or a matrix!");
+                    }
+                    return IdentityMatrix(values[0]);
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult IdentityMatrix(ComputationResult computationResult)
+        {
+            SparseTwinIndex<float> ret;
+            if(computationResult.IsVectorResult)
+            {
+                var vector = computationResult.VectorData;
+                ret = vector.CreateSquareTwinArray<float>();
+            }
+            else
+            {
+                var matrix = computationResult.ODData;
+                ret = matrix.CreateSimilarArray<float>();
+            }
+            var flatRet = ret.GetFlatData();
+            for (int i = 0; i < flatRet.Length; i++)
+            {
+                flatRet[i][i] = 1.0f;
+            }
+            return new ComputationResult(ret, true);
         }
 
         private ComputationResult Matrix(ComputationResult computationResult)

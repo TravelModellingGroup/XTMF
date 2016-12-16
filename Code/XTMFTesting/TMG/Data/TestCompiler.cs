@@ -734,6 +734,35 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(20.0f, flat[1][1], 0.00001f);
         }
 
+        [TestMethod]
+        public void TestIdentity()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("E", 9, 10)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("identityMatrix(E)", out ex, ref error));
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+
+            Assert.IsTrue(Compiler.Compile("identityMatrix(A)", out ex, ref error));
+            result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            flat = result.ODData.GetFlatData();
+            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
+            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+        }
+
         class VectorSource : IDataSource<SparseArray<float>>
         {
             public bool Loaded { get; set; }
