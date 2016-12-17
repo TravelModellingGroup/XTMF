@@ -44,6 +44,15 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 ex = new Literal(Start, lhs.Value / rhs.Value);
             }
+            else if(rhs != null)
+            {
+                // if the RHS is a literal we can replace it with a multiply instead
+                ex = new Multiply(Start)
+                {
+                    LHS = LHS,
+                    RHS = new Literal(rhs.Start, 1.0f / rhs.Value)
+                };
+            }
             return true;
         }
 

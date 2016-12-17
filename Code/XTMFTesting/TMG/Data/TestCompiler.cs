@@ -873,6 +873,27 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(0.5f, ((Literal)ex).Value);
         }
 
+        [TestMethod]
+        public void TestOptimizeDivideToMultiply()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("A / 2", out ex, ref error), $"Unable to compile 'A / 2'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsODResult);
+            var flat = result.ODData.GetFlatData();
+            Assert.AreEqual(0.5f, flat[0][0], 0.00001f);
+            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
+            Assert.AreEqual(1.5f, flat[1][0], 0.00001f);
+            Assert.AreEqual(2.0f, flat[1][1], 0.00001f);
+            Assert.IsInstanceOfType(ex, typeof(Multiply));
+        }
+
         class VectorSource : IDataSource<SparseArray<float>>
         {
             public bool Loaded { get; set; }
