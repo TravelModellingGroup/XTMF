@@ -32,6 +32,21 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         }
 
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            if (!base.OptimizeAST(ref ex, ref error))
+            {
+                return false;
+            }
+            var lhs = LHS as Literal;
+            var rhs = RHS as Literal;
+            if (lhs != null && rhs != null)
+            {
+                ex = new Literal(Start, lhs.Value * rhs.Value);
+            }
+            return true;
+        }
+
         public override ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs)
         {
             // see if we have two values, in this case we can skip doing the matrix operation

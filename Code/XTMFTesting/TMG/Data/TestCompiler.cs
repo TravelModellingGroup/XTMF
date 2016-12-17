@@ -777,6 +777,8 @@ namespace XTMF.Testing.TMG.Data
             Assert.IsInstanceOfType(ex, typeof(FusedMultiplyAdd));
             Assert.IsTrue(Compiler.Compile("A + B * A", out ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
             Assert.IsInstanceOfType(ex, typeof(FusedMultiplyAdd));
+            Assert.IsTrue(Compiler.Compile("A * B + 4.0 * A + B * 1.2", out ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
+            Assert.IsInstanceOfType(ex, typeof(FusedMultiplyAdd));
         }
 
         [TestMethod]
@@ -797,6 +799,78 @@ namespace XTMF.Testing.TMG.Data
             Assert.AreEqual(6.0f, flat[0][1], 0.00001f);
             Assert.AreEqual(15.0f, flat[1][0], 0.00001f);
             Assert.AreEqual(16.0f, flat[1][1], 0.00001f);
+        }
+
+        [TestMethod]
+        public void TestOptimizeAddLiterals()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("1 + 2", out ex, ref error), $"Unable to compile '1 + 2'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual(3.0f, result.LiteralValue);
+            Assert.IsInstanceOfType(ex, typeof(Literal));
+            Assert.AreEqual(3.0f, ((Literal)ex).Value);
+        }
+
+        [TestMethod]
+        public void TestOptimizeSubtractLiterals()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("1 - 2", out ex, ref error), $"Unable to compile '1 - 2'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual(-1.0f, result.LiteralValue);
+            Assert.IsInstanceOfType(ex, typeof(Literal));
+            Assert.AreEqual(-1.0f, ((Literal)ex).Value);
+        }
+
+        [TestMethod]
+        public void TestOptimizeMultiplyLiterals()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("1 * 2", out ex, ref error), $"Unable to compile '1 * 2'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual(2.0f, result.LiteralValue);
+            Assert.IsInstanceOfType(ex, typeof(Literal));
+            Assert.AreEqual(2.0f, ((Literal)ex).Value);
+        }
+
+        [TestMethod]
+        public void TestOptimizeDivideLiterals()
+        {
+            var data = new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            };
+            string error = null;
+            Expression ex;
+            Assert.IsTrue(Compiler.Compile("1 / 2", out ex, ref error), $"Unable to compile '1 / 2'\r\n{error}");
+            var result = ex.Evaluate(data);
+            Assert.IsTrue(result.IsValue);
+            Assert.AreEqual(0.5f, result.LiteralValue);
+            Assert.IsInstanceOfType(ex, typeof(Literal));
+            Assert.AreEqual(0.5f, ((Literal)ex).Value);
         }
 
         class VectorSource : IDataSource<SparseArray<float>>

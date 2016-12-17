@@ -38,6 +38,27 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 return false;
             }
+            if(!OptimizeFusedMultiplyAdd(ref ex, ref error)
+                || !OptimizeLiterals(ref ex, ref error))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private bool OptimizeLiterals(ref Expression ex, ref string error)
+        {
+            var lhs = LHS as Literal;
+            var rhs = RHS as Literal;
+            if(lhs != null && rhs != null)
+            {
+                ex = new Literal(Start, lhs.Value + rhs.Value);
+            }
+            return true;
+        }
+
+        private bool OptimizeFusedMultiplyAdd(ref Expression ex, ref string error)
+        {
             var lhsMul = LHS as Multiply;
             var rhsMul = RHS as Multiply;
             if (lhsMul != null)
@@ -49,7 +70,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     Add = RHS
                 };
             }
-            else if(rhsMul != null)
+            else if (rhsMul != null)
             {
                 ex = new FusedMultiplyAdd(Start)
                 {
