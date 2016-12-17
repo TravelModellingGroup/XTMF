@@ -86,155 +86,84 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixAdd()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A + B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A + B", out ex, ref error), "Unable to compile 'A + B'");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(3.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(6.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(9.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(12.0f, flat[1][1], 0.00001f);
+            }, 3.0f, 6.0f, 9.0f, 12.0f);
         }
 
         [TestMethod]
         public void TestMatrixSubtract()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A - B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A - B", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(-1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(-2.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(-3.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(-4.0f, flat[1][1], 0.00001f);
+            }, -1.0f, -2.0f, -3.0f, -4.0f);
         }
 
         [TestMethod]
         public void TestMatrixVectorSubtract()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A - SumColumns(B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A - SumColumns(B)", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(-7.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(-10.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(-5.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(-8.0f, flat[1][1], 0.00001f);
+            }, -7.0f, -10.0f, -5.0f, -8.0f);
         }
 
         [TestMethod]
         public void TestMatrixVectorSubtract2()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A - SumRows(B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A - SumRows(B)", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(-5.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(-4.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(-11.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(-10.0f, flat[1][1], 0.00001f);
+            }, -5.0f, -4.0f, -11.0f, -10.0f);
         }
 
         [TestMethod]
         public void TestMatrixAddWithBrackets()
         {
-            var data = new IDataSource[]
+            CompareMatrix("(A) + (B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("(A) + (B)", out ex, ref error), "Unable to compile '(A) + (B)'");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(3.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(6.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(9.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(12.0f, flat[1][1], 0.00001f);
+            }, 3.0f, 6.0f, 9.0f, 12.0f);
         }
 
         [TestMethod]
         public void TestMatrixAddWithDoubleBrackets()
         {
-            var data = new IDataSource[]
+            CompareMatrix("((A)) + ((B))", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("((A)) + ((B))", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(3.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(6.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(9.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(12.0f, flat[1][1], 0.00001f);
+            }, 3.0f, 6.0f, 9.0f, 12.0f);
         }
 
         [TestMethod]
         public void TestMatrixAddWithTripleBrackets()
         {
-            var data = new IDataSource[]
+            CompareMatrix("(((A)) + ((B)))", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("(((A)) + ((B)))", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(3.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(6.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(9.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(12.0f, flat[1][1], 0.00001f);
+            }, 3.0f, 6.0f, 9.0f, 12.0f);
         }
 
         [TestMethod]
         public void TestMatrixSumRows()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("SumRows(A + B)", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsVectorResult);
             Assert.IsTrue(result.Direction == ComputationResult.VectorDirection.Vertical);
             var flat = result.VectorData.GetFlatData();
@@ -245,15 +174,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixSumColumns()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("SumColumns(A + B)", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsVectorResult);
             Assert.IsTrue(result.Direction == ComputationResult.VectorDirection.Horizontal);
             var flat = result.VectorData.GetFlatData();
@@ -264,15 +192,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixAsHorizontal()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("AsHorizontal(SumRows(A + B))", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsVectorResult);
             Assert.IsTrue(result.Direction == ComputationResult.VectorDirection.Horizontal);
             var flat = result.VectorData.GetFlatData();
@@ -283,15 +210,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixSum()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("Sum(A + B)", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(30.0f, result.LiteralValue, 0.00001f);
         }
@@ -299,15 +225,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestVectorSum()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("Sum(SumRows(A + B))", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(30.0f, result.LiteralValue, 0.00001f);
         }
@@ -315,55 +240,34 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixTranspose()
         {
-            var data = new IDataSource[]
+            CompareMatrix("Transpose(A + B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Transpose(A + B)", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(3.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(9.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(6.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(12.0f, flat[1][1], 0.00001f);
+            }, 3.0f, 9.0f, 6.0f, 12.0f);
         }
 
         [TestMethod]
         public void TestMatrixAbs()
         {
-            var data = new IDataSource[]
+            CompareMatrix("Abs(A - B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Abs(A - B)", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(2.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(3.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(4.0f, flat[1][1], 0.00001f);
+            }, 1.0f, 2.0f, 3.0f, 4.0f);
         }
 
         [TestMethod]
         public void TestVectorAbs()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("Abs(SumRows(A) - SumRows(B))", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsVectorResult);
             var flat = result.VectorData.GetFlatData();
             Assert.AreEqual(3.0f, flat[0], 0.00001f);
@@ -373,15 +277,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestScalarAbs()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("Abs(Sum(A) - Sum(B))", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(10.0f, result.LiteralValue, 0.00001f);
         }
@@ -389,15 +292,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixAvg()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("Avg(A - B)", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(-2.5f, result.LiteralValue, 0.00001f);
         }
@@ -405,15 +307,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestVectorAvg()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("Avg(SumRows(A) - SumRows(B))", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(-5.0f, result.LiteralValue, 0.00001f);
         }
@@ -421,15 +322,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixAvgRows()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("AvgRows(A)", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsVectorResult);
             Assert.IsTrue(result.Direction == ComputationResult.VectorDirection.Vertical);
             var flat = result.VectorData.GetFlatData();
@@ -440,15 +340,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixAvgColumns()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("AvgColumns(A)", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsVectorResult);
             Assert.IsTrue(result.Direction == ComputationResult.VectorDirection.Horizontal);
             var flat = result.VectorData.GetFlatData();
@@ -481,257 +380,135 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestMatrixExponent()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A ^ B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A ^ B", out ex, ref error), "Unable to compile 'A + B'");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(16.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(729.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(65536.0f, flat[1][1], 0.00001f);
+            }, 1.0f, 16.0f, 729.0f, 65536.0f);
         }
 
         [TestMethod]
         public void TestMatrixExponent2()
         {
-            var data = new IDataSource[]
+            CompareMatrix("(A + 1) ^ (B - 1)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 2, 4, 6, 8)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("(A + 1) ^ (B - 1)", out ex, ref error), "Unable to compile 'A + B'");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(2.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(27.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(1024, flat[1][0], 0.00001f);
-            Assert.AreEqual(78125.0f, flat[1][1], 0.00001f);
+            }, 2.0f, 27.0f, 1024.0f, 78125.0f);
         }
 
         [TestMethod]
         public void TestMatrixEqual()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A == B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A == B", out ex, ref error), $"Unable to compile 'A == B'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][1], 0.00001f);
+            }, 1.0f, 1.0f, 0.0f, 0.0f);
         }
 
         [TestMethod]
         public void TestMatrixNotEqual()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A != B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A != B", out ex, ref error), $"Unable to compile 'A != B'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(0.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+            }, 0.0f, 0.0f, 1.0f, 1.0f);
         }
 
         [TestMethod]
         public void TestMatrixLessThan()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A < B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A < B", out ex, ref error), $"Unable to compile 'A < B'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(0.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][1], 0.00001f);
+            }, 0.0f, 0.0f, 1.0f, 0.0f);
         }
 
         [TestMethod]
         public void TestMatrixGreaterThan()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A > B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A > B", out ex, ref error), $"Unable to compile 'A > B'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(0.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+            }, 0.0f, 0.0f, 0.0f, 1.0f);
         }
 
         [TestMethod]
         public void TestMatrixLessThanOrEqual()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A <= B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A <= B", out ex, ref error), $"Unable to compile 'A <= B'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][1], 0.00001f);
+            }, 1.0f, 1.0f, 1.0f, 0.0f);
         }
 
         [TestMethod]
         public void TestMatrixGreaterThanOrEqual()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A >= B", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A >= B", out ex, ref error), $"Unable to compile 'A >= B'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+            }, 1.0f, 1.0f, 0.0f, 1.0f);
         }
 
         [TestMethod]
         public void TestMatrixCompareAdvanced()
         {
-            var data = new IDataSource[]
+            CompareMatrix("(A == B) + (A != B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("(A == B) + (A != B)", out ex, ref error), $"Unable to compile '(A == B) + (A != B)'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+            }, 1.0f, 1.0f, 1.0f, 1.0f);
         }
 
         [TestMethod]
         public void TestAnd()
         {
-            var data = new IDataSource[]
+            CompareMatrix("(A == B) & (A != B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("(A == B) & (A != B)", out ex, ref error), $"Unable to compile '(A == B) + (A != B)'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(0.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][1], 0.00001f);
+            }, 0.0f, 0.0f, 0.0f, 0.0f);
         }
 
         [TestMethod]
         public void TestOr()
         {
-            var data = new IDataSource[]
+            CompareMatrix("(A == B) | (A != B)", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("(A == B) | (A != B)", out ex, ref error), $"Unable to compile '(A == B) + (A != B)'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+            }, 1.0f, 1.0f, 1.0f, 1.0f);
         }
 
         [TestMethod]
         public void TestMatrixLength()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 2, 4, 6, 8)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("Length(A + 1) + Length(B - 1)", out ex, ref error));
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 2, 4, 6, 8)
+            });
             Assert.IsTrue(result.IsValue);
-            var flat = result.LiteralValue;
-            Assert.AreEqual(8.0f, flat, 0.00001f);
+            Assert.AreEqual(8.0f, result.LiteralValue, 0.00001f);
         }
 
         [TestMethod]
         public void TestMatrix()
         {
-            var data = new IDataSource[]
+            CompareMatrix("Matrix(asHorizontal(E)) + Matrix(asVertical(E))", new IDataSource[]
             {
                 CreateData("E", 9, 10)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("Matrix(asHorizontal(E)) + Matrix(asVertical(E))", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(18.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(19.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(19.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(20.0f, flat[1][1], 0.00001f);
+            }, 18.0f, 19.0f, 19.0f, 20.0f);
         }
 
         [TestMethod]
@@ -742,35 +519,13 @@ namespace XTMF.Testing.TMG.Data
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("E", 9, 10)
             };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("identityMatrix(E)", out ex, ref error));
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
-
-            Assert.IsTrue(Compiler.Compile("identityMatrix(A)", out ex, ref error));
-            result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            flat = result.ODData.GetFlatData();
-            Assert.AreEqual(1.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(0.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(0.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[1][1], 0.00001f);
+            CompareMatrix("identityMatrix(E)", data, 1.0f, 0.0f, 0.0f, 1.0f);
+            CompareMatrix("identityMatrix(A)", data, 1.0f, 0.0f, 0.0f, 1.0f);
         }
 
         [TestMethod]
         public void TestOptimizeFusedMultiplyAddIsOptimizedIn()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 1, 2, 4, 3)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("A * B + A", out ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
@@ -784,35 +539,24 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestOptimizeFusedMultiplyAdd()
         {
-            var data = new IDataSource[]
+            CompareMatrix("A * B + A", new IDataSource[]
             {
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
-            };
-            string error = null;
-            Expression ex;
-            Assert.IsTrue(Compiler.Compile("A * B + A", out ex, ref error), $"Unable to compile 'A * B + A'\r\n{error}");
-            var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(2.0f, flat[0][0], 0.00001f);
-            Assert.AreEqual(6.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(15.0f, flat[1][0], 0.00001f);
-            Assert.AreEqual(16.0f, flat[1][1], 0.00001f);
+            }, 2.0f, 6.0f, 15.0f, 16.0f);
         }
 
         [TestMethod]
         public void TestOptimizeAddLiterals()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 1, 2, 4, 3)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("1 + 2", out ex, ref error), $"Unable to compile '1 + 2'\r\n{error}");
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(3.0f, result.LiteralValue);
             Assert.IsInstanceOfType(ex, typeof(Literal));
@@ -822,15 +566,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestOptimizeSubtractLiterals()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 1, 2, 4, 3)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("1 - 2", out ex, ref error), $"Unable to compile '1 - 2'\r\n{error}");
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(-1.0f, result.LiteralValue);
             Assert.IsInstanceOfType(ex, typeof(Literal));
@@ -840,15 +583,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestOptimizeMultiplyLiterals()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 1, 2, 4, 3)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("1 * 2", out ex, ref error), $"Unable to compile '1 * 2'\r\n{error}");
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(2.0f, result.LiteralValue);
             Assert.IsInstanceOfType(ex, typeof(Literal));
@@ -858,15 +600,14 @@ namespace XTMF.Testing.TMG.Data
         [TestMethod]
         public void TestOptimizeDivideLiterals()
         {
-            var data = new IDataSource[]
-            {
-                CreateData("A", 1, 2, 3, 4),
-                CreateData("B", 1, 2, 4, 3)
-            };
             string error = null;
             Expression ex;
             Assert.IsTrue(Compiler.Compile("1 / 2", out ex, ref error), $"Unable to compile '1 / 2'\r\n{error}");
-            var result = ex.Evaluate(data);
+            var result = ex.Evaluate(new IDataSource[]
+            {
+                CreateData("A", 1, 2, 3, 4),
+                CreateData("B", 1, 2, 4, 3)
+            });
             Assert.IsTrue(result.IsValue);
             Assert.AreEqual(0.5f, result.LiteralValue);
             Assert.IsInstanceOfType(ex, typeof(Literal));
@@ -881,17 +622,25 @@ namespace XTMF.Testing.TMG.Data
                 CreateData("A", 1, 2, 3, 4),
                 CreateData("B", 1, 2, 4, 3)
             };
+            Assert.IsInstanceOfType(CompareMatrix("A / 2", data, 0.5f, 1.0f, 1.5f, 2.0f), typeof(Multiply));
+        }
+
+        /// <summary>
+        /// Assert results
+        /// </summary>
+        private static Expression CompareMatrix(string equation, IDataSource[] data, float m11, float m12, float m21, float m22)
+        {
             string error = null;
             Expression ex;
-            Assert.IsTrue(Compiler.Compile("A / 2", out ex, ref error), $"Unable to compile 'A / 2'\r\n{error}");
+            Assert.IsTrue(Compiler.Compile(equation, out ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
             var result = ex.Evaluate(data);
             Assert.IsTrue(result.IsODResult);
             var flat = result.ODData.GetFlatData();
-            Assert.AreEqual(0.5f, flat[0][0], 0.00001f);
-            Assert.AreEqual(1.0f, flat[0][1], 0.00001f);
-            Assert.AreEqual(1.5f, flat[1][0], 0.00001f);
-            Assert.AreEqual(2.0f, flat[1][1], 0.00001f);
-            Assert.IsInstanceOfType(ex, typeof(Multiply));
+            Assert.AreEqual(m11, flat[0][0], 0.00001f);
+            Assert.AreEqual(m12, flat[0][1], 0.00001f);
+            Assert.AreEqual(m21, flat[1][0], 0.00001f);
+            Assert.AreEqual(m22, flat[1][1], 0.00001f);
+            return ex;
         }
 
         class VectorSource : IDataSource<SparseArray<float>>
