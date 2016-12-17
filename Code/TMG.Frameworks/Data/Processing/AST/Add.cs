@@ -32,6 +32,35 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         }
 
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            if(!base.OptimizeAST(ref ex, ref error))
+            {
+                return false;
+            }
+            var lhsMul = LHS as Multiply;
+            var rhsMul = RHS as Multiply;
+            if (lhsMul != null)
+            {
+                ex = new FusedMultiplyAdd(Start)
+                {
+                    MulLHS = lhsMul.LHS,
+                    MulRHS = lhsMul.RHS,
+                    Add = RHS
+                };
+            }
+            else if(rhsMul != null)
+            {
+                ex = new FusedMultiplyAdd(Start)
+                {
+                    MulLHS = rhsMul.LHS,
+                    MulRHS = rhsMul.RHS,
+                    Add = LHS
+                };
+            }
+            return true;
+        }
+
         public override ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs)
         {
             // see if we have two values, in this case we can skip doing the matrix operation
