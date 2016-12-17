@@ -39,6 +39,8 @@ namespace TMG.Frameworks.Data.Processing.AST
         }
 
         public abstract ComputationResult Evaluate(IDataSource[] dataSources);
+
+        internal abstract bool OptimizeAST(ref Expression ex, ref string error);
     }
 
     public class ComputationResult

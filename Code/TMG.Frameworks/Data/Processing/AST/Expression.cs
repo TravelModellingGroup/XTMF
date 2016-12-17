@@ -61,8 +61,9 @@ namespace TMG.Frameworks.Data.Processing.AST
         internal static bool Optimize(ref Expression ex, ref string error)
         {
             // if this ever becomes a real problem try to add some optimization to the expression tree
-            return true;
+            return ex.OptimizeAST(ref ex, ref error);
         }
+        
 
         private static int FindStartOfBracket(char[] buffer, int start, int length, ref string error)
         {
@@ -507,6 +508,11 @@ namespace TMG.Frameworks.Data.Processing.AST
         {
 
         }
+
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            return InnerExpression.OptimizeAST(ref InnerExpression, ref error);
+        }
     }
 
     public abstract class BinaryExpression : Expression
@@ -535,6 +541,15 @@ namespace TMG.Frameworks.Data.Processing.AST
         }
 
         public abstract ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs);
+
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            if(!LHS.OptimizeAST(ref LHS, ref error) || !RHS.OptimizeAST(ref RHS, ref error))
+            {
+                return false;
+            }
+            return true;
+        }
     }
 
     public abstract class Value : Expression
@@ -542,6 +557,11 @@ namespace TMG.Frameworks.Data.Processing.AST
         public Value(int start) : base(start)
         {
 
+        }
+
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            return true;
         }
     }
 
@@ -555,6 +575,16 @@ namespace TMG.Frameworks.Data.Processing.AST
         public override ComputationResult Evaluate(IDataSource[] dataSources)
         {
             return InnerExpression.Evaluate(dataSources);
+        }
+
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            if(!InnerExpression.OptimizeAST(ref ex, ref error))
+            {
+                return false;
+            }
+            ex = InnerExpression;
+            return true;
         }
     }
 
