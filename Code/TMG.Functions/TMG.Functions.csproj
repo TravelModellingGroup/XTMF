@@ -125,6 +125,20 @@
     <Compile Include="SinglyConstrainedGravityModel.cs" />
     <Compile Include="TransitLines.cs" />
     <Compile Include="VectorHelper.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagAnd.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagIfGreaterThan.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagIfGreaterThanOrEqual.cs" />
+    <Compile Include="VectorHelper\Add.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagOr.cs" />
+    <Compile Include="VectorHelper\Divide.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagIfEqual.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagIfLessThan.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagIfLessThanOrEqual.cs" />
+    <Compile Include="VectorHelper\Conditions\FlagIfNotEqual.cs" />
+    <Compile Include="VectorHelper\FusedMultiplyAdd.cs" />
+    <Compile Include="VectorHelper\Multiply.cs" />
+    <Compile Include="VectorHelper\Pow.cs" />
+    <Compile Include="VectorHelper\Subtract.cs" />
     <Compile Include="ZoneSystemHelper.cs" />
   </ItemGroup>
   <ItemGroup>
