@@ -102,6 +102,7 @@ namespace Tasha.Data
 
         public void UnloadData()
         {
+            Data = null;
             Loaded = false;
         }
     }

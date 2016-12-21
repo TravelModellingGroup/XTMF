@@ -158,6 +158,7 @@ namespace TMG.Frameworks.Data.Processing
             if (!dataSource.Loaded)
             {
                 dataSource.LoadData();
+                loaded = true;
             }
             var ret = dataSource.GiveData();
             if(loaded && unloadIfLoad)

@@ -171,7 +171,7 @@ namespace Tasha.Estimation
                 });
 
             }
-            Root.RetrieveValue = () => VectorHelper.Sum(TotalTruth, 0, TotalTruth.Length) * fitness;
+            Root.RetrieveValue = () => fitness;
         }
     }
 
