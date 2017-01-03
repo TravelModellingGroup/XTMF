@@ -1063,15 +1063,46 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        public void ExternalUpdateParameters()
+        {
+         
+                this.UpdateParameters();
+            
+        }
+
         private void UpdateParameters()
         {
             var parameters = GetActiveParameters();
+
+
             if (parameters != null)
             {
                 FadeOut();
                 Task.Factory.StartNew(() =>
                 {
                     var source = ParameterDisplayModel.CreateParameters(parameters.OrderBy(el => el.Name).OrderBy(el => el.IsHidden), CurrentlySelected.Count > 1);
+
+
+
+                    if (!MainWindow.Us.ShowMetaModuleHiddenParameters)
+                    {
+                        if (CurrentlySelected.Count == 1)
+                        {
+
+
+
+                            if (CurrentlySelected[0].BaseModel.IsMetaModule)
+                            {
+
+                                foreach (var s in source.Where(p => p.RealParameter.IsHidden == true).ToList())
+                                {
+
+                                    source.Remove(s);
+                                }
+                            }
+                        }
+                    }
+
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         CleanUpParameters();
@@ -1080,10 +1111,16 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.Filter = FilterParameters;
                         ParameterFilterBox.RefreshFilter();
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
+
+
                         if (type != null)
                         {
                             SelectedName.Text = type.Name;
                             SelectedNamespace.Text = type.FullName;
+
+                            
+                            
+
                         }
                         else
                         {

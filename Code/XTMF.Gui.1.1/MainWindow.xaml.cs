@@ -71,6 +71,8 @@ namespace XTMF.Gui
             Us = this;
         }
 
+        public bool ShowMetaModuleHiddenParameters { get; set; }
+
         /// <summary>
         /// Updates GUI with recently opened projects.
         /// </summary>
@@ -753,6 +755,20 @@ namespace XTMF.Gui
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             LaunchSettingsPage();
+        }
+
+        private void MetaModuleHiddenParametersToggle_Click(object sender, RoutedEventArgs e)
+        {
+
+        
+
+            this.ShowMetaModuleHiddenParameters = !this.ShowMetaModuleHiddenParameters;
+            var document = CurrentDocument;
+            var modelSystem = document.Content as ModelSystemDisplay;
+
+            modelSystem.ExternalUpdateParameters();
+
+
         }
     }
 }

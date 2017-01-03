@@ -56,6 +56,9 @@ namespace XTMF.Gui.Models
                 FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
                 property = nameof(FontColour);
             }
+
+         
+
             ModelHelper.PropertyChanged(PropertyChanged, this, property);
         }
 
