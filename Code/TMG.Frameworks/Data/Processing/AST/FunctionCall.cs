@@ -64,6 +64,18 @@ namespace TMG.Frameworks.Data.Processing.AST
             Type = call;
         }
 
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            for (int i = 0; i < Parameters.Length; i++)
+            {
+                if(!Parameters[i].OptimizeAST(ref Parameters[i], ref error))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public static bool GetCall(int start, string call, Expression[] parameters, out FunctionCall ex, ref string error)
         {
             //decode the call to a type
