@@ -90,7 +90,7 @@
             <MenuItem Header="_View">
                 <MenuItem Header="_Start Window" Click="ShowStart_Click" />
                 <MenuItem Header="Display Settings">
-                    <MenuItem Header="Toggle meta-module hidden parameter visibilty" IsCheckable="True" Click="MetaModuleHiddenParametersToggle_Click"/>
+                    <MenuItem Header="Show meta-module hidden parameters" IsCheckable="True" Click="MetaModuleHiddenParametersToggle_Click"/>
                 </MenuItem>
                 <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
                     <MenuItem.Icon>

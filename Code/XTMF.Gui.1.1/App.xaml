@@ -24,6 +24,8 @@
              xmlns:UserControl="clr-namespace:XTMF.Gui.UserControls"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+
+        <PathGeometry x:Key="Checkmark" Figures="M0,2 L0,4.8 L2.5,7.4 L7.1,2.8 L7.1,0 L2.5,4.6 z" />
         <Color x:Key="WarningRed" A="255" R="0xA1" G="0x3B" B="0x45" />
         <Color x:Key="AddingYellow" A="255" R="0x7B" G="0x79" B="0x1E" />
         <Color x:Key="InformationGreen" A="255" R="0" G="140" B="0" />
@@ -474,10 +476,16 @@
                 <Grid >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
-                        <ColumnDefinition Width="Auto" MinWidth="30" />
+                        <ColumnDefinition Width="Auto" MinWidth="20" />
                         <ColumnDefinition Width="20" />
                     </Grid.ColumnDefinitions>
                     <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
+                    
+                    <!-- check mark / checkable -->
+                    <Border Name="Check" Width="17" Height="17" Visibility="Collapsed" Margin="1,1,1,1" Background="{StaticResource ControlBackgroundBrush}" BorderThickness="1" BorderBrush="{StaticResource FocusBrush}">
+                        <Path HorizontalAlignment="Center" x:Name="CheckMarkIcon" Data="{StaticResource Checkmark}" Fill="{TemplateBinding Foreground}" FlowDirection="LeftToRight" Margin="1,1,1,1" Visibility="Hidden" VerticalAlignment="Center"/>
+                    </Border>
+                    
                     <ContentPresenter Grid.Column="1" VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" />
                 </Grid>
             </Border>
@@ -490,21 +498,29 @@
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Foreground" Value="Gray" />
                 </Trigger>
+                <Trigger Property="IsChecked" Value="true">
+                    <Setter TargetName="CheckMarkIcon" Property="Visibility" Value="Visible"/>
+                </Trigger>
+
+                <Trigger Property="IsCheckable" Value="true">
+                    <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                </Trigger>
+
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
         <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="MenuItem">
-            <Border Background="{StaticResource ControlBackgroundBrush}" Padding="0" x:Name="_grid" BorderThickness="0" >
+            <Border Background="{StaticResource ControlBackgroundBrush}" Padding="2" x:Name="_grid" BorderThickness="0" >
                 <Grid >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
-                        <ColumnDefinition Width="Auto" MinWidth="30"/>
+                        <ColumnDefinition Width="Auto" MinWidth="30" />
                         <ColumnDefinition Width="*" MinWidth="30"/>
                         <ColumnDefinition Width="18" MinWidth="0" />
                     </Grid.ColumnDefinitions>
                     <Path Data="M 0,2 L 10,10 L 0,18 Z" Fill="White" Grid.Column="3" Margin="0,0,0,0" />
-                    <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
-                    <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}" />
+                    <ContentPresenter VerticalAlignment="Center" ContentSource="Icon" Margin="{TemplateBinding Padding}" />
+                    <ContentPresenter  Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}" />
                     <Popup x:Name="popup" PlacementTarget="{Binding ElementName=_grid}" Placement="Right" HorizontalOffset="0">
                         <Border BorderBrush="White" BorderThickness="1">
                             <ItemsPresenter x:Name="_items" />
@@ -520,6 +536,7 @@
                     <Setter Property="BorderBrush" Value="White" TargetName="_grid"/>
                     <Setter Property="Foreground" Value="White" />
                 </Trigger>
+                
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
@@ -552,6 +569,8 @@
 
         <Color x:Key="ControlLightColor">White</Color>
         <Color x:Key="ControlMediumColor">#FF7381F9</Color>
+        <DynamicResource x:Key="ControlMediumColorR" ResourceKey="ControlMediumColor"/>
+        
         <Color x:Key="ControlDarkColor">#FF211AA9</Color>
 
         <Color x:Key="ControlMouseOverColor">#FF3843C4</Color>

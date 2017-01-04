@@ -760,13 +760,17 @@ namespace XTMF.Gui
         private void MetaModuleHiddenParametersToggle_Click(object sender, RoutedEventArgs e)
         {
 
-        
+            if (EditingDisplayModel != NullEditingDisplayModel)
+            {
+                this.ShowMetaModuleHiddenParameters = !this.ShowMetaModuleHiddenParameters;
+                var document = CurrentDocument;
+                if (document.Content is ModelSystemDisplay)
+                {
+                    var modelSystem = document.Content as ModelSystemDisplay;
 
-            this.ShowMetaModuleHiddenParameters = !this.ShowMetaModuleHiddenParameters;
-            var document = CurrentDocument;
-            var modelSystem = document.Content as ModelSystemDisplay;
-
-            modelSystem.ExternalUpdateParameters();
+                    modelSystem.ExternalUpdateParameters();
+                }
+            }
 
 
         }
