@@ -50,7 +50,8 @@ namespace TMG.Frameworks.Data.Processing.AST
             LengthRows,
             ZeroMatrix,
             Matrix,
-            IdentityMatrix
+            IdentityMatrix,
+            Log
         }
 
         private FunctionType Type;
@@ -61,6 +62,18 @@ namespace TMG.Frameworks.Data.Processing.AST
         {
             Parameters = parameters;
             Type = call;
+        }
+
+        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        {
+            for (int i = 0; i < Parameters.Length; i++)
+            {
+                if(!Parameters[i].OptimizeAST(ref Parameters[i], ref error))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public static bool GetCall(int start, string call, Expression[] parameters, out FunctionCall ex, ref string error)
@@ -135,6 +148,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return true;
                 case "identitymatrix":
                     type = FunctionType.IdentityMatrix;
+                    return true;
+                case "log":
+                    type = FunctionType.Log;
                     return true;
                 default:
                     error = "The function '" + call + "' is undefined!";
@@ -316,11 +332,11 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                     return ZeroMatrix(values);
                 case FunctionType.Matrix:
-                    if(values.Length != 1)
+                    if (values.Length != 1)
                     {
                         return new ComputationResult("Matrix was executed with the wrong number of parameters!");
                     }
-                    if(!values[0].IsVectorResult)
+                    if (!values[0].IsVectorResult)
                     {
                         return new ComputationResult("Matrix must be applied to a vector!");
                     }
@@ -335,14 +351,46 @@ namespace TMG.Frameworks.Data.Processing.AST
                         return new ComputationResult("IdentityMatrix must be applied to a vector, or a matrix!");
                     }
                     return IdentityMatrix(values[0]);
+                case FunctionType.Log:
+                    if (values.Length != 1)
+                    {
+                        return new ComputationResult("Log must be executed with one parameter!");
+                    }
+                    return Log(values);
+
             }
             return new ComputationResult("An undefined function was executed!");
+        }
+
+        private ComputationResult Log(ComputationResult[] values)
+        {
+            if(values[0].IsValue)
+            {
+                return new ComputationResult((float)Math.Log(values[0].LiteralValue));
+            }
+            else if(values[0].IsVectorResult)
+            {
+                SparseArray<float> saveTo = values[0].Accumulator ? values[0].VectorData : values[0].VectorData.CreateSimilarArray<float>();
+                var flat = saveTo.GetFlatData();
+                VectorHelper.Log(flat, 0, flat, 0, flat.Length);
+                return new ComputationResult(saveTo, true);
+            }
+            else
+            {
+                SparseTwinIndex<float> saveTo = values[0].Accumulator ? values[0].ODData : values[0].ODData.CreateSimilarArray<float>();
+                var flat = saveTo.GetFlatData();
+                for (int i = 0; i < flat.Length; i++)
+                {
+                    VectorHelper.Log(flat[i], 0, flat[i], 0, flat.Length);
+                }
+                return new ComputationResult(saveTo, true);
+            }
         }
 
         private ComputationResult IdentityMatrix(ComputationResult computationResult)
         {
             SparseTwinIndex<float> ret;
-            if(computationResult.IsVectorResult)
+            if (computationResult.IsVectorResult)
             {
                 var vector = computationResult.VectorData;
                 ret = vector.CreateSquareTwinArray<float>();
