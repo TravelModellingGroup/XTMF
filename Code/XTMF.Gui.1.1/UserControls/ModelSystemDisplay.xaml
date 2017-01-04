@@ -27,7 +27,7 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              KeyboardNavigation.IsTabStop="True"
-             FocusManager.FocusedElement="{Binding ElementName=FilterBox}"
+             FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -127,7 +127,7 @@
             </Grid.RowDefinitions>
             <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
             <TreeView Grid.Row="1" Background="{StaticResource ControlBackgroundBrush}" 
-                  x:Name="ModuleDisplay" ItemsSource="{Binding DisplayRoot}"
+                  x:Name="ModuleDisplay" 
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
                 <TreeView.ContextMenu>
