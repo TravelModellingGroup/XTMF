@@ -55,7 +55,7 @@
                           Background="{StaticResource WindowBackgroundBrush}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
                         </Style>
                     </ListView.Resources>
                     <ListView.ItemsPanel>
@@ -65,11 +65,11 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <my:BorderIconButton Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+                            <my:BorderIconButton MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" DoubleClicked="BorderIconButton_DoubleClicked" Width="300px">
                                 <my:BorderIconButton.Style>
                                     <Style TargetType="my:BorderIconButton">
-                                        <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                     <!--   <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
                                     </Style>
                                 </my:BorderIconButton.Style>
                             </my:BorderIconButton>
@@ -103,7 +103,7 @@
                      HorizontalContentAlignment="Stretch">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                            <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
                         </Style>
                     </ListView.Resources>
                     <ListView.ItemsPanel>

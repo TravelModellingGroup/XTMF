@@ -281,9 +281,11 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void RemoveCurrentlySelectedParameter()
+        private void RemoveCurrentlySelectedParameter(object sender, RoutedEventArgs e)
         {
             var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
+
+       
             if (selectedLinkedParameter != null)
             {
                 string error = null;
@@ -294,14 +296,14 @@ namespace XTMF.Gui.UserControls
                     return;
                 }
                 var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
-                items.RemoveAt(index);
+                items.Remove(selectedLinkedParameter);
                 ChangesMade = true;
             }
         }
 
         private void RemoveLinkedParameter_Click(object sender, RoutedEventArgs e)
         {
-            RemoveCurrentlySelectedParameter();
+            RemoveCurrentlySelectedParameter(sender,e);
         }
 
         private void BorderIconButton_DoubleClicked(object obj)
@@ -335,6 +337,11 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+        }
+
+        private void BorderIconButton_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            
         }
     }
 }
