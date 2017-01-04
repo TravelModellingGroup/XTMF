@@ -829,8 +829,8 @@
           Value="1,0,0,0" />
             <Setter Property="Foreground"
           Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
-            <Setter Property="FocusVisualStyle"
-          Value="{StaticResource TreeViewItemFocusVisual}" />
+            <!--<Setter Property="FocusVisualStyle"
+          Value="{StaticResource TreeViewItemFocusVisual}" /> -->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TreeViewItem}">
