@@ -50,6 +50,8 @@
             <GradientStop Color="{StaticResource FocusColour}" Offset="0.8" />
             <GradientStop Color="{StaticResource FocusColour}" Offset="1.0" />
         </LinearGradientBrush>
+
+ 
         <Style TargetType="{x:Type ScrollBar}">
             <Style.Triggers>
                 <EventTrigger RoutedEvent="ScrollBar.MouseEnter">
