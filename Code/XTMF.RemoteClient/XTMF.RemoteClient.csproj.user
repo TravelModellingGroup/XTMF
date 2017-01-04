@@ -6,4 +6,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|x86'">
     <StartArguments>localhost 1447</StartArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|x86'">
+    <StartArguments>localhost 1447</StartArguments>
+  </PropertyGroup>
 </Project>

@@ -41,7 +41,7 @@
                         <SolidColorBrush Color="{StaticResource ResourceKey=ControlBackgroundColour}" />
                     </StackPanel.Background>
                     <Expander Margin="0.2cm,5,0.2cm,5" Foreground="White" FontSize="14"
-                                  HorizontalAlignment="Stretch" ToolTip="{Binding ToolTipText, Mode=OneTime}" Style="{StaticResource ParameterNameStyle}">
+                                  HorizontalAlignment="Stretch"  Style="{StaticResource ParameterNameStyle}">
                         <Expander.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -85,7 +85,7 @@
                         <SolidColorBrush Color="{StaticResource ResourceKey=ControlBackgroundColour}" />
                     </StackPanel.Background>
                     <Expander Margin="0.2cm,5,0.2cm,5" Foreground="White" FontSize="14"
-                                  HorizontalAlignment="Stretch" ToolTip="{Binding ToolTipText, Mode=OneTime}" Style="{StaticResource ParameterNameStyle}">
+                                  HorizontalAlignment="Stretch" Style="{StaticResource ParameterNameStyle}">
                         <Expander.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -229,6 +229,8 @@
                         </HierarchicalDataTemplate.Triggers>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
+                
+                <!--
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="TreeViewItem" >
                         <Style.Resources>
@@ -243,7 +245,7 @@
                         <Setter Property="BorderThickness" Value="0" />
                         <Setter Property="Background" Value="Transparent" />
                     </Style>
-                </TreeView.ItemContainerStyle>
+                </TreeView.ItemContainerStyle> -->
             </TreeView>
         </Grid>
         <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
