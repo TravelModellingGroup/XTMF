@@ -166,6 +166,14 @@ namespace Tasha.StationAccess
                     {
                         var autoData = fastAuto.GetTimePeriodData(StartTime);
                         var transitData = fastTransit.GetTimePeriodData(StartTime);
+                        if(autoData == null)
+                        {
+                            throw new XTMFRuntimeException($"In {Name} we were unable to get the auto data from {fastAuto.Name} at the time {StartTime}!");
+                        }
+                        if (transitData == null)
+                        {
+                            throw new XTMFRuntimeException($"In {Name} we were unable to get the transit data from {fastTransit.Name} at the time {StartTime}!");
+                        }
                         var zoneNumber = zones[zoneIndex].ZoneNumber;
                         if (spatialZones.Contains(zoneNumber))
                         {
