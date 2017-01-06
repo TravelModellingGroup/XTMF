@@ -46,7 +46,7 @@ namespace TMG.Functions
                 Vector<float> zero = Vector<float>.Zero;
                 Vector<float> one = Vector<float>.One;
                 Vector<float> vValue = new Vector<float>(value);
-                for (i = 0; i < data.Length - Vector<float>.Count; i++)
+                for (i = 0; i < data.Length - Vector<float>.Count; i += Vector<float>.Count)
                 {
                     var vData = new Vector<float>(data, i);
                     Vector.ConditionalSelect(Vector.Equals(vData, vValue), one, zero).CopyTo(dest, i);
