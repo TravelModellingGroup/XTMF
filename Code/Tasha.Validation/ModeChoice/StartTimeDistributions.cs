@@ -165,7 +165,8 @@ namespace Tasha.Validation.ModeChoice
                 writer.Write("Iteration: ");
                 writer.WriteLine(iteration + 1);
                 writer.Write("Time");
-                foreach (var key in TimeBin.Keys)
+                var orderedTimeBinKeys = TimeBin.Keys.OrderBy(k => Enum.GetName(typeof(Activity), k)).ToList();
+                foreach (var key in orderedTimeBinKeys)
                 {
                     var name = Enum.GetName(typeof(Activity), key);
                     for (int i = 0; i < Modes.Length; i++)
@@ -182,7 +183,7 @@ namespace Tasha.Validation.ModeChoice
                 for (int i = 0; i < NumberOfTimeBins; i++)
                 {
                     writer.Write(currentTime);
-                    foreach (var key in TimeBin.Keys)
+                    foreach (var key in orderedTimeBinKeys)
                     {
                         var purposeData = GetPurposeCount(key)[i];
                         for (int j = 0; j < purposeData.Length; j++)
