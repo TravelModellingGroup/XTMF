@@ -120,10 +120,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagAnd(float[][] dest, float[][] data, float literalValue)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FlagAnd(dest[i], data[i], literalValue);
-            }
+            });
         }
 
         /// <summary>
@@ -139,10 +139,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagAnd(float[][] dest, float[][] lhs, float[][] rhs)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FlagAnd(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
-            }
+            });
         }
 
         /// <summary>
@@ -150,10 +150,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagAnd(float[][] v1, float literalValue, float[][] v2)
         {
-            for (int i = 0; i < v1.Length; i++)
+            Parallel.For(0, v1.Length, (int i) =>
             {
                 FlagAnd(v1[i], literalValue, v2[i]);
-            }
+            });
         }
     }
 }

@@ -80,10 +80,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThanOrEqual(float[][] dest, float[][] data, float literalValue)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FlagIfLessThanOrEqual(dest[i], data[i], literalValue);
-            }
+            });
         }
 
         /// <summary>
@@ -99,10 +99,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThanOrEqual(float[][] dest, float[][] lhs, float[][] rhs)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FlagIfLessThanOrEqual(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
-            }
+            });
         }
 
         /// <summary>
@@ -110,10 +110,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfLessThanOrEqual(float[][] dest, float literalValue, float[][] data)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FlagIfLessThanOrEqual(dest[i], literalValue, data[i]);
-            }
+            });
         }
     }
 }
