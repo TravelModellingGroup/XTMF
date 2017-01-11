@@ -93,6 +93,7 @@
                 <MenuItem Header="_Interface Settings">
                     <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True" Click="MetaModuleHiddenParametersToggle_Click"/>
                 </MenuItem>
+                <MenuItem Header="_Linked Parameters"></MenuItem>
                 <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
                     <MenuItem.Icon>
                         <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/Help.png" Width="20" Height="20" />
@@ -165,7 +166,7 @@
                 <SolidColorBrush Color="{StaticResource WindowBackgroundColour}" />
             </xcad:DockingManager.Background>
             <xcad:DockingManager.Theme>
-                <xcad:AeroTheme />
+                <xcad:Vs2013DarkTheme />
             </xcad:DockingManager.Theme>
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">
@@ -211,5 +212,6 @@
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>
+        <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100"/>
     </Grid>
 </Window>

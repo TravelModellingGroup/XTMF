@@ -115,6 +115,10 @@
       <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2013, Version=2.9.0.1, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xceed.Wpf.AvalonDock.Themes.VS2013.2.9.0.1\lib\net40-client\Xceed.Wpf.AvalonDock.Themes.VS2013.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Xceed.Wpf.DataGrid, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.3.0\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
       <Private>True</Private>
@@ -176,6 +180,9 @@
     </Compile>
     <Compile Include="UserControls\LinkedParameterDisplay.xaml.cs">
       <DependentUpon>LinkedParameterDisplay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\LinkedParametersWindow.xaml.cs">
+      <DependentUpon>LinkedParametersWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
@@ -284,6 +291,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\LinkedParameterDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\LinkedParametersWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

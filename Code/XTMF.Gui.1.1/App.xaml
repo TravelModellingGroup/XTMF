@@ -807,8 +807,8 @@
             </Style.Resources>
 
         </Style>
+       
 
-     
 
         <Style x:Key="{x:Type TreeViewItem}"
        TargetType="{x:Type TreeViewItem}">
