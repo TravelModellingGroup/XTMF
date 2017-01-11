@@ -52,7 +52,7 @@
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
                 <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{StaticResource WindowBackgroundBrush}">
+                          Background="{StaticResource WindowBackgroundBrush}" KeyDown="LinkedParameterValue_PreviewKeyDown">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
@@ -65,8 +65,8 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <my:BorderIconButton MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" DoubleClicked="BorderIconButton_DoubleClicked" Width="300px">
+                            <my:BorderIconButton IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+                                             Icon="/XTMF.Gui;component/Resources/Settings.png" DoubleClicked="BorderIconButton_DoubleClicked" Width="300px"  >
                                 <my:BorderIconButton.Style>
                                     <Style TargetType="my:BorderIconButton">
                                      <!--   <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->

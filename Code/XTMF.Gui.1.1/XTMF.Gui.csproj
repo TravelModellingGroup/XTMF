@@ -181,9 +181,6 @@
     <Compile Include="UserControls\LinkedParameterDisplay.xaml.cs">
       <DependentUpon>LinkedParameterDisplay.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\LinkedParametersWindow.xaml.cs">
-      <DependentUpon>LinkedParametersWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
     </Compile>
@@ -291,10 +288,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\LinkedParameterDisplay.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UserControls\LinkedParametersWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

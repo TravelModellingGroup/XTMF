@@ -61,11 +61,31 @@ namespace XTMF.Gui.UserControls
             Display.SelectionChanged += Display_SelectionChanged;
             Loaded += LinkedParameterDisplay_Loaded;
             LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
+
+          
         }
 
         private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (!e.Handled && e.Key == Key.Enter)
+          
+            if (!e.Handled && e.Key == Key.Delete)
+            {
+                if (Display.IsKeyboardFocusWithin)
+                {
+
+                    var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
+                    MessageBoxResult messageBoxResult = 
+                        System.Windows.MessageBox.Show("Are you sure you wish to delete the selected linked parameter?", 
+                        "Delete Confirmation [" + selectedLinkedParameter.Name + "]", System.Windows.MessageBoxButton.YesNoCancel);
+
+                   
+                    if (messageBoxResult == MessageBoxResult.Yes)
+                    {
+                        RemoveCurrentlySelectedParameter(sender, e);
+                    }
+                }
+            }
+            else if (!e.Handled && e.Key == Key.Enter)
             {
                 e.Handled = true;
                 CleanupSelectedParameters();
@@ -343,5 +363,7 @@ namespace XTMF.Gui.UserControls
         {
             
         }
+
+     
     }
 }
