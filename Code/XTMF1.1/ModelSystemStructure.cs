@@ -1049,28 +1049,32 @@ namespace XTMF
             }
         }
 
-
+        private static bool IsCollectionType(Type t)
+        {
+            return t.GetInterface("System.Collections.Generic.ICollection`1") != null;
+        }
 
         private static void LoadChildNode(IModelSystemStructure modelSystemStructure, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
             /* Check the parent class type */
-
+            
             Type type = null;
             if (child.Attributes["Name"] != null)
             {
                  type = DiscernType(modelSystemStructure, child.Attributes["Name"].Value);
             }
         
-        
             if(type != null)
             {
-                if(typeof(ICollection<IModule>).IsAssignableFrom(type))
-                {
-                    LoadCollection(modelSystemStructure, child, config, lookUp);
-                }
-                else if(typeof(IModule).IsAssignableFrom(type))
+                if (typeof(IModule).IsAssignableFrom(type))
                 {
                     LoadModule(modelSystemStructure, child, config, lookUp);
+                }
+                else if (typeof(ICollection<IModule>).IsAssignableFrom(type)
+                    || (type.GenericTypeArguments.Length == 1 && typeof(IModule).IsAssignableFrom(type.GenericTypeArguments[0]) && IsCollectionType(type))
+                    )
+                {
+                    LoadCollection(modelSystemStructure, child, config, lookUp);
                 }
             }
             else

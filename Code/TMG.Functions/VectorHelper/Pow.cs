@@ -58,28 +58,28 @@ namespace TMG.Functions
         public static void Pow(float[][] flat, float[][] lhs, float[][] rhs)
         {
             // Vectorize this when possible
-            for (int i = 0; i < flat.Length; i++)
+            Parallel.For(0, flat.Length, (int i) =>
             {
                 Pow(flat[i], lhs[i], rhs[i]);
-            }
+            });
         }
 
         public static void Pow(float[][] flat, float[][] lhs, float rhs)
         {
             // Vectorize this when possible
-            for (int i = 0; i < flat.Length; i++)
+            Parallel.For(0, flat.Length, (int i) =>
             {
                 Pow(flat[i], lhs[i], rhs);
-            }
+            });
         }
 
         public static void Pow(float[][] flat, float lhs, float[][] rhs)
         {
             // Vectorize this when possible
-            for (int i = 0; i < flat.Length; i++)
+            Parallel.For(0, flat.Length, (int i) =>
             {
                 Pow(flat[i], lhs, rhs[i]);
-            }
+            });
         }
     }
 }

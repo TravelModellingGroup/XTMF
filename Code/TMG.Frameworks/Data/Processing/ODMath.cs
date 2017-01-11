@@ -145,6 +145,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
             FindRoot();
             if (!CompileAST(ref error))
             {
+                error = $"In {Name} there was a compilation error for the expression.\r\n" + error;
                 return false;
             }
             return true;

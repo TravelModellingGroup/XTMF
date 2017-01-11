@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Datastructure;
 using TMG.Input;
 using XTMF;
@@ -58,23 +59,37 @@ namespace TMG.GTAModel.Input
             {
                 ODData<float> point;
                 int length;
+                var anyLinesRead = false;
                 // burn header
-                reader.LoadLine();
+                length = reader.LoadLine();
+                var destinationMap = new int[length - 1];
+                var zonesNumbers = zones.Select(z => z.ZoneNumber).ToArray();
+                for (int i = 1; i < length; i++)
+                {
+                    int zoneNumber;
+                    reader.Get(out zoneNumber, i);
+                    destinationMap[i - 1] = zoneNumber;
+                    if (Array.BinarySearch(zonesNumbers, zoneNumber) < 0)
+                    {
+                        throw new XTMFRuntimeException($"In {Name} we were found a zone number {zoneNumber} that is not contained in the zone system!");
+                    }
+                }
                 // now read in data
                 while ( !reader.EndOfFile )
                 {
                     length = reader.LoadLine();
-                    if ( length != zones.Length + 1 )
-                    {
-                        continue;
-                    }
+                    anyLinesRead = true;
                     reader.Get( out point.O, 0 );
-                    for ( int i = 1; i < length; i++ )
+                    for ( int i = 1; i < length && i <= destinationMap.Length; i++ )
                     {
-                        point.D = zones[i - 1].ZoneNumber;
+                        point.D = destinationMap[i - 1];
                         reader.Get( out point.Data, i );
                         yield return point;
                     }
+                }
+                if(!anyLinesRead)
+                {
+                    throw new XTMFRuntimeException($"In {Name} when reading the file '{this.FileName.GetFileName(UseInputDirectory ? this.Root.InputBaseDirectory : ".")}' we did not load any information!");
                 }
             }
         }

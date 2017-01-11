@@ -80,8 +80,8 @@ namespace XTMF
             Project = project;
             ModelSystemStructureModelRoot = root;
             var index = project.ModelSystemStructure.IndexOf(root.RealModelSystemStructure);
-            if(index >= 0)
-            Configuration = new XTMF.RunProxy.ConfigurationProxy(configuration, Project);
+            if (index >= 0)
+                Configuration = new XTMF.RunProxy.ConfigurationProxy(configuration, Project);
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
         }
@@ -101,7 +101,7 @@ namespace XTMF
         /// <summary>
         /// An event that fires if a runtime error occurs, this includes out of memory exceptions
         /// </summary>
-        public event Action<string,string> RuntimeError;
+        public event Action<string, string> RuntimeError;
 
         /// <summary>
         /// An event that fires when the model ends in an error during runtime validation
@@ -126,7 +126,7 @@ namespace XTMF
         public bool ExitRequest()
         {
             var mst = MST;
-            if(mst != null)
+            if (mst != null)
             {
                 return mst.ExitRequest();
             }
@@ -140,7 +140,7 @@ namespace XTMF
         public Tuple<byte, byte, byte> PollColour()
         {
             var mst = MST;
-            if(mst != null)
+            if (mst != null)
             {
                 return mst.ProgressColour;
             }
@@ -154,7 +154,7 @@ namespace XTMF
         public virtual float PollProgress()
         {
             var mst = MST;
-            if(mst != null)
+            if (mst != null)
             {
                 return mst.Progress;
             }
@@ -168,7 +168,7 @@ namespace XTMF
         public virtual string PollStatusMessage()
         {
             var mst = MST;
-            if(mst != null)
+            if (mst != null)
             {
                 return mst.ToString();
             }
@@ -192,7 +192,7 @@ namespace XTMF
         /// </summary>
         public void Wait()
         {
-            if(RunThread != null)
+            if (RunThread != null)
             {
                 RunThread.Join();
             }
@@ -225,21 +225,22 @@ namespace XTMF
         /// <param name="error">This parameter gets the error message if any is generated</param>
         /// <param name="currentPoint">The module to look at, set this to the root to begin.</param>
         /// <returns>This will be false if there is an error, true otherwise</returns>
-        protected bool RunTimeValidation(ref string error, IModelSystemStructure currentPoint)
+        protected bool RunTimeValidation(string path, ref string error, IModelSystemStructure currentPoint)
         {
-            if(currentPoint.Module != null)
+            if (currentPoint.Module != null)
             {
-                if(!currentPoint.Module.RuntimeValidation(ref error))
+                if (!currentPoint.Module.RuntimeValidation(ref error))
                 {
+                    error = $"Runtime Validation Error in {path + currentPoint.Name}\r\n{error}";
                     return false;
                 }
             }
             // check to see if there are descendants that need to be checked
-            if(currentPoint.Children != null)
+            if (currentPoint.Children != null)
             {
-                foreach(var module in currentPoint.Children)
+                foreach (var module in currentPoint.Children)
                 {
-                    if(!RunTimeValidation(ref error, module))
+                    if (!RunTimeValidation(path + currentPoint.Name + ".", ref error, module))
                     {
                         return false;
                     }
@@ -251,7 +252,7 @@ namespace XTMF
         private void AlertValidationStarting()
         {
             var alert = ValidationStarting;
-            if(alert != null)
+            if (alert != null)
             {
                 alert();
             }
@@ -263,10 +264,10 @@ namespace XTMF
         /// <param name="ms">The model system structure to clean up</param>
         private void CleanUpModelSystem(IModelSystemStructure ms)
         {
-            if(ms != null)
+            if (ms != null)
             {
                 var disp = ms.Module as IDisposable;
-                if(disp != null)
+                if (disp != null)
                 {
                     try
                     {
@@ -277,9 +278,9 @@ namespace XTMF
                 }
                 ms.Module = null;
             }
-            if(ms.Children != null)
+            if (ms.Children != null)
             {
-                foreach(var child in ms.Children)
+                foreach (var child in ms.Children)
                 {
                     CleanUpModelSystem(child);
                 }
@@ -293,7 +294,7 @@ namespace XTMF
             IModelSystemStructure MSTStructure;
             try
             {
-                if(ModelSystemStructureModelRoot == null)
+                if (ModelSystemStructureModelRoot == null)
                 {
                     MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
                     MSTStructure = Project.ModelSystemStructure[ModelSystemIndex];
@@ -309,7 +310,7 @@ namespace XTMF
                 SendValidationError(e.Message);
                 return;
             }
-            if(MST == null)
+            if (MST == null)
             {
                 SendValidationError(error);
                 return;
@@ -321,13 +322,13 @@ namespace XTMF
                 cwd = Directory.GetCurrentDirectory();
                 // check to see if the directory exists, if it doesn't create it
                 DirectoryInfo info = new DirectoryInfo(RunDirectory);
-                if(!info.Exists)
+                if (!info.Exists)
                 {
                     info.Create();
                 }
                 Directory.SetCurrentDirectory(RunDirectory);
                 MSTStructure.Save(Path.GetFullPath("RunParameters.xml"));
-                if(!RunTimeValidation(ref error, MSTStructure))
+                if (!RunTimeValidation("", ref error, MSTStructure))
                 {
                     SendRuntimeValidationError(error);
                 }
@@ -350,7 +351,7 @@ namespace XTMF
                 CleanUpModelSystem(MSTStructure);
                 MSTStructure = null;
                 MST = null;
-                if(Configuration is Configuration)
+                if (Configuration is Configuration)
                 {
                     ((Configuration as Configuration)).ModelSystemExited();
                 }
@@ -369,22 +370,14 @@ namespace XTMF
 
         private void SendRunComplete()
         {
-            var alert = RunComplete;
-            if(alert != null)
-            {
-                alert();
-            }
+            RunComplete?.Invoke();
         }
 
         private void SendRuntimeError(Exception errorMessage)
         {
             errorMessage = GetTopRootException(errorMessage);
             SaveErrorMessage(errorMessage);
-            var alert = RuntimeError;
-            if(alert != null)
-            {
-                alert(errorMessage.Message, errorMessage.StackTrace);
-            }
+            RuntimeError?.Invoke(errorMessage.Message, errorMessage.StackTrace);
         }
 
         private static System.Exception GetTopRootException(System.Exception value)
@@ -411,29 +404,17 @@ namespace XTMF
 
         private void SendRuntimeValidationError(string errorMessage)
         {
-            var alert = RuntimeValidationError;
-            if(alert != null)
-            {
-                alert(errorMessage);
-            }
+            RuntimeValidationError?.Invoke(errorMessage);
         }
 
         private void SendValidationError(string errorMessage)
         {
-            var alert = ValidationError;
-            if(alert != null)
-            {
-                alert(errorMessage);
-            }
+            ValidationError?.Invoke(errorMessage);
         }
 
         private void SetStatusToRunning()
         {
-            var alert = RunStarted;
-            if(alert != null)
-            {
-                alert();
-            }
+            RunStarted?.Invoke();
         }
     }
 }

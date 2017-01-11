@@ -320,7 +320,7 @@ namespace XTMF.Gui.UserControls
 
         private void ShowErrorMessage(string header, string message)
         {
-            (new ErrorWindow() { Owner = GetWindow(this), ErrorMessage = header + "\r\n" + message }).ShowDialog();
+            (new ErrorWindow() { Owner = GetWindow(this), ErrorMessage = String.IsNullOrWhiteSpace(header) ? message : header + "\r\n" + message }).ShowDialog();
         }
 
         private void ShowErrorMessage(string v, string message, string stackTrace)
@@ -337,7 +337,7 @@ namespace XTMF.Gui.UserControls
             Dispatcher.Invoke(new Action(() =>
             {
                 SetRunFinished();
-                ShowErrorMessage("Runtime Validation Error", errorMessage);
+                ShowErrorMessage(String.Empty, errorMessage);
             }));
         }
 

@@ -59,7 +59,7 @@ namespace Datastructure
         public CsvReader(string fileName, bool spacesAsSeperator = false)
         {
             FileName = fileName;
-            Reader = new BinaryReader(File.OpenRead(fileName));
+            Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
             BaseStream = Reader.BaseStream;
             LoadedFromStream = false;
             StreamLength = BaseStream.Length;

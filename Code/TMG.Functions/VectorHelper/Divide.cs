@@ -79,9 +79,9 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                Vector<float> n = new Vector<float>(numerator);
-                for (int row = 0; row < destination.Length; row++)
+                Parallel.For(0, destination.Length, (int row) =>
                 {
+                    Vector<float> n = new Vector<float>(numerator);
                     var dest = destination[row];
                     var length = dest.Length;
                     var denom = denominator[row];
@@ -97,17 +97,17 @@ namespace TMG.Functions
                     {
                         dest[i] = numerator / denom[i];
                     }
-                }
+                });
             }
             else
             {
-                for (int i = 0; i < destination.Length; i++)
+                Parallel.For(0, destination.Length, (int i) =>
                 {
                     for (int j = 0; j < destination[i].Length; j++)
                     {
                         destination[i][j] = numerator / denominator[i][j];
                     }
-                }
+                });
             }
         }
 
@@ -115,9 +115,9 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                Vector<float> d = new Vector<float>(denominator);
-                for (int row = 0; row < destination.Length; row++)
+                Parallel.For(0, destination.Length, (int row) =>
                 {
+                    Vector<float> d = new Vector<float>(denominator);
                     var dest = destination[row];
                     var length = dest.Length;
                     var num = numerator[row];
@@ -133,17 +133,17 @@ namespace TMG.Functions
                     {
                         dest[i] = num[i] / denominator;
                     }
-                }
+                });
             }
             else
             {
-                for (int i = 0; i < destination.Length; i++)
+                Parallel.For(0, destination.Length, (int i) =>
                 {
                     for (int j = 0; j < destination[i].Length; j++)
                     {
                         destination[i][j] = numerator[i][j] / denominator;
                     }
-                }
+                });
             }
         }
 
@@ -151,7 +151,7 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                for (int row = 0; row < destination.Length; row++)
+                Parallel.For(0, destination.Length, (int row) =>
                 {
                     var dest = destination[row];
                     var length = dest.Length;
@@ -170,17 +170,17 @@ namespace TMG.Functions
                     {
                         dest[i] = num[i] / denom[i];
                     }
-                }
+                });
             }
             else
             {
-                for (int i = 0; i < destination.Length; i++)
+                Parallel.For(0, destination.Length, (int i) =>
                 {
                     for (int j = 0; j < destination[i].Length; j++)
                     {
                         destination[i][j] = numerator[i][j] / denominator[i][j];
                     }
-                }
+                });
             }
         }
 

@@ -91,17 +91,17 @@ namespace TMG.Frameworks.Data.Processing.AST
                         var flatLHS = lhs.VectorData.GetFlatData();
                         if (lhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            for (int i = 0; i < flatRHS.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
-                                VectorHelper.Pow(flatRet[i], flatRHS[i], flatLHS[i]);
-                            }
+                                VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS[i]);
+                            });
                         }
                         else if (lhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            for (int i = 0; i < flatRHS.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
                                 VectorHelper.Pow(flatRet[i], flatLHS, flatRHS[i]);
-                            }
+                            });
                         }
                         else
                         {
@@ -117,17 +117,17 @@ namespace TMG.Frameworks.Data.Processing.AST
                         var flatRHS = rhs.VectorData.GetFlatData();
                         if (rhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            for (int i = 0; i < flatLHS.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
                                 VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS[i]);
-                            }
+                            });
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            for (int i = 0; i < flatRet.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
                                 VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS);
-                            }
+                            });
                         }
                         else
                         {

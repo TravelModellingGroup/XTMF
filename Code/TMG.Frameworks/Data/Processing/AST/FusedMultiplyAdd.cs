@@ -133,17 +133,17 @@ namespace TMG.Frameworks.Data.Processing.AST
                         var flatLHS = lhs.VectorData.GetFlatData();
                         if (lhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            for (int i = 0; i < flatRHS.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
                                 VectorHelper.FusedMultiplyAdd(flatRet[i], flatRHS[i], flatLHS[i], add.LiteralValue);
-                            }
+                            });
                         }
                         else if (lhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            for (int i = 0; i < flatRHS.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
                                 VectorHelper.FusedMultiplyAdd(flatRet[i], flatLHS, flatRHS[i], add.LiteralValue);
-                            }
+                            });
                         }
                         else
                         {
@@ -159,17 +159,17 @@ namespace TMG.Frameworks.Data.Processing.AST
                         var flatRHS = rhs.VectorData.GetFlatData();
                         if (rhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            for (int i = 0; i < flatLHS.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
                                 VectorHelper.FusedMultiplyAdd(flatRet[i], flatLHS[i], flatRHS[i], add.LiteralValue);
-                            }
+                            });
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            for (int i = 0; i < flatRet.Length; i++)
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
                             {
                                 VectorHelper.FusedMultiplyAdd(flatRet[i], flatRHS, flatLHS[i], add.LiteralValue);
-                            }
+                            });
                         }
                         else
                         {
@@ -364,7 +364,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 var retMatrix = add.Accumulator ? add.ODData : add.ODData.CreateSimilarArray<float>();
                 var tempVector = lhs.Accumulator ? lhs.VectorData : (rhs.IsVectorResult && rhs.Accumulator ? rhs.VectorData : lhs.VectorData.CreateSimilarArray<float>());
-                // compute the multiplication seperatly in this case for better performance (n multiplies instead of n^2)
+                // compute the multiplication separately in this case for better performance (n multiplies instead of n^2)
                 if (rhs.IsVectorResult)
                 {
                     if (lhs.Direction != rhs.Direction)

@@ -119,8 +119,9 @@ namespace XTMF.Editing
             {
                 for(int i = 0; i < Count; i++)
                 {
-                    var index = (Head - i) % Capacity;
-                    if(Data[index] == item)
+                    var headoffset = (Head - i);
+                    int index = headoffset < 0 ? Capacity + headoffset : headoffset;
+                    if (Data[index] == item)
                     {
                         return true;
                     }
@@ -143,7 +144,8 @@ namespace XTMF.Editing
                 }
                 for(int i = 0; i < Count; i++)
                 {
-                    var index = (Head - i) % Capacity;
+                    var headoffset = (Head - i);
+                    int index = headoffset < 0 ? Capacity + headoffset : headoffset;
                     array[arrayIndex++] = Data[index];
                 }
             }

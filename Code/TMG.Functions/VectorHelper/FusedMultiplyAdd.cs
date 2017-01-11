@@ -150,10 +150,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[][] dest, float[][] lhs, float[][] rhs, float add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add);
-            }
+            });
         }
 
         /// <summary>
@@ -161,10 +161,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[][] dest, float[][] lhs, float rhs, float add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add);
-            }
+            });
         }
 
         /// <summary>
@@ -172,10 +172,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[][] dest, float[][] lhs, float rhs, float[][] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -183,10 +183,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAdd(float[][] dest, float[][] lhs, float[][] rhs, float[][] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -194,10 +194,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddVerticalAdd(float[][] dest, float[][] lhs, float[][] rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -205,10 +205,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddHorizontalAdd(float[][] dest, float[][] lhs, float rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add);
-            }
+            });
         }
 
         /// <summary>
@@ -216,10 +216,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddVerticalAdd(float[][] dest, float[][] lhs, float rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -227,10 +227,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddHorizontalAdd(float[][] dest, float[][] lhs, float[][] rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add);
-            }
+            });
         }
 
         /// <summary>
@@ -238,10 +238,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddVerticalRHS(float[][] dest, float[][] lhs, float[] rhs, float add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add);
-            }
+            });
         }
 
         /// <summary>
@@ -249,10 +249,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddHorizontalRHS(float[][] dest, float[][] lhs, float[] rhs, float add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add);
-            }
+            });
         }
 
         /// <summary>
@@ -260,10 +260,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddVerticalRHS(float[][] dest, float[][] lhs, float[] rhs, float[][] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -271,10 +271,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddHorizontalRHS(float[][] dest, float[][] lhs, float[] rhs, float[][] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -282,10 +282,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddVerticalRHSVerticalAdd(float[][] dest, float[][] lhs, float[] rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -293,10 +293,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddHorizontalRHSVerticalAdd(float[][] dest, float[][] lhs, float[] rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add[i]);
-            }
+            });
         }
 
         /// <summary>
@@ -304,10 +304,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddVerticalRHSHorizontalAdd(float[][] dest, float[][] lhs, float[] rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs[i], add);
-            }
+            });
         }
 
         /// <summary>
@@ -315,10 +315,10 @@ namespace TMG.Functions
         /// </summary>
         public static void FusedMultiplyAddHorizontalRHSHorizontalAdd(float[][] dest, float[][] lhs, float[] rhs, float[] add)
         {
-            for (int i = 0; i < dest.Length; i++)
+            Parallel.For(0, dest.Length, (int i) =>
             {
                 FusedMultiplyAdd(dest[i], lhs[i], rhs, add);
-            }
+            });
         }
     }
 }
