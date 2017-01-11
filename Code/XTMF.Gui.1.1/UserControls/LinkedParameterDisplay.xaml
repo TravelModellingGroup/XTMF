@@ -95,11 +95,13 @@
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="AUTO" />
-                    <RowDefinition Height="AUTO" />
-                    <RowDefinition Height="*" />
+                    <!--<RowDefinition Height="AUTO" />
+                    <RowDefinition Height="*" /> -->
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" />
+                
+                <!--
                 <StackPanel Grid.Row="1">
                     <Label Content="Parameter Value" Foreground="White"></Label>
                     
@@ -120,7 +122,8 @@
 
                     </DataGrid>
                 </StackPanel>
-                <ListView  Grid.Row="3" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                -->
+                <ListView  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                x:Name="ContainedParameterDisplay"  Background="{StaticResource WindowBackgroundBrush}"
                      HorizontalContentAlignment="Stretch">
                     <ListView.Resources>
