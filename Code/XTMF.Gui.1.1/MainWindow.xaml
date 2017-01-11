@@ -166,7 +166,7 @@
                 <SolidColorBrush Color="{StaticResource WindowBackgroundColour}" />
             </xcad:DockingManager.Background>
             <xcad:DockingManager.Theme>
-                <xcad:Vs2013DarkTheme />
+                <xcad:AeroTheme />
             </xcad:DockingManager.Theme>
             <xcad:LayoutRoot x:Name="_layoutRoot">
                 <xcad:LayoutPanel Orientation="Horizontal">
