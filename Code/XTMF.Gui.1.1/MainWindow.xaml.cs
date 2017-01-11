@@ -774,5 +774,65 @@ namespace XTMF.Gui
 
 
         }
+
+        
+        private void LinkedParameters_Click(object sender, RoutedEventArgs e)
+        {
+
+            
+            var document = CurrentDocument;
+            if (document.Content is ModelSystemDisplay)
+            {
+                var modelSystem = document.Content as ModelSystemDisplay;
+
+
+                var linkedParameterDialog = new LinkedParameterDisplay(modelSystem.ModelSystem.LinkedParameters, false);
+                linkedParameterDialog.Owner = Us;
+
+                if(linkedParameterDialog.ShowDialog() == true)
+                {
+
+                }
+
+                // modelSystem.ExternalUpdateParameters();
+
+                //modelSystem.Lin
+            }
+            /*
+            var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters, false);
+            linkedParameterDialog.Owner = Us;
+            if (linkedParameterDialog.ShowDialog() == true && assign)
+            {
+                // assign the selected linked parameter
+                var newLP = linkedParameterDialog.SelectedLinkParameter;
+
+                if (AddCurrentParameterToLinkedParameter(newLP))
+                {
+                    LinkedParameterDisplayModel matched;
+                    if ((matched = RecentLinkedParameters.FirstOrDefault(lpdm => lpdm.LinkedParameter == newLP)) != null)
+                    {
+                        RecentLinkedParameters.Remove(matched);
+                    }
+                    RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
+                    if (RecentLinkedParameters.Count > 5)
+                    {
+                        RecentLinkedParameters.RemoveAt(5);
+                    }
+                    ParameterRecentLinkedParameters.IsEnabled = true;
+                    QuickParameterRecentLinkedParameters.IsEnabled = true;
+                }
+            }
+            if (linkedParameterDialog.ChangesMade)
+            {
+                RefreshParameters();
+            }
+            */
+
+        }
+
+        private void DocumentPane_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Console.WriteLine(e + " " + e.PropertyName);
+        }
     }
 }

@@ -142,6 +142,8 @@ namespace XTMF.Gui.UserControls
                                                                }).ToList();
                 ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>(containedParameters);
 
+
+                LinkedParameterName.Text = selectedLinkedParameter.LinkedParameter.Name;
             }
         }
 
@@ -364,6 +366,14 @@ namespace XTMF.Gui.UserControls
             
         }
 
-     
+        private void Unlink_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            
+        }
+
+        private void ContainedParameterDisplay_KeyDown(object sender, KeyEventArgs e)
+        {
+            Console.WriteLine(e.Key);
+        }
     }
 }
