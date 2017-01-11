@@ -95,10 +95,32 @@
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="AUTO" />
+                    <RowDefinition Height="AUTO" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" />
-                <ListView  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                <StackPanel Grid.Row="1">
+                    <Label Content="Parameter Value" Foreground="White"></Label>
+                    
+                    <my:HintedTextBox Margin="5,1,5,5" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Margin="5,1,5,1">
+                    <DataGrid x:Name="DataGridParameterDisplay" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Name" Width="SizeToCells" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label ></Label>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+                </StackPanel>
+                <ListView  Grid.Row="3" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                x:Name="ContainedParameterDisplay"  Background="{StaticResource WindowBackgroundBrush}"
                      HorizontalContentAlignment="Stretch">
                     <ListView.Resources>
@@ -115,7 +137,7 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="White" BorderThickness="1" Margin="2" HorizontalAlignment="Stretch">
+                            <Border BorderBrush="White" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
                                 <Grid HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="AUTO" />
