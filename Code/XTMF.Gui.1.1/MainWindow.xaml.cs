@@ -150,7 +150,7 @@ namespace XTMF.Gui
 
         public void LoadProject(Project project)
         {
-            if (project != null)
+            if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
                 ProjectEditingSession session = null;
                 OperationProgressing progressing = new OperationProgressing()
@@ -159,10 +159,8 @@ namespace XTMF.Gui
                 };
                 var loadingTask = Task.Run(() =>
                 {
-                    if (!EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
-                    {
+            
                         session = EditorController.Runtime.ProjectController.EditProject(project);
-                    }
                 });
                 MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -180,6 +178,11 @@ namespace XTMF.Gui
                 EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                 EditorController.Runtime.Configuration.Save();
                 UpdateRecentProjectsMenu();
+            }
+            else if(EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
+            {
+     
+                OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
             }
         }
 
@@ -258,6 +261,9 @@ namespace XTMF.Gui
         /// </summary>
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
 
+       
+
+
         internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null)
         {
             var document = new LayoutDocument()
@@ -265,6 +271,8 @@ namespace XTMF.Gui
                 Title = name,
                 Content = content
             };
+
+           
             document.Closed += (source, ev) =>
             {
                 //integrate into the main window
