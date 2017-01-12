@@ -368,12 +368,53 @@ namespace XTMF.Gui.UserControls
 
         private void Unlink_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            // CurrentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error)
+           // Console.WriteLine(sender);
+
+            var label = sender as Label;
+
+            var parameterName = label.Tag;
+
+            foreach (var parameter in CurrentParameters)
+            {
+                if (parameter.ParameterName == (string)parameterName)
+                {
+                    string error = null;
+                    if (!CurrentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error))
+                    {
+                        MessageBox.Show("There was an error trying to remove a parameter from a linked parameter!\r\n" + error, "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    ChangesMade = true;
+
+                    var containedParameters = CurrentParameters = (from parameter2 in CurrentlySelected.LinkedParameter.GetParameters()
+                                                                   select new ParameterDisplay()
+                                                                   {
+                                                                       ParameterName = parameter2.Name,
+                                                                       ModuleName = parameter2.BelongsTo.Name,
+                                                                       Parameter = parameter2,
+                                                                       KeepAttached = true
+                                                                   }).ToList();
+
+                   // ContainedParameterDisplay.Items.Clear();
+                    ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>(containedParameters);
+                    break;
+                }
+
+                
+            }
+
+          //  ContainedParameterDisplay.Items.Clear();
+
+         //   CleanupSelectedParameters();
+
+            
 
         }
 
         private void ContainedParameterDisplay_KeyDown(object sender, KeyEventArgs e)
         {
             Console.WriteLine(e.Key);
+
         }
     }
 }
