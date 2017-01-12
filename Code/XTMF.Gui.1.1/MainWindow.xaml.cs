@@ -42,6 +42,14 @@ using XTMF.Gui.UserControls;
 
 namespace XTMF.Gui
 {
+
+    internal class ExtendedLayoutDocument : LayoutDocument
+    {
+        
+        public enum DocumentType { Project, ModelSystem, Interface }
+        DocumentType type;
+        string identifier;
+    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -204,7 +212,14 @@ namespace XTMF.Gui
 
         private void OpenProject_Click(object sender, RoutedEventArgs e)
         {
-            OpenProject();
+            if (OpenPages.Count(p => p.Title == "Projects") == 0)
+            {
+                OpenProject();
+            }
+            else
+            {
+                OpenPages.Find(p => p.Title == "Projects").IsSelected = true;
+            }
         }
 
         public void OpenProject()

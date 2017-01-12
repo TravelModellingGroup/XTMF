@@ -114,37 +114,10 @@ namespace XTMF.Gui.UserControls
 
         public void LoadProject(Project project)
         {
+
+            MainWindow.Us.LoadProject(project);
             
-            if (project != null)
-            {
-                ProjectEditingSession session = null;
-                OperationProgressing progressing = new OperationProgressing()
-                {
-                    Owner = GetWindow()
-                };
-                var loadingTask = Task.Run(() =>
-                {
-                    session = Runtime.ProjectController.EditProject(project);
-                });
-                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    progressing.ShowDialog();
-                }));
-                loadingTask.Wait();
-                if (session != null)
-                {
-                    MainWindow.Us.EditProject(session);
-                }
-                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    progressing.Close();
-                }));
-                this.Runtime.Configuration.AddRecentProject(project.Name);
-                this.Runtime.Configuration.Save();
-                this.RefreshProjects();
-
-
-            }
+        
         }
 
         private void NewProject_Click(object sender, RoutedEventArgs e)
