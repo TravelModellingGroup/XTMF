@@ -159,7 +159,10 @@ namespace XTMF.Gui
                 };
                 var loadingTask = Task.Run(() =>
                 {
-                    session = EditorController.Runtime.ProjectController.EditProject(project);
+                    if (!EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
+                    {
+                        session = EditorController.Runtime.ProjectController.EditProject(project);
+                    }
                 });
                 MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
                 {

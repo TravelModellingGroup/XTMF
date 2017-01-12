@@ -81,6 +81,10 @@ namespace XTMF
             }
         }
 
+        public bool IsEditSessionOpenForProject(Project project)
+        {
+            return EditingSessions.Count(p => p.Name == project.Name) > 0;
+        }
 
 
         /// <summary>
