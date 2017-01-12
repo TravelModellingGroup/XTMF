@@ -49,6 +49,8 @@ namespace XTMF.Gui
     {
         private StartWindow startWindow;
 
+        public event EventHandler RecentProjectsUpdated;
+
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
             get { return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty); }
@@ -69,6 +71,26 @@ namespace XTMF.Gui
             InitializeComponent();
             Loaded += FrameworkElement_Loaded;
             Us = this;
+        }
+
+        public List<string> RecentProjects
+        {
+            get
+            {
+               
+                return EditorController.Runtime.Configuration.RecentProjects;
+            }
+            set { }
+        }
+
+        public bool RuntimeAvailable
+        {
+            get
+            {
+
+                return EditorController.Runtime != null;
+            }
+            set { }
         }
 
         public bool ShowMetaModuleHiddenParameters { get; set; }
@@ -93,12 +115,14 @@ namespace XTMF.Gui
                 };
 
             }
+
+            RecentProjectsUpdated(this, new System.EventArgs());
         }
 
         private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName)
         {
-            Project project = new Project(projectName, EditorController.Runtime.Configuration, false);
-            LoadProject(project);
+            LoadProjectByName(projectName);
+            
         }
 
         private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)
@@ -116,6 +140,12 @@ namespace XTMF.Gui
                     }));
             });
             ShowStart_Click(this, null);
+        }
+
+        public void LoadProjectByName(string projectName)
+        {
+            Project project = new Project(projectName, EditorController.Runtime.Configuration, true);
+            LoadProject(project);
         }
 
         public void LoadProject(Project project)

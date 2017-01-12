@@ -25,8 +25,46 @@ namespace XTMF.Gui
         {
             InitializeComponent();
 
+            MainWindow.Us.RecentProjectsUpdated += Us_RecentProjectsUpdated;
+            
 
-          
+           if(MainWindow.Us.RuntimeAvailable)
+            {
+                Us_RecentProjectsUpdated(null, null);
+            }
+
+
+        }
+
+        private void Us_RecentProjectsUpdated(object sender, EventArgs e)
+        {
+            var k = Application.Current.FindResource("HoverLabel");
+
+
+            if (RecentProjectsStackPanel.Children.Count != MainWindow.Us.RecentProjects.Count)
+            {
+                RecentProjectsStackPanel.Children.Clear();
+
+
+                foreach (var recentProject in MainWindow.Us.RecentProjects)
+                {
+                    Label x = new Label();
+                    x.Content = recentProject;
+                    x.Style = (Style)k;
+
+                    x.MouseDown += (senderc, EventArgs) =>
+                    {
+                        MainWindow.Us.LoadProjectByName(recentProject);
+                    };
+
+                    RecentProjectsStackPanel.Children.Add(x);
+                }
+            }
+        }
+
+        private void RecentProjectMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            
         }
 
         private void NewProject_MouseUp(object sender, MouseButtonEventArgs e)
@@ -49,6 +87,9 @@ namespace XTMF.Gui
             MainWindow.Us.OpenModelSystem();
         }
 
-      
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+           
+        }
     }
 }

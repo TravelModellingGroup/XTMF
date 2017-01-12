@@ -21,6 +21,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:xtmfgui="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
                 WindowStyle="ToolWindow"
                 WindowStartupLocation="CenterOwner"
@@ -160,7 +161,7 @@
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
                             <ListView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate DataType="{x:Type xtmfgui:LinkedParameterDisplay+ParameterDisplay}">
                                     <Border BorderBrush="White" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
                                         <Grid HorizontalAlignment="Stretch">
                                             <Grid.ColumnDefinitions>
@@ -195,6 +196,8 @@
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
+                                
+                                
                             </ListView.ItemTemplate>
                         </ListView>
                     </StackPanel>

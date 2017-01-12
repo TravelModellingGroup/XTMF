@@ -65,6 +65,11 @@ namespace XTMF.Gui.UserControls
 
         }
 
+        public LinkedParameterDisplay()
+        {
+
+        }
+
         private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
         {
 
@@ -108,13 +113,21 @@ namespace XTMF.Gui.UserControls
             Keyboard.Focus(LinkedParameterFilterBox);
         }
 
-        class ParameterDisplay
+        public class ParameterDisplay
         {
+
+            public ParameterDisplay() { }
             public string ParameterName { get; set; }
             public string ModuleName { get; set; }
             public bool KeepAttached { get; set; }
 
             public ParameterModel Parameter { get; set; }
+        }
+
+
+        class BlankParameterDisplay : ParameterDisplay
+        {
+            public BlankParameterDisplay() { }
         }
 
         private LinkedParameterDisplayModel CurrentlySelected = null;
@@ -366,23 +379,26 @@ namespace XTMF.Gui.UserControls
 
         }
 
-        private void Unlink_MouseDown(object sender, MouseButtonEventArgs e)
+        private void UnlinkParameter(string parameterName)
         {
-            // CurrentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error)
-           // Console.WriteLine(sender);
-
-            var label = sender as Label;
-
-            var parameterName = label.Tag;
-
             foreach (var parameter in CurrentParameters)
             {
                 if (parameter.ParameterName == (string)parameterName)
                 {
                     string error = null;
+
+                 
+                   
+
+                    if(ConfirmUnlinkParameterMessageBox(parameter) == MessageBoxResult.Cancel)
+                    {
+                        return;
+                    }
+
                     if (!CurrentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error))
                     {
                         MessageBox.Show("There was an error trying to remove a parameter from a linked parameter!\r\n" + error, "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
                     }
                     ChangesMade = true;
 
@@ -395,26 +411,56 @@ namespace XTMF.Gui.UserControls
                                                                        KeepAttached = true
                                                                    }).ToList();
 
-                   // ContainedParameterDisplay.Items.Clear();
+                    // ContainedParameterDisplay.Items.Clear();
                     ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>(containedParameters);
                     break;
                 }
 
-                
+
             }
+        }
 
-          //  ContainedParameterDisplay.Items.Clear();
+        private void Unlink_MouseDown(object sender, MouseButtonEventArgs e)
+        {
 
-         //   CleanupSelectedParameters();
+            var label = sender as Label;
 
-            
+            var parameterName = label.Tag;
+
+            UnlinkParameter(parameterName.ToString());
+
+     
 
         }
 
         private void ContainedParameterDisplay_KeyDown(object sender, KeyEventArgs e)
         {
-            Console.WriteLine(e.Key);
+            if(e.Key == Key.Delete)
+            {
+                var listView = sender as ListView;
+
+                var parameterDisplay = listView.SelectedItem as ParameterDisplay;
+
+                UnlinkParameter(parameterDisplay.ParameterName);
+
+            }
 
         }
+
+        private MessageBoxResult ConfirmUnlinkParameterMessageBox(ParameterDisplay parameterDisplay)
+        {
+            var result = MessageBox.Show(MainWindow.Us,"Are you sure you wish to unlink the selected parameter?", 
+                "Confirm Unlink [" + parameterDisplay.ParameterName + "]", 
+                MessageBoxButton.OKCancel);
+
+            Console.WriteLine(result);
+            return result;
+            
+        }
+    }
+
+    public class ParameterDatatemplateSelector : DataTemplateSelector
+    {
+
     }
 }

@@ -30,14 +30,20 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
         >
     <Grid>
+        <Grid.Background>
+            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO" />
         </Grid.RowDefinitions>
         <!-- The main menu -->
-        <Menu Grid.Row="0">
+        <Menu Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,-4">
             <MenuItem Header="_File">
+                <MenuItem.Background>
+                    <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                </MenuItem.Background>
                 <MenuItem Header="_New">
                     <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
                     <MenuItem x:Name="NewModelSystemButton" Header="_Model System" Click="NewModelSystemButton_Click" />
@@ -73,10 +79,16 @@
                 <MenuItem Header="E_xit" Click="Exit_Click" />
             </MenuItem>
             <MenuItem Header="_Edit">
+                <MenuItem.Background>
+                    <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                </MenuItem.Background>
                 <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click" IsEnabled="{Binding CanUndo, Mode=OneWay}" />
                 <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click" IsEnabled="{Binding CanRedo, Mode=OneWay}"/>
             </MenuItem>
             <MenuItem Header="_Run">
+                <MenuItem.Background>
+                    <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                </MenuItem.Background>
                 <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click" IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
                     <MenuItem.Icon>
                         <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
@@ -89,6 +101,9 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_View">
+                <MenuItem.Background>
+                    <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                </MenuItem.Background>
                 <MenuItem Header="_Start Window" Click="ShowStart_Click" />
                 <MenuItem Header="_Interface Settings">
                     <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True" Click="MetaModuleHiddenParametersToggle_Click"/>
@@ -106,6 +121,9 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help">
+                <MenuItem.Background>
+                    <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                </MenuItem.Background>
                 <MenuItem Header="Search _Help"  Click="LaunchHelpWindow_Click">
                     <MenuItem.Icon>
                         <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/help.png" Width="20" Height="20" />
@@ -116,7 +134,7 @@
             </MenuItem>
         </Menu>
         <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-        <xcad:DockingManager x:Name="DockManager" Grid.Row="1" AllowMixedOrientation="True">
+        <xcad:DockingManager x:Name="DockManager" Grid.Row="1" AllowMixedOrientation="True" Margin="0,7,0,0">
             <xcad:DockingManager.DocumentTitleTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Stretch">

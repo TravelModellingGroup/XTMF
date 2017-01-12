@@ -23,90 +23,86 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800" Loaded="UserControl_Loaded">
     <Grid>
-        <Grid Background="{StaticResource WindowBackgroundBrush}">
+        <Grid Background="#FF252526">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Background="{StaticResource ControlBackgroundBrush}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="AUTO" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
-                <StackPanel Grid.Column="1">
+
+
+            <Grid Grid.Row="0">
+                <Image HorizontalAlignment="Left"  Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
+                <StackPanel HorizontalAlignment="Center"  VerticalAlignment="Center">
                     <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
-                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
+                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="White" />
                 </StackPanel>
             </Grid>
+
+
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="AUTO" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="1.0*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" BorderBrush="White" BorderThickness="2">
-                    <Grid Background="{StaticResource WindowBackgroundBrush}">
-                        <Grid.Resources>
-                            <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
-                                <Setter Property="Cursor" Value="Hand" />
-                                <Setter Property="Foreground" Value="{StaticResource FocusBrush}" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Trigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </Trigger.EnterActions>
-                                        <Trigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </Trigger.ExitActions>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Resources>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="AUTO" MinHeight="200" />
-                            <RowDefinition Height="AUTO" MinHeight="200" />
-                            <RowDefinition Height="*" MinHeight="200" />
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
-                            <Label Content="Projects" FontSize="18" Foreground="White" />
-                            <Label Style="{StaticResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
-                            <Label Style="{StaticResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
-                        </StackPanel>
-                        <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left">
-                            <Label Content="Model Systems" FontSize="18" Foreground="White" />
-                            <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
-                            <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
-                        </StackPanel>
-                        <ListView Visibility="Hidden" x:Name="RecentProjectsListView" HorizontalAlignment="Left" Height="100" Margin="10,100,0,0" VerticalAlignment="Top" Width="170" Background="{x:Null}" Foreground="White" BorderThickness="0">
 
-                            
-                            <ListView.View>
-                              
+                <Grid HorizontalAlignment="Center" Margin="0,-100,0,0" VerticalAlignment="Center" Background="#FF252526" >
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
+                            <Setter Property="Cursor" Value="Hand" />
+                            <Setter Property="Foreground" Value="{StaticResource FocusBrush}" />
+                            <Setter Property="FontSize" Value="14"></Setter>
+                            <Setter Property="Margin" Value="0.25cm,0,0,0"></Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="AUTO" MinHeight="50" />
+                        <RowDefinition Height="AUTO" MinHeight="0" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200">
 
-                                <GridView>
-                                    
-                                    <GridView.ColumnHeaderContainerStyle>
-                                        
-                                        <Style TargetType="GridViewColumnHeader">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </Style>
-                                    </GridView.ColumnHeaderContainerStyle>
-                                    <GridViewColumn/>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </Grid>
-                </Border>
+                        </ColumnDefinition>
+                        <ColumnDefinition Width="200"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
+                        <Label Content="Projects" FontSize="18" Foreground="White" />
+                        <Label Style="{StaticResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
+                        <Label Style="{StaticResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left">
+                        <Label Content="Recent" FontSize="18" Foreground="White" Margin="1,15,0,0" />
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Name="RecentProjectsStackPanel">
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left">
+                        <Label Content="Model Systems" FontSize="18" Foreground="White" />
+                        <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
+                        <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
+                    </StackPanel>
+                    
+                </Grid>
+
             </Grid>
         </Grid>
     </Grid>

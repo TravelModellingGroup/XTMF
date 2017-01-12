@@ -33,8 +33,7 @@
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-        <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" 
-                      Background="{StaticResource WindowBackgroundBrush}">
+        <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" Background="#FF252526">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename ModelSystem (F2)" Click="Rename_Click">
@@ -93,11 +92,15 @@
                 <DataTemplate DataType="{x:Type xtmf:ModelSystem}">
                     <my:BorderIconButton Margin="5" Header="{Binding Name}" Text="{Binding Description}"
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
-                                             DoubleClicked="ModelSystem_DoubleClicked" />
+                                             DoubleClicked="ModelSystem_DoubleClicked" >
+                        <my:BorderIconButton.Background>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlDarkColorKey}}"/>
+                        </my:BorderIconButton.Background>
+                    </my:BorderIconButton>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
+        <Border BorderThickness="0" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                 <my:BorderIconButton Margin="0,0,0,0" Header="New" Width="170" Text="Create a new Model System." Icon="/XTMF.Gui;component/Resources/Plus.png" 
                                      Clicked="NewModelSystem_Clicked"/>
