@@ -48,7 +48,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
-                    <ListView Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="Transparent"
+                    <ListView Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="#FF252526"
                                  SelectionChanged="ModelSystemDisplay_SelectionChanged">
                         <ListView.ContextMenu>
                             <ContextMenu>

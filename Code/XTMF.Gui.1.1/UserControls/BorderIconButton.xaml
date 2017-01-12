@@ -22,16 +22,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" Name="Self">
-    <Border Name="BorderOutline" BorderBrush="White" BorderThickness="1" Cursor="Hand" CornerRadius="2">
+    <Border Name="BorderOutline" BorderBrush="White" BorderThickness="0" Cursor="Hand" CornerRadius="0">
         <Border.Background>
-            <SolidColorBrush Color="{StaticResource ControlBackgroundColour}" />
+            <SolidColorBrush />
         </Border.Background>
-        <Grid x:Name="ContentStackPanel" Margin="5,4,5,4" IsHitTestVisible="False">
+        <Grid x:Name="ContentStackPanel" Margin="0,0,0,0" IsHitTestVisible="False" Background="#FF3C3C3C">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Image Grid.Column="0" Name="IconImage" Width="32" Height="32"
+            <Image Grid.Column="0" Name="IconImage" Width="32" Height="32" Margin="7,3,3,3"
                    Source="{Binding ElementName=Self, Path=Icon}" IsHitTestVisible="False" />
             <Grid Grid.Column="1"  Margin="2,0,0,0">
                 <Grid.RowDefinitions>
