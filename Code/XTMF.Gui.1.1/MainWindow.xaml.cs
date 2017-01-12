@@ -832,7 +832,7 @@ namespace XTMF.Gui
 
         private void DocumentPane_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Console.WriteLine(e + " " + e.PropertyName);
+            //Console.WriteLine(e + " " + e.PropertyName);
         }
     }
 }

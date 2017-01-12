@@ -127,7 +127,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="12" Margin="1" Foreground="Black" />
+                        <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="22" Margin="1" Foreground="White" />
                     </Grid>
                 </DataTemplate>
             </xcad:DockingManager.DocumentTitleTemplate>
@@ -135,7 +135,7 @@
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="Black">
+                        <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="#EEEEEEEE">
                             <TextBlock.Style>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Style.Triggers>
@@ -143,14 +143,14 @@
                                             <Trigger.EnterActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </Trigger.EnterActions>
                                             <Trigger.ExitActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="Black"  Duration="0:0:0.1" />
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="#EEEEEEEE"  Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </Trigger.ExitActions>

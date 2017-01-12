@@ -62,23 +62,23 @@ namespace XTMF.Gui.UserControls
             Loaded += LinkedParameterDisplay_Loaded;
             LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
 
-          
+
         }
 
         private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-          
+
             if (!e.Handled && e.Key == Key.Delete)
             {
                 if (Display.IsKeyboardFocusWithin)
                 {
 
                     var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
-                    MessageBoxResult messageBoxResult = 
-                        System.Windows.MessageBox.Show("Are you sure you wish to delete the selected linked parameter?", 
+                    MessageBoxResult messageBoxResult =
+                        System.Windows.MessageBox.Show("Are you sure you wish to delete the selected linked parameter?",
                         "Delete Confirmation [" + selectedLinkedParameter.Name + "]", System.Windows.MessageBoxButton.YesNoCancel);
 
-                   
+
                     if (messageBoxResult == MessageBoxResult.Yes)
                     {
                         RemoveCurrentlySelectedParameter(sender, e);
@@ -95,7 +95,7 @@ namespace XTMF.Gui.UserControls
         protected override void OnClosing(CancelEventArgs e)
         {
             CleanupSelectedParameters();
-            foreach(var item in Items)
+            foreach (var item in Items)
             {
                 item.Dispose();
             }
@@ -307,7 +307,7 @@ namespace XTMF.Gui.UserControls
         {
             var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
 
-       
+
             if (selectedLinkedParameter != null)
             {
                 string error = null;
@@ -325,7 +325,7 @@ namespace XTMF.Gui.UserControls
 
         private void RemoveLinkedParameter_Click(object sender, RoutedEventArgs e)
         {
-            RemoveCurrentlySelectedParameter(sender,e);
+            RemoveCurrentlySelectedParameter(sender, e);
         }
 
         private void BorderIconButton_DoubleClicked(object obj)
@@ -347,7 +347,7 @@ namespace XTMF.Gui.UserControls
 
         private void LinkedParameterFilterBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if(!e.Handled)
+            if (!e.Handled)
             {
                 if (e.Key == Key.Enter)
                 {
@@ -363,12 +363,12 @@ namespace XTMF.Gui.UserControls
 
         private void BorderIconButton_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            
+
         }
 
         private void Unlink_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            
+
         }
 
         private void ContainedParameterDisplay_KeyDown(object sender, KeyEventArgs e)
