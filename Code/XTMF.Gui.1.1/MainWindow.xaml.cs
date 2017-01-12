@@ -101,7 +101,7 @@ namespace XTMF.Gui
         public void UpdateRecentProjectsMenu()
         {
             List<string> recentProjects = EditorController.Runtime.Configuration.RecentProjects;
-
+            recentProjects.Reverse();
             RecentProjectsMenuItem.Items.Clear();
             foreach (string recentProject in recentProjects)
             {
@@ -144,7 +144,7 @@ namespace XTMF.Gui
 
         public void LoadProjectByName(string projectName)
         {
-            Project project = new Project(projectName, EditorController.Runtime.Configuration, true);
+            Project project = new Project(projectName, EditorController.Runtime.Configuration, false);
             LoadProject(project);
         }
 

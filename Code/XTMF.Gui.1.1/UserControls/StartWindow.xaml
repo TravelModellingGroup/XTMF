@@ -25,7 +25,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800" Loaded="UserControl_Loaded">
     <Grid>
-        <Grid Background="#FF252526">
+        <Grid Background="#FF252526" MinWidth="750">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
