@@ -126,7 +126,7 @@ namespace TMG.Emme.NetworkAssignment
         
             Iterations, NormGap, RelGap, \
         \
-        xtmf_InVehicleTimeMatrixString, xtmf_WaitTimeMatrixString, xtmf_WalkTimeMatrixString, xtmf_FareMatrixString, xtmf_CongestionMatrixString, xtmf_PenaltyMatrixString, \
+        xtmf_InVehicleTimeMatrixString, xtmf_WaitTimeMatrixString, xtmf_WalkTimeMatrixString, xtmf_FareMatrixString, xtmf_CongestionMatrixString, xtmf_PenaltyMatrixString, xtmf_ImpedanceMatrixString \
         
             xtmf_OriginDistributionLogitScale, CalculateCongestedIvttFlag, CongestionExponentString, xtmf_congestedAssignment):
             */
@@ -164,6 +164,7 @@ namespace TMG.Emme.NetworkAssignment
                                         ProduceMatrixString(c => c.WalkMatrixNumber),
                                         ProduceMatrixString(c => c.FareMatrixNumber),
                                         ProduceMatrixString(c => c.CongestionMatrixNumber),
+                                        ProduceMatrixString(c => c.BoardingPenaltyMatrixNumber),
                                         ProduceMatrixString(c => c.PerceivedTravelTimeMatrixNumber),
                                         mc.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
@@ -213,6 +214,9 @@ namespace TMG.Emme.NetworkAssignment
 
             [RunParameter("Perceived Travel Time Matrix", 0, "The number of the FULL matrix in which to save the incurred penalties. Enter 0 to skip saving this matrix")]
             public int PerceivedTravelTimeMatrixNumber;
+
+            [RunParameter("Boarding Penalty Matrix", 0, "The number of the FULL matrix in which to save the applied boarding penalties.  Enter 0 to skip this matrix.")]
+            public int BoardingPenaltyMatrixNumber;
 
             [RunParameter("Congestion Matrix", 0, "The number of the FULL matrix in which to save transit congestion. Enter 0 to skip saving this matrix")]
             public int CongestionMatrixNumber;
