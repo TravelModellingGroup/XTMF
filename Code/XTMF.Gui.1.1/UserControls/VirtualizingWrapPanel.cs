@@ -444,6 +444,12 @@ namespace XTMF.Gui
 
         protected override Size MeasureOverride(Size availableSize)
         {
+            if (availableSize.Width == double.PositiveInfinity || availableSize.Height == double.PositiveInfinity)
+            {
+                return Size.Empty;
+            }
+
+
             if (_itemsControl == null || _itemsControl.Items.Count == 0)
                 return availableSize;
             if (_abstractPanel == null)

@@ -40,121 +40,141 @@
                                      Clicked="CreateNewModelSystem_Clicked"/>
             </WrapPanel>
         </Border>
-        <TabControl Grid.Row="0" Background="{StaticResource ControlBackgroundBrush}" Style="{StaticResource XTMFTabControl}">
-            <TabItem Header="Model Systems" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
-                <Grid Margin="0.25cm" >
+
+                <Grid  >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
-                    <ListView Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="#FF252526"
-                                 SelectionChanged="ModelSystemDisplay_SelectionChanged">
-                        <ListView.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
-                                    <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
-                                    <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
-                                    <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/SaveHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
-                                    <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/SaveHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="_New Model System (Ctrl+N)" Click="NewModelSystem_Click">
-                                    <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="/XTMF.Gui;component/Resources/Plus.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                                <MenuItem Header="Clone Model System As (Ctrl+C)" Click="CloneModelSystem_Click">
-                                    <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="/XTMF.Gui;component/Images/CopyFolderHSx64.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-                            </ContextMenu>
-                        </ListView.ContextMenu>
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <my:VirtualizingWrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <my:BorderIconButton x:Name="DisplayButton" Icon="/XTMF.Gui;component/Resources/Settings.png"
+                                  <Grid VerticalAlignment="Stretch" Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="380"></ColumnDefinition>
+                            <ColumnDefinition Width="*" MinWidth="380"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="AUTO"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
+                            <DockPanel Grid.Row="1" LastChildFill="True" Background="#FF252526">
+                           
+                            <Label Content="Model Systems" DockPanel.Dock="Top" Background="#FF252526" FontSize="22" Foreground="White" Margin="5,5,0,5"/>
+                            <ListView VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="#FF252526"
+                                 SelectionChanged="ModelSystemDisplay_SelectionChanged" BorderBrush="{x:Null}">
+                                <ListView.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
+                                            <MenuItem.Icon>
+                                                <Image>
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                    </Image.Source>
+                                                </Image>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
+                                            <MenuItem.Icon>
+                                                <Image>
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                    </Image.Source>
+                                                </Image>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
+                                            <MenuItem.Icon>
+                                                <Image>
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/SaveHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                    </Image.Source>
+                                                </Image>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
+                                            <MenuItem.Icon>
+                                                <Image>
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/SaveHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                    </Image.Source>
+                                                </Image>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="_New Model System (Ctrl+N)" Click="NewModelSystem_Click">
+                                            <MenuItem.Icon>
+                                                <Image>
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="/XTMF.Gui;component/Resources/Plus.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                    </Image.Source>
+                                                </Image>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Clone Model System As (Ctrl+C)" Click="CloneModelSystem_Click">
+                                            <MenuItem.Icon>
+                                                <Image>
+                                                    <Image.Source>
+                                                        <BitmapImage UriSource="/XTMF.Gui;component/Images/CopyFolderHSx64.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                                    </Image.Source>
+                                                </Image>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </ListView.ContextMenu>
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <my:VirtualizingWrapPanel  Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <my:BorderIconButton x:Name="DisplayButton" Icon="/XTMF.Gui;component/Resources/Settings.png"
                                                          Header="{Binding Name, Mode=OneWay}"
                                                          Selected="{Binding IsSelected, Mode=OneWay}"
                                                          Text="{Binding Description, Mode=OneWay}"
                                                          Width="300" Margin="5" DoubleClicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
                                                          ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}, Path=ContextMenu}"/>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Grid>
-            </TabItem>
-            <TabItem Header="PreviousRuns" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
-                <Grid Margin="0.25cm">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="AUTO" />
-                        <RowDefinition Height="AUTO" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <my:BorderIconButton HorizontalAlignment="Left" x:Name="RefreshPreviousRuns" Margin="0,0,4,0" Header="Refresh" Text="Refresh previous runs"
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                           
+                        </DockPanel>
+                        </Grid>
+                        <GridSplitter  Width="2"></GridSplitter>
+                        <Grid  Grid.Column="1" Background="#FF252526">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="AUTO" />
+                                    <RowDefinition Height="AUTO" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                            <DockPanel Grid.Row="1" FlowDirection="LeftToRight" >
+                                <Label Content="Previous Runs" Width="Auto"  Background="#FF252526" FontSize="22" Foreground="White" Margin="5,5,0,5"/>
+
+                                <my:BorderIconButton HorizontalAlignment="Right" x:Name="RefreshPreviousRuns" Margin="0,4,4,0" Header="Refresh" Text="Refresh previous runs"
                                          Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png"
-                                         Clicked="RefreshPreviousRuns_Clicked"/>
-                    <my:FilterBox Grid.Row="1" x:Name="FilterPastRunsBox" />
-                    <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="Transparent"
+                                         Clicked="RefreshPreviousRuns_Clicked" />
+                            </DockPanel>
+                            <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
+                                <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="#FF252526"
                                  SelectionChanged="PastRunDisplay_SelectionChanged"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                            ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"  />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" Header="{Binding Name}"
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" Header="{Binding Name}"
                                                          Text="{Binding TimeStamp}" Width="300" Margin="5"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-            </TabItem>
-        </TabControl>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                       
+                    </Grid>
+                    </Grid>
+              
+           
     </Grid>
 </UserControl>
