@@ -176,8 +176,10 @@ namespace XTMF.Gui
             }
             else
             {
+            
                 _extent.Width = _abstractPanel.SectionCount + ViewportWidth - 1;
             }
+            
             _owner.InvalidateScrollInfo();
         }
 
@@ -449,6 +451,7 @@ namespace XTMF.Gui
                 return Size.Empty;
             }
 
+            
 
             if (_itemsControl == null || _itemsControl.Items.Count == 0)
                 return availableSize;
@@ -551,6 +554,7 @@ namespace XTMF.Gui
 
             ComputeExtentAndViewport(availableSize, visibleSections);
 
+           
             return availableSize;
         }
         protected override Size ArrangeOverride(Size finalSize)
@@ -586,7 +590,8 @@ namespace XTMF.Gui
 
         public double ExtentHeight
         {
-            get { return _extent.Height; }
+            get { 
+            return _extent.Height; }
         }
 
         public double ExtentWidth
