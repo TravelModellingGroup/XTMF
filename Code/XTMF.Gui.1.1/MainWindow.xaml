@@ -134,7 +134,7 @@
             </MenuItem>
         </Menu>
         <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-        <xcad:DockingManager x:Name="DockManager" Grid.Row="1" AllowMixedOrientation="True" Margin="0,7,0,0">
+        <xcad:DockingManager x:Name="DockManager" Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="HorizontalOnly" ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True" Margin="0,7,0,0" >
             <xcad:DockingManager.DocumentTitleTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Stretch">

@@ -25,14 +25,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800" Loaded="UserControl_Loaded">
     <Grid>
-        <Grid Background="#FF252526" MinWidth="750">
+        <Grid Background="#FF252526" MinWidth="760" MinHeight="460">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" MinHeight="100"/>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
 
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0" MinHeight="50">
                 <Image HorizontalAlignment="Left"  Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
                 <StackPanel HorizontalAlignment="Center"  VerticalAlignment="Center">
                     <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
