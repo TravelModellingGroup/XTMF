@@ -39,7 +39,7 @@
             <RowDefinition Height="AUTO" />
         </Grid.RowDefinitions>
         <!-- The main menu -->
-        <Menu Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,-4">
+        <Menu Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,0">
             <MenuItem Header="_File">
                 <MenuItem.Background>
                     <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
