@@ -219,20 +219,23 @@ namespace XTMF.Gui
 
         private void OpenProject_Click(object sender, RoutedEventArgs e)
         {
-            if (OpenPages.Count(p => p.Title == "Projects") == 0)
-            {
-                OpenProject();
-            }
-            else
-            {
-                OpenPages.Find(p => p.Title == "Projects").IsSelected = true;
-            }
+            OpenProject();
         }
 
         public void OpenProject()
         {
-            var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime), typeof(ActiveEditingSessionDisplayModel));
-            doc.IsActive = true;
+
+            if (OpenPages.Count(p => p.Title == "Projects") != 0)
+            {
+
+                OpenPages.Find(p => p.Title == "Projects").IsSelected = true;
+            }
+            else
+            {
+            
+                var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime), typeof(ActiveEditingSessionDisplayModel));
+                doc.IsActive = true;
+            }
         }
 
         internal void EditProject(ProjectEditingSession projectSession)
