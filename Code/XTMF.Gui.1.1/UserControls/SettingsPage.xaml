@@ -7,9 +7,12 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
-        <StackPanel Background="{StaticResource ControlBackgroundBrush}" Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center">
-            <Grid  Margin="0.25cm,2,0.25cm,2" >
+    <Grid>
+        <Grid.Background>
+            <SolidColorBrush Color="#FF252526"/>
+        </Grid.Background>
+        <StackPanel  Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center" Background="#FF1F1F1F">
+            <Grid  Margin="0.25cm,20,0.25cm,2" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
@@ -52,7 +55,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Host Networking Port" FontSize="12" />
-                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,25" />
             </Grid>
         </StackPanel>
     </Grid>
