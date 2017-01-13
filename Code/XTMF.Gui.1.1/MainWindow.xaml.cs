@@ -45,7 +45,7 @@ namespace XTMF.Gui
 
     internal class ExtendedLayoutDocument : LayoutDocument
     {
-        
+
         public enum DocumentType { Project, ModelSystem, Interface }
         DocumentType type;
         string identifier;
@@ -85,7 +85,7 @@ namespace XTMF.Gui
         {
             get
             {
-               
+
                 return EditorController.Runtime.Configuration.RecentProjects;
             }
             set { }
@@ -130,7 +130,7 @@ namespace XTMF.Gui
         private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName)
         {
             LoadProjectByName(projectName);
-            
+
         }
 
         private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)
@@ -160,38 +160,43 @@ namespace XTMF.Gui
         {
             if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-                ProjectEditingSession session = null;
                 OperationProgressing progressing = new OperationProgressing()
                 {
                     Owner = this
                 };
-                var loadingTask = Task.Run(() =>
-                {
-            
-                        session = EditorController.Runtime.ProjectController.EditProject(project);
-                  
-                });
-                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    progressing.ShowDialog();
-                }));
-                loadingTask.Wait();
-                if (session != null)
-                {
-                    MainWindow.Us.EditProject(session);
-                }
-                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    progressing.Close();
-                    OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
-                }));
-                EditorController.Runtime.Configuration.AddRecentProject(project.Name);
-                EditorController.Runtime.Configuration.Save();
-                UpdateRecentProjectsMenu();
+                Task.Run(() =>
+               {
+                   Dispatcher.BeginInvoke(new Action(() =>
+                 {
+                     progressing.ShowDialog();
+                 }));
+                   ProjectEditingSession session = null;
+                   var loadingTask = Task.Run(() =>
+                   {
+
+                       session = EditorController.Runtime.ProjectController.EditProject(project);
+
+                   });
+
+                   loadingTask.Wait();
+                   if (session != null)
+                   {
+                       MainWindow.Us.EditProject(session);
+                   }
+                   MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
+                   {
+                       progressing.Close();
+                       OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
+
+                   }));
+                   EditorController.Runtime.Configuration.AddRecentProject(project.Name);
+                   EditorController.Runtime.Configuration.Save();
+                   UpdateRecentProjectsMenu();
+               });
             }
-            else if(EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
+            else if (EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-     
+
                 OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
             }
         }
@@ -278,7 +283,7 @@ namespace XTMF.Gui
         /// </summary>
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
 
-       
+
 
 
         internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null)
@@ -289,7 +294,7 @@ namespace XTMF.Gui
                 Content = content
             };
 
-           
+
             document.Closed += (source, ev) =>
             {
                 //integrate into the main window
@@ -300,7 +305,7 @@ namespace XTMF.Gui
                 DisplaysForLayout.TryRemove(layout, out _);
                 // run the default code
 
-                Console.WriteLine("closed");
+
                 onClose?.Invoke();
                 Focus();
             };
@@ -313,10 +318,10 @@ namespace XTMF.Gui
             }
             // initialize the new window
 
-          
+
             Document_IsActive(document, null);
             document.IsSelected = true;
-          
+
             return document;
         }
 
@@ -746,7 +751,7 @@ namespace XTMF.Gui
         internal void CloseWindow(UIElement window)
         {
 
-         
+
             var page = OpenPages.FirstOrDefault(p =>
             {
                 if (p.Content == window)
@@ -842,11 +847,11 @@ namespace XTMF.Gui
 
         }
 
-        
+
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)
         {
 
-            
+
             var document = CurrentDocument;
             if (document.Content is ModelSystemDisplay)
             {
@@ -856,7 +861,7 @@ namespace XTMF.Gui
                 var linkedParameterDialog = new LinkedParameterDisplay(modelSystem.ModelSystem.LinkedParameters, false);
                 linkedParameterDialog.Owner = Us;
 
-                if(linkedParameterDialog.ShowDialog() == true)
+                if (linkedParameterDialog.ShowDialog() == true)
                 {
 
                 }

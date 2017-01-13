@@ -115,6 +115,7 @@ namespace XTMF.Gui.UserControls
         public void LoadProject(Project project)
         {
 
+            
             MainWindow.Us.LoadProject(project);
             
         
