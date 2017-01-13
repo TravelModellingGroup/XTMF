@@ -169,6 +169,7 @@ namespace XTMF.Gui
                 {
             
                         session = EditorController.Runtime.ProjectController.EditProject(project);
+                  
                 });
                 MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -182,6 +183,7 @@ namespace XTMF.Gui
                 MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     progressing.Close();
+                    OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
                 }));
                 EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                 EditorController.Runtime.Configuration.Save();
@@ -252,7 +254,7 @@ namespace XTMF.Gui
                         display.Model.Unload();
                         projectSession.NameChanged -= onRename;
                     };
-                    display.Focus();
+                    //display.Focus();
                     SetStatusText("Ready");
                 }
                 ));
@@ -291,11 +293,14 @@ namespace XTMF.Gui
             document.Closed += (source, ev) =>
             {
                 //integrate into the main window
+
                 var layout = source as LayoutDocument;
                 OpenPages.Remove(layout);
                 ActiveEditingSessionDisplayModel _;
                 DisplaysForLayout.TryRemove(layout, out _);
                 // run the default code
+
+                Console.WriteLine("closed");
                 onClose?.Invoke();
                 Focus();
             };
@@ -307,7 +312,11 @@ namespace XTMF.Gui
                 DisplaysForLayout.TryAdd(document, new ActiveEditingSessionDisplayModel(true));
             }
             // initialize the new window
+
+          
             Document_IsActive(document, null);
+            document.IsSelected = true;
+          
             return document;
         }
 
@@ -736,6 +745,8 @@ namespace XTMF.Gui
 
         internal void CloseWindow(UIElement window)
         {
+
+         
             var page = OpenPages.FirstOrDefault(p =>
             {
                 if (p.Content == window)
