@@ -1065,9 +1065,9 @@ namespace XTMF.Gui.UserControls
 
         public void ExternalUpdateParameters()
         {
-         
-                this.UpdateParameters();
-            
+
+            this.UpdateParameters();
+
         }
 
         private void UpdateParameters()
@@ -1118,8 +1118,8 @@ namespace XTMF.Gui.UserControls
                             SelectedName.Text = type.Name;
                             SelectedNamespace.Text = type.FullName;
 
-                            
-                            
+
+
 
                         }
                         else
