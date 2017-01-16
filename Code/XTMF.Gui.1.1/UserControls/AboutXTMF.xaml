@@ -21,8 +21,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="About XTMF" ResizeMode="NoResize" SizeToContent="WidthAndHeight" 
         WindowStartupLocation="CenterOwner"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico"
-        Background="{StaticResource WindowBackgroundBrush}">
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico">
+    <Window.Background>
+        <SolidColorBrush Color="#FF252526"/>
+    </Window.Background>
     <Grid Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
