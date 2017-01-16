@@ -25,7 +25,10 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              Focusable="True"
              mc:Ignorable="d" Background="{StaticResource WindowBackgroundBrush}">
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Background="{StaticResource ControlBackgroundBrush}">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
+        <StackPanel.Background>
+            <SolidColorBrush Color="#FF252526"/>
+        </StackPanel.Background>
         <my:HintedTextBox x:Name="Server" Margin="0.25cm" HintText="Server Address" PreviewKeyDown="Server_PreviewKeyDown" />
         <my:HintedTextBox x:Name="Port" Margin="0.25cm" HintText="Port Number" PreviewKeyDown="Port_PreviewKeyDown" />
         <my:BorderIconButton Margin="0.25cm" Icon="/XTMF.Gui;component/Resources/Run.png" Header="Launch" Width="200" Text="Launch Remote Client" Clicked="Launch_Clicked" />
