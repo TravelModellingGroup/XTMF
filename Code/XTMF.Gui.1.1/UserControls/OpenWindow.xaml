@@ -30,7 +30,6 @@
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" />
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ListView x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      Background="{StaticResource WindowBackgroundBrush}"
                       GotFocus="Display_GotFocus">
                 <ListView.ContextMenu>
                     <ContextMenu>
@@ -59,6 +58,9 @@
                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                     </Style>
                 </ListView.Resources>
+                <ListView.Background>
+                    <SolidColorBrush Color="#FF252526"/>
+                </ListView.Background>
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />
