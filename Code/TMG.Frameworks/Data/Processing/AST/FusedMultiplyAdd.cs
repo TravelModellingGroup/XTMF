@@ -313,7 +313,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 return new ComputationResult("Unable to multiply vector without directionality starting at position " + MulLHS.Start + "!");
             }
-            if (rhs.IsVectorResult && lhs.Direction == ComputationResult.VectorDirection.Unassigned)
+            if (rhs.IsVectorResult && rhs.Direction == ComputationResult.VectorDirection.Unassigned)
             {
                 return new ComputationResult("Unable to multiply vector without directionality starting at position " + MulRHS.Start + "!");
             }
