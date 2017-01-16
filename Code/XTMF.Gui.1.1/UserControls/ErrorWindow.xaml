@@ -23,7 +23,7 @@
         Title="Error" Height="AUTO" Width="500"
         Background="{StaticResource ResourceKey=ControlHeaderBrush}" WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
-    <Grid>
+    <Grid Background="#FF252526">
         <Grid.RowDefinitions>
             <RowDefinition Height="20px" />
             <RowDefinition Height="*" />
@@ -46,7 +46,11 @@
                     <Image Grid.Column="1" Grid.Row="0" Width="32" Margin="5,5,5,5" VerticalAlignment="Top" Source="/XTMF.Gui;component/Images/delete.png" />
                 </StackPanel>
                 <ScrollViewer MaxHeight="150" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Style="{DynamicResource XTMFScrollViewer}">
-                    <TextBox x:Name="MessageBox" Margin="5" TextWrapping="Wrap" IsReadOnly="True" Foreground="White" FontSize="12" Background="{StaticResource ResourceKey=ControlBackgroundBrush}" />
+                    <TextBox x:Name="MessageBox" Margin="5" TextWrapping="Wrap" IsReadOnly="True" Foreground="White" FontSize="12" >
+                        <TextBox.Background>
+                            <SolidColorBrush Color="{StaticResource ResourceKey=ControlBackgroundColour}"/>
+                        </TextBox.Background>
+                    </TextBox>
                 </ScrollViewer>
             </StackPanel>
             <StackPanel Grid.Row="1">
