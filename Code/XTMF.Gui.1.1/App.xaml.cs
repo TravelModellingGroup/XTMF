@@ -12,5 +12,6 @@ namespace XTMF.Gui._1._1
     /// </summary>
     public partial class App : Application
     {
+       
     }
 }

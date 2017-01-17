@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,6 +58,16 @@ namespace XTMF.Gui
     {
         private StartWindow startWindow;
 
+        private string _configurationFilePath;
+
+        public bool IsNonDefaultConfig = false;
+
+        public String ConfigurationFilePath
+        {
+            get { return _configurationFilePath; }
+            set { }
+        }
+
         public event EventHandler RecentProjectsUpdated;
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
@@ -76,9 +87,60 @@ namespace XTMF.Gui
             // start it with a blank editing display model
             DataContext = this;
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
+            
+            ParseCommandLineArgs();
+            if(!IsNonDefaultConfig)
+            {
+                CheckHasLocalConfiguration();
+             }
             InitializeComponent();
+            
             Loaded += FrameworkElement_Loaded;
             Us = this;
+
+           
+
+            
+          
+        }
+
+        private bool CheckHasLocalConfiguration()
+        {
+            
+            if(System.IO.File.Exists(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml")))
+            {
+                IsNonDefaultConfig = true;
+                this._configurationFilePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void ParseCommandLineArgs()
+        {
+            /* Check for existence of configuration command line argument
+            * to override location of Configuration.xml */
+
+            string[] arguments = Environment.GetCommandLineArgs();
+
+            int index = Array.FindIndex(arguments, p => p == "--configuration");
+
+            if(index >= 0)
+            {
+                if (index + 1 < arguments.Length)
+                {
+                    this._configurationFilePath = arguments[index + 1];
+                    this.IsNonDefaultConfig = true;
+                   
+                }
+            }
+
+
+      
+         
         }
 
         public List<string> RecentProjects

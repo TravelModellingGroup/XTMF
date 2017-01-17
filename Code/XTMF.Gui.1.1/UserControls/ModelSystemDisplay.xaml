@@ -274,7 +274,7 @@
                                 <Setter Property="BorderThickness" Value="0" />
                                 <Setter Property="Background" Value="Transparent"></Setter>
                                 <Style.Resources>
-                                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource WarningRed}"/>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
                                 </Style.Resources>
                                 <Style.Triggers>

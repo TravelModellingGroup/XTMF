@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<Application x:Class="XTMF.Gui.App"
+<Application x:Class="XTMF.Gui.App" 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:local="clr-namespace:XTMF.Gui"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"

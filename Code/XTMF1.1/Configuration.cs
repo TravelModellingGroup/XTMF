@@ -887,8 +887,12 @@ namespace XTMF
 
         private void SaveConfiguration(string configFileName)
         {
-            using (XmlWriter writer = XmlTextWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode }))
+            
+            using (XmlWriter writer = XmlTextWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true, NewLineOnAttributes = true }))
             {
+
+    
+                
                 // Start the document and create the default root node
                 writer.WriteStartDocument(true);
                 writer.WriteStartElement("Root");
