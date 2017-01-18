@@ -132,8 +132,17 @@ namespace XTMF.Gui
             {
                 if (index + 1 < arguments.Length)
                 {
-                    this._configurationFilePath = arguments[index + 1];
-                    this.IsNonDefaultConfig = true;
+                    try
+                    {
+                        this._configurationFilePath =
+                            this._configurationFilePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, arguments[index + 1]);
+
+                        this.IsNonDefaultConfig = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Invalid path passed with configuration argument.");
+                    }
                    
                 }
             }
@@ -193,6 +202,63 @@ namespace XTMF.Gui
         {
             LoadProjectByName(projectName);
 
+        }
+
+        public void ReloadWithConfiguration(string name)
+        {
+            bool cancelled = false;
+            foreach (var document in OpenPages.Select(page => page.Content))
+            {
+                var modelSystemPage = document as ModelSystemDisplay;
+                var runPage = document as RunWindow;
+                if (modelSystemPage != null)
+                {
+                    if (!modelSystemPage.CloseRequested())
+                    {
+                        cancelled = true;
+                        return;
+                    }
+                }
+                if (runPage != null)
+                {
+                    if (!runPage.CloseRequested())
+                    {
+                        cancelled = true;
+                        return;
+                    }
+                }
+
+
+            }
+            if (!cancelled)
+            {
+                EditorController.Unregister(this);
+
+                DocumentPane.Children.Clear();
+
+                OpenPages.Clear();
+
+                IsEnabled = false;
+                StatusDisplay.Text = "Loading XTMF";
+
+                IsNonDefaultConfig = true;
+                this._configurationFilePath = name;
+                RecentProjects.Clear();
+                Configuration configuration = new Configuration(name);
+                EditorController.Register(this, () =>
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        IsEnabled = true;
+                        StatusDisplay.Text = "Ready";
+                        UpdateRecentProjectsMenu();
+
+                    }));
+                });
+                ShowStart_Click(this, null);
+            }
+
+            
         }
 
         private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)

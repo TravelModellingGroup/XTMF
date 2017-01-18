@@ -48,6 +48,19 @@ namespace XTMF.Gui.UserControls
             DataContext = new SettingsModel(configuration);
             InitializeComponent();
             Loaded += SettingsPage_Loaded;
+
+            if (MainWindow.Us.IsNonDefaultConfig)
+            {
+                NonStandardConfigLabel.Visibility = Visibility.Visible;
+
+                ConfigLocationLabel.Content = MainWindow.Us.ConfigurationFilePath;
+                ConfigLocationLabel.Visibility = Visibility.Visible;
+                CreateLocalConfigButton.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                CreateLocalConfigButton.Visibility = Visibility.Visible;
+            }
         }
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
@@ -199,6 +212,26 @@ namespace XTMF.Gui.UserControls
             {
                 ((SettingsModel)DataContext).ProjectDirectory = dir;
             }
+        }
+
+        private void CreateLocalConfigButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+        
+        }
+
+        private void CreateLocalConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            /* Reload the entire UI overriding the the configuration file to be loaded */
+
+            var result = MessageBox.Show(MainWindow.Us,
+                "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                MainWindow.Us.ReloadWithConfiguration(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
+            }
+
+           
         }
     }
 }

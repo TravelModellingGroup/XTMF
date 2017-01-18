@@ -44,7 +44,7 @@
                     <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="16" Height="16" />
                 </Button>
             </Grid>
-            <Grid Margin="0.25cm,2,0.25cm,2" >
+            <Grid Margin="9.44881889763779,2,9.44881889763779,0" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
@@ -55,8 +55,14 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Host Networking Port" FontSize="12" />
-                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,25" />
+                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
             </Grid>
+
+            <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" Foreground="White" FontSize="12" Margin="9.4,0"/>
+            <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="#FFD1D1D1" FontSize="12" Margin="9.4,-3,9.4,6"/>
+
+            <Button Name="CreateLocalConfigButton" Padding="10" Style="{StaticResource FlatButton}" Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0" Foreground="White" Height="20" Width="220" Click="CreateLocalConfigButton_Click"/>
+            <Separator Background="Transparent" Height="25"></Separator>
         </StackPanel>
     </Grid>
 </UserControl>

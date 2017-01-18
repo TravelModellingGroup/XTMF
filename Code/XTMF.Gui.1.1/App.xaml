@@ -54,6 +54,38 @@
             <GradientStop Color="{StaticResource FocusColour}" Offset="1.0" />
         </LinearGradientBrush>
 
+        <Style TargetType="{x:Type Window}">
+            <Setter Property="FontFamily" Value="Segoe UI" />
+        </Style>
+
+
+        <Style x:Key="FlatButton" TargetType="{x:Type Button}">
+
+            <Setter Property="Background" Value="#444444"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#777777"/>
+                </Trigger>
+
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#555555"/>
+                </Trigger>
+            </Style.Triggers>
+
+
+               
+         
+        </Style>
+
         <Style x:Key="FlatScrollThumbs" TargetType="{x:Type Thumb}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -76,7 +108,7 @@
 
             <Setter Property="Foreground" Value="#8C8C8C" />
             <Setter Property="Background" Value="Transparent" />
-            
+
             <Setter Property="Width">
                 <Setter.Value>
                     3
@@ -137,8 +169,8 @@
                     </EventTrigger.Actions>
                 </EventTrigger>
             </Style.Triggers>
-            
-            
+
+
         </Style>
 
         <Style TargetType="{x:Type ScrollViewer}">
@@ -146,7 +178,7 @@
                 <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">9</sys:Double>
             </Style.Resources>
             <Setter Property="OverridesDefaultStyle" Value="True" />
-           
+
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ScrollViewer}">
@@ -163,8 +195,8 @@
                                 <ScrollContentPresenter CanContentScroll="{TemplateBinding CanContentScroll}" />
                             </Border>
 
-                      
-                            
+
+
                             <ScrollBar x:Name="PART_VerticalScrollBar"
                                         Grid.Row="0"
                                        
@@ -176,7 +208,7 @@
                                         Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
                                        Focusable="False"
                                        IsTabStop="False">
-                                
+
                             </ScrollBar>
                             <ScrollBar x:Name="PART_HorizontalScrollBar"
                                         Orientation="Horizontal"
@@ -522,8 +554,8 @@
             <Setter Property="Foreground" Value="White" />
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="14"/>
-         
-            
+
+
         </Style>
 
         <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
@@ -833,7 +865,7 @@
                 </Setter.Value>
             </Setter>
 
-          
+
         </Style>
 
         <Style x:Key="ExpandCollapseToggleStyle"
@@ -897,7 +929,7 @@
             </Style.Resources>
 
         </Style>
-       
+
 
 
         <Style x:Key="{x:Type TreeViewItem}"
@@ -913,7 +945,7 @@
 
             <Setter Property="Background"
           Value="Transparent" />
-           <!-- <Setter Property="HorizontalContentAlignment"
+            <!-- <Setter Property="HorizontalContentAlignment"
           Value="{Binding Path=HorizontalContentAlignment,
     RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
             <Setter Property="VerticalContentAlignment"
@@ -992,7 +1024,7 @@
                               ContentSource="Header"
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
 
-                        
+
                             </Border>
                             <ItemsPresenter x:Name="ItemsHost"
                           Grid.Row="1"

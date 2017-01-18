@@ -37,6 +37,13 @@ namespace XTMF.Gui.UserControls
             Background = (Brush)Application.Current.TryFindResource("ControlBackgroundBrush");
         }
 
+        public TextboxAdorner(UIElement adornedElement) :
+        base(adornedElement)
+        {
+                
+            }
+
+
         Action<string> GiveResult;
 
         public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "") : base(attachedTo)

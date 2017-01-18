@@ -31,13 +31,13 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Margin="0">
+        <Grid Grid.Row="1" Margin="0" Background="{DynamicResource DarkGrayBackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <!--<my:HintedTextBox Grid.Column="0" Margin="5" x:Name="LinkedParameterValue" HintText="Linked Parameter Value" Width="250" Height="Auto"/>-->
-            <my:BorderIconButton HorizontalAlignment="Left" Grid.Column="0" Header="New"  HighlightColour="{StaticResource AddingYellow}" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
+            <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New"  HighlightColour="{StaticResource AddingYellow}" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
                                  Icon="/XTMF.Gui;component/Resources/Plus.png" Margin="2"/>
 
             <DockPanel Grid.Column="1"/>
@@ -55,7 +55,7 @@
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
                 <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{StaticResource WindowBackgroundBrush}" KeyDown="LinkedParameterValue_PreviewKeyDown">
+                          Background="{DynamicResource MediumGrayBackgroundBrush}" KeyDown="LinkedParameterValue_PreviewKeyDown">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
@@ -95,7 +95,7 @@
                 </ListView>
             </Grid>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
-            <Grid Grid.Column="2">
+            <Grid Grid.Column="2" Background="{DynamicResource MediumGrayBackgroundBrush}">
                 <Grid.RowDefinitions>
 
                     <RowDefinition Height="AUTO" />
@@ -104,14 +104,10 @@
                 </Grid.RowDefinitions>
                 <!-- <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" /> -->
 
-                <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="#FF253D66">
+                <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource DarkGrayBackgroundBrush}">
                     <StackPanel >
 
-                        <Label Content="Parameter Properties" Foreground="White" Margin="0,0,0,10">
-                            <Label.Background>
-                                <SolidColorBrush Color="#FF253D66"/>
-                            </Label.Background>
-                        </Label>
+                        <Label Content="Parameter Properties" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource DarkGrayBackgroundBrush}"/>
 
                         <DockPanel FlowDirection="LeftToRight" >
                             <Label Content="Name" Width="50" Foreground="White" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
@@ -126,16 +122,12 @@
                         </DockPanel>
                     </StackPanel>
                 </Border>
-                    
 
-                <Border Grid.Row="1" BorderThickness="1" Margin="5,5,5,0" BorderBrush="#FF253D66">
-                    <StackPanel >
 
-                        <Label Content="Linked Parameters" Foreground="White" Margin="0,0,0,10">
-                            <Label.Background>
-                                <SolidColorBrush Color="#FF253D66"/>
-                            </Label.Background>
-                        </Label>
+                <Border Grid.Row="1" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource DarkGrayBackgroundBrush}">
+                    <StackPanel Background="{DynamicResource MediumGrayBackgroundBrush}" >
+
+                        <Label Content="Linked Parameters" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource DarkGrayBackgroundBrush}"/>
                         <ListView KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                x:Name="ContainedParameterDisplay" Focusable="False"  Background="{StaticResource WindowBackgroundBrush}"
                      HorizontalContentAlignment="Stretch">
@@ -148,7 +140,7 @@
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter Property="Background" Value="Transparent" />
                                             <Setter Property="BorderBrush" Value="Transparent" />
-                                           <Setter Property="BorderThickness" Value="0" /> 
+                                            <Setter Property="BorderThickness" Value="0" />
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -196,8 +188,8 @@
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                                
-                                
+
+
                             </ListView.ItemTemplate>
                         </ListView>
                     </StackPanel>
