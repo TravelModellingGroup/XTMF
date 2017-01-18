@@ -623,7 +623,7 @@ namespace XTMF
                     }
                     else
                     {
-                        error = string.Format("For module '{2}' we were unable to load back the previously created Collection object for {0}.{1}. Since this is a field and not a property please contant the TMG with this error.",
+                        error = string.Format("For module '{2}' we were unable to load back the previously created Collection object for {0}.{1}. Since this is a field and not a property please contact the TMG with this error.",
                             root.GetType().FullName,
                             infoField.Name, root.Name);
                     }
