@@ -56,10 +56,18 @@ namespace XTMF.Gui.UserControls
                 ConfigLocationLabel.Content = MainWindow.Us.ConfigurationFilePath;
                 ConfigLocationLabel.Visibility = Visibility.Visible;
                 CreateLocalConfigButton.Visibility = Visibility.Collapsed;
+
+                if (MainWindow.Us.IsLocalConfig)
+                {
+                    DeleteConfigLabel.Visibility = Visibility.Visible;
+                }
             }
             else
             {
                 CreateLocalConfigButton.Visibility = Visibility.Visible;
+
+
+                DeleteConfigLabel.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -232,6 +240,15 @@ namespace XTMF.Gui.UserControls
             }
 
            
+        }
+
+        private void DeleteConfigLabel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Console.WriteLine("Are you  sure ?");
+
+            System.IO.File.Delete(MainWindow.Us.ConfigurationFilePath);
+
+            MainWindow.Us.ReloadWithDefaultConfiguration();
         }
     }
 }

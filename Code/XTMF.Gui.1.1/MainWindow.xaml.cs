@@ -62,6 +62,8 @@ namespace XTMF.Gui
 
         public bool IsNonDefaultConfig = false;
 
+        public bool IsLocalConfig = false;
+
         public String ConfigurationFilePath
         {
             get { return _configurationFilePath; }
@@ -110,6 +112,7 @@ namespace XTMF.Gui
             if(System.IO.File.Exists(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml")))
             {
                 IsNonDefaultConfig = true;
+                IsLocalConfig = true;
                 this._configurationFilePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml");
                 return true;
             }
@@ -204,39 +207,98 @@ namespace XTMF.Gui
 
         }
 
-        public void ReloadWithConfiguration(string name)
+        public void ReloadWithDefaultConfiguration()
         {
-            bool cancelled = false;
+            if (!ClosePages())
+            {
+                
+
+                IsEnabled = false;
+                StatusDisplay.Text = "Loading XTMF";
+
+                this._configurationFilePath = null;
+                IsNonDefaultConfig = false;
+                RecentProjects.Clear();
+                EditorController.Register(this, () =>
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        IsEnabled = true;
+                        StatusDisplay.Text = "Ready";
+                        UpdateRecentProjectsMenu();
+
+                    }));
+                });
+                ShowStart_Click(this, null);
+            }
+        }
+
+        private bool ClosePages()
+        {
+      
             foreach (var document in OpenPages.Select(page => page.Content))
             {
                 var modelSystemPage = document as ModelSystemDisplay;
                 var runPage = document as RunWindow;
+
+                if(document is ProjectDisplay)
+                {
+                    var projectDisplay = document as ProjectDisplay;
+
+                    projectDisplay.Model.Unload();
+
+
+
+                }
+                if(modelSystemPage != null)
+                {
+                    modelSystemPage.Session.Dispose();
+                    modelSystemPage.Session.ProjectEditingSession.Dispose();
+                }
+
+
                 if (modelSystemPage != null)
                 {
                     if (!modelSystemPage.CloseRequested())
                     {
-                        cancelled = true;
-                        return;
+            
+                        return true;
                     }
                 }
                 if (runPage != null)
                 {
                     if (!runPage.CloseRequested())
                     {
-                        cancelled = true;
-                        return;
+            
+                        return true;
                     }
                 }
 
 
             }
-            if (!cancelled)
+
+            EditorController.Runtime.ProjectController.ClearEditingSessions();
+
+         
+
+            EditorController.Unregister(this);
+
+            DocumentPane.Children.Clear();
+
+            OpenPages.Clear();
+
+            DisplaysForLayout.Clear();
+
+            return false;
+
+        }
+
+        public void ReloadWithConfiguration(string name)
+        {
+            
+            if (!ClosePages())
             {
-                EditorController.Unregister(this);
-
-                DocumentPane.Children.Clear();
-
-                OpenPages.Clear();
+           
 
                 IsEnabled = false;
                 StatusDisplay.Text = "Loading XTMF";
@@ -286,6 +348,8 @@ namespace XTMF.Gui
 
         public void LoadProject(Project project)
         {
+
+           // EditorController.Runtime.ProjectController.Edi
             if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
                 OperationProgressing progressing = new OperationProgressing()
@@ -325,7 +389,11 @@ namespace XTMF.Gui
             else if (EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
 
-                OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
+                var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
+                if(item != null)
+                {
+                    item.IsSelected = true;
+                }
             }
         }
 

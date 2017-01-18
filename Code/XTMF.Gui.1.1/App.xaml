@@ -82,8 +82,8 @@
             </Style.Triggers>
 
 
-               
-         
+
+
         </Style>
 
         <Style x:Key="FlatScrollThumbs" TargetType="{x:Type Thumb}">
@@ -1025,8 +1025,6 @@
                                 <ContentPresenter x:Name="PART_Header"
                               ContentSource="Header"
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-
-
                             </Border>
                             <ItemsPresenter x:Name="ItemsHost"
                           Grid.Row="1"

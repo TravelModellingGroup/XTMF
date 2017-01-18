@@ -86,6 +86,12 @@ namespace XTMF
             return EditingSessions.Count(p => p.Name == project.Name) > 0;
         }
 
+        public void ClearEditingSessions()
+        {
+            ReferenceCount.Clear();
+            EditingSessions.Clear();
+        }
+
 
         /// <summary>
         /// Create a clone of the given project with the given name.
