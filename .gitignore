@@ -3,6 +3,7 @@
 ################################################################################
 *.opendb
 
+bin/
 /Code/.vs
 /Code/4Step/bin/Development
 /Code/4Step/obj
