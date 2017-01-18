@@ -215,6 +215,8 @@
                                         Grid.Row="1"
                                         Grid.Column="0"
                                         Grid.ColumnSpan="2"
+                                       Height="5"
+                                       Width="50"
                                         Value="{TemplateBinding HorizontalOffset}"
                                         Maximum="{TemplateBinding ScrollableWidth}"
                                         ViewportSize="{TemplateBinding ViewportWidth}"

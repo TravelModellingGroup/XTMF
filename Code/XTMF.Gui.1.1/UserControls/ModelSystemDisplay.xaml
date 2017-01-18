@@ -124,7 +124,7 @@
             </Grid.RowDefinitions>
             <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
             <TreeView Grid.Row="1" Background="#FF252526" 
-                  x:Name="ModuleDisplay" 
+                  x:Name="ModuleDisplay"  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
                 <TreeView.ContextMenu>
@@ -266,7 +266,7 @@
                     </Border>
                     <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       Margin="0" Background="{DynamicResource MediumGrayBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -395,7 +395,7 @@
                     </Border>
                     <my:FilterBox Grid.Row="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView Grid.Row="2" x:Name="QuickParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       Margin="0" Background="{DynamicResource MediumGrayBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
