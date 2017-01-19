@@ -317,7 +317,6 @@ namespace XTMF.Gui
                     {
                         IsEnabled = true;
                         StatusDisplay.Text = "Ready";
-                        //RecentProjects.Clear();
                         UpdateRecentProjectsMenu();
                         ShowStart_Click(this, null);
 

@@ -26,9 +26,9 @@ namespace XTMF.Gui
             InitializeComponent();
 
             MainWindow.Us.RecentProjectsUpdated += Us_RecentProjectsUpdated;
-            
 
-           if(MainWindow.Us.RuntimeAvailable)
+
+            if (MainWindow.Us.RuntimeAvailable)
             {
                 Us_RecentProjectsUpdated(null, null);
             }
@@ -64,7 +64,7 @@ namespace XTMF.Gui
 
         private void RecentProjectMouseDown(object sender, MouseButtonEventArgs e)
         {
-            
+
         }
 
         private void NewProject_MouseUp(object sender, MouseButtonEventArgs e)
@@ -89,7 +89,7 @@ namespace XTMF.Gui
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-           
+
         }
     }
 }
