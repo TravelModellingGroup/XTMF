@@ -38,6 +38,7 @@ namespace XTMF.Gui.Controllers
             Task.Factory.StartNew(
                 () =>
             {
+              
                 OpenWindows.Run((list) =>
                {
                    if (Runtime == null)
@@ -77,6 +78,15 @@ namespace XTMF.Gui.Controllers
                    }
                });
             });
+        }
+
+        public static void FreeRuntime()
+        {
+            if (Runtime != null)
+            {
+                Runtime.Dispose();
+                Runtime = null;
+            }
         }
 
         internal static void Unregister(MainWindow window)

@@ -43,16 +43,20 @@ namespace XTMF
             this.Configuration = configuration == null ? BuildConfiguration() : configuration;
             this.ModelSystemController = new ModelSystemController(this);
             this.ProjectController = new ProjectController(this);
+
+         
         }
 
         private Configuration BuildConfiguration()
         {
+ 
             var localInstanceDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var localConfigurationFileName = Path.Combine(localInstanceDirectory, "LocalXTMFConfiguration.xml");
             if (File.Exists(localConfigurationFileName))
             {
                 return new Configuration(localConfigurationFileName);
             }
+           
             return new Configuration();
         }
 

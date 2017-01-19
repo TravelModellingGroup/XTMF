@@ -236,6 +236,7 @@ namespace XTMF.Gui.UserControls
 
             if (result == MessageBoxResult.Yes)
             {
+                MainWindow.Us.IsLocalConfig = true;
                 MainWindow.Us.ReloadWithConfiguration(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
             }
 

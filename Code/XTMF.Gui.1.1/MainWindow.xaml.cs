@@ -198,6 +198,8 @@ namespace XTMF.Gui
 
             }
 
+            
+
             RecentProjectsUpdated(this, new System.EventArgs());
         }
 
@@ -217,19 +219,22 @@ namespace XTMF.Gui
                 StatusDisplay.Text = "Loading XTMF";
 
                 this._configurationFilePath = null;
+
                 IsNonDefaultConfig = false;
-                RecentProjects.Clear();
+                
                 EditorController.Register(this, () =>
                 {
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         IsEnabled = true;
                         StatusDisplay.Text = "Ready";
+                        //RecentProjects.Clear();
                         UpdateRecentProjectsMenu();
+                        ShowStart_Click(this, null);
 
                     }));
                 });
-                ShowStart_Click(this, null);
+                
             }
         }
 
@@ -279,8 +284,6 @@ namespace XTMF.Gui
 
             EditorController.Runtime.ProjectController.ClearEditingSessions();
 
-         
-
             EditorController.Unregister(this);
 
             DocumentPane.Children.Clear();
@@ -289,6 +292,7 @@ namespace XTMF.Gui
 
             DisplaysForLayout.Clear();
 
+            EditorController.FreeRuntime();
             return false;
 
         }
@@ -305,7 +309,7 @@ namespace XTMF.Gui
 
                 IsNonDefaultConfig = true;
                 this._configurationFilePath = name;
-                RecentProjects.Clear();
+                
                 Configuration configuration = new Configuration(name);
                 EditorController.Register(this, () =>
                 {
@@ -313,11 +317,14 @@ namespace XTMF.Gui
                     {
                         IsEnabled = true;
                         StatusDisplay.Text = "Ready";
+                        //RecentProjects.Clear();
                         UpdateRecentProjectsMenu();
+                        ShowStart_Click(this, null);
+
 
                     }));
                 });
-                ShowStart_Click(this, null);
+               
             }
 
             

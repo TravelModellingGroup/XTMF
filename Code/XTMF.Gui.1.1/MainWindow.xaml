@@ -23,7 +23,6 @@
         xmlns:uc="clr-namespace:XTMF.Gui.UserControls"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
-        
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="XTMF Version 1.2" Height="768" Width="1024"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}"
