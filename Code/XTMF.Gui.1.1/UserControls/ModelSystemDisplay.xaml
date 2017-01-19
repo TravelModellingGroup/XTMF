@@ -210,8 +210,10 @@
                                      Text="{Binding Description, Mode=OneWay}"
                                      ShadowColour="{Binding BackgroundColour, Mode=OneWay}"
                                      HighlightColour="{Binding HighlightColour, Mode=OneWay}"
+                                    
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                                    AncestorType=TreeView}, Path=ContextMenu}"
+                                                    AncestorType=TreeView}, Path=ContextMenu}" 
+
                                     RightClicked="DisplayButton_RightClicked"
                                     Margin="4"
                                     KeyboardNavigation.TabNavigation="Continue"

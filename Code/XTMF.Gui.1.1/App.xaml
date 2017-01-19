@@ -208,7 +208,6 @@
                             </Border>
 
 
-
                             <ScrollBar x:Name="PART_VerticalScrollBar"
                                         Grid.Row="0"
                                        
