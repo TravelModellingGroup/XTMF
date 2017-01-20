@@ -36,6 +36,8 @@ namespace XTMF
     {
         protected IModelSystemStructure _ModelSystemStructure;
 
+
+      
         private bool IsLoaded;
 
         protected void SetIsLoaded(bool value)

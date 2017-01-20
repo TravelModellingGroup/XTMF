@@ -45,6 +45,11 @@ namespace XTMF
             Configuration = config;
         }
 
+        public ModelSystemStructure()
+        {
+
+        }
+
         public bool IsMetaModule { get; set; }
 
         public IList<IModelSystemStructure> Children

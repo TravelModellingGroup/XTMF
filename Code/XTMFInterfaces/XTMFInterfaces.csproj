@@ -118,8 +118,10 @@
     <Compile Include="Interfaces\IDataLoader.cs" />
     <Compile Include="Interfaces\IDataSource.cs" />
     <Compile Include="Interfaces\ILinkedParameter.cs" />
+    <Compile Include="Interfaces\IModuleMetaProperty.cs" />
     <Compile Include="Interfaces\IModelSystem.cs" />
     <Compile Include="Interfaces\IModelSystemRepository.cs" />
+    <Compile Include="Interfaces\IModelSystemStructure2.cs" />
     <Compile Include="Interfaces\IModule.cs" />
     <Compile Include="Interfaces\IModuleParameter.cs" />
     <Compile Include="Interfaces\IModuleParameters.cs" />
