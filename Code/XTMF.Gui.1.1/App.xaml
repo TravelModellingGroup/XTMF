@@ -46,6 +46,18 @@
         <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource ResourceKey=ControlBackgroundColour}" />
         <SolidColorBrush x:Key="ControlHeaderBrush" Color="{StaticResource ResourceKey=ControlHeaderColour}" />
         <SolidColorBrush x:Key="WindowBackgroundBrush"  Color="{StaticResource ResourceKey=WindowBackgroundColour}" />
+
+        <!-- These resources are added to avoid missing message spam-->
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedText" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013TabBackground" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013PanelBorderBrush" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellOverflowButtonDefaultGlyph" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedBackground" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabSelectedActiveBackground" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabSelectedActiveText" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedHoveredBackground" Color="White"></SolidColorBrush>
+        <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedHoveredText" Color="White"></SolidColorBrush>
+
         <LinearGradientBrush x:Shared="false" x:Name="AnimatedFocusBrush" x:Key="AnimatedFocusBrush">
             <GradientStop Color="{StaticResource FocusColour}" Offset="0.0" />
             <GradientStop Color="{StaticResource FocusColour}" Offset="0.2" />
@@ -194,7 +206,6 @@
                             <Border Grid.Column="0" BorderThickness="0">
                                 <ScrollContentPresenter CanContentScroll="{TemplateBinding CanContentScroll}" />
                             </Border>
-
 
 
                             <ScrollBar x:Name="PART_VerticalScrollBar"
