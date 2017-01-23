@@ -278,11 +278,16 @@ namespace XTMF.Gui.UserControls
 
         private void DeleteConfigLabel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Console.WriteLine("Are you  sure ?");
 
-            System.IO.File.Delete(MainWindow.Us.ConfigurationFilePath);
+            var result = MessageBox.Show(MainWindow.Us,
+                "Are you sure you wish to delete the local configuration?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Information);
 
-            MainWindow.Us.ReloadWithDefaultConfiguration();
+            if (result == MessageBoxResult.Yes)
+            {
+                System.IO.File.Delete(MainWindow.Us.ConfigurationFilePath);
+
+                MainWindow.Us.ReloadWithDefaultConfiguration();
+            }
         }
     }
 }
