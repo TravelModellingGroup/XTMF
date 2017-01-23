@@ -37,7 +37,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             // see if we have two values, in this case we can skip doing the matrix operation
             if (lhs.IsValue && rhs.IsValue)
             {
-                return new ComputationResult(lhs.LiteralValue - rhs.LiteralValue);
+                return new ComputationResult((float)Math.Pow(lhs.LiteralValue, rhs.LiteralValue));
             }
             // float / matrix
             if (lhs.IsValue)
