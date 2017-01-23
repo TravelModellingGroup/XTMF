@@ -29,8 +29,8 @@ namespace Tasha.Data
     [ModuleInformation(Description = "This module provides the ability to construct SparseTriIndex<float> by building up SparseTwinIndex<float> data sources.")]
     public class CreateSparseTriIndexFloatFromSparseTwinIndexes : IDataSource<SparseTriIndex<float>>
     {
-        public bool Loaded { get;set; }
-        
+        public bool Loaded { get; set; }
+
 
         public string Name { get; set; }
 
@@ -42,6 +42,9 @@ namespace Tasha.Data
 
         [RunParameter("Top Level Indices", "0", typeof(RangeSet), "A set of ranges to assign to the TwinIndex data sources to build the tri-index data source.")]
         public RangeSet TriIndexSet;
+
+        [RunParameter("Create Copy", false, "Create a copy of the loaded data sources instead of directly integrating them?")]
+        public bool CreateCopy;
 
         [SubModelInformation(Required = true, Description = "The data sources to bind")]
         public IDataSource<SparseTwinIndex<float>>[] TwinSources;
@@ -55,12 +58,17 @@ namespace Tasha.Data
         {
             float[][][] data = new float[TwinSources.Length][][];
             SparseIndexing indicies = RootCreateIndices();
-            for(int i = 0; i < TwinSources.Length; i++)
+            for (int i = 0; i < TwinSources.Length; i++)
             {
                 TwinSources[i].LoadData();
                 var innerData = TwinSources[i].GiveData();
                 CreateIndices(indicies, i, innerData);
-                data[i] = innerData.GetFlatData();
+                var inner = innerData.GetFlatData();
+                if (CreateCopy)
+                {
+                    inner = inner.Select(i2 => i2.Clone() as float[]).ToArray();
+                }
+                data[i] = inner;
                 TwinSources[i].UnloadData();
             }
             Data = new SparseTriIndex<float>(indicies, data);
@@ -83,10 +91,10 @@ namespace Tasha.Data
         {
             var indexes = rootLevel.Indexes;
             int pos = 0;
-            for(int i = 0; i < indexes.Length; i++)
+            for (int i = 0; i < indexes.Length; i++)
             {
                 var delta = indexes[i].Stop - indexes[i].Start + 1;
-                if(flatIndex <= pos + delta)
+                if (flatIndex <= pos + delta)
                 {
                     return i;
                 }
