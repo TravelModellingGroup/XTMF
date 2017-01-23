@@ -210,6 +210,22 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ModelSystemDirectory = dir;
+
+                Configuration.Save();
+                MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (MainWindow.Us.IsNonDefaultConfig)
+                    {
+
+                        MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
+                    }
+                    else
+                    {
+                        MainWindow.Us.ReloadWithDefaultConfiguration();
+                    }
+                }
             }
         }
 
@@ -219,6 +235,23 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ProjectDirectory = dir;
+
+                Configuration.Save();
+
+                MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (MainWindow.Us.IsNonDefaultConfig)
+                    {
+
+                        MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
+                    }
+                    else
+                    {
+                        MainWindow.Us.ReloadWithDefaultConfiguration();
+                    }
+                }
             }
         }
 

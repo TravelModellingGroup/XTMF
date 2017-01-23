@@ -64,7 +64,7 @@ namespace XTMF.Gui
 
         public bool IsLocalConfig = false;
 
-        public String ConfigurationFilePath
+        public string ConfigurationFilePath
         {
             get { return _configurationFilePath; }
             set { }
