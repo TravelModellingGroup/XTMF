@@ -88,23 +88,32 @@ namespace XTMF
         private void LoadVersion()
         {
             Version version;
+            version = new Version(0, 0, 0);
             string buildDate = "Unknown Build Date";
             try
             {
                 var assemblyLocation = Assembly.GetEntryAssembly().Location;
                 var versionFile = Path.Combine(Path.GetDirectoryName(assemblyLocation), "version.txt");
-                using (StreamReader reader = new StreamReader(versionFile))
+
+                if (File.Exists(versionFile))
                 {
-                    version = new Version(reader.ReadLine());
-                    if(!reader.EndOfStream)
+                    using (StreamReader reader = new StreamReader(versionFile))
                     {
-                        buildDate = reader.ReadLine();
+                        version = new Version(reader.ReadLine());
+                        if (!reader.EndOfStream)
+                        {
+                            buildDate = reader.ReadLine();
+                        }
                     }
+                }
+                else
+                {
+                    
                 }
             }
             catch
             {
-                version = new Version(0, 0, 0);
+                
             }
             XTMFVersion = version;
             BuildDate = buildDate;
@@ -560,33 +569,40 @@ namespace XTMF
         {
             Type module = typeof(IModule);
             Type modelSystem = typeof(IModelSystemTemplate);
-            var types = assembly.GetTypes();
-            for (int i = 0; i < types.Length; i++)
+            try
             {
-                var type = types[i];
-                // Make sure that they are valid types
-                FreeVariableType.Add(type);
-                if (type.IsAbstract | type.IsNotPublic | !(type.IsClass | type.IsValueType)) continue;
-                if (module.IsAssignableFrom(type))
+                var types = assembly.GetTypes();
+                for (int i = 0; i < types.Length; i++)
                 {
-                    string error = null;
-                    if (CheckTypeForErrors(type, ref error))
+                    var type = types[i];
+                    // Make sure that they are valid types
+                    FreeVariableType.Add(type);
+                    if (type.IsAbstract | type.IsNotPublic | !(type.IsClass | type.IsValueType)) continue;
+                    if (module.IsAssignableFrom(type))
                     {
-                        LoadError = error;
-                    }
-                    // we know then that this is an IModel
-                    lock (ModelRepository)
-                    {
-                        ModelRepository.AddModule(type);
-                    }
-                    if (modelSystem.IsAssignableFrom(type))
-                    {
-                        lock (ModelSystemTemplateRepository)
+                        string error = null;
+                        if (CheckTypeForErrors(type, ref error))
                         {
-                            ModelSystemTemplateRepository.Add(type);
+                            LoadError = error;
+                        }
+                        // we know then that this is an IModel
+                        lock (ModelRepository)
+                        {
+                            ModelRepository.AddModule(type);
+                        }
+                        if (modelSystem.IsAssignableFrom(type))
+                        {
+                            lock (ModelSystemTemplateRepository)
+                            {
+                                ModelSystemTemplateRepository.Add(type);
+                            }
                         }
                     }
                 }
+            }
+            catch(TypeLoadException e)
+            {
+                Console.WriteLine(e);
             }
         }
 

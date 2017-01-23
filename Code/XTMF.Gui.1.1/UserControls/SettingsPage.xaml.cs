@@ -265,7 +265,7 @@ namespace XTMF.Gui.UserControls
             /* Reload the entire UI overriding the the configuration file to be loaded */
 
             var result = MessageBox.Show(MainWindow.Us,
-                "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
+                "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", MessageBoxButton.OKCancel, MessageBoxImage.Information);
 
             if (result == MessageBoxResult.Yes)
             {

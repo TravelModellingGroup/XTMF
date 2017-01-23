@@ -64,6 +64,8 @@ namespace XTMF.Gui
 
         public bool IsLocalConfig = false;
 
+        private OperationProgressing operationProgressing;
+
         public string ConfigurationFilePath
         {
             get { return _configurationFilePath; }
@@ -99,6 +101,9 @@ namespace XTMF.Gui
             
             Loaded += FrameworkElement_Loaded;
             Us = this;
+
+            operationProgressing = new OperationProgressing();
+            //operationProgressing.Owner = this;
 
            
 
@@ -184,23 +189,26 @@ namespace XTMF.Gui
         {
             List<string> recentProjects = EditorController.Runtime.Configuration.RecentProjects;
             recentProjects.Reverse();
-            RecentProjectsMenuItem.Items.Clear();
-            foreach (string recentProject in recentProjects)
+            this.Dispatcher.Invoke(() =>
             {
-                MenuItem recentProjectMenuItem = new MenuItem();
-                recentProjectMenuItem.Header = recentProject;
-                RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
-
-                recentProjectMenuItem.Click += (sender, EventArgs) =>
+                RecentProjectsMenuItem.Items.Clear();
+                foreach (string recentProject in recentProjects)
                 {
-                    RecentProjectMenuItem_Click(sender, EventArgs, recentProject);
-                };
+                    MenuItem recentProjectMenuItem = new MenuItem();
+                    recentProjectMenuItem.Header = recentProject;
+                    RecentProjectsMenuItem.Items.Add(recentProjectMenuItem);
 
-            }
+                    recentProjectMenuItem.Click += (sender, EventArgs) =>
+                    {
+                        RecentProjectMenuItem_Click(sender, EventArgs, recentProject);
+                    };
 
+                }
+         
             
 
             RecentProjectsUpdated(this, new System.EventArgs());
+            });
         }
 
         private void RecentProjectMenuItem_Click(object sender, RoutedEventArgs e, string projectName)
@@ -364,9 +372,11 @@ namespace XTMF.Gui
                 };
                 Task.Run(() =>
                {
-                   Dispatcher.BeginInvoke(new Action(() =>
+                   progressing.Dispatcher.BeginInvoke(new Action(() =>
                  {
-                     progressing.ShowDialog();
+                      progressing.ShowDialog();
+
+                    
                  }));
                    ProjectEditingSession session = null;
                    var loadingTask = Task.Run(() =>
@@ -381,10 +391,16 @@ namespace XTMF.Gui
                    {
                        MainWindow.Us.EditProject(session);
                    }
-                   MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
+
+                   progressing.Dispatcher.BeginInvoke(new Action(() =>
                    {
-                       progressing.Close();
-                       OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
+
+                       progressing.Visibility = Visibility.Hidden;
+                       //progressing.Dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Send);
+                       if (OpenPages.Count(doc => doc.Title == "Project - " + project.Name) > 0)
+                       {
+                           OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
+                       }
 
                    }));
                    EditorController.Runtime.Configuration.AddRecentProject(project.Name);
