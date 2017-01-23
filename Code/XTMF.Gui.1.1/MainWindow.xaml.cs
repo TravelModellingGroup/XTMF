@@ -396,11 +396,15 @@ namespace XTMF.Gui
                    {
 
                        progressing.Visibility = Visibility.Hidden;
-                       //progressing.Dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Send);
-                       if (OpenPages.Count(doc => doc.Title == "Project - " + project.Name) > 0)
+                       
+
+                       var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
+
+                       if(item != null)
                        {
-                           OpenPages.Find(doc => doc.Title == "Project - " + project.Name).IsSelected = true;
+                           item.IsSelected = true;
                        }
+              
 
                    }));
                    EditorController.Runtime.Configuration.AddRecentProject(project.Name);

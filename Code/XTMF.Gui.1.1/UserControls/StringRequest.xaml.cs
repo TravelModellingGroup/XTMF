@@ -88,7 +88,8 @@ namespace XTMF.Gui.UserControls
                 if (e.Key == Key.Escape)
                 {
                     e.Handled = true;
-                    Close();
+                    this.Visibility = Visibility.Hidden;
+                    //Close();
                 }
             }
         }
@@ -105,7 +106,8 @@ namespace XTMF.Gui.UserControls
                 }
             }
             DialogResult = true;
-            Close();
+            this.Visibility = Visibility.Hidden;
+            //Close();
         }
 
         public string Answer { get; private set; }
