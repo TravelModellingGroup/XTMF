@@ -91,30 +91,30 @@ namespace XTMF.Gui
             // start it with a blank editing display model
             DataContext = this;
             EditingDisplayModel = NullEditingDisplayModel = new ActiveEditingSessionDisplayModel(false);
-            
+
             ParseCommandLineArgs();
-            if(!IsNonDefaultConfig)
+            if (!IsNonDefaultConfig)
             {
                 CheckHasLocalConfiguration();
-             }
+            }
             InitializeComponent();
-            
+
             Loaded += FrameworkElement_Loaded;
             Us = this;
 
             operationProgressing = new OperationProgressing();
             //operationProgressing.Owner = this;
 
-           
 
-            
-          
+
+
+
         }
 
         private bool CheckHasLocalConfiguration()
         {
-            
-            if(System.IO.File.Exists(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml")))
+
+            if (System.IO.File.Exists(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml")))
             {
                 IsNonDefaultConfig = true;
                 IsLocalConfig = true;
@@ -136,7 +136,7 @@ namespace XTMF.Gui
 
             int index = Array.FindIndex(arguments, p => p == "--configuration");
 
-            if(index >= 0)
+            if (index >= 0)
             {
                 if (index + 1 < arguments.Length)
                 {
@@ -151,13 +151,13 @@ namespace XTMF.Gui
                     {
                         Console.WriteLine("Invalid path passed with configuration argument.");
                     }
-                   
+
                 }
             }
 
 
-      
-         
+
+
         }
 
         public List<string> RecentProjects
@@ -204,10 +204,10 @@ namespace XTMF.Gui
                     };
 
                 }
-         
-            
 
-            RecentProjectsUpdated(this, new System.EventArgs());
+
+
+                RecentProjectsUpdated(this, new System.EventArgs());
             });
         }
 
@@ -221,7 +221,7 @@ namespace XTMF.Gui
         {
             if (!ClosePages())
             {
-                
+
 
                 IsEnabled = false;
                 StatusDisplay.Text = "Loading XTMF";
@@ -229,7 +229,7 @@ namespace XTMF.Gui
                 this._configurationFilePath = null;
 
                 IsNonDefaultConfig = false;
-                
+
                 EditorController.Register(this, () =>
                 {
                     Dispatcher.BeginInvoke(new Action(() =>
@@ -242,19 +242,19 @@ namespace XTMF.Gui
 
                     }));
                 });
-                
+
             }
         }
 
         private bool ClosePages()
         {
-      
+
             foreach (var document in OpenPages.Select(page => page.Content))
             {
                 var modelSystemPage = document as ModelSystemDisplay;
                 var runPage = document as RunWindow;
 
-                if(document is ProjectDisplay)
+                if (document is ProjectDisplay)
                 {
                     var projectDisplay = document as ProjectDisplay;
 
@@ -263,7 +263,7 @@ namespace XTMF.Gui
 
 
                 }
-                if(modelSystemPage != null)
+                if (modelSystemPage != null)
                 {
                     modelSystemPage.Session.Dispose();
                     modelSystemPage.Session.ProjectEditingSession.Dispose();
@@ -274,7 +274,7 @@ namespace XTMF.Gui
                 {
                     if (!modelSystemPage.CloseRequested())
                     {
-            
+
                         return true;
                     }
                 }
@@ -282,7 +282,7 @@ namespace XTMF.Gui
                 {
                     if (!runPage.CloseRequested())
                     {
-            
+
                         return true;
                     }
                 }
@@ -307,17 +307,17 @@ namespace XTMF.Gui
 
         public void ReloadWithConfiguration(string name)
         {
-            
+
             if (!ClosePages())
             {
-           
+
 
                 IsEnabled = false;
                 StatusDisplay.Text = "Loading XTMF";
 
                 IsNonDefaultConfig = true;
                 this._configurationFilePath = name;
-                
+
                 Configuration configuration = new Configuration(name);
                 EditorController.Register(this, () =>
                 {
@@ -331,10 +331,10 @@ namespace XTMF.Gui
 
                     }));
                 });
-               
+
             }
 
-            
+
         }
 
         private void FrameworkElement_Loaded(object sender, RoutedEventArgs e)
@@ -363,20 +363,24 @@ namespace XTMF.Gui
         public void LoadProject(Project project)
         {
 
-           // EditorController.Runtime.ProjectController.Edi
+            // EditorController.Runtime.ProjectController.Edi
+
+            OperationProgressing progressing = new OperationProgressing()
+            {
+                Owner = this
+            };
+
             if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-                OperationProgressing progressing = new OperationProgressing()
-                {
-                    Owner = this
-                };
+
                 Task.Run(() =>
                {
+
                    progressing.Dispatcher.BeginInvoke(new Action(() =>
                  {
-                      progressing.ShowDialog();
+                     progressing.ShowDialog();
 
-                    
+
                  }));
                    ProjectEditingSession session = null;
                    var loadingTask = Task.Run(() =>
@@ -395,16 +399,22 @@ namespace XTMF.Gui
                    progressing.Dispatcher.BeginInvoke(new Action(() =>
                    {
 
-                       progressing.Visibility = Visibility.Hidden;
-                       
+                       Application.Current.Dispatcher.Invoke((Action)delegate
+                       {
+
+                           progressing.Close();
+
+                       });
+                       //progressing.Visibility = Visibility.Hidden;
+
 
                        var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
 
-                       if(item != null)
+                       if (item != null)
                        {
                            item.IsSelected = true;
                        }
-              
+
 
                    }));
                    EditorController.Runtime.Configuration.AddRecentProject(project.Name);
@@ -416,7 +426,7 @@ namespace XTMF.Gui
             {
 
                 var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
-                if(item != null)
+                if (item != null)
                 {
                     item.IsSelected = true;
                 }
@@ -454,7 +464,7 @@ namespace XTMF.Gui
             }
             else
             {
-            
+
                 var doc = AddNewWindow("Projects", new ProjectsDisplay(EditorController.Runtime), typeof(ActiveEditingSessionDisplayModel));
                 doc.IsActive = true;
             }
@@ -1130,6 +1140,12 @@ namespace XTMF.Gui
         private void DocumentPane_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             //Console.WriteLine(e + " " + e.PropertyName);
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
         }
     }
 }

@@ -89,7 +89,8 @@ namespace XTMF.Gui.UserControls
                 {
                     e.Handled = true;
                     this.Visibility = Visibility.Hidden;
-                    //Close();
+
+                    Close();
                 }
             }
         }
@@ -106,8 +107,8 @@ namespace XTMF.Gui.UserControls
                 }
             }
             DialogResult = true;
-            this.Visibility = Visibility.Hidden;
-            //Close();
+            //this.Visibility = Visibility.Hidden;
+            Close();
         }
 
         public string Answer { get; private set; }

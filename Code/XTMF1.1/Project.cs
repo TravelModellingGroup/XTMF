@@ -1205,9 +1205,10 @@ namespace XTMF
 
         private void LoadDescription()
         {
-            var fileName = Path.Combine(Configuration.ProjectDirectory, Name, "Project.xml");
+            
             try
             {
+                var fileName = Path.Combine(Configuration.ProjectDirectory, Name, "Project.xml");
                 using (XmlReader reader = XmlReader.Create(fileName))
                 {
                     bool skipRead = false;
@@ -1227,8 +1228,9 @@ namespace XTMF
                     }
                 }
             }
-            catch
+            catch(Exception e)
             {
+                Console.WriteLine(e);
             }
         }
 
