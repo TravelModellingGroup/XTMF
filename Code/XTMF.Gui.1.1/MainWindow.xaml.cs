@@ -1142,16 +1142,15 @@ namespace XTMF.Gui
             //Console.WriteLine(e + " " + e.PropertyName);
         }
 
-        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-           
-        }
-
+   
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
+
+              
                 this.DragMove();
+                e.Handled = true;
             }
         }
     }

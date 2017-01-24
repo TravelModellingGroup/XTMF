@@ -76,7 +76,7 @@
         <Setter Property="Height"
           Value="1" />
         <Setter Property="Margin"
-          Value="0,4,0,4" />
+          Value="0,0,0,0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Separator}">
@@ -93,7 +93,7 @@
     <!-- TopLevelHeader -->
     <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}"
                  TargetType="{x:Type MenuItem}">
-        <Border x:Name="Border" Height="25" >
+        <Border x:Name="Border" Height="28" >
             <Grid>
                 <ContentPresenter Margin="6,3,6,3"
                         ContentSource="Header"
@@ -218,13 +218,13 @@
     <!-- SubmenuItem -->
     <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}"
                  TargetType="{x:Type MenuItem}">
-        <Border x:Name="Border" Height="25" VerticalAlignment="Center"
+        <Border x:Name="Border" Height="28" VerticalAlignment="Center"
           BorderThickness="1">
 
             
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"
+                    <ColumnDefinition Width="30"
                           SharedSizeGroup="Icon" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto"
@@ -355,12 +355,12 @@
     <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}"
                  TargetType="{x:Type MenuItem}">
         <Border x:Name="Border"
-          BorderThickness="0" Height="25">
+          BorderThickness="0" Height="28">
             
 
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"
+                    <ColumnDefinition Width="30"
                           SharedSizeGroup="Icon" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto"
