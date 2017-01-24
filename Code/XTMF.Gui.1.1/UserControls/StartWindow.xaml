@@ -23,9 +23,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800" Loaded="UserControl_Loaded">
+             d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <Grid Background="#FF252526" MinWidth="760" MinHeight="460">
+        <Grid Background="#FF041625" MinWidth="760" MinHeight="460">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MinHeight="100"/>
                 <RowDefinition Height="*" />
@@ -46,7 +46,7 @@
                     <ColumnDefinition Width="1.0*" />
                 </Grid.ColumnDefinitions>
 
-                <Grid HorizontalAlignment="Center" Margin="0,-100,0,0" VerticalAlignment="Center" Background="#FF252526" >
+                <Grid HorizontalAlignment="Center" Margin="0,-100,0,0" VerticalAlignment="Center" >
                     <Grid.Resources>
                         <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
                             <Setter Property="Cursor" Value="Hand" />

@@ -6,8 +6,8 @@
     <Border Margin="20"  Background="{DynamicResource MediumGrayBackgroundBrush}" BorderThickness="1">
         <Border.BorderBrush>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="#FF5D5D5D" Offset="0"/>
-                <GradientStop Color="#FF2C2C2C" Offset="1"/>
+                <GradientStop Color="#FF444444" Offset="0"/>
+                <GradientStop Color="#FF3E3E3E" Offset="1"/>
             </LinearGradientBrush>
         </Border.BorderBrush>
         <Border.Effect>

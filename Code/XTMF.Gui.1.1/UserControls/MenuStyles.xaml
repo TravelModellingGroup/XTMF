@@ -31,8 +31,8 @@
                   Grid.Column="0">
                             <ScrollContentPresenter Margin="{TemplateBinding Padding}" />
                         </Border>
-                     
-               
+
+
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -48,26 +48,26 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Menu}">
-                    
+
                     <Border BorderThickness="0" Background="{DynamicResource DarkGrayBackgroundBrush}">
-                     
-                        
+
+
                         <StackPanel ClipToBounds="True"
                       Orientation="Horizontal"
                       IsItemsHost="True" />
-                       
+
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
-            
-            
+
+
         </Setter>
-        
+
         <Setter Property="Foreground">
-                    <Setter.Value>
-                        <SolidColorBrush Color="#FFFFFFFF" />
-                    </Setter.Value>
-                </Setter>
+            <Setter.Value>
+                <SolidColorBrush Color="#FFFFFFFF" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
 
@@ -221,7 +221,7 @@
         <Border x:Name="Border" Height="28" VerticalAlignment="Center"
           BorderThickness="1">
 
-            
+
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"
@@ -356,7 +356,7 @@
                  TargetType="{x:Type MenuItem}">
         <Border x:Name="Border"
           BorderThickness="0" Height="28">
-            
+
 
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -517,8 +517,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
-                    
-                    
+
+
                     <Border Margin="10" x:Name="Border"
                 Background="{DynamicResource DarkGrayBackgroundBrush}"
                 BorderThickness="1">

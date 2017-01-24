@@ -1148,10 +1148,17 @@ namespace XTMF.Gui
             if (e.ChangedButton == MouseButton.Left)
             {
 
-              
+                
                 this.DragMove();
-                e.Handled = true;
+                
             }
+
+            e.Handled = true;
+        }
+
+        private void DockManager_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }

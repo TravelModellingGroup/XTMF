@@ -52,9 +52,11 @@ namespace XTMF.Gui
                     x.Content = recentProject;
                     x.Style = (Style)k;
 
-                    x.MouseDown += (senderc, EventArgs) =>
+                    x.PreviewMouseUp += (senderc, EventArgs) =>
                     {
-                        MainWindow.Us.LoadProjectByName(recentProject);
+
+                            MainWindow.Us.LoadProjectByName(recentProject);
+                        
                     };
 
                     RecentProjectsStackPanel.Children.Add(x);
@@ -69,27 +71,34 @@ namespace XTMF.Gui
 
         private void NewProject_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            MainWindow.Us.NewProject();
+
+                e.Handled = true;
+                MainWindow.Us.NewProject();
+            
         }
 
         private void OpenProject_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            MainWindow.Us.OpenProject();
+           
+                MainWindow.Us.OpenProject();
+            
+        
         }
 
         private void NewModelSystem_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            MainWindow.Us.NewModelSystem();
+           
+                MainWindow.Us.NewModelSystem();
+            
         }
 
         private void OpenModelSystem_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            MainWindow.Us.OpenModelSystem();
+            
+                MainWindow.Us.OpenModelSystem();
+            
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
+        
     }
 }
