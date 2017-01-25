@@ -16,9 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -26,34 +27,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Shell;
 using System.Windows.Threading;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for RunWindow.xaml
+    ///     Interaction logic for RunWindow.xaml
     /// </summary>
     public partial class RunWindow : UserControl
     {
         private XTMFRun Run;
         private string RunDirectory;
-        private DateTime StartTime;
+        private DateTime _startTime;
         private DispatcherTimer Timer;
-        private bool Windows7OrAbove = false;
-        private volatile bool IsActive = false;
-        private volatile bool IsFinished = false;
-        private volatile bool WasCanceled = false;
-        static Tuple<byte, byte, byte> ErrorColour;
-        private BindingListWithRemoving<SubProgress> SubProgressBars = new BindingListWithRemoving<SubProgress>();
-        private BindingListWithRemoving<IProgressReport> ProgressReports;
+        private bool Windows7OrAbove;
+        private volatile bool IsActive;
+        private volatile bool IsFinished;
+        private volatile bool WasCanceled;
+        private static readonly Tuple<byte, byte, byte> _errorColour;
+
+        private readonly BindingListWithRemoving<SubProgress> SubProgressBars =
+            new BindingListWithRemoving<SubProgress>();
+
+        private BindingListWithRemoving<IProgressReport> _progressReports;
 
         private struct SubProgress
         {
@@ -62,28 +60,28 @@ namespace XTMF.Gui.UserControls
         }
 
         /// <summary>
-        /// Requires Windows 7
+        ///     Requires Windows 7
         /// </summary>
         private TaskbarItemInfo TaskbarInformation;
 
         static RunWindow()
         {
-            var errorColour = (Color)Application.Current.FindResource("WarningRed");
-            ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
+            var errorColour = (Color) Application.Current.FindResource("WarningRed");
+            _errorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
         }
 
         public sealed class ConsoleOutputController : INotifyPropertyChanged, IDisposable
         {
             public string ConsoleOutput { get; set; }
 
-            MemoryStream memoryStream = new MemoryStream();
-            StreamWriter Writer;
+            private MemoryStream memoryStream = new MemoryStream();
+            private StreamWriter Writer;
             internal volatile bool Done = false;
 
             public ConsoleOutputController(RunWindow page)
             {
                 var previousConsole = Console.Out;
-                Writer = new StreamWriter(memoryStream, System.Text.Encoding.Unicode);
+                Writer = new StreamWriter(memoryStream, Encoding.Unicode);
                 page.OldCaret = 0;
                 Console.SetOut(Writer);
                 new Task(() =>
@@ -91,7 +89,7 @@ namespace XTMF.Gui.UserControls
                     try
                     {
                         var lastPosition = 0L;
-                        StreamReader reader = new StreamReader(memoryStream, System.Text.Encoding.Unicode);
+                        var reader = new StreamReader(memoryStream, Encoding.Unicode);
                         while (true)
                         {
                             Thread.Sleep(60);
@@ -101,14 +99,11 @@ namespace XTMF.Gui.UserControls
                             {
                                 var buff = new char[(currentPosition - lastPosition) / sizeof(char)];
                                 memoryStream.Position = lastPosition;
-                                int length = reader.ReadBlock(buff, 0, buff.Length);
+                                var length = reader.ReadBlock(buff, 0, buff.Length);
                                 lastPosition = currentPosition;
                                 if (length > 0)
                                 {
-                                    page.Dispatcher.Invoke(new Action(() =>
-                                    {
-                                        page.OldCaret = page.ConsoleOutput.CaretIndex;
-                                    }));
+                                    page.Dispatcher.Invoke(() => { page.OldCaret = page.ConsoleOutput.CaretIndex; });
                                     ConsoleOutput = ConsoleOutput + new string(buff, 0, length);
                                     var e = PropertyChanged;
                                     if (e != null)
@@ -117,7 +112,7 @@ namespace XTMF.Gui.UserControls
                                     }
                                 }
                             }
-                            if (this.Done)
+                            if (Done)
                             {
                                 Writer.Dispose();
                                 Writer = null;
@@ -136,35 +131,36 @@ namespace XTMF.Gui.UserControls
 
             public void Dispose()
             {
-                if (this.Writer != null)
+                if (Writer != null)
                 {
-                    this.Writer.Dispose();
-                    this.Writer = null;
+                    Writer.Dispose();
+                    Writer = null;
                 }
-                if (this.memoryStream != null)
+                if (memoryStream != null)
                 {
-                    this.memoryStream.Dispose();
-                    this.memoryStream = null;
+                    memoryStream.Dispose();
+                    memoryStream = null;
                 }
-                this.ConsoleOutput = null;
+                ConsoleOutput = null;
             }
         }
 
-        int ConsoleLength = 0;
-        int OldCaret = 0;
+        private int ConsoleLength;
+        private int OldCaret;
+
         private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var newTextLength = this.ConsoleOutput.Text.Length;
-            if (this.OldCaret >= this.ConsoleLength)
+            var newTextLength = ConsoleOutput.Text.Length;
+            if (OldCaret >= ConsoleLength)
             {
-                this.ConsoleScrollViewer.ScrollToEnd();
-                this.ConsoleOutput.CaretIndex = newTextLength;
+                ConsoleScrollViewer.ScrollToEnd();
+                ConsoleOutput.CaretIndex = newTextLength;
             }
             else
             {
-                this.ConsoleOutput.CaretIndex = this.OldCaret;
+                ConsoleOutput.CaretIndex = OldCaret;
             }
-            this.ConsoleLength = newTextLength;
+            ConsoleLength = newTextLength;
         }
 
         private static Window GetWindow(DependencyObject current)
@@ -186,23 +182,23 @@ namespace XTMF.Gui.UserControls
 
         private bool ValidateName(string arg)
         {
-            return !String.IsNullOrEmpty(arg) &&
-                !System.IO.Path.GetInvalidFileNameChars().Any(c => arg.Contains(c));
+            return !string.IsNullOrEmpty(arg) &&
+                   !Path.GetInvalidFileNameChars().Any(c => arg.Contains(c));
         }
 
         private void StartRun(XTMFRun run, string runName)
         {
             Run = run;
             Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    MainWindow.Us.SetWindowName(this, "Run - " + runName);
-                    RunNameLabel.Text = runName;
-                }));
-            ProgressReports = Run.Configuration.ProgressReports;
-            ProgressReports.ListChanged += new ListChangedEventHandler(ProgressReports_ListChanged);
-            ProgressReports.BeforeRemove += new EventHandler<ListChangedEventArgs>(ProgressReports_BeforeRemove);
-            SubProgressBars.ListChanged += new ListChangedEventHandler(SubProgressBars_ListChanged);
-            SubProgressBars.BeforeRemove += new EventHandler<ListChangedEventArgs>(SubProgressBars_BeforeRemove);
+            {
+                MainWindow.Us.SetWindowName(this, "Run - " + runName);
+                RunNameLabel.Text = runName;
+            }));
+            _progressReports = Run.Configuration.ProgressReports;
+            _progressReports.ListChanged += ProgressReports_ListChanged;
+            _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
+            SubProgressBars.ListChanged += SubProgressBars_ListChanged;
+            SubProgressBars.BeforeRemove += SubProgressBars_BeforeRemove;
             Run.RunComplete += Run_RunComplete;
             Run.RunStarted += Run_RunStarted;
             Run.RuntimeError += Run_RuntimeError;
@@ -212,11 +208,11 @@ namespace XTMF.Gui.UserControls
             RunDirectory = Run.RunDirectory;
             Timer = new DispatcherTimer();
             Timer.Interval = TimeSpan.FromMilliseconds(1000 / 30);
-            Timer.Tick += new EventHandler(Timer_Tick);
+            Timer.Tick += Timer_Tick;
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 var major = Environment.OSVersion.Version.Major;
-                if (major > 6 || (major >= 6 && Environment.OSVersion.Version.Minor >= 1))
+                if (major > 6 || major >= 6 && Environment.OSVersion.Version.Minor >= 1)
                 {
                     Windows7OrAbove = true;
                     MainWindow.Us.TaskbarItemInfo = TaskbarInformation = new TaskbarItemInfo();
@@ -224,8 +220,8 @@ namespace XTMF.Gui.UserControls
                     TaskbarInformation.ProgressValue = 0;
                 }
             }
-            this.ConsoleOutput.DataContext = new ConsoleOutputController(this);
-            this.ConsoleBorder.DataContext = this.ConsoleOutput.DataContext;
+            ConsoleOutput.DataContext = new ConsoleOutputController(this);
+            ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             StartRunAsync();
             Timer.Start();
         }
@@ -240,13 +236,14 @@ namespace XTMF.Gui.UserControls
                     {
                         if (Run != null)
                         {
-                            if (!(IsFinished))
+                            if (!IsFinished)
                             {
                                 float progress = 1;
-                                Tuple<byte, byte, byte> colour = ErrorColour;
+                                var colour = _errorColour;
                                 try
                                 {
-                                    var status = Run.PollStatusMessage(); ;
+                                    var status = Run.PollStatusMessage();
+                                    ;
                                     if (status != null)
                                     {
                                         StatusLabel.Text = status;
@@ -255,11 +252,18 @@ namespace XTMF.Gui.UserControls
                                     colour = Run.PollColour();
                                 }
                                 catch
-                                { }
+                                {
+                                }
                                 progress = progress * 10000;
 
-                                if (progress > 10000) progress = 10000;
-                                if (progress < 0) progress = 0;
+                                if (progress > 10000)
+                                {
+                                    progress = 10000;
+                                }
+                                if (progress < 0)
+                                {
+                                    progress = 0;
+                                }
                                 if (colour != null)
                                 {
                                     ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
@@ -268,24 +272,30 @@ namespace XTMF.Gui.UserControls
                                 if (Windows7OrAbove)
                                 {
                                     TaskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
-                                    TaskbarInformation.ProgressValue = ((progress / 10000));
+                                    TaskbarInformation.ProgressValue = progress / 10000;
                                 }
-                                for (int i = 0; i < SubProgressBars.Count; i++)
+                                for (var i = 0; i < SubProgressBars.Count; i++)
                                 {
                                     try
                                     {
-                                        progress = ProgressReports[i].GetProgress();
+                                        progress = _progressReports[i].GetProgress();
                                         progress = progress * 10000;
-                                        if (progress > 10000) progress = 10000;
-                                        if (progress < 0) progress = 0;
+                                        if (progress > 10000)
+                                        {
+                                            progress = 10000;
+                                        }
+                                        if (progress < 0)
+                                        {
+                                            progress = 0;
+                                        }
                                         SubProgressBars[i].ProgressBar.Value = progress;
                                     }
                                     catch
                                     {
                                     }
                                 }
-                                var elapsedTime = (DateTime.Now - StartTime);
-                                int days = elapsedTime.Days;
+                                var elapsedTime = DateTime.Now - _startTime;
+                                var days = elapsedTime.Days;
                                 elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
                                 if (days < 1)
                                 {
@@ -293,7 +303,8 @@ namespace XTMF.Gui.UserControls
                                 }
                                 else
                                 {
-                                    ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}", elapsedTime, days);
+                                    ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}",
+                                        elapsedTime, days);
                                 }
                             }
                         }
@@ -311,21 +322,25 @@ namespace XTMF.Gui.UserControls
 
         private void Run_ValidationError(string obj)
         {
-            Dispatcher.Invoke(new Action(() =>
+            Dispatcher.Invoke(() =>
             {
                 SetRunFinished();
                 ShowErrorMessage("Validation Error", obj);
-            }));
+            });
         }
 
         private void ShowErrorMessage(string header, string message)
         {
-            (new ErrorWindow() { Owner = GetWindow(this), ErrorMessage = String.IsNullOrWhiteSpace(header) ? message : header + "\r\n" + message }).ShowDialog();
+            new ErrorWindow
+            {
+                Owner = GetWindow(this),
+                ErrorMessage = string.IsNullOrWhiteSpace(header) ? message : header + "\r\n" + message
+            }.ShowDialog();
         }
 
         private void ShowErrorMessage(string v, string message, string stackTrace)
         {
-            (new ErrorWindow() { Owner = GetWindow(this), ErrorMessage = message, ErrorStackTrace = stackTrace }).ShowDialog();
+            new ErrorWindow {Owner = GetWindow(this), ErrorMessage = message, ErrorStackTrace = stackTrace}.ShowDialog();
         }
 
         private void Run_ValidationStarting()
@@ -334,33 +349,32 @@ namespace XTMF.Gui.UserControls
 
         private void Run_RuntimeValidationError(string errorMessage)
         {
-            Dispatcher.Invoke(new Action(() =>
+            Dispatcher.Invoke(() =>
             {
                 SetRunFinished();
-                ShowErrorMessage(String.Empty, errorMessage);
-            }));
+                ShowErrorMessage(string.Empty, errorMessage);
+            });
         }
 
         private void Run_RuntimeError(string message, string stackTrace)
         {
-            Dispatcher.Invoke(new Action(() =>
+            Dispatcher.Invoke(() =>
             {
                 SetRunFinished();
                 ShowErrorMessage("Runtime Error", message, stackTrace);
-            }));
-
+            });
         }
 
         private void SetRunFinished()
         {
-            TaskbarInformation.ProgressState = WasCanceled ? TaskbarItemProgressState.Error : TaskbarItemProgressState.Indeterminate;
+            TaskbarInformation.ProgressState = WasCanceled
+                ? TaskbarItemProgressState.Error
+                : TaskbarItemProgressState.Indeterminate;
             Task.Run(async () =>
             {
                 await Task.Delay(3000);
-                await Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    TaskbarInformation.ProgressState = TaskbarItemProgressState.None;
-                }));
+                await Dispatcher.BeginInvoke(
+                    new Action(() => { TaskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
             });
             IsFinished = true;
             ContinueButton.IsEnabled = true;
@@ -387,25 +401,21 @@ namespace XTMF.Gui.UserControls
         {
             try
             {
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    SetRunFinished();
-                }));
+                Dispatcher.Invoke(() => { SetRunFinished(); });
             }
             catch
             {
-
             }
         }
 
 
         /// <summary>
-        /// Starts the run asynchronously
+        ///     Starts the run asynchronously
         /// </summary>
         private void StartRunAsync()
         {
-            StartTime = DateTime.Now;
-            StartTimeLabel.Content = string.Format("Start Time: {0:g}", StartTime);
+            _startTime = DateTime.Now;
+            StartTimeLabel.Content = string.Format("Start Time: {0:g}", _startTime);
             Run.Start();
         }
 
@@ -418,9 +428,9 @@ namespace XTMF.Gui.UserControls
 
         private void OpenDirectoryButton_Clicked(object obj)
         {
-            if (System.IO.Directory.Exists(RunDirectory))
+            if (Directory.Exists(RunDirectory))
             {
-                System.Diagnostics.Process.Start(RunDirectory);
+                Process.Start(RunDirectory);
             }
             else
             {
@@ -432,7 +442,7 @@ namespace XTMF.Gui.UserControls
         {
             //Are you sure?
             if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
-                MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                    MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
                 WasCanceled = Run.ExitRequest();
             }
@@ -445,46 +455,47 @@ namespace XTMF.Gui.UserControls
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)
         {
-            this.SubProgressBars.RemoveAt(e.NewIndex);
+            SubProgressBars.RemoveAt(e.NewIndex);
         }
 
         private void ProgressReports_ListChanged(object sender, ListChangedEventArgs e)
         {
             if (e.ListChangedType == ListChangedType.ItemAdded)
             {
-                var toAdd = this.ProgressReports[e.NewIndex];
-                this.Dispatcher.Invoke(new Action(delegate ()
+                var toAdd = _progressReports[e.NewIndex];
+                Dispatcher.Invoke(delegate
                 {
-                    this.AdditionDetailsPanelBorder.Visibility = System.Windows.Visibility.Visible;
-                    this.AdditionDetailsPanelBorder.Height = double.NaN;
-                    var progressBar = new TMGProgressBar()
+                    AdditionDetailsPanelBorder.Visibility = Visibility.Visible;
+                    AdditionDetailsPanelBorder.Height = double.NaN;
+                    var progressBar = new TMGProgressBar
                     {
-                        Background = new SolidColorBrush(Color.FromArgb((byte)0x22, (byte)0x22, (byte)0x22, (byte)0x22)),
+                        Background = new SolidColorBrush(Color.FromArgb(0x22, 0x22, 0x22, 0x22)),
                         Maximum = 10000,
                         Minimum = 0,
-                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
                         Height = 15
                     };
                     if (toAdd.Colour != null)
                     {
-                        progressBar.SetForgroundColor(Color.FromRgb(toAdd.Colour.Item1, toAdd.Colour.Item2, toAdd.Colour.Item3));
+                        progressBar.SetForgroundColor(Color.FromRgb(toAdd.Colour.Item1, toAdd.Colour.Item2,
+                            toAdd.Colour.Item3));
                     }
-                    this.SubProgressBars.Add(new SubProgress()
+                    SubProgressBars.Add(new SubProgress
                     {
-                        Name = new Label() { Content = toAdd.Name, Foreground = Brushes.White },
+                        Name = new Label {Content = toAdd.Name, Foreground = Brushes.White},
                         ProgressBar = progressBar
                     });
-                }));
+                });
             }
             else if (e.ListChangedType == ListChangedType.ItemDeleted)
             {
-                if (this.ProgressReports.Count == 0)
+                if (_progressReports.Count == 0)
                 {
-                    this.Dispatcher.Invoke(new Action(delegate ()
+                    Dispatcher.Invoke(delegate
                     {
-                        this.AdditionDetailsPanelBorder.Visibility = System.Windows.Visibility.Collapsed;
-                        this.AdditionDetailsPanelBorder.Height = 0;
-                    }));
+                        AdditionDetailsPanelBorder.Visibility = Visibility.Collapsed;
+                        AdditionDetailsPanelBorder.Height = 0;
+                    });
                 }
             }
         }
@@ -497,12 +508,12 @@ namespace XTMF.Gui.UserControls
         {
             lock (this)
             {
-                this.Dispatcher.Invoke(new Action(delegate ()
+                Dispatcher.Invoke(delegate
                 {
-                    var toRemove = this.SubProgressBars[e.NewIndex];
-                    this.AdditionDetailsPanel.Remove(toRemove.Name);
-                    this.AdditionDetailsPanel.Remove(toRemove.ProgressBar);
-                }));
+                    var toRemove = SubProgressBars[e.NewIndex];
+                    AdditionDetailsPanel.Remove(toRemove.Name);
+                    AdditionDetailsPanel.Remove(toRemove.ProgressBar);
+                });
             }
         }
 
@@ -510,9 +521,9 @@ namespace XTMF.Gui.UserControls
         {
             if (e.ListChangedType == ListChangedType.ItemAdded)
             {
-                var toAdd = this.SubProgressBars[e.NewIndex];
-                this.AdditionDetailsPanel.Add(toAdd.Name);
-                this.AdditionDetailsPanel.Add(toAdd.ProgressBar);
+                var toAdd = SubProgressBars[e.NewIndex];
+                AdditionDetailsPanel.Add(toAdd.Name);
+                AdditionDetailsPanel.Add(toAdd.ProgressBar);
             }
         }
 
@@ -522,19 +533,15 @@ namespace XTMF.Gui.UserControls
             {
                 return true;
             }
-            this.Dispatcher.Invoke(() =>
-            {
-                MainWindow.ShowPageContaining(this);
-            });
+            Dispatcher.Invoke(() => { MainWindow.ShowPageContaining(this); });
             //Are you sure?
             var window = GetWindow(this);
-            if (window == null ?
-                (MessageBox.Show("Are you sure you want to cancel this run?", "Cancel run?",
-                MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
-                   :
-                (MessageBox.Show(window, "Are you sure you want to cancel this run?", "Cancel run?",
-                   MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes))
-               {
+            if (window == null
+                ? MessageBox.Show("Are you sure you want to cancel this run?", "Cancel run?",
+                      MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes
+                : MessageBox.Show(window, "Are you sure you want to cancel this run?", "Cancel run?",
+                      MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+            {
                 lock (this)
                 {
                     WasCanceled = true;
