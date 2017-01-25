@@ -39,10 +39,10 @@ namespace XTMF.Gui.UserControls
     /// </summary>
     public partial class ModuleTypeSelect : Window
     {
-        private ModelSystemStructureModel SelectedModule;
-        private ModelSystemEditingSession ModelSystemSession;
+        private ModelSystemStructureModel _selectedModule;
+        private ModelSystemEditingSession _modelSystemSession;
 
-        public class Model : INotifyPropertyChanged
+        private class Model : INotifyPropertyChanged
         {
             internal Type type;
 
@@ -51,9 +51,9 @@ namespace XTMF.Gui.UserControls
                 this.type = type;
             }
 
-            public string Name { get { return type.Name; } }
+            public string Name => type.Name;
 
-            public string Text { get { return type.FullName; } }
+            public string Text => type.FullName;
 
             public event PropertyChangedEventHandler PropertyChanged;
         }
@@ -74,8 +74,8 @@ namespace XTMF.Gui.UserControls
         public ModuleTypeSelect(ModelSystemEditingSession session, ModelSystemStructureModel selectedModule)
             : this()
         {
-            ModelSystemSession = session;
-            SelectedModule = selectedModule;
+            _modelSystemSession = session;
+            _selectedModule = selectedModule;
             BuildRequirements(session);
             FilterBox.Filter = CheckAgainstFilter;
             FilterBox.Display = Display;
@@ -96,7 +96,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private List<Model> AvailableModules;
+        private List<Model> _availableModules;
 
         public Type SelectedType { get; private set; }
 
@@ -105,8 +105,8 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private void BuildRequirements(ModelSystemEditingSession session)
         {
-            List<Type> available = session.GetValidModules(SelectedModule);
-            Display.ItemsSource = AvailableModules = Convert(available);
+            List<Type> available = session.GetValidModules(_selectedModule);
+            Display.ItemsSource = _availableModules = Convert(available);
         }
 
         private List<Model> Convert(List<Type> before)
@@ -165,7 +165,7 @@ namespace XTMF.Gui.UserControls
                     List<Type> selectedForFreeVariables = new List<Type>();
                     foreach (var variable in GetFreeVariables(SelectedType))
                     {
-                        var dialog = new FreeVariableEntry(variable, ModelSystemSession) { Owner = this };
+                        var dialog = new FreeVariableEntry(variable, _modelSystemSession) { Owner = this };
                         if (dialog.ShowDialog() != true)
                         {
                             return;

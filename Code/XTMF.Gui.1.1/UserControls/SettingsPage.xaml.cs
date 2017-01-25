@@ -40,11 +40,11 @@ namespace XTMF.Gui.UserControls
     public partial class SettingsPage : UserControl
     {
 
-        private IConfiguration Configuration;
+        private readonly IConfiguration _configuration;
 
         public SettingsPage(Configuration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
             DataContext = new SettingsModel(configuration);
             InitializeComponent();
             Loaded += SettingsPage_Loaded;
@@ -85,21 +85,21 @@ namespace XTMF.Gui.UserControls
         {
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private string _ProjectDirectory;
+            private string _projectDirectory;
             public string ProjectDirectory
             {
                 get
                 {
-                    return _ProjectDirectory;
+                    return _projectDirectory;
                 }
                 set
                 {
-                    if (_ProjectDirectory != value)
+                    if (_projectDirectory != value)
                     {
                         string error = null;
                         if (Configuration.SetProjectDirectory(value, ref error))
                         {
-                            _ProjectDirectory = value;
+                            _projectDirectory = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ProjectDirectory");
                             Configuration.Save();
                         }
@@ -111,21 +111,21 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
-            private string _ModelSystemDirectory;
+            private string _modelSystemDirectory;
             public string ModelSystemDirectory
             {
                 get
                 {
-                    return _ModelSystemDirectory;
+                    return _modelSystemDirectory;
                 }
                 set
                 {
-                    if (_ModelSystemDirectory != value)
+                    if (_modelSystemDirectory != value)
                     {
                         string error = null;
                         if (Configuration.SetModelSystemDirectory(value, ref error))
                         {
-                            _ModelSystemDirectory = value;
+                            _modelSystemDirectory = value;
                             Configuration.ModelSystemDirectory = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ModelSystemDirectory");
                             Configuration.Save();
@@ -138,33 +138,33 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
-            private int _HostPort;
+            private int _hostPort;
             public int HostPort
             {
                 get
                 {
-                    return _HostPort;
+                    return _hostPort;
                 }
                 set
                 {
-                    if (_HostPort != value)
+                    if (_hostPort != value)
                     {
-                        _HostPort = value;
-                        Configuration.HostPort = _HostPort;
+                        _hostPort = value;
+                        Configuration.HostPort = _hostPort;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "HostPort");
                         Configuration.Save();
                     }
                 }
             }
 
-            private Configuration Configuration;
+            private readonly Configuration Configuration;
 
             public SettingsModel(Configuration config)
             {
                 Configuration = config;
-                _ProjectDirectory = config.ProjectDirectory;
-                _ModelSystemDirectory = config.ModelSystemDirectory;
-                _HostPort = config.HostPort;
+                _projectDirectory = config.ProjectDirectory;
+                _modelSystemDirectory = config.ModelSystemDirectory;
+                _hostPort = config.HostPort;
                 Configuration.PropertyChanged += Configuration_PropertyChanged;
             }
 
@@ -211,7 +211,7 @@ namespace XTMF.Gui.UserControls
             {
                 ((SettingsModel)DataContext).ModelSystemDirectory = dir;
 
-                Configuration.Save();
+                _configuration.Save();
                 MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
 
                 if (result == MessageBoxResult.Yes)
@@ -236,7 +236,7 @@ namespace XTMF.Gui.UserControls
             {
                 ((SettingsModel)DataContext).ProjectDirectory = dir;
 
-                Configuration.Save();
+                _configuration.Save();
 
                 MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
 
@@ -280,7 +280,10 @@ namespace XTMF.Gui.UserControls
         {
 
             var result = MessageBox.Show(MainWindow.Us,
-                "Are you sure you wish to delete the local configuration?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                "Are you sure you wish to delete the local configuration?", 
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Information);
 
             if (result == MessageBoxResult.Yes)
             {

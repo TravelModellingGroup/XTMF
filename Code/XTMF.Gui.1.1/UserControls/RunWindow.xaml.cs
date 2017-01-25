@@ -21,7 +21,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,19 +35,19 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for RunWindow.xaml
     /// </summary>
-    public partial class RunWindow : UserControl
+    public partial class RunWindow
     {
-        private XTMFRun Run;
-        private string RunDirectory;
+        private XTMFRun _run;
+        private string _runDirectory;
         private DateTime _startTime;
-        private DispatcherTimer Timer;
-        private bool Windows7OrAbove;
-        private volatile bool IsActive;
-        private volatile bool IsFinished;
-        private volatile bool WasCanceled;
-        private static readonly Tuple<byte, byte, byte> _errorColour;
+        private DispatcherTimer _timer;
+        private bool _windows7OrAbove;
+        private volatile bool _isActive;
+        private volatile bool _isFinished;
+        private volatile bool _wasCanceled;
+        private static readonly Tuple<byte, byte, byte> ErrorColour;
 
-        private readonly BindingListWithRemoving<SubProgress> SubProgressBars =
+        private readonly BindingListWithRemoving<SubProgress> _subProgressBars =
             new BindingListWithRemoving<SubProgress>();
 
         private BindingListWithRemoving<IProgressReport> _progressReports;
@@ -62,60 +61,61 @@ namespace XTMF.Gui.UserControls
         /// <summary>
         ///     Requires Windows 7
         /// </summary>
-        private TaskbarItemInfo TaskbarInformation;
+        private TaskbarItemInfo _taskbarInformation;
 
         static RunWindow()
         {
-            var errorColour = (Color) Application.Current.FindResource("WarningRed");
-            _errorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
+            var findResource = Application.Current.FindResource("WarningRed");
+            if (findResource != null)
+            {
+                var errorColour = (Color) findResource;
+                ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
+            }
         }
 
         public sealed class ConsoleOutputController : INotifyPropertyChanged, IDisposable
         {
             public string ConsoleOutput { get; set; }
 
-            private MemoryStream memoryStream = new MemoryStream();
-            private StreamWriter Writer;
+            private MemoryStream _memoryStream = new MemoryStream();
+            private StreamWriter _writer;
             internal volatile bool Done = false;
 
             public ConsoleOutputController(RunWindow page)
             {
                 var previousConsole = Console.Out;
-                Writer = new StreamWriter(memoryStream, Encoding.Unicode);
-                page.OldCaret = 0;
-                Console.SetOut(Writer);
+                _writer = new StreamWriter(_memoryStream, Encoding.Unicode);
+                page._oldCaret = 0;
+                Console.SetOut(_writer);
                 new Task(() =>
                 {
                     try
                     {
                         var lastPosition = 0L;
-                        var reader = new StreamReader(memoryStream, Encoding.Unicode);
+                        var reader = new StreamReader(_memoryStream, Encoding.Unicode);
                         while (true)
                         {
                             Thread.Sleep(60);
-                            Writer.Flush();
-                            var currentPosition = Writer.BaseStream.Position;
+                            _writer.Flush();
+                            var currentPosition = _writer.BaseStream.Position;
                             if (currentPosition > lastPosition)
                             {
                                 var buff = new char[(currentPosition - lastPosition) / sizeof(char)];
-                                memoryStream.Position = lastPosition;
+                                _memoryStream.Position = lastPosition;
                                 var length = reader.ReadBlock(buff, 0, buff.Length);
                                 lastPosition = currentPosition;
                                 if (length > 0)
                                 {
-                                    page.Dispatcher.Invoke(() => { page.OldCaret = page.ConsoleOutput.CaretIndex; });
+                                    page.Dispatcher.Invoke(() => { page._oldCaret = page.ConsoleOutput.CaretIndex; });
                                     ConsoleOutput = ConsoleOutput + new string(buff, 0, length);
                                     var e = PropertyChanged;
-                                    if (e != null)
-                                    {
-                                        e(this, new PropertyChangedEventArgs("ConsoleOutput"));
-                                    }
+                                    e?.Invoke(this, new PropertyChangedEventArgs("ConsoleOutput"));
                                 }
                             }
                             if (Done)
                             {
-                                Writer.Dispose();
-                                Writer = null;
+                                _writer.Dispose();
+                                _writer = null;
                                 return;
                             }
                         }
@@ -131,36 +131,36 @@ namespace XTMF.Gui.UserControls
 
             public void Dispose()
             {
-                if (Writer != null)
+                if (_writer != null)
                 {
-                    Writer.Dispose();
-                    Writer = null;
+                    _writer.Dispose();
+                    _writer = null;
                 }
-                if (memoryStream != null)
+                if (_memoryStream != null)
                 {
-                    memoryStream.Dispose();
-                    memoryStream = null;
+                    _memoryStream.Dispose();
+                    _memoryStream = null;
                 }
                 ConsoleOutput = null;
             }
         }
 
-        private int ConsoleLength;
-        private int OldCaret;
+        private int _consoleLength;
+        private int _oldCaret;
 
         private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
         {
             var newTextLength = ConsoleOutput.Text.Length;
-            if (OldCaret >= ConsoleLength)
+            if (_oldCaret >= _consoleLength)
             {
                 ConsoleScrollViewer.ScrollToEnd();
                 ConsoleOutput.CaretIndex = newTextLength;
             }
             else
             {
-                ConsoleOutput.CaretIndex = OldCaret;
+                ConsoleOutput.CaretIndex = _oldCaret;
             }
-            ConsoleLength = newTextLength;
+            _consoleLength = newTextLength;
         }
 
         private static Window GetWindow(DependencyObject current)
@@ -180,50 +180,43 @@ namespace XTMF.Gui.UserControls
             StartRun(run, runName);
         }
 
-        private bool ValidateName(string arg)
-        {
-            return !string.IsNullOrEmpty(arg) &&
-                   !Path.GetInvalidFileNameChars().Any(c => arg.Contains(c));
-        }
-
         private void StartRun(XTMFRun run, string runName)
         {
-            Run = run;
+            _run = run;
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 MainWindow.Us.SetWindowName(this, "Run - " + runName);
                 RunNameLabel.Text = runName;
             }));
-            _progressReports = Run.Configuration.ProgressReports;
+            _progressReports = _run.Configuration.ProgressReports;
             _progressReports.ListChanged += ProgressReports_ListChanged;
             _progressReports.BeforeRemove += ProgressReports_BeforeRemove;
-            SubProgressBars.ListChanged += SubProgressBars_ListChanged;
-            SubProgressBars.BeforeRemove += SubProgressBars_BeforeRemove;
-            Run.RunComplete += Run_RunComplete;
-            Run.RunStarted += Run_RunStarted;
-            Run.RuntimeError += Run_RuntimeError;
-            Run.RuntimeValidationError += Run_RuntimeValidationError;
-            Run.ValidationStarting += Run_ValidationStarting;
-            Run.ValidationError += Run_ValidationError;
-            RunDirectory = Run.RunDirectory;
-            Timer = new DispatcherTimer();
-            Timer.Interval = TimeSpan.FromMilliseconds(1000 / 30);
-            Timer.Tick += Timer_Tick;
+            _subProgressBars.ListChanged += SubProgressBars_ListChanged;
+            _subProgressBars.BeforeRemove += SubProgressBars_BeforeRemove;
+            _run.RunComplete += Run_RunComplete;
+            _run.RunStarted += Run_RunStarted;
+            _run.RuntimeError += Run_RuntimeError;
+            _run.RuntimeValidationError += Run_RuntimeValidationError;
+            _run.ValidationStarting += Run_ValidationStarting;
+            _run.ValidationError += Run_ValidationError;
+            _runDirectory = _run.RunDirectory;
+            _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(value: 33)};
+            _timer.Tick += Timer_Tick;
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 var major = Environment.OSVersion.Version.Major;
                 if (major > 6 || major >= 6 && Environment.OSVersion.Version.Minor >= 1)
                 {
-                    Windows7OrAbove = true;
-                    MainWindow.Us.TaskbarItemInfo = TaskbarInformation = new TaskbarItemInfo();
-                    TaskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
-                    TaskbarInformation.ProgressValue = 0;
+                    _windows7OrAbove = true;
+                    MainWindow.Us.TaskbarItemInfo = _taskbarInformation = new TaskbarItemInfo();
+                    _taskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
+                    _taskbarInformation.ProgressValue = 0;
                 }
             }
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
             StartRunAsync();
-            Timer.Start();
+            _timer.Start();
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -232,30 +225,59 @@ namespace XTMF.Gui.UserControls
             {
                 lock (this)
                 {
-                    if (IsActive)
+                    if (!_isActive)
                     {
-                        if (Run != null)
+                        return;
+                    }
+                    if (_run != null)
+                    {
+                        if (_isFinished)
                         {
-                            if (!IsFinished)
+                            return;
+                        }
+                        float progress = 1;
+                        var colour = ErrorColour;
+                        try
+                        {
+                            var status = _run.PollStatusMessage();
+                            ;
+                            if (status != null)
                             {
-                                float progress = 1;
-                                var colour = _errorColour;
-                                try
-                                {
-                                    var status = Run.PollStatusMessage();
-                                    ;
-                                    if (status != null)
-                                    {
-                                        StatusLabel.Text = status;
-                                    }
-                                    progress = Run.PollProgress();
-                                    colour = Run.PollColour();
-                                }
-                                catch
-                                {
-                                }
-                                progress = progress * 10000;
+                                StatusLabel.Text = status;
+                            }
+                            progress = _run.PollProgress();
+                            colour = _run.PollColour();
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
+                        progress = progress * 10000;
 
+                        if (progress > 10000)
+                        {
+                            progress = 10000;
+                        }
+                        if (progress < 0)
+                        {
+                            progress = 0;
+                        }
+                        if (colour != null)
+                        {
+                            ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
+                        }
+                        ProgressBar.Value = progress;
+                        if (_windows7OrAbove)
+                        {
+                            _taskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
+                            _taskbarInformation.ProgressValue = progress / 10000;
+                        }
+                        for (var i = 0; i < _subProgressBars.Count; i++)
+                        {
+                            try
+                            {
+                                progress = _progressReports[i].GetProgress();
+                                progress = progress * 10000;
                                 if (progress > 10000)
                                 {
                                     progress = 10000;
@@ -264,59 +286,36 @@ namespace XTMF.Gui.UserControls
                                 {
                                     progress = 0;
                                 }
-                                if (colour != null)
-                                {
-                                    ProgressBar.SetForgroundColor(Color.FromRgb(colour.Item1, colour.Item2, colour.Item3));
-                                }
-                                ProgressBar.Value = progress;
-                                if (Windows7OrAbove)
-                                {
-                                    TaskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
-                                    TaskbarInformation.ProgressValue = progress / 10000;
-                                }
-                                for (var i = 0; i < SubProgressBars.Count; i++)
-                                {
-                                    try
-                                    {
-                                        progress = _progressReports[i].GetProgress();
-                                        progress = progress * 10000;
-                                        if (progress > 10000)
-                                        {
-                                            progress = 10000;
-                                        }
-                                        if (progress < 0)
-                                        {
-                                            progress = 0;
-                                        }
-                                        SubProgressBars[i].ProgressBar.Value = progress;
-                                    }
-                                    catch
-                                    {
-                                    }
-                                }
-                                var elapsedTime = DateTime.Now - _startTime;
-                                var days = elapsedTime.Days;
-                                elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
-                                if (days < 1)
-                                {
-                                    ElapsedTimeLabel.Content = string.Format("Elapsed Time: {0:g}", elapsedTime);
-                                }
-                                else
-                                {
-                                    ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}",
-                                        elapsedTime, days);
-                                }
+                                _subProgressBars[i].ProgressBar.Value = progress;
                             }
+                            catch
+                            {
+                                // ignored
+                            }
+                        }
+                        var elapsedTime = DateTime.Now - _startTime;
+                        var days = elapsedTime.Days;
+                        elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
+                        if (days < 1)
+                        {
+                                    
+                            ElapsedTimeLabel.Content = $"Elapsed Time: {elapsedTime:g}";
                         }
                         else
                         {
-                            ProgressBar.Value = IsFinished ? 10000 : 0;
+                            ElapsedTimeLabel.Content = string.Format("Elapsed Time: {1} Day(s), {0:g}",
+                                elapsedTime, days);
                         }
+                    }
+                    else
+                    {
+                        ProgressBar.Value = _isFinished ? 10000 : 0;
                     }
                 }
             }
             catch
             {
+                // ignored
             }
         }
 
@@ -343,7 +342,7 @@ namespace XTMF.Gui.UserControls
             new ErrorWindow {Owner = GetWindow(this), ErrorMessage = message, ErrorStackTrace = stackTrace}.ShowDialog();
         }
 
-        private void Run_ValidationStarting()
+        private static void Run_ValidationStarting()
         {
         }
 
@@ -367,26 +366,19 @@ namespace XTMF.Gui.UserControls
 
         private void SetRunFinished()
         {
-            TaskbarInformation.ProgressState = WasCanceled
+            _taskbarInformation.ProgressState = _wasCanceled
                 ? TaskbarItemProgressState.Error
                 : TaskbarItemProgressState.Indeterminate;
             Task.Run(async () =>
             {
                 await Task.Delay(3000);
                 await Dispatcher.BeginInvoke(
-                    new Action(() => { TaskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
+                    new Action(() => { _taskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
             });
-            IsFinished = true;
+            _isFinished = true;
             ContinueButton.IsEnabled = true;
             CancelButton.IsEnabled = false;
-            if (WasCanceled)
-            {
-                StatusLabel.Text = "Run Canceled";
-            }
-            else
-            {
-                StatusLabel.Text = "Run Complete";
-            }
+            StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
             ProgressBar.Finished = true;
             ContinueButton.FlashAnimation(5);
             OpenDirectoryButton.FlashAnimation(5);
@@ -394,17 +386,18 @@ namespace XTMF.Gui.UserControls
 
         private void Run_RunStarted()
         {
-            IsActive = true;
+            _isActive = true;
         }
 
         private void Run_RunComplete()
         {
             try
             {
-                Dispatcher.Invoke(() => { SetRunFinished(); });
+                Dispatcher.Invoke(SetRunFinished);
             }
             catch
             {
+                // ignored
             }
         }
 
@@ -415,8 +408,8 @@ namespace XTMF.Gui.UserControls
         private void StartRunAsync()
         {
             _startTime = DateTime.Now;
-            StartTimeLabel.Content = string.Format("Start Time: {0:g}", _startTime);
-            Run.Start();
+            StartTimeLabel.Content = $"Start Time: {_startTime:g}";
+            _run.Start();
         }
 
         private void Session_SessionClosed(object sender, EventArgs e)
@@ -428,13 +421,13 @@ namespace XTMF.Gui.UserControls
 
         private void OpenDirectoryButton_Clicked(object obj)
         {
-            if (Directory.Exists(RunDirectory))
+            if (Directory.Exists(_runDirectory))
             {
-                Process.Start(RunDirectory);
+                Process.Start(_runDirectory);
             }
             else
             {
-                MessageBox.Show(RunDirectory + " does not exist!");
+                MessageBox.Show(_runDirectory + " does not exist!");
             }
         }
 
@@ -444,7 +437,7 @@ namespace XTMF.Gui.UserControls
             if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
-                WasCanceled = Run.ExitRequest();
+                _wasCanceled = _run.ExitRequest();
             }
         }
 
@@ -455,7 +448,7 @@ namespace XTMF.Gui.UserControls
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)
         {
-            SubProgressBars.RemoveAt(e.NewIndex);
+            _subProgressBars.RemoveAt(e.NewIndex);
         }
 
         private void ProgressReports_ListChanged(object sender, ListChangedEventArgs e)
@@ -480,7 +473,7 @@ namespace XTMF.Gui.UserControls
                         progressBar.SetForgroundColor(Color.FromRgb(toAdd.Colour.Item1, toAdd.Colour.Item2,
                             toAdd.Colour.Item3));
                     }
-                    SubProgressBars.Add(new SubProgress
+                    _subProgressBars.Add(new SubProgress
                     {
                         Name = new Label {Content = toAdd.Name, Foreground = Brushes.White},
                         ProgressBar = progressBar
@@ -500,17 +493,13 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void SubProgressBars_AddingNew(object sender, AddingNewEventArgs e)
-        {
-        }
-
         private void SubProgressBars_BeforeRemove(object sender, ListChangedEventArgs e)
         {
             lock (this)
             {
                 Dispatcher.Invoke(delegate
                 {
-                    var toRemove = SubProgressBars[e.NewIndex];
+                    var toRemove = _subProgressBars[e.NewIndex];
                     AdditionDetailsPanel.Remove(toRemove.Name);
                     AdditionDetailsPanel.Remove(toRemove.ProgressBar);
                 });
@@ -521,7 +510,7 @@ namespace XTMF.Gui.UserControls
         {
             if (e.ListChangedType == ListChangedType.ItemAdded)
             {
-                var toAdd = SubProgressBars[e.NewIndex];
+                var toAdd = _subProgressBars[e.NewIndex];
                 AdditionDetailsPanel.Add(toAdd.Name);
                 AdditionDetailsPanel.Add(toAdd.ProgressBar);
             }
@@ -529,7 +518,7 @@ namespace XTMF.Gui.UserControls
 
         internal bool CloseRequested()
         {
-            if (IsFinished)
+            if (_isFinished)
             {
                 return true;
             }
@@ -544,10 +533,10 @@ namespace XTMF.Gui.UserControls
             {
                 lock (this)
                 {
-                    WasCanceled = true;
-                    IsActive = false;
-                    Timer.Stop();
-                    Run.TerminateRun();
+                    _wasCanceled = true;
+                    _isActive = false;
+                    _timer.Stop();
+                    _run.TerminateRun();
                     return true;
                 }
             }

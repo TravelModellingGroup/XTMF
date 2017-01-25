@@ -16,59 +16,48 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Windows;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for ErrorWindow.xaml
+    ///     Interaction logic for ErrorWindow.xaml
     /// </summary>
     public partial class ErrorWindow : Window
     {
-        public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register("ErrorMessage", typeof(string), typeof(ErrorWindow),
-        new FrameworkPropertyMetadata(OnErrorMessageChanged));
+        public static readonly DependencyProperty ErrorMessageProperty = DependencyProperty.Register("ErrorMessage",
+            typeof(string), typeof(ErrorWindow),
+            new FrameworkPropertyMetadata(OnErrorMessageChanged));
 
-        public static readonly DependencyProperty ErrorStackTraceProperty = DependencyProperty.Register("ErrorStackTrace", typeof(string), typeof(ErrorWindow),
+        public static readonly DependencyProperty ErrorStackTraceProperty =
+            DependencyProperty.Register("ErrorStackTrace", typeof(string), typeof(ErrorWindow),
                 new FrameworkPropertyMetadata(OnErrorStackTraceChanged));
 
         public ErrorWindow()
         {
-            this.DataContext = this;
+            DataContext = this;
             InitializeComponent();
         }
 
         public string ErrorMessage
         {
-            get
-            {
-                return this.GetValue(ErrorMessageProperty) as string;
-            }
+            get { return GetValue(ErrorMessageProperty) as string; }
 
-            set
-            {
-                this.SetValue(ErrorMessageProperty, value as string);
-            }
+            set { SetValue(ErrorMessageProperty, value); }
         }
 
         public string ErrorStackTrace
         {
-            get
-            {
-                return this.GetValue(ErrorStackTraceProperty) as string;
-            }
+            get { return GetValue(ErrorStackTraceProperty) as string; }
 
-            set
-            {
-                this.SetValue(ErrorStackTraceProperty, value as string);
-            }
+            set { SetValue(ErrorStackTraceProperty, value); }
         }
-
 
 
         public void Continue(object bob)
         {
-            this.Close();
+            Close();
         }
 
 

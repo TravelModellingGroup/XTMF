@@ -58,13 +58,13 @@ namespace XTMF.Gui
 
         private ImageSource _Icon;
 
-        private double BaseWidth;
+        private double _baseWidth;
 
-        private bool IsConstructing = true;
+        private bool _isConstructing = true;
 
-        private bool MouseDownInside = false;
+        private bool _mouseDownInside = false;
 
-        private Point MouseDownPoint;
+        private Point _mouseDownPoint;
 
         static BorderIconButton()
         {
@@ -101,8 +101,8 @@ namespace XTMF.Gui
             FocusColour = DefaultFocusColour;
             InitializeComponent();
             IsEnabledChanged += new DependencyPropertyChangedEventHandler(BorderIconButton_IsEnabledChanged);
-            BaseWidth = 200;
-            IsConstructing = false;
+            _baseWidth = 200;
+            _isConstructing = false;
             Loaded += BorderIconButton_Loaded;
             Unloaded += BorderIconButton_Unloaded;
         }
@@ -197,13 +197,13 @@ namespace XTMF.Gui
 
         public void DoContractAnimation()
         {
-            DoubleAnimation fadeInAnimation = new DoubleAnimation(BaseWidth, 0, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            DoubleAnimation fadeInAnimation = new DoubleAnimation(_baseWidth, 0, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
             BeginAnimation(WidthProperty, fadeInAnimation);
         }
 
         public void DoExpandAnimation()
         {
-            DoubleAnimation fadeInAnimation = new DoubleAnimation(0, BaseWidth, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+            DoubleAnimation fadeInAnimation = new DoubleAnimation(0, _baseWidth, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
             BeginAnimation(WidthProperty, fadeInAnimation);
         }
 
@@ -284,7 +284,7 @@ namespace XTMF.Gui
         {
             ColorAnimation fadeOutAnimation;
             if (!IsHitTestVisible) return;
-            MouseDownInside = false;
+            _mouseDownInside = false;
             BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
             if (IsFocused || Selected)
             {
@@ -302,10 +302,10 @@ namespace XTMF.Gui
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            if (!MouseDownInside)
+            if (!_mouseDownInside)
             {
-                MouseDownInside = true;
-                MouseDownPoint = e.GetPosition(this);
+                _mouseDownInside = true;
+                _mouseDownPoint = e.GetPosition(this);
             }
             BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
             BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
@@ -328,14 +328,14 @@ namespace XTMF.Gui
             {
                 if (e.ClickCount == 1)
                 {
-                    if (MouseDownInside && Clicked != null)
+                    if (_mouseDownInside && Clicked != null)
                     {
                         e.Handled = true;
                         Clicked(this);
                     }
                 }
             }
-            MouseDownInside = false;
+            _mouseDownInside = false;
             base.OnMouseLeftButtonUp(e);
         }
 
@@ -349,7 +349,7 @@ namespace XTMF.Gui
         {
             if (RightClicked != null)
             {
-                MouseDownInside = true;
+                _mouseDownInside = true;
                 BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                 BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
             }
@@ -371,12 +371,12 @@ namespace XTMF.Gui
                     {
                         BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
                     }
-                    if (MouseDownInside && RightClicked != null)
+                    if (_mouseDownInside && RightClicked != null)
                     {
                         RightClicked(this);
                         e.Handled = true;
                     }
-                    MouseDownInside = false;
+                    _mouseDownInside = false;
                 }
             }
             base.OnMouseRightButtonUp(e);
@@ -425,7 +425,7 @@ namespace XTMF.Gui
         {
             var us = source as BorderIconButton;
             var value = (Color)e.NewValue;
-            if (!us.IsConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
+            if (!us._isConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
             {
                 var brush = (us.BorderOutline.Background as SolidColorBrush);
                 if (brush != null)
@@ -453,7 +453,7 @@ namespace XTMF.Gui
         {
             var us = source as BorderIconButton;
             var value = (Color)e.NewValue;
-            if (!us.IsConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
+            if (!us._isConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
             {
                 var brush = (us.BorderOutline.Background as SolidColorBrush);
                 if (brush != null)
@@ -506,7 +506,7 @@ namespace XTMF.Gui
         {
             if (AllowDrag)
             {
-                if (MouseDownInside && e.LeftButton == MouseButtonState.Pressed)
+                if (_mouseDownInside && e.LeftButton == MouseButtonState.Pressed)
                 {
                     BorderOutline.BorderBrush = Brushes.Crimson;
                     var ret = DragDrop.DoDragDrop(this, new DataObject(this), DragDropEffects.Move);

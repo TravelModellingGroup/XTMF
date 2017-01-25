@@ -42,35 +42,35 @@ namespace XTMF.Gui.UserControls
 
         private class Model : INotifyPropertyChanged
         {
-            private string _CurrentName;
+            private string _currentName;
             public string CurrentName
             {
                 get
                 {
-                    return _CurrentName;
+                    return _currentName;
                 }
                 set
                 {
-                    if (_CurrentName != value)
+                    if (_currentName != value)
                     {
-                        _CurrentName = value;
+                        _currentName = value;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "CurrentName");
                     }
                 }
             }
 
-            private string _CurrentText;
+            private string _currentText;
             public string CurrentText
             {
                 get
                 {
-                    return _CurrentText;
+                    return _currentText;
                 }
                 set
                 {
-                    if (_CurrentText != value)
+                    if (_currentText != value)
                     {
-                        _CurrentText = value;
+                        _currentText = value;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "CurrentText");
                     }
                 }

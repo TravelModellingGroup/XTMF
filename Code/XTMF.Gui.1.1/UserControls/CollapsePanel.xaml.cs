@@ -28,9 +28,9 @@ namespace XTMF.Gui
     /// </summary>
     public partial class CollapsePanel : Expander
     {
-        private double _InternalHeight;
+        private double _internalHeight;
 
-        private bool Collapsing = false;
+        private bool _collapsing = false;
 
         public CollapsePanel()
         {
@@ -41,12 +41,12 @@ namespace XTMF.Gui
         {
             get
             {
-                return this._InternalHeight;
+                return this._internalHeight;
             }
 
             set
             {
-                this.InnerContentContainer.Height = this._InternalHeight = value;
+                this.InnerContentContainer.Height = this._internalHeight = value;
             }
         }
 
@@ -68,15 +68,15 @@ namespace XTMF.Gui
 
         protected override void OnCollapsed()
         {
-            if ( !this.Collapsing )
+            if ( !this._collapsing )
             {
-                this.Collapsing = true;
+                this._collapsing = true;
                 this.IsExpanded = true;
-                double startingHeight = this._InternalHeight;
-                DoubleAnimation hide = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
+                double startingHeight = this._internalHeight;
+                var hide = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
                 hide.Completed += new EventHandler( delegate(object o, EventArgs e)
                     {
-                        DoubleAnimation shrink = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
+                        var shrink = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
                         shrink.RemoveRequested += new EventHandler( AnimationStopped );
                         shrink.Completed += new EventHandler( AnimationStopped );
                         this.InnerContentContainer.BeginAnimation( ScrollViewer.HeightProperty, shrink );
@@ -88,10 +88,10 @@ namespace XTMF.Gui
 
         protected override void OnExpanded()
         {
-            if ( !this.Collapsing )
+            if ( !this._collapsing )
             {
                 this.InnerContentContainer.Opacity = 0;
-                DoubleAnimation expand = new DoubleAnimation( 0, this._InternalHeight, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
+                DoubleAnimation expand = new DoubleAnimation( 0, this._internalHeight, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
                 expand.Completed += new EventHandler( delegate(object o, EventArgs e)
                     {
                         DoubleAnimation show = new DoubleAnimation( 1, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
@@ -105,7 +105,7 @@ namespace XTMF.Gui
         private void AnimationStopped(object sending, EventArgs e)
         {
             this.IsExpanded = false;
-            this.Collapsing = false;
+            this._collapsing = false;
             this.InnerContentContainer.Opacity = 1;
             base.OnCollapsed();
         }

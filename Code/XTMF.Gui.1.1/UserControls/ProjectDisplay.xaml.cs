@@ -61,10 +61,7 @@ namespace XTMF.Gui.UserControls
                     get { return _root.Name; }
                 }
 
-                public string Description
-                {
-                    get { return _root.Description; }
-                }
+                public string Description => _root.Description;
 
                 public int RealIndex { get; }
 
@@ -179,7 +176,11 @@ namespace XTMF.Gui.UserControls
             {
                 if (ContainedModelSystems == null)
                 {
-                    ContainedModelSystems = new List<ContainedModelSystemModel>();
+                    if (ContainedModelSystems != null)
+                        lock (ContainedModelSystems)
+                        {
+                            ContainedModelSystems = new List<ContainedModelSystemModel>();
+                        }
                 }
                 else
                 {
@@ -410,15 +411,13 @@ namespace XTMF.Gui.UserControls
         private void DisplayButton_RightClicked(object obj)
         {
             var button = obj as BorderIconButton;
-            if (button != null)
+            var contextMenu = button?.ContextMenu;
+            if (contextMenu == null)
             {
-                var contextMenu = button.ContextMenu;
-                if (contextMenu != null)
-                {
-                    contextMenu.PlacementTarget = button;
-                    contextMenu.IsOpen = true;
-                }
+                return;
             }
+            contextMenu.PlacementTarget = button;
+            contextMenu.IsOpen = true;
         }
 
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -527,18 +526,18 @@ namespace XTMF.Gui.UserControls
                         }
                         string error = null;
                         var sr = new StringRequest("Save Model System As?",
-                            newName => { return Session.ValidateModelSystemName(newName); });
-                        sr.Owner = GetWindow();
-                        if (sr.ShowDialog() == true)
+                            newName => Session.ValidateModelSystemName(newName)) {Owner = GetWindow()};
+                        if (sr.ShowDialog() != true)
                         {
-                            if (!Session.AddModelSystem(realSession.ModelSystemModel, sr.Answer, ref error))
-                            {
-                                MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK,
-                                    MessageBoxImage.Error, MessageBoxResult.OK);
-                                return;
-                            }
-                            Model.RefreshModelSystems();
+                            return;
                         }
+                        if (!Session.AddModelSystem(realSession.ModelSystemModel, sr.Answer, ref error))
+                        {
+                            MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK,
+                                MessageBoxImage.Error, MessageBoxResult.OK);
+                            return;
+                        }
+                        Model.RefreshModelSystems();
                     }
                 }
             }

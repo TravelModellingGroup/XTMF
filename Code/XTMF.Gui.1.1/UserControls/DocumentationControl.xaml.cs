@@ -208,22 +208,10 @@ namespace XTMF.Gui.UserControls
             foreach(var f in fields)
             {
                 var attributes = f.GetCustomAttributes(true);
-                if(attributes != null)
+                submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule()
                 {
-                    foreach(var a in attributes)
-                    {
-                        var param = a as XTMF.SubModelInformation;
-                        if(param != null)
-                        {
-                            submodules.Add(new SubModule()
-                            {
-                                Name = f.Name,
-                                Description = param.Description,
-                                Type = ConvertTypeName(f.FieldType)
-                            });
-                        }
-                    }
-                }
+                    Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.FieldType)
+                }));
             }
             var properties = type.GetProperties();
             foreach(var f in properties)
@@ -231,19 +219,10 @@ namespace XTMF.Gui.UserControls
                 var attributes = f.GetCustomAttributes(true);
                 if(attributes != null)
                 {
-                    foreach(var a in attributes)
+                    submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule()
                     {
-                        var param = a as XTMF.SubModelInformation;
-                        if(param != null)
-                        {
-                            submodules.Add(new SubModule()
-                            {
-                                Name = f.Name,
-                                Description = param.Description,
-                                Type = ConvertTypeName(f.PropertyType)
-                            });
-                        }
-                    }
+                        Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.PropertyType)
+                    }));
                 }
             }
             return submodules.ToArray();
@@ -261,7 +240,7 @@ namespace XTMF.Gui.UserControls
                 builder.Append(type.Name, 0, type.Name.IndexOf('`'));
                 builder.Append('<');
                 var inside = type.GetGenericArguments();
-                bool first = true;
+                var first = true;
                 foreach(var t in inside)
                 {
                     if(!first)

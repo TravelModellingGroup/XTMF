@@ -40,7 +40,7 @@ namespace XTMF.Gui
     /// </summary>
     public partial class FilterBox : UserControl
     {
-        private ICollectionView ItemsSource;
+        private ICollectionView _itemsSource;
         public FilterBox()
         {
             UseItemSourceFilter = true;
@@ -63,7 +63,7 @@ namespace XTMF.Gui
         public bool UseItemSourceFilter { get; set; }
 
         private Action Refresh;
-        private Func<object, string, bool> _Filter;
+        private Func<object, string, bool> _filter;
 
         public event EventHandler EnterPressed;
 
@@ -72,46 +72,46 @@ namespace XTMF.Gui
         {
             get
             {
-                return _Filter;
+                return _filter;
             }
             set
             {
-                _Filter = value;
-                if (_Display != null && ItemsSource != null)
+                _filter = value;
+                if (_display != null && _itemsSource != null)
                 {
                     if (UseItemSourceFilter)
                     {
-                        if (!ItemsSource.CanFilter)
+                        if (!_itemsSource.CanFilter)
                         {
-                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.SourceCollection.GetType().FullName);
+                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " + _itemsSource.SourceCollection.GetType().FullName);
                         }
-                        ItemsSource.Filter = new Predicate<object>((o) => _Filter(o, CurrentBoxText));
+                        _itemsSource.Filter = new Predicate<object>((o) => _filter(o, _currentBoxText));
                     }
                 }
             }
         }
 
-        private ItemsControl _Display;
+        private ItemsControl _display;
         public ItemsControl Display
         {
             set
             {
-                _Display = value;
-                ItemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
-                if (_Filter != null)
+                _display = value;
+                _itemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
+                if (_filter != null)
                 {
-                    Filter = _Filter;
+                    Filter = _filter;
                 }
                 Refresh = () =>
                 {
                     if (UseItemSourceFilter)
                     {
-                        ItemsSource.Refresh();
+                        _itemsSource.Refresh();
                     }
                     else
                     {
-                        var items = ItemsSource.GetEnumerator();
-                        using (var differ = ItemsSource.DeferRefresh())
+                        var items = _itemsSource.GetEnumerator();
+                        using (var differ = _itemsSource.DeferRefresh())
                         {
                             while (items.MoveNext())
                             {
@@ -173,11 +173,11 @@ namespace XTMF.Gui
             ClearFilter();
         }
 
-        private string CurrentBoxText = String.Empty;
+        private string _currentBoxText = String.Empty;
 
         private void Box_TextChanged(object sender, TextChangedEventArgs e)
         {
-            CurrentBoxText = Box.Text;
+            _currentBoxText = Box.Text;
             RefreshFilter();
             ClearFilterButton.Visibility = !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
         }
