@@ -190,9 +190,12 @@ namespace XTMF.Gui.UserControls
                 {
                     var modelSystems = (from ms in _project.ModelSystemStructure
                         select new ContainedModelSystemModel(ms, _project)).OrderBy(x => x.Name);
-                    lock (ContainedModelSystems)
+                    if (ContainedModelSystems != null)
                     {
-                        ContainedModelSystems.AddRange(modelSystems);
+                        lock (ContainedModelSystems)
+                        {
+                            ContainedModelSystems.AddRange(modelSystems);
+                        }
                     }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "ContainedModelSystems");
                 });
