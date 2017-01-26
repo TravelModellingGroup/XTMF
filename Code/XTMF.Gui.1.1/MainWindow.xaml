@@ -27,6 +27,7 @@
         Title="XTMF Version 1.2" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}"
         ResizeMode="CanResizeWithGrip"
+        MouseDown="Window_MouseDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None" AllowsTransparency="True"
         >
     <Grid>
@@ -52,7 +53,7 @@
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
             <!-- The main menu -->
-            <Menu Grid.Row="0"  MouseDown="Window_MouseDown" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,0" Grid.ColumnSpan="2">
+            <Menu Grid.Row="0"  MouseDown="Window_MouseDown" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,0" Grid.ColumnSpan="1">
                 <MenuItem Header="_File">
                     <MenuItem.Background>
                         <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
