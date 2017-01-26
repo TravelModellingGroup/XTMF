@@ -53,6 +53,41 @@
                     </StackPanel>
                 </Border>
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                #333333
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Button Style="{StaticResource TransparentStyle}" Width="20" Click="Minimize_Click">
+                            <Border >
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        #333333
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Border Margin="5,5,5,-2" BorderBrush="#FFCCCCCC" BorderThickness="2" Height="2" />
+                            </Border>
+                        </Button>
+                    </Border>
+
                     <Border>
                         <Border.Style>
                             <Style TargetType="{x:Type Border}">

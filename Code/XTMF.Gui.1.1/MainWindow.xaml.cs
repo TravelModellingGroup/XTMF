@@ -1186,5 +1186,17 @@ namespace XTMF.Gui
         {
             this.Close();
         }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Minimized;
+            }
+            else
+            {
+                this.WindowState = WindowState.Minimized;
+            }
+        }
     }
 }
