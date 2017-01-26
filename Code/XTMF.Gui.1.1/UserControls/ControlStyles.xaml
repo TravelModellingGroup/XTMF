@@ -55,6 +55,17 @@
         <Setter Property="FontFamily" Value="Segoe UI" />
     </Style>
 
+    <Style x:Key="TransparentStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style x:Key="FlatButton" TargetType="{x:Type Button}">
 

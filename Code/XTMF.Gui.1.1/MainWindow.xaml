@@ -43,13 +43,27 @@
                     XTMF
                 </Label>
                 
-                <Border IsHitTestVisible="True" HorizontalAlignment="Right" Width="20" DockPanel.Dock="Right" Margin="0,5,5,0" PreviewMouseDown="UIElement_OnMouseLeftButtonDown">
+                <Border HorizontalAlignment="Right" Width="20" DockPanel.Dock="Right" Margin="0,5,5,0" PreviewMouseDown="UIElement_OnMouseLeftButtonDown">
+                    <Button Click="ButtonBase_OnClick" Style="{StaticResource TransparentStyle}" Background="{x:Null}" BorderBrush="{x:Null}">
                     <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
               Width="20"
               Height="20"
               Visibility="Visible"
               Margin="0,0,0,0"
               BorderThickness="0">
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background">
+                                    <Setter.Value>
+                                        #333333
+                                         </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <Border.BorderBrush>
                             <LinearGradientBrush StartPoint="0,0"
                                EndPoint="0,1">
@@ -78,7 +92,9 @@
                             </Path.Stroke>
                         </Path>
                     </Border>
+                    </Button>
                 </Border>
+                    
             </DockPanel>
         </Border>
         <Grid  Grid.Row="1" Background="{DynamicResource DarkGrayBackgroundBrush}" >
