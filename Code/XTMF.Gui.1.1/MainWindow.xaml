@@ -27,34 +27,32 @@
         Title="XTMF Version 1.2" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="Transparent"
         ResizeMode="CanResizeWithGrip"
-        
-        
-       
-         
+
+
         MouseDown="Window_MouseDown"
-        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None" AllowsTransparency="True"
-        >
-    <Grid Margin="6,6,6,4" Background="Transparent" >
+        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
+        AllowsTransparency="True">
+    <Grid Margin="6,6,6,4" Background="Transparent">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border Margin="0,0,0,0"  Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"  MouseDown="Window_MouseDown" >
+        <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"
+                MouseDown="Window_MouseDown">
             <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,5,0">
                 <Border DockPanel.Dock="Left">
                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
-                    <Rectangle Fill="#FF0764A4" Width="12">
-                        
-                    </Rectangle>
-                <Label Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
-                    
-                    Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0" Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="15" Background="{x:Null}">
-                    
-                </Label>
+                        <Rectangle Fill="#FF0764A4" Width="12" />
+                        <Label
+                            Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
+
+                            Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0"
+                            Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="15"
+                            Background="{x:Null}" />
                     </StackPanel>
                 </Border>
-                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right" >
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
                     <Border>
                         <Border.Style>
                             <Style TargetType="{x:Type Border}">
@@ -70,30 +68,7 @@
                             </Style>
                         </Border.Style>
                         <Button Style="{StaticResource TransparentStyle}" Width="20" Click="MaxNorm_OnClick">
-                        <Border>
-                            <Border.Style>
-                                <Style TargetType="{x:Type Border}">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background">
-                                                <Setter.Value>
-                                                    #333333
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                        <Border  Margin="5,10,5,10" BorderBrush="#FFCCCCCC" BorderThickness="2" >
-
-                            
-                        </Border>
-                        </Border>
-                    </Button>
-                        </Border>
-                    <Border HorizontalAlignment="Right" Width="20"  Margin="0,0,0,0">
-
-
+                            <Border>
                                 <Border.Style>
                                     <Style TargetType="{x:Type Border}">
                                         <Style.Triggers>
@@ -107,65 +82,86 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                                <Button Click="Close_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}" BorderBrush="{x:Null}">
-                    <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
-              Width="20"
-              Height="20"
-              Visibility="Visible"
-              Margin="0,0,0,0"
-              BorderThickness="0">
+                                <Border Margin="5,10,5,10" BorderBrush="#FFCCCCCC" BorderThickness="2" />
+                            </Border>
+                        </Button>
+                    </Border>
+                    <Border HorizontalAlignment="Right" Width="20" Margin="0,0,0,0">
+
+
                         <Border.Style>
                             <Style TargetType="{x:Type Border}">
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background">
-                                    <Setter.Value>
-                                        #333333
-                                         </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </Style.Triggers>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                #333333
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <Border.BorderBrush>
-                            <LinearGradientBrush StartPoint="0,0"
-                               EndPoint="0,1">
-                                <LinearGradientBrush.GradientStops>
-                                    <GradientStopCollection>
-                                        <GradientStop Color="#333333"
-                              Offset="0.0" />
-                                        <GradientStop Color="#444444"
-                              Offset="1.0" />
-                                    </GradientStopCollection>
-                                </LinearGradientBrush.GradientStops>
-                            </LinearGradientBrush>
+                        <Button Click="Close_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}"
+                                BorderBrush="{x:Null}">
+                            <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Width="20"
+                                    Height="20"
+                                    Visibility="Visible"
+                                    Margin="0,0,0,0"
+                                    BorderThickness="0">
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        #333333
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0"
+                                                         EndPoint="0,1">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStopCollection>
+                                                <GradientStop Color="#333333"
+                                                              Offset="0.0" />
+                                                <GradientStop Color="#444444"
+                                                              Offset="1.0" />
+                                            </GradientStopCollection>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
 
-                        </Border.BorderBrush>
-                       
-                        <Path x:Name="CheckMark"
-              
-              Visibility="Visible"
-              SnapsToDevicePixels="False" 
-                              Margin="5,5,5,5"
-              StrokeThickness="2" Stretch="Fill"
-                            
-              Data="M 0 0 L 7 7 M 0 7 L 7 0">
-                            <Path.Stroke >
-                                <SolidColorBrush Color="#CCCCCC" />
-                            </Path.Stroke>
-                        </Path>
+                                </Border.BorderBrush>
+
+                                <Path x:Name="CheckMark"
+
+                                      Visibility="Visible"
+                                      SnapsToDevicePixels="False"
+                                      Margin="5,5,5,5"
+                                      StrokeThickness="2" Stretch="Fill"
+
+                                      Data="M 0 0 L 7 7 M 0 7 L 7 0">
+                                    <Path.Stroke>
+                                        <SolidColorBrush Color="#CCCCCC" />
+                                    </Path.Stroke>
+                                </Path>
+                            </Border>
+                        </Button>
+
                     </Border>
-                    </Button>
-                   
-                </Border>
                 </StackPanel>
             </DockPanel>
         </Border>
-        <Grid  Grid.Row="1" Background="{DynamicResource DarkGrayBackgroundBrush}" >
+        <Grid Grid.Row="1" Background="{DynamicResource DarkGrayBackgroundBrush}">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="179*"/>
-                <ColumnDefinition Width="837*"/>
+                <ColumnDefinition Width="179*" />
+                <ColumnDefinition Width="837*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
@@ -173,34 +169,39 @@
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
             <!-- The main menu -->
-            <Menu Grid.Row="0"  MouseDown="Window_MouseDown" Background="{DynamicResource WindowBackgroundBrush}" Margin="0,0,0,0" Grid.ColumnSpan="1">
+            <Menu Grid.Row="0" MouseDown="Window_MouseDown" Background="{DynamicResource WindowBackgroundBrush}"
+                  Margin="0,0,0,0" Grid.ColumnSpan="1">
                 <MenuItem Header="_File">
                     <MenuItem.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
                     </MenuItem.Background>
                     <MenuItem Header="_New">
                         <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
-                        <MenuItem x:Name="NewModelSystemButton" Header="_Model System" Click="NewModelSystemButton_Click" />
+                        <MenuItem x:Name="NewModelSystemButton" Header="_Model System"
+                                  Click="NewModelSystemButton_Click" />
                     </MenuItem>
                     <MenuItem x:Name="OpenMenuItem" Header="_Open">
                         <MenuItem.Icon>
-                            <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="20" Height="20"/>
+                            <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="20" Height="20" />
                         </MenuItem.Icon>
                         <MenuItem Header="_Project" Click="OpenProject_Click" />
                         <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
                     </MenuItem>
-                    <MenuItem x:Name="RecentProjectsMenuItem" Header="_RecentProjects"/>
-                    <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="{Binding CanClose, Mode=OneWay}" />
+                    <MenuItem x:Name="RecentProjectsMenuItem" Header="_RecentProjects" />
+                    <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click"
+                              IsEnabled="{Binding CanClose, Mode=OneWay}" />
                     <Separator Background="{StaticResource ControlBackgroundBrush}" />
-                    <MenuItem x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click" IsEnabled="{Binding CanSave, Mode=OneWay}">
+                    <MenuItem x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click"
+                              IsEnabled="{Binding CanSave, Mode=OneWay}">
                         <MenuItem.Icon>
-                            <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
+                            <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"  IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
+                    <MenuItem x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
+                              IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
                     <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
                         <MenuItem.Icon>
-                            <Image Source="/XTMF.Gui;component/Resources/Plus.png" Width="20" Height="20"/>
+                            <Image Source="/XTMF.Gui;component/Resources/Plus.png" Width="20" Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator Background="{StaticResource ControlBackgroundBrush}" />
@@ -214,53 +215,60 @@
                 </MenuItem>
                 <MenuItem Header="_Edit">
                     <MenuItem.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
                     </MenuItem.Background>
-                    <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click" IsEnabled="{Binding CanUndo, Mode=OneWay}" />
-                    <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click" IsEnabled="{Binding CanRedo, Mode=OneWay}"/>
+                    <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click"
+                              IsEnabled="{Binding CanUndo, Mode=OneWay}" />
+                    <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click"
+                              IsEnabled="{Binding CanRedo, Mode=OneWay}" />
                 </MenuItem>
                 <MenuItem Header="_Run">
                     <MenuItem.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
                     </MenuItem.Background>
-                    <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click" IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
+                    <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click"
+                              IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
                         <MenuItem.Icon>
-                            <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
+                            <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
                         <MenuItem.Icon>
-                            <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
+                            <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_View">
                     <MenuItem.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
                     </MenuItem.Background>
                     <MenuItem Header="_Start Window" Click="ShowStart_Click" />
                     <MenuItem Header="_Interface Settings">
-                        <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True" Click="MetaModuleHiddenParametersToggle_Click"/>
+                        <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True"
+                                  Click="MetaModuleHiddenParametersToggle_Click" />
                     </MenuItem>
-                    <MenuItem Header="_Linked Parameters" Click="LinkedParameters_Click"></MenuItem>
+                    <MenuItem Header="_Linked Parameters" Click="LinkedParameters_Click" />
                     <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
                         <MenuItem.Icon>
-                            <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/Help.png" Width="20" Height="20" />
+                            <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/Help.png" Width="20"
+                                   Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_Settings" Click="Settings_Click">
                         <MenuItem.Icon>
-                            <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" Width="20" Height="20" />
+                            <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png"
+                                   Width="20" Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem.Background>
-                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}"/>
+                        <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
                     </MenuItem.Background>
-                    <MenuItem Header="Search _Help"  Click="LaunchHelpWindow_Click">
+                    <MenuItem Header="Search _Help" Click="LaunchHelpWindow_Click">
                         <MenuItem.Icon>
-                            <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/help.png" Width="20" Height="20" />
+                            <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/help.png" Width="20"
+                                   Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
@@ -268,25 +276,31 @@
                 </MenuItem>
             </Menu>
             <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-            <xcad:DockingManager MouseDown="DockManager_MouseDown"  IsHitTestVisible="True" x:Name="DockManager" Grid.Row="1" ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="HorizontalOnly" ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True" Margin="0,7,0,0" Grid.ColumnSpan="2" Background="{DynamicResource DarkGrayBackgroundBrush}" >
+            <xcad:DockingManager MouseDown="DockManager_MouseDown" IsHitTestVisible="True" x:Name="DockManager"
+                                 Grid.Row="1" ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.PanningMode="HorizontalOnly"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
+                                 Margin="0,7,0,0" Grid.ColumnSpan="2"
+                                 Background="{DynamicResource DarkGrayBackgroundBrush}">
                 <xcad:DockingManager.DocumentTitleTemplate>
                     <DataTemplate>
                         <Grid HorizontalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                            <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="22" Margin="1" Foreground="White" />
+                            <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0" />
+                            <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="22" Margin="1"
+                                       Foreground="White" />
                         </Grid>
                     </DataTemplate>
                 </xcad:DockingManager.DocumentTitleTemplate>
                 <xcad:DockingManager.DocumentHeaderTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
+                            <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
                             <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="#EEEEEEEE">
                                 <TextBlock.Style>
                                     <Style TargetType="{x:Type TextBlock}">
@@ -295,14 +309,18 @@
                                                 <Trigger.EnterActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
+                                                            <ColorAnimation
+                                                                Storyboard.TargetProperty="Foreground.Color" To="White"
+                                                                Duration="0:0:0.1" />
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </Trigger.EnterActions>
                                                 <Trigger.ExitActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="#EEEEEEEE"  Duration="0:0:0.1" />
+                                                            <ColorAnimation
+                                                                Storyboard.TargetProperty="Foreground.Color"
+                                                                To="#EEEEEEEE" Duration="0:0:0.1" />
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </Trigger.ExitActions>
@@ -320,18 +338,22 @@
                 <xcad:LayoutRoot x:Name="_layoutRoot">
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
-                            <xcad:LayoutDocumentPane x:Name="DocumentPane" PropertyChanged="DocumentPane_PropertyChanged" />
+                            <xcad:LayoutDocumentPane x:Name="DocumentPane"
+                                                     PropertyChanged="DocumentPane_PropertyChanged" />
                         </xcad:LayoutDocumentPaneGroup>
                     </xcad:LayoutPanel>
                 </xcad:LayoutRoot>
             </xcad:DockingManager>
-            <StatusBar Background="{DynamicResource DarkGrayBackgroundBrush}" HorizontalAlignment="Stretch" Grid.Row="2" Grid.ColumnSpan="2">
+            <StatusBar Background="{DynamicResource DarkGrayBackgroundBrush}" HorizontalAlignment="Stretch"
+                       Grid.Row="2" Grid.ColumnSpan="2">
                 <StatusBarItem HorizontalAlignment="Left">
                     <TextBlock x:Name="StatusDisplay" Foreground="White" />
                 </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
-                        <Label x:Name="RunLabel" Content="Run Model (F5)" ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="RunModel_MouseUp">
+                        <Label x:Name="RunLabel" Content="Run Model (F5)"
+                               ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
+                               FontSize="14" MouseUp="RunModel_MouseUp">
                             <Label.Style>
                                 <Style TargetType="{x:Type Label}">
                                     <Setter Property="Cursor" Value="Hand" />
@@ -341,14 +363,17 @@
                                             <Trigger.EnterActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color"
+                                                                        To="White" Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </Trigger.EnterActions>
                                             <Trigger.ExitActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
+                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color"
+                                                                        To="{StaticResource FocusColour}"
+                                                                        Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </Trigger.ExitActions>
@@ -361,7 +386,23 @@
                     </StackPanel>
                 </StatusBarItem>
             </StatusBar>
-            <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2"/>
+            <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
+                          VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" />
         </Grid>
     </Grid>
 </Window>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

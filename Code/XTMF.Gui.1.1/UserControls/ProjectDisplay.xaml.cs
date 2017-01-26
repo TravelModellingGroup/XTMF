@@ -719,7 +719,12 @@ namespace XTMF.Gui.UserControls
             {
                 return Session.ValidateModelSystemName(newName);
             });
-            sr.Owner = GetWindow();
+
+
+           
+
+            sr.Owner = Window.GetWindow(this);
+
             if (sr.ShowDialog() == true)
             {
                 string error = null;
