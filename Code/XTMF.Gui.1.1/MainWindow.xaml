@@ -31,7 +31,8 @@
 
         MouseDown="Window_MouseDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
-        AllowsTransparency="True">
+        AllowsTransparency="True"
+        >
     <Grid Margin="6,6,6,4" Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -417,12 +418,12 @@
                                 </Style>
                             </Label.Style>
                         </Label>
-                        <ProgressBar Width="100" Height="10" Minimum="0" Maximum="10000" />
+                       
                     </StackPanel>
                 </StatusBarItem>
             </StatusBar>
             <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
-                          VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" />
+                          VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" Grid.Column="0" />
         </Grid>
     </Grid>
 </Window>

@@ -106,9 +106,42 @@ namespace XTMF.Gui
             //operationProgressing.Owner = this;
 
 
+            this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, this.Close_Click));
+            this.CommandBindings.Add(new CommandBinding(SystemCommands.MaximizeWindowCommand, this.MaxNorm_OnClick, this.OnCanResizeWindow));
+            this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, this.Minimize_Click, this.OnCanMinimizeWindow));
+            this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, this.OnRestoreWindow, this.OnCanResizeWindow));
 
 
+        }
 
+        private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = this.ResizeMode == ResizeMode.CanResize || this.ResizeMode == ResizeMode.CanResizeWithGrip;
+        }
+
+        private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = this.ResizeMode != ResizeMode.NoResize;
+        }
+
+        private void OnCloseWindow(object target, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.CloseWindow(this);
+        }
+
+        private void OnMaximizeWindow(object target, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.MaximizeWindow(this);
+        }
+
+        private void OnMinimizeWindow(object target, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.MinimizeWindow(this);
+        }
+
+        private void OnRestoreWindow(object target, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.RestoreWindow(this);
         }
 
         private bool CheckHasLocalConfiguration()
@@ -850,8 +883,18 @@ namespace XTMF.Gui
 
         private void ShowStart_Click(object sender, RoutedEventArgs e)
         {
-            this.startWindow = new StartWindow();
-            var doc = AddNewWindow("Start", startWindow, typeof(ActiveEditingSessionDisplayModel));
+            var item = OpenPages.Find(doc => doc.Title == "Start");
+            if (item != null)
+            {
+                item.IsSelected = true;
+
+            }
+            else
+            {
+                this.startWindow = new StartWindow();
+                var doc = AddNewWindow("Start", startWindow, typeof(ActiveEditingSessionDisplayModel));
+            }
+
         }
 
         private void CloseMenu_Click(object sender, RoutedEventArgs e)
@@ -1039,14 +1082,23 @@ namespace XTMF.Gui
 
         private void LaunchSettingsPage()
         {
-            var settingsPage = new UserControls.SettingsPage(EditorController.Runtime.Configuration);
-            var document = AddNewWindow("Settings", settingsPage, typeof(ActiveEditingSessionDisplayModel));
-            document.Closing += (o, e) =>
+            var item = OpenPages.Find(doc => doc.Title == "Settings");
+            if (item != null)
             {
-                settingsPage.Close();
-            };
-            document.IsSelected = true;
-            Keyboard.Focus(settingsPage);
+                item.IsSelected = true;
+                
+            }
+            else
+            {
+                var settingsPage = new UserControls.SettingsPage(EditorController.Runtime.Configuration);
+                var document = AddNewWindow("Settings", settingsPage, typeof(ActiveEditingSessionDisplayModel));
+                document.Closing += (o, e) =>
+                {
+                    settingsPage.Close();
+                };
+                document.IsSelected = true;
+                Keyboard.Focus(settingsPage);
+            }
         }
 
         private void LaunchHelpWindow_Click(object sender, RoutedEventArgs e)
@@ -1174,28 +1226,30 @@ namespace XTMF.Gui
         {
             if (this.WindowState == WindowState.Maximized)
             {
-                this.WindowState = System.Windows.WindowState.Normal;
+                SystemCommands.RestoreWindow(this);
             }
             else if (this.WindowState == WindowState.Normal)
             {
-                this.WindowState = System.Windows.WindowState.Maximized;
+                SystemCommands.MaximizeWindow(this);
             }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            
+
+            SystemCommands.CloseWindow(this);
         }
 
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
-            if (this.WindowState == WindowState.Maximized)
+            if (this.WindowState == WindowState.Maximized || this.WindowState == WindowState.Normal)
             {
-                this.WindowState = WindowState.Minimized;
+                SystemCommands.MinimizeWindow(this);
             }
             else
             {
-                this.WindowState = WindowState.Minimized;
+                SystemCommands.RestoreWindow(this);
             }
         }
     }
