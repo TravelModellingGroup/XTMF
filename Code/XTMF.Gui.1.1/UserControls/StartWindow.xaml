@@ -25,7 +25,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <Grid Background="#FF041625" MinWidth="760" MinHeight="460">
+        <Grid MinWidth="760" MinHeight="460">
+            <Grid.Background>
+                <ImageBrush/>
+            </Grid.Background>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MinHeight="100"/>
                 <RowDefinition Height="*" />
@@ -100,7 +103,7 @@
                         <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
                         <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
                     </StackPanel>
-                    
+
                 </Grid>
 
             </Grid>
