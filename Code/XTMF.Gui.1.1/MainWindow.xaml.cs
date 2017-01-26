@@ -1153,7 +1153,7 @@ namespace XTMF.Gui
 
                 Point p =  e.GetPosition(this);
 
-                if (p.Y < 100)
+                if (p.Y < 90)
                 {
                     e.Handled = true;
                     this.DragMove();

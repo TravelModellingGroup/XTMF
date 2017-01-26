@@ -25,19 +25,20 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="XTMF Version 1.2" Height="768" Width="1024" IsHitTestVisible="True"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"
         ResizeMode="CanResizeWithGrip"
+             
         MouseDown="Window_MouseDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None" AllowsTransparency="True"
         >
-    <Grid>
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"  MouseDown="Window_MouseDown" >
-            <Label VerticalContentAlignment="Center" Grid.Row="0" Foreground="White" HorizontalContentAlignment="Left">
+        <Border Margin="8,0,0,0"  Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"  MouseDown="Window_MouseDown" >
+            <Label VerticalContentAlignment="Center" Grid.Row="0" Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="16" Background="{x:Null}">
                 XTMF
             </Label>
         </Border>
