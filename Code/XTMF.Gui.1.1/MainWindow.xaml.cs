@@ -1169,11 +1169,20 @@ namespace XTMF.Gui
 
         }
 
-        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+      
+        private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
         {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = System.Windows.WindowState.Normal;
+            }
+            else if (this.WindowState == WindowState.Normal)
+            {
+                this.WindowState = System.Windows.WindowState.Maximized;
+            }
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        private void Close_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }

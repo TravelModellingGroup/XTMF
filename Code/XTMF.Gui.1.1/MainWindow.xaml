@@ -34,7 +34,7 @@
         MouseDown="Window_MouseDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None" AllowsTransparency="True"
         >
-    <Grid Margin="6,6,6,6" Background="Transparent" >
+    <Grid Margin="6,6,6,4" Background="Transparent" >
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
@@ -42,14 +42,72 @@
 
         <Border Margin="0,0,0,0"  Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"  MouseDown="Window_MouseDown" >
             <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,5,0">
+                <Border DockPanel.Dock="Left">
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                    <Rectangle Fill="#FF0764A4" Width="12">
+                        
+                    </Rectangle>
                 <Label Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
                     
-                    Margin="13,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0" Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="16" Background="{x:Null}">
+                    Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0" Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="15" Background="{x:Null}">
                     
                 </Label>
-                
-                <Border HorizontalAlignment="Right" Width="20" DockPanel.Dock="Right" Margin="0,0,0,0" PreviewMouseDown="UIElement_OnMouseLeftButtonDown">
-                    <Button Click="ButtonBase_OnClick" Style="{StaticResource TransparentStyle}" Background="{x:Null}" BorderBrush="{x:Null}">
+                    </StackPanel>
+                </Border>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right" >
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                #333333
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Button Style="{StaticResource TransparentStyle}" Width="20" Click="MaxNorm_OnClick">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    #333333
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        <Border  Margin="5,10,5,10" BorderBrush="#FFCCCCCC" BorderThickness="2" >
+
+                            
+                        </Border>
+                        </Border>
+                    </Button>
+                        </Border>
+                    <Border HorizontalAlignment="Right" Width="20"  Margin="0,0,0,0">
+
+
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        #333333
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Button Click="Close_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}" BorderBrush="{x:Null}">
                     <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
               Width="20"
               Height="20"
@@ -98,8 +156,9 @@
                         </Path>
                     </Border>
                     </Button>
+                   
                 </Border>
-                    
+                </StackPanel>
             </DockPanel>
         </Border>
         <Grid  Grid.Row="1" Background="{DynamicResource DarkGrayBackgroundBrush}" >
