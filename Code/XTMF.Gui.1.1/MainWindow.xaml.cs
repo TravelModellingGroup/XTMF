@@ -1226,10 +1226,25 @@ namespace XTMF.Gui
         {
             if (this.WindowState == WindowState.Maximized)
             {
+                ExternalGrid.Margin = new Thickness()
+                {
+                    Left = 0,
+                    Top = 0,
+                    Right = 0,
+                    Bottom = 0
+                };
                 SystemCommands.RestoreWindow(this);
             }
             else if (this.WindowState == WindowState.Normal)
             {
+                ExternalGrid.Margin = new Thickness()
+                {
+                    Left = 6,
+                    Top = 6,
+                    Right = 6,
+                    Bottom = 6
+                };
+
                 SystemCommands.MaximizeWindow(this);
             }
         }
