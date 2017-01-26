@@ -38,9 +38,48 @@
         </Grid.RowDefinitions>
 
         <Border Margin="8,0,0,0"  Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"  MouseDown="Window_MouseDown" >
-            <Label VerticalContentAlignment="Center" Grid.Row="0" Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="16" Background="{x:Null}">
-                XTMF
-            </Label>
+            <DockPanel LastChildFill="True" HorizontalAlignment="Stretch">
+                <Label DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0" Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="16" Background="{x:Null}">
+                    XTMF
+                </Label>
+                
+                <Border IsHitTestVisible="True" HorizontalAlignment="Right" Width="20" DockPanel.Dock="Right" Margin="0,5,5,0" PreviewMouseDown="UIElement_OnMouseLeftButtonDown">
+                    <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
+              Width="20"
+              Height="20"
+              Visibility="Visible"
+              Margin="0,0,0,0"
+              BorderThickness="0">
+                        <Border.BorderBrush>
+                            <LinearGradientBrush StartPoint="0,0"
+                               EndPoint="0,1">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStopCollection>
+                                        <GradientStop Color="#333333"
+                              Offset="0.0" />
+                                        <GradientStop Color="#444444"
+                              Offset="1.0" />
+                                    </GradientStopCollection>
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+
+                        </Border.BorderBrush>
+                       
+                        <Path x:Name="CheckMark"
+              
+              Visibility="Visible"
+              SnapsToDevicePixels="False" 
+                              Margin="5,5,5,5"
+              StrokeThickness="2" Stretch="Fill"
+                            
+              Data="M 0 0 L 7 7 M 0 7 L 7 0">
+                            <Path.Stroke >
+                                <SolidColorBrush Color="#CCCCCC" />
+                            </Path.Stroke>
+                        </Path>
+                    </Border>
+                </Border>
+            </DockPanel>
         </Border>
         <Grid  Grid.Row="1" Background="{DynamicResource DarkGrayBackgroundBrush}" >
 

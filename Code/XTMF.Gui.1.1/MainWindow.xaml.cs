@@ -1168,5 +1168,11 @@ namespace XTMF.Gui
         {
 
         }
+
+        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            this.Close();
+        }
     }
 }
