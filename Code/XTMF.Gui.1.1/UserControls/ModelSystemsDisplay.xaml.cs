@@ -16,35 +16,40 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using XTMF.Gui.Collections;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 namespace XTMF.Gui.UserControls
 {
-    public partial class ModelSystemsDisplay
+    public partial class ModelSystemsDisplay : UserControl
     {
-        private readonly XTMFRuntime _runtime;
+        private XTMFRuntime Runtime;
 
         public ModelSystemsDisplay(XTMFRuntime runtime)
         {
             InitializeComponent();
-            _runtime = runtime;
-            var modelSystemRepository = (ModelSystemRepository) _runtime.Configuration.ModelSystemRepository;
-            Display.ItemsSource = new ProxyList<IModelSystem>(modelSystemRepository.ModelSystems);
+            Runtime = runtime;
+            var modelSystemRepository = ((ModelSystemRepository)Runtime.Configuration.ModelSystemRepository);
+            Display.ItemsSource = new XTMF.Gui.Collections.ProxyList<IModelSystem>(modelSystemRepository.ModelSystems);
             modelSystemRepository.ModelSystemAdded += ModelSystemRepository_ModelSystemAdded;
             modelSystemRepository.ModelSystemRemoved += ModelSystemRepository_ModelSystemRemoved;
             FilterBox.Display = Display;
             FilterBox.Filter = (o, filterString) =>
             {
                 var modelSystem = o as ModelSystem;
-                return modelSystem != null && modelSystem.Name.IndexOf(filterString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+                return modelSystem.Name.IndexOf(filterString, StringComparison.InvariantCultureIgnoreCase) >= 0;
             };
             Loaded += ModelSystemsDisplay_Loaded;
         }
@@ -62,14 +67,19 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemsDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-            Dispatcher.BeginInvoke(new Action(() => { FilterBox.Focus(); }));
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                FilterBox.Focus();
+            }));
         }
 
         private Window GetWindow()
         {
             var current = this as DependencyObject;
             while (current != null && !(current is Window))
+            {
                 current = VisualTreeHelper.GetParent(current);
+            }
             return current as Window;
         }
 
@@ -88,17 +98,27 @@ namespace XTMF.Gui.UserControls
             if (modelSystem != null)
             {
                 ModelSystemEditingSession session = null;
-                var progressing = new OperationProgressing
+                OperationProgressing progressing = new OperationProgressing()
                 {
                     Owner = GetWindow()
                 };
-                var loadingTask =
-                    Task.Run(() => { session = _runtime.ModelSystemController.EditModelSystem(modelSystem); });
-                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() => { progressing.ShowDialog(); }));
+                var loadingTask = Task.Run(() =>
+                {
+                    session = Runtime.ModelSystemController.EditModelSystem(modelSystem);
+                });
+                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    progressing.ShowDialog();
+                }));
                 loadingTask.Wait();
                 if (session != null)
+                {
                     MainWindow.Us.EditModelSystem(session);
-                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() => { progressing.Close(); }));
+                }
+                MainWindow.Us.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    progressing.Close();
+                }));
             }
         }
 
@@ -155,6 +175,7 @@ namespace XTMF.Gui.UserControls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (!e.Handled)
+            {
                 switch (e.Key)
                 {
                     case Key.F2:
@@ -187,14 +208,15 @@ namespace XTMF.Gui.UserControls
                         }
                         break;
                     case Key.Enter:
-                        if (!_renaming)
+                        if (!Renaming)
                         {
                             LoadCurrentModelSystem();
                             e.Handled = true;
                         }
                         break;
                 }
-            OnKeyUp(e);
+            }
+            base.OnKeyUp(e);
         }
 
         private void RefreshModelSystems()
@@ -210,7 +232,7 @@ namespace XTMF.Gui.UserControls
             return Display.ItemContainerGenerator.ContainerFromItem(Display.SelectedItem) as UIElement;
         }
 
-        private bool _renaming;
+        bool Renaming = false;
 
         private void RenameCurrentModelSystem()
         {
@@ -219,15 +241,18 @@ namespace XTMF.Gui.UserControls
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                _renaming = true;
-                var adorn = new TextboxAdorner("Rename", result =>
+                Renaming = true;
+                var adorn = new TextboxAdorner("Rename", (result) =>
                 {
                     string error = null;
-                    if (!_runtime.ModelSystemController.Rename(modelSystem, result, ref error))
-                        MessageBox.Show(GetWindow(), error, "Unable to Rename Model System", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                    if (!Runtime.ModelSystemController.Rename(modelSystem, result, ref error))
+                    {
+                        MessageBox.Show(GetWindow(), error, "Unable to Rename Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
                     else
+                    {
                         RefreshModelSystems();
+                    }
                 }, selectedModuleControl, modelSystem.Name);
                 adorn.Unloaded += Adorn_Unloaded;
                 layer.Add(adorn);
@@ -237,7 +262,7 @@ namespace XTMF.Gui.UserControls
 
         private void Adorn_Unloaded(object sender, RoutedEventArgs e)
         {
-            _renaming = false;
+            Renaming = false;
         }
 
         private void CreateNewModelSystem()
@@ -252,17 +277,17 @@ namespace XTMF.Gui.UserControls
             if (modelSystem != null)
             {
                 string error = null;
-                var sr = new StringRequest("Clone Model System As?", newName =>
+                StringRequest sr = new StringRequest("Clone Model System As?", (newName) =>
                 {
                     string e = null;
-                    return _runtime.ModelSystemController.ValidateModelSystemName(newName, ref e);
-                }) {Owner = GetWindow()};
+                    return Runtime.ModelSystemController.ValidateModelSystemName(newName, ref e);
+                });
+                sr.Owner = GetWindow();
                 if (sr.ShowDialog() == true)
                 {
-                    if (!_runtime.ModelSystemController.CloneModelSystem(modelSystem, sr.Answer, ref error))
+                    if (!Runtime.ModelSystemController.CloneModelSystem(modelSystem, sr.Answer, ref error))
                     {
-                        MessageBox.Show(GetWindow(), error, "Unable to Clone Model System", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(), error, "Unable to Clone Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
                     RefreshModelSystems();
@@ -276,15 +301,12 @@ namespace XTMF.Gui.UserControls
             if (modelSystem != null)
             {
                 if (MessageBox.Show(GetWindow(),
-                        "Are you sure you want to delete the model system '" + modelSystem.Name +
-                        "'?  This action cannot be undone!", "Delete ModelSystem", MessageBoxButton.YesNo,
-                        MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                    "Are you sure you want to delete the model system '" + modelSystem.Name + "'?  This action cannot be undone!", "Delete ModelSystem", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     string error = null;
-                    if (!_runtime.ModelSystemController.Delete(modelSystem, ref error))
+                    if (!Runtime.ModelSystemController.Delete(modelSystem, ref error))
                     {
-                        MessageBox.Show(GetWindow(), error, "Unable to Delete ModelSystem", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(), error, "Unable to Delete ModelSystem", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
                     RefreshModelSystems();
@@ -297,14 +319,14 @@ namespace XTMF.Gui.UserControls
             var modelSystem = Display.SelectedItem as ModelSystem;
             if (modelSystem != null)
             {
-                var fileName = MainWindow.OpenFile(modelSystem.Name,
-                    new[] {new KeyValuePair<string, string>("Model System File", "xml")}, false);
-                if (!string.IsNullOrWhiteSpace(fileName))
+                string fileName = MainWindow.OpenFile(modelSystem.Name, new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                if (!String.IsNullOrWhiteSpace(fileName))
                 {
                     string error = null;
-                    if (!_runtime.ModelSystemController.ExportModelSystem(modelSystem, fileName, ref error))
-                        MessageBox.Show(owner: Window.GetWindow(this), messageBoxText: error, caption: "Unable to Export Model System",
-                            button: MessageBoxButton.OK, icon: MessageBoxImage.Error, defaultResult: MessageBoxResult.OK);
+                    if (!Runtime.ModelSystemController.ExportModelSystem(modelSystem, fileName, ref error))
+                    {
+                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
                 }
             }
         }
@@ -312,7 +334,9 @@ namespace XTMF.Gui.UserControls
         private ModelSystem GetFirstItem()
         {
             if (Display.ItemContainerGenerator.Items.Count > 0)
+            {
                 return Display.ItemContainerGenerator.Items[0] as ModelSystem;
+            }
             return null;
         }
 

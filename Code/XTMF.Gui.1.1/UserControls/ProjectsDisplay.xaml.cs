@@ -16,31 +16,40 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using XTMF.Gui.Collections;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Xceed.Wpf.AvalonDock.Controls;
+using Xceed.Wpf.AvalonDock.Layout;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    ///     Interaction logic for ProjectsDisplay.xaml
+    /// Interaction logic for ProjectsDisplay.xaml
     /// </summary>
     public partial class ProjectsDisplay : UserControl
     {
-        private readonly XTMFRuntime Runtime;
+        private XTMFRuntime Runtime;
 
         public ProjectsDisplay(XTMFRuntime runtime)
         {
             InitializeComponent();
             Runtime = runtime;
-            var projectRepository = (ProjectRepository) runtime.Configuration.ProjectRepository;
+            var projectRepository = ((ProjectRepository)runtime.Configuration.ProjectRepository);
             Loaded += ProjectsDisplay_Loaded;
-            Display.ItemsSource = new ProxyList<IProject>(projectRepository.Projects);
+            Display.ItemsSource = new XTMF.Gui.Collections.ProxyList<IProject>(projectRepository.Projects);
             projectRepository.ProjectAdded += ProjectRepository_ProjectAdded;
             projectRepository.ProjectRemoved += ProjectRepository_ProjectRemoved;
             FilterBox.Display = Display;
@@ -64,7 +73,10 @@ namespace XTMF.Gui.UserControls
         private void ProjectsDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
-            Dispatcher.BeginInvoke(new Action(() => { FilterBox.Focus(); }));
+            Dispatcher.BeginInvoke(new Action(() =>
+           {
+               FilterBox.Focus();
+           }));
         }
 
         private Window GetWindow()
@@ -102,7 +114,11 @@ namespace XTMF.Gui.UserControls
 
         public void LoadProject(Project project)
         {
+
+            
             MainWindow.Us.LoadProject(project);
+            
+        
         }
 
         private void NewProject_Click(object sender, RoutedEventArgs e)
@@ -168,7 +184,7 @@ namespace XTMF.Gui.UserControls
                         e.Handled = true;
                         break;
                     case Key.E:
-                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        if(e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
                         {
                             Keyboard.Focus(FilterBox);
                             e.Handled = true;
@@ -201,7 +217,7 @@ namespace XTMF.Gui.UserControls
                         break;
                 }
             }
-            OnKeyUp(e);
+            base.OnKeyUp(e);
         }
 
         private UIElement GetCurrentlySelectedControl()
@@ -215,7 +231,7 @@ namespace XTMF.Gui.UserControls
             RefreshProjects();
         }
 
-        private bool Renaming;
+        bool Renaming = false;
 
         private void RenameCurrentProject()
         {
@@ -226,13 +242,12 @@ namespace XTMF.Gui.UserControls
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
                 Renaming = true;
-                var adorn = new TextboxAdorner("Rename", result =>
+                var adorn = new TextboxAdorner("Rename", (result) =>
                 {
                     string error = null;
                     if (!Runtime.ProjectController.RenameProject(project, result, ref error))
                     {
-                        MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                     else
                     {
@@ -256,13 +271,12 @@ namespace XTMF.Gui.UserControls
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
                 Renaming = true;
-                var adorn = new TextboxAdorner("Change Description", result =>
+                var adorn = new TextboxAdorner("Change Description", (result) =>
                 {
                     string error = null;
                     if (!Runtime.ProjectController.SetDescription(project, result, ref error))
                     {
-                        MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(), error, "Unable to Rename Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                     else
                     {
@@ -282,7 +296,7 @@ namespace XTMF.Gui.UserControls
             FilterBox.RefreshFilter();
             Display.SelectedItem = selected;
 
-            var window = GetWindow() as MainWindow;
+            MainWindow window = this.GetWindow() as MainWindow;
             window.UpdateRecentProjectsMenu();
         }
 
@@ -297,24 +311,27 @@ namespace XTMF.Gui.UserControls
             if (project != null)
             {
                 string error = null;
-                var sr = new StringRequest("Clone Project As?",
-                    newName => { return Runtime.ProjectController.ValidateProjectName(newName); });
+                StringRequest sr = new StringRequest("Clone Project As?", (newName) =>
+                {
+                    return Runtime.ProjectController.ValidateProjectName(newName);
+                });
                 sr.Owner = GetWindow();
                 if (sr.ShowDialog() == true)
                 {
                     if (!Runtime.ProjectController.CloneProject(project, sr.Answer, ref error))
                     {
-                        MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(), error, "Unable to Clone Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
-
+                   
 
                     Runtime.Configuration.AddRecentProject(sr.Answer);
                     Runtime.Configuration.Save();
 
                     RefreshProjects();
+
                 }
+
             }
         }
 
@@ -324,17 +341,15 @@ namespace XTMF.Gui.UserControls
             if (project != null)
             {
                 if (MessageBox.Show(GetWindow(),
-                        "Are you sure you want to delete the project '" + project.Name +
-                        "'?  This action cannot be undone!", "Delete Project", MessageBoxButton.YesNo,
-                        MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
+                    "Are you sure you want to delete the project '" + project.Name + "'?  This action cannot be undone!", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     string error = null;
                     if (!Runtime.ProjectController.DeleteProject(project, ref error))
                     {
-                        MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK,
-                            MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         return;
                     }
+                   
                 }
 
                 //remove from recent projects
@@ -342,6 +357,7 @@ namespace XTMF.Gui.UserControls
                 Runtime.Configuration.Save();
 
                 RefreshProjects();
+   
             }
         }
 

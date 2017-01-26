@@ -25,7 +25,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <Grid Background="{DynamicResource MediumGrayBackgroundBrush}" MinWidth="760" MinHeight="460">
+        <Grid Background="#FF041625" MinWidth="760" MinHeight="460">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MinHeight="100"/>
                 <RowDefinition Height="*" />

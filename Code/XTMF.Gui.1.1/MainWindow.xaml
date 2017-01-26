@@ -35,7 +35,7 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"  MouseDown="Window_MouseDown" >
-            <Label VerticalContentAlignment="Center" Grid.Row="0" Foreground="{DynamicResource LightGray}" HorizontalContentAlignment="Left">
+            <Label VerticalContentAlignment="Center" Grid.Row="0" Foreground="White" HorizontalContentAlignment="Left">
                 XTMF
             </Label>
         </Border>

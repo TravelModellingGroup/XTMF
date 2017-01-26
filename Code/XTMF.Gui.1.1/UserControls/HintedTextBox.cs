@@ -28,9 +28,9 @@ namespace XTMF.Gui
 {
     public class HintedTextBox : TextBox
     {
-        private string _hintText;
-        private FormattedText _hintTextImage;
-        private static readonly ContextMenu LocalContextMenu;
+        private string hintText;
+        private FormattedText HintTextImage;
+        private static ContextMenu _LocalContextMenu;
 
         static HintedTextBox()
         {
@@ -78,26 +78,26 @@ namespace XTMF.Gui
                     Height = 20
                 }
             });
-            LocalContextMenu = contextMenu;
+            _LocalContextMenu = contextMenu;
         }
 
         public HintedTextBox()
         {
             this.ClipToBounds = true;
-            this.ContextMenu = LocalContextMenu;
+            this.ContextMenu = _LocalContextMenu;
         }
 
         public string HintText
         {
             get
             {
-                return this._hintText;
+                return this.hintText;
             }
 
             set
             {
-                _hintText = value;
-                if (!string.IsNullOrEmpty(_hintText))
+                hintText = value;
+                if (!String.IsNullOrEmpty(hintText))
                 {
                     this.Background = Brushes.Transparent;
                 }
@@ -113,9 +113,9 @@ namespace XTMF.Gui
             }
             dc.DrawRectangle(Brushes.White, new Pen(), new Rect(0, 0, this.ActualWidth, this.ActualHeight));
             base.OnRender(dc);
-            if (this.Text == string.Empty && this._hintTextImage != null)
+            if (this.Text == String.Empty && this.HintTextImage != null)
             {
-                dc.DrawText(this._hintTextImage, new Point(4, (this.ActualHeight - this._hintTextImage.Height) / 2));
+                dc.DrawText(this.HintTextImage, new Point(4, (this.ActualHeight - this.HintTextImage.Height) / 2));
             }
             if (this.ClipToBounds)
             {
@@ -132,20 +132,20 @@ namespace XTMF.Gui
 
         private void RebuildFont()
         {
-            if (this._hintText == null)
+            if (this.hintText == null)
             {
-                this._hintTextImage = null;
+                this.HintTextImage = null;
             }
             else
             {
-                this._hintTextImage = new FormattedText(this._hintText, CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight,
+                this.HintTextImage = new FormattedText(this.hintText, CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight,
                     new Typeface(this.FontFamily, this.FontStyle, this.FontWeight, this.FontStretch), this.FontSize, Brushes.Gray);
-                const int constantBorder = 8;
+                int constantBorder = 8;
                 if (this.ActualWidth > 0)
                 {
-                    if (this._hintTextImage.Width + constantBorder > this.ActualWidth)
+                    if (this.HintTextImage.Width + constantBorder > this.ActualWidth)
                     {
-                        this.Width = this._hintTextImage.Width + constantBorder;
+                        this.Width = this.HintTextImage.Width + constantBorder;
                     }
                 }
             }
