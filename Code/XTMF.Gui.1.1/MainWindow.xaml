@@ -29,7 +29,7 @@
         ResizeMode="CanResizeWithGrip"
 
 
-        MouseDown="Window_MouseDown"
+        MouseDown="Window_MouseDown" MouseDoubleClick="MainWindow_OnMouseDoubleClick"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
         AllowsTransparency="True"
         >

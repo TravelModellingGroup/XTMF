@@ -1267,5 +1267,22 @@ namespace XTMF.Gui
                 SystemCommands.RestoreWindow(this);
             }
         }
+
+        private void MainWindow_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+
+
+                Point p = e.GetPosition(this);
+
+                if (p.Y < 90)
+                {
+                    e.Handled = true;
+                    this.MaxNorm_OnClick(null,null);
+                }
+
+            }
+        }
     }
 }
