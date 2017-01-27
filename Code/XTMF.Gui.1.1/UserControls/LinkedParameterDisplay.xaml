@@ -28,7 +28,7 @@
                 Title="Linked Parameter Editor" Height="480" Width="750" KeyDown="Window_KeyDown">
 
 
-    <Border Margin="11,11,11,11">
+    <Border Margin="11,11,11,11" Background="{DynamicResource DarkGrayBackgroundBrush}">
         <Border.Effect>
             <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.7" Color="Black"></DropShadowEffect>
         </Border.Effect>
@@ -155,7 +155,7 @@
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
                 <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{DynamicResource MediumGrayBackgroundBrush}" KeyDown="LinkedParameterValue_PreviewKeyDown">
+                          Background="{DynamicResource MediumGrayBackgroundBrush}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
@@ -194,7 +194,7 @@
                     </ListView.ContextMenu>
                 </ListView>
             </Grid>
-            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
+            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource DarkGrayBackgroundBrush}" ShowsPreview="True" />
             <Grid Grid.Column="2" Background="{DynamicResource MediumGrayBackgroundBrush}">
                 <Grid.RowDefinitions>
 
@@ -229,7 +229,7 @@
 
                         <Label Content="Linked Parameters" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource DarkGrayBackgroundBrush}"/>
                         <ListView KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                               x:Name="ContainedParameterDisplay" Focusable="False"  Background="{StaticResource WindowBackgroundBrush}"
+                               x:Name="ContainedParameterDisplay" Focusable="False"  Background="{StaticResource DarkGrayBackgroundBrush}"
                      HorizontalContentAlignment="Stretch">
                             <ListView.Resources>
                                 <Style TargetType="{x:Type ListViewItem}">
