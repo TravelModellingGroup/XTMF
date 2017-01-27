@@ -51,6 +51,8 @@ namespace XTMF.Gui.UserControls
 
         public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
 
+
+
         public class ProjectModel : INotifyPropertyChanged
         {
             public class ContainedModelSystemModel : INotifyPropertyChanged
@@ -744,10 +746,14 @@ namespace XTMF.Gui.UserControls
                 {
                     string error = null;
                     ModelSystemEditingSession newSession;
+             
+             
+                    
                     if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
                     {
                         if (newSession != null)
                         {
+                            newSession.PreviousRunName = selected.Name;
                             invoke(newSession);
                         }
                     }

@@ -57,6 +57,10 @@ namespace XTMF
             return RedoStack.ToList();
         }
 
+        private string _previousRunName;
+
+    
+
         /// <summary>
         /// This event fires when the project containing this model system
         /// was saved externally
@@ -481,6 +485,19 @@ namespace XTMF
 
         public bool CanUndo { get { lock (SessionLock) { return UndoStack.Count > 0; } } }
         public bool CanRedo { get { lock (SessionLock) { return RedoStack.Count > 0; } } }
+
+        public string PreviousRunName
+        {
+            get
+            {
+                return _previousRunName;
+            }
+
+            set
+            {
+                _previousRunName = value;
+            }
+        }
 
         /// <summary>
         /// This event occurs whenever a command is executed, undone, or redone

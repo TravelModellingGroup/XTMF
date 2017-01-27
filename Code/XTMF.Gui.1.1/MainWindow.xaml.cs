@@ -513,7 +513,11 @@ namespace XTMF.Gui
                     {
                         Session = projectSession,
                     };
-                    display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession);
+
+
+                    display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession, 
+                        editingSession.PreviousRunName == null ? null : editingSession.ProjectEditingSession.Name + " - " + editingSession.PreviousRunName);
+
                     var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, typeof(ActiveEditingSessionDisplayModel), () => { projectSession.Dispose(); });
                     doc.IsSelected = true;
                     PropertyChangedEventHandler onRename = (o, e) =>
@@ -758,7 +762,7 @@ namespace XTMF.Gui
             return Project.ValidateProjectName(name);
         }
 
-        internal void EditModelSystem(ModelSystemEditingSession modelSystemSession)
+        internal void EditModelSystem(ModelSystemEditingSession modelSystemSession, string titleBar = null)
         {
             if (modelSystemSession != null)
             {
@@ -770,9 +774,10 @@ namespace XTMF.Gui
                     ModelSystem = modelSystemSession.ModelSystemModel,
                 };
                 var displayModel = new ModelSystemEditingSessionDisplayModel(display);
-                var titleBarName = modelSystemSession.EditingProject ?
+
+                var titleBarName = titleBar == null ? modelSystemSession.EditingProject ?
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
-                    : "Model System - " + modelSystemSession.ModelSystemModel.Name;
+                    : "Model System - " + modelSystemSession.ModelSystemModel.Name : titleBar;
                 var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel));
                 DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
