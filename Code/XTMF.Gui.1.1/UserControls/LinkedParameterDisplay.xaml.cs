@@ -448,6 +448,40 @@ namespace XTMF.Gui.UserControls
                 this.Close();
             }
         }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
+            {
+
+
+                if (e.GetPosition(this).Y < 30)
+                {
+
+
+
+                    e.Handled = true;
+                    this.DragMove();
+
+                }
+
+            }
+        }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 
     public class ParameterDatatemplateSelector : DataTemplateSelector

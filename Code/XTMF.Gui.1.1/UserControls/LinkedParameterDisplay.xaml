@@ -23,15 +23,115 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xtmfgui="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui"
-                WindowStyle="ToolWindow"
-                WindowStartupLocation="CenterOwner"
+                WindowStyle="None" ResizeMode="CanResizeWithGrip"
+                WindowStartupLocation="CenterOwner" AllowsTransparency="True" Background="Transparent"
                 Title="Linked Parameter Editor" Height="480" Width="750" KeyDown="Window_KeyDown">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+
+
+    <Border Margin="11,11,11,11">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.7" Color="Black"></DropShadowEffect>
+        </Border.Effect>
+    <Grid >
+        
+       
         <Grid.RowDefinitions>
+            <RowDefinition Height="30"></RowDefinition>
+          
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Margin="0" Background="{DynamicResource DarkGrayBackgroundBrush}">
+        <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"
+                MouseDown="Window_MouseDown">
+            <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,5,0">
+                <Border DockPanel.Dock="Left">
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                        <Rectangle Fill="#FF0764A4" Width="12" />
+                        <Label
+                            Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
+
+                            Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0"
+                            Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="15"
+                            Background="{x:Null}" />
+                    </StackPanel>
+                </Border>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+
+                   
+
+                   
+                    <Border HorizontalAlignment="Right" Width="20" Margin="0,0,0,0">
+
+
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                #333333
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Button Click="Close_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}"
+                                BorderBrush="{x:Null}">
+                            <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Width="20"
+                                    Height="20"
+                                    Visibility="Visible"
+                                    Margin="0,0,0,0"
+                                    BorderThickness="0">
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        #333333
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0"
+                                                         EndPoint="0,1">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStopCollection>
+                                                <GradientStop Color="#333333"
+                                                              Offset="0.0" />
+                                                <GradientStop Color="#444444"
+                                                              Offset="1.0" />
+                                            </GradientStopCollection>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+
+                                </Border.BorderBrush>
+
+                                <Path x:Name="CheckMark"
+
+                                      Visibility="Visible"
+                                      SnapsToDevicePixels="False"
+                                      Margin="5,5,5,5"
+                                      StrokeThickness="2" Stretch="Fill"
+
+                                      Data="M 0 0 L 7 7 M 0 7 L 7 0">
+                                    <Path.Stroke>
+                                        <SolidColorBrush Color="#CCCCCC" />
+                                    </Path.Stroke>
+                                </Path>
+                            </Border>
+                        </Button>
+
+                    </Border>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <Grid Grid.Row="2" Margin="0" Background="{DynamicResource DarkGrayBackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -42,7 +142,7 @@
 
             <DockPanel Grid.Column="1"/>
         </Grid>
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="325" />
                 <ColumnDefinition Width="AUTO" />
@@ -197,4 +297,5 @@
             </Grid>
         </Grid>
     </Grid>
+    </Border>
 </Window>
