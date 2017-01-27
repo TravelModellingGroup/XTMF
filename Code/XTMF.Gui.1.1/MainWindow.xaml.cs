@@ -1199,14 +1199,18 @@ namespace XTMF.Gui
         {
 
         
-            if (e.ChangedButton == MouseButton.Left)
+            if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
             { 
           
 
                 if (e.GetPosition(this).Y < 90)
                 {
-                    e.Handled = true;
+                   
+                    
+                    
+                       e.Handled = true;
                     this.DragMove();
+                    
                 }
 
             }

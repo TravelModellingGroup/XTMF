@@ -267,7 +267,7 @@ namespace XTMF.Gui.UserControls
             var result = MessageBox.Show(MainWindow.Us,
                 "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", MessageBoxButton.OKCancel, MessageBoxImage.Information);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == MessageBoxResult.OK)
             {
                 MainWindow.Us.IsLocalConfig = true;
                 MainWindow.Us.ReloadWithConfiguration(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
