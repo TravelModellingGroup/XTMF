@@ -220,18 +220,18 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private ProjectEditingSession _Session;
+        private ProjectEditingSession _session;
 
         public ProjectEditingSession Session
         {
             get
             {
-                return _Session;
+                return _session;
             }
             set
             {
-                _Session = value;
-                Project = _Session.Project;
+                _session = value;
+                Project = _session.Project;
             }
         }
 
@@ -437,14 +437,11 @@ namespace XTMF.Gui.UserControls
         private void DisplayButton_RightClicked(object obj)
         {
             var button = obj as BorderIconButton;
-            if (button != null)
+            var contextMenu = button?.ContextMenu;
+            if (contextMenu != null)
             {
-                var contextMenu = button.ContextMenu;
-                if (contextMenu != null)
-                {
-                    contextMenu.PlacementTarget = button;
-                    contextMenu.IsOpen = true;
-                }
+                contextMenu.PlacementTarget = button;
+                contextMenu.IsOpen = true;
             }
         }
 
@@ -475,7 +472,11 @@ namespace XTMF.Gui.UserControls
 
         private void PastRunDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            /*
+           
             var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
+
+        
             if (selected != null)
             {
                 var invoke = InitiateModelSystemEditingSession;
@@ -497,6 +498,7 @@ namespace XTMF.Gui.UserControls
                 }
                 PastRunDisplay.SelectedItem = null;
             }
+            */
         }
 
         private void RefreshPreviousRuns_Clicked(object obj)
@@ -756,6 +758,36 @@ namespace XTMF.Gui.UserControls
                 selected = GetFirstItem();
             }
             LoadModelSystem(selected);
+        }
+
+      
+        private void PastRuns_MouseButton(object sender, MouseButtonEventArgs e)
+        {
+            var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
+
+           
+            if (selected != null)
+            {
+                var invoke = InitiateModelSystemEditingSession;
+                if (invoke != null)
+                {
+                    string error = null;
+                    ModelSystemEditingSession newSession;
+                    if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
+                    {
+                        if (newSession != null)
+                        {
+                            invoke(newSession);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                PastRunDisplay.SelectedItem = null;
+            }
+            
         }
     }
 }

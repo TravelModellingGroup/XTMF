@@ -1189,11 +1189,6 @@ namespace XTMF.Gui
 
         }
 
-        private void DocumentPane_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            //Console.WriteLine(e + " " + e.PropertyName);
-        }
-
    
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -1203,9 +1198,7 @@ namespace XTMF.Gui
             { 
           
 
-                Point p =  e.GetPosition(this);
-
-                if (p.Y < 90)
+                if (e.GetPosition(this).Y < 90)
                 {
                     e.Handled = true;
                     this.DragMove();
@@ -1214,11 +1207,6 @@ namespace XTMF.Gui
             }
 
       
-        }
-
-        private void DockManager_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-
         }
 
       
@@ -1274,9 +1262,7 @@ namespace XTMF.Gui
             {
 
 
-                Point p = e.GetPosition(this);
-
-                if (p.Y < 90)
+                if (e.GetPosition(this).Y < 90)
                 {
                     e.Handled = true;
                     this.MaxNorm_OnClick(null,null);

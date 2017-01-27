@@ -160,8 +160,17 @@
                     <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="#FF252526"
                                  SelectionChanged="PastRunDisplay_SelectionChanged"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
+
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <EventSetter Event="MouseDoubleClick" Handler="PastRuns_MouseButton" />
+                               
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                         <ListBox.ItemsPanel>
+                            
                             <ItemsPanelTemplate>
+                                
                                 <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                            ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"  />
                             </ItemsPanelTemplate>

@@ -312,7 +312,7 @@
                 </MenuItem>
             </Menu>
             <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-            <xcad:DockingManager MouseDown="DockManager_MouseDown" IsHitTestVisible="True" x:Name="DockManager"
+            <xcad:DockingManager  IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"
                                  ScrollViewer.PanningMode="HorizontalOnly"
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
@@ -371,17 +371,17 @@
                 <xcad:DockingManager.Theme>
                     <xcad:Vs2013DarkTheme />
                 </xcad:DockingManager.Theme>
-                <xcad:LayoutRoot x:Name="_layoutRoot">
+                <xcad:LayoutRoot x:Name="LayoutRoot">
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
                             <xcad:LayoutDocumentPane x:Name="DocumentPane"
-                                                     PropertyChanged="DocumentPane_PropertyChanged" />
+                                                     />
                         </xcad:LayoutDocumentPaneGroup>
                     </xcad:LayoutPanel>
                 </xcad:LayoutRoot>
             </xcad:DockingManager>
             <StatusBar Background="{DynamicResource DarkGrayBackgroundBrush}" HorizontalAlignment="Stretch"
-                       Grid.Row="2" Grid.ColumnSpan="2">
+                       Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
                 <StatusBarItem HorizontalAlignment="Left">
                     <TextBlock x:Name="StatusDisplay" Foreground="White" />
                 </StatusBarItem>
