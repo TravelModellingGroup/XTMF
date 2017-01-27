@@ -123,7 +123,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
-            <TreeView Grid.Row="1" Background="#FF252526" 
+            <TreeView Grid.Row="1" Background="#FF252526"  BorderThickness="0"
                   x:Name="ModuleDisplay"  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
@@ -247,7 +247,7 @@
                 </TreeView.ItemContainerStyle> -->
             </TreeView>
         </Grid>
-        <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
+        <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource DarkGrayBackgroundBrush}" ShowsPreview="True" />
         <TabControl x:Name="ParameterTabControl" Grid.Column="2" Background="{StaticResource ControlBackgroundBrush}" Style="{StaticResource XTMFTabControl}" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Module Parameters (Ctrl+P)" x:Name="ModuleParameterTab" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
                 <Grid HorizontalAlignment="Stretch" Background="{DynamicResource DarkGrayBackgroundBrush}">
