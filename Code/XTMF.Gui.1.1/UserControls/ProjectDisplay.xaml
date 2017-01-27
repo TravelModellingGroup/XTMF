@@ -158,7 +158,7 @@
                     </DockPanel>
                     <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
                     <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="#FF252526"
-                                 SelectionChanged="PastRunDisplay_SelectionChanged"
+                                 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
 
                         <ListBox.ItemContainerStyle>

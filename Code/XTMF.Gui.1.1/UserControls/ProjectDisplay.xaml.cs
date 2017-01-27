@@ -470,36 +470,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void PastRunDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            /*
-           
-            var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
-
-        
-            if (selected != null)
-            {
-                var invoke = InitiateModelSystemEditingSession;
-                if (invoke != null)
-                {
-                    string error = null;
-                    ModelSystemEditingSession newSession;
-                    if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
-                    {
-                        if (newSession != null)
-                        {
-                            invoke(newSession);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                PastRunDisplay.SelectedItem = null;
-            }
-            */
-        }
+      
 
         private void RefreshPreviousRuns_Clicked(object obj)
         {
@@ -765,7 +736,7 @@ namespace XTMF.Gui.UserControls
         {
             var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
 
-           
+            
             if (selected != null)
             {
                 var invoke = InitiateModelSystemEditingSession;
