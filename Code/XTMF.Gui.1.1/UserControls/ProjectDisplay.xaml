@@ -135,7 +135,7 @@
                                                          Selected="{Binding IsSelected, Mode=OneWay}"
                                                          Text="{Binding Description, Mode=OneWay}"
                                                          Width="300" Margin="5" DoubleClicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
-                                                         ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}, Path=ContextMenu}"/>
+                                                         />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
