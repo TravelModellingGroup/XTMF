@@ -25,7 +25,7 @@
              xmlns:my="clr-namespace:XTMF.Gui"
                 WindowStyle="ToolWindow"
                 WindowStartupLocation="CenterOwner"
-                Title="Linked Parameter Editor" Height="480" Width="750">
+                Title="Linked Parameter Editor" Height="480" Width="750" KeyDown="Window_KeyDown">
     <Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />

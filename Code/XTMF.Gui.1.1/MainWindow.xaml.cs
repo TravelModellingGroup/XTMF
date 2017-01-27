@@ -1262,6 +1262,8 @@ namespace XTMF.Gui
             else
             {
                 SystemCommands.RestoreWindow(this);
+
+                
             }
         }
 

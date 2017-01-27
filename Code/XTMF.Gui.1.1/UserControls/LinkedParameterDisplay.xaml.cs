@@ -440,6 +440,14 @@ namespace XTMF.Gui.UserControls
 
             return result;
         }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape && !e.Handled)
+            {
+                this.Close();
+            }
+        }
     }
 
     public class ParameterDatatemplateSelector : DataTemplateSelector
