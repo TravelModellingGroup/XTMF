@@ -37,25 +37,19 @@ namespace Datastructure
         /// <param name="FileName">The full path to the file.</param>
         public CommentedCsvReader(string FileName)
         {
-            this.Reader = new CsvReader( FileName );
-            this.linesRead = 0;
+            Reader = new CsvReader( FileName );
+            linesRead = 0;
             SetupReader();
         }
 
         public CommentedCsvReader(Stream Stream)
         {
-            this.Reader = new CsvReader( Stream );
-            this.linesRead = 0;
+            Reader = new CsvReader( Stream );
+            linesRead = 0;
             SetupReader();
         }
 
-        public Stream BaseStream
-        {
-            get
-            {
-                return this.Reader.BaseStream;
-            }
-        }
+        public Stream BaseStream => Reader.BaseStream;
 
         /// <summary>
         /// The array of column labels.
@@ -77,32 +71,32 @@ namespace Datastructure
 
         public void Close()
         {
-            this.Reader.Dispose();
+            Reader.Dispose();
         }
 
         public void Dispose()
         {
-            this.Reader.Dispose();
+            Reader.Dispose();
         }
 
         public void Get(out string Item, int Index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out Item, Index );
         }
 
         public void Get(out char Item, int Index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out Item, Index );
         }
 
         public void Get(out float Item, int Index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out Item, Index );
         }
 
         public void Get(out int Item, int Index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out Item, Index );
         }
 
         /// <summary>
@@ -113,7 +107,7 @@ namespace Datastructure
         {
             while ( !Reader.EndOfFile )
             {
-                this.NumberOfCurrentCells = Reader.LoadLine();
+                NumberOfCurrentCells = Reader.LoadLine();
 
                 if ( Reader.LinePosition == 0 ) continue; //Ignore blank lines
                 if ( Reader.LinePosition >= 2 )
@@ -121,12 +115,12 @@ namespace Datastructure
                     if ( Reader.LineBuffer[0] == '/' & Reader.LineBuffer[1] == '/' ) continue; //Skip commented lines
                 }
 
-                this.linesRead++;
-                if ( this.Headers == null ) return true;
-                if ( this.NumberOfCurrentCells != this.Headers.Length )
+                linesRead++;
+                if (Headers == null ) return true;
+                if (NumberOfCurrentCells != Headers.Length )
                 {
-                    throw new IOException( "Error reading file '" + Reader.FileName + "' at line " + linesRead + ": number of cells in the row (" + this.NumberOfCurrentCells +
-                        ") is not equal to the number of headers defined in the file (" + this.Headers.Length + ")." );
+                    throw new IOException( "Error reading file '" + Reader.FileName + "' at line " + linesRead + ": number of cells in the row (" + NumberOfCurrentCells +
+                        ") is not equal to the number of headers defined in the file (" + Headers.Length + ")." );
                 }
                 return true;
             }
@@ -140,13 +134,13 @@ namespace Datastructure
         private void SetupReader()
         {
             // iterate here until we are either at the end of the file or a place with a header
-            while ( this.NextLine() && this.NumberOfCurrentCells <= 0 ) ;
+            while (NextLine() && NumberOfCurrentCells <= 0 ) ;
 
-            this.Headers = new string[this.NumberOfCurrentCells];
-            string h = "";
-            for ( int i = 0; i < this.NumberOfCurrentCells; i++ )
+            Headers = new string[NumberOfCurrentCells];
+            var h = "";
+            for ( var i = 0; i < NumberOfCurrentCells; i++ )
             {
-                this.Get( out h, i );
+                Get( out h, i );
                 Headers[i] = h;
             }
         }

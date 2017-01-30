@@ -56,23 +56,23 @@ namespace Datastructure
         /// <param name="data">The data contained for this key</param>
         public override void Add(K key, D data)
         {
-            int place = Math.Abs( ( key.GetHashCode() ) % this.Table.Length );
-            this.TableLocks[place].Lock( delegate()
+            var place = Math.Abs( ( key.GetHashCode() ) % Table.Length );
+            TableLocks[place].Lock( delegate()
             {
-                if ( this.Table[place] == null )
+                if (Table[place] == null )
                 {
-                    Node n = new Node();
+                    var n = new Node();
                     n.Key = key;
                     n.Storage = data;
                     n.Next = null;
-                    this.Table[place] = n;
-                    Interlocked.Increment( ref this.count );
+                    Table[place] = n;
+                    Interlocked.Increment( ref count);
                 }
                 else
                 {
-                    this.Table[place].Key = key;
-                    this.Table[place].Storage = data;
-                    this.Table[place].Next = null;
+                    Table[place].Key = key;
+                    Table[place].Storage = data;
+                    Table[place].Next = null;
                 }
             } );
         }

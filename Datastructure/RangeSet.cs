@@ -29,7 +29,7 @@ namespace Datastructure
 
         public RangeSet(List<Range> tempRange)
         {
-            this.SetRanges = tempRange.ToArray();
+            SetRanges = tempRange.ToArray();
         }
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace Datastructure
             var array = new int[numbers.Count];
             numbers.CopyTo( array, 0 );
             Array.Sort( array );
-            List<Range> tempRange = new List<Range>();
-            int start = 0;
-            for ( int i = 1; i < array.Length; i++ )
+            var tempRange = new List<Range>();
+            var start = 0;
+            for ( var i = 1; i < array.Length; i++ )
             {
                 if ( array[i] > array[i - 1] + 1 )
                 {
@@ -53,29 +53,23 @@ namespace Datastructure
             }
             // and in the end
             tempRange.Add( new Range() { Start = array[start], Stop = array[array.Length - 1] } );
-            this.SetRanges = tempRange.ToArray();
+            SetRanges = tempRange.ToArray();
         }
 
-        public int Count
-        {
-            get { return this.SetRanges.Length; }
-        }
+        public int Count => SetRanges.Length;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public virtual Range this[int index]
         {
             get
             {
-                return this.SetRanges[index];
+                return SetRanges[index];
             }
 
             set
             {
-                this.SetRanges[index] = value;
+                SetRanges[index] = value;
             }
         }
 
@@ -90,22 +84,22 @@ namespace Datastructure
             var tempRange = new List<Range>();
             var length = rangeString.Length;
             var str = rangeString.ToCharArray();
-            int index = 0;
-            int start = 0;
-            int end = 0;
+            var index = 0;
+            var start = 0;
+            var end = 0;
             output = null;
             //Phase == 0 -> index
             //Phase == 1 -> start
             //Phase == 2 -> end
-            int phase = 0;
-            bool lastPlus = false;
-            bool tallyingInZero = false;
+            var phase = 0;
+            var lastPlus = false;
+            var tallyingInZero = false;
             if ( String.IsNullOrWhiteSpace( rangeString ) )
             {
                 output = new RangeSet( tempRange );
                 return true;
             }
-            for ( int i = 0; i < length; i++ )
+            for ( var i = 0; i < length; i++ )
             {
                 var c = str[i];
                 if ( Char.IsWhiteSpace( c ) || Char.IsLetter( c ) ) continue;
@@ -226,14 +220,14 @@ namespace Datastructure
 
         public bool Contains(Range item)
         {
-            return this.IndexOf( item ) != -1;
+            return IndexOf( item ) != -1;
         }
 
         public bool Contains(int number)
         {
-            for ( int i = 0; i < this.SetRanges.Length; i++ )
+            for ( var i = 0; i < SetRanges.Length; i++ )
             {
-                if ( ( number >= this.SetRanges[i].Start ) && ( number <= this.SetRanges[i].Stop ) )
+                if ( ( number >= SetRanges[i].Start ) && ( number <= SetRanges[i].Stop ) )
                 {
                     return true;
                 }
@@ -243,9 +237,9 @@ namespace Datastructure
 
         public void CopyTo(Range[] array, int arrayIndex)
         {
-            for ( int i = 0; i < this.SetRanges.Length; i++ )
+            for ( var i = 0; i < SetRanges.Length; i++ )
             {
-                array[arrayIndex + i] = this.SetRanges[i];
+                array[arrayIndex + i] = SetRanges[i];
             }
         }
 
@@ -254,10 +248,10 @@ namespace Datastructure
             var other = obj as RangeSet;
             if ( other != null )
             {
-                if ( other.Count != this.Count ) return false;
-                for ( int i = 0; i < this.SetRanges.Length; i++ )
+                if ( other.Count != Count) return false;
+                for ( var i = 0; i < SetRanges.Length; i++ )
                 {
-                    if ( !( this.SetRanges[i] == other[i] ) )
+                    if ( !(SetRanges[i] == other[i] ) )
                     {
                         return false;
                     }
@@ -269,24 +263,24 @@ namespace Datastructure
 
         public IEnumerator<Range> GetEnumerator()
         {
-            return ( (ICollection<Range>)this.SetRanges ).GetEnumerator();
+            return ( (ICollection<Range>)SetRanges).GetEnumerator();
         }
 
         public override int GetHashCode()
         {
-            int hash = 0;
-            for ( int i = 0; i < this.SetRanges.Length; i++ )
+            var hash = 0;
+            for ( var i = 0; i < SetRanges.Length; i++ )
             {
-                hash += this.SetRanges.GetHashCode();
+                hash += SetRanges.GetHashCode();
             }
             return hash;
         }
 
         public int IndexOf(Range item)
         {
-            for ( int i = 0; i < this.SetRanges.Length; i++ )
+            for ( var i = 0; i < SetRanges.Length; i++ )
             {
-                if ( this.SetRanges[i] == item )
+                if (SetRanges[i] == item )
                 {
                     return i;
                 }
@@ -301,9 +295,9 @@ namespace Datastructure
         /// <returns>-1 if not found, otherwise the index of the Range in the rangeset that first contains this integer</returns>
         public int IndexOf(int integerToFind)
         {
-            for ( int i = 0; i < this.SetRanges.Length; i++ )
+            for ( var i = 0; i < SetRanges.Length; i++ )
             {
-                if ( this.SetRanges[i].ContainsInclusive( integerToFind ) )
+                if (SetRanges[i].ContainsInclusive( integerToFind ) )
                 {
                     return i;
                 }
@@ -318,9 +312,9 @@ namespace Datastructure
 
         public bool Overlaps(Range other)
         {
-            for ( int i = 0; i < this.SetRanges.Length; i++ )
+            for ( var i = 0; i < SetRanges.Length; i++ )
             {
-                if ( this.SetRanges[i].Contains( other.Start ) || this.SetRanges[i].Contains( other.Stop ) )
+                if (SetRanges[i].Contains( other.Start ) || SetRanges[i].Contains( other.Stop ) )
                 {
                     return true;
                 }
@@ -330,11 +324,11 @@ namespace Datastructure
 
         public bool Overlaps(RangeSet other)
         {
-            for ( int i = 0; i < this.SetRanges.Length; i++ )
+            for ( var i = 0; i < SetRanges.Length; i++ )
             {
-                for ( int j = 0; j < other.SetRanges.Length; j++ )
+                for ( var j = 0; j < other.SetRanges.Length; j++ )
                 {
-                    if ( this.SetRanges[i].Contains( other.SetRanges[j].Start ) || this.SetRanges[i].Contains( other.SetRanges[j].Stop ) )
+                    if (SetRanges[i].Contains( other.SetRanges[j].Start ) || SetRanges[i].Contains( other.SetRanges[j].Stop ) )
                     {
                         return true;
                     }
@@ -355,20 +349,20 @@ namespace Datastructure
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.SetRanges.GetEnumerator();
+            return SetRanges.GetEnumerator();
         }
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            bool first = true;
-            if ( this.SetRanges.Length == 0 )
+            var builder = new StringBuilder();
+            var first = true;
+            if (SetRanges.Length == 0 )
             {
                 // do nothing we already have a blank builder
             }
             else
             {
-                foreach ( var res in this.SetRanges )
+                foreach ( var res in SetRanges)
                 {
                     if ( !first )
                     {

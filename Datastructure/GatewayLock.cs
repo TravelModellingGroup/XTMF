@@ -29,7 +29,7 @@ namespace Datastructure
         /// <summary>
         /// The number of things that are currently being processed
         /// </summary>
-        public long Processing { get { return ThingsIn; } }
+        public long Processing => ThingsIn;
 
         /// <summary>
         /// Lock the Gateway until "This" is done
@@ -37,7 +37,7 @@ namespace Datastructure
         /// <param name="DoThis">What we need to do</param>
         public void Lock(Action DoThis)
         {
-            lock ( this.Gateway )
+            lock (Gateway)
             {
                 while ( Interlocked.Read( ref ThingsIn ) > 0 )
                 {
@@ -54,7 +54,7 @@ namespace Datastructure
         /// <param name="DoThis">The thing to do</param>
         public void PassThrough(Action DoThis)
         {
-            lock ( this.Gateway )
+            lock (Gateway)
             {
                 Interlocked.Increment( ref ThingsIn );
             }

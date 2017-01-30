@@ -60,22 +60,22 @@ namespace Datastructure
             var tempIndexes = new List<int>();
             var length = rangeString.Length;
             var str = rangeString.ToCharArray();
-            int index = 0;
-            int start = 0;
-            int end = 0;
+            var index = 0;
+            var start = 0;
+            var end = 0;
             output = null;
             //Phase == 0 -> index
             //Phase == 1 -> start
             //Phase == 2 -> end
-            int phase = 0;
-            bool lastPlus = false;
-            bool tallyingInZero = false;
+            var phase = 0;
+            var lastPlus = false;
+            var tallyingInZero = false;
             if ( String.IsNullOrWhiteSpace( rangeString ) )
             {
                 output = new IndexedRangeSet( tempRange, tempIndexes );
                 return true;
             }
-            for ( int i = 0; i < length; i++ )
+            for ( var i = 0; i < length; i++ )
             {
                 var c = str[i];
                 if ( Char.IsWhiteSpace( c ) || Char.IsLetter( c ) ) continue;
@@ -197,9 +197,9 @@ namespace Datastructure
 
         private int GetIndexOf(int index)
         {
-            for ( int i = 0; i < this.Indexes.Length; i++ )
+            for ( var i = 0; i < Indexes.Length; i++ )
             {
-                if ( this.Indexes[i] == index )
+                if (Indexes[i] == index )
                 {
                     return i;
                 }

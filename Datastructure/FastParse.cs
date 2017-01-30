@@ -24,7 +24,7 @@ namespace Datastructure
     {
         public static float ParseFixedFloat(string line, int offset, int length)
         {
-            int start = offset + length;
+            var start = offset + length;
             while(start > 0 && ((line[start - 1] >= '0' & line[start - 1] <= '9') | line[start - 1] == '.'))
             {
                 start--;
@@ -34,7 +34,7 @@ namespace Datastructure
 
         public static int ParseFixedInt(string line, int offset, int length)
         {
-            int start = offset + length;
+            var start = offset + length;
             while(start > 0 && (line[start - 1] >= '0' & line[start - 1] <= '9'))
             {
                 start--;
@@ -51,16 +51,16 @@ namespace Datastructure
         /// <returns></returns>
         public static float ParseFloat(string str, int indexFrom, int indexTo)
         {
-            int ival = 0;
-            int dval = 0;
-            int multiplyer = 0;
+            var ival = 0;
+            var dval = 0;
+            var multiplyer = 0;
             int i;
             char c;
             unsafe
             {
                 fixed (char* p = str)
                 {
-                    int noPoint = 1;
+                    var noPoint = 1;
                     for(i = indexFrom; i < indexTo; i++)
                     {
                         if((c = p[i]) == '.')
@@ -101,8 +101,8 @@ namespace Datastructure
         /// <returns>The integer value</returns>
         public static int ParseInt(string str, int indexFrom, int indexTo)
         {
-            int value = 0;
-            for(int i = indexFrom; i < indexTo; i++)
+            var value = 0;
+            for(var i = indexFrom; i < indexTo; i++)
             {
                 if(str[i] == ' ') continue;
                 // Same as multiplying by 10

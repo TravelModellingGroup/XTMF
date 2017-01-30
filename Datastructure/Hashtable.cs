@@ -58,18 +58,18 @@ namespace Datastructure
         /// <param name="capacity"></param>
         public Hashtable(int capacity)
         {
-            this.Table = new Node[capacity];
-            this.TableLocks = new GatewayLock[capacity];
-            for ( int i = 0; i < capacity; i++ )
+            Table = new Node[capacity];
+            TableLocks = new GatewayLock[capacity];
+            for ( var i = 0; i < capacity; i++ )
             {
-                this.TableLocks[i] = new GatewayLock();
+                TableLocks[i] = new GatewayLock();
             }
         }
 
         /// <summary>
         /// Learn how many items we have
         /// </summary>
-        public int Count { get { return count; } }
+        public int Count => count;
 
         /// <summary>
         /// The data stored in the hashtable
@@ -78,20 +78,20 @@ namespace Datastructure
         {
             get
             {
-                List<D> dataList = new List<D>( Table.Length );
-                for ( int i = 0; i < this.Table.Length; i++ )
+                var dataList = new List<D>( Table.Length );
+                for ( var i = 0; i < Table.Length; i++ )
                 {
                     dataList.Clear();
-                    this.TableLocks[i].PassThrough( delegate()
+                    TableLocks[i].PassThrough( delegate()
                     {
-                        Node current = this.Table[i];
+                        var current = Table[i];
                         while ( current != null )
                         {
                             dataList.Add( current.Storage );
                             current = current.Next;
                         }
                     } );
-                    foreach ( D d in dataList )
+                    foreach ( var d in dataList )
                     {
                         yield return d;
                     }
@@ -106,20 +106,20 @@ namespace Datastructure
         {
             get
             {
-                List<K> keysList = new List<K>( Table.Length );
-                for ( int i = 0; i < this.Table.Length; i++ )
+                var keysList = new List<K>( Table.Length );
+                for ( var i = 0; i < Table.Length; i++ )
                 {
                     keysList.Clear();
-                    this.TableLocks[i].PassThrough( delegate()
+                    TableLocks[i].PassThrough( delegate()
                     {
-                        Node current = this.Table[i];
+                        var current = Table[i];
                         while ( current != null )
                         {
                             keysList.Add( current.Key );
                             current = current.Next;
                         }
                     } );
-                    foreach ( K k in keysList )
+                    foreach ( var k in keysList )
                     {
                         yield return k;
                     }
@@ -136,9 +136,9 @@ namespace Datastructure
         {
             get
             {
-                int place = Math.Abs( key.GetHashCode() % Table.Length );
+                var place = Math.Abs( key.GetHashCode() % Table.Length );
                 Node current = null;
-                this.TableLocks[place].PassThrough( delegate()
+                TableLocks[place].PassThrough( delegate()
                 {
                     current = Table[place];
                     while ( current != null )
@@ -158,14 +158,14 @@ namespace Datastructure
         /// <param name="data">What data to store with this key</param>
         public virtual void Add(K key, D data)
         {
-            int place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node n = new Node();
+            var place = Math.Abs( key.GetHashCode() % Table.Length );
+            var n = new Node();
             n.Key = key;
             n.Storage = data;
-            this.TableLocks[place].Lock( delegate()
+            TableLocks[place].Lock( delegate()
             {
-                n.Next = this.Table[place];
-                this.Table[place] = n;
+                n.Next = Table[place];
+                Table[place] = n;
                 Interlocked.Increment( ref count );
             } );
         }
@@ -177,10 +177,10 @@ namespace Datastructure
         /// <returns>True if it was found</returns>
         public bool Contains(K key)
         {
-            int place = Math.Abs( key.GetHashCode() % Table.Length );
+            var place = Math.Abs( key.GetHashCode() % Table.Length );
             Node current = null;
-            bool found = false;
-            this.TableLocks[place].PassThrough( delegate()
+            var found = false;
+            TableLocks[place].PassThrough( delegate()
             {
                 current = Table[place];
                 while ( current != null )
@@ -203,10 +203,10 @@ namespace Datastructure
         /// <returns>True if it was found</returns>
         public bool Contains(D data)
         {
-            int place = Math.Abs( data.GetHashCode() % Table.Length );
+            var place = Math.Abs( data.GetHashCode() % Table.Length );
             Node current = null;
-            bool found = false;
-            this.TableLocks[place].PassThrough( delegate()
+            var found = false;
+            TableLocks[place].PassThrough( delegate()
             {
                 current = Table[place];
                 while ( current != null )
@@ -239,15 +239,15 @@ namespace Datastructure
         /// <param name="data">What to store</param>
         public virtual void UniqueAdd(K key, D data)
         {
-            int place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node n = new Node();
+            var place = Math.Abs( key.GetHashCode() % Table.Length );
+            var n = new Node();
             n.Key = key;
             n.Storage = data;
-            this.TableLocks[place].Lock( delegate()
+            TableLocks[place].Lock( delegate()
             {
-                n.Next = this.Table[place];
-                Node current = this.Table[place];
-                bool add = true;
+                n.Next = Table[place];
+                var current = Table[place];
+                var add = true;
                 while ( current != null )
                 {
                     if ( current.Key.CompareTo( key ) == 0 )
@@ -259,7 +259,7 @@ namespace Datastructure
                 }
                 if ( add )
                 {
-                    this.Table[place] = n;
+                    Table[place] = n;
                     Interlocked.Increment( ref count );
                 }
             } );

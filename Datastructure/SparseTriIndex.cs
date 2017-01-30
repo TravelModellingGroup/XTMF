@@ -61,9 +61,9 @@ namespace Datastructure
 
             set
             {
-                int originalO = o;
-                int originalD = d;
-                int originalT = t;
+                var originalO = o;
+                var originalD = d;
+                var originalT = t;
                 if(Data.Length > 0 && GetTransformedIndexes(ref o, ref d, ref t))
                 {
                     Data[o][d][t] = value;
@@ -77,15 +77,15 @@ namespace Datastructure
 
         public static SparseTriIndex<T> CreateSimilarArray<J, K, L>(SparseArray<J> first, SparseArray<K> second, SparseArray<L> third)
         {
-            SparseIndexing indexes = new SparseIndexing();
+            var indexes = new SparseIndexing();
             indexes.Indexes = first.Indexing.Indexes.Clone() as SparseSet[];
             var length = indexes.Indexes.Length;
-            for(int i = 0; i < length; i++)
+            for(var i = 0; i < length; i++)
             {
                 SparseSet[] subIndexes;
                 indexes.Indexes[i].SubIndex = new SparseIndexing() { Indexes = (subIndexes = second.Indexing.Indexes.Clone() as SparseSet[]) };
                 var subindexLength = indexes.Indexes[i].SubIndex.Indexes.Length;
-                for(int j = 0; j < subindexLength; j++)
+                for(var j = 0; j < subindexLength; j++)
                 {
                     subIndexes[j].SubIndex.Indexes = third.Indexing.Indexes.Clone() as SparseSet[];
                 }
@@ -102,9 +102,9 @@ namespace Datastructure
                 // create a null tri indexed space
                 return new SparseTriIndex<T>();
             }
-            SortStruct[] indexes = new SortStruct[length];
+            var indexes = new SortStruct[length];
             // Copy everything into a struct for sanity
-            for(int i = 0; i < length; i++)
+            for(var i = 0; i < length; i++)
             {
                 indexes[i].SparseSpaceFirst = first[i];
                 indexes[i].SparseSpaceSecond = second[i];
@@ -190,11 +190,11 @@ namespace Datastructure
         public IEnumerable<int> ValidIndexes()
         {
             if(Data.Length == 0) yield break;
-            int length = Indexes.Indexes.Length;
-            for(int i = 0; i < length; i++)
+            var length = Indexes.Indexes.Length;
+            for(var i = 0; i < length; i++)
             {
-                int stop = Indexes.Indexes[i].Stop;
-                for(int j = Indexes.Indexes[i].Start; j <= stop; j++)
+                var stop = Indexes.Indexes[i].Stop;
+                for(var j = Indexes.Indexes[i].Start; j <= stop; j++)
                 {
                     yield return j;
                 }
@@ -207,11 +207,11 @@ namespace Datastructure
             if(Data.Length == 0) yield break;
             if(TansformO(Indexes.Indexes, ref first, out oSet))
             {
-                int length = oSet.SubIndex.Indexes.Length;
-                for(int i = 0; i < length; i++)
+                var length = oSet.SubIndex.Indexes.Length;
+                for(var i = 0; i < length; i++)
                 {
-                    int stop = oSet.SubIndex.Indexes[i].Stop;
-                    for(int j = oSet.SubIndex.Indexes[i].Start; j <= stop; j++)
+                    var stop = oSet.SubIndex.Indexes[i].Stop;
+                    for(var j = oSet.SubIndex.Indexes[i].Start; j <= stop; j++)
                     {
                         yield return j;
                     }
@@ -228,11 +228,11 @@ namespace Datastructure
             {
                 if(TansformD(oSet, ref second, out dSet))
                 {
-                    int length = dSet.SubIndex.Indexes.Length;
-                    for(int i = 0; i < length; i++)
+                    var length = dSet.SubIndex.Indexes.Length;
+                    for(var i = 0; i < length; i++)
                     {
-                        int stop = dSet.SubIndex.Indexes[i].Stop;
-                        for(int j = dSet.SubIndex.Indexes[i].Start; j <= stop; j++)
+                        var stop = dSet.SubIndex.Indexes[i].Stop;
+                        for(var j = dSet.SubIndex.Indexes[i].Start; j <= stop; j++)
                         {
                             yield return j;
                         }
@@ -243,30 +243,30 @@ namespace Datastructure
 
         private static SparseIndexing ConvertToIndexes(List<Pair<int, List<SparseSet>>> processedIndexes, out T[][][] Data, T[] data, SortStruct[] index)
         {
-            SparseIndexing start = new SparseIndexing();
+            var start = new SparseIndexing();
             var iLength = processedIndexes.Count;
             Data = new T[iLength][][];
             start.Indexes = new SparseSet[iLength];
-            int dataProcessed = 0;
-            for(int i = 0; i < iLength; i++)
+            var dataProcessed = 0;
+            for(var i = 0; i < iLength; i++)
             {
                 var jLength = processedIndexes[i].Second.Count;
                 Data[i] = new T[jLength][];
                 start.Indexes[i].Start = start.Indexes[i].Stop = processedIndexes[i].First;
                 start.Indexes[i].SubIndex.Indexes = new SparseSet[jLength];
-                for(int j = 0; j < jLength; j++)
+                for(var j = 0; j < jLength; j++)
                 {
                     var totalK = 0;
                     var currentJ = processedIndexes[i].Second[j];
                     start.Indexes[i].SubIndex.Indexes[j] = currentJ;
                     var kSections = currentJ.SubIndex.Indexes.Length;
-                    for(int kSection = 0; kSection < kSections; kSection++)
+                    for(var kSection = 0; kSection < kSections; kSection++)
                     {
                         totalK += (start.Indexes[i].SubIndex.Indexes[j].SubIndex.Indexes[kSection].Stop = processedIndexes[i].Second[j].SubIndex.Indexes[kSection].Stop)
                             - (start.Indexes[i].SubIndex.Indexes[j].SubIndex.Indexes[kSection].Start = processedIndexes[i].Second[j].SubIndex.Indexes[kSection].Start) + 1;
                     }
                     Data[i][j] = new T[totalK];
-                    for(int k = 0; k < totalK; k++)
+                    for(var k = 0; k < totalK; k++)
                     {
                         Data[i][j][k] = data[index[dataProcessed++].DataSpace];
                     }
@@ -281,13 +281,13 @@ namespace Datastructure
 
         private static List<Pair<int, List<SparseSet>>> GenerateIndexes(SortStruct[] indexes)
         {
-            List<Pair<int, List<SparseSet>>> meta = new List<Pair<int, List<SparseSet>>>();
+            var meta = new List<Pair<int, List<SparseSet>>>();
             var length = indexes.Length;
-            List<SparseSet> subSetsI = new List<SparseSet>();
-            List<SparseSet> subSetsJ = new List<SparseSet>();
-            SparseSet currentSet = new SparseSet();
+            var subSetsI = new List<SparseSet>();
+            var subSetsJ = new List<SparseSet>();
+            var currentSet = new SparseSet();
             currentSet.Start = currentSet.Stop = indexes[0].SparseSpaceThird;
-            for(int i = 1; i < length; i++)
+            for(var i = 1; i < length; i++)
             {
                 if(indexes[i].SparseSpaceFirst == indexes[i - 1].SparseSpaceFirst)
                 {
@@ -350,7 +350,7 @@ namespace Datastructure
 
         private void GenerateStructure()
         {
-            bool malloc = (Data == null);
+            var malloc = (Data == null);
             ProcessFirst(malloc);
             ProcessSecond(malloc);
             ProcessThird(malloc);
@@ -389,9 +389,9 @@ namespace Datastructure
 
         private bool ProcessFirst(bool malloc)
         {
-            int totalFirst = 0;
+            var totalFirst = 0;
 
-            for(int i = 0; i < Indexes.Indexes.Length; i++)
+            for(var i = 0; i < Indexes.Indexes.Length; i++)
             {
                 Indexes.Indexes[i].BaseLocation = totalFirst;
                 totalFirst += Indexes.Indexes[i].Stop - Indexes.Indexes[i].Start + 1;
@@ -405,15 +405,15 @@ namespace Datastructure
 
         private void ProcessSecond(bool malloc)
         {
-            int currentDataPlace = 0;
+            var currentDataPlace = 0;
             // Now make the matrix's second rows
             var iLength = Indexes.Indexes.Length;
-            for(int iIndex = 0; iIndex < iLength; iIndex++)
+            for(var iIndex = 0; iIndex < iLength; iIndex++)
             {
                 var numberOfJIndexes = Indexes.Indexes[iIndex].SubIndex.Indexes.Length;
-                int totalSecond = 0;
+                var totalSecond = 0;
                 // calculate the total
-                for(int jIndex = 0; jIndex < numberOfJIndexes; jIndex++)
+                for(var jIndex = 0; jIndex < numberOfJIndexes; jIndex++)
                 {
                     Indexes.Indexes[iIndex].SubIndex.Indexes[jIndex].BaseLocation = totalSecond;
                     totalSecond += Indexes.Indexes[iIndex].SubIndex.Indexes[jIndex].Stop - Indexes.Indexes[iIndex].SubIndex.Indexes[jIndex].Start + 1;
@@ -421,7 +421,7 @@ namespace Datastructure
                 if(malloc)
                 {
                     // malloc the data
-                    for(int k = Indexes.Indexes[iIndex].Start; k <= Indexes.Indexes[iIndex].Stop; k++)
+                    for(var k = Indexes.Indexes[iIndex].Start; k <= Indexes.Indexes[iIndex].Stop; k++)
                     {
                         Data[currentDataPlace++] = new T[totalSecond][];
                     }
@@ -432,17 +432,17 @@ namespace Datastructure
         private void ProcessThird(bool malloc)
         {
             var iLength = Indexes.Indexes.Length;
-            for(int iIndex = 0; iIndex < iLength; iIndex++)
+            for(var iIndex = 0; iIndex < iLength; iIndex++)
             {
                 var iTotal = Indexes.Indexes[iIndex].Stop - Indexes.Indexes[iIndex].Start + 1;
                 var jLength = Indexes.Indexes[iIndex].SubIndex.Indexes.Length;
-                int currentDataPlace = 0;
-                int jOffset = 0;
-                for(int j = 0; j < jLength; j++)
+                var currentDataPlace = 0;
+                var jOffset = 0;
+                for(var j = 0; j < jLength; j++)
                 {
                     var kLength = Indexes.Indexes[iIndex].SubIndex.Indexes[j].SubIndex.Indexes.Length;
-                    int totalThird = 0;
-                    for(int k = 0; k < kLength; k++)
+                    var totalThird = 0;
+                    for(var k = 0; k < kLength; k++)
                     {
                         Indexes.Indexes[iIndex].SubIndex.Indexes[j].SubIndex.Indexes[k].BaseLocation = totalThird;
                         totalThird += Indexes.Indexes[iIndex].SubIndex.Indexes[j].SubIndex.Indexes[k].Stop - Indexes.Indexes[iIndex].SubIndex.Indexes[j].SubIndex.Indexes[k].Start + 1;
@@ -450,10 +450,10 @@ namespace Datastructure
                     if(malloc)
                     {
                         // malloc the data
-                        for(int i = 0; i < iTotal; i++)
+                        for(var i = 0; i < iTotal; i++)
                         {
                             currentDataPlace = 0;
-                            for(int k = Indexes.Indexes[iIndex].SubIndex.Indexes[j].Start; k <= Indexes.Indexes[iIndex].SubIndex.Indexes[j].Stop; k++)
+                            for(var k = Indexes.Indexes[iIndex].SubIndex.Indexes[j].Start; k <= Indexes.Indexes[iIndex].SubIndex.Indexes[j].Stop; k++)
                             {
                                 Data[i + Indexes.Indexes[iIndex].BaseLocation][jOffset + currentDataPlace++] = new T[totalThird];
                             }
@@ -471,11 +471,11 @@ namespace Datastructure
             var subIndexes = oIndex.Indexes;
             if(subIndexes.Length >= LookUpLinearMax)
             {
-                int min = 0;
-                int max = oIndex.Indexes.Length - 1;
+                var min = 0;
+                var max = oIndex.Indexes.Length - 1;
                 while(min <= max)
                 {
-                    int mid = ((min + max) >> 1);
+                    var mid = ((min + max) >> 1);
 
                     if(d < subIndexes[mid].Start)
                     {
@@ -496,7 +496,7 @@ namespace Datastructure
             }
             else
             {
-                for(int i = 0; i < subIndexes.Length; i++)
+                for(var i = 0; i < subIndexes.Length; i++)
                 {
                     if((subIndexes[i].Start <= d & subIndexes[i].Stop >= d))
                     {
@@ -516,7 +516,7 @@ namespace Datastructure
             if(subIndexes.Length < LookUpLinearMax)
             {
                 //otherwise just do a linear search\
-                for(int i = 0; i < subIndexes.Length; i++)
+                for(var i = 0; i < subIndexes.Length; i++)
                 {
                     if((subIndexes[i].Start <= o & subIndexes[i].Stop >= o))
                     {
@@ -528,11 +528,11 @@ namespace Datastructure
             }
             else
             {
-                int min = 0;
-                int max = subIndexes.Length - 1;
+                var min = 0;
+                var max = subIndexes.Length - 1;
                 while(min <= max)
                 {
-                    int mid = ((min + max) >> 1);
+                    var mid = ((min + max) >> 1);
                     if(o < subIndexes[mid].Start)
                     {
                         max = mid - 1;
@@ -560,11 +560,11 @@ namespace Datastructure
             var subIndexes = dIndex.Indexes;
             if(subIndexes.Length >= LookUpLinearMax)
             {
-                int min = 0;
-                int max = dIndex.Indexes.Length - 1;
+                var min = 0;
+                var max = dIndex.Indexes.Length - 1;
                 while(min <= max)
                 {
-                    int mid = ((min + max) >> 1);
+                    var mid = ((min + max) >> 1);
                     if(t < subIndexes[mid].Start)
                     {
                         max = mid - 1;
@@ -583,7 +583,7 @@ namespace Datastructure
             }
             else
             {
-                for(int i = 0; i < subIndexes.Length; i++)
+                for(var i = 0; i < subIndexes.Length; i++)
                 {
                     if((subIndexes[i].Start <= t & subIndexes[i].Stop >= t))
                     {

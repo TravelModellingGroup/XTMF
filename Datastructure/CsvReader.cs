@@ -83,13 +83,7 @@ namespace Datastructure
             private set;
         }
 
-        public bool EndOfFile
-        {
-            get
-            {
-                return DataBufferLength == 0;
-            }
-        }
+        public bool EndOfFile => DataBufferLength == 0;
 
         /// <summary>
         /// The file name
@@ -164,7 +158,7 @@ namespace Datastructure
         /// <returns>True if data was read. (Not end of file)</returns>
         public bool LoadLine(out int columns)
         {
-            int numberOfColumns = 0;
+            var numberOfColumns = 0;
             LinePosition = 0;
             if (Reader == null) throw new IOException("No file has been loaded!");
             if (FastEndOfFile())
@@ -172,11 +166,11 @@ namespace Datastructure
                 columns = 0;
                 return false;
             }
-            int prevEnd = -1;
-            bool addOne = false;
-            int i = 0;
-            char prevC = '\0';
-            bool quote = false;
+            var prevEnd = -1;
+            var addOne = false;
+            var i = 0;
+            var prevC = '\0';
+            var quote = false;
             if (SpacesAsSeperator)
             {
                 while (true)

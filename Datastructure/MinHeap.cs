@@ -33,8 +33,8 @@ namespace Datastructure
         /// </summary>
         public MinHeap()
         {
-            this.Elements = 0;
-            this.Data = new T[8];
+            Elements = 0;
+            Data = new T[8];
         }
 
         /// <summary>
@@ -43,14 +43,14 @@ namespace Datastructure
         /// <param name="startingData">The initial data to be used</param>
         public MinHeap(IList<T> startingData)
         {
-            this.Elements = startingData.Count;
-            var temp = new T[this.Elements];
-            for ( int i = 0; i < temp.Length; i++ )
+            Elements = startingData.Count;
+            var temp = new T[Elements];
+            for ( var i = 0; i < temp.Length; i++ )
             {
                 temp[i] = startingData[i];
             }
-            this.Data = temp;
-            this.Heapify();
+            Data = temp;
+            Heapify();
         }
 
         /// <summary>
@@ -63,13 +63,13 @@ namespace Datastructure
             {
                 throw new ArgumentNullException( "item" );
             }
-            if ( this.Elements >= this.Data.Length )
+            if (Elements >= Data.Length )
             {
                 IncreaseSize();
             }
             int index;
-            this.Data[( index = this.Elements++ )] = item;
-            this.Heapify( index );
+            Data[( index = Elements++ )] = item;
+            Heapify( index );
         }
 
         /// <summary>
@@ -88,12 +88,12 @@ namespace Datastructure
         /// <returns>If the item was removed.</returns>
         public bool Remove(T item)
         {
-            var data = this.Data;
-            for ( int i = 0; i < data.Length; i++ )
+            var data = Data;
+            for ( var i = 0; i < data.Length; i++ )
             {
                 if ( data[i].Equals( item ) )
                 {
-                    this.Remove( i );
+                    Remove( i );
                     return true;
                 }
             }
@@ -107,9 +107,9 @@ namespace Datastructure
         /// <returns>The value at that position in the array</returns>
         private T Remove(int elementAt)
         {
-            var data = this.Data;
+            var data = Data;
             var ret = data[elementAt];
-            var elements = this.Elements;
+            var elements = Elements;
 
             int children;
             while ( ( children = elementAt * 2 + 1 ) < elements )
@@ -139,8 +139,8 @@ namespace Datastructure
             data[elements - 1] = default( T );
             data[elementAt] = temp;
             // we now have 1 less element
-            this.Elements--;
-            this.Heapify( elementAt );
+            Elements--;
+            Heapify( elementAt );
             return ret;
         }
 
@@ -149,9 +149,9 @@ namespace Datastructure
         /// </summary>
         private void Heapify()
         {
-            var data = this.Data;
-            var start = ( this.Elements - 2 ) / 2;
-            var end = this.Elements - 1;
+            var data = Data;
+            var start = (Elements - 2 ) / 2;
+            var end = Elements - 1;
             while ( start >= 0 )
             {
                 SiftDown( data, start, end );
@@ -165,8 +165,8 @@ namespace Datastructure
         /// <param name="element">The element position to build the structure for</param>
         private void Heapify(int element)
         {
-            var data = this.Data;
-            var end = this.Elements - 1;
+            var data = Data;
+            var end = Elements - 1;
             element = (element - 1) >> 1;
             while ( element > 0 )
             {
@@ -218,9 +218,9 @@ namespace Datastructure
         /// </summary>
         private void IncreaseSize()
         {
-            var temp = new T[this.Data.Length * 2];
-            Array.Copy( this.Data, temp, this.Data.Length );
-            this.Data = temp;
+            var temp = new T[Data.Length * 2];
+            Array.Copy(Data, temp, Data.Length );
+            Data = temp;
         }
 
         /// <summary>
@@ -228,8 +228,8 @@ namespace Datastructure
         /// </summary>
         public void Clear()
         {
-            this.Elements = 0;
-            Array.Clear( this.Data, 0, this.Data.Length );
+            Elements = 0;
+            Array.Clear(Data, 0, Data.Length );
         }
 
         /// <summary>
@@ -239,8 +239,8 @@ namespace Datastructure
         /// <returns></returns>
         public bool Contains(T item)
         {
-            var data = this.Data;
-            for ( int i = 0; i < data.Length; i++ )
+            var data = Data;
+            for ( var i = 0; i < data.Length; i++ )
             {
                 if ( data[i].Equals( item ) )
                 {
@@ -257,28 +257,22 @@ namespace Datastructure
         /// <param name="arrayIndex"></param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            if ( array.Length - arrayIndex < this.Elements )
+            if ( array.Length - arrayIndex < Elements)
             {
                 throw new ArgumentException( "The array has an insufficient length for copying to!", "array" );
             }
-            Array.Copy( this.Data, 0, array, arrayIndex, this.Data.Length );
+            Array.Copy(Data, 0, array, arrayIndex, Data.Length );
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public int Count
-        {
-            get { return this.Elements; }
-        }
+        public int Count => Elements;
 
         /// <summary>
         /// 
         /// </summary>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// 
@@ -286,9 +280,9 @@ namespace Datastructure
         /// <returns></returns>
         public IEnumerator<T> GetEnumerator()
         {
-            for ( int i = 0; i < this.Elements; i++ )
+            for ( var i = 0; i < Elements; i++ )
             {
-                yield return this.Data[i];
+                yield return Data[i];
             }
         }
 
@@ -298,9 +292,9 @@ namespace Datastructure
         /// <returns></returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            for ( int i = 0; i < this.Elements; i++ )
+            for ( var i = 0; i < Elements; i++ )
             {
-                yield return this.Data[i];
+                yield return Data[i];
             }
         }
     }

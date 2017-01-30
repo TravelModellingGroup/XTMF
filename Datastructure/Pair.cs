@@ -54,8 +54,8 @@ namespace Datastructure
         /// <returns>Less than zero if it is less, 0 if equal, otherwise greater than zero</returns>
         public int CompareTo(Pair<F, S> other)
         {
-            IComparable<F> compFirst = First as IComparable<F>;
-            IComparable<S> compSecond = Second as IComparable<S>;
+            var compFirst = First as IComparable<F>;
+            var compSecond = Second as IComparable<S>;
             // if they are both comparible then we will just see if they are both equal, if not -1
             if ( compFirst != null & compSecond != null )
             {
@@ -65,7 +65,7 @@ namespace Datastructure
             // try to compare the first value
             if ( compFirst != null )
             {
-                int res = compFirst.CompareTo( other.First );
+                var res = compFirst.CompareTo( other.First );
                 // if we were equal,if we can compair the second, do that
                 res = res == 0 ? ( compSecond != null ? compSecond.CompareTo( Second ) : 0 ) : 0;
                 return res;
@@ -89,7 +89,7 @@ namespace Datastructure
             if ( obj != null && obj is Pair<F, S> )
             {
                 var other = obj as Pair<F, S>;
-                return ( this.First.Equals( other.First ) ) && ( this.Second.Equals( other.Second ) );
+                return (First.Equals( other.First ) ) && (Second.Equals( other.Second ) );
             }
             return base.Equals( obj );
         }
@@ -102,7 +102,7 @@ namespace Datastructure
         {
             // Hopefully multiplying two "random" numbers is unique enough
             // To go into datastructures, works best when large
-            return ( this.First.GetHashCode() * 2 ) * this.Second.GetHashCode();
+            return (First.GetHashCode() * 2 ) * Second.GetHashCode();
         }
     }//end class
 }//end namespace

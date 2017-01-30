@@ -151,9 +151,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AVLTree.cs" />
+    <Compile Include="AvlTree.cs" />
     <Compile Include="Cache.cs" />
-    <Compile Include="ClosestAVL.cs" />
+    <Compile Include="ClosestAvl.cs" />
     <Compile Include="CommentedCsvReader.cs" />
     <Compile Include="CsvParse.cs" />
     <Compile Include="CsvReader.cs" />

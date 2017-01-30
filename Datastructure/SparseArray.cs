@@ -31,15 +31,15 @@ namespace Datastructure
 
         public SparseArray(SparseIndexing indexing, T[] rawData = null)
         {
-            this.Indexing = indexing;
+            Indexing = indexing;
             if(rawData != null)
             {
-                this.Data = rawData;
+                Data = rawData;
             }
             GenerateStructure();
         }
 
-        public int Count { get { return this.Data.Length; } }
+        public int Count => Data.Length;
 
         public int Top { get; private set; }
 
@@ -47,9 +47,9 @@ namespace Datastructure
         {
             get
             {
-                if(this.GetTransformedIndex(ref o))
+                if(GetTransformedIndex(ref o))
                 {
-                    return this.Data[o];
+                    return Data[o];
                 }
                 else
                 {
@@ -60,10 +60,10 @@ namespace Datastructure
 
             set
             {
-                int originalO = o;
-                if(this.GetTransformedIndex(ref o))
+                var originalO = o;
+                if(GetTransformedIndex(ref o))
                 {
-                    this.Data[o] = value;
+                    Data[o] = value;
                 }
                 else
                 {
@@ -75,8 +75,8 @@ namespace Datastructure
         public static SparseArray<T> CreateSparseArray(int[] sparseSpace, IList<T> data)
         {
             var length = sparseSpace.Length;
-            SortStruct[] indexes = new SortStruct[length];
-            for(int i = 0; i < length; i++)
+            var indexes = new SortStruct[length];
+            for(var i = 0; i < length; i++)
             {
                 indexes[i].SparseSpace = sparseSpace[i];
                 indexes[i].DataSpace = i;
@@ -87,8 +87,8 @@ namespace Datastructure
         public static SparseArray<T> CreateSparseArray(Func<T, int> PlaceFunction, IList<T> data)
         {
             var length = data.Count;
-            SortStruct[] indexes = new SortStruct[length];
-            for(int i = 0; i < length; i++)
+            var indexes = new SortStruct[length];
+            for(var i = 0; i < length; i++)
             {
                 indexes[i].SparseSpace = PlaceFunction(data[i]);
                 indexes[i].DataSpace = i;
@@ -103,23 +103,23 @@ namespace Datastructure
 
         public SparseArray<K> CreateSimilarArray<K>()
         {
-            SparseArray<K> ret = new SparseArray<K>(this.Indexing);
+            var ret = new SparseArray<K>(Indexing);
             return ret;
         }
 
         public SparseTwinIndex<K> CreateSquareTwinArray<K>()
         {
             SparseIndexing twinIndex;
-            int length = this.Indexing.Indexes.Length;
+            var length = Indexing.Indexes.Length;
             twinIndex.Indexes = new SparseSet[length];
-            for(int i = 0; i < length; i++)
+            for(var i = 0; i < length; i++)
             {
-                twinIndex.Indexes[i].Start = this.Indexing.Indexes[i].Start;
-                twinIndex.Indexes[i].Stop = this.Indexing.Indexes[i].Stop;
+                twinIndex.Indexes[i].Start = Indexing.Indexes[i].Start;
+                twinIndex.Indexes[i].Stop = Indexing.Indexes[i].Stop;
                 twinIndex.Indexes[i].SubIndex = new SparseIndexing() { Indexes = new SparseSet[length] };
-                for(int j = 0; j < length; j++)
+                for(var j = 0; j < length; j++)
                 {
-                    twinIndex.Indexes[i].SubIndex.Indexes[j] = this.Indexing.Indexes[j];
+                    twinIndex.Indexes[i].SubIndex.Indexes[j] = Indexing.Indexes[j];
                 }
             }
             return new SparseTwinIndex<K>(twinIndex);
@@ -127,7 +127,7 @@ namespace Datastructure
 
         public T[] GetFlatData()
         {
-            return this.Data;
+            return Data;
         }
 
         public int GetFlatIndex(int sparseSpaceIndex)
@@ -141,10 +141,10 @@ namespace Datastructure
 
         public int GetSparseIndex(int flatIndex)
         {
-            int soFar = 0;
-            for(int i = 0; i < this.Indexing.Indexes.Length; i++)
+            var soFar = 0;
+            for(var i = 0; i < Indexing.Indexes.Length; i++)
             {
-                var index = this.Indexing.Indexes[i];
+                var index = Indexing.Indexes[i];
                 var length = index.Stop - index.Start + 1;
                 if(soFar + length > flatIndex)
                 {
@@ -157,29 +157,29 @@ namespace Datastructure
 
         public void Save(string fileName, Func<T, float[]> Decompose, int Types)
         {
-            using (BinaryWriter writer = new BinaryWriter(new
+            using (var writer = new BinaryWriter(new
                 FileStream(fileName, FileMode.Create, FileAccess.Write,
                 FileShare.None, 0x8000, FileOptions.SequentialScan),
                 Encoding.Default))
             {
-                var dataLength = this.Data.Length;
-                int highestZone = 0;
+                var dataLength = Data.Length;
+                var highestZone = 0;
 
-                for(int i = 0; i < dataLength; i++)
+                for(var i = 0; i < dataLength; i++)
                 {
-                    if(this.Data[i] != null) highestZone = i;
+                    if(Data[i] != null) highestZone = i;
                 }
                 writer.Write(highestZone);
                 writer.Write(Version);
                 writer.Write(Types);
                 WriteSparseIndexes(writer, Types);
 
-                for(int i = 0; i < dataLength; i++)
+                for(var i = 0; i < dataLength; i++)
                 {
-                    if(this.Data[i] != null)
+                    if(Data[i] != null)
                     {
-                        var data = Decompose(this.Data[i]);
-                        for(int j = 0; j < data.Length; j++)
+                        var data = Decompose(Data[i]);
+                        for(var j = 0; j < data.Length; j++)
                         {
                             writer.Write(data[j]);
                         }
@@ -194,13 +194,13 @@ namespace Datastructure
         /// <returns>An array of all of the valid indexes</returns>
         public int[] ValidIndexArray()
         {
-            int[] ret = new int[this.Data.Length];
-            int pos = 0;
-            var length = this.Indexing.Indexes.Length;
-            for(int i = 0; i < length; i++)
+            var ret = new int[Data.Length];
+            var pos = 0;
+            var length = Indexing.Indexes.Length;
+            for(var i = 0; i < length; i++)
             {
-                int stop = this.Indexing.Indexes[i].Stop;
-                for(int j = this.Indexing.Indexes[i].Start; j <= stop; j++)
+                var stop = Indexing.Indexes[i].Stop;
+                for(var j = Indexing.Indexes[i].Start; j <= stop; j++)
                 {
                     ret[pos++] = j;
                 }
@@ -214,11 +214,11 @@ namespace Datastructure
         /// <returns>An enumeration of the indexes</returns>
         public IEnumerable<int> ValidIndexies()
         {
-            int length = this.Indexing.Indexes.Length;
-            for(int i = 0; i < length; i++)
+            var length = Indexing.Indexes.Length;
+            for(var i = 0; i < length; i++)
             {
-                int stop = this.Indexing.Indexes[i].Stop;
-                for(int j = this.Indexing.Indexes[i].Start; j <= stop; j++)
+                var stop = Indexing.Indexes[i].Stop;
+                for(var j = Indexing.Indexes[i].Start; j <= stop; j++)
                 {
                     yield return j;
                 }
@@ -228,10 +228,10 @@ namespace Datastructure
         private static SparseArray<T> CreateSparseArray(IList<T> data, int length, SortStruct[] indexes)
         {
             Array.Sort(indexes, new CompareSortStruct());
-            T[] Data = new T[length];
+            var Data = new T[length];
             if (data != null)
             {
-                for (int i = 0; i < length; i++)
+                for (var i = 0; i < length; i++)
                 {
                     Data[i] = data[indexes[i].DataSpace];
                 }
@@ -241,14 +241,14 @@ namespace Datastructure
 
         private static SparseIndexing GenerateIndexes(SortStruct[] data)
         {
-            SparseIndexing Indexes = new SparseIndexing();
-            List<SparseSet> elements = new List<SparseSet>();
+            var Indexes = new SparseIndexing();
+            var elements = new List<SparseSet>();
             var length = data.Length;
-            SparseSet current = default(SparseSet);
+            var current = default(SparseSet);
             if(length == 0) return Indexes;
             current.Start = data[0].SparseSpace;
-            int expected = data[0].SparseSpace + 1;
-            for(int i = 1; i < length; i++)
+            var expected = data[0].SparseSpace + 1;
+            for(var i = 1; i < length; i++)
             {
                 if(data[i].SparseSpace != expected)
                 {
@@ -267,8 +267,8 @@ namespace Datastructure
 
         private void GenerateStructure()
         {
-            int total = 0;
-            for(int i = 0; i < Indexing.Indexes.Length; i++)
+            var total = 0;
+            for(var i = 0; i < Indexing.Indexes.Length; i++)
             {
                 Indexing.Indexes[i].BaseLocation = total;
                 total += Indexing.Indexes[i].Stop - Indexing.Indexes[i].Start + 1;
@@ -277,9 +277,9 @@ namespace Datastructure
                     Top = Indexing.Indexes[i].Stop;
                 }
             }
-            if(this.Data == null)
+            if(Data == null)
             {
-                this.Data = new T[total];
+                Data = new T[total];
             }
         }
 
@@ -288,14 +288,14 @@ namespace Datastructure
 
         private bool GetTransformedIndex(ref int o)
         {
-            var indexes = this.Indexing.Indexes;
+            var indexes = Indexing.Indexes;
             if(indexes.Length >= LookUpLinearMax)
             {
-                int min = 0;
-                int max = indexes.Length - 1;
+                var min = 0;
+                var max = indexes.Length - 1;
                 while(min <= max)
                 {
-                    int mid = ((min + max) >> 1);
+                    var mid = ((min + max) >> 1);
                     var midIndex = indexes[mid];
 
                     if(o < midIndex.Start)
@@ -317,7 +317,7 @@ namespace Datastructure
             else
             {
                 //otherwise just do a linear search
-                for(int i = 0; i < indexes.Length; i++)
+                for(var i = 0; i < indexes.Length; i++)
                 {
                     if(indexes[i].Stop >= o)
                     {
@@ -338,15 +338,15 @@ namespace Datastructure
 
         private void WriteSparseIndexes(BinaryWriter writer, int types)
         {
-            var numberOfIndexes = this.Indexing.Indexes.Length;
+            var numberOfIndexes = Indexing.Indexes.Length;
             long baseLocation = 12 + 8 * numberOfIndexes; // skip the header and the indexes for the start of data
             writer.Write(numberOfIndexes);
-            for(int i = 0; i < numberOfIndexes; i++)
+            for(var i = 0; i < numberOfIndexes; i++)
             {
-                writer.Write(this.Indexing.Indexes[i].Start);
-                writer.Write(this.Indexing.Indexes[i].Stop);
+                writer.Write(Indexing.Indexes[i].Start);
+                writer.Write(Indexing.Indexes[i].Stop);
                 writer.Write(baseLocation);
-                baseLocation += (this.Indexing.Indexes[i].Stop - this.Indexing.Indexes[i].Start + 1) * types * 4;
+                baseLocation += (Indexing.Indexes[i].Stop - Indexing.Indexes[i].Start + 1) * types * 4;
             }
         }
 

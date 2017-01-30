@@ -22,7 +22,7 @@ using System.Collections.Generic;
 namespace Datastructure
 {
     public class Multimap<K, V>
-        : AVLTree<Pair<K, V>> where K : IComparable<K>
+        : AvlTree<Pair<K, V>> where K : IComparable<K>
     {
         /// <summary>
         /// This is how you are supposed to access inserting
@@ -34,12 +34,12 @@ namespace Datastructure
         {
             get
             {
-                return this.Get( k );
+                return Get( k );
             }
 
             set
             {
-                this.Set( k, value );
+                Set( k, value );
             }
         }
 
@@ -52,10 +52,10 @@ namespace Datastructure
         {
             if ( item == null ) return default( V );
             IncreaseReaders();
-            Node current = this.Root;
+            var current = Root;
             while ( current != null )
             {
-                int dif = item.CompareTo( current.Data.First );
+                var dif = item.CompareTo( current.Data.First );
                 if ( dif < 0 )
                 {
                     current = current.Left;
@@ -82,10 +82,10 @@ namespace Datastructure
         {
             if ( key == null ) return false;
             IncreaseReaders();
-            Node current = this.Root;
+            var current = Root;
             while ( current != null )
             {
-                int dif = key.CompareTo( current.Data.First );
+                var dif = key.CompareTo( current.Data.First );
                 if ( dif < 0 )
                 {
                     current = current.Left;
@@ -115,15 +115,15 @@ namespace Datastructure
         public void Set(K key, V value)
         {
             if ( key == null ) return;
-            Stack<AVLTree<Pair<K, V>>.Node> path = new Stack<AVLTree<Pair<K, V>>.Node>();
-            lock ( this.WriterLock )
+            var path = new Stack<AvlTree<Pair<K, V>>.Node>();
+            lock (WriterLock)
             {
-                Node current = this.Root, prev = null;
+                Node current = Root, prev = null;
                 while ( current != null )
                 {
                     prev = current;
                     path.Push( current );
-                    int dif = key.CompareTo( current.Data.First );
+                    var dif = key.CompareTo( current.Data.First );
                     if ( dif < 0 )
                     {
                         current = current.Left;
@@ -140,14 +140,14 @@ namespace Datastructure
 
                 if ( current == null )
                 {
-                    Node n = new AVLTree<Pair<K, V>>.Node();
+                    var n = new AvlTree<Pair<K, V>>.Node();
                     n.Height = 0;
                     n.Left = n.Right = null;
                     n.Data = new Pair<K, V>();
                     n.Data.First = key;
                     n.Data.Second = value;
-                    this.WaitForReaders();
-                    this.IncreaseCount();
+                    WaitForReaders();
+                    IncreaseCount();
                     if ( prev != null )
                     {
                         if ( key.CompareTo( prev.Data.First ) < 0 )
@@ -158,11 +158,11 @@ namespace Datastructure
                         {
                             prev.Right = n;
                         }
-                        this.BalanceTree( path );
+                        BalanceTree( path );
                     }
                     else
                     {
-                        this.Root = n;
+                        Root = n;
                     }
                 }
                 else
