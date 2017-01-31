@@ -43,7 +43,7 @@ namespace TMG.Estimation.Utilities
         [RunParameter( "DataChannel", 11, "The networking channel to use, must be unique and the same as the client!" )]
         public int DataChannel;
 
-        private bool Loaded = false;
+        private bool Loaded;
 
         private object WriteLock = new object();
 
@@ -67,6 +67,10 @@ namespace TMG.Estimation.Utilities
                 Host.RegisterCustomMessageHandler( DataChannel, (dataObj, remote) =>
                     {
                         var data = dataObj as byte[];
+                        if (data == null)
+                        {
+                            throw new XTMFRuntimeException($"In {Name} we recieved something besides a byte[] while building a file.");
+                        }
                         Task.Factory.StartNew( () =>
                             {
                                 lock ( WriteLock )

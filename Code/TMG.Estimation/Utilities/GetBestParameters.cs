@@ -54,7 +54,7 @@ namespace TMG.Estimation.Utilities
 
         public void Start()
         {
-            GenerationJob[] best = null;
+            GenerationJob[] best;
             using (CsvReader reader = new CsvReader( InputResultFile.GetFilePath() ))
             {
                 best = GetBest( reader );
@@ -119,7 +119,7 @@ namespace TMG.Estimation.Utilities
                 reader.Get( out name, i );
                 ret.Add( new ParameterSetting()
                 {
-                    Names = new string[] { name }
+                    Names = new[] { name }
                 } );
             }
             return ret.ToArray();

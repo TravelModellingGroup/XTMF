@@ -80,13 +80,13 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
             else
             {
                 // if we are going to receive a file from the client
-                Host.RegisterCustomReceiver(DataChannel, (stream, _remote) =>
+                Host.RegisterCustomReceiver(DataChannel, (stream, remote) =>
                     {
                         var data = new byte[stream.Length];
                         stream.Read(data, 0, data.Length);
                         return data;
                     });
-                Host.RegisterCustomMessageHandler(DataChannel, (obj, _remote) =>
+                Host.RegisterCustomMessageHandler(DataChannel, (obj, remote) =>
                     {
                         var data = obj as byte[];
                         System.Threading.Tasks.Task.Factory.StartNew(() =>
@@ -103,7 +103,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                             }
                         });
                     });
-                Host.RegisterCustomSender(DataChannel, (data, _remote, stream) =>
+                Host.RegisterCustomSender(DataChannel, (data, remote, stream) =>
                     {
                         // do nothing, no data is needed to trigger the send
                     });

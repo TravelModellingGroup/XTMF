@@ -69,25 +69,25 @@ namespace TMG.Estimation.Utilities
             Root.RetrieveValue = () => value + generation * GenerationError;
         }
 
-        private bool GetBestUtility(out int generation, out float value)
+        private void GetBestUtility(out int generation, out float value)
         {
             using (CsvReader reader = new CsvReader( ResultFile ))
             {
-                return GetBest( reader, out generation, out value );
+                GetBest( reader, out generation, out value );
             }
         }
 
-        private bool GetBest(CsvReader reader, out int generation, out float value)
+        private void GetBest(CsvReader reader, out int generation, out float value)
         {
             // burn the header
             reader.LoadLine();
-            if ( Maximize )
+            if (Maximize)
             {
-                return GetHighestBest( reader, out generation, out value );
+                GetHighestBest(reader, out generation, out value);
             }
             else
             {
-                return GetLowestBest( reader, out generation, out value );
+                GetLowestBest(reader, out generation, out value);
             }
         }
 
@@ -108,7 +108,7 @@ namespace TMG.Estimation.Utilities
             return false;
         }
 
-        private bool GetLowestBest(CsvReader reader, out int bestGeneration, out float value)
+        private void GetLowestBest(CsvReader reader, out int bestGeneration, out float value)
         {
             float best = float.MaxValue;
             bestGeneration = 0;
@@ -124,10 +124,9 @@ namespace TMG.Estimation.Utilities
                 }
             }
             value = best;
-            return true;
         }
 
-        private bool GetHighestBest(CsvReader reader, out int bestGeneration, out float value)
+        private void GetHighestBest(CsvReader reader, out int bestGeneration, out float value)
         {
             float best = float.MinValue;
             float current;
@@ -143,7 +142,6 @@ namespace TMG.Estimation.Utilities
                 }
             }
             value = best;
-            return true;
         }
     }
 }

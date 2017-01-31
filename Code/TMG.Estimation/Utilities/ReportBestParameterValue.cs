@@ -46,7 +46,7 @@ namespace TMG.Estimation.Utilities
             return false;
         }
 
-        bool Attached = false;
+        bool Attached;
 
         [RootModule]
         public LocalEstimatinHost Root;
