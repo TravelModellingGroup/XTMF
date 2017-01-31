@@ -50,7 +50,7 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             var matrix = zones.CreateSquareTwinArray<float>().GetFlatData();
             CombineData( zones, matrix );
             var zoneIndexes = zones.ValidIndexArray();

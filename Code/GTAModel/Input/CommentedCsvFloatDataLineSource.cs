@@ -61,7 +61,7 @@ namespace TMG.GTAModel.Input
         {
             if ( !InputFile.ContainsFileName() ) yield break;
             int maxColumn = ColumnNumbers.Max();
-            var numberOfColumnNumbers = this.ColumnNumbers.Count;
+            var numberOfColumnNumbers = ColumnNumbers.Count;
             float[] data = new float[numberOfColumnNumbers];
             CommentedCsvReader reader = null;
             var fileName = InputFile.GetFileName( Root.InputBaseDirectory );
@@ -71,7 +71,7 @@ namespace TMG.GTAModel.Input
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "In module '" + this.Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
+                throw new XTMFRuntimeException( "In module '" + Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
             }
             using ( reader )
             {
@@ -86,7 +86,7 @@ namespace TMG.GTAModel.Input
                             reader.Get( out data[i], ColumnNumbers[i] );
                         }
                         yield return data;
-                        if ( !this.DataIsCopied )
+                        if ( !DataIsCopied )
                         {
                             data = new float[numberOfColumnNumbers];
                         }

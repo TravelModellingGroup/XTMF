@@ -66,7 +66,7 @@ namespace TMG.GTAModel
 
         public float Progress
         {
-            get { return this.Population.Progress; }
+            get { return Population.Progress; }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -89,7 +89,7 @@ namespace TMG.GTAModel
 
         public void Start()
         {
-            this.ProducePopulation();
+            ProducePopulation();
         }
 
         private static void NormalizeExpansionFactors(int pop, Person[] people)
@@ -110,13 +110,13 @@ namespace TMG.GTAModel
             int driversLicenceCatrogies, int numberOfEmploymentCategories, int numberOfOccupations, float[][] employmentData, int numberOfStudentCategories, Person[] people)
         {
             int personNumber = 0;
-            var ageNumberData = this.Demographics.AgeCategories.GetFlatData();
-            var ageData = this.Demographics.AgeRates.GetFlatData()[zoneIndex];
-            var occData = this.Demographics.OccupationRates.GetFlatData()[zoneIndex].GetFlatData();
-            var dlicData = this.Demographics.DriversLicenseRates.GetFlatData()[zoneIndex].GetFlatData();
-            var workerVehicleRates = this.Demographics.WorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
-            var nonworkerVehicleRates = this.Demographics.NonWorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
-            var schoolData = this.Demographics.SchoolRates.GetFlatData()[zoneIndex].GetFlatData();
+            var ageNumberData = Demographics.AgeCategories.GetFlatData();
+            var ageData = Demographics.AgeRates.GetFlatData()[zoneIndex];
+            var occData = Demographics.OccupationRates.GetFlatData()[zoneIndex].GetFlatData();
+            var dlicData = Demographics.DriversLicenseRates.GetFlatData()[zoneIndex].GetFlatData();
+            var workerVehicleRates = Demographics.WorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
+            var nonworkerVehicleRates = Demographics.NonWorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
+            var schoolData = Demographics.SchoolRates.GetFlatData()[zoneIndex].GetFlatData();
             // do age == 0 here
             var numberOfNonAgeCategories = driversLicenceCatrogies * numberOfEmploymentCategories * numberOfOccupations * numberOfStudentCategories;
             for ( int age = 0; age < numberOfAgeCategories; age++ )
@@ -128,7 +128,7 @@ namespace TMG.GTAModel
                     var dlicProbability = dlicData[age][emp];
                     for ( int occ = 0; occ < numberOfOccupations; occ++ )
                     {
-                        var occupationProbability = ( emp == 0 ? ( occ == this.UnemployedOccupation ? 1f : 0f ) : occData[age][emp - 1][occ] );
+                        var occupationProbability = ( emp == 0 ? ( occ == UnemployedOccupation ? 1f : 0f ) : occData[age][emp - 1][occ] );
                         for ( int dlic = 0; dlic < driversLicenceCatrogies; dlic++ )
                         {
                             for ( int cars = 0; cars < numberOfCarCategories; cars++ )
@@ -168,13 +168,13 @@ namespace TMG.GTAModel
             Household[] Households = new Household[numberOfCarCategories];
             for ( int i = 0; i < numberOfCarCategories; i++ )
             {
-                Households[i] = new Household() { Zone = this.ZoneSystem.ZoneArray[zoneIndex], Cars = i };
+                Households[i] = new Household() { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
             }
-            var numberOfAgeCategories = this.ValidAges.Length;
+            var numberOfAgeCategories = ValidAges.Length;
             var driversLicenceCatrogies = 2;
-            var numberOfEmploymentCategories = this.Demographics.EmploymentStatus.GetFlatData().Length;
-            var numberOfOccupations = this.Demographics.OccupationCategories.GetFlatData().Length;
-            var employmentData = this.Demographics.EmploymentStatusRates.GetFlatData()[zoneIndex].GetFlatData();
+            var numberOfEmploymentCategories = Demographics.EmploymentStatus.GetFlatData().Length;
+            var numberOfOccupations = Demographics.OccupationCategories.GetFlatData().Length;
+            var employmentData = Demographics.EmploymentStatusRates.GetFlatData()[zoneIndex].GetFlatData();
             var numberOfStudentCategories = 2;
             var numberOfCategories = numberOfAgeCategories * numberOfOccupations * numberOfEmploymentCategories
                 * driversLicenceCatrogies * numberOfCarCategories * numberOfStudentCategories;
@@ -215,15 +215,15 @@ namespace TMG.GTAModel
             {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
-                this.ZoneSystem.LoadData();
+                ZoneSystem.LoadData();
                 watch.Stop();
                 performance.WriteLine( "Loading Zones :" + watch.ElapsedMilliseconds + "ms" );
                 watch.Restart();
-                this.Demographics.LoadData();
-                this.ValidAges = this.Demographics.AgeCategories.ValidIndexies().ToArray();
+                Demographics.LoadData();
+                ValidAges = Demographics.AgeCategories.ValidIndexies().ToArray();
                 watch.Stop();
                 performance.WriteLine( "Loading Demographics :" + watch.ElapsedMilliseconds + "ms" );
-                var zoneArray = this.ZoneSystem.ZoneArray;
+                var zoneArray = ZoneSystem.ZoneArray;
                 var validZones = zoneArray.ValidIndexArray();
                 var numberOfZones = validZones.Length;
                 SparseArray<IPerson[]> population = zoneArray.CreateSimilarArray<IPerson[]>();
@@ -250,12 +250,12 @@ namespace TMG.GTAModel
                 watch.Stop();
                 performance.WriteLine( "Generation Time: " + watch.ElapsedMilliseconds + "ms" );
                 watch.Restart();
-                this.Population.Population = population;
-                this.Population.Save();
+                Population.Population = population;
+                Population.Save();
                 watch.Stop();
                 performance.WriteLine( "Output Time: " + watch.ElapsedMilliseconds + "ms" );
-                this.Demographics.UnloadData();
-                this.ZoneSystem.UnloadData();
+                Demographics.UnloadData();
+                ZoneSystem.UnloadData();
             }
         }
     }

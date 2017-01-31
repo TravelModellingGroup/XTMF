@@ -96,20 +96,20 @@ namespace TMG.GTAModel.NetworkAssignment
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.ScenarioNumber, 
-                                        this.DemandMatrixNumber,
-                                        mc.ToEmmeFloat(this.GoTrainHeadwayFraction),
-                                        mc.ToEmmeFloat(this.WaitTimePerception),
-                                        mc.ToEmmeFloat(this.WalkPerceptionToronto),
-                                        mc.ToEmmeFloat(this.WalkPerceptionNonToronto),
-                                        this.WalkPerceptionAttribute,
-                                        this.HeadwayFractionAttribute,
-                                        mc.ToEmmeFloat(this.BoardingPerception), 
-                                        mc.ToEmmeFloat(this.CongestionPerception),
-                                        this.RepresentativeHourFactor, 
-                                        this.MaxIterations, 
-                                        this.NormalizedGap,
-                                        this.RelativeGap);
+            var args = string.Join(" ", ScenarioNumber, 
+                                        DemandMatrixNumber,
+                                        mc.ToEmmeFloat(GoTrainHeadwayFraction),
+                                        mc.ToEmmeFloat(WaitTimePerception),
+                                        mc.ToEmmeFloat(WalkPerceptionToronto),
+                                        mc.ToEmmeFloat(WalkPerceptionNonToronto),
+                                        WalkPerceptionAttribute,
+                                        HeadwayFractionAttribute,
+                                        mc.ToEmmeFloat(BoardingPerception), 
+                                        mc.ToEmmeFloat(CongestionPerception),
+                                        RepresentativeHourFactor, 
+                                        MaxIterations, 
+                                        NormalizedGap,
+                                        RelativeGap);
 
             /*
             
@@ -120,7 +120,7 @@ namespace TMG.GTAModel.NetworkAssignment
             */
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

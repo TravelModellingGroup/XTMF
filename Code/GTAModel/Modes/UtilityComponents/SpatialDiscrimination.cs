@@ -82,30 +82,30 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             int origin = 0;
             int destination = 0;
-            if ( this.OriginRegion ) origin++;
-            if ( this.OriginPlanningDistrict ) origin++;
-            if ( this.OriginZone ) origin++;
+            if ( OriginRegion ) origin++;
+            if ( OriginPlanningDistrict ) origin++;
+            if ( OriginZone ) origin++;
 
-            if ( this.DestinationRegion ) destination++;
-            if ( this.DestinationPlanningDistrict ) destination++;
-            if ( this.DestinationZone ) destination++;
+            if ( DestinationRegion ) destination++;
+            if ( DestinationPlanningDistrict ) destination++;
+            if ( DestinationZone ) destination++;
             if ( origin != 1 )
             {
-                error = "In '" + this.Name + "' exactly one origin zonal type must be selected!";
+                error = "In '" + Name + "' exactly one origin zonal type must be selected!";
                 return false;
             }
             if ( destination != 1 )
             {
-                error = "In '" + this.Name + "' exactly one destination zonal type must be selected!";
+                error = "In '" + Name + "' exactly one destination zonal type must be selected!";
                 return false;
             }
             if ( OriginDestinationSame && (
-                ( this.OriginRegion != this.DestinationRegion )
-                || ( this.OriginPlanningDistrict != this.DestinationPlanningDistrict )
-                || ( this.OriginZone != this.DestinationZone )
+                ( OriginRegion != DestinationRegion )
+                || ( OriginPlanningDistrict != DestinationPlanningDistrict )
+                || ( OriginZone != DestinationZone )
                 ) )
             {
-                error = "In '" + this.Name + "' the spatial size of the origin and destination are not the same when also specifying that the origin and destination must be the same location!";
+                error = "In '" + Name + "' the spatial size of the origin and destination are not the same when also specifying that the origin and destination must be the same location!";
                 return false;
             }
             return SubRuntimeValidation( ref error );
@@ -115,7 +115,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             var originContained = IsContained( origin, ValidOrigins, OriginContained, OriginRegion, OriginPlanningDistrict );
             var destinationContained = IsContained( destination, ValidDestinations, DestinationContained, DestinationRegion, DestinationPlanningDistrict );
-            if ( this.OriginDestinationSame )
+            if ( OriginDestinationSame )
             {
                 return ( originContained & destinationContained ) && CheckOriginDestinationSame( origin, destination );
             }
@@ -142,11 +142,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         private bool CheckOriginDestinationSame(IZone origin, IZone destination)
         {
-            if ( this.OriginRegion )
+            if ( OriginRegion )
             {
                 return origin.RegionNumber == destination.RegionNumber;
             }
-            else if ( this.OriginPlanningDistrict )
+            else if ( OriginPlanningDistrict )
             {
                 return origin.PlanningDistrict == destination.PlanningDistrict;
             }

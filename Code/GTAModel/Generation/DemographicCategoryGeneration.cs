@@ -71,14 +71,14 @@ namespace TMG.GTAModel
         /// </summary>
         /// <param name="production">The production</param>
         /// <param name="attractions">The attraction</param>
-        public abstract void Generate(Datastructure.SparseArray<float> production, Datastructure.SparseArray<float> attractions);
+        public abstract void Generate(SparseArray<float> production, SparseArray<float> attractions);
 
         public virtual void InitializeDemographicCategory()
         {
-            var dataBase = this.Root.ModeParameterDatabase;
+            var dataBase = Root.ModeParameterDatabase;
             if ( dataBase != null )
             {
-                dataBase.ApplyParameterSet( this.ModeChoiceParameterSetIndex, this.DemographicParameterSetIndex );
+                dataBase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
             }
         }
 
@@ -93,8 +93,8 @@ namespace TMG.GTAModel
             int mobilityCategory = 0;
             var cars = person.Household.Cars;
             mobilityCategory = cars + ( person.DriversLicense ? 3 : 0 );
-            return ( this.EmploymentStatusCategory.Contains( person.EmploymentStatus ) ) & ( this.OccupationCategory.Contains( person.Occupation ) )
-                        & ( this.AgeCategoryRange.Contains( age ) ) & ( this.Mobility.Contains( (int)mobilityCategory ) );
+            return ( EmploymentStatusCategory.Contains( person.EmploymentStatus ) ) & ( OccupationCategory.Contains( person.Occupation ) )
+                        & ( AgeCategoryRange.Contains( age ) ) & ( Mobility.Contains( (int)mobilityCategory ) );
         }
 
         public virtual bool RuntimeValidation(ref string error)
@@ -104,17 +104,17 @@ namespace TMG.GTAModel
 
         protected bool TryGetAgeCat(int age, out int ageCat)
         {
-            if ( this.AgeCategories == null )
+            if ( AgeCategories == null )
             {
-                var temp = this.Root.Demographics.AgeCategories;
-                this.FlatAges = temp.GetFlatData();
-                this.AgeCategories = temp;
+                var temp = Root.Demographics.AgeCategories;
+                FlatAges = temp.GetFlatData();
+                AgeCategories = temp;
             }
             for ( int i = 0; i < FlatAges.Length; i++ )
             {
-                if ( this.FlatAges[i].ContainsInclusive( age ) )
+                if ( FlatAges[i].ContainsInclusive( age ) )
                 {
-                    ageCat = this.AgeCategories.GetSparseIndex( i );
+                    ageCat = AgeCategories.GetSparseIndex( i );
                     return true;
                 }
             }

@@ -61,18 +61,18 @@ namespace TMG.GTAModel.Input
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var flatRet = ret.GetFlatData();
-            for ( int index = this.StartingIndex; index < this.StartingIndex + this.NumberOfFiles; index++ )
+            for ( int index = StartingIndex; index < StartingIndex + NumberOfFiles; index++ )
             {
                 LoadData( index, flatRet );
             }
-            this.Data = ret;
+            Data = ret;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -82,7 +82,7 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         private static void FillBuffer(BinaryReader reader, byte[] temp)
@@ -100,7 +100,7 @@ namespace TMG.GTAModel.Input
             int indexOfInsert = fileNameWithIndexing.IndexOf( "%X" );
             if ( indexOfInsert == -1 )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name
+                throw new XTMFRuntimeException( "In '" + Name
                     + "' the parameter 'Input File Format' does not contain a substitution '%X' in order to progress through the series!  Please update the parameter to include the substitution." );
             }
             var fileName = fileNameWithIndexing.Insert( indexOfInsert, index.ToString() ).Replace( "%X", "" );
@@ -134,7 +134,7 @@ namespace TMG.GTAModel.Input
             }
             catch ( FileNotFoundException )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' the file '" + Path.GetFullPath( fileName ) + "' was not found!" );
+                throw new XTMFRuntimeException( "In '" + Name + "' the file '" + Path.GetFullPath( fileName ) + "' was not found!" );
             }
             toProcess.CompleteAdding();
             processingTask.Wait();

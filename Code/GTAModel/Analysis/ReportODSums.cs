@@ -59,14 +59,14 @@ namespace TMG.GTAModel.Analysis
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.DataSources.Count == 0 )
+            if ( DataSources.Count == 0 )
             {
                 return true;
             }
-            this.SplitNames = this.DataNames.Split( ',' );
-            if ( this.SplitNames.Length != this.DataSources.Count )
+            SplitNames = DataNames.Split( ',' );
+            if ( SplitNames.Length != DataSources.Count )
             {
-                error = "In '" + this.Name + "' the number of data sources does not match the number of tags to label the data sources!";
+                error = "In '" + Name + "' the number of data sources does not match the number of tags to label the data sources!";
                 return false;
             }
             return true;
@@ -82,9 +82,9 @@ namespace TMG.GTAModel.Analysis
                 double globalIE = 0.0;
                 double globalEI = 0.0;
                 writer.WriteLine( "DataTag,Total,Intrazonals,Interzonals,InnerToExternal,ExternalToInner" );
-                for ( int i = 0; i < this.DataSources.Count; i++ )
+                for ( int i = 0; i < DataSources.Count; i++ )
                 {
-                    ProcessDataSource( SplitNames[i], this.DataSources[i], writer, ref globalIntrazonals, ref globalSum, ref globalIE, ref globalEI );
+                    ProcessDataSource( SplitNames[i], DataSources[i], writer, ref globalIntrazonals, ref globalSum, ref globalIE, ref globalEI );
                 }
                 writer.Write( "Totals:," );
                 writer.Write( globalSum );
@@ -132,7 +132,7 @@ namespace TMG.GTAModel.Analysis
             var sumie = 0.0;
             var sumei = 0.0;
             var localIntrazonals = 0.0;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             for ( int i = 0; i < p.Length; i++ )
             {
                 var local = 0.0;

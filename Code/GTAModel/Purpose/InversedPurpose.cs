@@ -77,36 +77,36 @@ namespace TMG.GTAModel
 
         public void Run()
         {
-            this.Progress = 0;
-            this.Flows = MirrorModeTree.CreateMirroredTree<float[][]>( this.Root.Modes );
+            Progress = 0;
+            Flows = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
             LoadFlows();
-            this.Progress = 1;
-            if ( this.SaveModeChoiceOutput )
+            Progress = 1;
+            if ( SaveModeChoiceOutput )
             {
-                if ( !Directory.Exists( this.PurposeName ) )
+                if ( !Directory.Exists( PurposeName ) )
                 {
-                    Directory.CreateDirectory( this.PurposeName );
+                    Directory.CreateDirectory( PurposeName );
                 }
-                for ( int i = 0; i < this.Flows.Count; i++ )
+                for ( int i = 0; i < Flows.Count; i++ )
                 {
-                    this.WriteModeSplit( this.Flows[i], this.Root.Modes[i], this.PurposeName );
+                    WriteModeSplit( Flows[i], Root.Modes[i], PurposeName );
                 }
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach ( var purp in this.Root.Purpose )
+            foreach ( var purp in Root.Purpose )
             {
-                if ( purp.PurposeName == this.OtherPurposeName )
+                if ( purp.PurposeName == OtherPurposeName )
                 {
-                    this.OtherPurpose = purp;
+                    OtherPurpose = purp;
                     break;
                 }
             }
             if ( OtherPurpose == null )
             {
-                error = "The purpose " + this.OtherPurposeName + " can not be found by " + this.PurposeName + " in order to be inversed!";
+                error = "The purpose " + OtherPurposeName + " can not be found by " + PurposeName + " in order to be inversed!";
                 return false;
             }
             return true;
@@ -115,10 +115,10 @@ namespace TMG.GTAModel
         private int CountNumberOfModes()
         {
             int index = 0;
-            var length = this.Flows.Count;
+            var length = Flows.Count;
             for ( int i = 0; i < length; i++ )
             {
-                CountNumberOfModes( this.Flows[i], ref index );
+                CountNumberOfModes( Flows[i], ref index );
             }
             return index;
         }
@@ -137,12 +137,12 @@ namespace TMG.GTAModel
 
         private void LoadFlows()
         {
-            var length = this.Flows.Count;
+            var length = Flows.Count;
             int index = 0;
-            this.NumberOfModes = CountNumberOfModes();
+            NumberOfModes = CountNumberOfModes();
             for ( int i = 0; i < length; i++ )
             {
-                LoadFlows( this.Flows[i], OtherPurpose.Flows[i], ref index );
+                LoadFlows( Flows[i], OtherPurpose.Flows[i], ref index );
             }
         }
 
@@ -164,7 +164,7 @@ namespace TMG.GTAModel
             {
                 data[j] = new float[numberOfZones];
             }
-            this.Progress = (float)index / this.NumberOfModes;
+            Progress = (float)index / NumberOfModes;
             index++;
             Parallel.For( 0, numberOfZones, delegate(int i)
             {
@@ -189,7 +189,7 @@ namespace TMG.GTAModel
                     using ( StreamWriter writer = new StreamWriter( Path.Combine( directoryName, modeNode.ModeName + ".csv" ) ) )
                     {
                         var header = true;
-                        var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+                        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                         for ( int i = 0; i < zones.Length; i++ )
                         {
                             if ( header )

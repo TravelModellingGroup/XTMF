@@ -56,13 +56,13 @@ namespace TMG.GTAModel.Output
 
         public void Start()
         {
-            for ( int i = 0; i < this.Operations.Count; i++ )
+            for ( int i = 0; i < Operations.Count; i++ )
             {
                 string error = null;
-                if ( !( this.Operations[i].Copy(ref error) | this.IgnoreCopyErrors ) )
+                if ( !( Operations[i].Copy(ref error) | IgnoreCopyErrors ) )
                 {
                     throw new XTMFRuntimeException( "We failed to copy the file '"
-                        + this.Operations[i].Source.GetFilePath() + "' to '" + this.Operations[i].Destination.GetFilePath()
+                        + Operations[i].Source.GetFilePath() + "' to '" + Operations[i].Destination.GetFilePath()
                         + "'.  Please make sure that both paths exist, or in the case of a network drive are online!\r\n" + (error != null ? error : string.Empty) );
                 }
             }
@@ -92,13 +92,13 @@ If a directory with the same name exists already, it will be deleted before the 
             {
                 try
                 {
-                    var sourceLocation = this.Source.GetFilePath();
+                    var sourceLocation = Source.GetFilePath();
                     if ( Directory.Exists( sourceLocation ) )
                     {
                         // check to see if we don't need to make a copy
-                        if ( this.DeleteAfterCopy )
+                        if ( DeleteAfterCopy )
                         {
-                            var destinationLocation = this.Destination.GetFilePath();
+                            var destinationLocation = Destination.GetFilePath();
                             if ( Directory.Exists( destinationLocation ) )
                             {
                                 Directory.Delete( destinationLocation );
@@ -107,14 +107,14 @@ If a directory with the same name exists already, it will be deleted before the 
                         }
                         else
                         {
-                            this.DirectoryCopy( sourceLocation, this.Destination.GetFilePath() );
+                            DirectoryCopy( sourceLocation, Destination.GetFilePath() );
                         }
                     }
                     else
                     {
-                        if ( this.DeleteAfterCopy )
+                        if ( DeleteAfterCopy )
                         {
-                            var destinationLocation = this.Destination.GetFilePath();
+                            var destinationLocation = Destination.GetFilePath();
                             if ( File.Exists( destinationLocation ) )
                             {
                                 File.Delete( destinationLocation );
@@ -123,7 +123,7 @@ If a directory with the same name exists already, it will be deleted before the 
                         }
                         else
                         {
-                            File.Copy( sourceLocation, this.Destination.GetFilePath(), true );
+                            File.Copy( sourceLocation, Destination.GetFilePath(), true );
                         }
                     }
                 }

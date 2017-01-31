@@ -72,7 +72,7 @@ it will skip the first line so that standard csv data will also work.</p>"
         public IEnumerable<ODData<float>> Read()
         {
             BinaryReader reader = null;
-            var fileName = FromInputDirectory ? this.GetInputFileName(FileName) : FileName;
+            var fileName = FromInputDirectory ? GetInputFileName(FileName) : FileName;
             try
             {
                 reader = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
@@ -86,7 +86,7 @@ it will skip the first line so that standard csv data will also work.</p>"
             {
                 char c = reader.ReadChar();
                 // check to see if this file has a header
-                if (c == '/' | c == '-' | this.Header)
+                if (c == '/' | c == '-' | Header)
                 {
                     // Check to see if it is a CSV header or the --- header type
                     if (c == '-')
@@ -123,12 +123,12 @@ it will skip the first line so that standard csv data will also work.</p>"
                             c == '/');
                     }
                     // the csv header only needs to burn the one line
-                    if (this.Header)
+                    if (Header)
                     {
                         BurnLine(reader);
                     }
                     // if we are at the end of file break
-                    if (this.EndOfFile(reader)) yield break;
+                    if (EndOfFile(reader)) yield break;
                     c = reader.ReadChar();
                 }
                 reader.BaseStream.Position--;
@@ -179,7 +179,7 @@ it will skip the first line so that standard csv data will also work.</p>"
             var bs = reader.BaseStream;
             var length = bs.Length;
             var position = bs.Position;
-            this.Progress = (float)position / length;
+            Progress = (float)position / length;
             return length == position;
         }
 
@@ -188,7 +188,7 @@ it will skip the first line so that standard csv data will also work.</p>"
             var fullPath = localPath;
             if (!Path.IsPathRooted(fullPath))
             {
-                fullPath = Path.Combine(this.Root.InputBaseDirectory, fullPath);
+                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
             }
             return fullPath;
         }
@@ -235,7 +235,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                     }
                     else if ((c < '0' | c > '9'))
                     {
-                        throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
+                        throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                     }
                     else
                     {
@@ -260,7 +260,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                         }
                         else if ((c < '0' | c > '9'))
                         {
-                            throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
+                            throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                         }
                         else
                         {
@@ -301,7 +301,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                 }
                 if (c < '0' | c > '9')
                 {
-                    throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
+                    throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                 }
                 p = p * 10 + (c - '0');
             } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != ' ' & c != ',');

@@ -35,7 +35,7 @@ namespace TMG.GTAModel.Input
         public IEnumerable<ODData<float>> Read()
         {
             IPurpose purpose = GetPurpose();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[] ret = new float[zones.Length * zones.Length];
             LoadData( ret, purpose );
             var odData = new ODData<float>();
@@ -95,15 +95,15 @@ namespace TMG.GTAModel.Input
 
         private IPurpose GetPurpose()
         {
-            var purposes = this.Root.Purpose;
+            var purposes = Root.Purpose;
             for ( int i = 0; i < purposes.Count; i++ )
             {
-                if ( purposes[i].PurposeName == this.Purpose )
+                if ( purposes[i].PurposeName == Purpose )
                 {
                     return purposes[i];
                 }
             }
-            throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to find a purpose named '" + this.Purpose + "'!" );
+            throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a purpose named '" + Purpose + "'!" );
         }
 
         public string Name { get; set; }

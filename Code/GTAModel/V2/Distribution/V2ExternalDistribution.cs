@@ -60,15 +60,15 @@ namespace TMG.GTAModel.V2.Distribution
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions,
             IEnumerable<IDemographicCategory> category)
         {
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var distribution = ret.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[][] generationRates = ProduceNormalizedObservedData();
-            TMG.Functions.SaveData.SaveMatrix( zones, generationRates, System.IO.Path.Combine( this.SaveDistribution, "GenerationRates.csv" ) );
+            Functions.SaveData.SaveMatrix( zones, generationRates, System.IO.Path.Combine( SaveDistribution, "GenerationRates.csv" ) );
             Apply( ret, generationRates );
             if ( !String.IsNullOrWhiteSpace( SaveDistribution ) )
             {
-                TMG.Functions.SaveData.SaveMatrix( ret, System.IO.Path.Combine( this.SaveDistribution, "ExternalDistribution.csv" ) );
+                Functions.SaveData.SaveMatrix( ret, System.IO.Path.Combine( SaveDistribution, "ExternalDistribution.csv" ) );
             }
             yield return ret;
         }
@@ -80,9 +80,9 @@ namespace TMG.GTAModel.V2.Distribution
 
         private void Apply(SparseTwinIndex<float> ret, float[][] rates)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var data = ret.GetFlatData();
-            Parallel.For( 0, data.Length, (int i) =>
+            Parallel.For( 0, data.Length, i =>
             {
                 var row = data[i];
                 var rateRow = rates[i];
@@ -105,15 +105,15 @@ namespace TMG.GTAModel.V2.Distribution
 
         private float[][] ProduceNormalizedObservedData()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            this.ObservedExternalTrips.LoadData();
-            this.DistributionRates.LoadData();
-            var distributionRates = this.ObservedExternalTrips.GiveData().GetFlatData();
-            var generationRates = this.DistributionRates.GiveData();
-            this.DistributionRates.UnloadData();
-            this.ObservedExternalTrips.UnloadData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            ObservedExternalTrips.LoadData();
+            DistributionRates.LoadData();
+            var distributionRates = ObservedExternalTrips.GiveData().GetFlatData();
+            var generationRates = DistributionRates.GiveData();
+            DistributionRates.UnloadData();
+            ObservedExternalTrips.UnloadData();
             // EI
-            Parallel.For( 0, distributionRates.Length, (int i) =>
+            Parallel.For( 0, distributionRates.Length, i =>
                 {
                     if ( zones[i].RegionNumber == 0 )
                     {
@@ -143,7 +143,7 @@ namespace TMG.GTAModel.V2.Distribution
                     }
                 } );
             // IE
-            Parallel.For( 0, zones.Length, (int j) =>
+            Parallel.For( 0, zones.Length, j =>
                 {
                     var sum = 0.0;
                     for ( int i = 0; i < distributionRates.Length; i++ )

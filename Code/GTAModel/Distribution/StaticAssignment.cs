@@ -61,15 +61,15 @@ namespace TMG.GTAModel
             int length = DataSources.Count;
             for ( int i = 0; i < length; i++ )
             {
-                yield return this.BuildOD( DataSources[i], SelectedModeChoices[i], SelectedDemographicChoices[i] );
+                yield return BuildOD( DataSources[i], SelectedModeChoices[i], SelectedDemographicChoices[i] );
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.SelectedModeChoices.Count != this.DataSources.Count )
+            if ( SelectedModeChoices.Count != DataSources.Count )
             {
-                error = "In " + this.Name + " the number of mode choice parameter set options is not the same as the number of data sources!";
+                error = "In " + Name + " the number of mode choice parameter set options is not the same as the number of data sources!";
                 return false;
             }
             return true;
@@ -78,9 +78,9 @@ namespace TMG.GTAModel
         private SparseTwinIndex<float> BuildOD(IReadODData<float> dataSource, int modeChoiceIndex, int demographicIndex)
         {
             // Setup the mode choice to have the right parameters
-            this.Root.ModeParameterDatabase.ApplyParameterSet( modeChoiceIndex, demographicIndex );
+            Root.ModeParameterDatabase.ApplyParameterSet( modeChoiceIndex, demographicIndex );
             // build a matrix to store
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             // there is no point trying to do this in parallel since most likely everything is being streamed off of disk anyways
             foreach ( var dataPoint in dataSource.Read() )
             {

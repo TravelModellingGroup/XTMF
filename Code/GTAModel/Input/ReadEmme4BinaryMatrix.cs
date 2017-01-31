@@ -56,13 +56,13 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             using (BinaryReader reader = new BinaryReader( new FileStream( InputFile, FileMode.Open, FileAccess.Read ) ))
             {
                 EmmeMatrix matrix = new EmmeMatrix( reader );
                 if ( !matrix.IsValidHeader() )
                 {
-                    throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to load the matrix '" + (string)InputFile + "'" );
+                    throw new XTMFRuntimeException( "In '" + Name + "' we were unable to load the matrix '" + (string)InputFile + "'" );
                 }
                 ODData<float> result = new ODData<float>();
                 int pos = 0;

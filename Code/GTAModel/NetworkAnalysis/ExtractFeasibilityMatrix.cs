@@ -84,7 +84,7 @@ namespace TMG.GTAModel.NetworkAnalysis
                 toolName = AlternateToolName;
             }
 
-            return mc.Run(toolName, sb.ToString(), (p => this.Progress = p), ref result);
+            return mc.Run(toolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

@@ -56,20 +56,20 @@ namespace TMG.GTAModel.Modes
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             float total = 0f;
-            for ( int i = 0; i < this.UtilityComponents.Count; i++ )
+            for ( int i = 0; i < UtilityComponents.Count; i++ )
             {
-                total += this.UtilityComponents[i].CalculateV( origin, destination, time );
+                total += UtilityComponents[i].CalculateV( origin, destination, time );
             }
             return total;
         }
 
         public bool Feasible(IZone origin, IZone destination, Time time)
         {
-            if ( this.CurrentlyFeasible <= 0 )
+            if ( CurrentlyFeasible <= 0 )
             {
                 return false;
             }
-            if ( this.FeasibilityCalculation != null )
+            if ( FeasibilityCalculation != null )
             {
                 return FeasibilityCalculation.ProduceResult( new Pair<IZone, IZone>( origin, destination ) );
             }

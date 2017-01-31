@@ -34,7 +34,7 @@ namespace TMG.GTAModel.V2.Generation
         public override void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             // never gets called
-            throw new XTMFRuntimeException( "For '" + this.Name + "' this generate method should never be called!" );
+            throw new XTMFRuntimeException( "For '" + Name + "' this generate method should never be called!" );
         }
 
         public override bool RuntimeValidation(ref string error)
@@ -46,14 +46,14 @@ namespace TMG.GTAModel.V2.Generation
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int occ, Range age, int employmentStatus, int mobility)
         {
             PowGeneration gen = new PowGeneration();
-            gen.Root = this.Root;
+            gen.Root = Root;
             gen.OccupationCategory = CreateRangeSet( occ );
             gen.AgeCategoryRange = CreateRangeSet( age );
             gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
             gen.Mobility = CreateRangeSet( mobility );
-            gen.ModeChoiceParameterSetIndex = this.ModeChoiceParameterSetIndex;
+            gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
             gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-            gen.AllAges = this.AgeCategoryRange;
+            gen.AllAges = AgeCategoryRange;
             list.Add( gen );
         }
 
@@ -82,21 +82,21 @@ namespace TMG.GTAModel.V2.Generation
         private void GenerateChildren()
         {
             // we need to generate our children here
-            var list = this.Parent.Categories;
+            var list = Parent.Categories;
             list.Remove( this );
-            foreach ( var occSet in this.OccupationCategory )
+            foreach ( var occSet in OccupationCategory )
             {
                 for ( var occ = occSet.Start; occ <= occSet.Stop; occ++ )
                 {
-                    foreach ( var empSet in this.EmploymentStatusCategory )
+                    foreach ( var empSet in EmploymentStatusCategory )
                     {
                         for ( int employmentStatus = empSet.Start; employmentStatus <= empSet.Stop; employmentStatus++ )
                         {
-                            foreach ( var mobilitySet in this.Mobility )
+                            foreach ( var mobilitySet in Mobility )
                             {
                                 for ( int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++ )
                                 {
-                                    foreach ( var ageSet in this.AgeCategoryRange )
+                                    foreach ( var ageSet in AgeCategoryRange )
                                     {
                                         AddNewGeneration( list, occ, ageSet, employmentStatus, mobility );
                                     }

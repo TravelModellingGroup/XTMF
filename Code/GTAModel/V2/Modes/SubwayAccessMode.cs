@@ -493,7 +493,7 @@ namespace TMG.GTAModel.V2.Modes
             var flatZones = zoneSystem.GetFlatData();
             var closest = zoneSystem.CreateSimilarArray<int[]>();
             var flat = closest.GetFlatData();
-            Parallel.For( 0, flatZones.Length, (int origin) =>
+            Parallel.For( 0, flatZones.Length, origin =>
             {
                 var tempClosest = new double[MaxAccessStations];
                 flat[origin] = new int[MaxAccessStations];

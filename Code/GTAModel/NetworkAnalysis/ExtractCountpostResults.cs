@@ -52,10 +52,10 @@ namespace TMG.GTAModel.NetworkAnalysis
                 throw new XTMFRuntimeException("Controller is not a ModellerController");
             }
             
-            string args = this.ScenarioNumber + " " + this.CountpostAttributeId + " " + this.AlternateCountpostAttributeId + " " + this.ExportFile.GetFilePath();
+            string args = ScenarioNumber + " " + CountpostAttributeId + " " + AlternateCountpostAttributeId + " " + ExportFile.GetFilePath();
             string result = "";
 
-            return mc.Run(ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

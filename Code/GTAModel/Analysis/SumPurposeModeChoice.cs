@@ -60,7 +60,7 @@ namespace TMG.GTAModel.Analysis
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.ProcessPurposeNames( ref error ) )
+            if ( !ProcessPurposeNames( ref error ) )
             {
                 return false;
             }
@@ -69,7 +69,7 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var purposes = this.Root.Purpose;
+            var purposes = Root.Purpose;
             int numberOfModes = GetNumberOfModes();
             double[] totals = new double[numberOfModes];
             using ( StreamWriter writer = new StreamWriter( FileName ) )
@@ -77,7 +77,7 @@ namespace TMG.GTAModel.Analysis
                 WriteHeader( writer );
                 for ( int i = 0; i < PurposeIndexes.Length; i++ )
                 {
-                    AddPurpose( writer, totals, purposes[this.PurposeIndexes[i]] );
+                    AddPurpose( writer, totals, purposes[PurposeIndexes[i]] );
                 }
                 WriteFinalSummary( writer, totals, totals.Sum() );
             }
@@ -125,7 +125,7 @@ namespace TMG.GTAModel.Analysis
 
         private int GetNumberOfModes()
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var total = 0;
             for ( int i = 0; i < modes.Count; i++ )
             {
@@ -152,21 +152,21 @@ namespace TMG.GTAModel.Analysis
 
         private bool ProcessPurposeNames(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.PurposeNames ) )
+            if ( String.IsNullOrWhiteSpace( PurposeNames ) )
             {
                 List<IPurpose> contained;
-                var length = ( contained = this.Root.Purpose ).Count;
-                this.PurposeIndexes = new int[length];
+                var length = ( contained = Root.Purpose ).Count;
+                PurposeIndexes = new int[length];
                 for ( int i = 0; i < length; i++ )
                 {
-                    this.PurposeIndexes[i] = i;
+                    PurposeIndexes[i] = i;
                 }
             }
             else
             {
-                string[] parts = this.PurposeNames.Split( ',' );
+                string[] parts = PurposeNames.Split( ',' );
                 List<int> care = new List<int>();
-                var purposes = this.Root.Purpose;
+                var purposes = Root.Purpose;
                 var numberOfPurposes = purposes.Count;
                 foreach ( var part in parts )
                 {
@@ -187,7 +187,7 @@ namespace TMG.GTAModel.Analysis
                         return false;
                     }
                 }
-                this.PurposeIndexes = care.ToArray();
+                PurposeIndexes = care.ToArray();
             }
             return true;
         }
@@ -222,7 +222,7 @@ namespace TMG.GTAModel.Analysis
 
         private void WriteHeader(StreamWriter writer)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             writer.WriteLine( "Model Run Summary" );
             writer.Write( "Purpose" );
             foreach ( var mode in modes )

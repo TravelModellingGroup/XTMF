@@ -27,9 +27,9 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         public override float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( this.IsContained( origin, destination ) )
+            if ( IsContained( origin, destination ) )
             {
-                return this.Constant;
+                return Constant;
             }
             return 0f;
         }

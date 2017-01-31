@@ -66,24 +66,24 @@ namespace TMG.GTAModel.ModeSplit
         public float ComputeUtility(IZone o, IZone d)
         {
             float sum = 0f;
-            var flatO = this.ZoneSystem.GetFlatIndex(o.ZoneNumber);
-            var flatD = this.ZoneSystem.GetFlatIndex(d.ZoneNumber);
+            var flatO = ZoneSystem.GetFlatIndex(o.ZoneNumber);
+            var flatD = ZoneSystem.GetFlatIndex(d.ZoneNumber);
             bool any = false;
-            var zoneIndex = (flatO * this.Zones.Length + flatD) * this.Modes.Length;
-            for (int mode = 0; mode < this.Modes.Length; mode++)
+            var zoneIndex = (flatO * Zones.Length + flatD) * Modes.Length;
+            for (int mode = 0; mode < Modes.Length; mode++)
             {
                 EnsureResult(flatO, mode);
-                if (this.Modes[mode].Feasible(o, d, this.SimulationTime))
+                if (Modes[mode].Feasible(o, d, SimulationTime))
                 {
-                    var res = this.Modes[mode].CalculateV(o, d, this.SimulationTime);
+                    var res = Modes[mode].CalculateV(o, d, SimulationTime);
                     if (!float.IsNaN(res))
                     {
                         float v = (float)Math.Exp(res);
-                        if (this.Adjustments != null)
+                        if (Adjustments != null)
                         {
-                            v *= this.Adjustments.GiveAdjustment(o, d, mode, (int)this.CurrentInteractiveCategory);
+                            v *= Adjustments.GiveAdjustment(o, d, mode, (int)CurrentInteractiveCategory);
                         }
-                        this.CurrentUtility[zoneIndex + mode] = v;
+                        CurrentUtility[zoneIndex + mode] = v;
                         sum += v;
                         any = true;
                     }
@@ -94,24 +94,24 @@ namespace TMG.GTAModel.ModeSplit
 
         public void EndInterativeModeSplit()
         {
-            this.Results = null;
-            this.CurrentUtility = null;
+            Results = null;
+            CurrentUtility = null;
         }
 
         public List<TreeData<float[][]>> ModeSplit(IEnumerable<SparseTwinIndex<float>> flowMatrix, int numberOfCategories)
         {
-            if (this.Modes == null)
+            if (Modes == null)
             {
                 SetModes();
             }
-            this.Progress = 0f;
-            this.CurrentInteractiveCategory = 0;
+            Progress = 0f;
+            CurrentInteractiveCategory = 0;
             foreach (var matrix in flowMatrix)
             {
                 AddModeSplit(matrix);
-                this.CurrentInteractiveCategory++;
+                CurrentInteractiveCategory++;
             }
-            this.Progress = 1f;
+            Progress = 1f;
             return CreateList();
         }
 
@@ -128,25 +128,25 @@ namespace TMG.GTAModel.ModeSplit
 
         public void StartNewInteractiveModeSplit(int numberOfInteractiveCategories)
         {
-            this.NumberOfInteractiveCategories = numberOfInteractiveCategories;
-            this.ZoneSystem = this.Root.ZoneSystem.ZoneArray;
-            this.Zones = this.ZoneSystem.GetFlatData();
-            this.InterativeMode = true;
+            NumberOfInteractiveCategories = numberOfInteractiveCategories;
+            ZoneSystem = Root.ZoneSystem.ZoneArray;
+            Zones = ZoneSystem.GetFlatData();
+            InterativeMode = true;
             SetModes();
-            this.InitializeResults();
-            if (!LoadedAdjustments & this.Adjustments != null)
+            InitializeResults();
+            if (!LoadedAdjustments & Adjustments != null)
             {
-                this.Adjustments.Load();
+                Adjustments.Load();
             }
         }
 
         private void AddModeSplit(SparseTwinIndex<float> matrix)
         {
-            if (this.Results == null)
+            if (Results == null)
             {
                 InitializeResults();
             }
-            if (this.InterativeMode)
+            if (InterativeMode)
             {
                 ProduceResultsForInteractive(matrix.GetFlatData());
             }
@@ -158,10 +158,10 @@ namespace TMG.GTAModel.ModeSplit
 
         private List<TreeData<float[][]>> CreateList()
         {
-            var ret = new List<TreeData<float[][]>>(this.Results.Length);
-            for (int i = 0; i < this.Results.Length; i++)
+            var ret = new List<TreeData<float[][]>>(Results.Length);
+            for (int i = 0; i < Results.Length; i++)
             {
-                ret.Add(this.Results[i]);
+                ret.Add(Results[i]);
             }
             EndInterativeModeSplit();
             return ret;
@@ -169,14 +169,14 @@ namespace TMG.GTAModel.ModeSplit
 
         private void EnsureResult(int flatO, int mode)
         {
-            if (this.Results[mode].Result[flatO] == null)
+            if (Results[mode].Result[flatO] == null)
             {
-                lock (this.Results)
+                lock (Results)
                 {
                     Thread.MemoryBarrier();
-                    if (this.Results[mode].Result[flatO] == null)
+                    if (Results[mode].Result[flatO] == null)
                     {
-                        this.Results[mode].Result[flatO] = new float[this.Zones.Length];
+                        Results[mode].Result[flatO] = new float[Zones.Length];
                         Thread.MemoryBarrier();
                     }
                 }
@@ -185,35 +185,35 @@ namespace TMG.GTAModel.ModeSplit
 
         private void InitializeResults()
         {
-            var numberOfZones = this.Zones.Length;
-            var numberOfModes = this.Root.Modes.Count;
-            if (this.CurrentUtility == null)
+            var numberOfZones = Zones.Length;
+            var numberOfModes = Root.Modes.Count;
+            if (CurrentUtility == null)
             {
-                this.CurrentUtility = new float[numberOfZones * numberOfZones * numberOfModes];
+                CurrentUtility = new float[numberOfZones * numberOfZones * numberOfModes];
             }
             // in all cases reset this value
-            for (int i = 0; i < this.CurrentUtility.Length; i++)
+            for (int i = 0; i < CurrentUtility.Length; i++)
             {
-                this.CurrentUtility[i] = float.NaN;
+                CurrentUtility[i] = float.NaN;
             }
-            if (this.Results == null)
+            if (Results == null)
             {
-                this.Results = new TreeData<float[][]>[numberOfModes];
-                for (int i = 0; i < this.Results.Length; i++)
+                Results = new TreeData<float[][]>[numberOfModes];
+                for (int i = 0; i < Results.Length; i++)
                 {
-                    this.Results[i] = new TreeData<float[][]>();
-                    this.Results[i].Result = new float[numberOfZones][];
+                    Results[i] = new TreeData<float[][]>();
+                    Results[i].Result = new float[numberOfZones][];
                 }
             }
         }
 
         private void ProduceResultsForInteractive(float[][] flows)
         {
-            Parallel.For(0, flows.Length, (int flatO) =>
+            Parallel.For(0, flows.Length, flatO =>
                {
                    var row = flows[flatO];
                    if (row == null) return;
-                   var numberOfModes = this.Modes.Length;
+                   var numberOfModes = Modes.Length;
                    for (int j = 0; j < row.Length; j++)
                    {
                        var flow = flows[flatO][j];
@@ -225,7 +225,7 @@ namespace TMG.GTAModel.ModeSplit
                        bool any = false;
                        for (int mode = 0; mode < numberOfModes; mode++)
                        {
-                           var cur = this.CurrentUtility[zoneIndex + mode];
+                           var cur = CurrentUtility[zoneIndex + mode];
                            if (!float.IsNaN(cur))
                            {
                                sum += cur;
@@ -240,25 +240,25 @@ namespace TMG.GTAModel.ModeSplit
                         var factor = 1 / sum;
                        for (int mode = 0; mode < numberOfModes; mode++)
                        {
-                           var temp = this.CurrentUtility[zoneIndex + mode] * factor;
+                           var temp = CurrentUtility[zoneIndex + mode] * factor;
                            if (!float.IsNaN(temp))
                            {
-                               this.Results[mode].Result[flatO][j] += temp * flow;
+                               Results[mode].Result[flatO][j] += temp * flow;
                            }
                        }
                    }
                });
-            this.Progress = ((this.CurrentInteractiveCategory + 1) / (float)this.NumberOfInteractiveCategories);
+            Progress = ((CurrentInteractiveCategory + 1) / (float)NumberOfInteractiveCategories);
         }
 
         private void SetModes()
         {
-            if (this.Modes == null)
+            if (Modes == null)
             {
-                this.Modes = new IModeChoiceNode[this.Root.Modes.Count];
-                for (int i = 0; i < this.Modes.Length; i++)
+                Modes = new IModeChoiceNode[Root.Modes.Count];
+                for (int i = 0; i < Modes.Length; i++)
                 {
-                    this.Modes[i] = (IModeChoiceNode)this.Root.Modes[i];
+                    Modes[i] = (IModeChoiceNode)Root.Modes[i];
                 }
             }
         }
@@ -302,10 +302,10 @@ namespace TMG.GTAModel.ModeSplit
 
         public float GiveAdjustment(IZone origin, IZone destination, int mode, int currentMatrix)
         {
-            var occNumber = currentMatrix / this.MatriciesPerOccupation;
+            var occNumber = currentMatrix / MatriciesPerOccupation;
             var oPD = origin.PlanningDistrict;
             var dPD = destination.PlanningDistrict;
-            var row = this.Data[occNumber];
+            var row = Data[occNumber];
             var adjFactor = 1f;
             for (int i = 0; i < row.Length; i++)
             {
@@ -319,13 +319,13 @@ namespace TMG.GTAModel.ModeSplit
 
         public void Load()
         {
-            List<Segment>[] temp = new List<Segment>[this.NumberOfOccupations];
+            List<Segment>[] temp = new List<Segment>[NumberOfOccupations];
             for (int i = 0; i < temp.Length; i++)
             {
                 temp[i] = new List<Segment>();
             }
-            var numberOfModes = this.Root.Modes.Count;
-            using (CsvReader reader = new CsvReader(this.InputFile.GetFileName(this.Root.InputBaseDirectory)))
+            var numberOfModes = Root.Modes.Count;
+            using (CsvReader reader = new CsvReader(InputFile.GetFileName(Root.InputBaseDirectory)))
             {
                 // burn header
                 reader.LoadLine();
@@ -344,7 +344,7 @@ namespace TMG.GTAModel.ModeSplit
                         {
                             reader.Get(out modeData[i], 5 + i);
                         }
-                        temp[occ - this.OccupationStartIndex].Add(new Segment()
+                        temp[occ - OccupationStartIndex].Add(new Segment()
                         {
                             Origin = new Range(os, oe),
                             Destination = new Range(ds, de),
@@ -353,10 +353,10 @@ namespace TMG.GTAModel.ModeSplit
                     }
                 }
             }
-            this.Data = new Segment[this.NumberOfOccupations][];
-            for (int i = 0; i < this.Data.Length; i++)
+            Data = new Segment[NumberOfOccupations][];
+            for (int i = 0; i < Data.Length; i++)
             {
-                this.Data[i] = temp[i].ToArray();
+                Data[i] = temp[i].ToArray();
             }
         }
 
@@ -367,7 +367,7 @@ namespace TMG.GTAModel.ModeSplit
 
         public void Unload()
         {
-            this.Data = null;
+            Data = null;
         }
 
         private struct Segment

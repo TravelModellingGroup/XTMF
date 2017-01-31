@@ -39,7 +39,7 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var data = this.AccessStationData.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
+            var data = AccessStationData.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
             var flatData = data.GetFlatData();
             using ( var writer = new StreamWriter( OutputFile ) )
             {
@@ -95,9 +95,9 @@ namespace TMG.GTAModel.Analysis
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.AccessStationData.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
+            if ( !AccessStationData.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
             {
-                error = "In '" + this.Name + "' the access station data is not connecting to a resource of type SparseTwinIndex<Tuple<IZone[], float[]>>!";
+                error = "In '" + Name + "' the access station data is not connecting to a resource of type SparseTwinIndex<Tuple<IZone[], float[]>>!";
                 return false;
             }
             return true;

@@ -111,45 +111,45 @@ namespace TMG.GTAModel.Modes
         public virtual float CalculateV(IZone origin, IZone destination, Time time)
         {
             // initialize to the combined constant value for the mode
-            float v = this.Constant + PartTime + NoDriversLicense + SingleVehicleHousehold + MultipleVehicleHousehold
-            + this.AgeConstant1 + this.AgeConstant2 + this.AgeConstant3 + this.AgeConstant4
-            + this.Parking * destination.ParkingCost
-            + this.GetDensityV( origin, destination );
+            float v = Constant + PartTime + NoDriversLicense + SingleVehicleHousehold + MultipleVehicleHousehold
+            + AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4
+            + Parking * destination.ParkingCost
+            + GetDensityV( origin, destination );
             // if we need to calculate distance
-            var distance = this.Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
-            if ( origin.RegionNumber == this.RegionDistanceNumber )
+            var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
+            if ( origin.RegionNumber == RegionDistanceNumber )
             {
-                v += this.SpecificRegionConstant + this.SpecificRegionDistance * distance;
+                v += SpecificRegionConstant + SpecificRegionDistance * distance;
             }
             else
             {
-                v += this.OtherRegionDistance * distance;
+                v += OtherRegionDistance * distance;
             }
             return v;
         }
 
         public virtual float Cost(IZone origin, IZone destination, Time time)
         {
-            return this.NetworkData.TravelCost( origin, destination, time );
+            return NetworkData.TravelCost( origin, destination, time );
         }
 
         public virtual bool Feasible(IZone origin, IZone destination, Time time)
         {
-            return ( this.CurrentlyFeasible > 0 ) && ( this.AdvancedNetworkData == null ?
-                this.NetworkData.ValidOd( origin, destination, time )
-                : this.AdvancedNetworkData.ValidOd( origin, destination, time ) );
+            return ( CurrentlyFeasible > 0 ) && ( AdvancedNetworkData == null ?
+                NetworkData.ValidOd( origin, destination, time )
+                : AdvancedNetworkData.ValidOd( origin, destination, time ) );
         }
 
         public virtual bool RuntimeValidation(ref string error)
         {
             // Load in the network data
             LoadNetworkData();
-            return ( this.NetworkData != null );
+            return ( NetworkData != null );
         }
 
         public virtual Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.NetworkData.TravelTime( origin, destination, time );
+            return NetworkData.TravelTime( origin, destination, time );
         }
 
         private float GetDensityV(IZone origin, IZone destination)
@@ -164,15 +164,15 @@ namespace TMG.GTAModel.Modes
         /// </summary>
         private void LoadNetworkData()
         {
-            foreach ( var dataSource in this.Root.NetworkData )
+            foreach ( var dataSource in Root.NetworkData )
             {
-                if ( dataSource.NetworkType == this.NetworkType )
+                if ( dataSource.NetworkType == NetworkType )
                 {
-                    this.NetworkData = dataSource;
+                    NetworkData = dataSource;
                     ITripComponentData advancedData = dataSource as ITripComponentData;
                     if ( advancedData != null )
                     {
-                        this.AdvancedNetworkData = advancedData;
+                        AdvancedNetworkData = advancedData;
                     }
                     break;
                 }

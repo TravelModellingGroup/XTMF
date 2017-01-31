@@ -53,10 +53,10 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            IZone[] zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            IZone[] zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             Stream s = null;
-            var f = this.UseInputDirectory ? this.GetFileLocation( this.FileName ) : this.FileName;
+            var f = UseInputDirectory ? GetFileLocation( FileName ) : FileName;
             try
             {
                 s = File.OpenRead( f );
@@ -101,7 +101,7 @@ namespace TMG.GTAModel.Input
             var fullPath = fileName;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }

@@ -65,15 +65,15 @@ namespace TMG.GTAModel
             var productionEnum = productions.GetEnumerator();
             var attractionEnum = attractions.GetEnumerator();
             var catEnum = cat.GetEnumerator();
-            var numberOfZones = this.Root.ZoneSystem.ZoneArray.GetFlatData().Length;
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var numberOfZones = Root.ZoneSystem.ZoneArray.GetFlatData().Length;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var sparseFriction = zoneArray.CreateSquareTwinArray<float>();
             float[][] friction = sparseFriction.GetFlatData();
             var validZones = zoneArray.ValidIndexArray();
             while (productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext())
             {
-                friction = this.ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
-                yield return new GravityModel(sparseFriction, ((p) => this.Progress = p), this.Epsilon, this.MaxIterations).ProcessFlow(productionEnum.Current, attractionEnum.Current, validZones);
+                friction = ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
+                yield return new GravityModel(sparseFriction, ((p) => Progress = p), Epsilon, MaxIterations).ProcessFlow(productionEnum.Current, attractionEnum.Current, validZones);
             }
             friction = null;
         }
@@ -86,7 +86,7 @@ namespace TMG.GTAModel
         private float[][] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[][] friction)
         {
             var numberOfZones = zones.Length;
-            var rootModes = this.Root.Modes;
+            var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
             var minFrictionInc = (float)Math.Exp(-10);
             // initialize the category so we can compute the friction
@@ -103,20 +103,20 @@ namespace TMG.GTAModel
                    for (int mIndex = 0; mIndex < numberOfModes; mIndex++)
                    {
                        var mode = rootModes[mIndex];
-                       if (!mode.Feasible(origin, zones[j], this.SimulationTime))
+                       if (!mode.Feasible(origin, zones[j], SimulationTime))
                        {
                            vIndex++;
                            continue;
                        }
                        feasibleModes++;
-                       var inc = mode.CalculateV(origin, zones[j], this.SimulationTime);
+                       var inc = mode.CalculateV(origin, zones[j], SimulationTime);
                        if (float.IsNaN(inc))
                        {
                            continue;
                        }
                        logsum += Math.Exp(inc);
                    }
-                   friction[i][j] = (float)Math.Pow(logsum, this.Beta);
+                   friction[i][j] = (float)Math.Pow(logsum, Beta);
                }
            });
             // Use the Log-Sum from the V's as the impedance function

@@ -50,7 +50,7 @@ namespace TMG.GTAModel.Output
 
         public void Reset()
         {
-            this.CurrentIndex = this.StartingIndex;
+            CurrentIndex = StartingIndex;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -60,17 +60,17 @@ namespace TMG.GTAModel.Output
 
         public void SaveMatrix(SparseTwinIndex<float> matrix)
         {
-            this.Writer.SaveMatrix( matrix, GetFilename( this.CurrentIndex++ ) );
+            Writer.SaveMatrix( matrix, GetFilename( CurrentIndex++ ) );
         }
 
         public void SaveMatrix(float[][] data)
         {
-            this.Writer.SaveMatrix( data, GetFilename( this.CurrentIndex++ ) );
+            Writer.SaveMatrix( data, GetFilename( CurrentIndex++ ) );
         }
 
         public void SaveMatrix(float[] data)
         {
-            this.Writer.SaveMatrix( data, GetFilename( this.CurrentIndex++ ) );
+            Writer.SaveMatrix( data, GetFilename( CurrentIndex++ ) );
         }
 
         private string GetFilename(int index)
@@ -79,7 +79,7 @@ namespace TMG.GTAModel.Output
             int indexOfInsert = fileNameWithIndexing.IndexOf( "%X" );
             if ( indexOfInsert == -1 )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name
+                throw new XTMFRuntimeException( "In '" + Name
                     + "' the parameter 'Input File Format' does not contain a substitution '%X' in order to progress through the series!  Please update the parameter to include the substitution." );
             }
             return fileNameWithIndexing.Insert( indexOfInsert, index.ToString() ).Replace( "%X", "" );

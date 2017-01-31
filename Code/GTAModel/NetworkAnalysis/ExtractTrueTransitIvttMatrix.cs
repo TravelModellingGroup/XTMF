@@ -47,10 +47,10 @@ namespace TMG.GTAModel.NetworkAnalysis
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.ScenarioNumber, "mf" + this.MatrixNumber);
+            var args = string.Join(" ", ScenarioNumber, "mf" + MatrixNumber);
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

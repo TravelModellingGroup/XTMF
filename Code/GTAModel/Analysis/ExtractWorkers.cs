@@ -39,11 +39,11 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray;
-            var workerData = this.WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            var zones = Root.ZoneSystem.ZoneArray;
+            var workerData = WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
             var flatZones = zones.GetFlatData();
             var flatWorkerData = workerData.GetFlatData();
-            using ( StreamWriter writer = new StreamWriter( this.OututFile.GetFilePath() ) )
+            using ( StreamWriter writer = new StreamWriter( OututFile.GetFilePath() ) )
             {
                 writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
                 for ( int i = 0; i < flatWorkerData.Length; i++ )
@@ -88,9 +88,9 @@ namespace TMG.GTAModel.Analysis
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.WorkerResource.CheckResourceType<SparseArray<SparseTriIndex<float>>>() )
+            if ( !WorkerResource.CheckResourceType<SparseArray<SparseTriIndex<float>>>() )
             {
-                error = "In '" + this.Name + "' the Worker resource was not of type SparseArray<SparseTriIndex<float>>!";
+                error = "In '" + Name + "' the Worker resource was not of type SparseArray<SparseTriIndex<float>>!";
             }
             return true;
         }

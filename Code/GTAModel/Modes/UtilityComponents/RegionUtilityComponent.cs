@@ -81,42 +81,42 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         [RunParameter( "Component Name", "", "The name of this Utility Component.  This name should be unique for each mode." )]
         public string UtilityComponentName { get; set; }
 
-        public abstract float CalculateV(IZone origin, IZone destination, XTMF.Time time);
+        public abstract float CalculateV(IZone origin, IZone destination, Time time);
 
         public bool RuntimeValidation(ref string error)
         {
             var total = 0;
-            if ( this.ContainsBoth )
+            if ( ContainsBoth )
             {
-                this.CurrentContainsType = RegionUtilityComponent.ContainsType.Both;
+                CurrentContainsType = ContainsType.Both;
                 total++;
             }
-            if ( this.ContainsNone )
+            if ( ContainsNone )
             {
-                this.CurrentContainsType = RegionUtilityComponent.ContainsType.None;
+                CurrentContainsType = ContainsType.None;
                 total++;
             }
-            if ( this.ContainsOne )
+            if ( ContainsOne )
             {
-                this.CurrentContainsType = RegionUtilityComponent.ContainsType.One;
+                CurrentContainsType = ContainsType.One;
                 total++;
             }
-            if ( this.ExclusiveOr )
+            if ( ExclusiveOr )
             {
-                this.CurrentContainsType = RegionUtilityComponent.ContainsType.ExclusiveOr;
+                CurrentContainsType = ContainsType.ExclusiveOr;
                 total++;
             }
             if ( total != 1 )
             {
-                error = "In '" + this.Name + "', exactly one of the Contains parameters must be set to true!";
+                error = "In '" + Name + "', exactly one of the Contains parameters must be set to true!";
                 return false;
             }
-            return this.SubRuntimeValidation( ref error );
+            return SubRuntimeValidation( ref error );
         }
 
         public override string ToString()
         {
-            return this.UtilityComponentName;
+            return UtilityComponentName;
         }
 
         /// <summary>
@@ -127,8 +127,8 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         /// <returns>If the zone pair should have the utility applied</returns>
         protected virtual bool IsContained(IZone origin, IZone destination)
         {
-            if ( this.InvalidRegions.Count > 0
-                && ( this.InvalidRegions.Contains( origin.RegionNumber ) || this.InvalidRegions.Contains( destination.RegionNumber ) ) )
+            if ( InvalidRegions.Count > 0
+                && ( InvalidRegions.Contains( origin.RegionNumber ) || InvalidRegions.Contains( destination.RegionNumber ) ) )
             {
                 return false;
             }
@@ -136,7 +136,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             var containsOrigin = ValidRegions.Contains( origin.RegionNumber );
             var containsDestination = ValidRegions.Contains( destination.RegionNumber );
 
-            if ( this.OriginDestinationSame )
+            if ( OriginDestinationSame )
             {
                 if ( origin.RegionNumber != destination.RegionNumber )
                 {
@@ -150,7 +150,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
                 return false;
             }
 
-            switch ( this.CurrentContainsType )
+            switch ( CurrentContainsType )
             {
                 case ContainsType.ExclusiveOr:
                     return containsOrigin ^ containsDestination;

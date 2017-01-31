@@ -28,18 +28,18 @@ namespace TMG.GTAModel
         public float ComputeAttraction(float[] flatAttraction, IZone[] zones, int numberOfZones)
         {
             float totalAttractions = 0;
-            var demographics = this.Root.Demographics;
+            var demographics = Root.Demographics;
             var flatEmploymentRates = demographics.JobOccupationRates.GetFlatData();
             var flatJobTypes = demographics.JobTypeRates.GetFlatData();
 
             for ( int i = 0; i < numberOfZones; i++ )
             {
                 var total = 0f;
-                foreach ( var empRange in this.EmploymentStatusCategory )
+                foreach ( var empRange in EmploymentStatusCategory )
                 {
                     for ( int emp = empRange.Start; emp <= empRange.Stop; emp++ )
                     {
-                        foreach ( var occRange in this.EmploymentStatusCategory )
+                        foreach ( var occRange in EmploymentStatusCategory )
                         {
                             for ( int occ = occRange.Start; occ <= occRange.Stop; occ++ )
                             {
@@ -59,7 +59,7 @@ namespace TMG.GTAModel
         public float ComputeProduction(float[] flatProduction, int numberOfZones)
         {
             int totalProduction = 0;
-            var flatPopulation = this.Root.Population.Population.GetFlatData();
+            var flatPopulation = Root.Population.Population.GetFlatData();
             System.Threading.Tasks.Parallel.For( 0, numberOfZones, delegate(int i)
             {
                 var zonePop = flatPopulation[i];
@@ -69,7 +69,7 @@ namespace TMG.GTAModel
                 for ( int person = 0; person < popLength; person++ )
                 {
                     var p = zonePop[person];
-                    if ( this.IsContained( p ) )
+                    if ( IsContained( p ) )
                     {
                         count++;
                     }
@@ -91,7 +91,7 @@ namespace TMG.GTAModel
             float totalProduction = 0;
             float totalAttraction = 0;
             totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            totalAttraction = ComputeAttraction( flatAttraction, this.Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
+            totalAttraction = ComputeAttraction( flatAttraction, Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
 
             // Normalize the attractions
             float productionAttractionRatio;

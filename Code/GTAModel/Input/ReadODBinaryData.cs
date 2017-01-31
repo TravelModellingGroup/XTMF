@@ -65,14 +65,14 @@ namespace TMG.GTAModel.Input
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'" );
             }
             var fileSize = reader.BaseStream.Length;
             // make sure the file is of the right size (a float is 4 bytes)
             if ( fileSize != 4 * zones.Length * zones.Length )
             {
                 reader.Close();
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!" );
             }
             using ( reader )
             {

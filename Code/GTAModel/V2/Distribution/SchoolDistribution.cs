@@ -59,9 +59,9 @@ namespace TMG.GTAModel.V2.Distribution
             IEnumerable<IDemographicCategory> category)
         {
             var prodEnum = productions.GetEnumerator();
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var distribution = ret.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             for ( int i = 0; prodEnum.MoveNext(); i++ )
             {
                 var production = prodEnum.Current.GetFlatData();
@@ -69,7 +69,7 @@ namespace TMG.GTAModel.V2.Distribution
                 var rates = SchoolDestinationRates[i].GiveData();
                 SchoolDestinationRates[i].UnloadData();
 
-                Parallel.For( 0, production.Length, (int origin) =>
+                Parallel.For( 0, production.Length, origin =>
                     {
                         // ignore zones that are external
                         var zoneProduction = production[origin];
@@ -88,7 +88,7 @@ namespace TMG.GTAModel.V2.Distribution
                     } );
                 if ( !String.IsNullOrWhiteSpace( SaveDistribution ) )
                 {
-                    TMG.Functions.SaveData.SaveMatrix( ret, System.IO.Path.Combine( this.SaveDistribution, i.ToString() + ".csv" ) );
+                    Functions.SaveData.SaveMatrix( ret, System.IO.Path.Combine( SaveDistribution, i.ToString() + ".csv" ) );
                 }
                 yield return ret;
             }

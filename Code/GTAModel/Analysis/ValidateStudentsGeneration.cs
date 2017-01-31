@@ -43,18 +43,18 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            this.Progress = 0f;
-            this.LoadDailyRates.LoadData();
-            this.LoadTimeOfDayRates.LoadData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            var ageRates = this.Root.Demographics.AgeRates.GetFlatData();
-            var ageCategories = this.Root.Demographics.AgeCategories.GetFlatData();
-            var studentRates = this.Root.Demographics.SchoolRates.GetFlatData();
-            var employmentRates = this.Root.Demographics.EmploymentStatusRates.GetFlatData();
-            var employmentCategories = this.Root.Demographics.EmploymentStatus.GetFlatData();
-            var dailyRates = this.LoadDailyRates.GiveData();
-            var timeOfDayRates = this.LoadTimeOfDayRates.GiveData();
-            using ( var writer = new StreamWriter( this.SaveTo.GetFilePath() ) )
+            Progress = 0f;
+            LoadDailyRates.LoadData();
+            LoadTimeOfDayRates.LoadData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            var ageRates = Root.Demographics.AgeRates.GetFlatData();
+            var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
+            var studentRates = Root.Demographics.SchoolRates.GetFlatData();
+            var employmentRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
+            var employmentCategories = Root.Demographics.EmploymentStatus.GetFlatData();
+            var dailyRates = LoadDailyRates.GiveData();
+            var timeOfDayRates = LoadTimeOfDayRates.GiveData();
+            using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
             {
                 writer.WriteLine( "Zone,AgeCategory,EmpStat,Persons" );
                 for ( int i = 0; i < ageRates.Length; i++ )
@@ -82,12 +82,12 @@ namespace TMG.GTAModel.Analysis
                         }
                     }
                     // Update our progress
-                    this.Progress = (float)i / zones.Length;
+                    Progress = (float)i / zones.Length;
                 }
             }
-            this.LoadDailyRates.UnloadData();
-            this.LoadTimeOfDayRates.UnloadData();
-            this.Progress = 1f;
+            LoadDailyRates.UnloadData();
+            LoadTimeOfDayRates.UnloadData();
+            Progress = 1f;
         }
 
         public string Name { get; set; }

@@ -86,11 +86,11 @@ namespace TMG.GTAModel.Input
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'" );
             }
             // find the ammount of data in the line that we need in order to process anything
-            var dataInLine = Math.Max( this.OriginStart + this.OriginLenth, this.DestinationStart + this.DestinationLenth );
-            dataInLine = Math.Max( dataInLine, this.DataStart + this.DataLenth );
+            var dataInLine = Math.Max( OriginStart + OriginLenth, DestinationStart + DestinationLenth );
+            dataInLine = Math.Max( dataInLine, DataStart + DataLenth );
             using ( reader )
             {
                 string line;
@@ -98,15 +98,15 @@ namespace TMG.GTAModel.Input
                 {
                     // if there is not enough data just continue
                     if ( line.Length < dataInLine ) continue;
-                    currentData.O = int.Parse( line.Substring( this.OriginStart, this.OriginLenth ) );
-                    currentData.D = int.Parse( line.Substring( this.DestinationStart, this.DestinationLenth ) );
+                    currentData.O = int.Parse( line.Substring( OriginStart, OriginLenth ) );
+                    currentData.D = int.Parse( line.Substring( DestinationStart, DestinationLenth ) );
                     if ( EToTheData )
                     {
-                        currentData.Data = (float)( Math.Exp( double.Parse( line.Substring( this.DataStart, this.DataLenth ) ) ) );
+                        currentData.Data = (float)( Math.Exp( double.Parse( line.Substring( DataStart, DataLenth ) ) ) );
                     }
                     else
                     {
-                        currentData.Data = (float)double.Parse( line.Substring( this.DataStart, this.DataLenth ) );
+                        currentData.Data = (float)double.Parse( line.Substring( DataStart, DataLenth ) );
                     }
                     yield return currentData;
                 }

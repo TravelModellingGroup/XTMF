@@ -130,7 +130,7 @@ namespace TMG.GTAModel.V2.Modes
             set
             {
                 _Parking = value;
-                LogOfParking = value <= 0 ? float.NegativeInfinity : (float)Math.Log( this.Parking );
+                LogOfParking = value <= 0 ? float.NegativeInfinity : (float)Math.Log( Parking );
             }
         }
 
@@ -150,52 +150,52 @@ namespace TMG.GTAModel.V2.Modes
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             CheckInterchangeZone();
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var flatOrigin = zoneArray.GetFlatIndex( origin.ZoneNumber );
             var flatDestination = zoneArray.GetFlatIndex( destination.ZoneNumber );
             var flatInterchange = zoneArray.GetFlatIndex( InterchangeZone.ZoneNumber );
 
             // Make sure that this is a valid trip first
-            var toDestinationTime = this.Second.InVehicleTravelTime( flatInterchange, flatDestination, time ).ToMinutes();
-            if ( toDestinationTime > this.MaxAccessToDestinationTime )
+            var toDestinationTime = Second.InVehicleTravelTime( flatInterchange, flatDestination, time ).ToMinutes();
+            if ( toDestinationTime > MaxAccessToDestinationTime )
             {
                 return float.NaN;
             }
 
-            float v = this.LogParkingFactor * LogOfParking;
-            if ( this.ClosestZone.GetFlatData()[flatOrigin] )
+            float v = LogParkingFactor * LogOfParking;
+            if ( ClosestZone.GetFlatData()[flatOrigin] )
             {
-                v += this.Closest;
+                v += Closest;
             }
 
             // calculate this second in case the toDestinationTime is invalid
             // Cost of accessing the station
-            v += this.AccessInVehicleTravelTime * this.First.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes()
-                + ( this.AccessCost * ( this.First.TravelCost( flatOrigin, flatInterchange, time ) + FTTC ) );
+            v += AccessInVehicleTravelTime * First.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes()
+                + ( AccessCost * ( First.TravelCost( flatOrigin, flatInterchange, time ) + FTTC ) );
 
             // Station to Destination time
-            v += this.InVehicleTravelTime * toDestinationTime;
+            v += InVehicleTravelTime * toDestinationTime;
 
             // Walk Time
-            v += this.WalkTime * this.Second.WalkTime( flatInterchange, flatDestination, time ).ToMinutes();
+            v += WalkTime * Second.WalkTime( flatInterchange, flatDestination, time ).ToMinutes();
             return v;
         }
 
         public float Cost(IZone origin, IZone destination, Time time)
         {
             CheckInterchangeZone();
-            return this.First.TravelCost( origin, InterchangeZone, time ) + this.Second.TravelCost( origin, InterchangeZone, time );
+            return First.TravelCost( origin, InterchangeZone, time ) + Second.TravelCost( origin, InterchangeZone, time );
         }
 
         public bool Feasible(IZone originZone, IZone destinationZone, Time time)
         {
-            if ( this.CurrentlyFeasible <= 0 ) return false;
+            if ( CurrentlyFeasible <= 0 ) return false;
             CheckInterchangeZone();
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var origin = zoneArray.GetFlatIndex( originZone.ZoneNumber );
             var destination = zoneArray.GetFlatIndex( destinationZone.ZoneNumber );
             var interchange = zoneArray.GetFlatIndex( InterchangeZone.ZoneNumber );
-            var component = this.First as ITripComponentData;
+            var component = First as ITripComponentData;
             if ( component != null )
             {
                 // make sure that there is a valid walk time if we are walking/transit to the station
@@ -209,27 +209,27 @@ namespace TMG.GTAModel.V2.Modes
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach ( var network in this.Root.NetworkData )
+            foreach ( var network in Root.NetworkData )
             {
-                if ( network.Name == this.AccessModeName )
+                if ( network.Name == AccessModeName )
                 {
-                    this.First = network;
+                    First = network;
                 }
 
-                if ( network.Name == this.PrimaryModeName )
+                if ( network.Name == PrimaryModeName )
                 {
                     var temp = network as ITripComponentData;
-                    this.Second = temp == null ? this.Second : temp;
+                    Second = temp == null ? Second : temp;
                 }
             }
-            if ( this.First == null )
+            if ( First == null )
             {
-                error = "In '" + this.Name + "' the name of the access network data type was not found!";
+                error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if ( this.Second == null )
+            else if ( Second == null )
             {
-                error = "In '" + this.Name + "' the name of the primary network data type was not found or does not contain trip component data!";
+                error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
             }
             return true;
@@ -238,7 +238,7 @@ namespace TMG.GTAModel.V2.Modes
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
             CheckInterchangeZone();
-            return this.First.TravelTime( origin, InterchangeZone, time ) + this.Second.TravelTime( InterchangeZone, destination, time );
+            return First.TravelTime( origin, InterchangeZone, time ) + Second.TravelTime( InterchangeZone, destination, time );
         }
 
         private static float ComputeSubV(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float ivttWeight, float walkWeight, float waitWeight, float costWeight)
@@ -254,12 +254,12 @@ namespace TMG.GTAModel.V2.Modes
 
         private bool AreWeClosest(IZone origin, SparseArray<IZone> zoneArray, SparseTwinIndex<float> distances)
         {
-            var ourDistance = distances[origin.ZoneNumber, this.InterchangeZone.ZoneNumber];
-            foreach ( var range in this.StationRanges )
+            var ourDistance = distances[origin.ZoneNumber, InterchangeZone.ZoneNumber];
+            foreach ( var range in StationRanges )
             {
                 for ( int i = range.Start; i <= range.Stop; i++ )
                 {
-                    if ( i == this.StationZone ) continue;
+                    if ( i == StationZone ) continue;
                     var otherZone = zoneArray[i];
                     if ( distances[origin.ZoneNumber, otherZone.ZoneNumber] < ourDistance ) return false;
                 }
@@ -269,30 +269,30 @@ namespace TMG.GTAModel.V2.Modes
 
         private void CheckInterchangeZone()
         {
-            if ( !this.CacheLoaded )
+            if ( !CacheLoaded )
             {
                 lock ( this )
                 {
                     System.Threading.Thread.MemoryBarrier();
-                    if ( !this.CacheLoaded )
+                    if ( !CacheLoaded )
                     {
-                        var zones = this.Root.ZoneSystem.ZoneArray;
-                        var distances = this.Root.ZoneSystem.Distances;
+                        var zones = Root.ZoneSystem.ZoneArray;
+                        var distances = Root.ZoneSystem.Distances;
                         var zone = zones[StationZone];
                         if ( zone == null )
                         {
-                            throw new XTMFRuntimeException( "The zone " + StationZone + " does not exist!  Please check the mode '" + this.ModeName + "!" );
+                            throw new XTMFRuntimeException( "The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!" );
                         }
-                        this.InterchangeZone = zone;
-                        this.ClosestZone = zones.CreateSimilarArray<bool>();
-                        var flatClosestZone = this.ClosestZone.GetFlatData();
+                        InterchangeZone = zone;
+                        ClosestZone = zones.CreateSimilarArray<bool>();
+                        var flatClosestZone = ClosestZone.GetFlatData();
                         var flatZones = zones.GetFlatData();
                         for ( int i = 0; i < flatZones.Length; i++ )
                         {
                             flatClosestZone[i] = AreWeClosest( flatZones[i], zones, distances );
                         }
 
-                        this.CacheLoaded = true;
+                        CacheLoaded = true;
                         System.Threading.Thread.MemoryBarrier();
                     }
                 }
@@ -301,7 +301,7 @@ namespace TMG.GTAModel.V2.Modes
 
         private bool ItermediateZoneCloserThanDestination(int origin, int destination, int flatInt)
         {
-            var distances = this.Root.ZoneSystem.Distances.GetFlatData();
+            var distances = Root.ZoneSystem.Distances.GetFlatData();
             return distances[origin][flatInt] < distances[origin][destination];
         }
     }

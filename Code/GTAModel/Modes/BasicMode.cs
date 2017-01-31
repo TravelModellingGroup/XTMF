@@ -143,26 +143,26 @@ be based off of this module."
 
         public virtual float CalculateV(IZone originZone, IZone destinationZone, Time time)
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var origin = zoneArray.GetFlatIndex( originZone.ZoneNumber );
             var destination = zoneArray.GetFlatIndex( destinationZone.ZoneNumber );
             // initialize to the combined constant value for the mode
-            float v = this.Constant + PartTime + NoDriversLicense + SingleVehicleHousehold + MultipleVehicleHousehold
-            + this.AgeConstant1 + this.AgeConstant2 + this.AgeConstant3 + this.AgeConstant4
-            + this.Parking * destinationZone.ParkingCost
-            + this.GetDensityV( originZone, destinationZone );
+            float v = Constant + PartTime + NoDriversLicense + SingleVehicleHousehold + MultipleVehicleHousehold
+            + AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4
+            + Parking * destinationZone.ParkingCost
+            + GetDensityV( originZone, destinationZone );
             // if we need to calculate distance
-            var zoneDistance = this.Root.ZoneSystem.Distances.GetFlatData()[origin][destination];
+            var zoneDistance = Root.ZoneSystem.Distances.GetFlatData()[origin][destination];
 
             // if the trip is smaller than the short distance
             if ( zoneDistance <= ShortDistance )
             {
-                v += this.ShortDistanceConstant;
+                v += ShortDistanceConstant;
             }
 
-            v += this.Distance * ( zoneDistance / 1000f );
+            v += Distance * ( zoneDistance / 1000f );
             // check what kind of network data we are working with to see if we can use subcomponents
-            if ( this.AdvancedNetworkData == null )
+            if ( AdvancedNetworkData == null )
             {
                 // This is a simple mode such as Auto
                 float ivtt, cost;
@@ -173,25 +173,25 @@ be based off of this module."
             {
                 // Then we have trip component data
                 float ivtt, walk, wait, boarding, cost;
-                this.AdvancedNetworkData.GetAllData( origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost );
-                v += this.IVTT * ivtt
-                + this.Walk * walk
-                + ( ( walk > 0 ) & ( ivtt <= 0 ) ? this.AdjacentZone : 0f )
-                + this.Wait * wait
-                + this.Boarding * boarding
-                + this.TravelCost * cost;
+                AdvancedNetworkData.GetAllData( origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost );
+                v += IVTT * ivtt
+                + Walk * walk
+                + ( ( walk > 0 ) & ( ivtt <= 0 ) ? AdjacentZone : 0f )
+                + Wait * wait
+                + Boarding * boarding
+                + TravelCost * cost;
             }
             return v;
         }
 
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return this.NetworkData.TravelCost( origin, destination, time );
+            return NetworkData.TravelCost( origin, destination, time );
         }
 
         public bool Feasible(IZone originZone, IZone destinationZone, Time time)
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var origin = zoneArray.GetFlatIndex( originZone.ZoneNumber );
             var destination = zoneArray.GetFlatIndex( destinationZone.ZoneNumber );
             if(CurrentlyFeasible <= 0)
@@ -200,15 +200,15 @@ be based off of this module."
             }
             if(AdvancedNetworkData == null)
             {
-                return this.NetworkData.ValidOd(origin, destination, time) && (!this.CheckPositiveIVTT || this.NetworkData.TravelTime(origin, destination, time).ToMinutes() > 0);
+                return NetworkData.ValidOd(origin, destination, time) && (!CheckPositiveIVTT || NetworkData.TravelTime(origin, destination, time).ToMinutes() > 0);
             }
             else
             {
                 float ivtt, walk, wait, boarding, cost;
                 AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost);
-                return this.AdvancedNetworkData.ValidOd(origin, destination, time)
-                && ((!this.CheckPositiveIVTT || ivtt > 0))
-                && ((!this.CheckPositiveWalk || walk > 0));
+                return AdvancedNetworkData.ValidOd(origin, destination, time)
+                && ((!CheckPositiveIVTT || ivtt > 0))
+                && ((!CheckPositiveWalk || walk > 0));
             }
         }
 
@@ -216,9 +216,9 @@ be based off of this module."
         {
             // Load in the network data
             LoadNetworkData();
-            if ( this.NetworkData == null )
+            if ( NetworkData == null )
             {
-                error = "In '" + this.Name + "' we were unable to find any network data called '" + this.NetworkType + "'!";
+                error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
                 return false;
             }
             return true;
@@ -226,15 +226,15 @@ be based off of this module."
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.NetworkData.TravelTime( origin, destination, time );
+            return NetworkData.TravelTime( origin, destination, time );
         }
 
         private float GetDensityV(IZone origin, IZone destination)
         {
             // convert the area to KM^2
             return (float)(
-                Math.Log( ( origin.Population / ( origin.InternalArea / 1000f ) ) + 1 ) * this.OriginPopulationDensity
-                + Math.Log( ( destination.Employment / ( destination.InternalArea / 1000f ) ) + 1 ) * this.DestinationEmploymentDensity );
+                Math.Log( ( origin.Population / ( origin.InternalArea / 1000f ) ) + 1 ) * OriginPopulationDensity
+                + Math.Log( ( destination.Employment / ( destination.InternalArea / 1000f ) ) + 1 ) * DestinationEmploymentDensity );
         }
 
         /// <summary>
@@ -242,15 +242,15 @@ be based off of this module."
         /// </summary>
         private void LoadNetworkData()
         {
-            foreach ( var dataSource in this.Root.NetworkData )
+            foreach ( var dataSource in Root.NetworkData )
             {
-                if ( dataSource.NetworkType == this.NetworkType )
+                if ( dataSource.NetworkType == NetworkType )
                 {
-                    this.NetworkData = dataSource;
+                    NetworkData = dataSource;
                     ITripComponentData advancedData = dataSource as ITripComponentData;
                     if ( advancedData != null )
                     {
-                        this.AdvancedNetworkData = advancedData;
+                        AdvancedNetworkData = advancedData;
                     }
                     break;
                 }

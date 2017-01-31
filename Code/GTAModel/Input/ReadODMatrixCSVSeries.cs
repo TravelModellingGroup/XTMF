@@ -59,7 +59,7 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            var sparseZones = this.Root.ZoneSystem.ZoneArray;
+            var sparseZones = Root.ZoneSystem.ZoneArray;
             var zones = sparseZones.GetFlatData();
             var ret = sparseZones.CreateSquareTwinArray<float>();
 
@@ -87,12 +87,12 @@ namespace TMG.GTAModel.Input
 
         private string GetFileName(int i)
         {
-            return ( this.FileName.GetFileName( UseInputDirectory ? this.Root.InputBaseDirectory : "." ) + ( i + this.StartingIndex ) + ".csv" );
+            return ( FileName.GetFileName( UseInputDirectory ? Root.InputBaseDirectory : "." ) + ( i + StartingIndex ) + ".csv" );
         }
 
         private void LoadData(IZone[] zones, SparseTwinIndex<float> ret)
         {
-            for ( int i = 0; i < this.SeriesSize; i++ )
+            for ( int i = 0; i < SeriesSize; i++ )
             {
                 ReadFile( GetFileName( i ), zones, ret.GetFlatData() );
             }
@@ -116,7 +116,7 @@ namespace TMG.GTAModel.Input
                     }
                     if ( rowCount >= matrix.Length )
                     {
-                        throw new XTMFRuntimeException( "In '" + this.Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")" );
+                        throw new XTMFRuntimeException( "In '" + Name + "' when reading in the file '" + fileName + "' there were more rows (" + rowCount + ") than zones in the zone system!(" + zones.Length + ")" );
                     }
                     var row = matrix[rowCount++];
                     for ( int i = 0; i < row.Length; i++ )

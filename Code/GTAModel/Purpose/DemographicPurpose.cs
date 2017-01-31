@@ -48,12 +48,12 @@ This module requires the root module of the model system to be an 'I4StepModel'.
 
         public override float Progress
         {
-            get { return this.Generation ? 0f : this.ModeSplit.Progress; }
+            get { return Generation ? 0f : ModeSplit.Progress; }
         }
 
         public override void Run()
         {
-            var numberOfCategories = this.Categories.Count;
+            var numberOfCategories = Categories.Count;
             SparseArray<float>[] O = new SparseArray<float>[numberOfCategories];
             SparseArray<float>[] D = new SparseArray<float>[numberOfCategories];
 
@@ -62,27 +62,27 @@ This module requires the root module of the model system to be an 'I4StepModel'.
             {
                 O[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
                 D[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                this.Categories[i].Generate( O[i], D[i] );
+                Categories[i].Generate( O[i], D[i] );
             }
             Generation = false;
 
-            var modeSplit = this.ModeSplit.ModeSplit( this.Distribution.Distribute( O, D, this.Categories ), this.Categories.Count );
-            if ( this.Transpose )
+            var modeSplit = ModeSplit.ModeSplit( Distribution.Distribute( O, D, Categories ), Categories.Count );
+            if ( Transpose )
             {
                 TransposeMatrix( modeSplit );
             }
-            if ( this.SaveOutput )
+            if ( SaveOutput )
             {
-                if ( !Directory.Exists( this.PurposeName ) )
+                if ( !Directory.Exists( PurposeName ) )
                 {
-                    Directory.CreateDirectory( this.PurposeName );
+                    Directory.CreateDirectory( PurposeName );
                 }
                 for ( int i = 0; i < modeSplit.Count; i++ )
                 {
-                    this.WriteModeSplit( modeSplit[i], this.Root.Modes[i], this.PurposeName );
+                    WriteModeSplit( modeSplit[i], Root.Modes[i], PurposeName );
                 }
             }
-            this.Flows = modeSplit;
+            Flows = modeSplit;
         }
 
         public override bool RuntimeValidation(ref string error)

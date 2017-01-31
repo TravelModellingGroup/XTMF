@@ -136,19 +136,19 @@ Using the distance ranges either walk or bike parameters will be used for a give
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             // add up all of the constants
-            float v = this.PartTime + this.SingleVehicleHousehold + this.MultipleVehicleHousehold;
-            v += this.AgeConstant1 + this.AgeConstant2 + this.AgeConstant3 + this.AgeConstant4;
-            v += this.GetDensityV( origin, destination );
-            var distance = this.Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
+            float v = PartTime + SingleVehicleHousehold + MultipleVehicleHousehold;
+            v += AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4;
+            v += GetDensityV( origin, destination );
+            var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
             if ( distance >= BikeMinDistance )
             {
-                v += this.BikeConstant;
-                v += this.BikeDistance * distance;
+                v += BikeConstant;
+                v += BikeDistance * distance;
             }
             else
             {
-                v += this.WalkConstant;
-                v += this.WalkDistance * distance;
+                v += WalkConstant;
+                v += WalkDistance * distance;
             }
             return v;
         }
@@ -162,7 +162,7 @@ Using the distance ranges either walk or bike parameters will be used for a give
         {
             if ( CurrentlyFeasible <= 0 ) return false;
             if ( ( WalkMaxDistance == 0 ) & ( BikeMaxDistance == 0 ) ) return true;
-            var distance = this.Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
+            var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
             // make sure it is in one of the valid ranges
             return ( ( distance >= WalkMinDistance ) & ( distance <= WalkMaxDistance ) )
                 | ( ( distance >= BikeMinDistance ) & ( distance <= BikeMaxDistance ) );
@@ -172,12 +172,12 @@ Using the distance ranges either walk or bike parameters will be used for a give
         {
             if ( WalkMinDistance > WalkMaxDistance )
             {
-                error = "In " + this.Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
+                error = "In " + Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
                 return false;
             }
             if ( BikeMinDistance > BikeMaxDistance )
             {
-                error = "In " + this.Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
+                error = "In " + Name + " the Minimum distance is greater than the maximum distance!\r\nPlease fix these parameters in order to continue.";
                 return false;
             }
             return true;
@@ -185,7 +185,7 @@ Using the distance ranges either walk or bike parameters will be used for a give
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            var distance = this.Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
+            var distance = Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f;
             if ( distance >= BikeMinDistance )
             {
                 return Time.FromMinutes( distance / BikeMetersPerMinute );

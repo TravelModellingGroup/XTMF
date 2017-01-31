@@ -25,18 +25,18 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         [RunParameter( "Constant", 0f, "The constant value that will be added if the regional condition is met." )]
         public float Constant;
 
-        public override float CalculateV(IZone origin, IZone destination, XTMF.Time time)
+        public override float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( this.IsContained( origin, destination ) )
+            if ( IsContained( origin, destination ) )
             {
-                return this.Constant;
+                return Constant;
             }
             return 0f;
         }
 
         public override string ToString()
         {
-            return this.UtilityComponentName + ": " + this.Constant;
+            return UtilityComponentName + ": " + Constant;
         }
 
         protected override bool SubRuntimeValidation(ref string error)

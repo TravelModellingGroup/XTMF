@@ -59,7 +59,7 @@ namespace TMG.GTAModel.Output
                     Directory.CreateDirectory( dir );
                 }
             }
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             using ( var writer = new BinaryWriter( File.Open( fileName, FileMode.Create ) ) )
             {
                 var data = matrix.GetFlatData();

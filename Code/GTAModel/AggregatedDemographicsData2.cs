@@ -22,6 +22,7 @@ using System.Linq;
 using Datastructure;
 using TMG.Input;
 using XTMF;
+// ReSharper disable UnassignedField.Global
 
 namespace TMG.GTAModel
 {
@@ -179,23 +180,23 @@ namespace TMG.GTAModel
 
         public void LoadData()
         {
-            this.Loaded = true;
-            this.LoadPDZoneMap();
-            this.LoadCategoryInformation();
-            this.LoadAgeDist();
-            this.LoadEmploymentDist();
-            this.LoadOccupationDist();
-            this.LoadStudentDist();
-            this.LoadJobOccupationDistribution();
-            this.LoadJobTypeDisribution();
-            this.LoadDriversLicenseDistribution();
-            this.LoadNumberOfCarsDistribution();
-            if ( this.SaveDataIntoZones )
+            Loaded = true;
+            LoadPDZoneMap();
+            LoadCategoryInformation();
+            LoadAgeDist();
+            LoadEmploymentDist();
+            LoadOccupationDist();
+            LoadStudentDist();
+            LoadJobOccupationDistribution();
+            LoadJobTypeDisribution();
+            LoadDriversLicenseDistribution();
+            LoadNumberOfCarsDistribution();
+            if ( SaveDataIntoZones )
             {
-                var employmentStatusIndexes = this.EmploymentStatus.ValidIndexArray();
-                var ageCategoryIndexes = this.AgeCategories.ValidIndexArray();
-                var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-                System.Threading.Tasks.Parallel.For( 0, zones.Length, (int zone) =>
+                var employmentStatusIndexes = EmploymentStatus.ValidIndexArray();
+                var ageCategoryIndexes = AgeCategories.ValidIndexArray();
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                System.Threading.Tasks.Parallel.For( 0, zones.Length, zone =>
                 {
                     var z = zones[zone];
                     float generalworker = 0;
@@ -206,14 +207,14 @@ namespace TMG.GTAModel
                     float manufacturingJob = 0;
                     float professionalJob = 0;
                     float salesJob = 0;
-                    var occRates = this.OccupationRates[zone];
-                    var empData = this.EmploymentStatusRates[zone];
+                    var occRates = OccupationRates[zone];
+                    var empData = EmploymentStatusRates[zone];
                     if ( occRates != null && empData != null )
                     {
                         var pop = z.Population;
                         foreach ( var age in ageCategoryIndexes )
                         {
-                            var agePop = z.Population * this.AgeRates[zone, age];
+                            var agePop = pop * AgeRates[zone, age];
                             foreach ( var status in employmentStatusIndexes )
                             {
                                 var statusPop = agePop * empData[age, status];
@@ -225,11 +226,11 @@ namespace TMG.GTAModel
                         }
                         foreach ( var status in employmentStatusIndexes )
                         {
-                            var statusJobPop = z.Employment * this.JobTypeRates[zone, status];
-                            professionalJob += statusJobPop * this.JobOccupationRates[zone, status, 1];
-                            generalJob += statusJobPop * this.JobOccupationRates[zone, status, 2];
-                            salesJob += statusJobPop * this.JobOccupationRates[zone, status, 3];
-                            manufacturingJob += statusJobPop * this.JobOccupationRates[zone, status, 4];
+                            var statusJobPop = z.Employment * JobTypeRates[zone, status];
+                            professionalJob += statusJobPop * JobOccupationRates[zone, status, 1];
+                            generalJob += statusJobPop * JobOccupationRates[zone, status, 2];
+                            salesJob += statusJobPop * JobOccupationRates[zone, status, 3];
+                            manufacturingJob += statusJobPop * JobOccupationRates[zone, status, 4];
                         }
                     }
                     z.GeneralEmployment = generalJob;
@@ -249,14 +250,14 @@ namespace TMG.GTAModel
         {
             try
             {
-                this.AgeCategories = Range.Parse( this.AgeCategoryString );
+                AgeCategories = Range.Parse( AgeCategoryString );
             }
             catch ( ArgumentException e )
             {
                 error = e.Message;
                 return false;
             }
-            if ( CheckForOverlap( ref error, this.AgeCategories ) )
+            if ( CheckForOverlap( ref error, AgeCategories ) )
             {
                 return false;
             }
@@ -265,10 +266,10 @@ namespace TMG.GTAModel
 
         public void UnloadData()
         {
-            this.AgeRates = null;
-            this.OccupationRates = null;
-            this.SchoolRates = null;
-            this.Loaded = false;
+            AgeRates = null;
+            OccupationRates = null;
+            SchoolRates = null;
+            Loaded = false;
         }
 
         private bool CheckForOverlap(ref string error, SparseArray<Range> sparseArray)
@@ -282,7 +283,7 @@ namespace TMG.GTAModel
                     {
                         if ( flatData[i].Stop >= flatData[j].Start )
                         {
-                            error = "In '" + this.Name + "' there is an overlap in age category '" + sparseArray.GetSparseIndex( i )
+                            error = "In '" + Name + "' there is an overlap in age category '" + sparseArray.GetSparseIndex( i )
                                 + "' and '" + sparseArray.GetSparseIndex( j );
                             return true;
                         }
@@ -291,7 +292,7 @@ namespace TMG.GTAModel
                     {
                         if ( flatData[j].Stop >= flatData[i].Start )
                         {
-                            error = "In '" + this.Name + "' there is an overlap in age category '" + sparseArray.GetSparseIndex( i )
+                            error = "In '" + Name + "' there is an overlap in age category '" + sparseArray.GetSparseIndex( i )
                                 + "' and '" + sparseArray.GetSparseIndex( j );
                             return true;
                         }
@@ -299,16 +300,6 @@ namespace TMG.GTAModel
                 }
             }
             return false;
-        }
-
-        private string GetFullPath(string localPath)
-        {
-            var fullPath = localPath;
-            if ( !System.IO.Path.IsPathRooted( fullPath ) )
-            {
-                fullPath = System.IO.Path.Combine( this.Root.InputBaseDirectory, fullPath );
-            }
-            return fullPath;
         }
 
         private SparseArray<string> LinearStringComaSplit(string str)
@@ -326,7 +317,7 @@ namespace TMG.GTAModel
         {
             List<AgeDist> ageDistributions = new List<AgeDist>();
             var ageCategories = AgeCategories.Count;
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.AgeDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( AgeDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 while ( reader.NextLine() )
                 {
@@ -347,15 +338,14 @@ namespace TMG.GTAModel
             foreach ( var ageDist in ageDistributions )
             {
                 List<int> pd;
-                if ( !this.PDZoneMap.TryGetValue( ageDist.Zone, out pd ) )
+                if ( !PDZoneMap.TryGetValue( ageDist.Zone, out pd ) )
                 {
-                    throw new XTMFRuntimeException( "In " + this.Name + " we were unable to find a planning district for the zone number '" + ageDist.Zone + "' while loading the age distribution." );
+                    throw new XTMFRuntimeException( "In " + Name + " we were unable to find a planning district for the zone number '" + ageDist.Zone + "' while loading the age distribution." );
                 }
                 numberOfSetZones += pd.Count;
             }
 
             var elements = ageDistributions.Count;
-            var records = elements * ageCategories;
             var first = new int[numberOfSetZones * ageCategories];
             var second = new int[numberOfSetZones * ageCategories];
             var d = new float[numberOfSetZones * ageCategories];
@@ -363,7 +353,7 @@ namespace TMG.GTAModel
             int soFar = 0;
             for ( int i = 0; i < elements; i++ )
             {
-                var zones = this.PDZoneMap[ageDistributions[i].Zone];
+                var zones = PDZoneMap[ageDistributions[i].Zone];
                 foreach ( var zone in zones )
                 {
                     for ( int j = 0; j < ageCategories; j++ )
@@ -375,24 +365,23 @@ namespace TMG.GTAModel
                     }
                 }
             }
-            this.AgeRates = SparseTwinIndex<float>.CreateTwinIndex( first, second, d );
+            AgeRates = SparseTwinIndex<float>.CreateTwinIndex( first, second, d );
         }
 
         private void LoadCategoryInformation()
         {
-            this.OccupationCategories = this.LinearStringComaSplit( "Unemployed,Professional,General,Sale,Manufacturing" );
-            this.EmploymentStatus = this.LinearStringComaSplit( "Unemployed,Full-Time,Part-Time" );
+            OccupationCategories = LinearStringComaSplit( "Unemployed,Professional,General,Sale,Manufacturing" );
+            EmploymentStatus = LinearStringComaSplit( "Unemployed,Full-Time,Part-Time" );
         }
 
         private void LoadDriversLicenseDistribution()
         {
-            this.DriversLicenseRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            var employmentIndexes = this.EmploymentStatus.ValidIndexies().ToArray();
-            if ( !this.DriversLicenseRateFile.ContainsFileName() )
+            DriversLicenseRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
+            if ( !DriversLicenseRateFile.ContainsFileName() )
             {
                 return;
             }
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.DriversLicenseRateFile.GetFileName( Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( DriversLicenseRateFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 int pd;
                 int ageCat;
@@ -406,13 +395,13 @@ namespace TMG.GTAModel
                         reader.Get( out ageCat, 1 );
                         reader.Get( out empStat, 2 );
                         reader.Get( out chance, 3 );
-                        foreach ( var zone in this.PDZoneMap[pd] )
+                        foreach ( var zone in PDZoneMap[pd] )
                         {
-                            var zoneData = this.DriversLicenseRates[zone];
+                            var zoneData = DriversLicenseRates[zone];
                             if ( zoneData == null )
                             {
-                                zoneData = SparseTwinIndex<float>.CreateSimilarArray( this.AgeCategories, this.EmploymentStatus );
-                                this.DriversLicenseRates[zone] = zoneData;
+                                zoneData = SparseTwinIndex<float>.CreateSimilarArray( AgeCategories, EmploymentStatus );
+                                DriversLicenseRates[zone] = zoneData;
                             }
                             zoneData[ageCat, empStat] = chance;
                         }
@@ -425,7 +414,7 @@ namespace TMG.GTAModel
         {
             List<EmploymentDist> employment = new List<EmploymentDist>();
 
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.EmploymentDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( EmploymentDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 float[] data = new float[5];
                 while ( reader.NextLine() )
@@ -441,27 +430,26 @@ namespace TMG.GTAModel
                     employment.Add( new EmploymentDist() { AgeCat = (int)data[1], Zone = (int)data[0], NonWork = data[2], FullTime = data[3], PartTime = data[4] } );
                 }
             }
-            employment.Sort( new Comparison<EmploymentDist>(
-                delegate(EmploymentDist first, EmploymentDist second)
+            employment.Sort( delegate(EmploymentDist first, EmploymentDist second)
+            {
+                if ( first.Zone > second.Zone )
                 {
-                    if ( first.Zone > second.Zone )
+                    return 1;
+                }
+                else if ( first.Zone == second.Zone )
+                {
+                    if ( first.AgeCat > second.AgeCat )
                     {
                         return 1;
                     }
-                    else if ( first.Zone == second.Zone )
+                    else if ( first.AgeCat == second.AgeCat )
                     {
-                        if ( first.AgeCat > second.AgeCat )
-                        {
-                            return 1;
-                        }
-                        else if ( first.AgeCat == second.AgeCat )
-                        {
-                            return 0;
-                        }
+                        return 0;
                     }
-                    return -1;
-                } ) );
-            this.EmploymentStatusRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
+                }
+                return -1;
+            } );
+            EmploymentStatusRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
             int start = 0;
             int stop = 0;
             var employmentLength = employment.Count;
@@ -493,9 +481,9 @@ namespace TMG.GTAModel
                         d[j * 3 + 1] = employment[start + j].FullTime;
                         d[j * 3 + 2] = employment[start + j].PartTime;
                     }
-                    foreach ( var z in this.PDZoneMap[employment[i - 1].Zone] )
+                    foreach ( var z in PDZoneMap[employment[i - 1].Zone] )
                     {
-                        this.EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
+                        EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
                     }
                     start = i;
                 }
@@ -515,18 +503,17 @@ namespace TMG.GTAModel
                 d[j * 3 + 1] = employment[start + j].FullTime;
                 d[j * 3 + 2] = employment[start + j].PartTime;
             }
-            foreach ( var z in this.PDZoneMap[employment[employmentLength - 1].Zone] )
+            foreach ( var z in PDZoneMap[employment[employmentLength - 1].Zone] )
             {
-                this.EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
+                EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
             }
         }
 
         private void LoadJobOccupationDistribution()
         {
-            this.JobOccupationRates = SparseTriIndex<float>.CreateSimilarArray( this.Root.ZoneSystem.ZoneArray, this.EmploymentStatus, this.OccupationCategories );
-            var employmentIndexes = this.EmploymentStatus.ValidIndexies().ToArray();
-            var occupationIndexes = this.OccupationCategories.ValidIndexies().ToArray();
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.JobOccupationRateFile.GetFileName( Root.InputBaseDirectory ) ) )
+            JobOccupationRates = SparseTriIndex<float>.CreateSimilarArray( Root.ZoneSystem.ZoneArray, EmploymentStatus, OccupationCategories );
+            var occupationIndexes = OccupationCategories.ValidIndexies().ToArray();
+            using ( CommentedCsvReader reader = new CommentedCsvReader( JobOccupationRateFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 int pd;
                 int employmentStatus;
@@ -545,13 +532,13 @@ namespace TMG.GTAModel
                         reader.Get( out general, 3 );
                         reader.Get( out sales, 4 );
                         reader.Get( out manufacturing, 5 );
-                        foreach ( var zone in this.PDZoneMap[pd] )
+                        foreach ( var zone in PDZoneMap[pd] )
                         {
-                            this.JobOccupationRates[zone, employmentStatus, occupationIndexes[0]] = 0;
-                            this.JobOccupationRates[zone, employmentStatus, occupationIndexes[1]] = professional;
-                            this.JobOccupationRates[zone, employmentStatus, occupationIndexes[2]] = general;
-                            this.JobOccupationRates[zone, employmentStatus, occupationIndexes[3]] = sales;
-                            this.JobOccupationRates[zone, employmentStatus, occupationIndexes[4]] = manufacturing;
+                            JobOccupationRates[zone, employmentStatus, occupationIndexes[0]] = 0;
+                            JobOccupationRates[zone, employmentStatus, occupationIndexes[1]] = professional;
+                            JobOccupationRates[zone, employmentStatus, occupationIndexes[2]] = general;
+                            JobOccupationRates[zone, employmentStatus, occupationIndexes[3]] = sales;
+                            JobOccupationRates[zone, employmentStatus, occupationIndexes[4]] = manufacturing;
                         }
                     }
                 }
@@ -560,9 +547,9 @@ namespace TMG.GTAModel
 
         private void LoadJobTypeDisribution()
         {
-            this.JobTypeRates = SparseTwinIndex<float>.CreateSimilarArray( this.Root.ZoneSystem.ZoneArray, this.EmploymentStatus );
-            var employmentIndexes = this.EmploymentStatus.ValidIndexies().ToArray();
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.JobEmploymentRateFile.GetFileName( Root.InputBaseDirectory ) ) )
+            JobTypeRates = SparseTwinIndex<float>.CreateSimilarArray( Root.ZoneSystem.ZoneArray, EmploymentStatus );
+            var employmentIndexes = EmploymentStatus.ValidIndexies().ToArray();
+            using ( CommentedCsvReader reader = new CommentedCsvReader( JobEmploymentRateFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 int pd;
                 float fulltime;
@@ -575,10 +562,10 @@ namespace TMG.GTAModel
                         reader.Get( out pd, 0 );
                         reader.Get( out fulltime, 1 );
                         reader.Get( out parttime, 2 );
-                        foreach ( var zone in this.PDZoneMap[pd] )
+                        foreach ( var zone in PDZoneMap[pd] )
                         {
-                            this.JobTypeRates[zone, employmentIndexes[1]] = fulltime;
-                            this.JobTypeRates[zone, employmentIndexes[2]] = parttime;
+                            JobTypeRates[zone, employmentIndexes[1]] = fulltime;
+                            JobTypeRates[zone, employmentIndexes[2]] = parttime;
                         }
                     }
                 }
@@ -587,16 +574,16 @@ namespace TMG.GTAModel
 
         private void LoadNonWorkerCarDistribution()
         {
-            this.NonWorkerVehicleRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            SparseArray<float> NumberOfVehicles =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 2 } } } );
-            SparseArray<float> DriversLicense =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 1 } } } );
-            if ( !this.NonWorkerVehicleRateFile.ContainsFileName() )
+            NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
+            SparseArray<float> numberOfVehicles =
+                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 2 } } } );
+            SparseArray<float> driversLicense =
+                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 1 } } } );
+            if ( !NonWorkerVehicleRateFile.ContainsFileName() )
             {
                 return;
             }
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.NonWorkerVehicleRateFile.GetFileName( Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( NonWorkerVehicleRateFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 int pd;
                 int driversLic;
@@ -614,13 +601,13 @@ namespace TMG.GTAModel
                         reader.Get( out chanceZero, 3 );
                         reader.Get( out chanceOne, 4 );
                         reader.Get( out chanceTwo, 5 );
-                        foreach ( var zone in this.PDZoneMap[pd] )
+                        foreach ( var zone in PDZoneMap[pd] )
                         {
-                            var zoneData = this.NonWorkerVehicleRates[zone];
+                            var zoneData = NonWorkerVehicleRates[zone];
                             if ( zoneData == null )
                             {
-                                zoneData = SparseTriIndex<float>.CreateSimilarArray( DriversLicense, this.AgeCategories, NumberOfVehicles );
-                                this.NonWorkerVehicleRates[zone] = zoneData;
+                                zoneData = SparseTriIndex<float>.CreateSimilarArray( driversLicense, AgeCategories, numberOfVehicles );
+                                NonWorkerVehicleRates[zone] = zoneData;
                             }
                             zoneData[driversLic, ageCat, 0] = chanceZero;
                             zoneData[driversLic, ageCat, 1] = chanceOne;
@@ -633,25 +620,25 @@ namespace TMG.GTAModel
 
         private void LoadNumberOfCarsDistribution()
         {
-            this.LoadWorkerCarDistribution();
-            this.LoadNonWorkerCarDistribution();
+            LoadWorkerCarDistribution();
+            LoadNonWorkerCarDistribution();
         }
 
         private void LoadOccupationDist()
         {
             List<OccupationDist> occupation = new List<OccupationDist>();
-            if ( this.SaveDataIntoZones )
+            if ( SaveDataIntoZones )
             {
-                foreach ( var zone in this.Root.ZoneSystem.ZoneArray.ValidIndexies() )
+                foreach ( var zone in Root.ZoneSystem.ZoneArray.ValidIndexies() )
                 {
-                    var z = this.Root.ZoneSystem.ZoneArray[zone];
+                    var z = Root.ZoneSystem.ZoneArray[zone];
                     z.WorkGeneral = 0;
                     z.WorkManufacturing = 0;
                     z.WorkProfessional = 0;
                     z.WorkRetail = 0;
                 }
             }
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.OccupationDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( OccupationDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 float[] data = new float[7];
 
@@ -677,7 +664,7 @@ namespace TMG.GTAModel
                     } );
                 }
             }
-            occupation.Sort( new Comparison<OccupationDist>( delegate(OccupationDist first, OccupationDist second)
+            occupation.Sort( delegate(OccupationDist first, OccupationDist second)
             {
                 if ( first.Zone > second.Zone )
                 {
@@ -702,8 +689,8 @@ namespace TMG.GTAModel
                     }
                 }
                 return -1;
-            } ) );
-            this.OccupationRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
+            } );
+            OccupationRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             var start = 0;
             var stop = 0;
             var employmentLength = occupation.Count;
@@ -738,16 +725,16 @@ namespace TMG.GTAModel
                         d[j * 5 + 3] = occupation[start + j].Sales;
                         d[j * 5 + 4] = occupation[start + j].Manufacturing;
                     }
-                    if ( this.OccupationByPD )
+                    if ( OccupationByPD )
                     {
-                        foreach ( var z in this.PDZoneMap[occupation[i - 1].Zone] )
+                        foreach ( var z in PDZoneMap[occupation[i - 1].Zone] )
                         {
-                            this.OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
+                            OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
                         }
                     }
                     else
                     {
-                        this.OccupationRates[occupation[i - 1].Zone] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
+                        OccupationRates[occupation[i - 1].Zone] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
                     }
                     start = i;
                 }
@@ -771,35 +758,35 @@ namespace TMG.GTAModel
                 d[j * 5 + 3] = occupation[start + j].Sales;
                 d[j * 5 + 4] = occupation[start + j].Manufacturing;
             }
-            if ( this.OccupationByPD )
+            if ( OccupationByPD )
             {
-                foreach ( var z in this.PDZoneMap[occupation[employmentLength - 1].Zone] )
+                foreach ( var z in PDZoneMap[occupation[employmentLength - 1].Zone] )
                 {
-                    this.OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
+                    OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
                 }
             }
             else
             {
-                this.OccupationRates[occupation[employmentLength - 1].Zone] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
+                OccupationRates[occupation[employmentLength - 1].Zone] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
             }
         }
 
         private void LoadPDZoneMap()
         {
-            this.PDZoneMap = new Dictionary<int, List<int>>();
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            PDZoneMap = new Dictionary<int, List<int>>();
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             foreach ( var valid in zoneArray.ValidIndexies() )
             {
                 var z = zoneArray[valid];
-                if ( this.PDZoneMap.ContainsKey( z.PlanningDistrict ) )
+                if ( PDZoneMap.ContainsKey( z.PlanningDistrict ) )
                 {
-                    this.PDZoneMap[z.PlanningDistrict].Add( z.ZoneNumber );
+                    PDZoneMap[z.PlanningDistrict].Add( z.ZoneNumber );
                 }
                 else
                 {
                     List<int> l = new List<int>();
                     l.Add( z.ZoneNumber );
-                    this.PDZoneMap[z.PlanningDistrict] = l;
+                    PDZoneMap[z.PlanningDistrict] = l;
                 }
             }
         }
@@ -807,7 +794,7 @@ namespace TMG.GTAModel
         private void LoadStudentDist()
         {
             List<StudentDist> studentData = new List<StudentDist>();
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.StudentDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( StudentDistributionFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 float[] data = new float[4];
 
@@ -853,7 +840,7 @@ namespace TMG.GTAModel
                 return -1;
             } );
             // Employment is now sorted Zone,Age,EmploymentStatus
-            this.SchoolRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
+            SchoolRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
             var start = 0;
             var stop = 0;
             var studentDataLength = studentData.Count;
@@ -880,9 +867,9 @@ namespace TMG.GTAModel
                         secondIndex[j] = data.EmploymentStatus;
                         d[j] = data.Chance;
                     }
-                    foreach ( var z in this.PDZoneMap[studentData[i - 1].Zone] )
+                    foreach ( var z in PDZoneMap[studentData[i - 1].Zone] )
                     {
-                        this.SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
+                        SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
                     }
                     start = i;
                 }
@@ -897,24 +884,24 @@ namespace TMG.GTAModel
                 secondIndex[j] = studentData[start + j].EmploymentStatus;
                 d[j] = studentData[start + j].Chance;
             }
-            foreach ( var z in this.PDZoneMap[studentData[studentDataLength - 1].Zone] )
+            foreach ( var z in PDZoneMap[studentData[studentDataLength - 1].Zone] )
             {
-                this.SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
+                SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
             }
         }
 
         private void LoadWorkerCarDistribution()
         {
-            this.WorkerVehicleRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            SparseArray<float> NumberOfVehicles =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 2 } } } );
-            SparseArray<float> DriversLicense =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 1 } } } );
-            if ( !this.WorkerVehicleRateFile.ContainsFileName() )
+            WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
+            SparseArray<float> numberOfVehicles =
+                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 2 } } } );
+            SparseArray<float> driversLicense =
+                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 1 } } } );
+            if ( !WorkerVehicleRateFile.ContainsFileName() )
             {
                 return;
             }
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.WorkerVehicleRateFile.GetFileName( Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( WorkerVehicleRateFile.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 int pd;
                 int driversLic;
@@ -932,13 +919,13 @@ namespace TMG.GTAModel
                         reader.Get( out chanceZero, 3 );
                         reader.Get( out chanceOne, 4 );
                         reader.Get( out chanceTwo, 5 );
-                        foreach ( var zone in this.PDZoneMap[pd] )
+                        foreach ( var zone in PDZoneMap[pd] )
                         {
-                            var zoneData = this.WorkerVehicleRates[zone];
+                            var zoneData = WorkerVehicleRates[zone];
                             if ( zoneData == null )
                             {
-                                zoneData = SparseTriIndex<float>.CreateSimilarArray( DriversLicense, this.OccupationCategories, NumberOfVehicles );
-                                this.WorkerVehicleRates[zone] = zoneData;
+                                zoneData = SparseTriIndex<float>.CreateSimilarArray( driversLicense, OccupationCategories, numberOfVehicles );
+                                WorkerVehicleRates[zone] = zoneData;
                             }
                             zoneData[driversLic, occ, 0] = chanceZero;
                             zoneData[driversLic, occ, 1] = chanceOne;

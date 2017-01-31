@@ -55,11 +55,11 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            foreach ( var line in this.LineReader.Read() )
+            foreach ( var line in LineReader.Read() )
             {
                 if ( ValidateLine( line ) )
                 {
-                    yield return new ODData<float>() { O = (int)line[this.IndexOfO], D = (int)line[this.IndexOfD], Data = line[this.IndexOfData] };
+                    yield return new ODData<float>() { O = (int)line[IndexOfO], D = (int)line[IndexOfD], Data = line[IndexOfData] };
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace TMG.GTAModel.Input
         {
             if ( line == null ) return false;
             var length = line.Length;
-            return length > this.IndexOfO & length > this.IndexOfD & length > this.IndexOfData;
+            return length > IndexOfO & length > IndexOfD & length > IndexOfData;
         }
     }
 }

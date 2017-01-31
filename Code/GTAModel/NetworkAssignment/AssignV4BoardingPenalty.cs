@@ -105,7 +105,7 @@ namespace TMG.GTAModel.NetworkAssignment
             */
 
             List<int> scenarioList = new List<int>();
-            foreach (var range in this.ScenarioNumbers)
+            foreach (var range in ScenarioNumbers)
             {
                 for (int i = range.Start; i <= range.Stop; i++)
                 {
@@ -130,7 +130,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                      mc.ToEmmeFloat(HaltonBoardingPenalty),
                                      mc.ToEmmeFloat(HSRBoardingPenalty));
             string result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
 
         }
 

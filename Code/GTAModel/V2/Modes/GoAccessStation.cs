@@ -158,7 +158,7 @@ namespace TMG.GTAModel.V2.Modes
             set
             {
                 _Parking = value;
-                LogOfParking = value <= 0 ? float.NegativeInfinity : (float)Math.Log( this.Parking );
+                LogOfParking = value <= 0 ? float.NegativeInfinity : (float)Math.Log( Parking );
             }
         }
 
@@ -178,7 +178,7 @@ namespace TMG.GTAModel.V2.Modes
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             CheckInterchangeZone();
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var flatOrigin = zoneArray.GetFlatIndex( origin.ZoneNumber );
             var flatDestination = zoneArray.GetFlatIndex( destination.ZoneNumber );
             var flatInterchange = zoneArray.GetFlatIndex( InterchangeZone.ZoneNumber );
@@ -190,54 +190,54 @@ namespace TMG.GTAModel.V2.Modes
             }
             var flatEgress = zoneArray.GetFlatIndex( egress.ZoneNumber );
             // caluclate all of the terms in all equations first
-            float v = this.TrainsFactor * this.GetFrequency( flatInterchange, flatEgress );
-            if ( this.ClosestZone.GetFlatData()[flatOrigin] )
+            float v = TrainsFactor * GetFrequency( flatInterchange, flatEgress );
+            if ( ClosestZone.GetFlatData()[flatOrigin] )
             {
                 // closest distance is in KM
-                v += this.Closest + this.ClosestDistance * ( this.Root.ZoneSystem.Distances.GetFlatData()[flatOrigin][flatInterchange] / 1000 );
+                v += Closest + ClosestDistance * ( Root.ZoneSystem.Distances.GetFlatData()[flatOrigin][flatInterchange] / 1000 );
             }
 
-            if ( !this.First.ValidOd( flatOrigin, flatInterchange, time ) )
+            if ( !First.ValidOd( flatOrigin, flatInterchange, time ) )
             {
                 return float.NaN;
             }
 
             // TAG
-            if ( this.FirstComponent != null )
+            if ( FirstComponent != null )
             {
                 // Travel Time components
-                v += this.InVehicleTravelTime * ( ( this.FirstComponent.InVehicleTravelTime( flatOrigin, flatInterchange, time )
-                    + this.Third.InVehicleTravelTime( flatEgress, flatDestination, time ) ).ToMinutes() );
+                v += InVehicleTravelTime * ( ( FirstComponent.InVehicleTravelTime( flatOrigin, flatInterchange, time )
+                    + Third.InVehicleTravelTime( flatEgress, flatDestination, time ) ).ToMinutes() );
                 //Walk Time components
-                v += this.WalkTime * ( this.FirstComponent.WalkTime( flatOrigin, flatInterchange, time ) 
-                    + this.Third.WalkTime( flatEgress, flatDestination, time ) ).ToMinutes();
+                v += WalkTime * ( FirstComponent.WalkTime( flatOrigin, flatInterchange, time ) 
+                    + Third.WalkTime( flatEgress, flatDestination, time ) ).ToMinutes();
                 //Wait time components
-                v += this.WaitTime * ( ( this.FirstComponent.WaitTime( flatOrigin, flatInterchange, time )
-                    + this.Third.WaitTime( flatEgress, flatDestination, time ) ).ToMinutes() + 5 );
+                v += WaitTime * ( ( FirstComponent.WaitTime( flatOrigin, flatInterchange, time )
+                    + Third.WaitTime( flatEgress, flatDestination, time ) ).ToMinutes() + 5 );
                 // FreeTransfers is 0 IFF the transfer is free
-                if ( this.FreeTransfers[destination.PlanningDistrict] > 0 )
+                if ( FreeTransfers[destination.PlanningDistrict] > 0 )
                 {
-                    v += this.CostFactor * this.Third.TravelCost( flatEgress, flatDestination, time );
+                    v += CostFactor * Third.TravelCost( flatEgress, flatDestination, time );
                 }
-                if ( this.FreeTransfers[origin.PlanningDistrict] > 0 )
+                if ( FreeTransfers[origin.PlanningDistrict] > 0 )
                 {
-                    v += this.CostFactor * this.FirstComponent.TravelCost( flatOrigin, flatInterchange, time );
+                    v += CostFactor * FirstComponent.TravelCost( flatOrigin, flatInterchange, time );
                 }
-                v += this.CostFactor * this.Second.TravelCost( flatInterchange, flatEgress, time );
+                v += CostFactor * Second.TravelCost( flatInterchange, flatEgress, time );
             }
             //DAG
             else
             {
-                v += this.LogParkingFactor * LogOfParking;
+                v += LogParkingFactor * LogOfParking;
                 // Travel Time components
-                v += this.AccessInVehicleTravelTime * this.First.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes();
+                v += AccessInVehicleTravelTime * First.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes();
                 // FreeTransfers is 0 IFF the transfer is free
-                if ( this.FreeTransfers[destination.PlanningDistrict] > 0 )
+                if ( FreeTransfers[destination.PlanningDistrict] > 0 )
                 {
-                    v += this.CostFactor * ( this.Third.TravelCost( flatEgress, flatDestination, time ) );
+                    v += CostFactor * ( Third.TravelCost( flatEgress, flatDestination, time ) );
                 }
-                v += this.AccessCost * this.First.TravelCost( flatOrigin, flatInterchange, time );
-                v += this.CostFactor * ( this.Second.TravelCost( flatInterchange, flatEgress, time ) );
+                v += AccessCost * First.TravelCost( flatOrigin, flatInterchange, time );
+                v += CostFactor * ( Second.TravelCost( flatInterchange, flatEgress, time ) );
             }
             return v;
         }
@@ -245,7 +245,7 @@ namespace TMG.GTAModel.V2.Modes
         public float Cost(IZone origin, IZone destination, Time time)
         {
             CheckInterchangeZone();
-            return this.First.TravelCost( origin, InterchangeZone, time ) + this.Second.TravelCost( origin, InterchangeZone, time );
+            return First.TravelCost( origin, InterchangeZone, time ) + Second.TravelCost( origin, InterchangeZone, time );
         }
 
         public void DumpCaches()
@@ -254,7 +254,7 @@ namespace TMG.GTAModel.V2.Modes
             Thread.MemoryBarrier();
             lock ( this )
             {
-                this.EgressChoiceCache = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<EgressZoneChoice>();
+                EgressChoiceCache = Root.ZoneSystem.ZoneArray.CreateSimilarArray<EgressZoneChoice>();
                 LocalTransitCacheLoaded = true;
                 Thread.MemoryBarrier();
             }
@@ -262,13 +262,13 @@ namespace TMG.GTAModel.V2.Modes
 
         public bool Feasible(IZone originZone, IZone destinationZone, Time time)
         {
-            if ( this.CurrentlyFeasible <= 0 ) return false;
+            if ( CurrentlyFeasible <= 0 ) return false;
             CheckInterchangeZone();
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var origin = zoneArray.GetFlatIndex( originZone.ZoneNumber );
             var destination = zoneArray.GetFlatIndex( destinationZone.ZoneNumber );
             var interchange = zoneArray.GetFlatIndex( InterchangeZone.ZoneNumber );
-            var component = this.First as ITripComponentData;
+            var component = First as ITripComponentData;
             if ( component != null )
             {
                 // make sure that there is a valid walk time if we are walking/transit to the station
@@ -282,39 +282,39 @@ namespace TMG.GTAModel.V2.Modes
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach ( var network in this.Root.NetworkData )
+            foreach ( var network in Root.NetworkData )
             {
-                if ( network.Name == this.AccessModeName )
+                if ( network.Name == AccessModeName )
                 {
-                    this.First = network;
-                    this.FirstComponent = network as ITripComponentData;
+                    First = network;
+                    FirstComponent = network as ITripComponentData;
                 }
 
-                if ( network.Name == this.PrimaryModeName )
+                if ( network.Name == PrimaryModeName )
                 {
                     var temp = network as ITripComponentData;
-                    this.Second = temp == null ? this.Second : temp;
+                    Second = temp == null ? Second : temp;
                 }
 
-                if ( network.NetworkType == this.EgressNetworkName )
+                if ( network.NetworkType == EgressNetworkName )
                 {
                     var temp = network as ITripComponentData;
-                    this.Third = temp == null ? this.Third : temp;
+                    Third = temp == null ? Third : temp;
                 }
             }
-            if ( this.First == null )
+            if ( First == null )
             {
-                error = "In '" + this.Name + "' the name of the access network data type was not found!";
+                error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if ( this.Second == null )
+            else if ( Second == null )
             {
-                error = "In '" + this.Name + "' the name of the primary network data type was not found or does not contain trip component data!";
+                error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
             }
-            else if ( this.Third == null && this.ComputeEgressStation )
+            else if ( Third == null && ComputeEgressStation )
             {
-                error = "In '" + this.Name + "' the name of the egress network data type was not found or does not contain trip component data!";
+                error = "In '" + Name + "' the name of the egress network data type was not found or does not contain trip component data!";
                 return false;
             }
             return true;
@@ -323,7 +323,7 @@ namespace TMG.GTAModel.V2.Modes
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
             CheckInterchangeZone();
-            return this.First.TravelTime( origin, InterchangeZone, time ) + this.Second.TravelTime( InterchangeZone, destination, time );
+            return First.TravelTime( origin, InterchangeZone, time ) + Second.TravelTime( InterchangeZone, destination, time );
         }
 
         private static float ComputeSubV(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float ivttWeight, float walkWeight, float waitWeight, float costWeight)
@@ -356,12 +356,12 @@ namespace TMG.GTAModel.V2.Modes
 
         private bool AreWeClosest(IZone origin, SparseArray<IZone> zoneArray, SparseTwinIndex<float> distances)
         {
-            var ourDistance = distances[origin.ZoneNumber, this.InterchangeZone.ZoneNumber];
-            foreach ( var range in this.StationRanges )
+            var ourDistance = distances[origin.ZoneNumber, InterchangeZone.ZoneNumber];
+            foreach ( var range in StationRanges )
             {
                 for ( int i = range.Start; i <= range.Stop; i++ )
                 {
-                    if ( i == this.StationZone ) continue;
+                    if ( i == StationZone ) continue;
                     var otherZone = zoneArray[i];
                     if ( otherZone == null ) continue;
                     if ( distances[origin.ZoneNumber, otherZone.ZoneNumber] < ourDistance ) return false;
@@ -372,30 +372,30 @@ namespace TMG.GTAModel.V2.Modes
 
         private void CheckInterchangeZone()
         {
-            if ( !this.CacheLoaded )
+            if ( !CacheLoaded )
             {
                 lock ( this )
                 {
-                    System.Threading.Thread.MemoryBarrier();
-                    if ( !this.CacheLoaded )
+                    Thread.MemoryBarrier();
+                    if ( !CacheLoaded )
                     {
-                        var zones = this.Root.ZoneSystem.ZoneArray;
-                        var distances = this.Root.ZoneSystem.Distances;
+                        var zones = Root.ZoneSystem.ZoneArray;
+                        var distances = Root.ZoneSystem.Distances;
                         var zone = zones[StationZone];
                         if ( zone == null )
                         {
-                            throw new XTMFRuntimeException( "The zone " + StationZone + " does not exist!  Please check the mode '" + this.ModeName + "!" );
+                            throw new XTMFRuntimeException( "The zone " + StationZone + " does not exist!  Please check the mode '" + ModeName + "!" );
                         }
-                        this.InterchangeZone = zone;
-                        this.ClosestZone = zones.CreateSimilarArray<bool>();
+                        InterchangeZone = zone;
+                        ClosestZone = zones.CreateSimilarArray<bool>();
                         var flatZones = zones.GetFlatData();
-                        var flatClosest = this.ClosestZone.GetFlatData();
+                        var flatClosest = ClosestZone.GetFlatData();
                         for ( int i = 0; i < flatZones.Length; i++ )
                         {
                             flatClosest[i] = AreWeClosest( flatZones[i], zones, distances );
                         }
-                        this.CacheLoaded = true;
-                        System.Threading.Thread.MemoryBarrier();
+                        CacheLoaded = true;
+                        Thread.MemoryBarrier();
                     }
                 }
             }
@@ -416,16 +416,16 @@ namespace TMG.GTAModel.V2.Modes
                     }
                 }
             }
-            var egressChoice = this.EgressChoiceCache.GetFlatData()[flatDestination];
+            var egressChoice = EgressChoiceCache.GetFlatData()[flatDestination];
             if ( egressChoice != null )
             {
                 return egressChoice;
             }
             int bestEgressZone = -1;
             bestTime = float.MaxValue;
-            var zones = this.Root.ZoneSystem.ZoneArray;
-            var flatInterchange = zones.GetFlatIndex( this.StationZone );
-            foreach ( var set in this.StationRanges )
+            var zones = Root.ZoneSystem.ZoneArray;
+            var flatInterchange = zones.GetFlatIndex( StationZone );
+            foreach ( var set in StationRanges )
             {
                 for ( int i = set.Start; i <= set.Stop; i++ )
                 {
@@ -448,9 +448,9 @@ namespace TMG.GTAModel.V2.Modes
             }
             if ( bestEgressZone < 0 )
             {
-                return ( this.EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice() { EgressZone = null } );
+                return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice() { EgressZone = null } );
             }
-            return ( this.EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice()
+            return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice()
                         {
                             EgressZone = zones.GetFlatData()[bestEgressZone],
                         } );
@@ -460,19 +460,19 @@ namespace TMG.GTAModel.V2.Modes
         {
             tt = float.MaxValue;
             // make sure that we can actually travel to the end station
-            if ( !this.Second.ValidOd( flatInterchangeZone, flatEgressZone, time ) )
+            if ( !Second.ValidOd( flatInterchangeZone, flatEgressZone, time ) )
             {
                 return false;
             }
             // now that we know it is possible go and get that travel time
-            var lineHaul = this.Second.InVehicleTravelTime( flatInterchangeZone, flatEgressZone, time ).ToMinutes();
+            var lineHaul = Second.InVehicleTravelTime( flatInterchangeZone, flatEgressZone, time ).ToMinutes();
             // if the travel time is zero, then this is an invalid option (Use this as a check since it would mean that frequency is not aligned with times)
             if ( lineHaul <= 0 )
             {
                 return false;
             }
             float egressUtility;
-            if ( !this.Parent.GetEgressUtility( flatEgressZone, flatDestinationZone, time, out egressUtility ) )
+            if ( !Parent.GetEgressUtility( flatEgressZone, flatDestinationZone, time, out egressUtility ) )
             {
                 return false;
             }
@@ -484,10 +484,10 @@ namespace TMG.GTAModel.V2.Modes
             }
             // now make sure that tt is actually smaller than just using transit all way
             float localAllWayTime;
-            if ( this.Third.ValidOd( flatInterchangeZone, flatDestinationZone, time ) )
+            if ( Third.ValidOd( flatInterchangeZone, flatDestinationZone, time ) )
             {
                 float result;
-                if ( !ComputeThird( this.Third, flatInterchangeZone, flatDestinationZone, time, this.EgressWalkFactor, this.EgressWaitFactor, out result ) )
+                if ( !ComputeThird( Third, flatInterchangeZone, flatDestinationZone, time, EgressWalkFactor, EgressWaitFactor, out result ) )
                 {
                     return false;
                 }
@@ -502,12 +502,12 @@ namespace TMG.GTAModel.V2.Modes
 
         private float GetFrequency(int flatAccessOrigin, int flatDestination)
         {
-            return this.NumberOfTrains.GetFlatData()[flatAccessOrigin][flatDestination];
+            return NumberOfTrains.GetFlatData()[flatAccessOrigin][flatDestination];
         }
 
         private bool ItermediateZoneCloserThanDestination(int origin, int destination, int flatInt)
         {
-            var distances = this.Root.ZoneSystem.Distances.GetFlatData();
+            var distances = Root.ZoneSystem.Distances.GetFlatData();
             return distances[origin][flatInt] < distances[origin][destination];
         }
 

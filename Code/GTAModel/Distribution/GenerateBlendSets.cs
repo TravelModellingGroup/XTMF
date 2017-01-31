@@ -30,13 +30,13 @@ namespace TMG.GTAModel.Distribution
         public override bool RuntimeValidation(ref string error)
         {
             Parent.Subsets.Remove(this);
-            foreach (var set in this.Set)
+            foreach (var set in Set)
             {
                 for (var i = set.Start; i <= set.Stop; i++)
                 {
                     var item = new List<Range>(1);
                     item.Add(new Range(i, i));
-                    Parent.Subsets.Add(new BlendSet() { Set = new Datastructure.RangeSet(item) });
+                    Parent.Subsets.Add(new BlendSet() { Set = new RangeSet(item) });
                 }
             }
             return true;

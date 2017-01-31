@@ -28,7 +28,7 @@ namespace TMG.GTAModel.DataUtility
 
         public int Count
         {
-            get { return this.Values.Length; }
+            get { return Values.Length; }
         }
 
         public bool IsReadOnly
@@ -40,12 +40,12 @@ namespace TMG.GTAModel.DataUtility
         {
             get
             {
-                return this.Values[index];
+                return Values[index];
             }
 
             set
             {
-                this.Values[index] = value;
+                Values[index] = value;
             }
         }
 
@@ -159,27 +159,27 @@ namespace TMG.GTAModel.DataUtility
 
         public bool Contains(float item)
         {
-            return this.IndexOf( item ) != -1;
+            return IndexOf( item ) != -1;
         }
 
         public void CopyTo(float[] array, int arrayIndex)
         {
-            Array.Copy( this.Values, 0, array, arrayIndex, this.Values.Length );
+            Array.Copy( Values, 0, array, arrayIndex, Values.Length );
         }
 
         public IEnumerator<float> GetEnumerator()
         {
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                yield return this.Values[i];
+                yield return Values[i];
             }
         }
 
         public int IndexOf(float item)
         {
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                if ( item == this.Values[i] )
+                if ( item == Values[i] )
                 {
                     return i;
                 }
@@ -204,15 +204,15 @@ namespace TMG.GTAModel.DataUtility
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.Values.GetEnumerator();
+            return Values.GetEnumerator();
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                builder.Append( this.Values[i] );
+                builder.Append( Values[i] );
                 builder.Append( ',' );
             }
             return builder.ToString( 0, builder.Length - 1 );

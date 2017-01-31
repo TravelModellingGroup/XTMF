@@ -67,7 +67,7 @@ namespace TMG.GTAModel.V2.Generation
         public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             // never gets called
-            throw new XTMFRuntimeException( "For '" + this.Name + "' this generate method should never be called!" );
+            throw new XTMFRuntimeException( "For '" + Name + "' this generate method should never be called!" );
         }
 
         public void InitializeDemographicCategory()
@@ -82,31 +82,31 @@ namespace TMG.GTAModel.V2.Generation
 
         public bool RuntimeValidation(ref string error)
         {
-            this.LoadDailyRates.LoadData();
-            this.LoadTimeOfDayRates.LoadData();
+            LoadDailyRates.LoadData();
+            LoadTimeOfDayRates.LoadData();
             GenerateChildren();
-            this.LoadDailyRates.UnloadData();
-            this.LoadTimeOfDayRates.UnloadData();
+            LoadDailyRates.UnloadData();
+            LoadTimeOfDayRates.UnloadData();
             return true;
         }
 
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int age)
         {
             SchoolGeneration gen = new SchoolGeneration();
-            gen.Root = this.Root;
+            gen.Root = Root;
             gen.Age = age;
-            gen.SaveProduction = this.SaveProduction;
-            gen.StudentDailyRates = this.LoadDailyRates.GiveData();
-            gen.StudentTimeOfDayRates = this.LoadTimeOfDayRates.GiveData();
+            gen.SaveProduction = SaveProduction;
+            gen.StudentDailyRates = LoadDailyRates.GiveData();
+            gen.StudentTimeOfDayRates = LoadTimeOfDayRates.GiveData();
             list.Add( gen );
         }
 
         private void GenerateChildren()
         {
             // we need to generate our children here
-            var list = this.Parent.Categories;
+            var list = Parent.Categories;
             list.Remove( this );
-            foreach ( var set in this.Ages )
+            foreach ( var set in Ages )
             {
                 for ( int age = set.Start; age <= set.Stop; age++ )
                 {

@@ -65,7 +65,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
             string filepath = Path.GetFullPath( FileName.GetFileName( Root.InputBaseDirectory ) );
 
-            return mc.Run("tmg.XTMF_internal.export_matrix_batch_file", this.MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
+            return mc.Run("tmg.XTMF_internal.export_matrix_batch_file", MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
         }
 
         public bool RuntimeValidation(ref string error)

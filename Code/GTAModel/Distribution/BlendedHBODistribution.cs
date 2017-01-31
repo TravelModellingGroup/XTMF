@@ -94,7 +94,7 @@ namespace TMG.GTAModel
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> eps, IEnumerable<SparseArray<float>> eas, IEnumerable<IDemographicCategory> ecs)
         {
             float[] friction = null;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var productions = new List<SparseArray<float>>();
             var cats = new List<IDemographicCategory>();
             var ep = eps.GetEnumerator();
@@ -104,13 +104,13 @@ namespace TMG.GTAModel
                 productions.Add( ep.Current );
                 cats.Add( ec.Current );
             }
-            SparseArray<float> production = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            this.TotalBlendSets = 0;
-            for ( int i = 0; i < this.BlendSets.Count; i++ )
+            SparseArray<float> production = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            TotalBlendSets = 0;
+            for ( int i = 0; i < BlendSets.Count; i++ )
             {
-                this.TotalBlendSets += this.BlendSets[i].Subsets.Count;
+                TotalBlendSets += BlendSets[i].Subsets.Count;
             }
-            foreach ( var multiset in this.BlendSets )
+            foreach ( var multiset in BlendSets )
             {
                 var setLength = multiset.Subsets.Count;
                 var productionSet = new float[setLength][][];
@@ -118,9 +118,9 @@ namespace TMG.GTAModel
                 SetupFrictionData( productions, cats, multiset, productionSet, catSet );
                 for ( int subIndex = 0; subIndex < multiset.Subsets.Count; subIndex++ )
                 {
-                    friction = this.ComputeFriction( zones, catSet, productionSet, friction, production.GetFlatData(), subIndex );
+                    friction = ComputeFriction( zones, catSet, productionSet, friction, production.GetFlatData(), subIndex );
                     var ret = SinglyConstrainedGravityModel.Process( production, friction );
-                    if ( this.Transpose )
+                    if ( Transpose )
                     {
                         TransposeMatrix( ret );
                     }
@@ -133,33 +133,33 @@ namespace TMG.GTAModel
         {
             if ( !LoadNetwork() )
             {
-                error = "In " + this.Name + " we were unable to find the network data '" + this.AutoNetworkName + "' to use as the auto network!";
+                error = "In " + Name + " we were unable to find the network data '" + AutoNetworkName + "' to use as the auto network!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionAutoParameter ) )
+            if ( !CompareParameterCount( RegionAutoParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Auto does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionAutoParameter ) )
+            if ( !CompareParameterCount( RegionAutoParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Auto does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionPopulationParameter ) )
+            if ( !CompareParameterCount( RegionPopulationParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Population does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Population does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionNonManufacturingEmploymentParameter ) )
+            if ( !CompareParameterCount( RegionNonManufacturingEmploymentParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Professional Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Professional Employment does not match the number of regions!";
                 return false;
             }
-            this.InteractiveModeSplit = this.Parent.ModeSplit as IInteractiveModeSplit;
-            if ( this.InteractiveModeSplit == null )
+            InteractiveModeSplit = Parent.ModeSplit as IInteractiveModeSplit;
+            if ( InteractiveModeSplit == null )
             {
-                error = "In module '" + this.Name + "' we we require the mode choice for the purpose '" + this.Parent.PurposeName + "' to be of type IInteractiveModeSplit!";
+                error = "In module '" + Name + "' we we require the mode choice for the purpose '" + Parent.PurposeName + "' to be of type IInteractiveModeSplit!";
                 return false;
             }
             return true;
@@ -226,16 +226,16 @@ namespace TMG.GTAModel
 
         private bool CompareParameterCount(FloatList data)
         {
-            return this.RegionNumbers.Count == data.Count;
+            return RegionNumbers.Count == data.Count;
         }
 
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory[][] cats, float[][][] productionSet, float[] friction, float[] production, int subsetIndex)
         {
             var numberOfZones = zones.Length;
             float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
-            var rootModes = this.Root.Modes;
+            var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
-            if ( !String.IsNullOrWhiteSpace( this.LoadFrictionFileName ) )
+            if ( !String.IsNullOrWhiteSpace( LoadFrictionFileName ) )
             {
                 LoadFriction( ret );
             }
@@ -243,12 +243,12 @@ namespace TMG.GTAModel
             {
                 ComputeFriction( zones, numberOfZones, ret );
             }
-            this.InteractiveModeSplit.StartNewInteractiveModeSplit( this.TotalBlendSets );
+            InteractiveModeSplit.StartNewInteractiveModeSplit( TotalBlendSets );
             SumProduction( production, productionSet, subsetIndex );
             try
             {
                 float[] ratio = new float[cats[subsetIndex].Length];
-                var mpd = this.Root.ModeParameterDatabase;
+                var mpd = Root.ModeParameterDatabase;
                 for ( int i = 0; i < numberOfZones; i++ )
                 {
                     // let it setup the modes so we can compute friction
@@ -262,7 +262,7 @@ namespace TMG.GTAModel
                 throw e.InnerException;
             }
             // Use the Log-Sum from the V's as the impedence function
-            if ( !String.IsNullOrWhiteSpace( this.SaveFrictionFileName ) )
+            if ( !String.IsNullOrWhiteSpace( SaveFrictionFileName ) )
             {
                 SaveFriction( ret );
             }
@@ -275,7 +275,7 @@ namespace TMG.GTAModel
             {
                 int regionIndex;
                 var origin = zones[i];
-                if ( !this.InverseLookup( origin.RegionNumber, out regionIndex ) )
+                if ( !InverseLookup( origin.RegionNumber, out regionIndex ) )
                 {
                     return;
                 }
@@ -283,11 +283,11 @@ namespace TMG.GTAModel
                 for ( int j = 0; j < numberOfZones; j++ )
                 {
                     var destination = zones[j];
-                    ret[index++] = (float)( this.RegionAutoParameter[regionIndex] * this.NetworkData.TravelTime( origin, destination, this.SimulationTime ).ToMinutes()
+                    ret[index++] = (float)( RegionAutoParameter[regionIndex] * NetworkData.TravelTime( origin, destination, SimulationTime ).ToMinutes()
                         // population
-                        + this.RegionPopulationParameter[regionIndex] * Math.Log( destination.Population + 1 )
+                        + RegionPopulationParameter[regionIndex] * Math.Log( destination.Population + 1 )
                         // employment
-                        + this.RegionNonManufacturingEmploymentParameter[regionIndex] * Math.Log( destination.ProfessionalEmployment
+                        + RegionNonManufacturingEmploymentParameter[regionIndex] * Math.Log( destination.ProfessionalEmployment
                         + destination.GeneralEmployment + destination.RetailEmployment + 1 ) );
                 }
             } );
@@ -295,17 +295,17 @@ namespace TMG.GTAModel
 
         private string GetFrictionFileName(string baseName)
         {
-            if ( this.Root.CurrentIteration != lastIteration )
+            if ( Root.CurrentIteration != lastIteration )
             {
                 currentNumber = 0;
-                lastIteration = this.Root.CurrentIteration;
+                lastIteration = Root.CurrentIteration;
             }
             return String.Concat( baseName, currentNumber++, ".bin" );
         }
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = this.RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
         }
 
         private void LoadFriction(float[] ret)
@@ -318,7 +318,7 @@ namespace TMG.GTAModel
                         {
                             ret[i] = reader.ReadSingle();
                         }
-                    }, GetFrictionFileName( this.LoadFrictionFileName ) );
+                    }, GetFrictionFileName( LoadFrictionFileName ) );
             }
             catch ( IOException e )
             {
@@ -328,11 +328,11 @@ namespace TMG.GTAModel
 
         private bool LoadNetwork()
         {
-            foreach ( var data in this.Root.NetworkData )
+            foreach ( var data in Root.NetworkData )
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if ( data.NetworkType == AutoNetworkName )
                 {
-                    this.NetworkData = data;
+                    NetworkData = data;
                     return true;
                 }
             }
@@ -363,7 +363,7 @@ namespace TMG.GTAModel
         {
             try
             {
-                var fileName = GetFrictionFileName( this.SaveFrictionFileName );
+                var fileName = GetFrictionFileName( SaveFrictionFileName );
                 var dirName = Path.GetDirectoryName( fileName );
                 if ( !Directory.Exists( dirName ) )
                 {
@@ -385,13 +385,13 @@ namespace TMG.GTAModel
 
         private void SaveModeChoice(IZone[] zones, int numberOfZones, int i)
         {
-            if ( this.Transpose )
+            if ( Transpose )
             {
                 Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
                 {
                     if ( zones[j].RegionNumber > 0 )
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
+                        InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
                     }
                 } );
             }
@@ -401,7 +401,7 @@ namespace TMG.GTAModel
                 {
                     if ( zones[j].RegionNumber > 0 )
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
+                        InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
                     }
                 } );
             }

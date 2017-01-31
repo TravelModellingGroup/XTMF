@@ -58,12 +58,12 @@ namespace TMG.GTAModel.Input
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
@@ -73,19 +73,19 @@ namespace TMG.GTAModel.Input
             {
                 ApplyDefaultToData( temp );
             }
-            foreach ( var point in this.Reader.Read() )
+            foreach ( var point in Reader.Read() )
             {
                 if ( temp.ContainsIndex( point.O, point.D ) )
                 {
                     temp[point.O, point.D] = point.Data;
                 }
             }
-            this.Data = temp;
+            Data = temp;
         }
 
         private void ApplyDefaultToData(SparseTwinIndex<float> temp)
         {
-            var value = this.DefaultValue;
+            var value = DefaultValue;
             var data = temp.GetFlatData();
             if ( data.Length == 0 ) return;
             var row = data[0];
@@ -107,12 +107,12 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         private SparseArray<int> CreatePDArray()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             List<int> pdNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {

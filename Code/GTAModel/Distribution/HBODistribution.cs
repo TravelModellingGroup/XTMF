@@ -90,11 +90,11 @@ namespace TMG.GTAModel
         {
             var ep = productions.GetEnumerator();
             var ec = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[] friction = null;
             while ( ep.MoveNext() && ec.MoveNext() )
             {
-                friction = this.ComputeFriction( zones, ec.Current, friction );
+                friction = ComputeFriction( zones, ec.Current, friction );
                 yield return SinglyConstrainedGravityModel.Process( ep.Current, friction );
             }
         }
@@ -103,42 +103,42 @@ namespace TMG.GTAModel
         {
             if ( !LoadNetwork() )
             {
-                error = "In " + this.Name + " we were unable to find the network data '" + this.AutoNetworkName + "' to use as the auto network!";
+                error = "In " + Name + " we were unable to find the network data '" + AutoNetworkName + "' to use as the auto network!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionAutoParameter ) )
+            if ( !CompareParameterCount( RegionAutoParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Auto does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionAutoParameter ) )
+            if ( !CompareParameterCount( RegionAutoParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Auto does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionPopulationParameter ) )
+            if ( !CompareParameterCount( RegionPopulationParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Population does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Population does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentProfessionalParameter ) )
+            if ( !CompareParameterCount( RegionEmploymentProfessionalParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Professional Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Professional Employment does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentGeneralParameter ) )
+            if ( !CompareParameterCount( RegionEmploymentGeneralParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for General Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for General Employment does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentSalesParameter ) )
+            if ( !CompareParameterCount( RegionEmploymentSalesParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Sales Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Sales Employment does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentManufacturingParameter ) )
+            if ( !CompareParameterCount( RegionEmploymentManufacturingParameter ) )
             {
-                error = "In " + this.Name + " the number of parameters for Manufacturing Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Manufacturing Employment does not match the number of regions!";
                 return false;
             }
             return true;
@@ -146,14 +146,14 @@ namespace TMG.GTAModel
 
         private bool CompareParameterCount(FloatList data)
         {
-            return this.RegionNumbers.Count == data.Count;
+            return RegionNumbers.Count == data.Count;
         }
 
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] friction)
         {
             var numberOfZones = zones.Length;
             float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
-            var rootModes = this.Root.Modes;
+            var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
@@ -176,16 +176,16 @@ namespace TMG.GTAModel
                     for ( int j = 0; j < numberOfZones; j++ )
                     {
                         var destination = zones[j];
-                        var autoTime = this.NetworkData.TravelTime( origin, destination, this.SimulationTime );
+                        var autoTime = NetworkData.TravelTime( origin, destination, SimulationTime );
                         var population = destination.Population;
-                        ret[index++] = (float)( this.RegionAutoParameter[regionIndex] * autoTime.ToMinutes()
+                        ret[index++] = (float)( RegionAutoParameter[regionIndex] * autoTime.ToMinutes()
                             // population
-                            + this.RegionPopulationParameter[regionIndex] * Math.Log( population + 1 )
+                            + RegionPopulationParameter[regionIndex] * Math.Log( population + 1 )
                             // employment
-                            + this.RegionEmploymentProfessionalParameter[regionIndex] * Math.Log( destination.ProfessionalEmployment + 1 )
-                            + this.RegionEmploymentGeneralParameter[regionIndex] * Math.Log( destination.GeneralEmployment + 1 )
-                            + this.RegionEmploymentSalesParameter[regionIndex] * Math.Log( destination.RetailEmployment + 1 )
-                            + this.RegionEmploymentManufacturingParameter[regionIndex] * Math.Log( destination.ManufacturingEmployment + 1 ) );
+                            + RegionEmploymentProfessionalParameter[regionIndex] * Math.Log( destination.ProfessionalEmployment + 1 )
+                            + RegionEmploymentGeneralParameter[regionIndex] * Math.Log( destination.GeneralEmployment + 1 )
+                            + RegionEmploymentSalesParameter[regionIndex] * Math.Log( destination.RetailEmployment + 1 )
+                            + RegionEmploymentManufacturingParameter[regionIndex] * Math.Log( destination.ManufacturingEmployment + 1 ) );
                     }
                 } );
             }
@@ -199,16 +199,16 @@ namespace TMG.GTAModel
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = this.RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
         }
 
         private bool LoadNetwork()
         {
-            foreach ( var data in this.Root.NetworkData )
+            foreach ( var data in Root.NetworkData )
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if ( data.NetworkType == AutoNetworkName )
                 {
-                    this.NetworkData = data;
+                    NetworkData = data;
                     return true;
                 }
             }

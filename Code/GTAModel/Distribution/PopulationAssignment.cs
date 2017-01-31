@@ -68,9 +68,9 @@ This module requires the root module of the model system to be of type ‘IDemog
 
         public IEnumerable<SparseTwinIndex<float>> Assign()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var zoneSystem = zoneArray.GetFlatData();
-            var population = this.Root.Population.Population.GetFlatData();
+            var population = Root.Population.Population.GetFlatData();
             var numberOfZones = zoneSystem.Length;
             foreach ( var cat in Categories )
             {
@@ -119,7 +119,7 @@ This module requires the root module of the model system to be of type ‘IDemog
                     Thread.MemoryBarrier();
                     if ( getDest == null )
                     {
-                        getDest = UniversalRead<IZone>.CreateReader( reference, this.LookUpString );
+                        getDest = UniversalRead<IZone>.CreateReader( reference, LookUpString );
                         Thread.MemoryBarrier();
                     }
                 }

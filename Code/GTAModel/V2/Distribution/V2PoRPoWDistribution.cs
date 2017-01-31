@@ -97,26 +97,26 @@ namespace TMG.GTAModel.V2.Distribution
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            if(this.SaveFriction != null)
+            if(SaveFriction != null)
             {
-                this.SaveFriction.Reset();
+                SaveFriction.Reset();
             }
-            this.Progress = 0f;
-            this.WCatParameters.LoadData();
+            Progress = 0f;
+            WCatParameters.LoadData();
             var ep = productions.GetEnumerator();
             var ea = attractions.GetEnumerator();
             var ec = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var ret = CPUDoublyConstrained(zones, ep, ea, ec);
             return ret;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            this.InteractiveModeSplit = this.Parent.ModeSplit as IInteractiveModeSplit;
-            if(this.InteractiveModeSplit == null)
+            InteractiveModeSplit = Parent.ModeSplit as IInteractiveModeSplit;
+            if(InteractiveModeSplit == null)
             {
-                error = "In module '" + this.Name + "' we we require the mode choice for the purpose '" + this.Parent.PurposeName + "' to be of type IInteractiveModeSplit!";
+                error = "In module '" + Name + "' we we require the mode choice for the purpose '" + Parent.PurposeName + "' to be of type IInteractiveModeSplit!";
                 return false;
             }
             return true;
@@ -186,19 +186,19 @@ namespace TMG.GTAModel.V2.Distribution
 
         private void CheckSaveFriction(float[][] friction)
         {
-            if(this.SaveFriction != null)
+            if(SaveFriction != null)
             {
-                this.SaveFriction.SaveMatrix(friction);
+                SaveFriction.SaveMatrix(friction);
             }
         }
 
         private void ComputeFriction(IZone[] zones, PoRPoWGeneration[][] cats, float[][][] productions, float[][][] attractions, float[][] friction, float[] production, float[] attraction)
         {
             ClearFriction(friction, zones.Length);
-            this.InteractiveModeSplit.StartNewInteractiveModeSplit(this.MultiBlendSets.Count);
-            using (var mobilityStream = File.OpenWrite(this.MobilityCacheFileName.GetFileName() + this.CurrentMultiSetIndex.ToString() + ".bin"))
+            InteractiveModeSplit.StartNewInteractiveModeSplit(MultiBlendSets.Count);
+            using (var mobilityStream = File.OpenWrite(MobilityCacheFileName.GetFileName() + CurrentMultiSetIndex.ToString() + ".bin"))
             {
-                var mpd = this.Root.ModeParameterDatabase;
+                var mpd = Root.ModeParameterDatabase;
                 float[] subsetRatios = new float[productions.Length];
                 // 1 temp friction per mobility category
                 float[][] tempMobility = new float[5][];
@@ -208,7 +208,7 @@ namespace TMG.GTAModel.V2.Distribution
                 }
                 SumProductionAndAttraction(production, attraction, productions, attractions);
                 BlockingCollection<MemoryStream[]> toWrite = new BlockingCollection<MemoryStream[]>(1);
-                var writingTask = Task.Factory.StartNew(new Action(() => WriteMemoryStream(toWrite, mobilityStream)), TaskCreationOptions.LongRunning);
+                var writingTask = Task.Factory.StartNew(() => WriteMemoryStream(toWrite, mobilityStream), TaskCreationOptions.LongRunning);
                 for(int subset = 0; subset < cats.Length; subset++)
                 {
                     for(int i = 0; i < zones.Length; i++)
@@ -239,13 +239,13 @@ namespace TMG.GTAModel.V2.Distribution
                 writingTask.Wait();
                 mobilityStream.Flush();
             }
-            this.InteractiveModeSplit.EndInterativeModeSplit();
+            InteractiveModeSplit.EndInterativeModeSplit();
             CheckSaveFriction(friction);
         }
 
         private void ComputeSubsetRatios(int flatZone, float[] subsetRatios, float[][][] productions)
         {
-            Parallel.For(0, subsetRatios.Length, (int subsetIndex) =>
+            Parallel.For(0, subsetRatios.Length, subsetIndex =>
             {
                 double localTotal = 0f;
                 var subset = productions[subsetIndex];
@@ -283,8 +283,8 @@ namespace TMG.GTAModel.V2.Distribution
                     if(!float.IsNaN(row[j]))
                     {
                         // apply the K-Factor and the small trip utilities to the friction
-                        row[j] = this.KFactorDataReader.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, this.CurrentMultiSetIndex)
-                            * (float)Math.Pow(row[j], this.Correlation.GiveAdjustment(zones[i], zones[j], this.CurrentMultiSetIndex));
+                        row[j] = KFactorDataReader.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex)
+                            * (float)Math.Pow(row[j], Correlation.GiveAdjustment(zones[i], zones[j], CurrentMultiSetIndex));
                     }
                     else
                     {
@@ -297,12 +297,12 @@ namespace TMG.GTAModel.V2.Distribution
         private IEnumerable<SparseTwinIndex<float>> CPUDoublyConstrained(IZone[] zones, IEnumerator<SparseArray<float>> ep, IEnumerator<SparseArray<float>> ea, IEnumerator<IDemographicCategory> ec)
         {
             float completed = 0f;
-            this.Correlation.Load();
-            var frictionSparse = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            Correlation.Load();
+            var frictionSparse = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var productions = new List<SparseArray<float>>();
             var attractions = new List<SparseArray<float>>();
             var cats = new List<PoRPoWGeneration>();
-            this.WCatParameters.LoadData();
+            WCatParameters.LoadData();
             // We need to pre load all of our generations in order to handel blending properly
             while(ep.MoveNext() && ea.MoveNext() && ec.MoveNext())
             {
@@ -310,26 +310,26 @@ namespace TMG.GTAModel.V2.Distribution
                 attractions.Add(ea.Current);
                 cats.Add(ec.Current as PoRPoWGeneration);
             }
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            SparseArray<float> production = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            SparseArray<float> attraction = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            this.CurrentMultiSetIndex = -1;
-            foreach(var multiset in this.MultiBlendSets)
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            SparseArray<float> production = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            SparseArray<float> attraction = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            CurrentMultiSetIndex = -1;
+            foreach(var multiset in MultiBlendSets)
             {
-                this.CurrentMultiSetIndex++;
+                CurrentMultiSetIndex++;
                 var numberOfSubsets = multiset.Subsets.Count;
                 var productionSet = new float[numberOfSubsets][][];
                 var attractionSet = new float[numberOfSubsets][][];
                 var multiCatSet = new PoRPoWGeneration[numberOfSubsets][];
                 SetupFrictionData(productions, attractions, cats, multiset, productionSet, attractionSet, multiCatSet);
-                this.ComputeFriction(zones, multiCatSet, productionSet, attractionSet,
+                ComputeFriction(zones, multiCatSet, productionSet, attractionSet,
                     frictionSparse.GetFlatData(), production.GetFlatData(), attraction.GetFlatData());
-                yield return new GravityModel(frictionSparse, (p => this.Progress = (p * (1f / (this.MultiBlendSets.Count)) + (completed / (this.MultiBlendSets.Count)))), this.Epsilon, this.MaxIterations)
+                yield return new GravityModel(frictionSparse, (p => Progress = (p * (1f / (MultiBlendSets.Count)) + (completed / (MultiBlendSets.Count)))), Epsilon, MaxIterations)
                     .ProcessFlow(production, attraction, production.ValidIndexArray());
                 completed += 1f;
             }
-            this.WCatParameters.UnloadData();
-            this.Correlation.Unload();
+            WCatParameters.UnloadData();
+            Correlation.Unload();
         }
 
         private void GatherModeChoiceUtilities(IZone[] zones, float[] tempMobility, float[] attraction, float ratio, int i)
@@ -352,17 +352,17 @@ namespace TMG.GTAModel.V2.Distribution
                     tempMobility[j] = 0;
                     return;
                 }
-                tempMobility[j] = (float)(this.WCatParameters.CalculateConstantV(zones[i], zones[j], this.SimulationTime)
-                    * (Math.Pow(this.InteractiveModeSplit.ComputeUtility(zones[i], zones[j]), this.WCatParameters.LSum)));
+                tempMobility[j] = (float)(WCatParameters.CalculateConstantV(zones[i], zones[j], SimulationTime)
+                    * (Math.Pow(InteractiveModeSplit.ComputeUtility(zones[i], zones[j]), WCatParameters.LSum)));
             });
         }
 
         private string GetFrictionFileName(string baseName, int setNumber)
         {
-            if(this.Root.CurrentIteration != lastIteration)
+            if(Root.CurrentIteration != lastIteration)
             {
                 currentNumber = 0;
-                lastIteration = this.Root.CurrentIteration;
+                lastIteration = Root.CurrentIteration;
             }
             return String.Concat(baseName, setNumber >= 0 ? setNumber : (currentNumber++), ".bin");
         }
@@ -393,11 +393,11 @@ namespace TMG.GTAModel.V2.Distribution
 
         private MemoryStream[] ProcessUtilities(float[][] tempMobility, float[][] friction, float subsetRatio, int i)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             if(subsetRatio > 0)
             {
                 // normalize the tempFriction
-                Parallel.For(0, friction.Length, (int j) =>
+                Parallel.For(0, friction.Length, j =>
                  {
                      float totalMobilityUtility = 0;
                      for(int mobCat = 0; mobCat < tempMobility.Length; mobCat++)
@@ -425,7 +425,7 @@ namespace TMG.GTAModel.V2.Distribution
             friction[i][i] = 0;
             // build the streams in parallel
             MemoryStream[] stream = new MemoryStream[tempMobility.Length];
-            Parallel.For(0, stream.Length, (int mobility) =>
+            Parallel.For(0, stream.Length, mobility =>
                 {
                     // Now store the mobility probabilities to the file
                     byte[] temp = new byte[tempMobility[mobility].Length * sizeof(float)];
@@ -455,7 +455,7 @@ namespace TMG.GTAModel.V2.Distribution
         private void SetupModeChoice(PoRPoWGeneration[][] cats, IModeParameterDatabase mpd, int subset, int mobilityCategory)
         {
             // this.CurrentMultiSet == Occupation [0,3] * NumberOfMobilityCategories + mobility Category
-            this.WCatParameters.SetDemographicCategory(this.CurrentMultiSetIndex * 5 + mobilityCategory);
+            WCatParameters.SetDemographicCategory(CurrentMultiSetIndex * 5 + mobilityCategory);
             cats[subset][0].Mobility = new RangeSet(new List<Range>() { new Range(mobilityCategory, mobilityCategory)});
             cats[subset][0].InitializeDemographicCategory();
         }
@@ -471,7 +471,7 @@ namespace TMG.GTAModel.V2.Distribution
                 {
                     return new ProductionAttractionLocalTotal();
                 },
-                (int i, ParallelLoopState state, ProductionAttractionLocalTotal localTotal) =>
+                (i, state, localTotal) =>
                 {
                     float productionSum = 0f;
                     float attractionSum = 0f;
@@ -509,7 +509,7 @@ namespace TMG.GTAModel.V2.Distribution
                     }
                     return localTotal;
                 },
-                (ProductionAttractionLocalTotal localSums) =>
+                localSums =>
                 {
                     lock (this)
                     {
@@ -571,7 +571,7 @@ namespace TMG.GTAModel.V2.Distribution
             {
                 var oPD = origin.PlanningDistrict;
                 var dPD = destination.PlanningDistrict;
-                var row = this.Data[0];
+                var row = Data[0];
                 var adjFactor = 1f;
                 for(int i = 0; i < row.Length; i++)
                 {
@@ -591,7 +591,7 @@ namespace TMG.GTAModel.V2.Distribution
                     temp[i] = new List<Segment>();
                 }
                 var numberOfModes = 4;
-                using (CsvReader reader = new CsvReader(this.InputFile.GetFileName(this.Root.InputBaseDirectory)))
+                using (CsvReader reader = new CsvReader(InputFile.GetFileName(Root.InputBaseDirectory)))
                 {
                     // burn header
                     reader.LoadLine();
@@ -618,10 +618,10 @@ namespace TMG.GTAModel.V2.Distribution
                         }
                     }
                 }
-                this.Data = new Segment[1][];
-                for(int i = 0; i < this.Data.Length; i++)
+                Data = new Segment[1][];
+                for(int i = 0; i < Data.Length; i++)
                 {
-                    this.Data[i] = temp[i].ToArray();
+                    Data[i] = temp[i].ToArray();
                 }
             }
 
@@ -632,7 +632,7 @@ namespace TMG.GTAModel.V2.Distribution
 
             public void Unload()
             {
-                this.Data = null;
+                Data = null;
             }
 
             private struct Segment

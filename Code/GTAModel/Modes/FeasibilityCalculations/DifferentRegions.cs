@@ -49,7 +49,7 @@ also return true if the region is inside of the 'Excepted Regions'.  This is lik
                 return true;
             }
             // the only other way for it to work is if they are in the excepted list
-            return this.Exceptions.Contains( first );
+            return Exceptions.Contains( first );
         }
 
         public void Unload()

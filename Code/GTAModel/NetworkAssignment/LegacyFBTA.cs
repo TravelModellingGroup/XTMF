@@ -119,7 +119,7 @@ namespace TMG.GTAModel.NetworkAssignment
             if(mc == null)
                 throw new XTMFRuntimeException("Controller is not a modeller controller!");
 
-            if(this.DemandMatrixNumber != 0)
+            if(DemandMatrixNumber != 0)
             {
                 // if false then there were no records saved and we need to skip the assignment.
                 if(!PassMatrixIntoEmme(mc))
@@ -136,17 +136,17 @@ namespace TMG.GTAModel.NetworkAssignment
             string result = null;
             if(mc.CheckToolExists(_ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_OldToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if((this.Tallies == null || this.Tallies.Count == 0) && this.DemandMatrixNumber != 0)
+            if((Tallies == null || Tallies.Count == 0) && DemandMatrixNumber != 0)
             {
                 //There are no Tallies, and a scalar is not being assigned
                 error = "No Tallies were found, but a scalar matrix was not selected! Please either add a Tally or change the" +
@@ -179,11 +179,11 @@ namespace TMG.GTAModel.NetworkAssignment
 
         private bool PassMatrixIntoEmme(ModellerController mc)
         {
-            var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
             // Load the data from the flows and save it to our temporary file
-            var useTempFile = String.IsNullOrWhiteSpace(this.DemandFileName);
-            string outputFileName = useTempFile ? Path.GetTempFileName() : this.DemandFileName;
+            var useTempFile = String.IsNullOrWhiteSpace(DemandFileName);
+            string outputFileName = useTempFile ? Path.GetTempFileName() : DemandFileName;
             float[][] tally = new float[numberOfZones][];
             for(int i = 0; i < numberOfZones; i++)
             {
@@ -200,7 +200,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
             using (StreamWriter writer = new StreamWriter(outputFileName))
             {
-                writer.WriteLine("t matrices\r\na matrix=mf{0} name={1} default=0 descr=generated", this.DemandMatrixNumber, DemandMatrixName.Replace(" ", ""));
+                writer.WriteLine("t matrices\r\na matrix=mf{0} name={1} default=0 descr=generated", DemandMatrixNumber, DemandMatrixName.Replace(" ", ""));
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
                 bool any = false;
                 Parallel.For(0, numberOfZones, delegate (int o)
@@ -215,7 +215,7 @@ namespace TMG.GTAModel.NetworkAssignment
                         if(result > 0)
                         {
                             localAny = true;
-                            this.ToEmmeFloat(result, strBuilder);
+                            ToEmmeFloat(result, strBuilder);
                             build.AppendFormat("{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
                                 convertedO, flatZones[d].ZoneNumber, strBuilder);
                         }

@@ -48,7 +48,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
 
         public bool ProduceResult(Pair<IZone, IZone> data)
         {
-            return this.Root.ZoneSystem.Distances[data.First.ZoneNumber, data.Second.ZoneNumber] <= this.MaxDist;
+            return Root.ZoneSystem.Distances[data.First.ZoneNumber, data.Second.ZoneNumber] <= MaxDist;
         }
 
         public bool RuntimeValidation(ref string error)

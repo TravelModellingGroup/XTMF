@@ -93,16 +93,16 @@ This module will also work for a regular Logit model as well."
 
         public float ComputeUtility(IZone o, IZone d)
         {
-            if ( this.InteractiveUtilityTrees == null )
+            if ( InteractiveUtilityTrees == null )
             {
-                throw new XTMFRuntimeException( this.Name + " tried to use interactive mode without being initialized first!" );
+                throw new XTMFRuntimeException( Name + " tried to use interactive mode without being initialized first!" );
             }
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             var flatZones = zones.GetFlatData();
             var flatO = zones.GetFlatIndex( o.ZoneNumber );
             var flatD = zones.GetFlatIndex( d.ZoneNumber );
             var numberOfZones = flatZones.Length;
-            var tree = this.InteractiveUtilityTrees;
+            var tree = InteractiveUtilityTrees;
             GatherUtility( tree, flatO, flatD, flatZones );
             var sum = 0f;
             bool any = false;
@@ -125,24 +125,24 @@ This module will also work for a regular Logit model as well."
 
         public void EndInterativeModeSplit()
         {
-            if ( this.SaveDirectory.ContainsFileName() )
+            if ( SaveDirectory.ContainsFileName() )
             {
                 SaveData();
             }
-            this.InteractiveUtilityTrees = null;
+            InteractiveUtilityTrees = null;
         }
 
         public List<TreeData<float[][]>> ModeSplit(IEnumerable<SparseTwinIndex<float>> flowMatrix, int numberOfCategories)
         {
-            this.Progress = 0;
-            var ret = MirrorModeTree.CreateMirroredTree<float[][]>( this.Root.Modes );
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            Progress = 0;
+            var ret = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             int flows = 0;
             //double flowTotal = 0f;
             foreach ( var flow in flowMatrix )
             {
                 //flowTotal += SumFlow( flow );
-                if ( this.InteractiveUtilityTrees == null )
+                if ( InteractiveUtilityTrees == null )
                 {
                     TraditionalModeSplit( numberOfCategories, ret, zones, flows, flow );
                 }
@@ -150,7 +150,7 @@ This module will also work for a regular Logit model as well."
                 {
                     InteractiveModeSplit( numberOfCategories, ret, zones, flows, flow );
                     // reset ourselves out of interactive mode
-                    this.EndInterativeModeSplit();
+                    EndInterativeModeSplit();
                 }
                 flows++;
             }
@@ -159,9 +159,9 @@ This module will also work for a regular Logit model as well."
             return ret;
         }
 
-        public List<TreeData<float[][]>> ModeSplit(Datastructure.SparseTwinIndex<float> flowMatrix)
+        public List<TreeData<float[][]>> ModeSplit(SparseTwinIndex<float> flowMatrix)
         {
-            return this.ModeSplit( SingleEnumerator( flowMatrix ), 1 );
+            return ModeSplit( SingleEnumerator( flowMatrix ), 1 );
         }
 
         public bool RuntimeValidation(ref string error)
@@ -176,13 +176,13 @@ This module will also work for a regular Logit model as well."
 
         public void StartNewInteractiveModeSplit(int numberOfCategories)
         {
-            var numberOfZones = this.Root.ZoneSystem.ZoneArray.GetFlatData().Length;
-            this.NumberOfInteractiveCategories = numberOfCategories;
-            if ( this.InteractiveUtilityTrees == null )
+            var numberOfZones = Root.ZoneSystem.ZoneArray.GetFlatData().Length;
+            NumberOfInteractiveCategories = numberOfCategories;
+            if ( InteractiveUtilityTrees == null )
             {
-                this.InteractiveUtilityTrees = MirrorModeTree.CreateMirroredTree<float[]>( this.Root.Modes );
+                InteractiveUtilityTrees = MirrorModeTree.CreateMirroredTree<float[]>( Root.Modes );
             }
-            InitializeTree( this.InteractiveUtilityTrees, numberOfZones * numberOfZones );
+            InitializeTree( InteractiveUtilityTrees, numberOfZones * numberOfZones );
         }
 
         protected void WriteModeSplit(TreeData<float[]> split, IModeChoiceNode modeNode, string directoryName)
@@ -194,7 +194,7 @@ This module will also work for a regular Logit model as well."
                     using ( StreamWriter writer = new StreamWriter( Path.Combine( directoryName, modeNode.ModeName + ".csv" ) ) )
                     {
                         var header = true;
-                        var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+                        var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                         var data = split.Result;
                         for ( int i = 0; i < zones.Length; i++ )
                         {
@@ -484,7 +484,7 @@ This module will also work for a regular Logit model as well."
             var length = utility.Count;
             for ( int i = 0; i < length; i++ )
             {
-                GatherUtility( utility[i], this.Root.Modes[i], o, d, zones );
+                GatherUtility( utility[i], Root.Modes[i], o, d, zones );
             }
         }
 
@@ -518,7 +518,7 @@ This module will also work for a regular Logit model as well."
                 }
                 if ( hasAlternatives )
                 {
-                    if ( totalUtility >= this.MinLogSumToE )
+                    if ( totalUtility >= MinLogSumToE )
                     {
                         var localUtility = cat.CalculateCombinedV( zones[o], zones[d], SimulationTime );
                         if ( cat.Correlation == 1f )
@@ -549,7 +549,7 @@ This module will also work for a regular Logit model as well."
             var length = utility.Count;
             for ( int i = 0; i < length; i++ )
             {
-                GatherUtility( utility[i], this.Root.Modes[i], o, d, zones );
+                GatherUtility( utility[i], Root.Modes[i], o, d, zones );
             }
         }
 
@@ -583,7 +583,7 @@ This module will also work for a regular Logit model as well."
                 }
                 if ( hasAlternatives )
                 {
-                    if ( totalUtility >= this.MinLogSumToE )
+                    if ( totalUtility >= MinLogSumToE )
                     {
                         var localUtility = cat.CalculateCombinedV( zones[o], zones[d], SimulationTime );
                         treeData.Result = (float)( Math.Pow( totalUtility, cat.Correlation ) * Math.Exp( localUtility ) );
@@ -599,20 +599,20 @@ This module will also work for a regular Logit model as well."
         private void InteractiveModeSplit(int numberOfCategories, List<TreeData<float[][]>> ret, IZone[] zones, int flows, SparseTwinIndex<float> flow)
         {
             int soFar = 0;
-            if ( this.SaveUtilities.ContainsFileName() )
+            if ( SaveUtilities.ContainsFileName() )
             {
-                var dir = Path.Combine( this.SaveUtilities.GetFileName(), ( ModeUtilitiesProcessed++ ).ToString() );
+                var dir = Path.Combine( SaveUtilities.GetFileName(), ( ModeUtilitiesProcessed++ ).ToString() );
                 Directory.CreateDirectory( dir );
-                for ( int i = 0; i < this.InteractiveUtilityTrees.Count; i++ )
+                for ( int i = 0; i < InteractiveUtilityTrees.Count; i++ )
                 {
-                    WriteModeSplit( this.InteractiveUtilityTrees[i], this.Root.Modes[i], dir );
+                    WriteModeSplit( InteractiveUtilityTrees[i], Root.Modes[i], dir );
                 }
             }
             Parallel.For( 0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int o)
                 {
                     var flatFlows = flow.GetFlatData();
-                    var utility = this.InteractiveUtilityTrees;
+                    var utility = InteractiveUtilityTrees;
                     var numberOfZones = zones.Length;
                     for ( int d = 0; d < zones.Length; d++ )
                     {
@@ -624,8 +624,8 @@ This module will also work for a regular Logit model as well."
                             SaveResults( utility, ret, o, d, zones.Length );
                         }
                     }
-                    this.Progress = ( ( Interlocked.Increment( ref soFar ) / (float)zones.Length ) / this.NumberOfInteractiveCategories ) 
-                        + ( flows / (float)this.NumberOfInteractiveCategories );
+                    Progress = ( ( Interlocked.Increment( ref soFar ) / (float)zones.Length ) / NumberOfInteractiveCategories ) 
+                        + ( flows / (float)NumberOfInteractiveCategories );
                 } );
         }
 
@@ -669,16 +669,16 @@ This module will also work for a regular Logit model as well."
         private void SaveData()
         {
             // only save the data if we processed something
-            if ( this.InteractiveUtilityTrees == null ) return;
-            var dir = Path.Combine( this.SaveDirectory.GetFileName(), TimesRun.ToString() );
+            if ( InteractiveUtilityTrees == null ) return;
+            var dir = Path.Combine( SaveDirectory.GetFileName(), TimesRun.ToString() );
             TimesRun++;
             if ( !Directory.Exists( dir ) )
             {
                 Directory.CreateDirectory( dir );
             }
-            for ( int i = 0; i < this.InteractiveUtilityTrees.Count; i++ )
+            for ( int i = 0; i < InteractiveUtilityTrees.Count; i++ )
             {
-                WriteModeSplit( this.InteractiveUtilityTrees[i], this.Root.Modes[i], dir );
+                WriteModeSplit( InteractiveUtilityTrees[i], Root.Modes[i], dir );
             }
         }
 
@@ -806,7 +806,7 @@ This module will also work for a regular Logit model as well."
                 Parallel.For( 0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                     delegate()
                     {
-                        return MirrorModeTree.CreateMirroredTree<float>( this.Root.Modes );
+                        return MirrorModeTree.CreateMirroredTree<float>( Root.Modes );
                     },
                     delegate(int o, ParallelLoopState _unused, List<TreeData<float>> utility)
                     {
@@ -821,7 +821,7 @@ This module will also work for a regular Logit model as well."
                                 SaveResults( utility, ret, o, d, zones.Length );
                             }
                         }
-                        this.Progress = ( ( Interlocked.Increment( ref soFar ) / (float)zones.Length ) / numberOfCategories ) + ( flows / (float)numberOfCategories );
+                        Progress = ( ( Interlocked.Increment( ref soFar ) / (float)zones.Length ) / numberOfCategories ) + ( flows / (float)numberOfCategories );
                         return utility;
                     },
                 delegate(List<TreeData<float>> _unused)

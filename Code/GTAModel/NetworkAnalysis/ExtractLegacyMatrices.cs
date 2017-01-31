@@ -94,14 +94,14 @@ namespace TMG.GTAModel.NetworkAnalysis
             var runName = Path.GetFileName( Directory.GetCurrentDirectory() );
 
             var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1} {2} {3} {4}", this.ScenarioNumber, this.ModeString, this.WalkTimeCutoff, this.WaitTimeCutoff,
-                this.TotalTimeCutoff );
-            sb.AppendFormat( this.InVehicleMatrixNumber == 0 ? " null" : " mf{0}", this.InVehicleMatrixNumber );
-            sb.AppendFormat( this.CostMatixNumber == 0 ? " null" : " mf{0}", this.CostMatixNumber );
-            sb.AppendFormat( this.WalkMatrixNumber == 0 ? " null" : " mf{0}", this.WalkMatrixNumber );
-            sb.AppendFormat( this.WaitMtrixNumber == 0 ? " null" : " mf{0}", this.WaitMtrixNumber );
-            sb.AppendFormat( this.BoardingMatrixNumber == 0 ? " null" : " mf{0}", this.BoardingMatrixNumber );
-            sb.AppendFormat( " {0} \"{1}\"", this.FarePerception, runName );
+            sb.AppendFormat( "{0} {1} {2} {3} {4}", ScenarioNumber, ModeString, WalkTimeCutoff, WaitTimeCutoff,
+                TotalTimeCutoff );
+            sb.AppendFormat( InVehicleMatrixNumber == 0 ? " null" : " mf{0}", InVehicleMatrixNumber );
+            sb.AppendFormat( CostMatixNumber == 0 ? " null" : " mf{0}", CostMatixNumber );
+            sb.AppendFormat( WalkMatrixNumber == 0 ? " null" : " mf{0}", WalkMatrixNumber );
+            sb.AppendFormat( WaitMtrixNumber == 0 ? " null" : " mf{0}", WaitMtrixNumber );
+            sb.AppendFormat( BoardingMatrixNumber == 0 ? " null" : " mf{0}", BoardingMatrixNumber );
+            sb.AppendFormat( " {0} \"{1}\"", FarePerception, runName );
 
             var toolName = ToolName;
             if (!mc.CheckToolExists(toolName))
@@ -110,7 +110,7 @@ namespace TMG.GTAModel.NetworkAnalysis
             }
 
             string result = null;
-            return mc.Run(toolName, sb.ToString(), (p => this.Progress = p), ref result);
+            return mc.Run(toolName, sb.ToString(), (p => Progress = p), ref result);
 
             /*
             Call args:

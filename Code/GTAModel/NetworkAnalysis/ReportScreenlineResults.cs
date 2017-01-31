@@ -75,14 +75,14 @@ namespace TMG.GTAModel.NetworkAnalysis
 
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1} {2} {3}",
-                this.ScenarioNumber, this.Modes, this.ScreenlineFile, this.ReportFile );
+                ScenarioNumber, Modes, ScreenlineFile, ReportFile );
 
             /*
              * ScrenarioNumner, ModesStr, OpenPath, SavePath
              * */
 
             string result = null;
-            return mc.Run("tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => this.Progress = p ), ref result );
+            return mc.Run("tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => Progress = p ), ref result );
         }
 
         public bool RuntimeValidation(ref string error)

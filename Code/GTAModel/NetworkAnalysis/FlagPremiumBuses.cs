@@ -80,17 +80,17 @@ namespace TMG.GTAModel.NetworkAnalysis
             */
             if(mc.CheckToolExists(_ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_OldToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.FlagZUM )
+            if ( FlagZUM )
             {
                 error = "Flagging of ZUM bus lines is not currently supported!. Set this variable to 'false'!";
                 return false;

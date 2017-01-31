@@ -86,8 +86,8 @@ namespace TMG.GTAModel.Analysis
         public void Start()
         {
             if ( !Execute ) return;
-            var runData = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var truthData = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var runData = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var truthData = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             LoadInData( runData, truthData );
             RunValidationChecks( runData, truthData );
         }
@@ -132,7 +132,7 @@ namespace TMG.GTAModel.Analysis
 
         private SparseArray<int> CreatePDArray()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             List<int> pdNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {
@@ -148,7 +148,7 @@ namespace TMG.GTAModel.Analysis
 
         private SparseArray<int> CreateRegionArray()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             List<int> regionNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {
@@ -166,7 +166,7 @@ namespace TMG.GTAModel.Analysis
         {
             var ret = refernceArray.CreateSquareTwinArray<float>();
             var truth = refernceArray.CreateSquareTwinArray<float>();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var flatRun = runData.GetFlatData();
             var flatBaseData = baseData.GetFlatData();
             for ( int i = 0; i < flatRun.Length; i++ )
@@ -202,7 +202,7 @@ namespace TMG.GTAModel.Analysis
                 }
                 else
                 {
-                    throw new XTMFRuntimeException( "In '" + this.Name + "' while gathering the " + taskName + " we encountered an invalid data point at " + point.O
+                    throw new XTMFRuntimeException( "In '" + Name + "' while gathering the " + taskName + " we encountered an invalid data point at " + point.O
                         + ":" + point.D + " trying to assign a value of " + point.Data );
                 }
             }
@@ -211,7 +211,7 @@ namespace TMG.GTAModel.Analysis
         private void LoadInData(SparseTwinIndex<float> runData, SparseTwinIndex<float> truthData)
         {
             GatherData( runData, RunData, "run data" );
-            if ( this.TruthData != null )
+            if ( TruthData != null )
             {
                 GatherData( truthData, TruthData, "truth data" );
             }
@@ -219,9 +219,9 @@ namespace TMG.GTAModel.Analysis
 
         private void ProducePDData(float[][] diff, SparseTwinIndex<float> runData, SparseTwinIndex<float> baseData)
         {
-            var pdMap = this.CreatePDArray();
+            var pdMap = CreatePDArray();
             var flatMap = pdMap.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var pdData = pdMap.CreateSquareTwinArray<float>().GetFlatData();
             var pdDataentries = pdMap.CreateSquareTwinArray<int>().GetFlatData();
             for ( int i = 0; i < diff.Length; i++ )
@@ -235,7 +235,7 @@ namespace TMG.GTAModel.Analysis
                 }
             }
 
-            if ( this.AverageSums )
+            if ( AverageSums )
             {
                 for ( int i = 0; i < pdData.Length; i++ )
                 {
@@ -250,21 +250,21 @@ namespace TMG.GTAModel.Analysis
 
             SparseTwinIndex<float> relativeDiff = CreateRelativeDifference( runData, baseData, pdMap, ( zone => zone.PlanningDistrict ) );
 
-            if ( this.PDValidationFile.ContainsFileName() )
+            if ( PDValidationFile.ContainsFileName() )
             {
-                WriteOut( pdMap, pdData, this.PDValidationFile.GetFileName(), ( i => i ) );
+                WriteOut( pdMap, pdData, PDValidationFile.GetFileName(), ( i => i ) );
             }
 
-            if ( this.PDRelativeValidationFile.ContainsFileName() )
+            if ( PDRelativeValidationFile.ContainsFileName() )
             {
-                WriteOut( pdMap, relativeDiff.GetFlatData(), this.PDRelativeValidationFile.GetFileName(), ( i => i ) );
+                WriteOut( pdMap, relativeDiff.GetFlatData(), PDRelativeValidationFile.GetFileName(), ( i => i ) );
             }
         }
 
         private void ProduceRegionData(float[][] diff, SparseTwinIndex<float> runData, SparseTwinIndex<float> baseData)
         {
-            var regionMap = this.CreateRegionArray();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var regionMap = CreateRegionArray();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var regionData = regionMap.CreateSquareTwinArray<float>().GetFlatData();
             var regionDataEntries = regionMap.CreateSquareTwinArray<int>().GetFlatData();
             // take the zoneal differences and aggregate them to the region level
@@ -279,7 +279,7 @@ namespace TMG.GTAModel.Analysis
                 }
             }
 
-            if ( this.AverageSums )
+            if ( AverageSums )
             {
                 for ( int i = 0; i < regionData.Length; i++ )
                 {
@@ -292,31 +292,31 @@ namespace TMG.GTAModel.Analysis
                 }
             }
 
-            if ( this.RegionValidationFile.ContainsFileName() )
+            if ( RegionValidationFile.ContainsFileName() )
             {
-                WriteOut( regionMap, regionData, this.RegionValidationFile.GetFileName(), ( i => i ) );
+                WriteOut( regionMap, regionData, RegionValidationFile.GetFileName(), ( i => i ) );
             }
 
             SparseTwinIndex<float> relativeDiff = CreateRelativeDifference( runData, baseData, regionMap, ( zone => zone.RegionNumber ) );
 
-            if ( this.RegionRelativeValidationFile.ContainsFileName() )
+            if ( RegionRelativeValidationFile.ContainsFileName() )
             {
-                WriteOut( regionMap, relativeDiff.GetFlatData(), this.RegionRelativeValidationFile.GetFileName(), ( i => i ) );
+                WriteOut( regionMap, relativeDiff.GetFlatData(), RegionRelativeValidationFile.GetFileName(), ( i => i ) );
             }
         }
 
         private void ProduceZoneData(float[][] diff, SparseTwinIndex<float> runData, SparseTwinIndex<float> baseData)
         {
-            SparseTwinIndex<float> relativeDiff = CreateRelativeDifference( runData, baseData, this.Root.ZoneSystem.ZoneArray, ( zone => zone.ZoneNumber ) );
+            SparseTwinIndex<float> relativeDiff = CreateRelativeDifference( runData, baseData, Root.ZoneSystem.ZoneArray, ( zone => zone.ZoneNumber ) );
 
-            if ( this.ZoneValidationFile.ContainsFileName() )
+            if ( ZoneValidationFile.ContainsFileName() )
             {
-                WriteOut( this.Root.ZoneSystem.ZoneArray, diff, this.ZoneValidationFile.GetFileName(), ( zone => zone.ZoneNumber ) );
+                WriteOut( Root.ZoneSystem.ZoneArray, diff, ZoneValidationFile.GetFileName(), ( zone => zone.ZoneNumber ) );
             }
 
-            if ( this.ZoneRelativeValidationFile.ContainsFileName() )
+            if ( ZoneRelativeValidationFile.ContainsFileName() )
             {
-                WriteOut( this.Root.ZoneSystem.ZoneArray, relativeDiff.GetFlatData(), this.ZoneRelativeValidationFile.GetFileName(), ( zone => zone.ZoneNumber ) );
+                WriteOut( Root.ZoneSystem.ZoneArray, relativeDiff.GetFlatData(), ZoneRelativeValidationFile.GetFileName(), ( zone => zone.ZoneNumber ) );
             }
         }
 

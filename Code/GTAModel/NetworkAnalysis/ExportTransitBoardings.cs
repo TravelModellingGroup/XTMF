@@ -29,15 +29,15 @@ namespace TMG.GTAModel.NetworkAnalysis
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var reportFilePath = "\"" + Path.GetFullPath(this.ReportFile.GetFilePath()) + "\"";
-            var aggregationFilePath = this.LineAggregationFile == null ? "" :  "\"" + this.LineAggregationFile.GetFilePath() + "\"";
+            var reportFilePath = "\"" + Path.GetFullPath(ReportFile.GetFilePath()) + "\"";
+            var aggregationFilePath = LineAggregationFile == null ? "" :  "\"" + LineAggregationFile.GetFilePath() + "\"";
 
-            var args = string.Join(" ", this.ScenarioNumber,
+            var args = string.Join(" ", ScenarioNumber,
                                         reportFilePath,
                                         aggregationFilePath);
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

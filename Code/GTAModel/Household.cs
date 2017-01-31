@@ -34,7 +34,7 @@ namespace TMG.GTAModel
 
         public override string ToString()
         {
-            return this.Zone.ZoneNumber + ":" + this.Cars;
+            return Zone.ZoneNumber + ":" + Cars;
         }
     }
 }

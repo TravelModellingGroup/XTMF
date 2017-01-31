@@ -25,11 +25,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         [RunParameter( "Distance Factor", 1f, "The factor to apply against each km of straightline distance between the two zones." )]
         public float Factor;
 
-        public override float CalculateV(IZone origin, IZone destination, XTMF.Time time)
+        public override float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( this.IsContained( origin, destination ) )
+            if ( IsContained( origin, destination ) )
             {
-                return this.Factor * ( this.Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f );
+                return Factor * ( Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber] / 1000f );
             }
             return 0;
         }

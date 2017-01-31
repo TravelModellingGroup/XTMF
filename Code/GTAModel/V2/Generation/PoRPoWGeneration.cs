@@ -57,12 +57,12 @@ namespace TMG.GTAModel.V2.Generation
         {
             if ( LoadData )
             {
-                this.LoadExternalWorkerRates.LoadData();
-                this.LoadWorkAtHomeRates.LoadData();
-                this.LoadExternalJobsRates.LoadData();
-                this.ExternalRates = this.LoadExternalWorkerRates.GiveData();
-                this.WorkAtHomeRates = this.LoadWorkAtHomeRates.GiveData();
-                this.ExternalRates = this.LoadExternalJobsRates.GiveData();
+                LoadExternalWorkerRates.LoadData();
+                LoadWorkAtHomeRates.LoadData();
+                LoadExternalJobsRates.LoadData();
+                ExternalRates = LoadExternalWorkerRates.GiveData();
+                WorkAtHomeRates = LoadWorkAtHomeRates.GiveData();
+                ExternalRates = LoadExternalJobsRates.GiveData();
             }
             var flatProduction = production.GetFlatData();
             var flatWah = new float[flatProduction.Length];
@@ -78,9 +78,9 @@ namespace TMG.GTAModel.V2.Generation
             WriteAttractionFile( production, attractions );
             if ( LoadData )
             {
-                this.LoadExternalWorkerRates.UnloadData();
-                this.LoadWorkAtHomeRates.UnloadData();
-                this.LoadExternalJobsRates.UnloadData();
+                LoadExternalWorkerRates.UnloadData();
+                LoadWorkAtHomeRates.UnloadData();
+                LoadExternalJobsRates.UnloadData();
                 WorkAtHomeRates = null;
                 ExternalRates = null;
                 ExternalJobs = null;
@@ -90,28 +90,28 @@ namespace TMG.GTAModel.V2.Generation
         public override void InitializeDemographicCategory()
         {
             // first learn what demographic category we should be in
-            this.DemographicParameterSetIndex = this.GetDemographicIndex( this.AgeCategoryRange[0].Start,
-                this.EmploymentStatusCategory[0].Start, this.Mobility[0].Start );
+            DemographicParameterSetIndex = GetDemographicIndex( AgeCategoryRange[0].Start,
+                EmploymentStatusCategory[0].Start, Mobility[0].Start );
             // now we can generate
             base.InitializeDemographicCategory();
         }
 
         public override string ToString()
         {
-            return String.Concat( "PoRPoW:Age='", this.AgeCategoryRange, "'Mob='", this.Mobility, "'Occ='",
-                this.OccupationCategory, "'Emp='", this.EmploymentStatusCategory, "'" );
+            return String.Concat( "PoRPoW:Age='", AgeCategoryRange, "'Mob='", Mobility, "'Occ='",
+                OccupationCategory, "'Emp='", EmploymentStatusCategory, "'" );
         }
 
         private void ApplyAgeCategoryFactor(float[] productions, float[] attractions)
         {
-            var flatPopulation = this.Root.Population.Population.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatPopulation = Root.Population.Population.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var internalWorkers = new float[zones.Length];
-            var empRates = this.Root.Demographics.EmploymentStatusRates.GetFlatData();
-            var occRates = this.Root.Demographics.OccupationRates.GetFlatData();
-            var ageRates = this.Root.Demographics.AgeRates;
+            var empRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
+            var occRates = Root.Demographics.OccupationRates.GetFlatData();
+            var ageRates = Root.Demographics.AgeRates;
             // we know that in V2 there is only 1 age category per generation
-            var age = this.AgeCategoryRange[0].Start;
+            var age = AgeCategoryRange[0].Start;
             for ( int i = 0; i < zones.Length; i++ )
             {
                 if ( productions[i] <= 0 )
@@ -120,13 +120,13 @@ namespace TMG.GTAModel.V2.Generation
                 }
                 var emp = empRates[i];
                 var occRate = occRates[i];
-                var occ = this.OccupationCategory[0].Start;
-                var occData = this.Root.Demographics.OccupationRates[zones[i].ZoneNumber];
-                var empData = this.Root.Demographics.EmploymentStatusRates[zones[i].ZoneNumber];
+                var occ = OccupationCategory[0].Start;
+                var occData = Root.Demographics.OccupationRates[zones[i].ZoneNumber];
+                var empData = Root.Demographics.EmploymentStatusRates[zones[i].ZoneNumber];
                 if ( occData == null | empData == null ) continue;
                 // calculate all of the people fitting this category, before removing the ones that work externally
                 float factor = 0f;
-                foreach ( var ageSet in this.AllAges )
+                foreach ( var ageSet in AllAges )
                 {
                     for ( int j = ageSet.Start; j <= ageSet.Stop; j++ )
                     {
@@ -172,33 +172,33 @@ namespace TMG.GTAModel.V2.Generation
                 }
             }
 
-            this.WorkAtHomeTotal = wah.Sum();
-            this.WorkIntrazonalTotal = intrazonal.Sum();
+            WorkAtHomeTotal = wah.Sum();
+            WorkIntrazonalTotal = intrazonal.Sum();
         }
 
         private float CalculateElfGTA()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             var internalWorkers = new float[zones.Length];
-            var ageRates = this.Root.Demographics.AgeRates;
+            var ageRates = Root.Demographics.AgeRates;
             for ( int i = 0; i < zones.Length; i++ )
             {
-                var occ = this.OccupationCategory[0].Start;
+                var occ = OccupationCategory[0].Start;
                 var emp = 1;
                 int planningDistrict = zones[i].PlanningDistrict;
                 int zoneNumber = zones[i].ZoneNumber;
-                var occData = this.Root.Demographics.OccupationRates[zoneNumber];
-                var empData = this.Root.Demographics.EmploymentStatusRates[zoneNumber];
+                var occData = Root.Demographics.OccupationRates[zoneNumber];
+                var empData = Root.Demographics.EmploymentStatusRates[zoneNumber];
                 if ( occData == null | empData == null ) continue;
-                foreach ( var agesset in this.AllAges )
+                foreach ( var agesset in AllAges )
                 {
                     for ( int age = agesset.Start; age <= agesset.Stop; age++ )
                     {
                         var employmentFactor = occData[age, emp, occ] * empData[age, emp];
                         
                         internalWorkers[i] += zones[i].Population * ageRates[zoneNumber, age] * employmentFactor
-                            * ( 1 - this.ExternalRates[planningDistrict, age, emp] );
+                            * ( 1 - ExternalRates[planningDistrict, age, emp] );
                     }
                 }
             }
@@ -208,16 +208,16 @@ namespace TMG.GTAModel.V2.Generation
 
         private float ComputeAttraction(float[] flatAttraction)
         {
-            IZone[] zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            IZone[] zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             int numberOfZones = zones.Length;
-            var demographics = this.Root.Demographics;
+            var demographics = Root.Demographics;
             var flatEmploymentRates = demographics.JobOccupationRates.GetFlatData();
             var flatJobTypes = demographics.JobTypeRates.GetFlatData();
-            foreach ( var empRange in this.EmploymentStatusCategory )
+            foreach ( var empRange in EmploymentStatusCategory )
             {
                 for ( int emp = empRange.Start; emp <= empRange.Stop; emp++ )
                 {
-                    foreach ( var occRange in this.OccupationCategory )
+                    foreach ( var occRange in OccupationCategory )
                     {
                         for ( int occ = occRange.Start; occ <= occRange.Stop; occ++ )
                         {
@@ -229,7 +229,7 @@ namespace TMG.GTAModel.V2.Generation
                                     var temp = flatEmploymentRates[i][emp][occ];
                                     temp *= flatJobTypes[i][emp];
                                     temp *= zones[i].Employment;
-                                    temp *= ( 1f - this.ExternalJobs[zones[i].PlanningDistrict, emp, occ] );
+                                    temp *= ( 1f - ExternalJobs[zones[i].PlanningDistrict, emp, occ] );
                                     flatAttraction[i] += temp;
                                     if ( flatAttraction[i] < 0 )
                                     {
@@ -238,7 +238,7 @@ namespace TMG.GTAModel.V2.Generation
                                             + "\r\nEmplyoment Rates = " + flatJobTypes[i][emp]
                                             + "\r\nEmployment       = " + zones[i].Employment
                                             + "\r\nExt Employment   = " +
-                                        ( 1f - this.ExternalJobs[zones[i].PlanningDistrict, emp, occ] ) );
+                                        ( 1f - ExternalJobs[zones[i].PlanningDistrict, emp, occ] ) );
                                     }
                                 }
                             }
@@ -252,31 +252,31 @@ namespace TMG.GTAModel.V2.Generation
         private float ComputeProduction(float[] flatProduction, float[] flatWah, float[] flatIntrazonal)
         {
             int numberOfZones = flatProduction.Length;
-            var flatPopulation = this.Root.Population.Population.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            this.WorkAtHomeTotal = 0;
+            var flatPopulation = Root.Population.Population.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            WorkAtHomeTotal = 0;
             var internalWorkers = new float[zones.Length];
-            var ageRates = this.Root.Demographics.AgeRates;
+            var ageRates = Root.Demographics.AgeRates;
             for ( int i = 0; i < zones.Length; i++ )
             {
                 float tempWaH = 0f;
                 float tempIntrazonal = 0f;
-                var occ = this.OccupationCategory[0].Start;
+                var occ = OccupationCategory[0].Start;
                 var emp = 1;
-                var occData = this.Root.Demographics.OccupationRates[zones[i].ZoneNumber];
-                var empData = this.Root.Demographics.EmploymentStatusRates[zones[i].ZoneNumber];
+                var occData = Root.Demographics.OccupationRates[zones[i].ZoneNumber];
+                var empData = Root.Demographics.EmploymentStatusRates[zones[i].ZoneNumber];
                 if ( occData == null | empData == null ) continue;
-                foreach ( var agesset in this.AllAges )
+                foreach ( var agesset in AllAges )
                 {
                     for ( int age = agesset.Start; age <= agesset.Stop; age++ )
                     {
                         var employmentFactor = occData[age, emp, occ] * empData[age, emp];
                         // calculate all of the people fitting this category, before removing the ones that work externally
                         var containedPeople = zones[i].Population * ageRates[zones[i].ZoneNumber, age] * employmentFactor;
-                        tempIntrazonal += containedPeople * this.WorkIntrazonal[zones[i].PlanningDistrict, occ, age];
-                        tempWaH += containedPeople * this.WorkAtHomeRates[zones[i].PlanningDistrict, age, emp];
+                        tempIntrazonal += containedPeople * WorkIntrazonal[zones[i].PlanningDistrict, occ, age];
+                        tempWaH += containedPeople * WorkAtHomeRates[zones[i].PlanningDistrict, age, emp];
                         // now removce out the external workers
-                        containedPeople *= ( 1 - this.ExternalRates[zones[i].PlanningDistrict, age, emp] );
+                        containedPeople *= ( 1 - ExternalRates[zones[i].PlanningDistrict, age, emp] );
                         flatProduction[i] += containedPeople;
                     }
                 }
@@ -296,8 +296,8 @@ namespace TMG.GTAModel.V2.Generation
                 productionSum += flatProduction[i];
             }
 
-            this.WorkAtHomeTotal = workAtHomeSum;
-            this.WorkIntrazonalTotal = workIntrazonalSum;
+            WorkAtHomeTotal = workAtHomeSum;
+            WorkIntrazonalTotal = workIntrazonalSum;
             return productionSum;
         }
 
@@ -317,23 +317,23 @@ namespace TMG.GTAModel.V2.Generation
 
         private void WriteAttractionFile(SparseArray<float> productions, SparseArray<float> attractions)
         {
-            if ( !this.AttractionFileName.ContainsFileName() )
+            if ( !AttractionFileName.ContainsFileName() )
             {
                 return;
             }
             var flatAttractions = attractions.GetFlatData();
             var flatProduction = productions.GetFlatData();
-            bool first = !File.Exists( this.AttractionFileName.GetFileName() );
+            bool first = !File.Exists( AttractionFileName.GetFileName() );
             StringBuilder buildInside = new StringBuilder();
             buildInside.Append( ',' );
-            buildInside.Append( this.AgeCategoryRange.ToString() );
+            buildInside.Append( AgeCategoryRange.ToString() );
             buildInside.Append( ',' );
-            buildInside.Append( this.EmploymentStatusCategory.ToString() );
+            buildInside.Append( EmploymentStatusCategory.ToString() );
             buildInside.Append( ',' );
-            buildInside.Append( this.OccupationCategory.ToString() );
+            buildInside.Append( OccupationCategory.ToString() );
             buildInside.Append( ',' );
             string categoryData = buildInside.ToString();
-            using ( StreamWriter writer = new StreamWriter( this.AttractionFileName.GetFileName(), true ) )
+            using ( StreamWriter writer = new StreamWriter( AttractionFileName.GetFileName(), true ) )
             {
                 if ( first )
                 {
@@ -353,35 +353,35 @@ namespace TMG.GTAModel.V2.Generation
 
         private void WriteGenerationFile(float totalProduction, float totalAttraction)
         {
-            if ( !String.IsNullOrEmpty( this.GenerationOutputFileName ) )
+            if ( !String.IsNullOrEmpty( GenerationOutputFileName ) )
             {
-                var dir = Path.GetDirectoryName( this.GenerationOutputFileName );
+                var dir = Path.GetDirectoryName( GenerationOutputFileName );
                 DirectoryInfo info = new DirectoryInfo( dir );
                 if ( !info.Exists )
                 {
                     info.Create();
                 }
-                bool first = !File.Exists( this.GenerationOutputFileName );
+                bool first = !File.Exists( GenerationOutputFileName );
                 // if the file name exists try to write to it, appending
-                using ( StreamWriter writer = new StreamWriter( this.GenerationOutputFileName, true ) )
+                using ( StreamWriter writer = new StreamWriter( GenerationOutputFileName, true ) )
                 {
                     if ( first )
                     {
                         writer.WriteLine( "Age,Employment,Occupation,Production,Attraction,WAH,IntraZonal" );
                     }
-                    writer.Write( this.AgeCategoryRange.ToString() );
+                    writer.Write( AgeCategoryRange.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.EmploymentStatusCategory.ToString() );
+                    writer.Write( EmploymentStatusCategory.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.OccupationCategory.ToString() );
+                    writer.Write( OccupationCategory.ToString() );
                     writer.Write( ',' );
                     writer.Write( totalProduction );
                     writer.Write( ',' );
                     writer.Write( totalAttraction );
                     writer.Write( ',' );
-                    writer.Write( this.WorkAtHomeTotal );
+                    writer.Write( WorkAtHomeTotal );
                     writer.Write( ',' );
-                    writer.WriteLine( this.WorkIntrazonalTotal );
+                    writer.WriteLine( WorkIntrazonalTotal );
                 }
             }
         }

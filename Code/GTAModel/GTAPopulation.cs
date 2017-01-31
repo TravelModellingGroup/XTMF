@@ -61,21 +61,21 @@ This module requires the root module in the model system to be of type ‘ITrave
 
         public void Load()
         {
-            this.Progress = 0;
-            var fileName = this.GetFileName( this.FileName );
+            Progress = 0;
+            var fileName = GetFileName( FileName );
             if ( !File.Exists( fileName ) )
             {
                 throw new XTMFRuntimeException( String.Format( "The file {0} was not found when trying to load the population!", fileName ) );
             }
-            SparseArray<IPerson[]> pop = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<IPerson[]>();
-            SparseArray<Household[]> Households = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<Household[]>();
+            SparseArray<IPerson[]> pop = Root.ZoneSystem.ZoneArray.CreateSimilarArray<IPerson[]>();
+            SparseArray<Household[]> Households = Root.ZoneSystem.ZoneArray.CreateSimilarArray<Household[]>();
             var flatHouseholds = Households.GetFlatData();
-            var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             Dictionary<int, List<IPerson>> tempPop = new Dictionary<int, List<IPerson>>( flatZones.Length );
             Parallel.For( 0, flatZones.Length, delegate(int i)
             {
                 IZone zone = flatZones[i];
-                flatHouseholds[i] = new Household[]
+                flatHouseholds[i] = new[]
                     {   new Household() { Cars = 0, Zone = zone },
                         new Household() { Cars = 1, Zone = zone },
                         new Household() { Cars = 2, Zone = zone }
@@ -117,19 +117,19 @@ This module requires the root module in the model system to be of type ‘ITrave
                         if ( i >= 4000 )
                         {
                             i = 0;
-                            this.Progress = (float)baseStream.Position / baseStream.Length;
+                            Progress = (float)baseStream.Position / baseStream.Length;
                         }
                         i++;
                     }
                 }
-                this.Progress = 1;
+                Progress = 1;
             }
             SetupPopulation( pop, tempPop, flatZones );
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.FileName ) )
+            if ( String.IsNullOrWhiteSpace( FileName ) )
             {
                 error = "The population file name was never assigned!";
                 return false;
@@ -139,19 +139,19 @@ This module requires the root module in the model system to be of type ‘ITrave
 
         public void Save()
         {
-            this.Output( this.Root.ZoneSystem.ZoneArray.ValidIndexArray(), this.GetFileName( this.FileName ), this.Population );
+            Output( Root.ZoneSystem.ZoneArray.ValidIndexArray(), GetFileName( FileName ), Population );
         }
 
         public void Save(string fileName)
         {
-            this.Output( this.Root.ZoneSystem.ZoneArray.ValidIndexArray(), fileName, this.Population );
+            Output( Root.ZoneSystem.ZoneArray.ValidIndexArray(), fileName, Population );
         }
 
         private string GetFileName(string fileName)
         {
             if ( !Path.IsPathRooted( fileName ) )
             {
-                return Path.Combine( this.Root.InputBaseDirectory, fileName );
+                return Path.Combine( Root.InputBaseDirectory, fileName );
             }
             return fileName;
         }
@@ -201,7 +201,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                     flatPop[i] = new Person[0];
                 }
             } );
-            this.Population = pop;
+            Population = pop;
         }
 
         private void WriteParallel(int[] validZones, SparseArray<IPerson[]> population, StreamWriter writer, int length)
@@ -246,7 +246,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                     }
                     flatOutput[i] = builder;
                     System.Threading.Interlocked.Increment( ref current );
-                    this.Progress = (float)current / length;
+                    Progress = (float)current / length;
                 } );
 
             for ( int i = 0; i < length; i++ )
@@ -257,7 +257,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                     writer.Write( sbuilder.ToString() );
                 }
             }
-            this.Progress = 1;
+            Progress = 1;
         }
     }
 }

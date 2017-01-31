@@ -100,7 +100,7 @@ namespace TMG.GTAModel.DataUtility
             CopyMethod.Attributes = MemberAttributes.Public;
             var destintation = new CodeParameterDeclarationExpression( destinationType, "destination" );
             var origin = new CodeParameterDeclarationExpression( typeof( object[] ), "origin" );
-            CopyMethod.Parameters.AddRange( new CodeParameterDeclarationExpression[] { destintation, origin } );
+            CopyMethod.Parameters.AddRange( new[] { destintation, origin } );
             foreach ( KeyValuePair<string, KeyValuePair<int, string>> link in Links )
             {
                 //destination."link.Key" = origin[link.Value.Key]."link.Value.Value";

@@ -74,21 +74,21 @@ namespace TMG.GTAModel.Distribution
         {
             var ep = productions.GetEnumerator();
             var ec = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[] friction = null;
             while ( ep.MoveNext() && ec.MoveNext() )
             {
-                friction = this.ComputeFriction( zones, ec.Current, friction );
+                friction = ComputeFriction( zones, ec.Current, friction );
                 yield return SinglyConstrainedGravityModel.Process( ep.Current, friction );
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            this.LoadNetwork();
-            if ( this.NetworkData == null )
+            LoadNetwork();
+            if ( NetworkData == null )
             {
-                error = "We were unable to find a network called '" + this.AutoNetworkName + "' to use in module '" + this.Name + "'";
+                error = "We were unable to find a network called '" + AutoNetworkName + "' to use in module '" + Name + "'";
                 return false;
             }
             return true;
@@ -96,7 +96,7 @@ namespace TMG.GTAModel.Distribution
 
         private bool CompareParameterCount(FloatList data)
         {
-            return this.RegionNumbers.Count == data.Count;
+            return RegionNumbers.Count == data.Count;
         }
 
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] friction)
@@ -132,10 +132,10 @@ namespace TMG.GTAModel.Distribution
                         }
                         else
                         {
-                            var autoTime = this.RegionEmploymentGeneralParameter[regionIndex] *
-                                this.NetworkData.TravelTime( origin, destination, this.SimulationTime ).ToMinutes();
-                            var destinationUtility = this.RegionEmploymentParameter[regionIndex] * employmentLog
-                            + this.RegionPopulationParameter[regionIndex] * populationLog;
+                            var autoTime = RegionEmploymentGeneralParameter[regionIndex] *
+                                NetworkData.TravelTime( origin, destination, SimulationTime ).ToMinutes();
+                            var destinationUtility = RegionEmploymentParameter[regionIndex] * employmentLog
+                            + RegionPopulationParameter[regionIndex] * populationLog;
                             // this isn't friction, it is V where friction will be e^V
                             ret[i * numberOfZones + j] = destinationUtility + autoTime;
                         }
@@ -159,16 +159,16 @@ namespace TMG.GTAModel.Distribution
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = this.RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
         }
 
         private bool LoadNetwork()
         {
-            foreach ( var data in this.Root.NetworkData )
+            foreach ( var data in Root.NetworkData )
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if ( data.NetworkType == AutoNetworkName )
                 {
-                    this.NetworkData = data;
+                    NetworkData = data;
                     return true;
                 }
             }

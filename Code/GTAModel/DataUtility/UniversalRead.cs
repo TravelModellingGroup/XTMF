@@ -103,7 +103,7 @@ namespace TMG.GTAModel.DataUtility
             CopyMethod.ReturnType = new CodeTypeReference( typeof(bool) );
             var readFrom = new CodeParameterDeclarationExpression( typeof(S), "readFrom" ) { Direction = FieldDirection.In };
             var storeIn = new CodeParameterDeclarationExpression( typeof(D), "result" ) { Direction = FieldDirection.Out };
-            CopyMethod.Parameters.AddRange( new CodeParameterDeclarationExpression[] { readFrom, storeIn } );
+            CopyMethod.Parameters.AddRange( new[] { readFrom, storeIn } );
             CopyMethod.Statements.Add( CreateAssingmentStatement( storeIn, readFrom, instanceType, variableNameParts, sourceType, property ) );
             CopyMethod.Statements.Add( new CodeMethodReturnStatement( new CodePrimitiveExpression( true ) ) );
             realTimeReader.Members.Add( CopyMethod );

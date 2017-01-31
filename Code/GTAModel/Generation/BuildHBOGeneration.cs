@@ -56,17 +56,17 @@ namespace TMG.GTAModel.Generation
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, Range age, int employmentStatus, int mobility)
         {
             HBOGeneration gen = new HBOGeneration();
-            gen.Root = this.Root;
+            gen.Root = Root;
             gen.LoadData = false;
-            gen.UsesPlanningDistricts = this.UsePlanningDistricts;
-            gen.OccupationCategory = this.OccupationCategory;
+            gen.UsesPlanningDistricts = UsePlanningDistricts;
+            gen.OccupationCategory = OccupationCategory;
             gen.AgeCategoryRange = CreateRangeSet( age );
             gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
             gen.Mobility = CreateRangeSet( mobility );
-            gen.ModeChoiceParameterSetIndex = this.ModeChoiceParameterSetIndex;
+            gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
             gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-            gen.Rates = this.Rates;
-            gen.GenerationOutputFileName = this.GenerationOutputFileName;
+            gen.Rates = Rates;
+            gen.GenerationOutputFileName = GenerationOutputFileName;
             list.Add( gen );
         }
 
@@ -104,17 +104,17 @@ namespace TMG.GTAModel.Generation
         private void GenerateChildren()
         {
             // we need to generate our children here
-            var list = this.Parent.Categories;
+            var list = Parent.Categories;
             list.Remove( this );
-            foreach ( var mobilitySet in this.Mobility )
+            foreach ( var mobilitySet in Mobility )
             {
                 for ( int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++ )
                 {
-                    foreach ( var empSet in this.EmploymentStatusCategory )
+                    foreach ( var empSet in EmploymentStatusCategory )
                     {
                         for ( int employmentStatus = empSet.Start; employmentStatus <= empSet.Stop; employmentStatus++ )
                         {
-                            foreach ( var ageSet in this.AgeCategoryRange )
+                            foreach ( var ageSet in AgeCategoryRange )
                             {
                                 AddNewGeneration( list, ageSet, employmentStatus, mobility );
                             }
@@ -166,9 +166,9 @@ namespace TMG.GTAModel.Generation
 
         private void LoadData()
         {
-            this.LoadRates.LoadData();
-            this.Rates = this.LoadRates.GiveData();
-            this.LoadRates.UnloadData();
+            LoadRates.LoadData();
+            Rates = LoadRates.GiveData();
+            LoadRates.UnloadData();
         }
     }
 }

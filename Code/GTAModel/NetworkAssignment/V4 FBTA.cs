@@ -146,7 +146,7 @@ namespace TMG.GTAModel.NetworkAssignment
         private const string _ToolName = "tmg.assignment.transit.V4_FBTA";
 
 
-        public sealed class TTFDefinitions : XTMF.IModule
+        public sealed class TTFDefinitions : IModule
         {
             [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
             public int TTFNumber;

@@ -75,11 +75,11 @@ namespace TMG.GTAModel.NetworkAnalysis
             string result = null;
             if(mc.CheckToolExists(_ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_OldToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
             }
         }
 

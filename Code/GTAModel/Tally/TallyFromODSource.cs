@@ -53,8 +53,8 @@ namespace TMG.GTAModel.Tally
 
         public void IncludeTally(float[][] currentTally)
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
-            foreach ( var point in this.DataSource.Read() )
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            foreach ( var point in DataSource.Read() )
             {
                 var o = zoneArray.GetFlatIndex( point.O );
                 var d = zoneArray.GetFlatIndex( point.D );

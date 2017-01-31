@@ -69,7 +69,7 @@ namespace TMG.GTAModel.ParameterDatabase
                 var index = parameterIndexes[i];
                 if ( index >= 0 )
                 {
-                    this.Links[i].BlendedAssignment( parameters[index].Value, weight );
+                    Links[i].BlendedAssignment( parameters[index].Value, weight );
                 }
             }
         }
@@ -85,65 +85,65 @@ namespace TMG.GTAModel.ParameterDatabase
                 var index = parameterIndexes[i];
                 if ( index >= 0 )
                 {
-                    this.Links[i].Assign( parameters[index].Value );
+                    Links[i].Assign( parameters[index].Value );
                 }
             }
         }
 
         public void FinishBlending()
         {
-            for ( int i = 0; i < this.Links.Count; i++ )
+            for ( int i = 0; i < Links.Count; i++ )
             {
-                this.Links[i].FinishBlending();
+                Links[i].FinishBlending();
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
             IModeChoiceNode mode;
-            if ( !LinkMode( this.ModeName, out mode ) )
+            if ( !LinkMode( ModeName, out mode ) )
             {
-                error = "In '" + this.Name + "' we were unable to find a mode named '" + this.ModeName + "'!";
+                error = "In '" + Name + "' we were unable to find a mode named '" + ModeName + "'!";
                 return false;
             }
-            this.Mode = mode;
+            Mode = mode;
             return true;
         }
 
         public void StartBlend()
         {
-            for ( int i = 0; i < this.Links.Count; i++ )
+            for ( int i = 0; i < Links.Count; i++ )
             {
-                this.Links[i].StartBlending();
+                Links[i].StartBlending();
             }
         }
 
         private void CheckParameterNames(List<Parameter> parameters)
         {
-            this.parameterIndexes = new int[this.Links.Count];
-            for ( int i = 0; i < this.parameterIndexes.Length; i++ )
+            parameterIndexes = new int[Links.Count];
+            for ( int i = 0; i < parameterIndexes.Length; i++ )
             {
                 parameterIndexes[i] = -1;
             }
-            Parallel.For( 0, this.Links.Count, (int i) =>
+            Parallel.For( 0, Links.Count, i =>
             {
                 for ( int j = 0; j < parameters.Count; j++ )
                 {
-                    if ( this.Links[i].ParameterName == parameters[j].ParameterName )
+                    if ( Links[i].ParameterName == parameters[j].ParameterName )
                     {
                         parameterIndexes[i] = j;
                     }
                 }
                 if ( parameterIndexes[i] == -1 )
                 {
-                    if ( this.IgnoreBadParameters )
+                    if ( IgnoreBadParameters )
                     {
                         parameterIndexes[i] = -1;
                     }
                     else
                     {
-                        throw new XTMFRuntimeException( "We were unable to find a parameter called '" + this.Links[i].ParameterName
-                            + "' to be used for mode '" + this.ModeName + "' for mode choice!" );
+                        throw new XTMFRuntimeException( "We were unable to find a parameter called '" + Links[i].ParameterName
+                            + "' to be used for mode '" + ModeName + "' for mode choice!" );
                     }
                 }
             } );
@@ -151,7 +151,7 @@ namespace TMG.GTAModel.ParameterDatabase
 
         private bool LinkMode(string modeName, out IModeChoiceNode mode)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var length = modes.Count;
             for ( int i = 0; i < length; i++ )
             {

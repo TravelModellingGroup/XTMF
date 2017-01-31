@@ -160,10 +160,10 @@ namespace TMG.GTAModel.Modes
 
         private void AttachBasicModeProperties(CodeTypeDeclaration modeClass)
         {
-            AddProperty( modeClass, "ModeName", typeof( string ), this.ModeName );
-            AddProperty( modeClass, "Name", typeof( string ), this.Name );
+            AddProperty( modeClass, "ModeName", typeof( string ), ModeName );
+            AddProperty( modeClass, "Name", typeof( string ), Name );
             AddProperty( modeClass, "Progress", typeof( float ), 0.0f );
-            AddProperty( modeClass, "CurrentlyFeasible", typeof( float ), this.CurrentlyFeasible, new CodeAttributeDeclaration( new CodeTypeReference( typeof( RunParameterAttribute ) ),
+            AddProperty( modeClass, "CurrentlyFeasible", typeof( float ), CurrentlyFeasible, new CodeAttributeDeclaration( new CodeTypeReference( typeof( RunParameterAttribute ) ),
                 new CodeAttributeArgument( new CodePrimitiveExpression( "Demographic Category Feasible" ) ), new CodeAttributeArgument( new CodePrimitiveExpression( 1.0f ) ),
                     new CodeAttributeArgument( new CodePrimitiveExpression( "This is generated just ignore me" ) ) ) );
             AddProperty( modeClass, "UtilityComponents", typeof( List<IUtilityComponent> ), null );
@@ -185,9 +185,9 @@ namespace TMG.GTAModel.Modes
             feasibleMethod.Parameters.Add( new CodeParameterDeclarationExpression( typeof( IZone ), "origin" ) );
             feasibleMethod.Parameters.Add( new CodeParameterDeclarationExpression( typeof( IZone ), "destination" ) );
             feasibleMethod.Parameters.Add( new CodeParameterDeclarationExpression( typeof( Time ), "time" ) );
-            if ( this.FeasibilityCalculation != null )
+            if ( FeasibilityCalculation != null )
             {
-                modeClass.Members.Add( new CodeMemberField( this.FeasibilityCalculation.GetType(), "FeasibilityCalculation" ) );
+                modeClass.Members.Add( new CodeMemberField( FeasibilityCalculation.GetType(), "FeasibilityCalculation" ) );
                 feasibleMethod.Statements.Add( new CodeConditionStatement(
                     // expression
                     new CodeMethodInvokeExpression( new CodeMethodReferenceExpression( new CodeFieldReferenceExpression( new CodeThisReferenceExpression(), "FeasibilityCalculation" ),
@@ -231,9 +231,9 @@ namespace TMG.GTAModel.Modes
             CodeMemberMethod initializeUtilityComponents = new CodeMemberMethod();
             initializeUtilityComponents.Name = "InitialzeUtilities";
             initializeUtilityComponents.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            if ( this.FeasibilityCalculation != null )
+            if ( FeasibilityCalculation != null )
             {
-                initializeUtilityComponents.Parameters.Add( new CodeParameterDeclarationExpression( this.FeasibilityCalculation.GetType(), "feasibilityCalculation" ) );
+                initializeUtilityComponents.Parameters.Add( new CodeParameterDeclarationExpression( FeasibilityCalculation.GetType(), "feasibilityCalculation" ) );
             }
             initializeUtilityComponents.Parameters.Add( new CodeParameterDeclarationExpression( typeof( List<IUtilityComponent> ), "utilityComponents" ) );
 
@@ -247,13 +247,13 @@ namespace TMG.GTAModel.Modes
 
             initializeUtilityComponents.Statements.Add( new CodeAssignStatement( new CodePropertyReferenceExpression( new CodeThisReferenceExpression(), "UtilityComponents" ),
                 new CodeArgumentReferenceExpression( "utilityComponents" ) ) );
-            if ( this.FeasibilityCalculation != null )
+            if ( FeasibilityCalculation != null )
             {
                 initializeUtilityComponents.Statements.Add( new CodeAssignStatement( new CodePropertyReferenceExpression( new CodeThisReferenceExpression(), "FeasibilityCalculation" ),
                     new CodeArgumentReferenceExpression( "feasibilityCalculation" ) ) );
             }
             calculateV.Statements.Add( new CodeVariableDeclarationStatement( typeof( float ), "v", new CodePrimitiveExpression( 0.0f ) ) );
-            for ( int i = 0; i < this.UtilityComponents.Count; i++ )
+            for ( int i = 0; i < UtilityComponents.Count; i++ )
             {
                 SetupUtilityComponentField( modeClass, initializeUtilityComponents, calculateV, i );
             }
@@ -265,13 +265,13 @@ namespace TMG.GTAModel.Modes
         private bool AttachUtilityComponentObjects(IUtilityComponentMode optimizedMode, ref string error)
         {
             var initFunction = optimizedMode.GetType().GetMethod( "InitialzeUtilities" );
-            if ( this.FeasibilityCalculation != null )
+            if ( FeasibilityCalculation != null )
             {
-                initFunction.Invoke( optimizedMode, new object[] { this.FeasibilityCalculation, this.UtilityComponents } );
+                initFunction.Invoke( optimizedMode, new object[] { FeasibilityCalculation, UtilityComponents } );
             }
             else
             {
-                initFunction.Invoke( optimizedMode, new object[] { this.UtilityComponents } );
+                initFunction.Invoke( optimizedMode, new object[] { UtilityComponents } );
             }
             return true;
         }
@@ -284,9 +284,9 @@ namespace TMG.GTAModel.Modes
             options.CompilerOptions = "/optimize";
             CodeDomProvider compiler = CodeDomProvider.CreateProvider( "CSharp" );
             var results = compiler.CompileAssemblyFromDom( options, unit );
-            if ( this.IncludeCode )
+            if ( IncludeCode )
             {
-                using ( StreamWriter writer = new StreamWriter( String.Format( "TMG.Modes.Generated.OptimizedMode{0}.cs", this.ModeName ) ) )
+                using ( StreamWriter writer = new StreamWriter( String.Format( "TMG.Modes.Generated.OptimizedMode{0}.cs", ModeName ) ) )
                 {
                     //var results = compiler.CompileAssemblyFromDom( options, writer, unit );
                     compiler.GenerateCodeFromCompileUnit( unit, writer, new CodeGeneratorOptions() );
@@ -299,7 +299,7 @@ namespace TMG.GTAModel.Modes
                 return false;
             }
             var assembly = results.CompiledAssembly;
-            var theClass = assembly.GetType( String.Format( "TMG.Modes.Generated.OptimizedMode{0}", this.ModeName ) );
+            var theClass = assembly.GetType( String.Format( "TMG.Modes.Generated.OptimizedMode{0}", ModeName ) );
             var constructor = theClass.GetConstructor( new Type[0] );
             optimizedMode = constructor.Invoke( new object[0] ) as IUtilityComponentMode;
             return true;
@@ -310,7 +310,7 @@ namespace TMG.GTAModel.Modes
             CodeCompileUnit unit = new CodeCompileUnit();
             AddReferences( unit );
             CodeNamespace namespaceXTMF = AddNamespaces( unit );
-            CodeTypeDeclaration modeClass = new CodeTypeDeclaration( String.Format( "OptimizedMode{0}", this.ModeName ) );
+            CodeTypeDeclaration modeClass = new CodeTypeDeclaration( String.Format( "OptimizedMode{0}", ModeName ) );
             modeClass.BaseTypes.Add( typeof( IUtilityComponentMode ) );
             modeClass.IsClass = true;
             modeClass.TypeAttributes = TypeAttributes.Public | TypeAttributes.Sealed;
@@ -325,8 +325,8 @@ namespace TMG.GTAModel.Modes
 
         private bool RemoveUsThenAddToParent(IUtilityComponentMode optimizedMode, ref string error)
         {
-            var parentCat = this.Parent as IModeCategory;
-            var parentRoot = this.Parent as I4StepModel;
+            var parentCat = Parent as IModeCategory;
+            var parentRoot = Parent as I4StepModel;
             if ( parentCat != null )
             {
                 var ourLocation = parentCat.Children.IndexOf( this );
@@ -341,7 +341,7 @@ namespace TMG.GTAModel.Modes
             }
             else
             {
-                error = "In '" + this.Name + "' we were unable to work with a parent module of type '" + this.Parent.GetType().FullName + "'!";
+                error = "In '" + Name + "' we were unable to work with a parent module of type '" + Parent.GetType().FullName + "'!";
                 return false;
             }
             return true;
@@ -349,7 +349,7 @@ namespace TMG.GTAModel.Modes
 
         private void SetupUtilityComponentField(CodeTypeDeclaration modeClass, CodeMemberMethod initializeUtilityComponents, CodeMemberMethod calculateV, int utilityComponentIndex)
         {
-            var utilityComponent = this.UtilityComponents[utilityComponentIndex];
+            var utilityComponent = UtilityComponents[utilityComponentIndex];
             // Create the local field here
             var utilityVariableName = "_Generated_UtilityComponent" + utilityComponentIndex;
             var utilityVariable = new CodeMemberField( utilityComponent.GetType(), utilityVariableName );

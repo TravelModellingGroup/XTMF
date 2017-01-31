@@ -117,7 +117,7 @@ namespace TMG.GTAModel
         public float TotalEmployment
         {
             get { return Employment; }
-            set { this.Employment = value; }
+            set { Employment = value; }
         }
 
         public float UnknownEmployment
@@ -182,7 +182,7 @@ namespace TMG.GTAModel
 
         public override string ToString()
         {
-            return "Zone Number: " + this.ZoneNumber;
+            return "Zone Number: " + ZoneNumber;
         }
     }
 }

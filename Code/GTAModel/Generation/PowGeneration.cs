@@ -48,13 +48,13 @@ namespace TMG.GTAModel
             {
                 if ( DailyRates == null )
                 {
-                    this.LoadDailyRates.LoadData();
-                    this.DailyRates = this.LoadDailyRates.GiveData();
+                    LoadDailyRates.LoadData();
+                    DailyRates = LoadDailyRates.GiveData();
                 }
                 if ( TimeOfDayRates == null )
                 {
-                    this.LoadTimeOfDayRates.LoadData();
-                    this.TimeOfDayRates = this.LoadTimeOfDayRates.GiveData();
+                    LoadTimeOfDayRates.LoadData();
+                    TimeOfDayRates = LoadTimeOfDayRates.GiveData();
                 }
             }
             var flatProduction = production.GetFlatData();
@@ -68,8 +68,8 @@ namespace TMG.GTAModel
             //We do not normalize the attraction
             if ( LoadData )
             {
-                this.LoadDailyRates.UnloadData();
-                this.LoadTimeOfDayRates.UnloadData();
+                LoadDailyRates.UnloadData();
+                LoadTimeOfDayRates.UnloadData();
                 DailyRates = null;
                 TimeOfDayRates = null;
             }
@@ -77,23 +77,23 @@ namespace TMG.GTAModel
 
         private void ComputeProduction(float[] flatProduction, float[] flatAttraction, int numberOfZones)
         {
-            var flatPopulation = this.Root.Population.Population.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            int emp = this.EmploymentStatusCategory[0].Start;
+            var flatPopulation = Root.Population.Population.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            int emp = EmploymentStatusCategory[0].Start;
             var rateEmp = emp;
-            var mob = this.Mobility[0].Start;
-            var age = this.AgeCategoryRange[0].Start;
-            var occ = this.OccupationCategory[0].Start;
-            var workerData = this.WorkerData.AcquireResource<SparseArray<SparseTriIndex<float>>>().GetFlatData();
+            var mob = Mobility[0].Start;
+            var age = AgeCategoryRange[0].Start;
+            var occ = OccupationCategory[0].Start;
+            var workerData = WorkerData.AcquireResource<SparseArray<SparseTriIndex<float>>>().GetFlatData();
             var test = workerData[0];
             if ( !test.GetFlatIndex( ref emp, ref mob, ref age ) )
             {
-                throw new XTMFRuntimeException( "In " + this.Name + " we were unable to find a place to store our data (" + emp + "," + mob + "," + age + ")" );
+                throw new XTMFRuntimeException( "In " + Name + " we were unable to find a place to store our data (" + emp + "," + mob + "," + age + ")" );
             }
             for ( int i = 0; i < flatProduction.Length; i++ )
             {
                 var population = zones[i].Population;
-                var zoneNumber = this.UsesPlanningDistricts ? zones[i].PlanningDistrict : zones[i].ZoneNumber;
+                var zoneNumber = UsesPlanningDistricts ? zones[i].PlanningDistrict : zones[i].ZoneNumber;
                 // production is the generation rate
                 if ( population <= 0 | zones[i].RegionNumber == 0 )
                 {
@@ -102,7 +102,7 @@ namespace TMG.GTAModel
                     continue;
                 }
                 var workersOfCatInZone = workerData[i].GetFlatData()[emp][mob][age];
-                flatProduction[i] = workersOfCatInZone * this.DailyRates[zoneNumber, rateEmp, occ] * this.TimeOfDayRates[zoneNumber, rateEmp, occ];
+                flatProduction[i] = workersOfCatInZone * DailyRates[zoneNumber, rateEmp, occ] * TimeOfDayRates[zoneNumber, rateEmp, occ];
                 flatAttraction[i] = workersOfCatInZone;
             }
         }

@@ -42,27 +42,27 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             + " These are in addition to the region restrictions." )]
         public RangeSet ValidPlanningDistricts;
 
-        protected override bool IsContained(TMG.IZone origin, TMG.IZone destination)
+        protected override bool IsContained(IZone origin, IZone destination)
         {
             return CheckPDContained( origin, destination ) && base.IsContained( origin, destination );
         }
 
         protected override bool SubRuntimeValidation(ref string error)
         {
-            if ( !this.ContainsBothPD ^ this.ContainsNonePD ^ this.ContainsOnePD ^ this.ExclusiveOrPD )
+            if ( !ContainsBothPD ^ ContainsNonePD ^ ContainsOnePD ^ ExclusiveOrPD )
             {
-                error = "In '" + this.Name + "', exactly one of the Contains X PD parameters must be set to true!";
+                error = "In '" + Name + "', exactly one of the Contains X PD parameters must be set to true!";
                 return false;
             }
             return true;
         }
 
-        private bool CheckPDContained(TMG.IZone origin, TMG.IZone destination)
+        private bool CheckPDContained(IZone origin, IZone destination)
         {
             var containsOrigin = ValidPlanningDistricts.Contains( origin.PlanningDistrict );
             var containsDestination = ValidPlanningDistricts.Contains( destination.PlanningDistrict );
 
-            if ( this.OriginDestinationPDSame )
+            if ( OriginDestinationPDSame )
             {
                 if ( origin.PlanningDistrict != destination.PlanningDistrict )
                 {
@@ -71,15 +71,15 @@ namespace TMG.GTAModel.Modes.UtilityComponents
                 return containsOrigin;
             }
 
-            if ( this.ExclusiveOrPD )
+            if ( ExclusiveOrPD )
             {
                 return containsOrigin ^ containsDestination;
             }
-            else if ( this.ContainsOnePD )
+            else if ( ContainsOnePD )
             {
                 return containsOrigin | containsDestination;
             }
-            else if ( this.ContainsBothPD )
+            else if ( ContainsBothPD )
             {
                 return containsOrigin & containsDestination;
             }

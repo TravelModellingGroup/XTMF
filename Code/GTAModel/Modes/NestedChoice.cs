@@ -74,18 +74,18 @@ It can take a list of children and will take the max utility of its children as 
             return 0;
         }
 
-        public float CalculateV(IZone origin, IZone destination, XTMF.Time time)
+        public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( this.Children != null )
+            if ( Children != null )
             {
-                var length = this.Children.Count;
+                var length = Children.Count;
                 var total = 0f;
                 int alternatives = 0;
                 for ( int i = 0; i < length; i++ )
                 {
-                    if ( this.Children[i].Feasible( origin, destination, time ) )
+                    if ( Children[i].Feasible( origin, destination, time ) )
                     {
-                        var u = this.Children[i].CalculateV( origin, destination, time );
+                        var u = Children[i].CalculateV( origin, destination, time );
                         if ( !float.IsNaN( u ) )
                         {
                             alternatives++;
@@ -99,8 +99,8 @@ It can take a list of children and will take the max utility of its children as 
                 }
                 else
                 {
-                    var thisLevel = this.CalculateCombinedV( origin, destination, time );
-                    return float.IsNaN( thisLevel ) ? float.NaN : ( (float)Math.Log( total ) * this.Correlation + thisLevel );
+                    var thisLevel = CalculateCombinedV( origin, destination, time );
+                    return float.IsNaN( thisLevel ) ? float.NaN : ( (float)Math.Log( total ) * Correlation + thisLevel );
                 }
             }
             return float.MinValue;
@@ -114,14 +114,14 @@ It can take a list of children and will take the max utility of its children as 
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.ModeName ) )
+            if ( String.IsNullOrWhiteSpace( ModeName ) )
             {
                 error = "Please add in a 'Mode Name' for your nested choice!";
                 return false;
             }
-            if ( this.Correlation > 1 || this.Correlation < 0 )
+            if ( Correlation > 1 || Correlation < 0 )
             {
-                error = "Correlation must be between 0 and 1 for " + this.ModeName + "!";
+                error = "Correlation must be between 0 and 1 for " + ModeName + "!";
                 return false;
             }
             return true;

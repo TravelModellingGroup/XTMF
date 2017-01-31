@@ -50,17 +50,17 @@ namespace TMG.GTAModel.Output
 
         public void SaveMatrix(SparseTwinIndex<float> matrix, string fileName)
         {
-            TMG.Functions.SaveData.SaveMatrix( matrix, fileName );
+            Functions.SaveData.SaveMatrix( matrix, fileName );
         }
 
         public void SaveMatrix(float[][] data, string fileName)
         {
-            TMG.Functions.SaveData.SaveMatrix( this.Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
+            Functions.SaveData.SaveMatrix( Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
         }
 
         public void SaveMatrix(float[] data, string fileName)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             StringBuilder header = null;
             StringBuilder[] zoneLines = new StringBuilder[zones.Length];
             Parallel.Invoke(
@@ -87,7 +87,7 @@ namespace TMG.GTAModel.Output
                 },
                 () =>
                 {
-                    Parallel.For( 0, zones.Length, (int i) =>
+                    Parallel.For( 0, zones.Length, i =>
                     {
                         zoneLines[i] = new StringBuilder();
                         zoneLines[i].Append( zones[i].ZoneNumber );

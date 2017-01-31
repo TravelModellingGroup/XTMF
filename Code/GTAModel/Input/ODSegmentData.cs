@@ -67,12 +67,12 @@ namespace TMG.GTAModel.Input
 
         public float[] GetDataFrom(int origin, int destination, int reason = 0)
         {
-            if ( this.Segments == null )
+            if ( Segments == null )
             {
                 lock ( this )
                 {
                     Thread.MemoryBarrier();
-                    if ( this.Segments == null )
+                    if ( Segments == null )
                     {
                         // load in the data here
                         LoadData();
@@ -86,7 +86,7 @@ namespace TMG.GTAModel.Input
                 return null;
             }
             // GET DATA
-            var numberOfDataElements = this.DataElements.Count;
+            var numberOfDataElements = DataElements.Count;
             float[] data = new float[numberOfDataElements];
             for ( int dataElement = 0; dataElement < numberOfDataElements; dataElement++ )
             {
@@ -102,17 +102,17 @@ namespace TMG.GTAModel.Input
 
         private bool GetSegment(int origin, int destination, out SegmentData ret)
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var originPD = zoneArray[origin].PlanningDistrict;
             var destinationPD = zoneArray[destination].PlanningDistrict;
             ret = default( SegmentData );
-            for ( int i = 0; i < this.Segments.Length; i++ )
+            for ( int i = 0; i < Segments.Length; i++ )
             {
-                if ( this.Segments[i].OriginRange.ContainsInclusive( originPD ) )
+                if ( Segments[i].OriginRange.ContainsInclusive( originPD ) )
                 {
-                    if ( this.Segments[i].DestinationRange.ContainsInclusive( destinationPD ) )
+                    if ( Segments[i].DestinationRange.ContainsInclusive( destinationPD ) )
                     {
-                        ret = this.Segments[i];
+                        ret = Segments[i];
                         return true;
                     }
                 }
@@ -122,11 +122,11 @@ namespace TMG.GTAModel.Input
 
         private void IncludeSegmentPayload(SegmentData[] segmentArray)
         {
-            this.SegmentInformation.LoadData();
-            var rawData = this.SegmentInformation.GiveData();
-            var ammountOfData = this.DataElements.Count * this.ReasonIndexes.Count;
-            var numberOfReasons = this.ReasonIndexes.Count;
-            var numberOfData = this.DataElements.Count;
+            SegmentInformation.LoadData();
+            var rawData = SegmentInformation.GiveData();
+            var ammountOfData = DataElements.Count * ReasonIndexes.Count;
+            var numberOfReasons = ReasonIndexes.Count;
+            var numberOfData = DataElements.Count;
             for ( int i = 0; i < segmentArray.Length; i++ )
             {
                 var data = segmentArray[i].Data = new float[ammountOfData];
@@ -134,21 +134,21 @@ namespace TMG.GTAModel.Input
                 {
                     for ( int dataElement = 0; dataElement < numberOfData; dataElement++ )
                     {
-                        if ( rawData.ContainsIndex( this.DataElements[dataElement], segmentArray[i].SegmentNumber, this.ReasonIndexes[reason] ) )
+                        if ( rawData.ContainsIndex( DataElements[dataElement], segmentArray[i].SegmentNumber, ReasonIndexes[reason] ) )
                         {
-                            data[reason * numberOfData + dataElement] = rawData[this.DataElements[dataElement], segmentArray[i].SegmentNumber, this.ReasonIndexes[reason]];
+                            data[reason * numberOfData + dataElement] = rawData[DataElements[dataElement], segmentArray[i].SegmentNumber, ReasonIndexes[reason]];
                         }
-                        else if ( this.SegmentDataIsComplete )
+                        else if ( SegmentDataIsComplete )
                         {
                             // if the user says all of the data is here but it is not throw an exception
-                            this.SegmentInformation.UnloadData();
-                            throw new XTMFRuntimeException( "In '" + this.Name + "' there was no data for Segment# " + segmentArray[i].SegmentNumber + " @" + this.ReasonIndexes[reason]
-                                + ":" + this.DataElements[dataElement] + "!  Please check '" + this.SegmentInformation.Name + "' to make sure it is loading the right data." );
+                            SegmentInformation.UnloadData();
+                            throw new XTMFRuntimeException( "In '" + Name + "' there was no data for Segment# " + segmentArray[i].SegmentNumber + " @" + ReasonIndexes[reason]
+                                + ":" + DataElements[dataElement] + "!  Please check '" + SegmentInformation.Name + "' to make sure it is loading the right data." );
                         }
                     }
                 }
             }
-            this.SegmentInformation.UnloadData();
+            SegmentInformation.UnloadData();
         }
 
         private void LoadData()
@@ -158,12 +158,12 @@ namespace TMG.GTAModel.Input
             var segmentArray = LoadInSegmentData( data );
             // now load in the payloads
             IncludeSegmentPayload( segmentArray );
-            this.Segments = segmentArray;
+            Segments = segmentArray;
         }
 
         private SegmentData[] LoadInSegmentData(List<SegmentData> data)
         {
-            foreach ( var line in this.SegmentDefinitions.Read() )
+            foreach ( var line in SegmentDefinitions.Read() )
             {
                 data.Add( new SegmentData()
                 {

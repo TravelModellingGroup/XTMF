@@ -60,11 +60,11 @@ namespace TMG.GTAModel.NetworkAssignment
             string filepath = Path.GetFullPath( FileName );
             if(mc.CheckToolExists(_ToolName))
             {
-                return mc.Run(_ToolName, this.MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
+                return mc.Run(_ToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
             }
             else
             {
-                return mc.Run(_OldToolName, this.MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
+                return mc.Run(_OldToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
             }
         }
 

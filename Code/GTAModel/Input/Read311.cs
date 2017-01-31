@@ -56,7 +56,7 @@ namespace TMG.GTAModel.Input
             ODData<float> data = new ODData<float>();
             // do this because highest zone isn't high enough for array indexes
             using ( StreamReader reader = new StreamReader( new
-                FileStream( this.EmmeFile.GetFileName( this.Root.InputBaseDirectory ), FileMode.Open, FileAccess.Read, FileShare.Read,
+                FileStream( EmmeFile.GetFileName( Root.InputBaseDirectory ), FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan ) ) )
             {
                 line = BurnHeader( reader );
@@ -149,9 +149,9 @@ namespace TMG.GTAModel.Input
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.EmmeFile.ContainsFileName() )
+            if ( !EmmeFile.ContainsFileName() )
             {
-                error = "In '" + this.Name + "' there was no file name provided to load!";
+                error = "In '" + Name + "' there was no file name provided to load!";
                 return false;
             }
             return true;

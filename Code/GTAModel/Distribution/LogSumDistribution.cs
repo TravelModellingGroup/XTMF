@@ -89,25 +89,25 @@ GPU to enhance the processing time of the model.")]
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            this.Progress = 0f;
-            var ep = this.SwapAttraction ? attractions.GetEnumerator() : productions.GetEnumerator();
-            var ea = this.SwapAttraction ? productions.GetEnumerator() : attractions.GetEnumerator();
+            Progress = 0f;
+            var ep = SwapAttraction ? attractions.GetEnumerator() : productions.GetEnumerator();
+            var ea = SwapAttraction ? productions.GetEnumerator() : attractions.GetEnumerator();
             var ec = category.GetEnumerator();
-            if (this.KFactorDataReader != null)
+            if (KFactorDataReader != null)
             {
-                this.LoadKFactors();
+                LoadKFactors();
             }
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            foreach (var ret in this.DoublyConstrained ?
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            foreach (var ret in DoublyConstrained ?
                 SolveDoublyConstrained(zones, ep, ea, ec) : SolveSinglyConstrained(zones, ep, ea, ec))
             {
-                if (this.Transpose)
+                if (Transpose)
                 {
                     TransposeMatrix(ret);
                 }
                 yield return ret;
             }
-            this.KFactor = null;
+            KFactor = null;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -134,7 +134,7 @@ GPU to enhance the processing time of the model.")]
         {
             var numberOfZones = zones.Length;
             float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
-            var rootModes = this.Root.Modes;
+            var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
@@ -160,14 +160,14 @@ GPU to enhance the processing time of the model.")]
                        else
                        {
                            var utility = 0f;
-                           if (!this.GatherAllUtility(zones[i], zones[j], out utility))
+                           if (!GatherAllUtility(zones[i], zones[j], out utility))
                            {
                                ret[index++] = 0;
                                 //throw new XTMFRuntimeException( "There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber );
                             }
                            else
                            {
-                               ret[index++] = (float)Math.Pow(utility, this.ImpedianceParameter) * (this.KFactor != null ? (float)Math.Exp(this.KFactor[i * this.NumberOfZones + j]) : 1f);
+                               ret[index++] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
                            }
                        }
                    }
@@ -191,7 +191,7 @@ GPU to enhance the processing time of the model.")]
         private void ComputeFriction(IZone[] zones, IDemographicCategory cat, float[][] friction)
         {
             var numberOfZones = zones.Length;
-            var rootModes = this.Root.Modes;
+            var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
@@ -203,13 +203,13 @@ GPU to enhance the processing time of the model.")]
                    {
                        var destination = zones[j];
                        float utility;
-                       if (!this.GatherAllUtility(zones[i], zones[j], out utility))
+                       if (!GatherAllUtility(zones[i], zones[j], out utility))
                        {
                            throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
                        }
                        else
                        {
-                           friction[i][j] = (float)Math.Pow(utility, this.ImpedianceParameter) * (this.KFactor != null ? (float)Math.Exp(this.KFactor[i * this.NumberOfZones + j]) : 1f);
+                           friction[i][j] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
                        }
                    }
                });
@@ -222,7 +222,7 @@ GPU to enhance the processing time of the model.")]
 
         private IEnumerable<SparseTwinIndex<float>> CPUDoublyConstrained(IZone[] zones, IEnumerator<SparseArray<float>> ep, IEnumerator<SparseArray<float>> ea, IEnumerator<IDemographicCategory> ec)
         {
-            var frictionSparse = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var frictionSparse = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var friction = frictionSparse.GetFlatData();
             while (ep.MoveNext() && ea.MoveNext() && ec.MoveNext())
             {
@@ -230,15 +230,15 @@ GPU to enhance the processing time of the model.")]
                 var attraction = ea.Current;
                 var cat = ec.Current;
                 var ret = production.CreateSquareTwinArray<float>();
-                this.ComputeFriction(zones, cat, friction);
-                yield return new GravityModel(frictionSparse, (p => this.Progress = p), this.Epsilon, this.MaxIterations)
+                ComputeFriction(zones, cat, friction);
+                yield return new GravityModel(frictionSparse, (p => Progress = p), Epsilon, MaxIterations)
                     .ProcessFlow(production, attraction, production.ValidIndexArray());
             }
         }
 
         private bool GatherAllUtility(IZone o, IZone d, out float utility)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var length = modes.Count;
             var totalUtility = 0f;
             bool anyFeasible = false;
@@ -301,17 +301,17 @@ GPU to enhance the processing time of the model.")]
 
         private void LoadKFactors()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
-            this.NumberOfZones = numberOfZones;
-            this.KFactor = new float[numberOfZones * numberOfZones];
-            for (int i = 0; i < this.KFactor.Length; i++)
+            NumberOfZones = numberOfZones;
+            KFactor = new float[numberOfZones * numberOfZones];
+            for (int i = 0; i < KFactor.Length; i++)
             {
-                this.KFactor[i] = 1f;
+                KFactor[i] = 1f;
             }
-            foreach (var dataPoint in this.KFactorDataReader.Read())
+            foreach (var dataPoint in KFactorDataReader.Read())
             {
-                this.KFactor[dataPoint.O * numberOfZones + dataPoint.D] = dataPoint.Data;
+                KFactor[dataPoint.O * numberOfZones + dataPoint.D] = dataPoint.Data;
             }
         }
 
@@ -332,7 +332,7 @@ GPU to enhance the processing time of the model.")]
                 var attraction = ea.Current;
                 var cat = ec.Current;
                 var ret = production.CreateSquareTwinArray<float>();
-                friction = this.ComputeFriction(zones, cat, production.GetFlatData(), null, friction);
+                friction = ComputeFriction(zones, cat, production.GetFlatData(), null, friction);
                 yield return SinglyConstrainedGravityModel.Process(production, friction);
             }
         }

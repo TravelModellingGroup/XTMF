@@ -124,14 +124,14 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            this.Progress = 0f;
-            var ep = this.SwapAttraction ? attractions.GetEnumerator() : productions.GetEnumerator();
-            var ea = this.SwapAttraction ? productions.GetEnumerator() : attractions.GetEnumerator();
+            Progress = 0f;
+            var ep = SwapAttraction ? attractions.GetEnumerator() : productions.GetEnumerator();
+            var ea = SwapAttraction ? productions.GetEnumerator() : attractions.GetEnumerator();
             var ec = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             foreach ( var ret in SolveDoublyConstrained( zones, ep, ea, ec ) )
             {
-                if ( this.Transpose )
+                if ( Transpose )
                 {
                     TransposeMatrix( ret );
                 }
@@ -141,10 +141,10 @@ namespace TMG.GTAModel
 
         public bool RuntimeValidation(ref string error)
         {
-            this.InteractiveModeSplit = this.Parent.ModeSplit as IInteractiveModeSplit;
-            if ( this.InteractiveModeSplit == null )
+            InteractiveModeSplit = Parent.ModeSplit as IInteractiveModeSplit;
+            if ( InteractiveModeSplit == null )
             {
-                error = "In module '" + this.Name + "' we we require the mode choice for the purpose '" + this.Parent.PurposeName + "' to be of type IInteractiveModeSplit!";
+                error = "In module '" + Name + "' we we require the mode choice for the purpose '" + Parent.PurposeName + "' to be of type IInteractiveModeSplit!";
                 return false;
             }
             return true;
@@ -240,9 +240,9 @@ namespace TMG.GTAModel
 
         private void CheckSaveFriction(float[][] friction)
         {
-            if ( !this.CullSmallValues )
+            if ( !CullSmallValues )
             {
-                if ( !String.IsNullOrWhiteSpace( this.SaveFrictionFileName ) )
+                if ( !String.IsNullOrWhiteSpace( SaveFrictionFileName ) )
                 {
                     SaveFriction( friction );
                 }
@@ -253,7 +253,7 @@ namespace TMG.GTAModel
         {
             var numberOfZones = zones.Length;
             bool loadedFriction = false;
-            if ( !String.IsNullOrWhiteSpace( this.LoadFrictionFileName ) )
+            if ( !String.IsNullOrWhiteSpace( LoadFrictionFileName ) )
             {
                 LoadFriction( friction, -1 );
                 loadedFriction = true;
@@ -263,12 +263,12 @@ namespace TMG.GTAModel
                 ClearFriction( friction, numberOfZones );
             }
 
-            var mpd = this.Root.ModeParameterDatabase;
+            var mpd = Root.ModeParameterDatabase;
             float[] subsetRatios = new float[productions.Length];
             SumProductionAndAttraction( production, attraction, productions, attractions );
             for ( int subset = 0; subset < cats.Length; subset++ )
             {
-                this.InteractiveModeSplit.StartNewInteractiveModeSplit( this.MultiBlendSets.Count );
+                InteractiveModeSplit.StartNewInteractiveModeSplit( MultiBlendSets.Count );
                 float[] ratio = new float[cats[subset].Length];
                 for ( int i = 0; i < numberOfZones; i++ )
                 {
@@ -283,7 +283,7 @@ namespace TMG.GTAModel
                     SetupModeChoice( cats, ratio, mpd, subset );
                     GatherUtilities( zones, friction, attraction, numberOfZones, loadedFriction, subsetRatios, subset, i );
                 }
-                this.InteractiveModeSplit.EndInterativeModeSplit();
+                InteractiveModeSplit.EndInterativeModeSplit();
             }
             ConvertToFriction( friction, zones );
             CheckSaveFriction( friction );
@@ -312,7 +312,7 @@ namespace TMG.GTAModel
 
         private void ConvertToFriction(float[][] friction, IZone[] zones)
         {
-            var distances = this.Root.ZoneSystem.Distances.GetFlatData();
+            var distances = Root.ZoneSystem.Distances.GetFlatData();
             Parallel.For( 0, friction.Length, delegate(int i)
             {
                 var frictionRow = friction[i];
@@ -324,13 +324,13 @@ namespace TMG.GTAModel
                     // if there was any utility
                     float[] data;
                     if ( ( !float.IsNaN( frictionRow[j] ) )
-                        && ( data = this.SpatialParameters.GetDataFrom( zones[i].ZoneNumber, zones[j].ZoneNumber, this.CurrentMultiSetIndex ) ) != null )
+                        && ( data = SpatialParameters.GetDataFrom( zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex ) ) != null )
                     {
                         // apply the K-Factor and the small trip utilities to the friction
-                        frictionRow[j] = ( this.KFactorDataReader != null ? this.KFactorDataReader.GetDataFrom( zones[i].ZoneNumber, zones[j].ZoneNumber, this.CurrentMultiSetIndex ) : 1.0f )
+                        frictionRow[j] = ( KFactorDataReader != null ? KFactorDataReader.GetDataFrom( zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex ) : 1.0f )
                             * frictionRow[j]
                             // now apply the small trip data
-                            * (float)( ( distances[i][j] <= this.SmallTripLength ? Math.Exp( data[1] ) : 1.0 ) );
+                            * (float)( ( distances[i][j] <= SmallTripLength ? Math.Exp( data[1] ) : 1.0 ) );
                     }
                     else
                     {
@@ -343,7 +343,7 @@ namespace TMG.GTAModel
         private IEnumerable<SparseTwinIndex<float>> CPUDoublyConstrained(IZone[] zones, IEnumerator<SparseArray<float>> ep, IEnumerator<SparseArray<float>> ea, IEnumerator<IDemographicCategory> ec)
         {
             float completed = 0f;
-            var frictionSparse = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var frictionSparse = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var productions = new List<SparseArray<float>>();
             var attractions = new List<SparseArray<float>>();
             var cats = new List<IDemographicCategory>();
@@ -354,33 +354,33 @@ namespace TMG.GTAModel
                 attractions.Add( ea.Current );
                 cats.Add( ec.Current );
             }
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            SparseArray<float> production = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            SparseArray<float> attraction = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-            this.CurrentMultiSetIndex = -1;
-            foreach ( var multiset in this.MultiBlendSets )
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            SparseArray<float> production = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            SparseArray<float> attraction = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            CurrentMultiSetIndex = -1;
+            foreach ( var multiset in MultiBlendSets )
             {
-                this.CurrentMultiSetIndex++;
+                CurrentMultiSetIndex++;
                 var numberOfSubsets = multiset.Subsets.Count;
                 var productionSet = new float[numberOfSubsets][][];
                 var attractionSet = new float[numberOfSubsets][][];
                 var multiCatSet = new IDemographicCategory[numberOfSubsets][];
                 SetupFrictionData( productions, attractions, cats, multiset, productionSet, attractionSet, multiCatSet );
-                this.ComputeFriction( zones, multiCatSet, productionSet, attractionSet,
+                ComputeFriction( zones, multiCatSet, productionSet, attractionSet,
                     frictionSparse.GetFlatData(), production.GetFlatData(), attraction.GetFlatData() );
                 string balanceFileName;
                 SparseArray<float> balanceFactors = GetWarmBalancingFactors( attraction, out balanceFileName );
-                if ( this.CullSmallValues )
+                if ( CullSmallValues )
                 {
-                    var tempValues = new GravityModel( frictionSparse, null, this.Epsilon, this.MaxIterations )
+                    var tempValues = new GravityModel( frictionSparse, null, Epsilon, MaxIterations )
                     .ProcessFlow( production, attraction, production.ValidIndexArray(), balanceFactors );
-                    this.Cull( tempValues, frictionSparse.GetFlatData(), production.GetFlatData(), attraction.GetFlatData() );
-                    if ( !String.IsNullOrWhiteSpace( this.SaveFrictionFileName ) )
+                    Cull( tempValues, frictionSparse.GetFlatData(), production.GetFlatData(), attraction.GetFlatData() );
+                    if ( !String.IsNullOrWhiteSpace( SaveFrictionFileName ) )
                     {
-                        this.SaveFriction( frictionSparse.GetFlatData() );
+                        SaveFriction( frictionSparse.GetFlatData() );
                     }
                 }
-                yield return new GravityModel( frictionSparse, ( p => this.Progress = ( p * ( 1f / ( this.MultiBlendSets.Count ) ) + ( completed / ( this.MultiBlendSets.Count ) ) ) ), this.Epsilon, this.MaxIterations )
+                yield return new GravityModel( frictionSparse, ( p => Progress = ( p * ( 1f / ( MultiBlendSets.Count ) ) + ( completed / ( MultiBlendSets.Count ) ) ) ), Epsilon, MaxIterations )
                     .ProcessFlow( production, attraction, production.ValidIndexArray(), balanceFactors );
                 if ( balanceFileName != null )
                 {
@@ -432,13 +432,13 @@ namespace TMG.GTAModel
                 Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
                 {
                     if ( zones[j].RegionNumber <= 0 ) return;
-                    if ( this.Transpose )
+                    if ( Transpose )
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
+                        InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
                     }
                     else
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
+                        InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
                     }
                 } );
             }
@@ -450,25 +450,25 @@ namespace TMG.GTAModel
                     return;
                 }
                 // get the region index
-                var distances = this.Root.ZoneSystem.Distances.GetFlatData()[i];
+                var distances = Root.ZoneSystem.Distances.GetFlatData()[i];
                 Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
                 {
                     int index = i * numberOfZones + j;
-                    if ( ( ( !this.AllowIntrazonal ) & ( i == j ) ) | zones[j].RegionNumber <= 0 ) return;
+                    if ( ( ( !AllowIntrazonal ) & ( i == j ) ) | zones[j].RegionNumber <= 0 ) return;
                     if ( attraction != null && attraction[j] > 0 )
                     {
                         float utility;
-                        if ( this.Transpose )
+                        if ( Transpose )
                         {
-                            utility = this.InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
+                            utility = InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
                         }
                         else
                         {
-                            utility = this.InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
+                            utility = InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
                         }
                         if ( !float.IsNaN( utility ) )
                         {
-                            var data = this.SpatialParameters.GetDataFrom( zones[i].ZoneNumber, zones[j].ZoneNumber, this.CurrentMultiSetIndex );
+                            var data = SpatialParameters.GetDataFrom( zones[i].ZoneNumber, zones[j].ZoneNumber, CurrentMultiSetIndex );
                             if ( data != null )
                             {
                                 // it is multiplication not addition
@@ -489,10 +489,10 @@ namespace TMG.GTAModel
 
         private string GetFrictionFileName(string baseName, int setNumber)
         {
-            if ( this.Root.CurrentIteration != lastIteration )
+            if ( Root.CurrentIteration != lastIteration )
             {
                 currentNumber = 0;
-                lastIteration = this.Root.CurrentIteration;
+                lastIteration = Root.CurrentIteration;
             }
             return String.Concat( baseName, setNumber >= 0 ? setNumber : ( currentNumber++ ), ".bin" );
         }
@@ -500,9 +500,9 @@ namespace TMG.GTAModel
         private SparseArray<float> GetWarmBalancingFactors(SparseArray<float> attraction, out string balanceFileName)
         {
             SparseArray<float> balanceFactors = null;
-            if ( this.BalanceFactors.ContainsFileName() )
+            if ( BalanceFactors.ContainsFileName() )
             {
-                balanceFileName = this.BalanceFactors.GetFileName() + this.CurrentMultiSetIndex + ".bin";
+                balanceFileName = BalanceFactors.GetFileName() + CurrentMultiSetIndex + ".bin";
                 if ( File.Exists( balanceFileName ) )
                 {
                     balanceFactors = LoadBalanceFactors( balanceFileName );
@@ -527,7 +527,7 @@ namespace TMG.GTAModel
 
         private SparseArray<float> LoadBalanceFactors(string balanceFileName)
         {
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
             var flatRet = ret.GetFlatData();
             using ( BinaryReader reader = new BinaryReader( File.OpenRead( balanceFileName ) ) )
             {
@@ -550,7 +550,7 @@ namespace TMG.GTAModel
                 Stream file = null;
                 try
                 {
-                    file = File.OpenRead( GetFrictionFileName( this.LoadFrictionFileName, setNumber ) );
+                    file = File.OpenRead( GetFrictionFileName( LoadFrictionFileName, setNumber ) );
                     using ( BinaryReader reader = new BinaryReader( file ) )
                     {
                         file = null;
@@ -604,15 +604,15 @@ namespace TMG.GTAModel
 
         private void SaveAttractionFile(float[] attraction)
         {
-            bool first = !File.Exists( this.AttractionFile.GetFileName() );
-            using ( StreamWriter writer = new StreamWriter( this.AttractionFile.GetFileName(), true ) )
+            bool first = !File.Exists( AttractionFile.GetFileName() );
+            using ( StreamWriter writer = new StreamWriter( AttractionFile.GetFileName(), true ) )
             {
                 if ( first )
                 {
                     writer.WriteLine( "Generation,Category,Zone,Attraction" );
                 }
-                var startOfLine = this.Root.CurrentIteration + "," + this.CurrentMultiSetIndex + ",";
-                var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+                var startOfLine = Root.CurrentIteration + "," + CurrentMultiSetIndex + ",";
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 for ( int i = 0; i < attraction.Length; i++ )
                 {
                     writer.Write( startOfLine );
@@ -639,7 +639,7 @@ namespace TMG.GTAModel
         {
             try
             {
-                var fileName = GetFrictionFileName( this.SaveFrictionFileName, -1 );
+                var fileName = GetFrictionFileName( SaveFrictionFileName, -1 );
                 var dirName = Path.GetDirectoryName( fileName );
                 if ( !Directory.Exists( dirName ) )
                 {
@@ -724,7 +724,7 @@ namespace TMG.GTAModel
 
             if ( attraction != null )
             {
-                if ( this.AttractionFile.ContainsFileName() )
+                if ( AttractionFile.ContainsFileName() )
                 {
                     SaveAttractionFile( attraction );
                 }
@@ -735,12 +735,12 @@ namespace TMG.GTAModel
         {
             // do the quick test first
             if ( flatValues[o][d] >= 1f ) return false;
-            float tmino = (float)Math.Max( this.TripFac * production[o], this.TripMin );
-            float tmind = (float)Math.Max( this.TripFac * attraction[d], this.TripMin );
+            float tmino = (float)Math.Max( TripFac * production[o], TripMin );
+            float tmind = (float)Math.Max( TripFac * attraction[d], TripMin );
 
             var val = flatValues[o][d];
-            return !( ( val >= omax[o] * this.MaxFac )
-                | ( val >= dmax[d] * this.MaxFac
+            return !( ( val >= omax[o] * MaxFac )
+                | ( val >= dmax[d] * MaxFac
                 | ( val >= tmino )
                 | ( val >= tmind ) ) );
         }

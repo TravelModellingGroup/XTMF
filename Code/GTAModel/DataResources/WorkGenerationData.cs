@@ -43,31 +43,31 @@ namespace TMG.GTAModel.DataResources
         private SparseArray<SparseTriIndex<float>> Data;
         public SparseArray<SparseTriIndex<float>> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
             // get a replica of the zone system
-            SparseArray<SparseTriIndex<float>> temp = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            var total = ( this.EmploymentCategoryRange[0].Stop - this.EmploymentCategoryRange[0].Start + 1 )
-                * ( this.MobilityRange[0].Stop - this.MobilityRange[0].Start + 1 )
-                * ( this.AgeRange[0].Stop - this.AgeRange[0].Start + 1 );
+            SparseArray<SparseTriIndex<float>> temp = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
+            var total = ( EmploymentCategoryRange[0].Stop - EmploymentCategoryRange[0].Start + 1 )
+                * ( MobilityRange[0].Stop - MobilityRange[0].Start + 1 )
+                * ( AgeRange[0].Stop - AgeRange[0].Start + 1 );
             int[] first = new int[total];
             int[] second = new int[total];
             int[] third = new int[total];
             float[] data = new float[total];
             int pos = 0;
-            for ( int i = this.EmploymentCategoryRange[0].Start; i <= this.EmploymentCategoryRange[0].Stop; i++ )
+            for ( int i = EmploymentCategoryRange[0].Start; i <= EmploymentCategoryRange[0].Stop; i++ )
             {
-                for ( int j = this.MobilityRange[0].Start; j <= this.MobilityRange[0].Stop; j++ )
+                for ( int j = MobilityRange[0].Start; j <= MobilityRange[0].Stop; j++ )
                 {
-                    for ( int k = this.AgeRange[0].Start; k <= this.AgeRange[0].Stop; k++ )
+                    for ( int k = AgeRange[0].Start; k <= AgeRange[0].Stop; k++ )
                     {
                         first[pos] = i;
                         second[pos] = j;
@@ -87,12 +87,12 @@ namespace TMG.GTAModel.DataResources
             {
                 flatTemp[i] = flatTemp[0].CreateSimilarArray<float>();
             }
-            this.Data = temp;
+            Data = temp;
         }
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         public string Name { get; set; }

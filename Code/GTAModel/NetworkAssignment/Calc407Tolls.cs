@@ -54,10 +54,10 @@ namespace TMG.GTAModel.NetworkAssignment
                 throw new XTMFRuntimeException("Controller is not a ModellerController");
             }
 
-            string args = this.ScenarioNumber + " " + this.ResultAttributeId + " " + this.TollZoneAttributeId + " " + this.LightZoneToll + " " + this.RegularZoneToll;
+            string args = ScenarioNumber + " " + ResultAttributeId + " " + TollZoneAttributeId + " " + LightZoneToll + " " + RegularZoneToll;
             string result = "";
 
-            return mc.Run(ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

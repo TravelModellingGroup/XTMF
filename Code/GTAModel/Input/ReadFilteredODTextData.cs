@@ -59,7 +59,7 @@ Non-Work/School trips to be able to filter out by occupation type."
 
         private bool ContainsType(int type)
         {
-            return ( this.AllowedIndexes.Contains( type ) );
+            return ( AllowedIndexes.Contains( type ) );
         }
     }
 }

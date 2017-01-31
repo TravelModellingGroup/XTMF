@@ -51,25 +51,25 @@ namespace TMG.GTAModel.Input
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var temp = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            foreach ( var point in this.Reader.Read() )
+            var temp = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            foreach ( var point in Reader.Read() )
             {
                 if ( temp.ContainsIndex( point.O, point.D ) )
                 {
                     temp[point.O, point.D] = point.Data;
                 }
             }
-            this.Data = temp;
+            Data = temp;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -79,7 +79,7 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
     }
 }

@@ -84,17 +84,17 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> production, IEnumerable<SparseArray<float>> attraction, IEnumerable<IDemographicCategory> category)
         {
-            this.Progress = 0f;
+            Progress = 0f;
             var ep = production.GetEnumerator();
             var ea = attraction.GetEnumerator();
-            var eBaseData = this.BaseData.GetEnumerator();
+            var eBaseData = BaseData.GetEnumerator();
             var eCat = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray;
-            if ( String.IsNullOrWhiteSpace( this.LoadFrictionFileName ) )
+            var zones = Root.ZoneSystem.ZoneArray;
+            if ( String.IsNullOrWhiteSpace( LoadFrictionFileName ) )
             {
-                if ( BaseData.Count != this.MultiBlendSets.Count )
+                if ( BaseData.Count != MultiBlendSets.Count )
                 {
-                    throw new XTMFRuntimeException( "In " + this.Name + " the number of BaseData entries is not the same as the number of Blend Sets!" );
+                    throw new XTMFRuntimeException( "In " + Name + " the number of BaseData entries is not the same as the number of Blend Sets!" );
                 }
             }
             var productions = new List<SparseArray<float>>();
@@ -111,7 +111,7 @@ namespace TMG.GTAModel
             var ret = zones.CreateSquareTwinArray<float>();
             float[] p = new float[zones.GetFlatData().Length];
             CountTotalBlendSets();
-            foreach ( var multiset in this.MultiBlendSets )
+            foreach ( var multiset in MultiBlendSets )
             {
                 setNumber++;
                 var numberOfBlendSets = multiset.Subsets.Count;
@@ -124,9 +124,9 @@ namespace TMG.GTAModel
                     SumProductionAndAttraction( p, productionSet[subsetIndex] );
                     bool loadedFriction = false;
                     // use the base data if we don't load in the friction base data
-                    if ( String.IsNullOrWhiteSpace( this.LoadFrictionFileName ) )
+                    if ( String.IsNullOrWhiteSpace( LoadFrictionFileName ) )
                     {
-                        LoadInBaseData( ret, this.BaseData[setNumber] );
+                        LoadInBaseData( ret, BaseData[setNumber] );
                     }
                     else
                     {
@@ -141,10 +141,10 @@ namespace TMG.GTAModel
 
         public bool RuntimeValidation(ref string error)
         {
-            this.InteractiveModeSplit = this.Parent.ModeSplit as IInteractiveModeSplit;
-            if ( this.InteractiveModeSplit == null )
+            InteractiveModeSplit = Parent.ModeSplit as IInteractiveModeSplit;
+            if ( InteractiveModeSplit == null )
             {
-                error = "In module '" + this.Name + "' it is required that the mode choice module to be of type IInteractiveModeSplit!";
+                error = "In module '" + Name + "' it is required that the mode choice module to be of type IInteractiveModeSplit!";
                 return false;
             }
             return true;
@@ -251,19 +251,19 @@ namespace TMG.GTAModel
 
         private void CountTotalBlendSets()
         {
-            this.TotalBlendSets = 0;
-            for ( int i = 0; i < this.MultiBlendSets.Count; i++ )
+            TotalBlendSets = 0;
+            for ( int i = 0; i < MultiBlendSets.Count; i++ )
             {
-                this.TotalBlendSets += this.MultiBlendSets[i].Subsets.Count;
+                TotalBlendSets += MultiBlendSets[i].Subsets.Count;
             }
         }
 
         private string GetFrictionFileName(string baseName, int setNumber)
         {
-            if ( this.Root.CurrentIteration != lastIteration )
+            if ( Root.CurrentIteration != lastIteration )
             {
                 currentNumber = 0;
-                lastIteration = this.Root.CurrentIteration;
+                lastIteration = Root.CurrentIteration;
             }
             return String.Concat( baseName, setNumber >= 0 ? setNumber : ( currentNumber++ ), ".bin" );
         }
@@ -282,7 +282,7 @@ namespace TMG.GTAModel
                                 row[j] = reader.ReadSingle();
                             }
                         }
-                    }, GetFrictionFileName( this.LoadFrictionFileName, setNumber ) );
+                    }, GetFrictionFileName( LoadFrictionFileName, setNumber ) );
             }
             catch ( IOException e )
             {
@@ -322,7 +322,7 @@ namespace TMG.GTAModel
         {
             try
             {
-                var fileName = GetFrictionFileName( this.SaveFrictionFileName, -1 );
+                var fileName = GetFrictionFileName( SaveFrictionFileName, -1 );
                 var dirName = Path.GetDirectoryName( fileName );
                 if ( !Directory.Exists( dirName ) )
                 {
@@ -361,8 +361,8 @@ namespace TMG.GTAModel
         private void UpdateData(float[][] flatRet, float[] flatProd, IDemographicCategory[][] cats, float[][][] productions, float[][][] attractions, IZone[] zones, int subset, bool loadedFriction)
         {
             var numberOfZones = flatProd.Length;
-            this.InteractiveModeSplit.StartNewInteractiveModeSplit( this.TotalBlendSets );
-            var mpd = this.Root.ModeParameterDatabase;
+            InteractiveModeSplit.StartNewInteractiveModeSplit( TotalBlendSets );
+            var mpd = Root.ModeParameterDatabase;
             float[] subsetRatios = new float[productions.Length];
             float[] ratio = new float[cats[subset].Length];
             for ( int i = 0; i < numberOfZones; i++ )
@@ -378,7 +378,7 @@ namespace TMG.GTAModel
                     }
                     continue;
                 }
-                if ( this.UseProductionPercentages )
+                if ( UseProductionPercentages )
                 {
                     var totalProduction = 0f;
                     factor = 0f;
@@ -434,7 +434,7 @@ namespace TMG.GTAModel
                     // just return since all of the values are zero anyway
                     if ( sum <= 0 )
                     {
-                        throw new XTMFRuntimeException( "In '" + this.Name + "' there was no attraction for zone " + zones[i].ZoneNumber );
+                        throw new XTMFRuntimeException( "In '" + Name + "' there was no attraction for zone " + zones[i].ZoneNumber );
                     }
                     ProcessRatio( i, ratio, flatProd, productions[subset] );
                     ComputeSubsetRatios( i, subsetRatios, productions );
@@ -450,9 +450,9 @@ namespace TMG.GTAModel
             {
                 TransposeMatrix(flatRet);   
             }
-            if (!String.IsNullOrWhiteSpace(this.SaveFrictionFileName))
+            if (!String.IsNullOrWhiteSpace(SaveFrictionFileName))
             {
-                this.SaveFriction(flatRet);
+                SaveFriction(flatRet);
             }
         }
 
@@ -465,11 +465,11 @@ namespace TMG.GTAModel
                 {
                     if ( Transpose )
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
+                        InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
                     }
                     else
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
+                        InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
                     }
                     // we don't apply any factors here since they have already been taken into account
                 } );
@@ -480,11 +480,11 @@ namespace TMG.GTAModel
                 {
                     if ( Transpose )
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
+                        InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
                     }
                     else
                     {
-                        this.InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
+                        InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
                     }
                     flatRet[i][j] *= factor;
                 } );

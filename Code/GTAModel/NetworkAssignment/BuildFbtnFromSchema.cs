@@ -69,16 +69,16 @@ namespace TMG.GTAModel.NetworkAssignment
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", "\"" + this.SchemaFile.GetFilePath() + "\"",
-                                        this.BaseScenarioNumber,
-                                        this.NewScenarioNumber,
-                                        this.TransferModeId,
-                                        this.SegmentFareAttribute,
-                                        this.LinkFareAttribute,
-                                        this.VirtualNodeDomain,
-                                        this.StationConnectorFlag);
+            var args = string.Join(" ", "\"" + SchemaFile.GetFilePath() + "\"",
+                                        BaseScenarioNumber,
+                                        NewScenarioNumber,
+                                        TransferModeId,
+                                        SegmentFareAttribute,
+                                        LinkFareAttribute,
+                                        VirtualNodeDomain,
+                                        StationConnectorFlag);
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
         }
 
         private string AddQuotes(string modeList)

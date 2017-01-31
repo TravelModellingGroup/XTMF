@@ -66,7 +66,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
 
 
-            return mc.Run(toolName, ScenarioNumber.ToString(), (p => this.Progress = p), ref result);
+            return mc.Run(toolName, ScenarioNumber.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

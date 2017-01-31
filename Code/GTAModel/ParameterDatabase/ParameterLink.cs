@@ -75,29 +75,29 @@ namespace TMG.GTAModel.ParameterDatabase
             if ( TypeIndex == 1 )
             {
                 // do float assignment
-                temp = float.Parse( value ) * this.Multiplier;
+                temp = float.Parse( value ) * Multiplier;
             }
             else if ( TypeIndex == 2 )
             {
                 // do double assignment
-                temp = double.Parse( value ) * this.Multiplier;
+                temp = double.Parse( value ) * Multiplier;
             }
             else
             {
-                var t = ( this.Field == null ? this.Property.PropertyType : this.Field.FieldType );
+                var t = ( Field == null ? Property.PropertyType : Field.FieldType );
                 if ( ( temp = ArbitraryParameterParser.ArbitraryParameterParse( t, value, ref error ) ) == null )
                 {
                     throw new XTMFRuntimeException( "Unable to convert value!" );
                 }
             }
 
-            if ( this.Field != null )
+            if ( Field != null )
             {
-                this.Field.SetValue( AssignTo, temp );
+                Field.SetValue( AssignTo, temp );
             }
             else
             {
-                this.Property.SetValue( AssignTo, temp, null );
+                Property.SetValue( AssignTo, temp, null );
             }
         }
 
@@ -128,7 +128,7 @@ namespace TMG.GTAModel.ParameterDatabase
                 bool temp;
                 if ( bool.TryParse( value, out temp ) )
                 {
-                    this.CurrentBlendBool = this.CurrentBlendBool | temp;
+                    CurrentBlendBool = CurrentBlendBool | temp;
                 }
             }
             else
@@ -139,13 +139,13 @@ namespace TMG.GTAModel.ParameterDatabase
                 {
                     throw new XTMFRuntimeException( "Unable to convert value!" );
                 }
-                if ( this.Field != null )
+                if ( Field != null )
                 {
-                    this.Field.SetValue( Parent.Mode, temp );
+                    Field.SetValue( Parent.Mode, temp );
                 }
                 else
                 {
-                    this.Property.SetValue( Parent.Mode, temp, null );
+                    Property.SetValue( Parent.Mode, temp, null );
                 }
             }
         }
@@ -155,37 +155,37 @@ namespace TMG.GTAModel.ParameterDatabase
             var t = ( Field != null ? Field.FieldType : Property.PropertyType );
             if ( t == typeof( float ) )
             {
-                float temp = (float)( this.CurrentBlendNumber * this.Multiplier );
-                if ( this.Field != null )
+                float temp = (float)( CurrentBlendNumber * Multiplier );
+                if ( Field != null )
                 {
-                    this.Field.SetValue( AssignTo, temp );
+                    Field.SetValue( AssignTo, temp );
                 }
                 else
                 {
-                    this.Property.SetValue( AssignTo, temp, null );
+                    Property.SetValue( AssignTo, temp, null );
                 }
             }
             else if ( t == typeof( double ) )
             {
-                double temp = this.CurrentBlendNumber * this.Multiplier;
-                if ( this.Field != null )
+                double temp = CurrentBlendNumber * Multiplier;
+                if ( Field != null )
                 {
-                    this.Field.SetValue( AssignTo, temp );
+                    Field.SetValue( AssignTo, temp );
                 }
                 else
                 {
-                    this.Property.SetValue( AssignTo, temp, null );
+                    Property.SetValue( AssignTo, temp, null );
                 }
             }
             else if ( t == typeof( bool ) )
             {
-                if ( this.Field != null )
+                if ( Field != null )
                 {
-                    this.Field.SetValue( AssignTo, this.CurrentBlendBool );
+                    Field.SetValue( AssignTo, CurrentBlendBool );
                 }
                 else
                 {
-                    this.Property.SetValue( AssignTo, this.CurrentBlendBool, null );
+                    Property.SetValue( AssignTo, CurrentBlendBool, null );
                 }
             }
         }
@@ -196,7 +196,7 @@ namespace TMG.GTAModel.ParameterDatabase
             {
                 return false;
             }
-            var t = this.Field == null ? this.Property.PropertyType : this.Field.FieldType;
+            var t = Field == null ? Property.PropertyType : Field.FieldType;
             if ( t == typeof( float ) )
             {
                 TypeIndex = 1;
@@ -216,11 +216,11 @@ namespace TMG.GTAModel.ParameterDatabase
 
         protected virtual bool LinkModeParameter(ref string error)
         {
-            IModeChoiceNode mode = this.Parent.Mode;
-            this.AssignTo = this.Parent.Mode;
+            IModeChoiceNode mode = Parent.Mode;
+            AssignTo = Parent.Mode;
             if ( mode == null )
             {
-                error = "In '" + this.Parent.Name + "' it failed to present a mode for '" + this.Name + "'!";
+                error = "In '" + Parent.Name + "' it failed to present a mode for '" + Name + "'!";
                 return false;
             }
             var modeType = mode.GetType();
@@ -232,9 +232,9 @@ namespace TMG.GTAModel.ParameterDatabase
                 {
                     for ( int i = 0; i < attributes.Length; i++ )
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == this.ModeParameterName )
+                        if ( ( attributes[i] as ParameterAttribute ).Name == ModeParameterName )
                         {
-                            this.Field = field;
+                            Field = field;
                             return true;
                         }
                     }
@@ -248,15 +248,15 @@ namespace TMG.GTAModel.ParameterDatabase
                 {
                     for ( int i = 0; i < attributes.Length; i++ )
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == this.ModeParameterName )
+                        if ( ( attributes[i] as ParameterAttribute ).Name == ModeParameterName )
                         {
-                            this.Property = field;
+                            Property = field;
                             return true;
                         }
                     }
                 }
             }
-            error = "We were unable to find a parameter in the mode '" + mode.ModeName + "' called '" + this.ModeParameterName + "'!";
+            error = "We were unable to find a parameter in the mode '" + mode.ModeName + "' called '" + ModeParameterName + "'!";
             return false;
         }
     }

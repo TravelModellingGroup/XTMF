@@ -61,12 +61,12 @@ namespace TMG.GTAModel.Input
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            if ( this.Data == null )
+            if ( Data == null )
             {
                 LoadTriIndexedData();
             }
@@ -79,7 +79,7 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace TMG.GTAModel.Input
         /// <param name="data">The data to be stored at the address</param>
         protected virtual void StoreData(List<int> first, List<int> second, List<int> third, List<float> data)
         {
-            using ( CsvReader reader = new CsvReader( this.GetFileLocation( this.FileName ) ) )
+            using ( CsvReader reader = new CsvReader( GetFileLocation( FileName ) ) )
             {
                 BurnHeader( reader );
                 while ( !reader.EndOfFile )
@@ -114,7 +114,7 @@ namespace TMG.GTAModel.Input
 
         private void BurnHeader(CsvReader reader)
         {
-            for ( int i = 0; i < this.NumberOfHeaderLines; i++ )
+            for ( int i = 0; i < NumberOfHeaderLines; i++ )
             {
                 reader.LoadLine();
             }
@@ -125,7 +125,7 @@ namespace TMG.GTAModel.Input
             var fullPath = fileName;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
@@ -138,7 +138,7 @@ namespace TMG.GTAModel.Input
             List<int> third = new List<int>();
             List<float> data = new List<float>();
             StoreData( first, second, third, data );
-            this.Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
+            Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
         }
     }
 }

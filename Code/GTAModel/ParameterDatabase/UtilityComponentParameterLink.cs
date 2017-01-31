@@ -32,20 +32,20 @@ namespace TMG.GTAModel.ParameterDatabase
         protected override bool LinkModeParameter(ref string error)
         {
             // get the mode
-            var mode = this.Parent.Mode as IUtilityComponentMode;
+            var mode = Parent.Mode as IUtilityComponentMode;
             if ( mode == null )
             {
-                error = "In '" + this.Parent.Name + "' it failed to present an IUtilityComponentMode mode for '" + this.Name + "'!";
+                error = "In '" + Parent.Name + "' it failed to present an IUtilityComponentMode mode for '" + Name + "'!";
                 return false;
             }
             // get the Util Component
-            var utilComponent = mode.UtilityComponents.FirstOrDefault( (uc) => uc.UtilityComponentName == this.UtilityComponentName );
+            var utilComponent = mode.UtilityComponents.FirstOrDefault( (uc) => uc.UtilityComponentName == UtilityComponentName );
             if ( utilComponent == null )
             {
-                error = "In '" + mode.ModeName + "' we were unable to find a Utility Component with the Utility Component Name '" + this.UtilityComponentName + "'.";
+                error = "In '" + mode.ModeName + "' we were unable to find a Utility Component with the Utility Component Name '" + UtilityComponentName + "'.";
                 return false;
             }
-            this.AssignTo = utilComponent;
+            AssignTo = utilComponent;
             var moduleType = utilComponent.GetType();
             var parameterType = typeof( ParameterAttribute );
             foreach ( var field in moduleType.GetFields() )
@@ -55,9 +55,9 @@ namespace TMG.GTAModel.ParameterDatabase
                 {
                     for ( int i = 0; i < attributes.Length; i++ )
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == this.ModeParameterName )
+                        if ( ( attributes[i] as ParameterAttribute ).Name == ModeParameterName )
                         {
-                            this.Field = field;
+                            Field = field;
                             return true;
                         }
                     }
@@ -71,16 +71,16 @@ namespace TMG.GTAModel.ParameterDatabase
                 {
                     for ( int i = 0; i < attributes.Length; i++ )
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == this.ModeParameterName )
+                        if ( ( attributes[i] as ParameterAttribute ).Name == ModeParameterName )
                         {
-                            this.Property = field;
+                            Property = field;
                             return true;
                         }
                     }
                 }
             }
             error = "We were unable to find a parameter in the mode '" + mode.ModeName + "' in the utility component '" + utilComponent.UtilityComponentName
-                + "' called '" + this.ModeParameterName + "'!";
+                + "' called '" + ModeParameterName + "'!";
             return false;
         }
     }

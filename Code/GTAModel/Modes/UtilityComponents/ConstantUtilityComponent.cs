@@ -50,7 +50,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             set;
         }
 
-        public float CalculateV(IZone origin, IZone destination, XTMF.Time time)
+        public float CalculateV(IZone origin, IZone destination, Time time)
         {
             return Constant;
         }
@@ -62,7 +62,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         public override string ToString()
         {
-            return this.UtilityComponentName;
+            return UtilityComponentName;
         }
     }
 }

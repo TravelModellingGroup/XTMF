@@ -54,12 +54,12 @@ namespace TMG.GTAModel
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
             var eProd = productions.GetEnumerator();
-            var eBaseData = this.BaseData.GetEnumerator();
+            var eBaseData = BaseData.GetEnumerator();
             var eCat = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             if ( BaseData.Count != category.Count() )
             {
-                throw new XTMFRuntimeException( "In " + this.Name + " the number of BaseData entries is not the same as the number of demographic categories!" );
+                throw new XTMFRuntimeException( "In " + Name + " the number of BaseData entries is not the same as the number of demographic categories!" );
             }
             while ( eProd.MoveNext() && eBaseData.MoveNext() && eCat.MoveNext() )
             {

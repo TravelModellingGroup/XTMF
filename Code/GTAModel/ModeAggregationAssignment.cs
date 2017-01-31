@@ -93,8 +93,8 @@ This module requires the root module in the model system to be of type ‘I4Step
             // Step 1, run the matrix loading tool
             // Step 2, once all of the demand data has been loaded run the calculation
             // Only do the assignment step if a toolname has been selected
-            if ( controller.Run( this.LoadMatrixToolName, String.Concat( this.ScenarioNumber, ' ', '"', Path.GetFullPath( demandFile ), '"' ) ) &&
-                String.IsNullOrWhiteSpace( this.AssingmentToolName ) ? true : controller.Run( this.AssingmentToolName, this.AssingmentParameters ) )
+            if ( controller.Run( LoadMatrixToolName, String.Concat( ScenarioNumber, ' ', '"', Path.GetFullPath( demandFile ), '"' ) ) &&
+                String.IsNullOrWhiteSpace( AssingmentToolName ) ? true : controller.Run( AssingmentToolName, AssingmentParameters ) )
             {
                 // Now that we are finished with copying the data we can go ahead and delete our demand file from
                 // temporary storage.
@@ -106,8 +106,8 @@ This module requires the root module in the model system to be of type ‘I4Step
                 {
                 }
                 // Now that everything has been cleaned up we should go and export the data back out of EMME
-                var numbers = this.ExportMatrixNumbers.Split( ',' );
-                var destFiles = this.DestinationFiles.Split( ',' );
+                var numbers = ExportMatrixNumbers.Split( ',' );
+                var destFiles = DestinationFiles.Split( ',' );
                 if ( numbers.Length != destFiles.Length )
                 {
                     throw new XTMFRuntimeException( "The number of matricies exported must be the same as the number of destination file names!" );
@@ -118,9 +118,9 @@ This module requires the root module in the model system to be of type ‘I4Step
                     {
                         continue;
                     }
-                    if ( !controller.Run( this.ExportMatrixToolName, String.Concat( this.ScenarioNumber, " mf", numbers[i], " \"", Path.GetFullPath( this.GetPath( destFiles[i] ) ), '"' ) ) )
+                    if ( !controller.Run( ExportMatrixToolName, String.Concat( ScenarioNumber, " mf", numbers[i], " \"", Path.GetFullPath( GetPath( destFiles[i] ) ), '"' ) ) )
                     {
-                        throw new XTMFRuntimeException( "Unable to export matrix mf" + numbers[i] + " to \"" + this.GetPath( destFiles[i] ) + "\"" );
+                        throw new XTMFRuntimeException( "Unable to export matrix mf" + numbers[i] + " to \"" + GetPath( destFiles[i] ) + "\"" );
                     }
                 }
                 return true;
@@ -130,9 +130,9 @@ This module requires the root module in the model system to be of type ‘I4Step
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.Tallies.Count == 0 )
+            if ( Tallies.Count == 0 )
             {
-                error = this.Name + " requires that you have at least one tally in order to work!";
+                error = Name + " requires that you have at least one tally in order to work!";
                 return false;
             }
             return true;
@@ -143,7 +143,7 @@ This module requires the root module in the model system to be of type ‘I4Step
             var fullPath = localPath;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
@@ -171,7 +171,7 @@ This module requires the root module in the model system to be of type ‘I4Step
 
         private string SetupRun()
         {
-            var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
             // Load the data from the flows and save it to our temporary file
             string outputFileName = Path.GetTempFileName();
@@ -187,7 +187,7 @@ This module requires the root module in the model system to be of type ‘I4Step
             using ( StreamWriter writer = new StreamWriter( outputFileName ) )
             {
                 // We need to know what the head should look like.
-                writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", this.MatrixNumber );
+                writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=incr descr=generated", MatrixNumber );
                 // Now that the header is in place we can start to generate all of the instructions
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
                 Parallel.For( 0, numberOfZones, delegate(int o)
@@ -197,7 +197,7 @@ This module requires the root module in the model system to be of type ‘I4Step
                     var convertedO = flatZones[o].ZoneNumber;
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        this.ToEmmeFloat( tally[o][d], strBuilder );
+                        ToEmmeFloat( tally[o][d], strBuilder );
                         build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }

@@ -102,7 +102,7 @@ namespace TMG.GTAModel.NetworkAssignment
             if ( mc == null )
                 throw new XTMFRuntimeException( "Controller is not a ModellerController!" );
 
-            if ( this.DemandMatrixNumber != 0 )
+            if ( DemandMatrixNumber != 0 )
             {
                 PassMatrixIntoEmme( mc );
             }
@@ -115,11 +115,11 @@ namespace TMG.GTAModel.NetworkAssignment
             string result = null;
             if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(ToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(OldToolName, sb.ToString(), (p => this.Progress = p), ref result);
+                return mc.Run(OldToolName, sb.ToString(), (p => Progress = p), ref result);
             }
 
             /*
@@ -136,11 +136,11 @@ namespace TMG.GTAModel.NetworkAssignment
 
         private void PassMatrixIntoEmme(ModellerController mc)
         {
-            var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
             // Load the data from the flows and save it to our temporary file
-            var useTempFile = String.IsNullOrWhiteSpace( this.DemandFileName );
-            string outputFileName = useTempFile ? Path.GetTempFileName() : this.DemandFileName;
+            var useTempFile = String.IsNullOrWhiteSpace( DemandFileName );
+            string outputFileName = useTempFile ? Path.GetTempFileName() : DemandFileName;
             float[][] tally = new float[numberOfZones][];
             for ( int i = 0; i < numberOfZones; i++ )
             {
@@ -157,7 +157,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
             using ( StreamWriter writer = new StreamWriter( outputFileName ) )
             {
-                writer.WriteLine( "t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", this.DemandMatrixNumber );
+                writer.WriteLine( "t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", DemandMatrixNumber );
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
                 Parallel.For( 0, numberOfZones, delegate(int o)
                 {
@@ -166,7 +166,7 @@ namespace TMG.GTAModel.NetworkAssignment
                     var convertedO = flatZones[o].ZoneNumber;
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        this.ToEmmeFloat( tally[o][d], strBuilder );
+                        ToEmmeFloat( tally[o][d], strBuilder );
                         build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }

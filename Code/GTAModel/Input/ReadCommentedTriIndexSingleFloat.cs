@@ -58,12 +58,12 @@ namespace TMG.GTAModel.Input
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            if ( this.Data == null )
+            if ( Data == null )
             {
                 LoadTriIndexedData();
             }
@@ -76,7 +76,7 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace TMG.GTAModel.Input
         /// <param name="data">The data to be stored at the address</param>
         protected virtual void StoreData(List<int> first, List<int> second, List<int> third, List<float> data)
         {
-            using ( CommentedCsvReader reader = new CommentedCsvReader( this.FileName.GetFileName( this.Root.InputBaseDirectory ) ) )
+            using ( CommentedCsvReader reader = new CommentedCsvReader( FileName.GetFileName( Root.InputBaseDirectory ) ) )
             {
                 while ( reader.NextLine() )
                 {
@@ -119,7 +119,7 @@ namespace TMG.GTAModel.Input
             List<int> third = new List<int>();
             List<float> data = new List<float>();
             StoreData( first, second, third, data );
-            this.Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
+            Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
         }
     }
 }

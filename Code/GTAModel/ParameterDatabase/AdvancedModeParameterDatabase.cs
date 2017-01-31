@@ -66,7 +66,7 @@ namespace TMG.GTAModel.ParameterDatabase
             {
                 if ( ParameterSets != null )
                 {
-                    return this.ParameterSets.Count;
+                    return ParameterSets.Count;
                 }
                 return 0;
             }
@@ -95,7 +95,7 @@ namespace TMG.GTAModel.ParameterDatabase
             // Now that we have our data loaded in go and take in our parameters
             SetupParameters( parameterSetIndex, demographicIndex );
             // Check to see if we are doing a blending assignment
-            if ( this.Blending )
+            if ( Blending )
             {
                 AssignBlendedParameters();
             }
@@ -111,18 +111,18 @@ namespace TMG.GTAModel.ParameterDatabase
             Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
-                    this.Modes[i].FinishBlending();
+                    Modes[i].FinishBlending();
                 } );
-            this.Blending = false;
+            Blending = false;
         }
 
         public void InitializeBlend()
         {
-            this.Blending = true;
+            Blending = true;
             Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
-                    this.Modes[i].StartBlend();
+                    Modes[i].StartBlend();
                 } );
         }
 
@@ -133,7 +133,7 @@ namespace TMG.GTAModel.ParameterDatabase
 
         public void SetBlendWeight(float currentBlendWeight)
         {
-            this.CurrentBlendWeight = currentBlendWeight;
+            CurrentBlendWeight = currentBlendWeight;
         }
 
         protected string GetInputFileName(string localPath)
@@ -141,7 +141,7 @@ namespace TMG.GTAModel.ParameterDatabase
             var fullPath = localPath;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
@@ -149,11 +149,11 @@ namespace TMG.GTAModel.ParameterDatabase
         private void AssignBlendedParameters()
         {
             // now in parallel setup all of our modes at the same time
-            if ( this.CurrentBlendWeight == 0 ) return;
+            if ( CurrentBlendWeight == 0 ) return;
             Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
-                    this.Modes[i].AssignBlendedParameters( this.Parameters, this.CurrentBlendWeight );
+                    Modes[i].AssignBlendedParameters( Parameters, CurrentBlendWeight );
                 } );
         }
 
@@ -163,7 +163,7 @@ namespace TMG.GTAModel.ParameterDatabase
             Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
-                    this.Modes[i].AssignParameters( this.Parameters );
+                    Modes[i].AssignParameters( Parameters );
                 } );
         }
 
@@ -179,20 +179,20 @@ namespace TMG.GTAModel.ParameterDatabase
             lock ( this )
             {
                 System.Threading.Thread.MemoryBarrier();
-                if ( this.Loaded ) return;
+                if ( Loaded ) return;
                 // First load in the parameters
-                var headers = this.LoadParameters();
+                var headers = LoadParameters();
                 // Next we can load the demographic switches and the alternative values at the same time.
                 try
                 {
                     Parallel.Invoke(
                         delegate()
                         {
-                            this.LoadSwitches( headers );
+                            LoadSwitches( headers );
                         },
                         delegate()
                         {
-                            this.LoadAlternatives( headers );
+                            LoadAlternatives( headers );
                         } );
                 }
                 catch ( AggregateException e )
@@ -207,7 +207,7 @@ namespace TMG.GTAModel.ParameterDatabase
                     }
                 }
                 // now that we have finished loading, flip that switch
-                this.Loaded = true;
+                Loaded = true;
                 System.Threading.Thread.MemoryBarrier();
             }
         }
@@ -216,7 +216,7 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             try
             {
-                using ( StreamReader reader = new StreamReader( this.GetInputFileName( this.DemographicDatabaseFile ) ) )
+                using ( StreamReader reader = new StreamReader( GetInputFileName( DemographicDatabaseFile ) ) )
                 {
                     string line;
                     // burn header
@@ -228,13 +228,13 @@ namespace TMG.GTAModel.ParameterDatabase
                         {
                             continue;
                         }
-                        this.DemographicAlternativeParameters.Add( GetAllButFirst( split ) );
+                        DemographicAlternativeParameters.Add( GetAllButFirst( split ) );
                     }
                 }
             }
             catch ( IOException )
             {
-                throw new XTMFRuntimeException( "We were unable to read the file '" + this.GetInputFileName( this.DemographicDatabaseFile ) + "'. Please make sure this file exists and is not in use." );
+                throw new XTMFRuntimeException( "We were unable to read the file '" + GetInputFileName( DemographicDatabaseFile ) + "'. Please make sure this file exists and is not in use." );
             }
         }
 
@@ -243,7 +243,7 @@ namespace TMG.GTAModel.ParameterDatabase
             string[] headers = null;
             try
             {
-                using ( StreamReader reader = new StreamReader( this.GetInputFileName( this.DatabaseFile ) ) )
+                using ( StreamReader reader = new StreamReader( GetInputFileName( DatabaseFile ) ) )
                 {
                     string line = reader.ReadLine();
                     headers = ParseHeader( line );
@@ -255,13 +255,13 @@ namespace TMG.GTAModel.ParameterDatabase
                         {
                             continue;
                         }
-                        this.ParameterSets.Add( GetAllButFirst( split ) );
+                        ParameterSets.Add( GetAllButFirst( split ) );
                     }
                 }
             }
             catch ( IOException )
             {
-                throw new XTMFRuntimeException( "We were unable to read the file '" + this.GetInputFileName( this.DatabaseFile ) + "'. Please make sure this file exists and is not in use." );
+                throw new XTMFRuntimeException( "We were unable to read the file '" + GetInputFileName( DatabaseFile ) + "'. Please make sure this file exists and is not in use." );
             }
             return headers;
         }
@@ -270,7 +270,7 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             try
             {
-                using ( StreamReader reader = new StreamReader( this.GetInputFileName( this.DemographicSwitchFile ) ) )
+                using ( StreamReader reader = new StreamReader( GetInputFileName( DemographicSwitchFile ) ) )
                 {
                     int lineNumber = 1;
                     string line;
@@ -289,19 +289,19 @@ namespace TMG.GTAModel.ParameterDatabase
                         {
                             if ( !bool.TryParse( split[i + 1], out switchLine[i] ) )
                             {
-                                throw new XTMFRuntimeException( "In the file '" + this.GetInputFileName( DemographicSwitchFile )
+                                throw new XTMFRuntimeException( "In the file '" + GetInputFileName( DemographicSwitchFile )
                                     + "' on line " + lineNumber + " under column '" + headers[i] + "' we were unable to parse the value '"
                                     + split[i + 1] + "' as a boolean.  Please fix this to be either 'true' or 'false'!" );
                             }
                         }
-                        this.DemographicSwitches.Add( switchLine );
+                        DemographicSwitches.Add( switchLine );
                         lineNumber++;
                     }
                 }
             }
             catch ( IOException )
             {
-                throw new XTMFRuntimeException( "We were unable to read the file '" + this.DemographicSwitchFile + "'. Please make sure this file exists and is not in use." );
+                throw new XTMFRuntimeException( "We were unable to read the file '" + DemographicSwitchFile + "'. Please make sure this file exists and is not in use." );
             }
         }
 
@@ -313,10 +313,10 @@ namespace TMG.GTAModel.ParameterDatabase
         private void SetupParameterObjects(string[] headers)
         {
             var length = headers.Length;
-            this.Parameters = new List<Parameter>( length );
+            Parameters = new List<Parameter>( length );
             for ( int i = 0; i < length; i++ )
             {
-                this.Parameters.Add( new Parameter( headers[i] ) );
+                Parameters.Add( new Parameter( headers[i] ) );
             }
         }
 
@@ -331,33 +331,33 @@ namespace TMG.GTAModel.ParameterDatabase
             {
                 throw new XTMFRuntimeException( "The Mode Choice Demographic Parameter Set has to have a non negative index!" );
             }
-            if ( parameterSetIndex >= this.ParameterSets.Count )
+            if ( parameterSetIndex >= ParameterSets.Count )
             {
                 throw new XTMFRuntimeException( "The Mode Choice Parameter Set " + parameterSetIndex + " does not exist, please check!" );
             }
-            if ( parameterSetIndex >= this.DemographicAlternativeParameters.Count )
+            if ( parameterSetIndex >= DemographicAlternativeParameters.Count )
             {
                 throw new XTMFRuntimeException( "The Demographic Alternative Parameter Set " + parameterSetIndex + " does not exist, please check!" );
             }
-            if ( demographicIndex >= this.DemographicSwitches.Count )
+            if ( demographicIndex >= DemographicSwitches.Count )
             {
                 throw new XTMFRuntimeException( "The Mode Choice Demographic Parameter Set " + demographicIndex + " does not exist, please check!" );
             }
-            var parameterSet = this.ParameterSets[parameterSetIndex];
-            var demographicAlternative = this.DemographicAlternativeParameters[parameterSetIndex];
-            var demographicSwitchLine = this.DemographicSwitches[demographicIndex];
+            var parameterSet = ParameterSets[parameterSetIndex];
+            var demographicAlternative = DemographicAlternativeParameters[parameterSetIndex];
+            var demographicSwitchLine = DemographicSwitches[demographicIndex];
             for ( int i = 0; i < length; i++ )
             {
                 // the first part is to check to see which value we should be loading
                 if ( demographicSwitchLine[i] )
                 {
                     // if it is true, then we use the default value
-                    this.Parameters[i].Value = parameterSet[i];
+                    Parameters[i].Value = parameterSet[i];
                 }
                 else
                 {
                     // if it is false then we use the alternative value
-                    this.Parameters[i].Value = demographicAlternative[i];
+                    Parameters[i].Value = demographicAlternative[i];
                 }
             }
         }

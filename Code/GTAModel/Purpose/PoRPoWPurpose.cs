@@ -49,33 +49,33 @@ namespace TMG.GTAModel.Purpose
 
         public override float Progress
         {
-            get { return this.Distribution.Progress; }
+            get { return Distribution.Progress; }
         }
 
         public override void Run()
         {
-            if ( !this.Execute ) return;
+            if ( !Execute ) return;
             // we actually don't write our mode choice
-            var numberOfCategories = this.Categories.Count;
+            var numberOfCategories = Categories.Count;
             SparseArray<float>[] O = new SparseArray<float>[numberOfCategories];
             SparseArray<float>[] D = new SparseArray<float>[numberOfCategories];
             for ( int i = 0; i < O.Length; i++ )
             {
                 O[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
                 D[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                this.Categories[i].Generate( O[i], D[i] );
+                Categories[i].Generate( O[i], D[i] );
             }
             // if we only need to run generation we are done
-            if ( this.OnlyDoGeneration ) return;
+            if ( OnlyDoGeneration ) return;
             // we don't do mode choice
-            foreach ( var distributionData in this.Distribution.Distribute( O, D, this.Categories ) )
+            foreach ( var distributionData in Distribution.Distribute( O, D, Categories ) )
             {
-                var interative = this.ModeSplit as IInteractiveModeSplit;
+                var interative = ModeSplit as IInteractiveModeSplit;
                 if ( interative != null )
                 {
                     interative.EndInterativeModeSplit();
                 }
-                if ( !String.IsNullOrWhiteSpace( this.SaveResultFileName ) )
+                if ( !String.IsNullOrWhiteSpace( SaveResultFileName ) )
                 {
                     SaveFriction( distributionData.GetFlatData() );
                 }
@@ -85,15 +85,15 @@ namespace TMG.GTAModel.Purpose
         public void Start()
         {
             // to start, run
-            this.Run();
+            Run();
         }
 
         private string GetFrictionFileName(string baseName)
         {
-            if ( this.Root.CurrentIteration != lastIteration )
+            if ( Root.CurrentIteration != lastIteration )
             {
                 currentNumber = 0;
-                lastIteration = this.Root.CurrentIteration;
+                lastIteration = Root.CurrentIteration;
             }
             return String.Concat( baseName, currentNumber++, ".bin" );
         }
@@ -102,7 +102,7 @@ namespace TMG.GTAModel.Purpose
         {
             try
             {
-                var fileName = GetFrictionFileName( this.SaveResultFileName );
+                var fileName = GetFrictionFileName( SaveResultFileName );
                 var dirName = Path.GetDirectoryName( fileName );
                 if ( !Directory.Exists( dirName ) )
                 {

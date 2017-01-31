@@ -84,19 +84,19 @@ namespace TMG.GTAModel.V2.Distribution
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            if ( this.SaveDistributionSeries != null )
+            if ( SaveDistributionSeries != null )
             {
-                this.SaveDistributionSeries.Reset();
+                SaveDistributionSeries.Reset();
             }
             IDemographicCategory cat = null;
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var linkages = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var linkages = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var catEnum = category.GetEnumerator();
             var productionEnum = productions.GetEnumerator();
             int catIndex = 0;
-            var rangeSet = new RangeSet( new int[] { 0 } );
+            var rangeSet = new RangeSet( new[] { 0 } );
             // just multiply by the number of occupations in v2 since this is a throw away module
-            this.NumberOfGenerations = NumberOfCategoriesPerOccupation * 4;
+            NumberOfGenerations = NumberOfCategoriesPerOccupation * 4;
             while ( catEnum.MoveNext() & productionEnum.MoveNext() )
             {
                 cat = catEnum.Current;
@@ -105,24 +105,24 @@ namespace TMG.GTAModel.V2.Distribution
                     () => SetupMobilityInformation( catIndex ),
                     () => LoadLinkages( catIndex, linkages.GetFlatData() )
                 );
-                foreach ( var mobilitySet in this.MobilityRanges )
+                foreach ( var mobilitySet in MobilityRanges )
                 {
                     for ( int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++ )
                     {
                         var realCat = cat as DemographicCategoryGeneration;
                         if ( realCat == null )
                         {
-                            throw new XTMFRuntimeException( "In '" + this.Name + "' it is required that all generates be of the type DemographicCategoryGeneration!" );
+                            throw new XTMFRuntimeException( "In '" + Name + "' it is required that all generates be of the type DemographicCategoryGeneration!" );
                         }
                         rangeSet[0] = new Range(mobility, mobility);
                         realCat.Mobility = rangeSet;
                         DistributePopulation( realCat, ageRate.GetFlatData(), linkages.GetFlatData(), catIndex, ret.GetFlatData() );
                         Task save = null;
-                        if ( this.SaveDistributionSeries != null )
+                        if ( SaveDistributionSeries != null )
                         {
                             save = Task.Factory.StartNew( () =>
                                 {
-                                    SaveDistribution( ret, this.Root.ZoneSystem.ZoneArray.GetFlatData(), catIndex );
+                                    SaveDistribution( ret, Root.ZoneSystem.ZoneArray.GetFlatData(), catIndex );
                                 } );
                         }
                         yield return ret;
@@ -135,16 +135,16 @@ namespace TMG.GTAModel.V2.Distribution
                 }
             }
             // Free up our memory
-            this.MobilityCache = null;
-            this.UnloadRates();
+            MobilityCache = null;
+            UnloadRates();
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            this.ModeSplit = this.Parent.ModeSplit as IInteractiveModeSplit;
-            if ( this.ModeSplit == null )
+            ModeSplit = Parent.ModeSplit as IInteractiveModeSplit;
+            if ( ModeSplit == null )
             {
-                error = "In '" + this.Name
+                error = "In '" + Name
                     + "' it is required that the parent module uses an IInteractive Mode Choice module!  Please contact your model system provider for assistance.";
                 return false;
             }
@@ -162,19 +162,19 @@ namespace TMG.GTAModel.V2.Distribution
 
         private void DistributePopulation(DemographicCategoryGeneration cat, float[] ageProbability, float[][] assignedPersons, int catIndex, float[][] ret)
         {
-            var timeOfDayRate = this.CurrentTimeOfDayRates.GiveData();
-            var dailyRates = this.CurrentDailyRates.GiveData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var timeOfDayRate = CurrentTimeOfDayRates.GiveData();
+            var dailyRates = CurrentDailyRates.GiveData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfMobilityTypes = GetMobilityTypeTotal();
             var currentMobilityType = catIndex % numberOfMobilityTypes;
-            this.ModeSplit.StartNewInteractiveModeSplit( this.NumberOfGenerations );
+            ModeSplit.StartNewInteractiveModeSplit( NumberOfGenerations );
             // Setup the mode choice function, since each zone is the same, we only need to do this once
             cat.InitializeDemographicCategory();
             var age = cat.AgeCategoryRange[0].Start;
             //ageOfffset = foreach each OD Pair, for each mobility category multiplied by the age - 2 (workrs start at 2).
             var ageOffset = ( 5 * zones.Length * zones.Length ) * ( age - 2 );
             // for each origin zone
-            Parallel.For( 0, zones.Length, (int i) =>
+            Parallel.For( 0, zones.Length, i =>
                 {
                     var pdI = zones[i].PlanningDistrict;
                     // Offset of the origin
@@ -208,7 +208,7 @@ namespace TMG.GTAModel.V2.Distribution
                             {
                                 var pdJ = zones[j].PlanningDistrict;
                                 // compute the mode choice
-                                var util = this.ModeSplit.ComputeUtility( zones[i], zones[j] );
+                                var util = ModeSplit.ComputeUtility( zones[i], zones[j] );
                                 if ( float.IsNaN( util ) | float.IsInfinity( util ) )
                                 {
                                     throw new XTMFRuntimeException( "We came across an invalid utility! Age = " + age + " origin = " + zones[i].ZoneNumber + " destination = " + zones[j].ZoneNumber
@@ -223,7 +223,7 @@ namespace TMG.GTAModel.V2.Distribution
                                     throw new XTMFRuntimeException( "We lost generation for " + zones[i].ZoneNumber + " to " + zones[j].ZoneNumber + ". " + persons
                                         + " persons in category " + catIndex + "." );
                                 }
-                                row[j] = persons * rate * this.MobilityCache[iOffset + currentJIndex];
+                                row[j] = persons * rate * MobilityCache[iOffset + currentJIndex];
                             }
                             currentJIndex++;
                         }
@@ -234,7 +234,7 @@ namespace TMG.GTAModel.V2.Distribution
         private int GetMobilityTypeTotal()
         {
             int total = 0;
-            foreach ( var range in this.MobilityRanges )
+            foreach ( var range in MobilityRanges )
             {
                 total += range.Stop - range.Start + 1;
             }
@@ -243,10 +243,10 @@ namespace TMG.GTAModel.V2.Distribution
 
         private void LoadLinkages(int catIndex, float[][] linkageStoreage)
         {
-            if ( catIndex % this.NumberOfCategoriesPerOccupation == 0 )
+            if ( catIndex % NumberOfCategoriesPerOccupation == 0 )
             {
-                var loadIn = catIndex / this.NumberOfCategoriesPerOccupation;
-                var file = this.WorkCacheFile + loadIn.ToString() + ".bin";
+                var loadIn = catIndex / NumberOfCategoriesPerOccupation;
+                var file = WorkCacheFile + loadIn.ToString() + ".bin";
                 using ( BinaryReader reader = new BinaryReader( File.OpenRead( file ) ) )
                 {
                     var length = (int)reader.BaseStream.Length;
@@ -266,38 +266,38 @@ namespace TMG.GTAModel.V2.Distribution
 
         private void SaveDistribution(SparseTwinIndex<float> sparseRet, IZone[] zone, int index)
         {
-            this.SaveDistributionSeries.SaveMatrix( sparseRet.GetFlatData() );
+            SaveDistributionSeries.SaveMatrix( sparseRet.GetFlatData() );
         }
 
         private void SetupMobilityInformation(int catIndex)
         {
-            if ( catIndex % this.NumberOfCategoriesPerOccupation == 0 )
+            if ( catIndex % NumberOfCategoriesPerOccupation == 0 )
             {
                 // time for the next one
-                var loadIn = catIndex / this.NumberOfCategoriesPerOccupation;
-                var file = this.MobilityCacheFile + loadIn.ToString() + ".bin";
+                var loadIn = catIndex / NumberOfCategoriesPerOccupation;
+                var file = MobilityCacheFile + loadIn.ToString() + ".bin";
                 using ( BinaryReader reader = new BinaryReader( File.OpenRead( file ) ) )
                 {
                     var size = (int)reader.BaseStream.Length / 4;
-                    this.MobilityCache = new float[size];
+                    MobilityCache = new float[size];
                     byte[] temp = new byte[size * sizeof( float )];
                     FillBuffer( reader, temp );
-                    Buffer.BlockCopy( temp, 0, this.MobilityCache, 0, temp.Length );
+                    Buffer.BlockCopy( temp, 0, MobilityCache, 0, temp.Length );
                 }
                 UnloadRates();
-                this.CurrentDailyRates = this.LoadDailyRatesList[loadIn];
-                this.CurrentTimeOfDayRates = this.LoadTimeOfDayRatesList[loadIn];
-                this.CurrentDailyRates.LoadData();
-                this.CurrentTimeOfDayRates.LoadData();
+                CurrentDailyRates = LoadDailyRatesList[loadIn];
+                CurrentTimeOfDayRates = LoadTimeOfDayRatesList[loadIn];
+                CurrentDailyRates.LoadData();
+                CurrentTimeOfDayRates.LoadData();
             }
         }
 
         private void UnloadRates()
         {
-            if ( this.CurrentTimeOfDayRates != null )
+            if ( CurrentTimeOfDayRates != null )
             {
-                this.CurrentDailyRates.UnloadData();
-                this.CurrentTimeOfDayRates.UnloadData();
+                CurrentDailyRates.UnloadData();
+                CurrentTimeOfDayRates.UnloadData();
             }
         }
     }

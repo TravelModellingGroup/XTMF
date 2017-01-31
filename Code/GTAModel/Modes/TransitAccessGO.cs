@@ -65,7 +65,7 @@ namespace TMG.GTAModel.Modes
 
         public Tuple<IZone[], IZone[], float[]> GetSubchoiceSplit(IZone origin, IZone destination, Time time)
         {
-            return this.AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
+            return AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
         }
 
         public string NetworkType { get; set; }
@@ -93,12 +93,12 @@ namespace TMG.GTAModel.Modes
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var o = zoneArray.GetFlatIndex( origin.ZoneNumber );
             var d = zoneArray.GetFlatIndex( destination.ZoneNumber );
             // build the constant for this demographic category
-            var v = this.Constant + this.AgeConstant1 + this.AgeConstant2 + this.AgeConstant3 + this.AgeConstant4;
-            var data = this.AccessUtilities.GetFlatData()[o][d];
+            var v = Constant + AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4;
+            var data = AccessUtilities.GetFlatData()[o][d];
             var accessStations = data.Item1;
             var accessUtils = data.Item3;
             var accessUtil = 0f;
@@ -110,28 +110,28 @@ namespace TMG.GTAModel.Modes
             }
             // since the sum was already raised to the e, we can just take the natural log to get the logsum
             var logsum = (float)Math.Log( accessUtil );
-            if ( logsum < this.MinimumAccessStationUtility )
+            if ( logsum < MinimumAccessStationUtility )
             {
                 return float.NaN;
             }
-            v += this.Correlation * logsum;
-            if ( this.Access )
+            v += Correlation * logsum;
+            if ( Access )
             {
-                v += this.OriginPopulationDensity * (float)( Math.Log( origin.Population / ( origin.InternalArea / 1000f ) + 1f ) );
-                v += this.DestinationEmploymentDensity * (float)Math.Log( destination.Employment / ( destination.InternalArea / 1000f ) + 1f );
+                v += OriginPopulationDensity * (float)( Math.Log( origin.Population / ( origin.InternalArea / 1000f ) + 1f ) );
+                v += DestinationEmploymentDensity * (float)Math.Log( destination.Employment / ( destination.InternalArea / 1000f ) + 1f );
             }
             else
             {
-                v += this.OriginPopulationDensity * (float)( Math.Log( destination.Population / ( destination.InternalArea / 1000f ) + 1f ) );
-                v += this.DestinationEmploymentDensity * (float)Math.Log( origin.Employment / ( origin.InternalArea / 1000f ) + 1f );
+                v += OriginPopulationDensity * (float)( Math.Log( destination.Population / ( destination.InternalArea / 1000f ) + 1f ) );
+                v += DestinationEmploymentDensity * (float)Math.Log( origin.Employment / ( origin.InternalArea / 1000f ) + 1f );
             }
             return v;
         }
 
         public bool Feasible(IZone origin, IZone destination, Time time)
         {
-            if ( this.CurrentlyFeasible <= 0 ) return false;
-            var data = this.AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
+            if ( CurrentlyFeasible <= 0 ) return false;
+            var data = AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
             // make sure that the utilities have been processed
             return !( data == null || data.Item1 == null || data.Item1.Length == 0 );
         }
@@ -150,9 +150,9 @@ namespace TMG.GTAModel.Modes
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.AccessStationUtilities.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
+            if ( !AccessStationUtilities.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
             {
-                error = "In '" + this.Name + "' the resource Access Station Utilities are not of the proper type SparseTwinIndex<Tuple<IZone[],IZone[],float[]>>!";
+                error = "In '" + Name + "' the resource Access Station Utilities are not of the proper type SparseTwinIndex<Tuple<IZone[],IZone[],float[]>>!";
                 return false;
             }
             return true;
@@ -166,12 +166,12 @@ namespace TMG.GTAModel.Modes
         {
             if ( iterationNumber > 0 )
             {
-                this.AccessStationUtilities.ReleaseResource();
+                AccessStationUtilities.ReleaseResource();
             }
             // each iteration reload the utilities
-            if ( ( this.AccessUtilities = this.AccessStationUtilities.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() ) == null )
+            if ( ( AccessUtilities = AccessStationUtilities.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() ) == null )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to gather our Access Station Utilities!" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to gather our Access Station Utilities!" );
             }
         }
     }

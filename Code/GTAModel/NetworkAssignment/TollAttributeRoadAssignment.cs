@@ -154,11 +154,11 @@ namespace TMG.GTAModel.NetworkAssignment
             string result = "";
             if(UseTransitBackground)
             {
-                return mc.Run(_ToolNameWithBGTraffic, args, (p => this.Progress = p), ref result);
+                return mc.Run(_ToolNameWithBGTraffic, args, (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+                return mc.Run(_ToolName, args, (p => Progress = p), ref result);
             }
         }
 

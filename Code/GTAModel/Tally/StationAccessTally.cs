@@ -39,25 +39,25 @@ namespace TMG.GTAModel.Tally
 
         public override void IncludeTally(float[][] currentTally)
         {
-            var purposes = this.Root.Purpose;
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var purposes = Root.Purpose;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
-            for(int purp = 0; purp < this.PurposeIndexes.Length; purp++)
+            for(int purp = 0; purp < PurposeIndexes.Length; purp++)
             {
                 var purpose = purposes[purp];
-                for(int m = 0; m < this.ModeIndexes.Length; m++)
+                for(int m = 0; m < ModeIndexes.Length; m++)
                 {
-                    var data = GetResult(purpose.Flows, this.ModeIndexes[m]);
+                    var data = GetResult(purpose.Flows, ModeIndexes[m]);
                     if(data == null) continue;
-                    var mode = GetMode(this.ModeIndexes[m]) as IStationCollectionMode;
-                    if(this.LineHaull)
+                    var mode = GetMode(ModeIndexes[m]) as IStationCollectionMode;
+                    if(LineHaull)
                     {
                         ComputeLineHaull(currentTally, zoneArray, zones, m, data);
                     }
                     else
                     {
-                        mode.Access = this.CountFromOrigin;
-                        if(this.CountFromOrigin)
+                        mode.Access = CountFromOrigin;
+                        if(CountFromOrigin)
                         {
                             ComputeFromOrigin(currentTally, zoneArray, zones, m, data);
                         }
@@ -206,14 +206,14 @@ namespace TMG.GTAModel.Tally
         private Tuple<IZone[], IZone[], float[]> GetStationChoiceSplit(int m, IZone origin, IZone destination)
         {
             // this mode is our base
-            var mode = GetMode(this.ModeIndexes[m]);
+            var mode = GetMode(ModeIndexes[m]);
             var cat = mode as IStationCollectionMode;
             if(cat == null)
             {
                 throw new XTMFRuntimeException("The mode '" + mode.ModeName
                     + "' is not an TMG.Modes.IStationCollectionMode and can not be used with a StationAccessTally!");
             }
-            return cat.GetSubchoiceSplit(origin, destination, this.Time);
+            return cat.GetSubchoiceSplit(origin, destination, Time);
         }
     }
 }

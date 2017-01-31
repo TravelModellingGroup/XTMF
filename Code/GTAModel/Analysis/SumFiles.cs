@@ -60,7 +60,7 @@ namespace TMG.GTAModel.Analysis
             using ( StreamWriter writer = new StreamWriter( OutputFile.GetFileName() ) )
             {
                 writer.WriteLine( "SourceName,Total" );
-                foreach ( var dataSource in this.ODDataInput )
+                foreach ( var dataSource in ODDataInput )
                 {
                     double total = 0f;
                     foreach ( var dataPoint in dataSource.Read() )

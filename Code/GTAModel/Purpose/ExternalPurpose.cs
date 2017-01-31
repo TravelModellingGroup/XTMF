@@ -51,20 +51,20 @@ namespace TMG.GTAModel.Purpose
         public override void Run()
         {
             // We only need to run in the first iteration
-            if ( this.Root.CurrentIteration == 0 )
+            if ( Root.CurrentIteration == 0 )
             {
-                this.Flows = TMG.Functions.MirrorModeTree.CreateMirroredTree<float[][]>( this.Root.Modes );
+                Flows = Functions.MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
                 // Gather the data, process, then unload the data
-                this.ExternalBaseYearDistribution.LoadData();
-                this.ExternalBaseYearPopulation.LoadData();
-                this.ExternalBaseYearEmployment.LoadData();
-                var distribution = this.ExternalBaseYearDistribution.GiveData();
-                var population = this.ExternalBaseYearPopulation.GiveData();
-                var employment = this.ExternalBaseYearEmployment.GiveData();
+                ExternalBaseYearDistribution.LoadData();
+                ExternalBaseYearPopulation.LoadData();
+                ExternalBaseYearEmployment.LoadData();
+                var distribution = ExternalBaseYearDistribution.GiveData();
+                var population = ExternalBaseYearPopulation.GiveData();
+                var employment = ExternalBaseYearEmployment.GiveData();
                 ProcessExternalModel( distribution, population, employment );
-                this.ExternalBaseYearDistribution.UnloadData();
-                this.ExternalBaseYearPopulation.UnloadData();
-                this.ExternalBaseYearEmployment.UnloadData();
+                ExternalBaseYearDistribution.UnloadData();
+                ExternalBaseYearPopulation.UnloadData();
+                ExternalBaseYearEmployment.UnloadData();
             }
         }
 
@@ -80,7 +80,7 @@ namespace TMG.GTAModel.Purpose
             var indexes = population.ValidIndexArray();
             Parallel.For( 0, indexes.Length, delegate(int i)
             {
-                var zones = this.Root.ZoneSystem.ZoneArray;
+                var zones = Root.ZoneSystem.ZoneArray;
                 var origin = indexes[i];
                 var originTotal = population[origin] + employment[origin];
                 var originZone = zones[origin];
@@ -114,7 +114,7 @@ namespace TMG.GTAModel.Purpose
             var indexes = employment.ValidIndexArray();
             Parallel.For( 0, indexes.Length, delegate(int i)
             {
-                var zones = this.Root.ZoneSystem.ZoneArray;
+                var zones = Root.ZoneSystem.ZoneArray;
                 var destination = indexes[i];
                 var destinationEmployment = employment[destination];
                 var destinationZone = zones[destination];
@@ -152,7 +152,7 @@ namespace TMG.GTAModel.Purpose
             var indexes = population.ValidIndexArray();
             Parallel.For( 0, indexes.Length, delegate(int i)
             {
-                var zones = this.Root.ZoneSystem.ZoneArray;
+                var zones = Root.ZoneSystem.ZoneArray;
                 var zoneNumber = indexes[i];
                 var originPopulation = population[zoneNumber];
                 var originZone = zones[zoneNumber];
@@ -184,18 +184,18 @@ namespace TMG.GTAModel.Purpose
 
         private int RemapMode(int mode)
         {
-            var index = this.OriginalModeNumbers.IndexOf( mode );
+            var index = OriginalModeNumbers.IndexOf( mode );
             if ( index > -1 )
             {
-                return this.NewLeafNumbers[index];
+                return NewLeafNumbers[index];
             }
-            throw new XTMFRuntimeException( "In '" + this.Name 
+            throw new XTMFRuntimeException( "In '" + Name 
                 + "' we were unable to map a mode with index '" + mode + "' to any new leaf mode." );
         }
 
         private void AddData(int mode, int originIndex, int destinationIndex, float ammount, int numberOfZones)
         {
-            TreeData<float[][]> modeData = TMG.Functions.MirrorModeTree.GetLeafNodeWithIndex( this.Flows, RemapMode( mode ) - 1 );
+            TreeData<float[][]> modeData = Functions.MirrorModeTree.GetLeafNodeWithIndex( Flows, RemapMode( mode ) - 1 );
             // ensure there is data for us to store a result
             if ( modeData.Result == null )
             {
@@ -223,9 +223,9 @@ namespace TMG.GTAModel.Purpose
 
         public override bool RuntimeValidation(ref string error)
         {
-            if ( this.OriginalModeNumbers.Count != this.NewLeafNumbers.Count )
+            if ( OriginalModeNumbers.Count != NewLeafNumbers.Count )
             {
-                error = "In '" + this.Name + "' the number of parameters in OriginalModeNumbers must be the same as in NewLeafNumbers!";
+                error = "In '" + Name + "' the number of parameters in OriginalModeNumbers must be the same as in NewLeafNumbers!";
                 return false;
             }
             return base.RuntimeValidation( ref error );
