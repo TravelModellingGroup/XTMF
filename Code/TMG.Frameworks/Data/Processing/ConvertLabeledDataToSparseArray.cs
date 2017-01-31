@@ -18,10 +18,7 @@
 */
 using Datastructure;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Frameworks.Data.DataTypes;
 using XTMF;
 
@@ -63,7 +60,7 @@ namespace TMG.Frameworks.Data.Processing
                 baseData = Labeled.GiveData();
             }
             var data = baseData.OrderBy(k => k.Key).Select(pair => pair.Value).ToArray();
-            _Data = new SparseArray<float>(new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = data.Length - 1 } } }, data);
+            _Data = new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = data.Length - 1 } } }, data);
             Loaded = true;
         }
 

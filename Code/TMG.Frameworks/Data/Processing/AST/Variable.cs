@@ -17,11 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using Datastructure;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST

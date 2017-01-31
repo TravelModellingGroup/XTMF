@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using TMG.Input;
 using TMG.Functions;
@@ -31,6 +27,7 @@ namespace TMG.Frameworks.Data.Saving
     [ModuleInformation(
         Description = "This module is designed to save OD data into a csv file with the headers (Origin,Destination,Data)."
         )]
+    // ReSharper disable once InconsistentNaming
     public class SaveODToThirdNormalizedCSV : ISelfContainedModule
     {
         [SubModelInformation(Required = false, Description = "The OD Data to save, this or the Raw Data Source need to be filled out.")]

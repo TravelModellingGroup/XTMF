@@ -18,10 +18,7 @@
 */
 using Datastructure;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Frameworks.Data.DataTypes;
 using TMG.Input;
 using XTMF;
@@ -117,8 +114,8 @@ If a mapping file is not provided it will do a left join onto the DataToAggregat
 
         private LabeledData<float> LoadData(IDataSource<LabeledData<float>> fitToShape)
         {
-            bool loadedData;
-            if(loadedData = !fitToShape.Loaded)
+            var loadedData = !fitToShape.Loaded;
+            if (loadedData)
             {
                 fitToShape.LoadData();
             }

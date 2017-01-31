@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
 
@@ -59,17 +55,17 @@ namespace TMG.Frameworks.Data.Loading
         }
 
         [RootModule]
-        public ITravelDemandModel root;
+        public ITravelDemandModel Root;
 
         public void LoadData()
         {
-            if (!root.ZoneSystem.Loaded)
+            if (!Root.ZoneSystem.Loaded)
             {
-                root.ZoneSystem.LoadData();
+                Root.ZoneSystem.LoadData();
             }
-            var data = root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+            var data = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
-            var flatZones = root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             switch (FillWith)
             {
                 case FillData.PlanningDistrict:

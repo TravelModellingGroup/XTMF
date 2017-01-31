@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,40 +16,36 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Datastructure;
 using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public abstract class ASTNode
+    public abstract class AstNode
     {
         /// <summary>
         /// The starting point of the node
         /// </summary>
-        internal int Start;
+        internal readonly int Start;
 
-        public ASTNode(int start)
+        protected AstNode(int start)
         {
             Start = start;
         }
 
         public abstract ComputationResult Evaluate(IDataSource[] dataSources);
 
-        internal abstract bool OptimizeAST(ref Expression ex, ref string error);
+        internal abstract bool OptimizeAst(ref Expression ex, ref string error);
     }
 
     public class ComputationResult
     {
-        public bool IsODResult { get { return ODData != null; } }
+        public bool IsOdResult => OdData != null;
 
-        public bool IsVectorResult { get { return VectorData != null; } }
+        public bool IsVectorResult => VectorData != null;
 
-        public bool Error { get { return ErrorMessage != null; } }
+        public bool Error => ErrorMessage != null;
 
         public string ErrorMessage { get; private set; }
 
@@ -64,18 +60,14 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         public VectorDirection Direction { get; private set; }
 
-        public SparseTwinIndex<float> ODData
-        {
-            get; private set;
-        }
+        public SparseTwinIndex<float> OdData { get; }
+        
 
-        public SparseArray<float> VectorData { get; private set; }
+        public SparseArray<float> VectorData { get; }
 
-        public float LiteralValue
-        {
-            get; private set;
-        }
-        public bool IsValue { get { return !IsODResult && !IsVectorResult && !Error; } }
+        public float LiteralValue { get; }
+        
+        public bool IsValue => !IsOdResult && !IsVectorResult && !Error;
 
         public ComputationResult(float value)
         {
@@ -84,7 +76,7 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         public ComputationResult(SparseTwinIndex<float> data, bool accumulator)
         {
-            ODData = data;
+            OdData = data;
             Accumulator = accumulator;
         }
 
@@ -97,7 +89,7 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         public ComputationResult(ComputationResult res, VectorDirection direction)
         {
-            ODData = res.ODData;
+            OdData = res.OdData;
             LiteralValue = res.LiteralValue;
             VectorData = res.VectorData;
             Direction = direction;

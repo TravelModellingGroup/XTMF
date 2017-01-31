@@ -18,9 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using TMG.Input;
 using Microsoft.Office.Interop.Excel;
@@ -32,6 +29,7 @@ namespace TMG.Frameworks.Office
     [ModuleInformation(Description =
         "This module converts a CSV file to an XLSX file using Microsoft Excel.  Excel 14+ is required for this to operate."
         )]
+    // ReSharper disable once InconsistentNaming
     public class ConvertCSVToXLSX : ISelfContainedModule
     {
 

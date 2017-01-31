@@ -16,13 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using TMG.Functions;
-using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
@@ -38,6 +33,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             // see if we have two values, in this case we can skip doing the matrix operation
             if (lhs.IsValue && rhs.IsValue)
             {
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 return new ComputationResult(lhs.LiteralValue != rhs.LiteralValue ? 1 : 0);
             }
             // float / matrix
@@ -52,8 +48,8 @@ namespace TMG.Frameworks.Data.Processing.AST
                 }
                 else
                 {
-                    var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.ODData.GetFlatData());
+                    var retMatrix = rhs.Accumulator ? rhs.OdData : rhs.OdData.CreateSimilarArray<float>();
+                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.OdData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -69,8 +65,8 @@ namespace TMG.Frameworks.Data.Processing.AST
                 else
                 {
                     // matrix / float
-                    var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.LiteralValue);
+                    var retMatrix = lhs.Accumulator ? lhs.OdData : lhs.OdData.CreateSimilarArray<float>();
+                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -86,61 +82,61 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                     else if (lhs.IsVectorResult)
                     {
-                        var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
+                        var retMatrix = rhs.Accumulator ? rhs.OdData : rhs.OdData.CreateSimilarArray<float>();
                         var flatRet = retMatrix.GetFlatData();
-                        var flatRHS = rhs.ODData.GetFlatData();
-                        var flatLHS = lhs.VectorData.GetFlatData();
+                        var flatRhs = rhs.OdData.GetFlatData();
+                        var flatLhs = lhs.VectorData.GetFlatData();
                         if (lhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.FlagIfNotEqual(flatRet[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], flatLhs[i], flatRhs[i]);
                             });
                         }
                         else if (lhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.FlagIfNotEqual(flatRet[i], 0, flatLHS, 0, flatRHS[i], 0, flatRet[i].Length);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], 0, flatLhs, 0, flatRhs[i], 0, flatRet[i].Length);
                             });
                         }
                         else
                         {
-                            return new ComputationResult("Unable to add vector without directionality starting at position " + LHS.Start + "!");
+                            return new ComputationResult("Unable to add vector without directionality starting at position " + Lhs.Start + "!");
                         }
                         return new ComputationResult(retMatrix, true);
                     }
                     else
                     {
-                        var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
+                        var retMatrix = lhs.Accumulator ? lhs.OdData : lhs.OdData.CreateSimilarArray<float>();
                         var flatRet = retMatrix.GetFlatData();
-                        var flatLHS = lhs.ODData.GetFlatData();
-                        var flatRHS = rhs.VectorData.GetFlatData();
+                        var flatLhs = lhs.OdData.GetFlatData();
+                        var flatRhs = rhs.VectorData.GetFlatData();
                         if (rhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.FlagIfNotEqual(flatRet[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], flatLhs[i], flatRhs[i]);
                             });
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.FlagIfNotEqual(flatRet[i], 0, flatRHS, 0, flatLHS[i], 0, flatRet[i].Length);
+                                VectorHelper.FlagIfNotEqual(flatRet[i], 0, flatRhs, 0, flatLhs[i], 0, flatRet[i].Length);
                             });
                         }
                         else
                         {
-                            return new ComputationResult("Unable to add vector without directionality starting at position " + LHS.Start + "!");
+                            return new ComputationResult("Unable to add vector without directionality starting at position " + Lhs.Start + "!");
                         }
                         return new ComputationResult(retMatrix, true);
                     }
                 }
                 else
                 {
-                    var retMatrix = lhs.Accumulator ? lhs.ODData : (rhs.Accumulator ? rhs.ODData : lhs.ODData.CreateSimilarArray<float>());
-                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.ODData.GetFlatData());
+                    var retMatrix = lhs.Accumulator ? lhs.OdData : (rhs.Accumulator ? rhs.OdData : lhs.OdData.CreateSimilarArray<float>());
+                    VectorHelper.FlagIfNotEqual(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.OdData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }

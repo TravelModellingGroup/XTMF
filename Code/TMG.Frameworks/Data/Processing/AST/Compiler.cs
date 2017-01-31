@@ -16,20 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
     public static class Compiler
     {
-        public static bool Compile(string expression,out AST.Expression ex, ref string error)
+        public static bool Compile(string expression,out Expression ex, ref string error)
         {
             var buffer = expression.ToCharArray();
-            return AST.Expression.Compile(buffer, 0, buffer.Length, out ex, ref error) && AST.Expression.Optimize(ref ex, ref error);
+            return Expression.Compile(buffer, 0, buffer.Length, out ex, ref error) && Expression.Optimize(ref ex, ref error);
         }
     }
 }

@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Datastructure;
 using TMG.Data;
 using XTMF;
@@ -29,15 +25,10 @@ using TMG.Input;
 namespace TMG.Frameworks.Data
 {
     [ModuleInformation(Description = "This module is designed to load zonal mapping information from a CSV file where the first two columns are the zone number and then a number to categorize that zone to.")]
+    // ReSharper disable once InconsistentNaming
     public sealed class LoadZoneMapFromCSV : IDataSource<ZoneMap>
     {
-        public bool Loaded
-        {
-            get
-            {
-                return Data == null;
-            }
-        }
+        public bool Loaded => Data == null;
 
         [SubModelInformation(Required = true, Description = "The location to load the map file from. (Zone#,Mapping#)")]
         public FileLocation MapFileLocation;

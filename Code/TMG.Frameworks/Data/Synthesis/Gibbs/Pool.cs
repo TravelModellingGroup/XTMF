@@ -17,18 +17,15 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 
 namespace TMG.Frameworks.Data.Synthesis.Gibbs
 {
 
-    public class Pool : XTMF.IModule
+    public class Pool : IModule
     {
         [SubModelInformation(Description = "The conditionals to apply.")]
         public Conditional[] Conditionals;
@@ -88,7 +85,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
         private void GenerateForZone(int zone)
         {
             // load in the data we need to process our conditionals
-            System.Threading.Tasks.Parallel.For(0, Conditionals.Length, (int i) =>
+            System.Threading.Tasks.Parallel.For(0, Conditionals.Length, i =>
             {
                 Conditionals[i].LoadConditionalsData(0);
             });
@@ -99,7 +96,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             {
                 poolSegments[i] = new PoolSegment(this, r.Next());
             }
-            System.Threading.Tasks.Parallel.For(0, poolSegments.Length, (int i) =>
+            System.Threading.Tasks.Parallel.For(0, poolSegments.Length, i =>
             {
                 poolSegments[i].ProcessSegment(SegmentSize);
             });
@@ -190,7 +187,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             else
             {
                 IModelSystemStructure tdm;
-                if (TMG.Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
+                if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
                 {
                     ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
                     if (ZoneSystem != null && !ZoneSystem.Loaded)

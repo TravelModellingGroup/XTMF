@@ -18,18 +18,17 @@
 */
 using Datastructure;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Functions;
 using TMG.Data;
 using XTMF;
+// ReSharper disable InconsistentNaming
 
 
 namespace TMG.Frameworks.Data.Processing
 {
     [ModuleInformation(Description = "This module is designed to condense a zone system OD matrix into a given arbitrary map.")]
+    // ReSharper disable once InconsistentNaming
     public class AggregateZoneODByZoneMap : IDataSource<SparseTwinIndex<float>>
     {
         public bool Loaded
@@ -76,8 +75,8 @@ namespace TMG.Frameworks.Data.Processing
             var map = ModuleHelper.GetDataFromDatasourceOrResource(ZoneMapFromDataSource, ZoneMapFromResource, UnloadZoneSource);
             var zoneData = ModuleHelper.GetDataFromDatasourceOrResource(ODDataFromDataSource, ODDataFromResource, UnloadODDataSource).GetFlatData();
             var bins = map.MapValues.ToArray();
-            var mapOD = SparseArray<float>.CreateSparseArray(bins, null).CreateSquareTwinArray<float>();
-            var flatMapData = mapOD.GetFlatData();
+            var mapOd = SparseArray<float>.CreateSparseArray(bins, null).CreateSquareTwinArray<float>();
+            var flatMapData = mapOd.GetFlatData();
             var toZones = map.KeyToZoneIndex;
             for (int originBin = 0; originBin < bins.Length; originBin++)
             {
@@ -95,7 +94,7 @@ namespace TMG.Frameworks.Data.Processing
                     }
                 }
             }
-            Data = mapOD;
+            Data = mapOd;
         }
 
         public bool RuntimeValidation(ref string error)

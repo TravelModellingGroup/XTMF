@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using TMG.Input;
 using XTMF;
@@ -65,7 +61,7 @@ namespace TMG.Frameworks.Extensibility
             try
             {
                 var process = RunningProcess = Process.Start(Program, Arguments);
-                if(WaitForExit)
+                if (process != null && WaitForExit)
                 {
                     process.WaitForExit();
                 }
@@ -83,19 +79,12 @@ namespace TMG.Frameworks.Extensibility
         public void ShutdownProgram()
         {
             var process = RunningProcess;
-            if(process != null)
+            if (process != null)
             {
-                try
+                if (!process.HasExited)
                 {
-                    if(!process.HasExited)
-                    {
-                        process.Kill();
-                        process.WaitForExit();
-                    }
-                }
-                catch
-                {
-
+                    process.Kill();
+                    process.WaitForExit();
                 }
             }
         }
@@ -103,26 +92,26 @@ namespace TMG.Frameworks.Extensibility
         private void AddMultiRunCommand()
         {
             var listToUs = ModelSystemReflection.BuildModelStructureChain(Config, this);
-            for(int i = listToUs.Count - 1; i >= 0; i--)
+            for (int i = listToUs.Count - 1; i >= 0; i--)
             {
                 var multiRunFramework = listToUs[i].Module as MultiRun.MultiRunModelSystem;
-                if(multiRunFramework != null)
+                if (multiRunFramework != null)
                 {
                     multiRunFramework.TryAddBatchCommand("LaunchProgram.ShutdownExternalProgram", (node) =>
                     {
                         var path = multiRunFramework.GetAttributeOrError(node, "Path", "In 'LaunchProgram.ShutdownExternalProgram' we were unable to find an xml attribute called 'Path'!\r\nPlease add this to your batch script.");
                         IModelSystemStructure selectedModule = null;
                         IModelSystemStructure multiRunFrameworkChild = null;
-                        if(!ModelSystemReflection.FindModuleStructure(Config, multiRunFramework.Child, ref multiRunFrameworkChild))
+                        if (!ModelSystemReflection.FindModuleStructure(Config, multiRunFramework.Child, ref multiRunFrameworkChild))
                         {
                             throw new XTMFRuntimeException("We were unable to find the multi-run frameworks child module's model system structure!");
                         }
-                        if(!ModelSystemReflection.GetModelSystemStructureFromPath(multiRunFrameworkChild, path, ref selectedModule))
+                        if (!ModelSystemReflection.GetModelSystemStructureFromPath(multiRunFrameworkChild, path, ref selectedModule))
                         {
                             throw new XTMFRuntimeException("We were unable to find a module with the path '" + path + "'!");
                         }
                         var toShutdown = selectedModule.Module as LaunchProgram;
-                        if(toShutdown == null)
+                        if (toShutdown == null)
                         {
                             throw new XTMFRuntimeException("The module with the path '" + path + "' was not of type 'TMG.Frameworks.Extensibility.LaunchProgram'!");
                         }
@@ -136,7 +125,7 @@ namespace TMG.Frameworks.Extensibility
         public bool RuntimeValidation(ref string error)
         {
             IModelSystemStructure us = null;
-            if(!ModelSystemReflection.FindModuleStructure(Config.ProjectRepository.ActiveProject, this, ref us))
+            if (!ModelSystemReflection.FindModuleStructure(Config.ProjectRepository.ActiveProject, this, ref us))
             {
                 error = "In '" + Name + "' we were unable to find ourselves!";
                 return false;

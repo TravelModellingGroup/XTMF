@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -20,8 +20,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ThreadParallel = System.Threading.Tasks.Parallel;
 namespace TMG.Frameworks.Parallel
 {
@@ -30,16 +28,16 @@ namespace TMG.Frameworks.Parallel
     /// where there is a section of code that can be run in parallel but the results
     /// need to be aggregated in order to ensure reproducibility.
     /// </summary>
-    /// <typeparam name="Data"></typeparam>
-    /// <typeparam name="Intermediate"></typeparam>
-    public static class ParallelWorkSerialRecombination<Data, Intermediate>
+    /// <typeparam name="TData"></typeparam>
+    /// <typeparam name="TIntermediate"></typeparam>
+    public static class ParallelWorkSerialRecombination<TData, TIntermediate>
     {
         private struct TaggedBaseData
         {
-            internal Data Data;
-            internal int TaskNumber;
+            internal readonly TData Data;
+            internal readonly int TaskNumber;
 
-            public TaggedBaseData(Data d, int taskNumber)
+            public TaggedBaseData(TData d, int taskNumber)
             {
                 Data = d;
                 TaskNumber = taskNumber;
@@ -48,10 +46,10 @@ namespace TMG.Frameworks.Parallel
 
         private struct TaggedIntermediate
         {
-            internal Intermediate ProcessedData;
-            internal int TaskNumber;
+            internal readonly TIntermediate ProcessedData;
+            internal readonly int TaskNumber;
 
-            public TaggedIntermediate(Intermediate d, int taskNumber)
+            public TaggedIntermediate(TIntermediate d, int taskNumber)
             {
                 ProcessedData = d;
                 TaskNumber = taskNumber;
@@ -63,25 +61,25 @@ namespace TMG.Frameworks.Parallel
         /// </summary>
         private struct ProcessedPartition
         {
-            internal IEnumerable<Intermediate> ProcessedData;
-            internal int TaskNumber;
+            internal readonly IEnumerable<TIntermediate> ProcessedData;
+            internal readonly int TaskNumber;
 
-            public ProcessedPartition(IEnumerable<Intermediate> d, int taskNumber)
+            public ProcessedPartition(IEnumerable<TIntermediate> d, int taskNumber)
             {
                 ProcessedData = d;
                 TaskNumber = taskNumber;
             }
         }
 
-        public static void ComputeInParallel(IEnumerable<Data> baseData, Func<Data, Intermediate> parallelWork, Action<Intermediate> recombination, int numberOfPartitions)
+        public static void ComputeInParallel(IList<TData> baseData, Func<TData, TIntermediate> parallelWork, Action<TIntermediate> recombination, int numberOfPartitions)
         {
             var intermediateResults = new BlockingCollection<ProcessedPartition>();
             ThreadParallel.Invoke(() =>
             {
                 try
                 {
-                    var partitionSize = (int)Math.Ceiling(baseData.Count() / (float)numberOfPartitions);
-                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), (IGrouping<int, TaggedBaseData> g) =>
+                    var partitionSize = (int)Math.Ceiling(baseData.Count / (float)numberOfPartitions);
+                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), g =>
                     {
                         intermediateResults.Add(new ProcessedPartition(g.Select(d => parallelWork(d.Data)), g.Key));
                     });
@@ -93,7 +91,7 @@ namespace TMG.Frameworks.Parallel
             }, () =>
             {
                 int expecting = 0;
-                var backlog = new Dictionary<int, IEnumerable<Intermediate>>();
+                var backlog = new Dictionary<int, IEnumerable<TIntermediate>>();
                 foreach (var group in intermediateResults.GetConsumingEnumerable())
                 {
                     if (group.TaskNumber != expecting)
@@ -102,7 +100,7 @@ namespace TMG.Frameworks.Parallel
                         backlog[group.TaskNumber] = group.ProcessedData;
                         continue;
                     }
-                    IEnumerable<Intermediate> toProcess = group.ProcessedData;
+                    IEnumerable<TIntermediate> toProcess = group.ProcessedData;
                     while (true)
                     {
                         foreach (var element in toProcess)
@@ -126,15 +124,15 @@ namespace TMG.Frameworks.Parallel
             });
         }
 
-        public static void ComputeInParallel(IEnumerable<Data> baseData, Func<Data, int, Intermediate> parallelWork, Action<Intermediate, int> recombination, int numberOfPartitions)
+        public static void ComputeInParallel(IList<TData> baseData, Func<TData, int, TIntermediate> parallelWork, Action<TIntermediate, int> recombination, int numberOfPartitions)
         {
             var intermediateResults = new BlockingCollection<ProcessedPartition>();
             ThreadParallel.Invoke(() =>
             {
                 try
                 {
-                    var partitionSize = (int)Math.Ceiling(baseData.Count() / (float)numberOfPartitions);
-                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), (IGrouping<int, TaggedBaseData> g) =>
+                    var partitionSize = (int)Math.Ceiling(baseData.Count / (float)numberOfPartitions);
+                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)).GroupBy(d => d.TaskNumber / partitionSize), g =>
                     {
                         intermediateResults.Add(new ProcessedPartition(g.Select(d => parallelWork(d.Data, g.Key)), g.Key));
                     });
@@ -146,7 +144,7 @@ namespace TMG.Frameworks.Parallel
             }, () =>
             {
                 int expecting = 0;
-                var backlog = new Dictionary<int, IEnumerable<Intermediate>>();
+                var backlog = new Dictionary<int, IEnumerable<TIntermediate>>();
                 foreach (var group in intermediateResults.GetConsumingEnumerable())
                 {
                     if (group.TaskNumber != expecting)
@@ -155,7 +153,7 @@ namespace TMG.Frameworks.Parallel
                         backlog[group.TaskNumber] = group.ProcessedData;
                         continue;
                     }
-                    IEnumerable<Intermediate> toProcess = group.ProcessedData;
+                    IEnumerable<TIntermediate> toProcess = group.ProcessedData;
                     while (true)
                     {
                         foreach (var element in toProcess)
@@ -179,14 +177,14 @@ namespace TMG.Frameworks.Parallel
             });
         }
 
-        public static void ComputeInParallel(IEnumerable<Data> baseData, Func<Data, Intermediate> parallelWork, Action<Intermediate> recombination)
+        public static void ComputeInParallel(IList<TData> baseData, Func<TData, TIntermediate> parallelWork, Action<TIntermediate> recombination)
         {
             var intermediateResults = new BlockingCollection<TaggedIntermediate>();
             ThreadParallel.Invoke(() =>
            {
                try
                {
-                   ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), (TaggedBaseData d) =>
+                   ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), d =>
                   {
                       intermediateResults.Add(new TaggedIntermediate(parallelWork(d.Data), d.TaskNumber));
                   });
@@ -198,7 +196,7 @@ namespace TMG.Frameworks.Parallel
            }, () =>
            {
                int expecting = 0;
-               var backlog = new Dictionary<int, Intermediate>();
+               var backlog = new Dictionary<int, TIntermediate>();
                foreach (var newData in intermediateResults.GetConsumingEnumerable())
                {
                    if (newData.TaskNumber != expecting)
@@ -207,7 +205,7 @@ namespace TMG.Frameworks.Parallel
                        backlog[newData.TaskNumber] = newData.ProcessedData;
                        continue;
                    }
-                   Intermediate toProcess = newData.ProcessedData;
+                   TIntermediate toProcess = newData.ProcessedData;
                    while (true)
                    {
                        recombination(toProcess);
@@ -228,14 +226,14 @@ namespace TMG.Frameworks.Parallel
            });
         }
 
-        public static void ComputeInParallel(IEnumerable<Data> baseData, Func<Data, int, Intermediate> parallelWork, Action<Intermediate, int> recombination)
+        public static void ComputeInParallel(IList<TData> baseData, Func<TData, int, TIntermediate> parallelWork, Action<TIntermediate, int> recombination)
         {
             var intermediateResults = new BlockingCollection<TaggedIntermediate>();
             ThreadParallel.Invoke(() =>
             {
                 try
                 {
-                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), (TaggedBaseData d) =>
+                    ThreadParallel.ForEach(baseData.Select((d, i) => new TaggedBaseData(d, i)), d =>
                     {
                         intermediateResults.Add(new TaggedIntermediate(parallelWork(d.Data, d.TaskNumber), d.TaskNumber));
                     });
@@ -247,7 +245,7 @@ namespace TMG.Frameworks.Parallel
             }, () =>
             {
                 int expecting = 0;
-                var backlog = new Dictionary<int, Intermediate>();
+                var backlog = new Dictionary<int, TIntermediate>();
                 foreach (var newData in intermediateResults.GetConsumingEnumerable())
                 {
                     if (newData.TaskNumber != expecting)
@@ -256,7 +254,7 @@ namespace TMG.Frameworks.Parallel
                         backlog[newData.TaskNumber] = newData.ProcessedData;
                         continue;
                     }
-                    Intermediate toProcess = newData.ProcessedData;
+                    TIntermediate toProcess = newData.ProcessedData;
                     while (true)
                     {
                         recombination(toProcess, expecting);

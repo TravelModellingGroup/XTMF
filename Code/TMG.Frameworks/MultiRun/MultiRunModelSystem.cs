@@ -26,6 +26,7 @@ using TMG.Input;
 using XTMF;
 using TMG.Functions;
 using System.Threading;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.Frameworks.MultiRun
 {
@@ -64,7 +65,7 @@ For specification about the language, and extensibility please consult the TMG F
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        private bool Exit = false;
+        private bool Exit;
 
         [SubModelInformation(Required = true, Description = "The file containing the instructions for this batch run.")]
         public FileLocation BatchRunFile;
@@ -78,10 +79,10 @@ For specification about the language, and extensibility please consult the TMG F
         {
             // we need to initialize the commands here so that our children can add new batch commands during their RuntimeValidation
             InitializeCommands();
-            return LoadChildFromXTMF(ref error);
+            return LoadChildFromXtmf(ref error);
         }
 
-        private bool LoadChildFromXTMF(ref string error)
+        private bool LoadChildFromXtmf(ref string error)
         {
             IModelSystemStructure ourStructure = null;
             if (ModelSystemReflection.FindModuleStructure(Config, this, ref ourStructure))
@@ -144,7 +145,7 @@ For specification about the language, and extensibility please consult the TMG F
             }
         }
 
-        private static System.Exception GetTopRootException(System.Exception value)
+        private static Exception GetTopRootException(Exception value)
         {
             if (value == null) return null;
             var agg = value as AggregateException;
@@ -157,7 +158,7 @@ For specification about the language, and extensibility please consult the TMG F
 
         public override string ToString()
         {
-            return RunName + " " + Child.ToString();
+            return RunName + " " + Child;
         }
 
         private IConfiguration Config;
@@ -271,7 +272,7 @@ For specification about the language, and extensibility please consult the TMG F
         /// <returns>The value of the attribute.</returns>
         public string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
         {
-            var at = node.Attributes[attribute];
+            var at = node.Attributes?[attribute];
             if (at == null)
             {
                 throw new XTMFRuntimeException(errorMessage + "\r\n" + node.OuterXml);
@@ -284,10 +285,10 @@ For specification about the language, and extensibility please consult the TMG F
             var origin = GetAttributeOrError(command, "Origin", "There was a copy command without an 'Origin' attribute!");
             var destination = GetAttributeOrError(command, "Destination", "There was a copy command without an 'Destination' attribute!");
             bool move = false;
-            var moveAt = command.Attributes["Move"];
+            var moveAt = command.Attributes?["Move"];
             if (moveAt != null)
             {
-                bool result = false;
+                bool result;
                 if (bool.TryParse(moveAt.InnerText, out result))
                 {
                     move = result;
@@ -425,7 +426,6 @@ For specification about the language, and extensibility please consult the TMG F
             internal string Name;
             internal XmlNode Node;
             string[] Parameters;
-            internal MultirunTemplate Parent;
 
             public MultirunTemplate(string name, XmlNode node, string[] parameters)
             {
@@ -465,7 +465,7 @@ For specification about the language, and extensibility please consult the TMG F
                     toExecute = null;
                     return false;
                 }
-                toExecute = new MultirunTemplate(Name, newNode, Parameters) { Parent = this };
+                toExecute = new MultirunTemplate(Name, newNode, Parameters);
                 return true;
             }
 
@@ -642,7 +642,7 @@ For specification about the language, and extensibility please consult the TMG F
             var lhs = GetVariableValue(GetAttributeOrError(command, "LHS", "The LHS was not defined!\r\n" + command.OuterXml), command);
             var comp = GetAttributeOrError(command, "OP", "The comparison OPerator was not defined!\r\n" + command.OuterXml);
             var rhs = GetVariableValue(GetAttributeOrError(command, "RHS", "The RHS was not defined!\r\n" + command.OuterXml), command);
-            bool isTrue = false;
+            bool isTrue;
             switch(comp.ToLowerInvariant())
             {
                 case "<":
@@ -704,7 +704,7 @@ For specification about the language, and extensibility please consult the TMG F
         {
             string path = GetAttributeOrError(command, "Path", "We were unable to find an attribute called 'Path'!");
             bool recursive = false;
-            var attribute = command.Attributes["Recursive"];
+            var attribute = command.Attributes?["Recursive"];
             if (attribute != null)
             {
                 if (!bool.TryParse(attribute.InnerText, out recursive))
@@ -842,10 +842,10 @@ For specification about the language, and extensibility please consult the TMG F
 
         private bool IsRecursiveDelete(XmlNode command)
         {
-            var attribute = command.Attributes["Recursive"];
+            var attribute = command.Attributes?["Recursive"];
             if (attribute != null)
             {
-                bool rec = true;
+                bool rec;
                 if (bool.TryParse(attribute.InnerText, out rec))
                 {
                     return rec;
@@ -863,16 +863,16 @@ For specification about the language, and extensibility please consult the TMG F
             }
         }
 
-        private string OriginalDirectory = null;
+        private string OriginalDirectory;
 
         private void SetupRun(XmlNode run, ref string name)
         {
-            var runName = run.Attributes["Name"];
+            var runName = run.Attributes?["Name"];
             if (runName != null)
             {
                 name = runName.InnerText;
             }
-            var saveAndRunAs = run.Attributes["RunAs"];
+            var saveAndRunAs = run.Attributes?["RunAs"];
             if (saveAndRunAs != null)
             {
                 if (OriginalDirectory == null)

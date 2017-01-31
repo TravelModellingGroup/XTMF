@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using Datastructure;
 using TMG.Frameworks.Data.Processing.AST;
@@ -33,6 +30,7 @@ You can also use brackets () to order the operations.  Math using literals will 
 '(A + B * C) / D' where you have the data sources A, B, C, and D defined with their Module names matching.  The result of this will be an OD matrix.  If only literals are used the size 
 of the matrix will match the zone system otherwise the size of the matrices are loaded in from the data sources."
         )]
+    // ReSharper disable once InconsistentNaming
     public class ODMath : IDataSource<SparseTwinIndex<float>>
     {
         [RunParameter("Expression", "1", "The expression to evaluate for each OD cell.")]
@@ -109,7 +107,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
                 }
                 else
                 {
-                    Data = result.ODData;
+                    Data = result.OdData;
                 }
             }
             finally
@@ -128,10 +126,10 @@ of the matrix will match the zone system otherwise the size of the matrices are 
 
         private void FindRoot()
         {
-            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+            var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
             for (int i = ancestry.Count - 1; i >= 0; i--)
             {
-                var tdm = ancestry[i] as ITravelDemandModel;
+                var tdm = ancestry[i].Module as ITravelDemandModel;
                 if (tdm != null)
                 {
                     Root = tdm;
@@ -143,7 +141,7 @@ of the matrix will match the zone system otherwise the size of the matrices are 
         public bool RuntimeValidation(ref string error)
         {
             FindRoot();
-            if (!CompileAST(ref error))
+            if (!CompileAst(ref error))
             {
                 error = $"In {Name} there was a compilation error for the expression.\r\n" + error;
                 return false;
@@ -151,9 +149,9 @@ of the matrix will match the zone system otherwise the size of the matrices are 
             return true;
         }
 
-        private AST.Expression ExpressionToExecute;
+        private Expression ExpressionToExecute;
 
-        private bool CompileAST(ref string error)
+        private bool CompileAst(ref string error)
         {
             return Compiler.Compile(Expression, out ExpressionToExecute, ref error);
         }
