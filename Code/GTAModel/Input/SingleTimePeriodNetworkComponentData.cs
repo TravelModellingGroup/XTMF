@@ -75,7 +75,7 @@ namespace TMG.GTAModel.Input
         public bool UseCache;
 
         private bool AlreadyLoaded = false;
-        private ODCache Data;
+        private OdCache Data;
         private int DataEntries, NumberOfZones;
         private float[] StoredData;
 
@@ -155,14 +155,14 @@ namespace TMG.GTAModel.Input
                 *  3: Fare
                 *  4: Bording Times
                 */
-            ODCCreator2<IZone> creator = new ODCCreator2<IZone>( this.Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 1 );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvtt : this.BaseIvtt ), 0, (int)DataTypes.TravelTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWait : this.BaseWait ), 0, (int)DataTypes.WaitTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalk : this.BaseWalk ), 0, (int)DataTypes.WalkTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoarding : this.BaseBoarding ), 0, (int)DataTypes.BoardingTime );
+            OdcCreator2<IZone> creator = new OdcCreator2<IZone>( this.Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 1 );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvtt : this.BaseIvtt ), 0, (int)DataTypes.TravelTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWait : this.BaseWait ), 0, (int)DataTypes.WaitTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalk : this.BaseWalk ), 0, (int)DataTypes.WalkTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoarding : this.BaseBoarding ), 0, (int)DataTypes.BoardingTime );
             if ( !String.IsNullOrWhiteSpace( this.Fares ) )
             {
-                creator.LoadEMME2( FailIfNotExist( this.Fares ), 0, (int)DataTypes.Cost );
+                creator.LoadEmme2( FailIfNotExist( this.Fares ), 0, (int)DataTypes.Cost );
             }
             creator.Save( GetFullPath( this.AlreadyLoaded ? this.UpdatedODC : this.ODC ), false );
             creator = null;
@@ -259,7 +259,7 @@ namespace TMG.GTAModel.Input
             {
                 this.Generate();
             }
-            this.Data = new ODCache( cache, UseCache );
+            this.Data = new OdCache( cache, UseCache );
             if ( !UseCache )
             {
                 var loadedData = this.Data.StoreAll();

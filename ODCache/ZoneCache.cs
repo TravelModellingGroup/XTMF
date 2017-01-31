@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,7 +27,6 @@ namespace Datastructure
     /// </summary>
     public class ZoneCache<T> : IDisposable
     {
-        private static int cacheSize = 0;
         private LocklessCache<int, T> Cache;
         private byte[] DataLine;
         private long FileSize;
@@ -39,48 +38,28 @@ namespace Datastructure
         /// <summary>
         /// Create a new Cache Interface to the given file
         /// </summary>
-        /// <param name="ODCFile">The file to use as a cache</param>
-        /// <param name="MakeType">Convert floats to your type</param>
-        public ZoneCache(string ZoneFile, Func<int, float[], T> MakeType, int cacheSize = 0)
+        /// <param name="zoneFile"></param>
+        /// <param name="makeType">Convert floats to your type</param>
+        /// <param name="cacheSize"></param>
+        public ZoneCache(string zoneFile, Func<int, float[], T> makeType, int cacheSize = 0)
         {
-            if ( !File.Exists( ZoneFile ) ) throw new IOException( "FILE: '" + ZoneFile + "' DOES NOT EXIST!" );
-            this.Reader = new BinaryReader( new FileStream( ZoneFile, FileMode.Open, FileAccess.Read, FileShare.Read, 0x5000, FileOptions.RandomAccess ), Encoding.Default );
-            this.Zones = this.Reader.ReadInt32();
-            if ( cacheSize > 0 )
+            if (!File.Exists(zoneFile)) throw new IOException("FILE: '" + zoneFile + "' DOES NOT EXIST!");
+            Reader = new BinaryReader(new FileStream(zoneFile, FileMode.Open, FileAccess.Read, FileShare.Read, 0x5000, FileOptions.RandomAccess), Encoding.Default);
+            Zones = Reader.ReadInt32();
+            if (cacheSize > 0)
             {
-                this.Cache = new LocklessCache<int, T>( cacheSize );
+                Cache = new LocklessCache<int, T>(cacheSize);
             }
             else
             {
-                this.Cache = new LocklessCache<int, T>();
+                Cache = new LocklessCache<int, T>();
             }
-            this.Version = this.Reader.ReadInt32();
-            this.Types = this.Reader.ReadInt32();
-            this.Make = MakeType;
-            this.DataLine = new byte[this.Types * 4];
-            this.FileSize = this.Reader.BaseStream.Length;
-            this.LoadSparseIndexes( this.Reader );
-        }
-
-        /// <summary>
-        /// This releases the access to the file once this cache is released from memory
-        /// </summary>
-        ~ZoneCache()
-        {
-            this.Dispose( false );
-        }
-
-        public static int CacheSize
-        {
-            get
-            {
-                return cacheSize;
-            }
-
-            set
-            {
-                cacheSize = value;
-            }
+            Version = Reader.ReadInt32();
+            Types = Reader.ReadInt32();
+            Make = makeType;
+            DataLine = new byte[Types * 4];
+            FileSize = Reader.BaseStream.Length;
+            LoadSparseIndexes();
         }
 
         /// <summary>
@@ -96,148 +75,142 @@ namespace Datastructure
         /// <summary>
         /// Get the data from O to D
         /// </summary>
-        /// <param name="Zone">Zone</param>
+        /// <param name="zone">Zone</param>
         /// <returns>The data assosiated with this OD</returns>
-        public T this[int Zone]
+        public T this[int zone]
         {
             get
             {
                 T element;
-                element = this.Cache[Zone];
+                element = Cache[zone];
 
-                if ( element == null ) element = this.LoadAndStore( Zone );
+                if (element == null) element = LoadAndStore(zone);
                 return element;
             }
         }
 
         public void Release()
         {
-            try
-            {
-                this.Reader.Close();
-            }
-            catch { }
+            Reader?.Close();
+            Reader = null;
         }
 
         public SparseArray<T> StoreAll()
         {
             SparseIndexing indexing;
-            int numberOfSegments = this.Segments.Length;
+            int numberOfSegments = Segments.Length;
             indexing.Indexes = new SparseSet[numberOfSegments];
             int total = 0;
-            this.Reader.BaseStream.Position = this.Segments[0].DiskLocation;
-            for ( int i = 0; i < numberOfSegments; i++ )
+            Reader.BaseStream.Position = Segments[0].DiskLocation;
+            for (int i = 0; i < numberOfSegments; i++)
             {
-                indexing.Indexes[i].Start = this.Segments[i].Start;
-                indexing.Indexes[i].Stop = this.Segments[i].Stop;
+                indexing.Indexes[i].Start = Segments[i].Start;
+                indexing.Indexes[i].Stop = Segments[i].Stop;
                 total += indexing.Indexes[i].Stop - indexing.Indexes[i].Start + 1;
             }
             T[] data = new T[total];
-            int types = this.Types;
+            int types = Types;
             float[] typeData = new float[types];
             int k = 0;
-            for ( int i = 0; i < numberOfSegments; i++ )
+            for (int i = 0; i < numberOfSegments; i++)
             {
-                for ( int j = indexing.Indexes[i].Start; j <= indexing.Indexes[i].Stop; j++ )
+                for (int j = indexing.Indexes[i].Start; j <= indexing.Indexes[i].Stop; j++)
                 {
-                    for ( int t = 0; t < types; t++ )
+                    for (int t = 0; t < types; t++)
                     {
-                        typeData[t] = this.Reader.ReadSingle();
+                        typeData[t] = Reader.ReadSingle();
                     }
-                    data[k++] = this.Make( j, typeData );
+                    data[k++] = Make(j, typeData);
                 }
             }
-            return new SparseArray<T>( indexing, data );
+            return new SparseArray<T>(indexing, data);
         }
 
         private bool GetTransformedIndex(ref int o)
         {
             int min = 0;
-            int max = this.Segments.Length - 1;
-            while ( min <= max )
+            int max = Segments.Length - 1;
+            while (min <= max)
             {
-                int mid = ( ( min + max ) / 2 );
-                var midIndex = this.Segments[mid];
+                int mid = ((min + max) / 2);
+                var midIndex = Segments[mid];
 
-                if ( o < midIndex.Start )
+                if (o < midIndex.Start)
                 {
                     max = mid - 1;
                 }
-                else if ( o > midIndex.Stop )
+                else if (o > midIndex.Stop)
                 {
                     min = mid + 1;
                 }
                 else
                 {
                     // then we are in a vlid range
-                    o = ( o - midIndex.Start + midIndex.BaseLocation );
+                    o = (o - midIndex.Start + midIndex.BaseLocation);
                     return true;
                 }
             }
             return false;
         }
 
-        private T Load(int ZoneID)
+        private T Load(int zoneId)
         {
-            float[] data = new float[this.Types];
-            T value;
-            long pos = 0;
-            if ( !GetTransformedIndex( ref ZoneID )
-                || ( pos = ( sizeof( int ) * 3 ) + ZoneID * this.Types * sizeof( float ) ) >= this.FileSize )
+            float[] data = new float[Types];
+            long pos;
+            if (!GetTransformedIndex(ref zoneId)
+                || (pos = (sizeof(int) * 3) + zoneId * Types * sizeof(float)) >= FileSize)
             {
-                for ( int i = 0; i < data.Length; i++ )
+                for (int i = 0; i < data.Length; i++)
                 {
                     data[i] = 0;
                 }
             }
             else
             {
-                this.Reader.BaseStream.Position = pos;
-                this.Reader.Read( this.DataLine, 0, this.DataLine.Length );
-                for ( int i = 0, j = 0; i < data.Length; i++, j += 4 )
+                Reader.BaseStream.Position = pos;
+                Reader.Read(DataLine, 0, DataLine.Length);
+                for (int i = 0, j = 0; i < data.Length; i++, j += 4)
                 {
-                    data[i] = BitConverter.ToSingle( this.DataLine, j );
+                    data[i] = BitConverter.ToSingle(DataLine, j);
                 }
             }
-            value = this.Make( ZoneID, data );
-            return value;
+            return Make(zoneId, data);
         }
 
         /// <summary>
         /// Loads the data from the file into the cache
         /// </summary>
-        /// <param name="Lookup"></param>
         /// <returns></returns>
-        private T LoadAndStore(int ZoneID)
+        private T LoadAndStore(int zoneId)
         {
-            T value = Load( ZoneID );
-            this.Cache.Add( ZoneID, value );
+            var value = Load(zoneId);
+            Cache.Add(zoneId, value);
             return value;
         }
 
-        private void LoadSparseIndexes(BinaryReader binaryReader)
+        private void LoadSparseIndexes()
         {
-            if ( Version >= 2 )
+            if (Version >= 2)
             {
                 int numberOfSegments;
-                this.Segments = new SparseSegment[numberOfSegments = Reader.ReadInt32()];
+                Segments = new SparseSegment[numberOfSegments = Reader.ReadInt32()];
                 int total = 0;
-                for ( int i = 0; i < numberOfSegments; i++ )
+                for (int i = 0; i < numberOfSegments; i++)
                 {
-                    this.Segments[i].Start = Reader.ReadInt32();
-                    this.Segments[i].Stop = Reader.ReadInt32();
-                    this.Segments[i].DiskLocation = Reader.ReadInt64();
-                    this.Segments[i].BaseLocation = total;
-                    total += this.Segments[i].Stop - this.Segments[i].Start + 1;
+                    Segments[i].Start = Reader.ReadInt32();
+                    Segments[i].Stop = Reader.ReadInt32();
+                    Segments[i].DiskLocation = Reader.ReadInt64();
+                    Segments[i].BaseLocation = total;
+                    total += Segments[i].Stop - Segments[i].Start + 1;
                 }
             }
             else
             {
-                this.Segments = new SparseSegment[1];
-                this.Segments[0].Start = 0;
-                this.Segments[0].Stop = this.Zones;
-                this.Segments[0].BaseLocation = 0;
-                this.Segments[0].DiskLocation = this.Reader.BaseStream.Position;
+                Segments = new SparseSegment[1];
+                Segments[0].Start = 0;
+                Segments[0].Stop = Zones;
+                Segments[0].BaseLocation = 0;
+                Segments[0].DiskLocation = Reader.BaseStream.Position;
             }
         }
 
@@ -249,19 +222,27 @@ namespace Datastructure
             public int Stop;
         }
 
-        public void Dispose()
+        /// <summary>
+        /// This releases the access to the file once this cache is released from memory
+        /// </summary>
+        ~ZoneCache()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( true );
+            Dispose(false);
         }
 
-        protected virtual void Dispose(bool all)
+        private void Dispose(bool disposing)
         {
-            if ( this.Reader != null )
+            if (disposing)
             {
-                this.Reader.Close();
-                this.Reader = null;
+                Reader?.Dispose();
+                Reader = null;
             }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }// end class
 }// end namespace

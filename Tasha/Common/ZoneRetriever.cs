@@ -109,7 +109,7 @@ namespace Tasha.Common
         public void Generate()
         {
             SparseZoneCreator creator = new SparseZoneCreator(HighestZoneNumber + 1, 22);
-            creator.LoadCSV(GetFullPath(ZoneFileName), true);
+            creator.LoadCsv(GetFullPath(ZoneFileName), true);
             creator.Save(GetFullPath(ZoneCacheFile));
         }
 

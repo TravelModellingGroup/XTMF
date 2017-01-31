@@ -163,7 +163,7 @@ namespace DistroCacheMaker
                 { }
             }
             SparseZoneCreator zc = new SparseZoneCreator(AdultDistributions, NumberOfAdultFrequencies);
-            zc.LoadCSV(temp, false);
+            zc.LoadCsv(temp, false);
             zc.Save(AdultDistributionsZFC);
             File.Delete(temp);
         }
@@ -227,7 +227,7 @@ namespace DistroCacheMaker
                 { }
             }
             SparseZoneCreator zc = new SparseZoneCreator(NumberOfDistributions, types);
-            zc.LoadCSV(temp, false);
+            zc.LoadCsv(temp, false);
             zc.Save(FrequencyLevelsZFC);
             File.Delete(temp);
         }

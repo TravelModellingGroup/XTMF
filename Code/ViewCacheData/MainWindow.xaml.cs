@@ -70,7 +70,7 @@ namespace ViewCacheData
                                     this.PresentationGrid.DataContext = null;
                                     try
                                     {
-                                        ODCache odc = new ODCache( fileName );
+                                        OdCache odc = new OdCache( fileName );
                                         var allData = odc.StoreAll();
                                         //foreach(var index in
                                         odc.Release();
@@ -91,7 +91,7 @@ namespace ViewCacheData
                                 {
                                     try
                                     {
-                                        ODCache odc = new ODCache( fileName );
+                                        OdCache odc = new OdCache( fileName );
                                         var allData = odc.StoreAll().GetFlatData();
                                         this.Dispatcher.BeginInvoke(
                                             new Action( delegate()

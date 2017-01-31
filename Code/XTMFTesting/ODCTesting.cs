@@ -45,8 +45,8 @@ namespace XTMF.Testing
                 var data = CreateData( zones.Length );
                 Create311File( zones, data, "Test.311" );
                 allData[0] = data;
-                var writer = new ODMatrixWriter<int>( referenceArray, 1, 1 );
-                writer.LoadEMME2( "Test.311", 0 );
+                var writer = new OdMatrixWriter<int>( referenceArray, 1, 1 );
+                writer.LoadEmme2( "Test.311", 0 );
                 writer.Save( "Test.odc", false );
                 var odcFloatData = ConvertData( allData, zones.Length, 1, 1 );
                 ValidateData( zones, odcFloatData, "Test.odc" );
@@ -75,8 +75,8 @@ namespace XTMF.Testing
                 var data = CreateData( zones.Length );
                 CreateCSVFile( zones, data, "Test.csv" );
                 allData[0] = data;
-                var writer = new ODMatrixWriter<int>( referenceArray, 1, 1 );
-                writer.LoadCSVTimes( "Test.csv", false, 0, 0 );
+                var writer = new OdMatrixWriter<int>( referenceArray, 1, 1 );
+                writer.LoadCsvTimes( "Test.csv", false, 0, 0 );
                 writer.Save( "Test.odc", false );
                 var odcFloatData = ConvertData( allData, zones.Length, 1, 1 );
                 ValidateData( zones, odcFloatData, "Test.odc" );
@@ -109,10 +109,10 @@ namespace XTMF.Testing
                     Create311File( zones, data, "Test" + i + ".311" );
                     allData[i] = data;
                 }
-                var writer = new ODMatrixWriter<int>( referenceArray, allData.Length, 1 );
+                var writer = new OdMatrixWriter<int>( referenceArray, allData.Length, 1 );
                 for ( int i = 0; i < allData.Length; i++ )
                 {
-                    writer.LoadEMME2( "Test" + i + ".311", i, 0 );
+                    writer.LoadEmme2( "Test" + i + ".311", i, 0 );
                 }
                 writer.Save( "Test.odc", false );
                 var odcFloatData = ConvertData( allData, zones.Length, allData.Length, 1 );
@@ -150,12 +150,12 @@ namespace XTMF.Testing
                     Create311File( zones, data, "Test" + i + ".311" );
                     allData[i] = data;
                 }
-                var writer = new ODMatrixWriter<int>( referenceArray, times, types );
+                var writer = new OdMatrixWriter<int>( referenceArray, times, types );
                 for ( int i = 0; i < types; i++ )
                 {
                     for ( int j = 0; j < times; j++ )
                     {
-                        writer.LoadEMME2( "Test" + ( i * times + j ) + ".311", i, j );
+                        writer.LoadEmme2( "Test" + ( i * times + j ) + ".311", i, j );
                     }
                 }
                 writer.Save( "Test.odc", false );
@@ -270,7 +270,7 @@ namespace XTMF.Testing
 
         private void ValidateData(int[] zones, float[][][] data, string odcFileName)
         {
-            ODCache odc = new ODCache( odcFileName );
+            OdCache odc = new OdCache( odcFileName );
             var storedData = odc.StoreAll().GetFlatData();
             odc.Release();
             if ( storedData.Length != data.Length )

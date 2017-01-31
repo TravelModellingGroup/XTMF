@@ -135,7 +135,7 @@ namespace TMG.GTAModel
         public bool UseCache;
 
         private bool AlreadyLoaded = false;
-        private ODCache Data;
+        private OdCache Data;
         private int DataEntries, NumberOfZones;
         private float[] StoredData;
 
@@ -216,24 +216,24 @@ namespace TMG.GTAModel
                 *  3: Fare
                 *  4: Bording Times
                 */
-            ODCCreator2<IZone> creator = new ODCCreator2<IZone>( this.Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 3 );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvttAM : this.BaseIvttAM ), 0, (int)DataTypes.TravelTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWaitAM : this.BaseWaitAM ), 0, (int)DataTypes.WaitTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalkAM : this.BaseWalkAM ), 0, (int)DataTypes.WalkTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoardingAM : this.BaseBoardingAM ), 0, (int)DataTypes.BoardingTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvttPM : this.BaseIvttPM ), 1, (int)DataTypes.TravelTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWaitPM : this.BaseWaitPM ), 1, (int)DataTypes.WaitTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalkPM : this.BaseWalkPM ), 1, (int)DataTypes.WalkTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoardingPM : this.BaseBoardingPM ), 1, (int)DataTypes.BoardingTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvttOP : this.BaseIvttOP ), 2, (int)DataTypes.TravelTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWaitOP : this.BaseWaitOP ), 2, (int)DataTypes.WaitTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalkOP : this.BaseWalkOP ), 2, (int)DataTypes.WalkTime );
-            creator.LoadEMME2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoardingOP : this.BaseBoardingOP ), 2, (int)DataTypes.BoardingTime );
+            OdcCreator2<IZone> creator = new OdcCreator2<IZone>( this.Root.ZoneSystem.ZoneArray, (int)DataTypes.NumberOfDataTypes, 3 );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvttAM : this.BaseIvttAM ), 0, (int)DataTypes.TravelTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWaitAM : this.BaseWaitAM ), 0, (int)DataTypes.WaitTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalkAM : this.BaseWalkAM ), 0, (int)DataTypes.WalkTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoardingAM : this.BaseBoardingAM ), 0, (int)DataTypes.BoardingTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvttPM : this.BaseIvttPM ), 1, (int)DataTypes.TravelTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWaitPM : this.BaseWaitPM ), 1, (int)DataTypes.WaitTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalkPM : this.BaseWalkPM ), 1, (int)DataTypes.WalkTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoardingPM : this.BaseBoardingPM ), 1, (int)DataTypes.BoardingTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedIvttOP : this.BaseIvttOP ), 2, (int)DataTypes.TravelTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWaitOP : this.BaseWaitOP ), 2, (int)DataTypes.WaitTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedWalkOP : this.BaseWalkOP ), 2, (int)DataTypes.WalkTime );
+            creator.LoadEmme2( FailIfNotExist( this.AlreadyLoaded ? this.UpdatedBoardingOP : this.BaseBoardingOP ), 2, (int)DataTypes.BoardingTime );
             if ( !String.IsNullOrWhiteSpace( this.Fares ) )
             {
-                creator.LoadEMME2( FailIfNotExist( this.Fares ), 0, (int)DataTypes.Cost );
-                creator.LoadEMME2( FailIfNotExist( this.Fares ), 1, (int)DataTypes.Cost );
-                creator.LoadEMME2( FailIfNotExist( this.Fares ), 2, (int)DataTypes.Cost );
+                creator.LoadEmme2( FailIfNotExist( this.Fares ), 0, (int)DataTypes.Cost );
+                creator.LoadEmme2( FailIfNotExist( this.Fares ), 1, (int)DataTypes.Cost );
+                creator.LoadEmme2( FailIfNotExist( this.Fares ), 2, (int)DataTypes.Cost );
             }
             creator.Save( GetFullPath( this.AlreadyLoaded ? this.UpdatedODC : this.ODC ), false );
             creator = null;
@@ -333,7 +333,7 @@ namespace TMG.GTAModel
             {
                 this.Generate();
             }
-            this.Data = new ODCache( cache, UseCache );
+            this.Data = new OdCache( cache, UseCache );
             if ( !UseCache )
             {
                 var loadedData = this.Data.StoreAll();

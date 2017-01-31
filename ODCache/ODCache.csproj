@@ -145,10 +145,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ODCCreator.cs" />
-    <Compile Include="ODCache.cs" />
-    <Compile Include="ODCCreator2.cs" />
-    <Compile Include="ODMatrixWriter.cs" />
+    <Compile Include="OdcCreator.cs" />
+    <Compile Include="OdCache.cs" />
+    <Compile Include="OdcCreator2.cs" />
+    <Compile Include="OdMatrixWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SparseZoneCreator.cs" />
     <Compile Include="ZoneCache.cs" />

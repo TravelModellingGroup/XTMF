@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -21,10 +21,10 @@ using System.Collections.Generic;
 
 namespace Datastructure
 {
-    public class ODMatrixWriter<T> : ODCCreator2<T>
+    public class OdMatrixWriter<T> : OdcCreator2<T>
     {
-        public ODMatrixWriter(SparseArray<T> reference, int types, int times)
-            : base( reference, types, times )
+        public OdMatrixWriter(SparseArray<T> reference, int types, int times)
+            : base(reference, types, times)
         {
         }
 
@@ -42,19 +42,19 @@ namespace Datastructure
 
         protected override Dictionary<string, string> GetMetaData()
         {
-            var ret = new Dictionary<string, string>( 6 );
+            var ret = new Dictionary<string, string>(6);
             ret["Year"] = Year.ToString();
-            ODMatrixWriter<T>.AddIfNotNull( "StartTime", this.StartTimesHeader, ret );
-            ODMatrixWriter<T>.AddIfNotNull( "EndTime", this.EndTimesHeader, ret );
-            ODMatrixWriter<T>.AddIfNotNull( "Types", this.TypeHeader, ret );
-            ODMatrixWriter<T>.AddIfNotNull( "Modes", this.Modes, ret );
-            ODMatrixWriter<T>.AddIfNotNull( "Description", this.AdditionalDescription, ret );
+            AddIfNotNull("StartTime", StartTimesHeader, ret);
+            AddIfNotNull("EndTime", EndTimesHeader, ret);
+            AddIfNotNull("Types", TypeHeader, ret);
+            AddIfNotNull("Modes", Modes, ret);
+            AddIfNotNull("Description", AdditionalDescription, ret);
             return ret;
         }
 
         private static void AddIfNotNull(string key, string value, Dictionary<string, string> store)
         {
-            if ( !String.IsNullOrWhiteSpace( value ) )
+            if (!String.IsNullOrWhiteSpace(value))
             {
                 store[key] = value;
             }

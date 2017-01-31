@@ -114,7 +114,7 @@ namespace Tasha.Scheduler
                 }
             }
             SparseZoneCreator creator = new SparseZoneCreator( zones.Last().ZoneNumber + 1, 3 );
-            creator.LoadCSV( csvFileName, true );
+            creator.LoadCsv( csvFileName, true );
             creator.Save( fileName );
             File.Delete( csvFileName );
         }

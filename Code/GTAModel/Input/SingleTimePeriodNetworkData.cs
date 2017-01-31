@@ -63,7 +63,7 @@ namespace TMG.GTAModel.Input
 
         private bool AlreadyLoaded = false;
 
-        private ODCache Data;
+        private OdCache Data;
 
         private int DataEntries;
 
@@ -125,7 +125,7 @@ namespace TMG.GTAModel.Input
             {
                 Generate( cacheFile );
             }
-            Data = new ODCache( cacheFile );
+            Data = new OdCache( cacheFile );
             var loadedData = Data.StoreAll();
             this.StoredData = ProcessLoadedData( loadedData, Data.Types, Data.Times );
             Data.Release();
@@ -210,8 +210,8 @@ namespace TMG.GTAModel.Input
         private void Generate(string cacheFile)
         {
             // create the data if it doesn't already exist
-            ODMatrixWriter<IZone> creator =
-                new ODMatrixWriter<IZone>( this.Root.ZoneSystem.ZoneArray, 2, 1 );
+            OdMatrixWriter<IZone> creator =
+                new OdMatrixWriter<IZone>( this.Root.ZoneSystem.ZoneArray, 2, 1 );
             creator.Year = this.Year;
             creator.AdditionalDescription = "Automatically Generated";
             creator.StartTimesHeader = "ALLDAY";
@@ -235,28 +235,28 @@ namespace TMG.GTAModel.Input
             return fullPath;
         }
 
-        private void LoadCosts(ODMatrixWriter<IZone> writer, string FileName, int i)
+        private void LoadCosts(OdMatrixWriter<IZone> writer, string FileName, int i)
         {
             if ( Path.GetExtension( FileName ) == ".311" )
             {
-                writer.LoadEMME2( FailIfNotExist( FileName ), i, (int)AutoDataTypes.CarCost );
+                writer.LoadEmme2( FailIfNotExist( FileName ), i, (int)AutoDataTypes.CarCost );
             }
 
             else
             {
-                writer.LoadCSVTimes( FailIfNotExist( FileName ), HeaderBoolean, i, (int)AutoDataTypes.CarCost );
+                writer.LoadCsvTimes( FailIfNotExist( FileName ), HeaderBoolean, i, (int)AutoDataTypes.CarCost );
             }
         }
 
-        private void LoadTimes(ODMatrixWriter<IZone> writer, string FileName, int i)
+        private void LoadTimes(OdMatrixWriter<IZone> writer, string FileName, int i)
         {
             if ( Path.GetExtension( FileName ) == ".311" )
             {
-                writer.LoadEMME2( FailIfNotExist( FileName ), i, (int)AutoDataTypes.TravelTime );
+                writer.LoadEmme2( FailIfNotExist( FileName ), i, (int)AutoDataTypes.TravelTime );
             }
             else
             {
-                writer.LoadCSVTimes( FailIfNotExist( FileName ), HeaderBoolean, i, (int)AutoDataTypes.TravelTime );
+                writer.LoadCsvTimes( FailIfNotExist( FileName ), HeaderBoolean, i, (int)AutoDataTypes.TravelTime );
             }
         }
 
