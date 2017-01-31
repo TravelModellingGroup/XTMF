@@ -18,15 +18,12 @@
 */
 using System;
 using System.IO;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using XTMF;
 using XTMF.Networking;
 using System.Threading;
-using System.Threading.Tasks;
-using TMG;
+
 namespace TMG.Estimation
 {
     public class EstimationClient : IEstimationClientModelSystem
@@ -57,7 +54,7 @@ namespace TMG.Estimation
 
         public MessageQueue<ClientTask> ClientTaskQueue;
 
-        private volatile bool Exit = false;
+        private volatile bool Exit;
 
         private IModelSystemStructure ClientStructure;
 
@@ -67,7 +64,7 @@ namespace TMG.Estimation
 
         public EstimationClient(IConfiguration xtmfConfig)
         {
-            this.XtmfConfig = xtmfConfig;
+            XtmfConfig = xtmfConfig;
         }
 
         private bool FindUs(IModelSystemStructure mst, ref IModelSystemStructure modelSystemStructure)
@@ -93,36 +90,36 @@ namespace TMG.Estimation
 
         public bool ExitRequest()
         {
-            this.Exit = true;
+            Exit = true;
             return true;
         }
 
         public void Start()
         {
-            using ( this.ClientTaskQueue = new MessageQueue<ClientTask>() )
+            using ( ClientTaskQueue = new MessageQueue<ClientTask>() )
             {
-                this.SetupHostConnection();
-                this.GetParameters();
-                while ( !this.Exit )
+                SetupHostConnection();
+                GetParameters();
+                while ( !Exit )
                 {
-                    var task = this.ClientTaskQueue.GetMessageOrTimeout( MillisecondsToWait );
+                    var task = ClientTaskQueue.GetMessageOrTimeout( MillisecondsToWait );
                     if ( task != null )
                     {
-                        this.CurrentTask = task;
+                        CurrentTask = task;
                         InitializeParameters( task );
-                        this.MainClient.Start();
-                        task.Result = this.RetrieveValue == null ? float.NaN : this.RetrieveValue();
-                        this.ToHost.SendCustomMessage( task, this.ResultChannel );
-                        if ( this.ClientTaskQueue.Count == 0 )
+                        MainClient.Start();
+                        task.Result = RetrieveValue == null ? float.NaN : RetrieveValue();
+                        ToHost.SendCustomMessage( task, ResultChannel );
+                        if ( ClientTaskQueue.Count == 0 )
                         {
-                            this.ToHost.SendCustomMessage( null, this.RequestJobChannel );
+                            ToHost.SendCustomMessage( null, RequestJobChannel );
                         }
-                        this.CurrentTask = null;
+                        CurrentTask = null;
                         GC.Collect();
                     }
                     else
                     {
-                        this.ToHost.SendCustomMessage( null, this.RequestJobChannel );
+                        ToHost.SendCustomMessage( null, RequestJobChannel );
                     }
                 }
             }
@@ -132,11 +129,11 @@ namespace TMG.Estimation
 
         private void InitializeParameters(ClientTask task)
         {
-            for ( int i = 0; i < task.ParameterValues.Length && i < this.Parameters.Length; i++ )
+            for ( int i = 0; i < task.ParameterValues.Length && i < Parameters.Length; i++ )
             {
-                for ( int j = 0; j < this.Parameters[i].Names.Length; j++ )
+                for ( int j = 0; j < Parameters[i].Names.Length; j++ )
                 {
-                    AssignValue( this.Parameters[i].Names[j], task.ParameterValues[i] );
+                    AssignValue( Parameters[i].Names[j], task.ParameterValues[i] );
                 }
             }
         }
@@ -144,7 +141,7 @@ namespace TMG.Estimation
         private void AssignValue(string parameterName, float value)
         {
             string[] parts = SplitNameToParts( parameterName );
-            AssignValue( parts, 0, this.ClientStructure, value );
+            AssignValue( parts, 0, ClientStructure, value );
         }
 
         private void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, float value)
@@ -252,11 +249,11 @@ namespace TMG.Estimation
         /// </summary>
         private void GetParameters()
         {
-            this.Parameters = null;
+            Parameters = null;
             // spin here until we have our parameters
-            while ( this.Parameters == null )
+            while ( Parameters == null )
             {
-                this.ToHost.SendCustomMessage( null, this.SendParameterDefinitions );
+                ToHost.SendCustomMessage( null, SendParameterDefinitions );
                 Thread.Sleep( 10 );
                 Thread.MemoryBarrier();
             }
@@ -265,26 +262,29 @@ namespace TMG.Estimation
         private void SetupHostConnection()
         {
             // The logic to send data
-            this.ToHost.RegisterCustomSender( this.SendParameterDefinitions, (data, stream) =>
+            ToHost.RegisterCustomSender( SendParameterDefinitions, (data, stream) =>
                 {
                     // do nothing, this will just request the parameters
                 } );
-            this.ToHost.RegisterCustomSender( this.RequestJobChannel, (data, stream) =>
+            ToHost.RegisterCustomSender( RequestJobChannel, (data, stream) =>
                 {
                     // do nothing, this will just request a new job
                 } );
-            this.ToHost.RegisterCustomSender( this.ResultChannel, (data, stream) =>
+            ToHost.RegisterCustomSender( ResultChannel, (data, stream) =>
                 {
                     var job = data as ClientTask;
+                    if (job == null)
+                    {
+                        throw new XTMFRuntimeException($"In {Name} ");
+                    }
                     BinaryWriter writer = new BinaryWriter( stream );
                     writer.Write( job.Generation );
                     writer.Write( job.Index );
                     writer.Write( job.Result );
                     writer.Flush();
-                    writer = null;
                 } );
             //The logic to receive data
-            this.ToHost.RegisterCustomReceiver( this.RequestJobChannel, (stream) =>
+            ToHost.RegisterCustomReceiver( RequestJobChannel, (stream) =>
                 {
                     BinaryReader reader = new BinaryReader( stream );
                     ClientTask newTask = new ClientTask();
@@ -295,11 +295,10 @@ namespace TMG.Estimation
                     {
                         newTask.ParameterValues[i] = reader.ReadSingle();
                     }
-                    reader = null;
-                    this.ClientTaskQueue.Add( newTask );
+                    ClientTaskQueue.Add( newTask );
                     return null;
                 } );
-            this.ToHost.RegisterCustomReceiver( this.SendParameterDefinitions, (stream) =>
+            ToHost.RegisterCustomReceiver( SendParameterDefinitions, (stream) =>
                 {
                     var parameters = new List<ParameterSetting>();
                     BinaryReader reader = new BinaryReader( stream );
@@ -319,14 +318,14 @@ namespace TMG.Estimation
                             Maximum = 0f
                         } );
                     }
-                    this.Parameters = parameters.ToArray();
+                    Parameters = parameters.ToArray();
                     return null;
                 } );
         }
 
         public string Name { get; set; }
 
-        public float Progress { get { return this.MainClient.Progress; } }
+        public float Progress { get { return MainClient.Progress; } }
 
         public Tuple<byte, byte, byte> ProgressColour
         {
@@ -336,7 +335,7 @@ namespace TMG.Estimation
         public bool RuntimeValidation(ref string error)
         {
             IModelSystemStructure ourStructure = null;
-            foreach ( var mst in this.XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure )
+            foreach ( var mst in XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure )
             {
                 if ( FindUs( mst, ref ourStructure ) )
                 {
@@ -344,7 +343,7 @@ namespace TMG.Estimation
                     {
                         if ( child.ParentFieldName == "MainClient" )
                         {
-                            this.ClientStructure = child;
+                            ClientStructure = child;
                             break;
                         }
                     }
@@ -353,7 +352,7 @@ namespace TMG.Estimation
             }
             if ( ClientStructure == null )
             {
-                error = "In '" + this.Name + "' we were unable to find the Client Model System!";
+                error = "In '" + Name + "' we were unable to find the Client Model System!";
                 return false;
             }
             return true;

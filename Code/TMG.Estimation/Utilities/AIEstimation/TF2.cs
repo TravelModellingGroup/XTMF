@@ -17,12 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 namespace TMG.Estimation.Utilities.AIEstimation
 {
+    // ReSharper disable once InconsistentNaming
     public class TF2 : TestEquation
     {
         [RunParameter("X", 0.0f, "The value of x to test for.")]

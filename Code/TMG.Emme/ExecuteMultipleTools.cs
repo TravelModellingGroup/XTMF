@@ -84,18 +84,19 @@ For that list you will probably use EmmeTool as the module to fill in for that, 
 
         public void Start()
         {
-            if ( this.Tools.Count == 0 | !this.Execute ) return;
-            using ( Controller controller = new ModellerController( this.EmmeProjectFile ) )
+            if ( Tools.Count == 0 | !Execute ) return;
+            using ( Controller controller = new ModellerController( EmmeProjectFile ) )
             {
-                var length = this.Tools.Count;
+                var length = Tools.Count;
                 int i = 0;
-                CalculateProgress = new Func<float>( () => this.Tools[i].Progress * ( 1.0f / length ) + ( i / (float)length ) );
+                // ReSharper disable AccessToModifiedClosure
+                CalculateProgress = () => Tools[i].Progress * ( 1.0f / length ) + ( i / (float)length );
                 for ( ; i < length; i++ )
                 {
-                    this.Tools[i].Execute( controller );
+                    Tools[i].Execute( controller );
                 }
             }
-            this.CalculateProgress = null;
+            CalculateProgress = null;
         }
     }
 }

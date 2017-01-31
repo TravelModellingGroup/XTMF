@@ -25,8 +25,8 @@ namespace TMG.Emme
         public string NodeLabel;
         public int NodeType;
         public int Number;
-        public int USER1;
-        public int USER2;
+        public int User1;
+        public int User2;
         public float X;
         public float Y;
     }

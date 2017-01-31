@@ -18,18 +18,13 @@
 */
 using Datastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using XTMF;
 using TMG.Input;
 using TMG.Functions;
 
 namespace TMG.Emme.Utilities
 {
-
+    // ReSharper disable once InconsistentNaming
     public class LoadEMME4BinaryMatrixInMatrixZoneSystem : IDataSource<SparseTwinIndex<float>>
     {
         public bool Loaded

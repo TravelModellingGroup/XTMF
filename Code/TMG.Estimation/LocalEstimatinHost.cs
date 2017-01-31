@@ -19,7 +19,6 @@
 */
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using TMG.Input;
 using XTMF;
@@ -30,6 +29,7 @@ namespace TMG.Estimation
     {
 
         [SubModelInformation(Required = true, Description = "The AI to explore the parameter space.")]
+        // ReSharper disable once InconsistentNaming
         public IEstimationAI AI;
 
         [SubModelInformation(Required = true, Description = "The client model system to execute.")]
@@ -96,7 +96,7 @@ namespace TMG.Estimation
             Status = () => "Run Complete";
         }
 
-        private int CurrentJobIndex = 0;
+        private int CurrentJobIndex;
 
 
         public event Action<Job, int, float> FitnessFunctionEvaluated;
@@ -171,23 +171,6 @@ namespace TMG.Estimation
                     // let them close the file
                     System.Threading.Thread.Sleep(10);
                     if (Exit) break;
-                }
-            }
-        }
-
-        private void StoreResult(Job currentJob)
-        {
-            StringBuilder toWrite = new StringBuilder();
-            toWrite.Append(CurrentIteration);
-            toWrite.Append(',');
-            toWrite.Append(currentJob.Value);
-            for (int i = 0; i < currentJob.Parameters.Length; i++)
-            {
-                for (int j = 0; j < Parameters[i].Names.Length; j++)
-                {
-                    toWrite.Append(',');
-                    // this uses the i th value since they are all the same
-                    toWrite.Append(currentJob.Parameters[i].Current);
                 }
             }
         }

@@ -189,7 +189,7 @@ namespace TMG.NetworkEstimation
                     var split = line.Split( Comma, StringSplitOptions.RemoveEmptyEntries );
                     TransitLine current = new TransitLine();
                     string currentName;
-                    current.ID = new string[] { ( currentName = split[1] ) };
+                    current.Id = new string[] { ( currentName = split[1] ) };
                     current.Bordings = float.Parse( split[0] );
                     if ( split.Length > 2 )
                     {
@@ -203,7 +203,7 @@ namespace TMG.NetworkEstimation
                     int count = truthList.Count;
                     for ( int j = 0; j < count; j++ )
                     {
-                        if ( truthList[j].ID[0] == currentName )
+                        if ( truthList[j].Id[0] == currentName )
                         {
                             throw new XTMFRuntimeException( String.Format( "The TTS record {0} at line {1} has a duplicate entry on line {2}", currentName, j + 1, count + 1 ) );
                         }
@@ -224,7 +224,7 @@ namespace TMG.NetworkEstimation
                     string emmeName = split[1];
                     for ( int i = 0; i < truthEntries; i++ )
                     {
-                        if ( truthList[i].ID[0] == ttsName )
+                        if ( truthList[i].Id[0] == ttsName )
                         {
                             List<string> ourList;
                             if ( ( ourList = nameLinks[i] ) == null )
@@ -243,12 +243,12 @@ namespace TMG.NetworkEstimation
                 List<string> nameList;
                 if ( ( nameList = nameLinks[i] ) == null )
                 {
-                    throw new XTMFRuntimeException( String.Format( "The TTS record {0} has no EMME Links associated with it.  Aborting.", truthList[i].ID[0] ) );
+                    throw new XTMFRuntimeException( String.Format( "The TTS record {0} has no EMME Links associated with it.  Aborting.", truthList[i].Id[0] ) );
                 }
                 else
                 {
                     var temp = truthList[i];
-                    temp.ID = nameList.ToArray();
+                    temp.Id = nameList.ToArray();
                     truthList[i] = temp;
                 }
             }
@@ -303,10 +303,10 @@ namespace TMG.NetworkEstimation
                     writer.Write( error );
                     writer.Write( ',' );
                     writer.Write( error * error );
-                    for ( int j = 0; j < this.Truth[i].ID.Length; j++ )
+                    for ( int j = 0; j < this.Truth[i].Id.Length; j++ )
                     {
                         writer.Write( ',' );
-                        writer.Write( this.Truth[i].ID[j] );
+                        writer.Write( this.Truth[i].Id[j] );
                     }
                     writer.WriteLine();
                 }
@@ -352,9 +352,9 @@ namespace TMG.NetworkEstimation
                 for ( int j = 0; j < this.Truth.Length; j++ )
                 {
                     bool found = false;
-                    foreach ( var line in predicted[i].ID )
+                    foreach ( var line in predicted[i].Id )
                     {
-                        if ( this.Truth[j].ID.Contains( line ) )
+                        if ( this.Truth[j].Id.Contains( line ) )
                         {
                             index = j;
                             found = true;
@@ -370,7 +370,7 @@ namespace TMG.NetworkEstimation
                 }
                 if ( orphan )
                 {
-                    Orphans.Add( new KeyValuePair<string, float>( predicted[i].ID[0], predicted[i].Bordings ) );
+                    Orphans.Add( new KeyValuePair<string, float>( predicted[i].Id[0], predicted[i].Bordings ) );
                 }
             }
 

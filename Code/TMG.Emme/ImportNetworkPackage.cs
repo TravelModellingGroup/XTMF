@@ -17,15 +17,13 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using TMG.Input;
 using System.IO;
 
 namespace TMG.Emme
 {
+    // ReSharper disable InconsistentNaming
     public enum FunctionConflictOption
     {
         RAISE,
@@ -58,7 +56,7 @@ namespace TMG.Emme
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
             var args = string.Join(" ", "\""+Path.GetFullPath(NetworkPackage.GetFilePath())+"\"",
-                                    ScenarioId, this.ConflictOption.ToString());
+                                    ScenarioId, ConflictOption.ToString());
 
             Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
 

@@ -36,17 +36,17 @@ namespace TMG.Emme
 
         protected StreamWriter ToEmme;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="projectFolder"></param>
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="projectFolder"></param>
+        /// <param name="newWindow"></param>
         public Controller(string projectFolder, bool newWindow = false)
         {
-            this.FailTimer = 30;
-            this.ProjectFile = projectFolder;
-            this.LaunchInNewWindow = newWindow;
+            FailTimer = 30;
+            ProjectFile = projectFolder;
+            LaunchInNewWindow = newWindow;
             string args = "-ng ";
-            string workingDirectory = this.ProjectFile;
+            string workingDirectory = ProjectFile;
             Emme = new Process();
             Emme.StartInfo.FileName = "emme";
             Emme.StartInfo.Arguments = args;
@@ -54,7 +54,7 @@ namespace TMG.Emme
             Emme.StartInfo.UseShellExecute = false;
             Emme.StartInfo.RedirectStandardInput = true;
             //Emme.StartInfo.RedirectStandardOutput = true;
-            if(!LaunchInNewWindow)
+            if (!LaunchInNewWindow)
             {
                 Emme.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             }
@@ -67,8 +67,8 @@ namespace TMG.Emme
             {
                 throw new XTMFRuntimeException("Unable to create a link to EMME!  Please make sure that it is on the system PATH!");
             }
-            this.ToEmme = this.Emme.StandardInput;
-            this.ToEmme.WriteLine("TMG");
+            ToEmme = Emme.StandardInput;
+            ToEmme.WriteLine("TMG");
             //this.EmmeOut = this.Emme.StandardOutput;
         }
 
@@ -87,12 +87,12 @@ namespace TMG.Emme
 
         public virtual void Close()
         {
-            this.Dispose();
+            Dispose();
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -102,49 +102,46 @@ namespace TMG.Emme
             {
                 do
                 {
-                    if(this.ToEmme != null)
+                    if (ToEmme != null)
                     {
                         try
                         {
-                            this.ToEmme.WriteLine();
-                            this.ToEmme.WriteLine();
-                            this.ToEmme.WriteLine();
-                            this.ToEmme.WriteLine();
-                            this.ToEmme.WriteLine("q");
-                            this.ToEmme.WriteLine("q");
-                            this.ToEmme.WriteLine("q");
-                            this.ToEmme.WriteLine("q");
+                            ToEmme.WriteLine();
+                            ToEmme.WriteLine();
+                            ToEmme.WriteLine();
+                            ToEmme.WriteLine();
+                            ToEmme.WriteLine("q");
+                            ToEmme.WriteLine("q");
+                            ToEmme.WriteLine("q");
+                            ToEmme.WriteLine("q");
                         }
-                        catch
+                        catch (IOException)
                         { }
                     }
-                    if(!this.Emme.HasExited)
+                    if (!Emme.HasExited)
                     {
                         Thread.Sleep(100);
                     }
-                } while(!this.Emme.HasExited);
+                } while (!Emme.HasExited);
                 try
                 {
-                    if(this.ToEmme != null)
+                    if (ToEmme != null)
                     {
-                        this.ToEmme.Close();
-                        this.ToEmme = null;
+                        ToEmme.Close();
+                        ToEmme = null;
                     }
                 }
-                catch
+                catch (IOException)
                 {
                 }
-                if(this.Emme != null)
+                try
                 {
-                    try
-                    {
-                        this.Emme.Kill();
-                    }
-                    catch
-                    { }
-                    this.Emme.Dispose();
-                    this.Emme = null;
+                    Emme?.Kill();
                 }
+                catch (IOException)
+                { }
+                Emme?.Dispose();
+                Emme = null;
             }
         }
 
@@ -159,16 +156,17 @@ namespace TMG.Emme
             builder.Append((int)number);
             number = (float)Math.Round(number, 6);
             number = number - (int)number;
-            if(number > 0)
+            if (number > 0)
             {
                 var integerSize = builder.Length;
                 builder.Append('.');
-                for(int i = integerSize; i < 4; i++)
+                for (int i = integerSize; i < 4; i++)
                 {
                     number = number * 10;
                     builder.Append((int)number);
                     number = number - (int)number;
-                    if(number == 0)
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    if (number == 0)
                     {
                         break;
                     }
@@ -188,16 +186,17 @@ namespace TMG.Emme
             builder.Clear();
             builder.Append((int)number);
             number = number - (int)number;
-            if(number > 0)
+            if (number > 0)
             {
                 var integerSize = builder.Length;
                 builder.Append('.');
-                for(int i = integerSize; i < 4; i++)
+                for (int i = integerSize; i < 4; i++)
                 {
                     number = number * 10;
                     builder.Append((int)number);
                     number = number - (int)number;
-                    if(number == 0)
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    if (number == 0)
                     {
                         break;
                     }
@@ -213,40 +212,36 @@ namespace TMG.Emme
         /// <param name="arguments">The arguments to the macro that you want to run</param>
         public virtual bool Run(string macroName, string arguments)
         {
-            if(this.ToEmme == null || this.Emme == null) return false;
-            var externFile = Path.GetFullPath(Path.Combine(this.ProjectFile, "ExternalCommand.lock"));
+            if (ToEmme == null || Emme == null) return false;
+            var externFile = Path.GetFullPath(Path.Combine(ProjectFile, "ExternalCommand.lock"));
             lock (this)
             {
-                if(!File.Exists(externFile))
+                if (!File.Exists(externFile))
                 {
-                    var stream = File.Create(externFile);
-                    if(stream != null)
-                    {
-                        stream.Close();
-                    }
+                    File.Create(externFile).Close();
                 }
                 StringBuilder builder = new StringBuilder();
                 builder.Append("~<" + macroName);
-                if(arguments != null && arguments != String.Empty)
+                if (!string.IsNullOrEmpty(arguments))
                 {
                     builder.Append(' ');
                     builder.Append(arguments);
                 }
-                var timeToFail = this.FailTimer;
+                var timeToFail = FailTimer;
                 var startTime = DateTime.Now;
-                this.ToEmme.WriteLine(builder.ToString());
-                while(File.Exists(externFile))
+                ToEmme.WriteLine(builder.ToString());
+                while (File.Exists(externFile))
                 {
-                    if(this.Emme == null || this.Emme.HasExited)
+                    if (Emme == null || Emme.HasExited)
                     {
                         return false;
                     }
                     var currentTime = DateTime.Now;
-                    if((currentTime - startTime) > TimeSpan.FromMinutes(timeToFail))
+                    if ((currentTime - startTime) > TimeSpan.FromMinutes(timeToFail))
                     {
                         return false;
                     }
-                    System.Threading.Thread.Sleep(100);
+                    Thread.Sleep(100);
                 }
             }
             return true;

@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 namespace TMG.Emme
 {
@@ -35,11 +32,12 @@ namespace TMG.Emme
 
         public void Start()
         {
-            var modeller = this.EmmeModeller.AcquireResource<ModellerController>();
-            var tools = this.Tools;
+            var modeller = EmmeModeller.AcquireResource<ModellerController>();
+            var tools = Tools;
             int i = 0;
+            // ReSharper disable AccessToModifiedClosure
             _Progress = () => (((float)i / tools.Length) + tools[i].Progress * (1.0f / tools.Length));
-            status = () => tools[i].ToString();
+            Status = () => tools[i].ToString();
             for (; i < tools.Length; i++)
             {
                 tools[i].Execute(modeller);
@@ -65,23 +63,23 @@ namespace TMG.Emme
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!this.EmmeModeller.CheckResourceType<ModellerController>())
+            if (!EmmeModeller.CheckResourceType<ModellerController>())
             {
-                error = "In '" + this.Name + "' the resource 'EmmeModeller' did not contain an Emme ModellerController!";
+                error = "In '" + Name + "' the resource 'EmmeModeller' did not contain an Emme ModellerController!";
                 return false;
             }
             return true;
         }
 
-        private Func<string> status = null;
+        private Func<string> Status;
 
         public override string ToString()
         {
-            if (status == null)
+            if (Status == null)
             {
                 return "Connecting to EMME";
             }
-            return status();
+            return Status();
         }
     }
 }

@@ -16,12 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using Datastructure;
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Emme.XTMF_Internal
@@ -54,7 +50,7 @@ namespace TMG.Emme.XTMF_Internal
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
             }
             return mc.Run("tmg.XTMF_internal.copy_scenario",
-                new ModellerControllerParameter[]
+                new[]
                 {
                     new ModellerControllerParameter("FromScenario", BaseScenario.ToString()),
                     new ModellerControllerParameter("ToScenario", DestinationScenario.ToString()),

@@ -18,16 +18,16 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using XTMF;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace TMG.Estimation.AI
 {
     [ModuleInformation(Description = @"Provides a hybrid between a PSO and a Gradient Descent algorithm.  First we use a PSO in order to find a near optimized point. 
 Once we have a near optimal point we continue to explore the space with a the GD algorithm to further optimize.")]
+    // ReSharper disable once InconsistentNaming
     public class HybridPSOGD : IEstimationAI
     {
         [RootModule]
@@ -78,7 +78,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        private bool PSO = true;
+        private bool Pso = true;
 
         /// <summary>
         /// This represents a unique element in the estimation that keeps a local history as it moves
@@ -148,58 +148,19 @@ Once we have a near optimal point we continue to explore the space with a the GD
                 }
             }
 
-            private static int FindInsertIndex(float[] distance, float element, int maxIndex)
-            {
-                for(int j = 0; j < maxIndex; j++)
-                {
-                    if(distance[j] > element)
-                    {
-                        return j;
-                    }
-                }
-                return maxIndex;
-            }
-
-            /// <summary>
-            /// Shift the arrays down starting at index j
-            /// </summary>
-            /// <param name="closest">The first array</param>
-            /// <param name="distance">The second array</param>
-            /// <param name="j">The position to shift down from</param>
-            private void Push(int[] closest, float[] distance, int j)
-            {
-                for(int i = closest.Length - 1; i > j; i--)
-                {
-                    closest[i] = closest[i - 1];
-                    distance[i] = distance[i - 1];
-                }
-            }
-
-
-            private float Distance(List<ParameterSetting> parameters, float[] otherParameters)
-            {
-                var ourParameters = BestParameters;
-                float distance = 0.0f;
-                for(int i = 0; i < otherParameters.Length; i++)
-                {
-                    distance += Math.Abs((ourParameters[i] - otherParameters[i]) / parameters[i].Size);
-                }
-                return (float)(Math.Sqrt(distance));
-            }
 
             private static float RelativeDistance(ParameterSetting parameter, float ourValue, float otherValue)
             {
                 return (otherValue - ourValue) / parameter.Size;
             }
 
-            internal void UpdateVelocity(HybridPSOGD us, float[] globalBest, float[] bestInGeneration, int ourIndex, Random r)
+            internal void UpdateVelocity(HybridPSOGD us, float[] globalBest, float[] bestInGeneration, Random r)
             {
                 var parameters = us.Root.Parameters;
                 for(int i = 0; i < Velocity.Length; i++)
                 {
                     var bestParameterRandom = r.NextDouble();
                     var optimalRandom = r.NextDouble();
-                    var generationRandom = r.NextDouble();
                     var current = Job.Parameters[i].Current;
                     var globalBestV = us.BestParameterWeight * bestParameterRandom * RelativeDistance(parameters[i], current, BestParameters[i]);
                     var localBestV = us.OptimalWeight * optimalRandom * RelativeDistance(parameters[i], current, globalBest[i]);
@@ -209,7 +170,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
                 }
             }
 
-            internal Job UpdatePosition(HybridPSOGD us)
+            internal Job UpdatePosition()
             {
                 var temp = Job.Parameters;
                 Job job = new Job();
@@ -255,9 +216,9 @@ Once we have a near optimal point we continue to explore the space with a the GD
             }
             else
             {
-                if(PSO)
+                if(Pso)
                 {
-                    if(!CheckForSwitchToGD())
+                    if(!CheckForSwitchToGd())
                     {
                         UpdateSwarm();
                     }
@@ -276,9 +237,8 @@ Once we have a near optimal point we continue to explore the space with a the GD
 
         int IterationsSinceBest;
         float PreviousBest;
-        int PreviousBestIndex;
 
-        private bool CheckForSwitchToGD()
+        private bool CheckForSwitchToGd()
         {
             if(Maximize)
             {
@@ -288,7 +248,6 @@ Once we have a near optimal point we continue to explore the space with a the GD
                     if(Population[i].BestValue >= mustBeat)
                     {
                         PreviousBest = Population[i].BestValue;
-                        PreviousBestIndex = i;
                         mustBeat = Population[i].BestValue + BestDelta;
                         IterationsSinceBest = 0;
                     }
@@ -302,7 +261,6 @@ Once we have a near optimal point we continue to explore the space with a the GD
                     if(Population[i].BestValue <= mustBeat)
                     {
                         PreviousBest = Population[i].BestValue;
-                        PreviousBestIndex = i;
                         mustBeat = Population[i].BestValue + BestDelta;
                         IterationsSinceBest = 0;
                     }
@@ -310,7 +268,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
             }
             if(IterationsSinceBest >= IterationsToSwitch)
             {
-                PSO = false;
+                Pso = false;
                 Console.WriteLine("Switched to Gradient Descent on iteration " + (Root.CurrentIteration + 1).ToString());
                 return true;
             }
@@ -326,7 +284,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
         private void InitializeSwarm()
         {
             Random = new Random(RandomSeed);
-            PSO = true;
+            Pso = true;
             CreateInitialJobs();
             InitializePopulation();
         }
@@ -394,7 +352,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
         /// </summary>
         private void UpdateSwarm()
         {
-            Parallel.For(0, Population.Length, (int i) =>
+            Parallel.For(0, Population.Length, i =>
             {
                 // Update the current particle if it has seen the best parameter for itself so far
                 Population[i].UpdateIfBest();
@@ -405,8 +363,8 @@ Once we have a near optimal point we continue to explore the space with a the GD
             for(int i = 0; i < Population.Length; i++)
             {
                 // Figure our who the closest neighbors are
-                Population[i].UpdateVelocity(this, globalBest, generationBest, i, Random);
-                Jobs[i] = Population[i].UpdatePosition(this);
+                Population[i].UpdateVelocity(this, globalBest, generationBest, Random);
+                Jobs[i] = Population[i].UpdatePosition();
             }
         }
 
@@ -460,14 +418,14 @@ Once we have a near optimal point we continue to explore the space with a the GD
             var ret = new List<Job>();
             var parameters = Root.Parameters;
             var oldJobs = Root.CurrentJobs;
-            var kernel = first == true ?
+            var kernel = first ?
                 CreateJobFromBest()
                 : Clone(oldJobs[0]);
             // Alter momentum
             if(!first)
             {
                 UpdateMomentum(parameters, oldJobs);
-                ApplyMomentum(parameters, kernel);
+                ApplyMomentum(kernel);
             }
             CreateWhiskers(ret, parameters, kernel);
             ret.Add(kernel);
@@ -521,11 +479,11 @@ Once we have a near optimal point we continue to explore the space with a the GD
             {
                 var delta = (kernel.Parameters[j].Maximum - kernel.Parameters[j].Minimum)
                     * WhiskerSize;
-                ret.Add(AddWisker(parameters, kernel, j, -delta));
-                ret.Add(AddWisker(parameters, kernel, j, delta));
+                ret.Add(AddWisker(kernel, j, -delta));
+                ret.Add(AddWisker(kernel, j, delta));
             }
         }
-        private Job AddWisker(List<ParameterSetting> parameters, Job kernel, int j, float delta)
+        private Job AddWisker(Job kernel, int j, float delta)
         {
             var whisker = Clone(kernel);
             whisker.Parameters[j].Current = kernel.Parameters[j].Current + delta;
@@ -556,7 +514,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
 
 
 
-        private void ApplyMomentum(List<ParameterSetting> parameters, Job kernel)
+        private void ApplyMomentum(Job kernel)
         {
             var kernelParameters = kernel.Parameters;
             var momentum = KernelMomentum;
@@ -607,7 +565,7 @@ Once we have a near optimal point we continue to explore the space with a the GD
             }
             if(ReportKernelMovement)
             {
-                Console.WriteLine("The kernel moved " + Math.Sqrt(KernelMomentum.Sum(v => v * v)).ToString() + " parameter space units on iteration " + (Root.CurrentIteration + 1).ToString());
+                Console.WriteLine("The kernel moved " + Math.Sqrt(KernelMomentum.Sum(v => v * v)).ToString(CultureInfo.InvariantCulture) + " parameter space units on iteration " + (Root.CurrentIteration + 1).ToString());
             }
         }
 

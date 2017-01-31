@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 
 namespace TMG.Emme
@@ -40,12 +38,12 @@ namespace TMG.Emme
 
         public ExtraAttributeData()
         {
-            this._AllowedDomains = new HashSet<string>();
-            this._AllowedDomains.Add("NODE");
-            this._AllowedDomains.Add("LINK");
-            this._AllowedDomains.Add("TURN");
-            this._AllowedDomains.Add("TRANSIT_LINE");
-            this._AllowedDomains.Add("TRANSIT_SEGMENT");
+            _AllowedDomains = new HashSet<string>();
+            _AllowedDomains.Add("NODE");
+            _AllowedDomains.Add("LINK");
+            _AllowedDomains.Add("TURN");
+            _AllowedDomains.Add("TRANSIT_LINE");
+            _AllowedDomains.Add("TRANSIT_SEGMENT");
         }
 
         public string Name
@@ -67,14 +65,14 @@ namespace TMG.Emme
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!this._AllowedDomains.Contains(this.Domain))
+            if (!_AllowedDomains.Contains(Domain))
             {
-                error = "Domain '" + this.Domain + "' is not supported. It must be one of NODE, LINK, TURN, TRANSIT_LINE, or TRANSIT_SEGMENT.";
+                error = "Domain '" + Domain + "' is not supported. It must be one of NODE, LINK, TURN, TRANSIT_LINE, or TRANSIT_SEGMENT.";
                 return false;
             }
-            if (!this.Id.StartsWith("@"))
+            if (!Id.StartsWith("@"))
             {
-                error = "Extra attribute ID must begin with the '@' symbol (current value is '" + this.Id + "').";
+                error = "Extra attribute ID must begin with the '@' symbol (current value is '" + Id + "').";
                 return false;
             }
 
@@ -100,23 +98,23 @@ namespace TMG.Emme
         [SubModelInformation(Description="Emme tools to run")]
         public List<IEmmeTool> EmmeToolsToRun;
 
-        private const string _ToolName = "tmg.XTMF_internal.temp_attribute_manager";
+        private const string ToolName = "tmg.XTMF_internal.temp_attribute_manager";
         private IEmmeTool _RunningTool;
-        private float _progress;
+        private float _Progress;
 
         public bool Execute(Controller controller)
         {
-            this._progress = 0.0f;
-            this._RunningTool = null;
+            _Progress = 0.0f;
+            _RunningTool = null;
 
-            if (this.EmmeToolsToRun.Count == 0) return true;
+            if (EmmeToolsToRun.Count == 0) return true;
 
             var mc = controller as ModellerController;
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            float numberOfTasks = (float) (this.AttributesToCreate.Count + 1);
-            bool[] createdAttributes = new bool[this.AttributesToCreate.Count];
+            float numberOfTasks = AttributesToCreate.Count + 1;
+            bool[] createdAttributes = new bool[AttributesToCreate.Count];
 
             /*
             def __call__(self, xtmf_ScenarioNumber, xtmf_AttributeId, xtmf_AttributeDomain, 
@@ -127,30 +125,31 @@ namespace TMG.Emme
             {
                 for (int i = 0; i < createdAttributes.Length; i++)
                 {
-                    var attData = this.AttributesToCreate[i];
-                    var args = string.Join(" ", this.ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, false, ResetToDefault);
-                    createdAttributes[i] = mc.Run(_ToolName, args);
-                    this._progress = (float)( i /  createdAttributes.Length / numberOfTasks);
+                    var attData = AttributesToCreate[i];
+                    var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, false, ResetToDefault);
+                    createdAttributes[i] = mc.Run(ToolName, args);
+                    // ReSharper disable once PossibleLossOfFraction
+                    _Progress = i /  createdAttributes.Length / numberOfTasks;
                 }
-                this._progress = 1.0f / numberOfTasks;
+                _Progress = 1.0f / numberOfTasks;
 
-                foreach (var tool in this.EmmeToolsToRun)
+                foreach (var tool in EmmeToolsToRun)
                 {
                     tool.Execute(mc);
-                    this._progress += 1.0f / numberOfTasks;
+                    _Progress += 1.0f / numberOfTasks;
                 }
             }
             finally
             {
-                if (this.DeleteFlag)
+                if (DeleteFlag)
                 {
                     for (int i = 0; i < createdAttributes.Length; i++)
                     {
                         if (createdAttributes[i])
                         {
-                            var attData = this.AttributesToCreate[i];
-                            var args = string.Join(" ", this.ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, true, ResetToDefault);
-                            mc.Run(_ToolName, args);
+                            var attData = AttributesToCreate[i];
+                            var args = string.Join(" ", ScenarioNumber, attData.Id, attData.Domain, attData.DefaultValue, true, ResetToDefault);
+                            mc.Run(ToolName, args);
                         }
                     }
                 }
@@ -169,12 +168,12 @@ namespace TMG.Emme
         {
             get
             {
-                if (this._RunningTool != null)
+                if (_RunningTool != null)
                 {
-                    return this._progress + (float)(this._RunningTool.Progress / (this.EmmeToolsToRun.Count));
+                    return _Progress + _RunningTool.Progress / (EmmeToolsToRun.Count);
                 } else 
                 {
-                    return this._progress;
+                    return _Progress;
                 }
             }
         }

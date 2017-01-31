@@ -17,13 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using Datastructure;
 using XTMF;
-using System.Runtime.InteropServices;
 using TMG.Functions;
 
 namespace TMG.Emme
@@ -51,23 +47,23 @@ namespace TMG.Emme
 
         public EmmeMatrix(BinaryReader reader) : this()
         {
-            this.MagicNumber = reader.ReadUInt32();
-            if(!this.IsValidHeader())
+            MagicNumber = reader.ReadUInt32();
+            if (!IsValidHeader())
             {
                 return;
             }
-            this.Version = reader.ReadInt32();
-            this.Type = (DataType)reader.ReadInt32();
-            this.Dimensions = reader.ReadInt32();
-            this.Indexes = new int[this.Dimensions][];
-            for(int i = 0; i < this.Indexes.Length; i++)
+            Version = reader.ReadInt32();
+            Type = (DataType)reader.ReadInt32();
+            Dimensions = reader.ReadInt32();
+            Indexes = new int[Dimensions][];
+            for (int i = 0; i < Indexes.Length; i++)
             {
                 Indexes[i] = new int[reader.ReadInt32()];
             }
-            for(int i = 0; i < this.Indexes.Length; i++)
+            for (int i = 0; i < Indexes.Length; i++)
             {
                 var row = Indexes[i];
-                for(int j = 0; j < row.Length; j++)
+                for (int j = 0; j < row.Length; j++)
                 {
                     row[j] = reader.ReadInt32();
                 }
@@ -84,15 +80,15 @@ namespace TMG.Emme
             Dimensions = 2;
             float[] temp = new float[zones.Length * zones.Length];
             Indexes = new int[2][];
-            for(int i = 0; i < Indexes.Length; i++)
+            for (int i = 0; i < Indexes.Length; i++)
             {
                 var row = Indexes[i] = new int[zones.Length];
-                for(int j = 0; j < row.Length; j++)
+                for (int j = 0; j < row.Length; j++)
                 {
                     row[j] = zones[j].ZoneNumber;
                 }
             }
-            for(int i = 0; i < data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 Array.Copy(data[i], 0, temp, i * zones.Length, zones.Length);
             }
@@ -104,15 +100,15 @@ namespace TMG.Emme
 
         public void Save(string fileLocation, bool checkForNaN)
         {
-            if(checkForNaN)
+            if (checkForNaN)
             {
                 bool any = false;
-                switch(Type)
+                switch (Type)
                 {
                     case DataType.Float:
-                        for(int i = 0; i < FloatData.Length; i++)
+                        for (int i = 0; i < FloatData.Length; i++)
                         {
-                            if(float.IsNaN(FloatData[i]))
+                            if (float.IsNaN(FloatData[i]))
                             {
                                 any = true;
                                 break;
@@ -120,9 +116,9 @@ namespace TMG.Emme
                         }
                         break;
                     case DataType.Double:
-                        for(int i = 0; i < DoubleData.Length; i++)
+                        for (int i = 0; i < DoubleData.Length; i++)
                         {
-                            if(double.IsNaN(DoubleData[i]))
+                            if (double.IsNaN(DoubleData[i]))
                             {
                                 any = true;
                                 break;
@@ -130,7 +126,7 @@ namespace TMG.Emme
                         }
                         break;
                 }
-                if(any)
+                if (any)
                 {
                     throw new XTMFRuntimeException("The matrix being saved to '" + fileLocation + "' contains NaN values!");
                 }
@@ -139,7 +135,7 @@ namespace TMG.Emme
             try
             {
                 file = new FileStream(fileLocation, FileMode.Create);
-                using (BinaryWriter writer = new BinaryWriter(file))
+                using (var writer = new BinaryWriter(file))
                 {
                     file = null;
                     writer.Write(MagicNumber);
@@ -147,20 +143,20 @@ namespace TMG.Emme
                     writer.Write((int)Type);
                     writer.Write(Dimensions);
                     byte[] temp = null;
-                    for(int i = 0; i < Indexes.Length; i++)
+                    for (int i = 0; i < Indexes.Length; i++)
                     {
                         writer.Write(Indexes[i].Length);
                     }
-                    for(int i = 0; i < Indexes.Length; i++)
+                    for (int i = 0; i < Indexes.Length; i++)
                     {
-                        if(temp == null || temp.Length != Indexes[i].Length)
+                        if (temp == null || temp.Length != Indexes[i].Length)
                         {
                             temp = new byte[sizeof(int) * Indexes[i].Length];
                         }
                         Buffer.BlockCopy(Indexes[i], 0, temp, 0, temp.Length);
                         writer.Write(temp, 0, temp.Length);
                     }
-                    switch(Type)
+                    switch (Type)
                     {
                         case DataType.Float:
                             temp = new byte[FloatData.Length * sizeof(float)];
@@ -179,36 +175,36 @@ namespace TMG.Emme
                             Buffer.BlockCopy(UnsignedIntData, 0, temp, 0, temp.Length);
                             break;
                     }
+                    if (temp == null)
+                    {
+                        throw new XTMFRuntimeException($"When saving an EMME matrix to {fileLocation} we tried had no data to write!");
+                    }
                     writer.Write(temp);
                 }
             }
             finally
             {
-                if(file != null)
-                {
-                    file.Dispose();
-                    file = null;
-                }
+                file?.Dispose();
             }
         }
 
-        
+
 
         private void LoadData(Stream baseStream)
         {
             int numberOfElements = 1;
-            for(int i = 0; i < this.Indexes.Length; i++)
+            for (int i = 0; i < Indexes.Length; i++)
             {
-                numberOfElements *= this.Indexes[i].Length;
+                numberOfElements *= Indexes[i].Length;
             }
-            switch(Type)
+            switch (Type)
             {
                 case DataType.Float:
                     {
                         var bytes = numberOfElements * sizeof(float);
                         var cb = new ConversionBuffer(bytes);
                         cb.FillFrom(baseStream);
-                        this.FloatData = cb.FinalizeAsFloatArray(numberOfElements);
+                        FloatData = cb.FinalizeAsFloatArray(numberOfElements);
                     }
                     break;
                 case DataType.Double:
@@ -217,7 +213,7 @@ namespace TMG.Emme
                         var raw = new byte[numberOfElements * sizeof(double)];
                         baseStream.Read(raw, 0, raw.Length);
                         Buffer.BlockCopy(raw, 0, temp, 0, raw.Length);
-                        this.DoubleData = temp;
+                        DoubleData = temp;
                     }
                     break;
                 case DataType.SignedInteger:
@@ -226,7 +222,7 @@ namespace TMG.Emme
                         var raw = new byte[numberOfElements * sizeof(int)];
                         baseStream.Read(raw, 0, raw.Length);
                         Buffer.BlockCopy(raw, 0, temp, 0, raw.Length);
-                        this.SignedIntData = temp;
+                        SignedIntData = temp;
                     }
                     break;
                 case DataType.UnsignedInteger:
@@ -235,7 +231,7 @@ namespace TMG.Emme
                         var raw = new byte[numberOfElements * sizeof(uint)];
                         baseStream.Read(raw, 0, raw.Length);
                         Buffer.BlockCopy(raw, 0, temp, 0, raw.Length);
-                        this.UnsignedIntData = temp;
+                        UnsignedIntData = temp;
                     }
                     break;
             }
@@ -243,7 +239,7 @@ namespace TMG.Emme
 
         public bool IsValidHeader()
         {
-            return this.MagicNumber == EmmeMagicNumber;
+            return MagicNumber == EmmeMagicNumber;
         }
 
     }

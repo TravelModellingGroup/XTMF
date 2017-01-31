@@ -17,15 +17,12 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using XTMF.Networking;
 using TMG.Input;
 using System.IO;
 using System.Threading.Tasks;
-using TMG.Functions;
+
 namespace TMG.Estimation.Utilities
 {
     [ModuleInformation( Description =
@@ -54,27 +51,27 @@ namespace TMG.Estimation.Utilities
         {
             if ( !Loaded )
             {
-                if ( !string.IsNullOrWhiteSpace( this.Header ) )
+                if ( !string.IsNullOrWhiteSpace( Header ) )
                 {
-                    using ( var writer = new StreamWriter( this.OutputFile ) )
+                    using ( var writer = new StreamWriter( OutputFile ) )
                     {
-                        writer.WriteLine( this.Header );
+                        writer.WriteLine( Header );
                     }
                 }
-                this.Host.RegisterCustomReceiver( this.DataChannel, (stream, remote) =>
+                Host.RegisterCustomReceiver( DataChannel, (stream, remote) =>
                     {
                         byte[] data = new byte[stream.Length];
                         stream.Read( data, 0, data.Length );
                         return data;
                     } );
-                this.Host.RegisterCustomMessageHandler( this.DataChannel, (dataObj, remote) =>
+                Host.RegisterCustomMessageHandler( DataChannel, (dataObj, remote) =>
                     {
                         var data = dataObj as byte[];
                         Task.Factory.StartNew( () =>
                             {
-                                lock ( this.WriteLock )
+                                lock ( WriteLock )
                                 {
-                                    using ( var writer = File.Open( this.OutputFile, FileMode.Append) )
+                                    using ( var writer = File.Open( OutputFile, FileMode.Append) )
                                     {
                                         writer.Write( data, 0, data.Length );
                                         writer.Flush();
@@ -82,7 +79,7 @@ namespace TMG.Estimation.Utilities
                                 }
                             } );
                     } );
-                this.Loaded = true;
+                Loaded = true;
             }
         }
 

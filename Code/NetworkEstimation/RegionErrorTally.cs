@@ -73,19 +73,19 @@ namespace TMG.NetworkEstimation
                         i, ttsLines, transitLine.Length ) );
                 }
                 var mode = transitLine[i].Mode;
-                if ( transitLine[i].ID == null )
+                if ( transitLine[i].Id == null )
                 {
                     throw new XTMFRuntimeException( "There is a TTS line without an ID!" );
                 }
-                else if ( transitLine[i].ID.Length < 1 )
+                else if ( transitLine[i].Id.Length < 1 )
                 {
                     throw new XTMFRuntimeException( "There is a TTS line without an ID!" );
                 }
-                else if ( transitLine[i].ID[0].Length < 1 )
+                else if ( transitLine[i].Id[0].Length < 1 )
                 {
                     throw new XTMFRuntimeException( "There is an invalid ID for the TTS line #" + i + "!" );
                 }
-                var firstLetter = transitLine[i].ID[0][0];
+                var firstLetter = transitLine[i].Id[0][0];
                 var compairePair = new Pair<char, char>(mode, firstLetter);
                 if ( !foundModes.Contains( compairePair ) )
                 {
@@ -98,7 +98,7 @@ namespace TMG.NetworkEstimation
             // first pass agg all of the tts numbers
             for ( int i = 0; i < ttsLines; i++ )
             {
-                var testPair = new Pair<char, char>(transitLine[i].Mode, transitLine[i].ID[0][0]);
+                var testPair = new Pair<char, char>(transitLine[i].Mode, transitLine[i].Id[0][0]);
                 var indexOfTransitLine = foundModes.IndexOf( testPair );
                 if ( indexOfTransitLine == -1 )
                 {
@@ -109,7 +109,7 @@ namespace TMG.NetworkEstimation
             // second pass agg all of the predicted numbers
             for ( int i = 0; i < predictedLines; i++ )
             {
-                var testPair = new Pair<char, char>(predicted[i].Mode, predicted[i].ID[0][0]);
+                var testPair = new Pair<char, char>(predicted[i].Mode, predicted[i].Id[0][0]);
                 var indexOfPredictedMode = foundModes.IndexOf( testPair );
                 if ( indexOfPredictedMode == -1 )
                 {

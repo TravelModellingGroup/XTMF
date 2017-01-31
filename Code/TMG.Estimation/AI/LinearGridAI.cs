@@ -18,11 +18,10 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 namespace TMG.Estimation.AI
 {
+    // ReSharper disable once InconsistentNaming
     public class LinearGridAI : IEstimationAI
     {
         [RunParameter( "SubSections", 10, "The number of different sections to break the space into." )]
@@ -38,19 +37,19 @@ namespace TMG.Estimation.AI
 
         public List<Job> CreateJobsForIteration()
         {
-            var iteration = this.Root.CurrentIteration;
+            var iteration = Root.CurrentIteration;
             if ( iteration == 0 )
             {
-                this.SetupParameters( this.Root.Parameters );
+                SetupParameters( Root.Parameters );
             }
-            var numberOfGaps = this.Subsections;
-            var currentParameter = iteration % this.LocalSpaces.Length;
+            var numberOfGaps = Subsections;
+            var currentParameter = iteration % LocalSpaces.Length;
             var ret = new List<Job>();
-            var min = this.LocalSpaces[currentParameter].Minimum;
-            var max = this.LocalSpaces[currentParameter].Maximum;
+            var min = LocalSpaces[currentParameter].Minimum;
+            var max = LocalSpaces[currentParameter].Maximum;
             for ( int i = 0; i < numberOfGaps; i++ )
             {
-                var job = this.CleanJob( this.LocalSpaces );
+                var job = CleanJob( LocalSpaces );
                 job.Parameters[currentParameter].Current = ( ( (float)i / ( numberOfGaps - 1 ) ) * ( max - min ) ) + min;
                 ret.Add( job );
             }
@@ -88,7 +87,7 @@ namespace TMG.Estimation.AI
                 param[i].Maximum = other.Maximum;
                 param[i].Current = ( other.Maximum + other.Minimum ) / 2;
             }
-            this.LocalSpaces = param;
+            LocalSpaces = param;
         }
 
         private int FindBest(List<Job> jobs)
@@ -120,16 +119,16 @@ namespace TMG.Estimation.AI
         public void IterationComplete()
         {
             // update spaces
-            var iteration = this.Root.CurrentIteration;
-            var currentParameter = iteration % this.LocalSpaces.Length;
-            var jobs = this.Root.CurrentJobs;
+            var iteration = Root.CurrentIteration;
+            var currentParameter = iteration % LocalSpaces.Length;
+            var jobs = Root.CurrentJobs;
             int best = FindBest( jobs );
             int minimumIndex = best < 1 ? 0 : best - 1;
             int maximumIndex = best >= jobs.Count - 1 ? jobs.Count - 1 : best + 1;
-            this.LocalSpaces[currentParameter].Minimum = jobs[minimumIndex].Parameters[currentParameter].Current;
-            this.LocalSpaces[currentParameter].Maximum = jobs[maximumIndex].Parameters[currentParameter].Current;
-            this.LocalSpaces[currentParameter].Current =
-                ( this.LocalSpaces[currentParameter].Maximum + this.LocalSpaces[currentParameter].Minimum ) / 2;
+            LocalSpaces[currentParameter].Minimum = jobs[minimumIndex].Parameters[currentParameter].Current;
+            LocalSpaces[currentParameter].Maximum = jobs[maximumIndex].Parameters[currentParameter].Current;
+            LocalSpaces[currentParameter].Current =
+                ( LocalSpaces[currentParameter].Maximum + LocalSpaces[currentParameter].Minimum ) / 2;
         }
 
         public string Name

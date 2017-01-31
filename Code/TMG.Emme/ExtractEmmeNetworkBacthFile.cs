@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
 
@@ -35,8 +32,8 @@ namespace TMG.Emme
         public FileLocation ExportFile;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "tmg.XTMF_internal.export_network_batch_file";
-        private const string _OldToolName = "TMG2.XTMF.exportNetworkBatchFile";
+        private const string ToolName = "tmg.XTMF_internal.export_network_batch_file";
+        private const string OldToolName = "TMG2.XTMF.exportNetworkBatchFile";
 
         public bool Execute(Controller controller)
         {
@@ -44,17 +41,17 @@ namespace TMG.Emme
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.ScenarioNumber,
-                                        this.ExportFile.GetFilePath());
+            var args = string.Join(" ", ScenarioNumber,
+                                        ExportFile.GetFilePath());
             var result = "";
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
 
-                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+                return mc.Run(ToolName, args, (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
+                return mc.Run(OldToolName, args, (p => Progress = p), ref result);
             }
         }
 

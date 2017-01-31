@@ -53,7 +53,7 @@ so please be careful to enter in the correct tool/macro names." )]
 
         public bool Execute(Controller controller)
         {
-            return controller.Run( this.ToolName, this.ToolArguments );
+            return controller.Run( ToolName, ToolArguments );
         }
 
         public bool RuntimeValidation(ref string error)

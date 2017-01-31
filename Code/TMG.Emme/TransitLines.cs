@@ -28,8 +28,8 @@ namespace TMG.Emme
         public float Bordings;
         public float EnergyConsumption;
         public float HoursTraveled;
-        public string[] ID;
-        public float KMTraveled;
+        public string[] Id;
+        public float KmTraveled;
 
         /// <summary>
         /// In KM
@@ -39,7 +39,7 @@ namespace TMG.Emme
         public float LoadAverage;
         public float LoadMax;
         public float MaxVolume;
-        public float MinHDWY;
+        public float MinHdwy;
         public char Mode;
         public int NumberOfVehicals;
         public float OperationCosts;
@@ -57,7 +57,7 @@ namespace TMG.Emme
         {
             using ( StreamReader reader = new StreamReader( file621Name ) )
             {
-                List<TransitLine> transitLines = new List<TransitLine>( 1000 );
+                var transitLines = new List<TransitLine>( 1000 );
                 char[] split = new char[] { ',', ' ', '\t' };
                 string line;
                 // Process each line
@@ -66,20 +66,20 @@ namespace TMG.Emme
                     string[] parts = line.Split( split, StringSplitOptions.RemoveEmptyEntries );
                     if ( parts.Length == 15 )
                     {
-                        TransitLine current = new TransitLine();
+                        var current = new TransitLine();
                         try
                         {
-                            current.ID = new string[] { parts[0] };
+                            current.Id = new[] { parts[0] };
                             current.Mode = parts[1][0];
                             current.VehicalType = int.Parse( parts[2] );
                             current.NumberOfVehicals = int.Parse( parts[3] );
-                            current.MinHDWY = float.Parse( parts[4] );
+                            current.MinHdwy = float.Parse( parts[4] );
                             current.Length = float.Parse( parts[5] );
                             current.Time = float.Parse( parts[6] );
                             current.Bordings = float.Parse( parts[7] );
-                            if ( !float.TryParse( parts[8], out current.KMTraveled ) )
+                            if ( !float.TryParse( parts[8], out current.KmTraveled ) )
                             {
-                                current.KMTraveled = float.PositiveInfinity;
+                                current.KmTraveled = float.PositiveInfinity;
                             }
                             if ( float.TryParse( parts[9], out current.HoursTraveled ) )
                             {
@@ -98,17 +98,17 @@ namespace TMG.Emme
                             errorMessage.Append( "We had problems loading the transit lines file \"" );
                             errorMessage.Append( file621Name );
                             errorMessage.AppendLine( "\"." );
-                            if ( current.ID != null && current.ID.Length > 0 )
+                            if ( current.Id != null && current.Id.Length > 0 )
                             {
                                 errorMessage.Append( "The problem occured while trying to read " );
-                                errorMessage.Append( current.ID[0] );
+                                errorMessage.Append( current.Id[0] );
                                 errorMessage.AppendLine( "." );
                             }
                             throw new XTMF.XTMFRuntimeException( errorMessage.ToString() );
                         }
                     }
                 }
-                this.Lines = transitLines.ToArray();
+                Lines = transitLines.ToArray();
             }
             GC.Collect();
         }

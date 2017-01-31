@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
@@ -53,7 +52,6 @@ namespace TMG.Estimation.AI
             internal float CurrentFitness;
             internal float[] WeightToStars;
             internal float Energy;
-            internal int GenerationsSinceBestObserved;
         }
 
 
@@ -71,8 +69,6 @@ namespace TMG.Estimation.AI
 
         private Particle[] Particles;
         private Star[] Stars;
-
-        private List<Job> Jobs = new List<Job>();
 
         [RunParameter("Particles", 100, "The number of particles for the system.")]
         public int NumberOfParticles;
@@ -372,21 +368,16 @@ namespace TMG.Estimation.AI
                             Stars[unlivingIndex].Living = true;
                             Stars[unlivingIndex].StarNumber = CurrentStarNumber++;
                             DestroyStarsThatAreTooClose(unlivingIndex);
-                            i = -1;
                             ComputeParticleWeight();
-                            processNext = true;
                             break;
                         }
-                        else
+                        // if all of the stars are living
+                        // see if we should just move the closest star
+                        if(Maximize ? fitness > Stars[closestStar].Fitness : fitness < Stars[closestStar].Fitness)
                         {
-                            // if all of the stars are living
-                            // see if we should just move the closest star
-                            if(Maximize ? fitness > Stars[closestStar].Fitness : fitness < Stars[closestStar].Fitness)
-                            {
-                                Array.Copy(particlePosition, Stars[closestStar].Position, particlePosition.Length);
-                                Stars[closestStar].Fitness = fitness;
-                                DestroyStarsThatAreTooClose(closestStar);
-                            }
+                            Array.Copy(particlePosition, Stars[closestStar].Position, particlePosition.Length);
+                            Stars[closestStar].Fitness = fitness;
+                            DestroyStarsThatAreTooClose(closestStar);
                         }
                     }
                 }
@@ -408,7 +399,6 @@ namespace TMG.Estimation.AI
             float[] fitnessToStar = new float[Stars.Length];
             float[] weightToStar = new float[Stars.Length];
             float totalFitness = 0.0f;
-            float totalWeight = 0.0f;
             for(int i = 0; i < Particles.Length; i++)
             {
                 var fitness = Particles[i].CurrentFitness;
@@ -417,7 +407,7 @@ namespace TMG.Estimation.AI
                 {
                     float weight = weightRow[j];
                     totalFitness += fitnessToStar[j] += fitness * weight;
-                    totalWeight += weightToStar[j] += weight;
+                    weightToStar[j] += weight;
                 }
             }
             int best = -1;
@@ -481,7 +471,7 @@ namespace TMG.Estimation.AI
 
         private void ComputeParticleWeight()
         {
-            Parallel.For(0, Particles.Length, (int i) =>
+            Parallel.For(0, Particles.Length, i =>
             {
                 var total = 0.0f;
                 for(int j = 0; j < Stars.Length; j++)
@@ -517,7 +507,6 @@ namespace TMG.Estimation.AI
                             {
                                 Particles[i].WeightToStars[k] = j == k ? 1.0f : 0.0f;
                             }
-                            total = 1.0f;
                             break;
                         }
                     }
@@ -583,6 +572,7 @@ namespace TMG.Estimation.AI
                 if(Maximize)
                 {
                     var currentBest = Math.Max(Particles[i].BestFitness, Particles[i].CurrentFitness);
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
                     if(currentBest != Particles[i].BestFitness)
                     {
                         Particles[i].Energy = 0;
@@ -596,6 +586,7 @@ namespace TMG.Estimation.AI
                 else
                 {
                     float currentBest = Math.Min(Particles[i].BestFitness, Particles[i].CurrentFitness);
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
                     if(currentBest != Particles[i].BestFitness)
                     {
                         Particles[i].Energy = 0;

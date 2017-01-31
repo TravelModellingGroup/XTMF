@@ -19,8 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Emme.NetworkAssignment
@@ -91,6 +89,7 @@ namespace TMG.Emme.NetworkAssignment
         public Class[] Classes;
 
         [SubModelInformation(Description = "The TTF's to apply in the assignment.")]
+        // ReSharper disable once InconsistentNaming
         public TTFDefinitions[] TTF;
 
         public bool Execute(Controller controller)
@@ -102,8 +101,7 @@ namespace TMG.Emme.NetworkAssignment
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
             }
 
-            string walkPerception = null;
-            var outputMatrices = new List<string>();
+            string walkPerception = String.Empty;
 
             // join all walk perceptions into one string
             foreach (var c in Classes)
@@ -170,7 +168,7 @@ namespace TMG.Emme.NetworkAssignment
                                         ExtractCongestedInVehicleTimeFlag,
                                         string.Join(",", from ttf in TTF
                                                          select ttf.TTFNumber.ToString() + ":"
-                                                         + mc.ToEmmeFloat(ttf.CongestionPerception).ToString() + ":"
+                                                         + mc.ToEmmeFloat(ttf.CongestionPerception) + ":"
                                                          + mc.ToEmmeFloat(ttf.CongestionExponent)),
                                         ApplyCongestion
                                        );
@@ -186,7 +184,7 @@ namespace TMG.Emme.NetworkAssignment
         }
 
 
-        public class Class : XTMF.IModule
+        public class Class : IModule
         {
             [RunParameter("Demand Matrix Number", 1, "The number of the full matrix containing transit demand ODs")]
             public int DemandMatrixNumber;
@@ -247,7 +245,7 @@ namespace TMG.Emme.NetworkAssignment
             [SubModelInformation(Description = "The classes for this multi-class assignment.")]
             public WalkPerceptionSegment[] WalkPerceptions;
 
-            public sealed class WalkPerceptionSegment : XTMF.IModule
+            public sealed class WalkPerceptionSegment : IModule
             {
                 [RunParameter("Walk Perception Value", 1.0f, "The walk perception on links.")]
                 public float WalkValue;
@@ -281,9 +279,11 @@ namespace TMG.Emme.NetworkAssignment
 
         }
 
-        public sealed class TTFDefinitions : XTMF.IModule
+        // ReSharper disable once InconsistentNaming
+        public sealed class TTFDefinitions : IModule
         {
             [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
+            // ReSharper disable once InconsistentNaming
             public int TTFNumber;
 
             [RunParameter("Congestion Perception", 0.41f, "The congestion perception to apply to this TTF.")]

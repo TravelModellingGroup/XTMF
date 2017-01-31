@@ -21,8 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 namespace TMG.Emme.Utilities
@@ -31,6 +29,7 @@ namespace TMG.Emme.Utilities
 
 @"This module is designed to compute the Level of Service variables between nodes in an EMME scenario."
 )]
+    // ReSharper disable once InconsistentNaming
     public class LOSBetweenPoints : IEmmeTool
     {
 
@@ -168,7 +167,7 @@ namespace TMG.Emme.Utilities
                 Progress = (float)i / exploration.Count;
                 var currentlyExploring = exploration[i];
                 AttachCentroids(mc, nodesToExplore, newControids, currentlyExploring);
-                RunAssignment(controller, nodesToExplore, currentlyExploring);
+                RunAssignment(controller);
                 CollectData(nodesToExplore, currentlyExploring, newControids);
             }
             SaveResults(nodesToExplore);
@@ -232,7 +231,7 @@ namespace TMG.Emme.Utilities
         }
 
 
-        private void RunAssignment(Controller controller, List<int> nodesToExplore, List<int> currentlyExploring)
+        private void RunAssignment(Controller controller)
         {
             foreach (var assignment in Assignment)
             {
@@ -255,7 +254,7 @@ namespace TMG.Emme.Utilities
             {
                 // burn the header
                 reader.LoadLine();
-                int columns = 0;
+                int columns;
                 while (reader.LoadLine(out columns))
                 {
                     if (columns > 0)
@@ -280,7 +279,7 @@ namespace TMG.Emme.Utilities
             if (nodesToExplore.Count <= availableCentroids)
             {
                 // in this case we can explore everything in one shot
-                yield return BuildNodeMap(nodesToExplore, 0, nodesToExplore.Count, 0, 0);
+                yield return BuildNodeMap(0, nodesToExplore.Count, 0, 0);
             }
             else
             {
@@ -288,14 +287,14 @@ namespace TMG.Emme.Utilities
                 var stepSize = availableCentroids >> 1;
                 int primarySteps = nodesToExplore.Count / stepSize; // int division is done intensionally to remove any remainders
                 // in this case we need to break everything down into smaller parts so that we don't exceed the license size
-                int startFirst = 0, startSecond = 0;
+                int startFirst, startSecond;
                 for (int i = 0; i < primarySteps; i++)
                 {
                     startFirst = stepSize * i;
                     for (int j = i + 1; j < primarySteps; j++)
                     {
                         startSecond = stepSize * j;
-                        yield return BuildNodeMap(nodesToExplore, startFirst, startFirst + stepSize, startSecond, startSecond + stepSize);
+                        yield return BuildNodeMap(startFirst, startFirst + stepSize, startSecond, startSecond + stepSize);
                     }
                 }
                 //Process remainder
@@ -308,14 +307,14 @@ namespace TMG.Emme.Utilities
                     var remainderStart = nodesToExplore.Count - nodesRemaining;
                     while (startFirst < nodesToExplore.Count)
                     {
-                        yield return BuildNodeMap(nodesToExplore, startFirst, Math.Min(startFirst + remainderStep, nodesToExplore.Count), remainderStart, nodesToExplore.Count);
+                        yield return BuildNodeMap(startFirst, Math.Min(startFirst + remainderStep, nodesToExplore.Count), remainderStart, nodesToExplore.Count);
                         startFirst += remainderStep;
                     }
                 }
             }
         }
 
-        private List<int> BuildNodeMap(List<int> nodesToExplore, int startFirst, int endFirst, int startSecond, int endSecond)
+        private List<int> BuildNodeMap(int startFirst, int endFirst, int startSecond, int endSecond)
         {
             var map = new List<int>();
             for (int i = startFirst; i < endFirst; i++)

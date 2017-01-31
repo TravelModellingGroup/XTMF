@@ -64,7 +64,7 @@ namespace TMG.Estimation
         {
             get
             {
-                return this.MainClient.Progress;
+                return MainClient.Progress;
             }
         }
 
@@ -80,11 +80,11 @@ namespace TMG.Estimation
 
         private void InitializeParameters(ClientTask task)
         {
-            for(int i = 0; i < task.ParameterValues.Length && i < this.Parameters.Length; i++)
+            for(int i = 0; i < task.ParameterValues.Length && i < Parameters.Length; i++)
             {
-                for(int j = 0; j < this.Parameters[i].Names.Length; j++)
+                for(int j = 0; j < Parameters[i].Names.Length; j++)
                 {
-                    AssignValue(this.Parameters[i].Names[j], task.ParameterValues[i]);
+                    AssignValue(Parameters[i].Names[j], task.ParameterValues[i]);
                 }
             }
             SaveParametersIfNeeded();
@@ -105,7 +105,7 @@ namespace TMG.Estimation
         private void AssignValue(string parameterName, float value)
         {
             string[] parts = SplitNameToParts(parameterName);
-            AssignValue(parts, 0, this.ClientStructure, value);
+            AssignValue(parts, 0, ClientStructure, value);
         }
 
         private void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, float value)
@@ -211,7 +211,7 @@ namespace TMG.Estimation
 
         public bool ExitRequest()
         {
-            this.Exit = true;
+            Exit = true;
             return false;
         }
 
@@ -239,7 +239,7 @@ namespace TMG.Estimation
         public bool RuntimeValidation(ref string error)
         {
             IModelSystemStructure ourStructure = null;
-            foreach(var mst in this.XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure)
+            foreach(var mst in XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure)
             {
                 if(FindUs(mst, ref ourStructure))
                 {
@@ -247,7 +247,7 @@ namespace TMG.Estimation
                     {
                         if(child.ParentFieldName == "MainClient")
                         {
-                            this.ClientStructure = child;
+                            ClientStructure = child;
                             break;
                         }
                     }
@@ -256,7 +256,7 @@ namespace TMG.Estimation
             }
             if(ClientStructure == null)
             {
-                error = "In '" + this.Name + "' we were unable to find the Client Model System!";
+                error = "In '" + Name + "' we were unable to find the Client Model System!";
                 return false;
             }
             return true;
@@ -264,22 +264,22 @@ namespace TMG.Estimation
 
         public void Start()
         {
-            this.Exit = false;
-            this.Parameters = this.Root.Parameters.ToArray();
+            Exit = false;
+            Parameters = Root.Parameters.ToArray();
             Job job;
-            while(this.Exit != true && (job = this.Root.GiveJob()) != null)
+            while(Exit != true && (job = Root.GiveJob()) != null)
             {
                 CreateClientTask(job);
-                this.InitializeParameters(this.CurrentTask);
-                this.MainClient.Start();
+                InitializeParameters(CurrentTask);
+                MainClient.Start();
                 ReportResult();
             }
-            this.Exit = true;
+            Exit = true;
         }
 
         private void CreateClientTask(Job job)
         {
-            this.CurrentTask = new ClientTask()
+            CurrentTask = new ClientTask()
             {
                 Generation = -1,
                 Index = -1,
@@ -291,8 +291,8 @@ namespace TMG.Estimation
 
         private void ReportResult()
         {
-            var result = this.RetrieveValue == null ? float.NaN : this.RetrieveValue();
-            this.Root.SaveResult(result);
+            var result = RetrieveValue == null ? float.NaN : RetrieveValue();
+            Root.SaveResult(result);
         }
     }
 }

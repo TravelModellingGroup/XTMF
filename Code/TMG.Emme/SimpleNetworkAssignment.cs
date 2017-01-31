@@ -21,56 +21,53 @@ using XTMF;
 
 namespace TMG.Emme
 {
-    [ModuleInformation(Description=
+    [ModuleInformation(Description =
         @"This module provides a basic option for GTAModel/Tasha/Network Estimation Network Assignment models. 
 Though not currently used for GTAModel or Tasha anymore it provides access to both the Emme macro system and 
 the modeller system, an optional tool/macro to initialize the database with before running the first assignment 
 and another tool for execution. This module requires the root module of the model system to be a descendant of 
-‘I4StepModel’ in order to access the Network Data." )]
+‘I4StepModel’ in order to access the Network Data.")]
     public class SimpleNetworkAssignment : INetworkAssignment, IDisposable
     {
-        [RunParameter( "Auto Network Name", "Auto", "The name of the auto network to use." )]
+        [RunParameter("Auto Network Name", "Auto", "The name of the auto network to use.")]
         public string AutoNetworkName;
 
-        [RunParameter( "Assignment Macro", "TA_test3.mac", "The name of the macro to call to assign to EMME" )]
+        [RunParameter("Assignment Macro", "TA_test3.mac", "The name of the macro to call to assign to EMME")]
         public string EmmeAssignmentMacro;
 
-        [RunParameter( "Emme Flows File", @"C:\Users\James\Documents\Project\Macro", "The name of the auto network to use." )]
+        [RunParameter("Emme Flows File", @"C:\Users\James\Documents\Project\Macro", "The name of the auto network to use.")]
         public string EmmeFlowsFileName;
 
-        [RunParameter( "Macro Parameters", "1 0 1", "The parameters to the emme macro to call" )]
+        [RunParameter("Macro Parameters", "1 0 1", "The parameters to the emme macro to call")]
         public string EmmeParameters;
 
-        [RunParameter( "Emme Project Folder", @"C:\Users\James\Documents\Project\Macro", "The name of the auto network to use." )]
+        [RunParameter("Emme Project Folder", @"C:\Users\James\Documents\Project\Macro", "The name of the auto network to use.")]
         public string EmmeProjectFolder;
 
-        [RunParameter( "Modeller Performance Test", false, "Store the execution time in the modeller logbook for how long it takes to run the model system." )]
+        [RunParameter("Modeller Performance Test", false, "Store the execution time in the modeller logbook for how long it takes to run the model system.")]
         public bool ModellerPerformanceAnalysis;
 
         [RootModule]
         public I4StepModel Parent;
 
-        [RunParameter( "Run Emme", true, "Run Emme?" )]
+        [RunParameter("Run Emme", true, "Run Emme?")]
+        // ReSharper disable once InconsistentNaming
         public bool RunEMME;
 
-        [RunParameter( "Startup Macro Parameters", "", "The parameters to use if we have a start-up macro." )]
+        [RunParameter("Startup Macro Parameters", "", "The parameters to use if we have a start-up macro.")]
         public string StartupMacroArguments;
 
-        [RunParameter( "Startup Macro", "", "The macro to run to start up EMME, leave empty if none." )]
+        [RunParameter("Startup Macro", "", "The macro to run to start up EMME, leave empty if none.")]
         public string StartupMacroName;
 
-        [RunParameter( "Use Modeller", false, "Switch the Network assignment to use modeller instead of emme macros." )]
+        [RunParameter("Use Modeller", false, "Switch the Network assignment to use modeller instead of emme macros.")]
         public bool UseModeller;
 
         private Controller Controller;
 
-        public SimpleNetworkAssignment()
-        {
-        }
-
         ~SimpleNetworkAssignment()
         {
-            this.Dispose( true );
+            Dispose(true);
         }
 
         public float[][][] Flows { get; set; }
@@ -97,29 +94,28 @@ and another tool for execution. This module requires the root module of the mode
 
         public void RunNetworkAssignment()
         {
-            INetworkData autoData = GetAutoNetwork();
-            if ( this.RunEMME )
+            if (RunEMME)
             {
                 do
                 {
                     // If we don't have a working controller try to re-initialize it, and re-startup the system
-                    if ( this.Controller == null )
+                    if (Controller == null)
                     {
                         // Pick which controller to use
                         InitializeController();
                         ExecuteStartupMacro();
                     }
                     // Now that the system has been initialized run the macro
-                    if ( !Controller.Run( this.EmmeAssignmentMacro, this.EmmeParameters ) )
+                    if (!Controller.Run(EmmeAssignmentMacro, EmmeParameters))
                     {
                         // if we failed to run the macro, kill the controller and try again
-                        this.Controller.Close();
-                        this.Controller = null;
+                        Controller.Close();
+                        Controller = null;
                         continue;
                     }
                     // if we have gotten here then we successfully ran, and can continue on
                     break;
-                } while ( true );
+                } while (true);
             }
         }
 
@@ -129,28 +125,28 @@ and another tool for execution. This module requires the root module of the mode
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.Parent == null )
+            if (Parent == null)
             {
                 error = "The parent model was never set!";
                 return false;
             }
-            if ( this.AutoNetworkName != null && this.AutoNetworkName != String.Empty )
+            if (AutoNetworkName != null && AutoNetworkName != String.Empty)
             {
                 INetworkData autoData = null;
-                if ( this.Parent.NetworkData == null )
+                if (Parent.NetworkData == null)
                 {
                     error = "There was no Network Data in the Model System to load from!";
                     return false;
                 }
-                for ( int i = 0; i < this.Parent.NetworkData.Count; i++ )
+                for (int i = 0; i < Parent.NetworkData.Count; i++)
                 {
-                    if ( this.Parent.NetworkData[i].NetworkType == this.AutoNetworkName )
+                    if (Parent.NetworkData[i].NetworkType == AutoNetworkName)
                     {
-                        autoData = this.Parent.NetworkData[i];
+                        autoData = Parent.NetworkData[i];
                         break;
                     }
                 }
-                if ( autoData == null )
+                if (autoData == null)
                 {
                     error = "There was no auto network!";
                     return false;
@@ -161,52 +157,21 @@ and another tool for execution. This module requires the root module of the mode
 
         private void ExecuteStartupMacro()
         {
-            if ( !String.IsNullOrEmpty( this.StartupMacroName ) )
+            if (!String.IsNullOrEmpty(StartupMacroName))
             {
-                if ( !Controller.Run( this.StartupMacroName, this.StartupMacroArguments ) )
+                if (!Controller.Run(StartupMacroName, StartupMacroArguments))
                 {
-                    throw new XTMFRuntimeException( "We were unable to startup EMME!  Please make sure that you are connected to the EMME license server." );
+                    throw new XTMFRuntimeException("We were unable to startup EMME!  Please make sure that you are connected to the EMME license server.");
                 }
             }
-        }
-
-        private INetworkData GetAutoNetwork()
-        {
-            INetworkData autoData = null;
-            if ( !String.IsNullOrWhiteSpace( this.AutoNetworkName ) )
-            {
-                try
-                {
-                    if ( this.Parent.NetworkData != null )
-                    {
-                        for ( int i = 0; i < this.Parent.NetworkData.Count; i++ )
-                        {
-                            if ( this.Parent.NetworkData[i].NetworkType == this.AutoNetworkName )
-                            {
-                                autoData = this.Parent.NetworkData[i];
-                                break;
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                }
-            }
-            return autoData;
         }
 
         private void InitializeController()
         {
-            this.Controller = UseModeller ?
-                  new ModellerController( this.EmmeProjectFolder, this.ModellerPerformanceAnalysis )
-                : new Controller( this.EmmeProjectFolder, false );
+            Controller = UseModeller ?
+                  new ModellerController(EmmeProjectFolder, ModellerPerformanceAnalysis)
+                : new Controller(EmmeProjectFolder);
         }
-
-        private void SaveData(INetworkData autoData)
-        {
-        }
-
 
         public void RunModelSystemSetup()
         {
@@ -215,16 +180,16 @@ and another tool for execution. This module requires the root module of the mode
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( this );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Controller != null )
+            if (Controller != null)
             {
-                this.Controller.Close();
-                this.Controller = null;
+                Controller.Close();
+                Controller = null;
             }
         }
     }

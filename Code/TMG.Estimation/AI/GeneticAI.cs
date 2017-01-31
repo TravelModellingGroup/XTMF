@@ -18,13 +18,12 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
-using TMG;
-using TMG.Input;
+
+// ReSharper disable once CheckNamespace
 namespace TMG.Estimation
 {
+    // ReSharper disable once InconsistentNaming
     public class GeneticAI : IEstimationAI
     {
         [RunParameter( "Population Size", 1000, "The number of different runs to do per generation." )]
@@ -68,7 +67,7 @@ namespace TMG.Estimation
 
         public List<Job> CreateJobsForIteration()
         {
-            if ( this.Host.CurrentIteration == 0 )
+            if ( Host.CurrentIteration == 0 )
             {
                 return CreateInitialPopulation();
             }
@@ -77,16 +76,16 @@ namespace TMG.Estimation
 
         private List<Job> EvolvePopulation()
         {
-            var parameters = this.Host.Parameters;
-            var ret = new List<Job>( this.PopulationSize );
-            var oldPopulation = this.Host.CurrentJobs;
+            var parameters = Host.Parameters;
+            var ret = new List<Job>( PopulationSize );
+            var oldPopulation = Host.CurrentJobs;
             // reorder the old jobs so they are all sorted
-            if ( !this.Maximize )
+            if ( !Maximize )
             {
                 FlipSigns( oldPopulation );
             }
-            this.Clearing();
-            for ( int i = 0; i < this.PopulationSize - this.ReseedSize; i++ )
+            Clearing();
+            for ( int i = 0; i < PopulationSize - ReseedSize; i++ )
             {
                 var job = CleanJob( parameters );
                 // process this job
@@ -96,16 +95,16 @@ namespace TMG.Estimation
                 {
                     secondIndex++;
                 }
-                if ( secondIndex >= this.PopulationSize )
+                if ( secondIndex >= PopulationSize )
                 {
                     secondIndex = 0;
                 }
-                this.CrossGenes( job.Parameters, oldPopulation[firstIndex].Parameters, oldPopulation[secondIndex].Parameters );
-                this.Mutate( job.Parameters );
+                CrossGenes( job.Parameters, oldPopulation[firstIndex].Parameters, oldPopulation[secondIndex].Parameters );
+                Mutate( job.Parameters );
                 //now add it to the jobs to execute for this iteration
                 ret.Add( job );
             }
-            for ( int i = 0; i < this.ReseedSize; i++ )
+            for ( int i = 0; i < ReseedSize; i++ )
             {
                 ret.Add( GenerateRandomJob( parameters ) );
             }
@@ -124,19 +123,19 @@ namespace TMG.Estimation
         {
             var numberOfParameters = ret.Length;
             // see if we will have an addition mutation randomly
-            int numberOfMutations = ( this.MutationProbability - (int)this.MutationProbability ) > this.Random.NextDouble() ? (int)this.MutationProbability + 1 : (int)this.MutationProbability;
+            int numberOfMutations = ( MutationProbability - (int)MutationProbability ) > Random.NextDouble() ? (int)MutationProbability + 1 : (int)MutationProbability;
             for ( int i = 0; i < numberOfMutations; i++ )
             {
-                int index = (int)( this.Random.NextDouble() * numberOfParameters );
+                int index = (int)( Random.NextDouble() * numberOfParameters );
 
                 // figure out how large this dimension of parameter space is
                 var space = ret[index].Maximum - ret[index].Minimum;
 
                 // do an exponential push
-                var mutation = (float)( Math.Pow( this.Random.NextDouble(), this.MutationExponent ) * ( space * this.MaxMutationPercent ) );
+                var mutation = (float)( Math.Pow( Random.NextDouble(), MutationExponent ) * ( space * MaxMutationPercent ) );
 
                 // move the current position
-                ret[index].Current += ( this.Random.NextDouble() > 0.5 ? mutation : -mutation );
+                ret[index].Current += ( Random.NextDouble() > 0.5 ? mutation : -mutation );
 
                 // Make sure that it does past the edges
                 if ( ret[index].Current < ret[index].Minimum )
@@ -154,7 +153,7 @@ namespace TMG.Estimation
         {
             for ( int i = 0; i < ret.Length; i++ )
             {
-                if ( this.Random.NextDouble() > 0.5 )
+                if ( Random.NextDouble() > 0.5 )
                 {
                     ret[i].Current = firstParent[i].Current;
                 }
@@ -167,7 +166,7 @@ namespace TMG.Estimation
 
         private int Select()
         {
-            return (int)( Math.Pow( this.Random.NextDouble(), this.CrossExponent ) * this.PopulationSize );
+            return (int)( Math.Pow( Random.NextDouble(), CrossExponent ) * PopulationSize );
         }
 
         /// <summary>
@@ -180,8 +179,8 @@ namespace TMG.Estimation
         /// </summary>
         private void Clearing()
         {
-            var oldJobs = this.Host.CurrentJobs;
-            int populationSize = this.PopulationSize;
+            var oldJobs = Host.CurrentJobs;
+            int populationSize = PopulationSize;
             // sort the population
             oldJobs.Sort( new CompareParameterSet() );
             for ( int i = 0; i < populationSize; i++ )
@@ -193,9 +192,9 @@ namespace TMG.Estimation
                 }
                 for ( int j = i + 1; j < populationSize; j++ )
                 {
-                    if ( ( oldJobs[j].Value > float.MinValue ) && this.ComputeDistance( i, j ) <= this.Distance )
+                    if ( ( oldJobs[j].Value > float.MinValue ) && ComputeDistance( i, j ) <= Distance )
                     {
-                        if ( win < this.NicheCapacity )
+                        if ( win < NicheCapacity )
                         {
                             win++;
                         }
@@ -211,14 +210,14 @@ namespace TMG.Estimation
         private float ComputeDistance(int first, int second)
         {
             double distance = 0;
-            var oldJobs = this.Host.CurrentJobs;
+            var oldJobs = Host.CurrentJobs;
             var firstParameters = oldJobs[first].Parameters;
             var secondParameters = oldJobs[second].Parameters;
             var numberOfParameters = firstParameters.Length;
             for ( int i = 0; i < numberOfParameters; i++ )
             {
                 float unit;
-                if ( this.PercentDistance )
+                if ( PercentDistance )
                 {
                     unit = ( firstParameters[i].Current - secondParameters[i].Current ) / ( firstParameters[i].Maximum - firstParameters[i].Minimum );
                 }
@@ -237,6 +236,7 @@ namespace TMG.Estimation
             {
                 // we want it in desc order (highest @ 0)
                 if ( x.Value < y.Value ) return 1;
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 if ( x.Value == y.Value )
                 {
                     return 0;
@@ -251,7 +251,7 @@ namespace TMG.Estimation
             for ( int i = 0; i < ret.Parameters.Length; i++ )
             {
                 ret.Parameters[i].Current =
-                    ( ( ret.Parameters[i].Maximum - ret.Parameters[i].Minimum ) * ( (float)this.Random.NextDouble() ) )
+                    ( ( ret.Parameters[i].Maximum - ret.Parameters[i].Minimum ) * ( (float)Random.NextDouble() ) )
                     + ret.Parameters[i].Minimum;
             }
             return ret;
@@ -279,11 +279,11 @@ namespace TMG.Estimation
 
         private List<Job> CreateInitialPopulation()
         {
-            var parameters = this.Host.Parameters;
-            var ret = new List<Job>( this.PopulationSize );
-            for ( int i = 0; i < this.PopulationSize; i++ )
+            var parameters = Host.Parameters;
+            var ret = new List<Job>( PopulationSize );
+            for ( int i = 0; i < PopulationSize; i++ )
             {
-                ret.Add( this.GenerateRandomJob( parameters ) );
+                ret.Add( GenerateRandomJob( parameters ) );
             }
             return ret;
         }
@@ -307,12 +307,12 @@ namespace TMG.Estimation
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.ReseedSize > this.PopulationSize )
+            if ( ReseedSize > PopulationSize )
             {
                 error = "You can not reseed more than the size of the population!";
                 return false;
             }
-            this.Random = new Random( this.RandomSeed );
+            Random = new Random( RandomSeed );
             return true;
         }
     }

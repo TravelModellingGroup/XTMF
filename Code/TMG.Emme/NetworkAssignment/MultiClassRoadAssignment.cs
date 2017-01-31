@@ -17,9 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using XTMF;
 
 namespace TMG.Emme.NetworkAssignment
@@ -70,10 +69,11 @@ namespace TMG.Emme.NetworkAssignment
         public string RunTitle;
 
         [RunParameter("Toll Attribute ID", "@toll", "The name of the toll attribute.")]
+        // ReSharper disable once InconsistentNaming
         public string LinkTollAttributeID;
 
 
-        public sealed class Class : XTMF.IModule
+        public sealed class Class : IModule
         {
             [RunParameter("Mode", 'c', "The mode for this class.")]
             public char Mode;
@@ -135,8 +135,8 @@ namespace TMG.Emme.NetworkAssignment
                 GetClasses(),
                 GetDemand(),
                 GetTimes(), GetCosts(), GetTolls(),
-                PeakHourFactor.ToString(), LinkCost.ToString(), TollWeight.ToString(), Iterations.ToString(), RelativeGap.ToString(), BestRelativeGap.ToString(),
-                NormalizedGap.ToString(), PerformanceMode.ToString(), "\"" + RunTitle + "\"", "\"" + LinkTollAttributeID + "\""
+                PeakHourFactor.ToString(CultureInfo.InvariantCulture), LinkCost.ToString(CultureInfo.InvariantCulture), TollWeight.ToString(CultureInfo.InvariantCulture), Iterations.ToString(CultureInfo.InvariantCulture), RelativeGap.ToString(CultureInfo.InvariantCulture), BestRelativeGap.ToString(CultureInfo.InvariantCulture),
+                NormalizedGap.ToString(CultureInfo.InvariantCulture), PerformanceMode.ToString(CultureInfo.InvariantCulture), "\"" + RunTitle + "\"", "\"" + LinkTollAttributeID + "\""
                 );
         }
 

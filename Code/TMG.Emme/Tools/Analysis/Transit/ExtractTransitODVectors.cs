@@ -17,16 +17,13 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 namespace TMG.Emme.Tools.Analysis.Transit
 {
     [ModuleInformation(Description =
         "For a given subgroup of transit lines, this tool constructs origin and destination vectors for combined walk - access and drive - access trips"
         )]
+    // ReSharper disable once InconsistentNaming
     public class ExtractTransitODVectors : IEmmeTool
     {
 
@@ -37,6 +34,7 @@ namespace TMG.Emme.Tools.Analysis.Transit
         public string LineFilterExpression;
 
         [RunParameter("Line OD Matrix Number", 0, "The matrix to save the OD demand using the lines.")]
+        // ReSharper disable once InconsistentNaming
         public int LineODMatrixNumber;
 
         [RunParameter("Aggregation Origin Matrix Number", 0, "The origin vector to save the summed demand going through the filter.")]
@@ -46,6 +44,7 @@ namespace TMG.Emme.Tools.Analysis.Transit
         public int AggDestinationMatrixNumber;
 
         [RunParameter("Auto OD Matrix Number", 0, "The auto OD demand matrix.")]
+        // ReSharper disable once InconsistentNaming
         public int AutoODMatrixId;
 
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_transit_OD_vectors";

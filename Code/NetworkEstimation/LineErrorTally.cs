@@ -67,9 +67,9 @@ namespace TMG.NetworkEstimation
                 for ( int j = 0; j < truth.Length; j++ )
                 {
                     bool found = false;
-                    foreach ( var line in predicted[i].ID )
+                    foreach ( var line in predicted[i].Id )
                     {
-                        if ( truth[j].ID.Contains( line ) )
+                        if ( truth[j].Id.Contains( line ) )
                         {
                             index = j;
                             found = true;
