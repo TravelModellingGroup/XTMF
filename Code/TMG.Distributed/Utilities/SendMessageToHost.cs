@@ -17,13 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.IO;
 using XTMF;
-using XTMF.Networking;
 
 namespace TMG.Distributed.Utilities
 {
@@ -48,8 +42,6 @@ namespace TMG.Distributed.Utilities
         {
             return true;
         }
-
-        bool Loaded = false;
 
         public void Start()
         {
