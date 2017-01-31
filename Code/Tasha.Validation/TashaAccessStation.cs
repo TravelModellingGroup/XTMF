@@ -135,7 +135,7 @@ namespace Tasha.Validation
         internal bool GetEgressUtility(int egressStation, int destinationZone, Time time, out float egressUtility)
         {
             // Make sure that we can get from the egress station to the destination zone at that current point in the day
-            if ( !TransitData.ValidOD( egressStation, destinationZone, time ) )
+            if ( !TransitData.ValidOd( egressStation, destinationZone, time ) )
             {
                 egressUtility = float.MinValue;
                 return false;

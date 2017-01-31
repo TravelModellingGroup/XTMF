@@ -136,8 +136,8 @@ namespace TMG.GTAModel.Modes
         public virtual bool Feasible(IZone origin, IZone destination, Time time)
         {
             return ( this.CurrentlyFeasible > 0 ) && ( this.AdvancedNetworkData == null ?
-                this.NetworkData.ValidOD( origin, destination, time )
-                : this.AdvancedNetworkData.ValidOD( origin, destination, time ) );
+                this.NetworkData.ValidOd( origin, destination, time )
+                : this.AdvancedNetworkData.ValidOd( origin, destination, time ) );
         }
 
         public virtual bool RuntimeValidation(ref string error)

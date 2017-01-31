@@ -49,17 +49,17 @@ namespace TMG.Input
 
         public bool ContainsFileName()
         {
-            return !String.IsNullOrWhiteSpace( this.FileName );
+            return !String.IsNullOrWhiteSpace( FileName );
         }
 
         public string GetFileName()
         {
-            var dir = Path.GetDirectoryName( this.FileName );
+            var dir = Path.GetDirectoryName( FileName );
             if ( !String.IsNullOrWhiteSpace( dir ) )
             {
                 Directory.CreateDirectory( dir );
             }
-            return this.FileName;
+            return FileName;
         }
 
         public override string ToString()

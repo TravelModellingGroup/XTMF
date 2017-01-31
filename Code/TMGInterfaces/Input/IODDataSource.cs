@@ -20,6 +20,7 @@ using XTMF;
 
 namespace TMG.Input
 {
+    // ReSharper disable once InconsistentNaming
     public interface IODDataSource<T> : IModule
     {
         T GetDataFrom(int origin, int destination, int reason = 0);

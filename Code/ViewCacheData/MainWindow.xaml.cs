@@ -27,7 +27,7 @@ namespace ViewCacheData
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
@@ -36,7 +36,7 @@ namespace ViewCacheData
 
         private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void DBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -59,66 +59,64 @@ namespace ViewCacheData
             if ( open.ShowDialog() == true )
             {
                 var fileName = open.FileName;
-                var ext = System.IO.Path.GetExtension( fileName ).ToLowerInvariant();
+                var ext = System.IO.Path.GetExtension( fileName )?.ToLowerInvariant();
                 switch ( ext )
                 {
                     case ".zfc":
                         {
-                            this.ODControlGrid.IsEnabled = false;
-                            Task t = new Task( new Action( delegate()
+                            OdControlGrid.IsEnabled = false;
+                            Task t = new Task( delegate
+                            {
+                                PresentationGrid.DataContext = null;
+                                try
                                 {
-                                    this.PresentationGrid.DataContext = null;
-                                    try
-                                    {
-                                        OdCache odc = new OdCache( fileName );
-                                        var allData = odc.StoreAll();
-                                        //foreach(var index in
-                                        odc.Release();
-                                    }
-                                    catch
-                                    {
-                                        MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
-                                    }
-                                } ) );
+                                    var odc = new OdCache( fileName );
+                                    odc.Release();
+                                }
+                                catch
+                                {
+                                    MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
+                                }
+                            } );
                             t.Start();
                         }
                         break;
 
                     case ".odc":
                         {
-                            this.ODControlGrid.IsEnabled = true;
-                            Task t = new Task( new Action( delegate()
+                            OdControlGrid.IsEnabled = true;
+                            Task t = new Task( delegate
+                            {
+                                try
                                 {
-                                    try
-                                    {
-                                        OdCache odc = new OdCache( fileName );
-                                        var allData = odc.StoreAll().GetFlatData();
-                                        this.Dispatcher.BeginInvoke(
-                                            new Action( delegate()
+                                    var odc = new OdCache( fileName );
+                                    var allData = odc.StoreAll().GetFlatData();
+                                    Dispatcher.BeginInvoke(
+                                        new Action( delegate
+                                        {
+                                            try
                                             {
-                                                try
+                                                PresentationGrid.Items.Clear();
+                                                for ( int i = 0; i < 1; i++ )
                                                 {
-                                                    this.PresentationGrid.Items.Clear();
-                                                    for ( int i = 0; i < 1; i++ )
+                                                    for ( int j = 0; j < 1; j++ )
                                                     {
-                                                        for ( int j = 0; j < 1; j++ )
-                                                        {
-                                                            this.PresentationGrid.ItemsSource = allData[i][j];
-                                                        }
+                                                        PresentationGrid.ItemsSource = allData[i][j];
                                                     }
                                                 }
-                                                catch
-                                                {
-                                                    MessageBox.Show( this, "Unable to display the data", "Loading Fail", MessageBoxButton.OK, MessageBoxImage.Error );
-                                                }
-                                            } ) );
-                                        odc.Release();
-                                    }
-                                    catch
-                                    {
-                                        MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
-                                    }
-                                } ) );
+                                            }
+                                            catch
+                                            {
+                                                MessageBox.Show( this, "Unable to display the data", "Loading Fail", MessageBoxButton.OK, MessageBoxImage.Error );
+                                            }
+                                        } ) );
+                                    odc.Release();
+                                }
+                                catch
+                                {
+                                    MessageBox.Show( this, "Unable to load the file", "Invalid Format", MessageBoxButton.OK, MessageBoxImage.Error );
+                                }
+                            } );
                             t.Start();
                         }
                         break;
@@ -128,13 +126,6 @@ namespace ViewCacheData
                         break;
                 }
             }
-        }
-
-        public struct ZFCWrapper
-        {
-            public float[] Data { get; set; }
-
-            public int Zone { get; set; }
         }
     }
 }

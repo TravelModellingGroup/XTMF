@@ -219,12 +219,12 @@ namespace TMG.GTAModel
             }
         }
 
-        public bool ValidOD(IZone start, IZone end, Time time)
+        public bool ValidOd(IZone start, IZone end, Time time)
         {
             return true;
         }
 
-        public bool ValidOD(int flatOrigin, int flatDestination, Time time)
+        public bool ValidOd(int flatOrigin, int flatDestination, Time time)
         {
             return true;
         }

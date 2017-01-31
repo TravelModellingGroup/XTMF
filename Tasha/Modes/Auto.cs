@@ -199,7 +199,7 @@ namespace Tasha.Modes
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
         {
-            return (origin == destination && UseIntrazonalRegression) || (CurrentlyFeasible > 0 & this.AutoData.ValidOD(origin, destination, timeOfDay));
+            return (origin == destination && UseIntrazonalRegression) || (CurrentlyFeasible > 0 & this.AutoData.ValidOd(origin, destination, timeOfDay));
         }
 
         /// <summary>

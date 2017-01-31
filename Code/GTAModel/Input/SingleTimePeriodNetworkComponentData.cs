@@ -356,7 +356,7 @@ namespace TMG.GTAModel.Input
             this.StoredData = null;
         }
 
-        public bool ValidOD(IZone start, IZone end, Time time)
+        public bool ValidOd(IZone start, IZone end, Time time)
         {
             if ( this.UseCache && this.Data.ContainsIndex( start.ZoneNumber, end.ZoneNumber )
                 && ( !this.NoWalkTimeInfeasible || this.WalkTime( start, end, time ) > Time.Zero ) )
@@ -370,12 +370,12 @@ namespace TMG.GTAModel.Input
             return false;
         }
 
-        public bool ValidOD(int flatOrigin, int flatDestination, Time time)
+        public bool ValidOd(int flatOrigin, int flatDestination, Time time)
         {
             if ( this.UseCache )
             {
                 var zoneArray = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-                return ValidOD( zoneArray[flatOrigin], zoneArray[flatDestination], time );
+                return ValidOd( zoneArray[flatOrigin], zoneArray[flatDestination], time );
             }
             else if ( !this.NoWalkTimeInfeasible || this.WalkTime( flatOrigin, flatDestination, time ) > Time.Zero )
             {

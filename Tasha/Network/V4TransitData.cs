@@ -434,7 +434,7 @@ namespace Tasha.Network
             }
         }
 
-        public bool ValidOD(IZone start, IZone end, Time time)
+        public bool ValidOd(IZone start, IZone end, Time time)
         {
             if (!this.NoWalkTimeInfeasible || this.WalkTime(start, end, time) > Time.Zero)
             {
@@ -443,7 +443,7 @@ namespace Tasha.Network
             return false;
         }
 
-        public bool ValidOD(int flatOrigin, int flatDestination, Time time)
+        public bool ValidOd(int flatOrigin, int flatDestination, Time time)
         {
             return (!this.NoWalkTimeInfeasible || this.WalkTime(flatOrigin, flatDestination, time) > Time.Zero);
         }

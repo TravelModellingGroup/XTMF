@@ -485,7 +485,7 @@ namespace TMG.GTAModel.V2.Modes
         internal bool GetEgressUtility(int flatEgressZone, int flatDestinationZone, Time time, out float egressUtility)
         {
             // Make sure that we can get from the egress station to the destination zone at that current point in the day
-            if ( !this.Third.ValidOD( flatEgressZone, flatDestinationZone, time ) )
+            if ( !this.Third.ValidOd( flatEgressZone, flatDestinationZone, time ) )
             {
                 egressUtility = float.MinValue;
                 return false;

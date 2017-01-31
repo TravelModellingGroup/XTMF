@@ -18,7 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace TMG.DataUtility
@@ -33,7 +32,7 @@ namespace TMG.DataUtility
 
         private StringList(string[] strings)
         {
-            this.Data = strings;
+            Data = strings;
         }
 
         public static bool TryParse(string input, out StringList stringList)
@@ -83,7 +82,7 @@ namespace TMG.DataUtility
 
         public int IndexOf(string item)
         {
-            var data = this.Data;
+            var data = Data;
             for ( int i = 0; i < data.Length; i++ )
             {
                 if ( data[i] == item )
@@ -96,80 +95,74 @@ namespace TMG.DataUtility
 
         public void Insert(int index, string item)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void RemoveAt(int index)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public string this[int index]
         {
             get
             {
-                return this.Data[index];
+                return Data[index];
             }
             set
             {
-                this.Data[index] = value;
+                Data[index] = value;
             }
         }
 
         public void Add(string item)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Clear()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool Contains(string item)
         {
-            return this.IndexOf( item ) != -1;
+            return IndexOf( item ) != -1;
         }
 
         public void CopyTo(string[] array, int arrayIndex)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public int Count
-        {
-            get { return this.Data.Length; }
-        }
+        public int Count => Data.Length;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public bool Remove(string item)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public System.Collections.Generic.IEnumerator<string> GetEnumerator()
+        public IEnumerator<string> GetEnumerator()
         {
-            return ( (IEnumerable<string>)this.Data ).GetEnumerator();
+            return ( (IEnumerable<string>)Data ).GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.Data.GetEnumerator();
+            return Data.GetEnumerator();
         }
 
         public string[] ToArray()
         {
-            return this.Data;
+            return Data;
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            var data = this.Data;
+            var data = Data;
             for ( int i = 0; i < data.Length; i++ )
             {
                 builder.Append( data[i].Replace( ",", "\\," ) );

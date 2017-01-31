@@ -226,14 +226,14 @@ namespace TMG.GTAModel.Modes
                 float travelTime = this.MaxAccessToDestinationTime;
                 if ( Access )
                 {
-                    if ( this.First.ValidOD( flatOrigin, flatInterchange, time ) &&
+                    if ( this.First.ValidOd( flatOrigin, flatInterchange, time ) &&
                         ( travelTime = this.First.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes() ) > 0 )
                     {
                         v += this.AccessInVehicleTravelTime * travelTime
                             + this.AccessCost * this.First.TravelCost( flatOrigin, flatInterchange, time );
 
                     }
-                    else if ( this.FirstAlternative != null && this.FirstAlternative.ValidOD( flatOrigin, flatInterchange, time )
+                    else if ( this.FirstAlternative != null && this.FirstAlternative.ValidOd( flatOrigin, flatInterchange, time )
                         && ( travelTime = this.FirstAlternative.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes() ) != 0 )
                     {
                         v += this.AccessInVehicleTravelTime * this.FirstAlternative.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes()
@@ -247,7 +247,7 @@ namespace TMG.GTAModel.Modes
                 }
                 else
                 {
-                    if ( this.First.ValidOD( flatOrigin, flatInterchange, time ) )
+                    if ( this.First.ValidOd( flatOrigin, flatInterchange, time ) )
                     {
                         v += this.AccessInVehicleTravelTime * this.First.TravelTime( flatInterchange, flatDestination, time ).ToMinutes()
                                + this.AccessCost * this.First.TravelCost( flatInterchange, flatDestination, time );
@@ -532,7 +532,7 @@ namespace TMG.GTAModel.Modes
             var flatInterchangeZone = this.Root.ZoneSystem.ZoneArray.GetFlatIndex( this.InterchangeZone.ZoneNumber );
             tt = float.MaxValue;
             // make sure that we can actually travel to the end station
-            if ( !this.Second.ValidOD( flatInterchangeZone, flatEgressZone, time ) )
+            if ( !this.Second.ValidOd( flatInterchangeZone, flatEgressZone, time ) )
             {
                 return false;
             }
@@ -553,7 +553,7 @@ namespace TMG.GTAModel.Modes
             }
             // now make sure that tt is actually smaller than just using transit all way
             float localAllWayTime;
-            if ( this.Third.ValidOD( flatInterchangeZone, flatDestinationZone, time ) )
+            if ( this.Third.ValidOd( flatInterchangeZone, flatDestinationZone, time ) )
             {
                 float result;
                 if ( ComputeThird( this.Third, flatInterchangeZone, flatDestinationZone, time, this.EgressWalkFactor, this.EgressWaitFactor, out result ) )

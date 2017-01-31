@@ -26,26 +26,20 @@ namespace TMG.DataUtility
     {
         private int[] Values;
 
-        public int Count
-        {
-            get { return this.Values.Length; }
-        }
+        public int Count => Values.Length;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public int this[int index]
         {
             get
             {
-                return this.Values[index];
+                return Values[index];
             }
 
             set
             {
-                this.Values[index] = value;
+                Values[index] = value;
             }
         }
 
@@ -100,24 +94,24 @@ namespace TMG.DataUtility
 
         public bool Contains(int item)
         {
-            return this.IndexOf( item ) != -1;
+            return IndexOf( item ) != -1;
         }
 
         public void CopyTo(int[] array, int arrayIndex)
         {
-            Array.Copy( this.Values, 0, array, arrayIndex, this.Values.Length );
+            Array.Copy( Values, 0, array, arrayIndex, Values.Length );
         }
 
         public IEnumerator<int> GetEnumerator()
         {
-            return ( (ICollection<int>)this.Values ).GetEnumerator();
+            return ( (ICollection<int>)Values ).GetEnumerator();
         }
 
         public int IndexOf(int item)
         {
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                if ( item == this.Values[i] )
+                if ( item == Values[i] )
                 {
                     return i;
                 }
@@ -142,15 +136,15 @@ namespace TMG.DataUtility
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.Values.GetEnumerator();
+            return Values.GetEnumerator();
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                builder.Append( this.Values[i] );
+                builder.Append( Values[i] );
                 builder.Append( ',' );
             }
             return builder.ToString( 0, builder.Length - 1 );
@@ -161,7 +155,7 @@ namespace TMG.DataUtility
             while ( i < input.Length && WhiteSpace( input[i] ) )
             {
                 i++;
-            };
+            }
         }
 
         private static bool WhiteSpace(char p)

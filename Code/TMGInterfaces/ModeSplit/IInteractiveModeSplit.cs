@@ -26,12 +26,11 @@ namespace TMG.ModeSplit
         /// </summary>
         /// <param name="o">The origin zone</param>
         /// <param name="d">The destination zone</param>
-        /// <param name="topLevelBeta">The value to use as a top level logsum's beta</param>
         /// <returns>The sum of the utility of the top layer to the power of E</returns>
         float ComputeUtility(IZone o, IZone d);
 
         /// <summary>
-        /// Use this function to kill an already running interative mode split.
+        /// Use this function to kill an already running iterative mode split.
         /// This function is not required to be called unless the mode split
         /// is never actually executed in order to reclaim memory.
         /// </summary>

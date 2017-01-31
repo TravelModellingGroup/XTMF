@@ -200,13 +200,13 @@ be based off of this module."
             }
             if(AdvancedNetworkData == null)
             {
-                return this.NetworkData.ValidOD(origin, destination, time) && (!this.CheckPositiveIVTT || this.NetworkData.TravelTime(origin, destination, time).ToMinutes() > 0);
+                return this.NetworkData.ValidOd(origin, destination, time) && (!this.CheckPositiveIVTT || this.NetworkData.TravelTime(origin, destination, time).ToMinutes() > 0);
             }
             else
             {
                 float ivtt, walk, wait, boarding, cost;
                 AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost);
-                return this.AdvancedNetworkData.ValidOD(origin, destination, time)
+                return this.AdvancedNetworkData.ValidOd(origin, destination, time)
                 && ((!this.CheckPositiveIVTT || ivtt > 0))
                 && ((!this.CheckPositiveWalk || walk > 0));
             }

@@ -228,7 +228,7 @@ namespace Tasha.Modes
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
         {
-            return ( origin.ZoneNumber == destination.ZoneNumber && UseIntrazonalRegression ) || ( CurrentlyFeasible > 0 & this.Data.ValidOD( origin, destination, timeOfDay ) );
+            return ( origin.ZoneNumber == destination.ZoneNumber && UseIntrazonalRegression ) || ( CurrentlyFeasible > 0 & this.Data.ValidOd( origin, destination, timeOfDay ) );
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Tasha.Modes
             {
                 return true;
             }
-            if ( !this.Data.ValidOD( origin, destination, time ) )
+            if ( !this.Data.ValidOd( origin, destination, time ) )
             {
                 return false;
             }

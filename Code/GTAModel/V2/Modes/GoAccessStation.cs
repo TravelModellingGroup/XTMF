@@ -197,7 +197,7 @@ namespace TMG.GTAModel.V2.Modes
                 v += this.Closest + this.ClosestDistance * ( this.Root.ZoneSystem.Distances.GetFlatData()[flatOrigin][flatInterchange] / 1000 );
             }
 
-            if ( !this.First.ValidOD( flatOrigin, flatInterchange, time ) )
+            if ( !this.First.ValidOd( flatOrigin, flatInterchange, time ) )
             {
                 return float.NaN;
             }
@@ -460,7 +460,7 @@ namespace TMG.GTAModel.V2.Modes
         {
             tt = float.MaxValue;
             // make sure that we can actually travel to the end station
-            if ( !this.Second.ValidOD( flatInterchangeZone, flatEgressZone, time ) )
+            if ( !this.Second.ValidOd( flatInterchangeZone, flatEgressZone, time ) )
             {
                 return false;
             }
@@ -484,7 +484,7 @@ namespace TMG.GTAModel.V2.Modes
             }
             // now make sure that tt is actually smaller than just using transit all way
             float localAllWayTime;
-            if ( this.Third.ValidOD( flatInterchangeZone, flatDestinationZone, time ) )
+            if ( this.Third.ValidOd( flatInterchangeZone, flatDestinationZone, time ) )
             {
                 float result;
                 if ( !ComputeThird( this.Third, flatInterchangeZone, flatDestinationZone, time, this.EgressWalkFactor, this.EgressWaitFactor, out result ) )

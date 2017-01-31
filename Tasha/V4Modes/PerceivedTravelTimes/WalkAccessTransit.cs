@@ -254,7 +254,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
             IZone destinationZone = trip.DestinationZone;
             var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
-            return Network.ValidOD(o, d, trip.TripStartTime);
+            return Network.ValidOd(o, d, trip.TripStartTime);
         }
 
         public bool Feasible(ITripChain tripChain)
