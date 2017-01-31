@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -36,10 +36,10 @@ namespace Datastructure
         public override string ReadLine()
         {
             string line;
-            while ( !base.EndOfStream )
+            while ( !EndOfStream )
             {
                 line = base.ReadLine();
-                if ( !line.StartsWith( "//" ) )
+                if ( line != null && !line.StartsWith( "//" ) )
                 {
                     return line;
                 }
@@ -65,69 +65,77 @@ namespace Datastructure
         //Metadata on index names
         public string Decription = "";
 
-        private Dictionary<string, float> Data; //The actual data.
-        private float DefaultValue;
-        private HashSet<int>[] MappedIndices; //Stores the contained values of each index. Its length is equal to the number of dimensions
+        private readonly Dictionary<string, float> Data; //The actual data.
+        private readonly float DefaultValue;
+        private readonly HashSet<int>[] MappedIndices; //Stores the contained values of each index. Its length is equal to the number of dimensions
         //The default value for this table.
 
-        public SparseMultiIndexTable(int NumberOfIndices, float DefaultValue)
+        public SparseMultiIndexTable(int numberOfIndices, float defaultValue)
         {
-            MappedIndices = new HashSet<int>[NumberOfIndices];
-            for ( var i = 0; i < NumberOfIndices; i++ ) MappedIndices[i] = new HashSet<int>();
+            MappedIndices = new HashSet<int>[numberOfIndices];
+            for ( var i = 0; i < numberOfIndices; i++ ) MappedIndices[i] = new HashSet<int>();
 
-            this.DefaultValue = DefaultValue;
-            IndexNames = new string[NumberOfIndices];
+            DefaultValue = defaultValue;
+            IndexNames = new string[numberOfIndices];
             Data = new Dictionary<string, float>();
         }
 
-        public SparseMultiIndexTable(string FileName, float DefaultValue = 0.0f)
+        public SparseMultiIndexTable(string fileName, float defaultValue = 0.0f)
         {
             long lineNumber = 2;
             Data = new Dictionary<string, float>();
 
-            using ( var reader = new CommentedStreamReader( FileName ) )
+            using ( var reader = new CommentedStreamReader( fileName ) )
             {
                 var line = reader.ReadLine(); //get the header
 
-                var cells = line.Split( ',' );
-                if ( cells.Length < 2 )
+                if (line != null)
                 {
-                    throw new IOException( "A multi-index table requires at least two columns!" );
-                }
-
-                //Load header data, initialize this class.
-                MappedIndices = new HashSet<int>[cells.Length - 1];
-                for ( var i = 0; i < Dimensions; i++ ) MappedIndices[i] = new HashSet<int>();
-
-                IndexNames = new string[Dimensions];
-                for ( var i = 0; i < Dimensions; i++ ) IndexNames[i] = cells[i];
-                this.DefaultValue = DefaultValue;
-
-                var indices = new int[Dimensions]; //This is getting constantly recycled, so there's no sense in using a malloc each time.
-                string key;
-
-                //Read the actual data
-                while ( !reader.EndOfStream )
-                {
-                    cells = reader.ReadLine().Split( ',' );
-                    lineNumber++;
-
-                    if ( cells.Length != (Dimensions + 1 ) )
+                    var cells = line.Split( ',' );
+                    if ( cells.Length < 2 )
                     {
-                        throw new IOException( "Error reading line " + lineNumber + ": The number of cells on this line needs to be " + (Dimensions + 1 ) +
-                            ", instead was " + cells.Length + " to match the correct size of this table." );
+                        throw new IOException( "A multi-index table requires at least two columns!" );
                     }
 
-                    var value = Convert.ToSingle( cells[Dimensions] ); //Get the last index
-                    if ( value == this.DefaultValue )
-                        continue; //Skip cells with this table's default value.
+                    //Load header data, initialize this class.
+                    MappedIndices = new HashSet<int>[cells.Length - 1];
+                    for ( var i = 0; i < Dimensions; i++ ) MappedIndices[i] = new HashSet<int>();
 
-                    for ( var i = 0; i < Dimensions; i++ ) indices[i] = Convert.ToInt32( cells[i] ); //Parse each int
+                    IndexNames = new string[Dimensions];
+                    for ( var i = 0; i < Dimensions; i++ ) IndexNames[i] = cells[i];
+                    DefaultValue = defaultValue;
 
-                    for ( var i = 0; i < Dimensions; i++ ) MappedIndices[i].Add( indices[i] ); // Store the mapped index to the HashSet.
+                    var indices = new int[Dimensions]; //This is getting constantly recycled, so there's no sense in using a malloc each time.
 
-                    key = ConvertAddress( indices );
-                    Data[key] = value;
+                    //Read the actual data
+                    while ( !reader.EndOfStream )
+                    {
+                        line = reader.ReadLine();
+                        if (line == null)
+                        {
+                            return;
+                        }
+                        cells = line.Split( ',' );
+                        lineNumber++;
+
+                        if ( cells.Length != (Dimensions + 1 ) )
+                        {
+                            throw new IOException( "Error reading line " + lineNumber + ": The number of cells on this line needs to be " + (Dimensions + 1 ) +
+                                                   ", instead was " + cells.Length + " to match the correct size of this table." );
+                        }
+
+                        var value = Convert.ToSingle( cells[Dimensions] ); //Get the last index
+                        // ReSharper disable once CompareOfFloatsByEqualityOperator
+                        if ( value == DefaultValue )
+                            continue; //Skip cells with this table's default value.
+
+                        for ( var i = 0; i < Dimensions; i++ ) indices[i] = Convert.ToInt32( cells[i] ); //Parse each int
+
+                        for ( var i = 0; i < Dimensions; i++ ) MappedIndices[i].Add( indices[i] ); // Store the mapped index to the HashSet.
+
+                        var key = ConvertAddress( indices );
+                        Data[key] = value;
+                    }
                 }
             }
         }
@@ -136,9 +144,10 @@ namespace Datastructure
 
         public int NumberOfEntries => Data.Keys.Count;
 
-        public bool CheckHeaders(IEnumerable<string> Headers)
+        public bool CheckHeaders(IEnumerable<string> headers)
         {
-            foreach ( var s in Headers )
+            var localHeaders = headers as IList<string> ?? headers.ToList();
+            foreach ( var s in localHeaders )
             {
                 if ( !IndexNames.Contains( s ) )
                     return false;
@@ -146,14 +155,14 @@ namespace Datastructure
 
             foreach ( var s in IndexNames)
             {
-                if ( !Headers.Contains( s ) )
+                if ( !localHeaders.Contains( s ) )
                     return false;
             }
 
             return true;
         }
 
-        public float get(int[] address)
+        public float Get(int[] address)
         {
             var key = ConvertAddress( address );
             if (Data.ContainsKey( key ) )
@@ -164,7 +173,7 @@ namespace Datastructure
             return DefaultValue;
         }
 
-        public float get(string address)
+        public float Get(string address)
         {
             if (Data.ContainsKey( address ) )
             {
@@ -174,40 +183,25 @@ namespace Datastructure
             return DefaultValue;
         }
 
-        public void set(int[] address, float value)
+        public void Set(int[] address, float value)
         {
             Data[ConvertAddress( address )] = value;
         }
 
         //-----------------------------------------------------------------------------------------------
-        public void set(string address, float value)
+        public void Set(string address, float value)
         {
             Data[address] = value;
         }
 
-        private string ConvertAddress(int[] Address)
+        private static string ConvertAddress(int[] address)
         {
-            var result = "" + Address[0];
-
-            for ( var i = 1; i < Address.Length; i++ )
+            var result = "" + address[0];
+            for ( var i = 1; i < address.Length; i++ )
             {
-                result += " " + Address[i];
-            }
-
-            return result;
-        }
-
-        private int Pow(int val, int exponent)
-        {
-            var result = 1;
-            if ( exponent < 0 ) throw new DivideByZeroException( "Cannot return an int for exponents less than 0" );
-            for ( var i = 0; i < exponent; i++ )
-            {
-                result *= val;
+                result += " " + address[i];
             }
             return result;
         }
     }
-
-    //------------------------------------------------------------------------------------------------------
 }

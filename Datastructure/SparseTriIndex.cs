@@ -75,15 +75,15 @@ namespace Datastructure
             }
         }
 
-        public static SparseTriIndex<T> CreateSimilarArray<J, K, L>(SparseArray<J> first, SparseArray<K> second, SparseArray<L> third)
+        public static SparseTriIndex<T> CreateSimilarArray<TFirst, TSecond, TThird>(SparseArray<TFirst> first, SparseArray<TSecond> second, SparseArray<TThird> third)
         {
             var indexes = new SparseIndexing();
-            indexes.Indexes = first.Indexing.Indexes.Clone() as SparseSet[];
+            indexes.Indexes = (SparseSet[])first.Indexing.Indexes.Clone();
             var length = indexes.Indexes.Length;
             for(var i = 0; i < length; i++)
             {
                 SparseSet[] subIndexes;
-                indexes.Indexes[i].SubIndex = new SparseIndexing() { Indexes = (subIndexes = second.Indexing.Indexes.Clone() as SparseSet[]) };
+                indexes.Indexes[i].SubIndex = new SparseIndexing() { Indexes = (subIndexes = (SparseSet[])second.Indexing.Indexes.Clone()) };
                 var subindexLength = indexes.Indexes[i].SubIndex.Indexes.Length;
                 for(var j = 0; j < subindexLength; j++)
                 {
@@ -95,7 +95,7 @@ namespace Datastructure
 
         public static SparseTriIndex<T> CreateSparseTriIndex(int[] first, int[] second, int[] third, T[] data)
         {
-            T[][][] Data;
+            T[][][] localData;
             var length = data.Length;
             if(length == 0)
             {
@@ -114,7 +114,7 @@ namespace Datastructure
             Array.Sort(indexes, new CompareSortStruct());
             var processedIndexes = GenerateIndexes(indexes);
 
-            return new SparseTriIndex<T>(ConvertToIndexes(processedIndexes, out Data, data, indexes), Data);
+            return new SparseTriIndex<T>(ConvertToIndexes(processedIndexes, out localData, data, indexes), localData);
         }
 
         public bool ContainsIndex(int o, int d, int t)
@@ -122,13 +122,13 @@ namespace Datastructure
             return Data.Length > 0 && GetTransformedIndexes(ref o, ref d, ref t);
         }
 
-        public SparseTriIndex<K> CreateSimilarArray<K>()
+        public SparseTriIndex<TKey> CreateSimilarArray<TKey>()
         {
             if(Data.Length == 0)
             {
-                return new SparseTriIndex<K>();
+                return new SparseTriIndex<TKey>();
             }
-            return new SparseTriIndex<K>(Indexes);
+            return new SparseTriIndex<TKey>(Indexes);
         }
 
         public T[][][] GetFlatData()
@@ -241,17 +241,17 @@ namespace Datastructure
             }
         }
 
-        private static SparseIndexing ConvertToIndexes(List<Pair<int, List<SparseSet>>> processedIndexes, out T[][][] Data, T[] data, SortStruct[] index)
+        private static SparseIndexing ConvertToIndexes(List<Pair<int, List<SparseSet>>> processedIndexes, out T[][][] outputData, T[] data, SortStruct[] index)
         {
             var start = new SparseIndexing();
             var iLength = processedIndexes.Count;
-            Data = new T[iLength][][];
+            outputData = new T[iLength][][];
             start.Indexes = new SparseSet[iLength];
             var dataProcessed = 0;
             for(var i = 0; i < iLength; i++)
             {
                 var jLength = processedIndexes[i].Second.Count;
-                Data[i] = new T[jLength][];
+                outputData[i] = new T[jLength][];
                 start.Indexes[i].Start = start.Indexes[i].Stop = processedIndexes[i].First;
                 start.Indexes[i].SubIndex.Indexes = new SparseSet[jLength];
                 for(var j = 0; j < jLength; j++)
@@ -265,10 +265,10 @@ namespace Datastructure
                         totalK += (start.Indexes[i].SubIndex.Indexes[j].SubIndex.Indexes[kSection].Stop = processedIndexes[i].Second[j].SubIndex.Indexes[kSection].Stop)
                             - (start.Indexes[i].SubIndex.Indexes[j].SubIndex.Indexes[kSection].Start = processedIndexes[i].Second[j].SubIndex.Indexes[kSection].Start) + 1;
                     }
-                    Data[i][j] = new T[totalK];
+                    outputData[i][j] = new T[totalK];
                     for(var k = 0; k < totalK; k++)
                     {
-                        Data[i][j][k] = data[index[dataProcessed++].DataSpace];
+                        outputData[i][j][k] = data[index[dataProcessed++].DataSpace];
                     }
                 }
             }
@@ -387,7 +387,7 @@ namespace Datastructure
             return false;
         }
 
-        private bool ProcessFirst(bool malloc)
+        private void ProcessFirst(bool malloc)
         {
             var totalFirst = 0;
 
@@ -400,7 +400,6 @@ namespace Datastructure
             {
                 Data = new T[totalFirst][][];
             }
-            return malloc;
         }
 
         private void ProcessSecond(bool malloc)

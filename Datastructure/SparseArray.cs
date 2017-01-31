@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -84,13 +84,13 @@ namespace Datastructure
             return CreateSparseArray(data, length, indexes);
         }
 
-        public static SparseArray<T> CreateSparseArray(Func<T, int> PlaceFunction, IList<T> data)
+        public static SparseArray<T> CreateSparseArray(Func<T, int> placeFunction, IList<T> data)
         {
             var length = data.Count;
             var indexes = new SortStruct[length];
             for(var i = 0; i < length; i++)
             {
-                indexes[i].SparseSpace = PlaceFunction(data[i]);
+                indexes[i].SparseSpace = placeFunction(data[i]);
                 indexes[i].DataSpace = i;
             }
             return CreateSparseArray(data, length, indexes);
@@ -101,13 +101,13 @@ namespace Datastructure
             return GetTransformedIndex(ref o);
         }
 
-        public SparseArray<K> CreateSimilarArray<K>()
+        public SparseArray<TKey> CreateSimilarArray<TKey>()
         {
-            var ret = new SparseArray<K>(Indexing);
+            var ret = new SparseArray<TKey>(Indexing);
             return ret;
         }
 
-        public SparseTwinIndex<K> CreateSquareTwinArray<K>()
+        public SparseTwinIndex<TKey> CreateSquareTwinArray<TKey>()
         {
             SparseIndexing twinIndex;
             var length = Indexing.Indexes.Length;
@@ -122,7 +122,7 @@ namespace Datastructure
                     twinIndex.Indexes[i].SubIndex.Indexes[j] = Indexing.Indexes[j];
                 }
             }
-            return new SparseTwinIndex<K>(twinIndex);
+            return new SparseTwinIndex<TKey>(twinIndex);
         }
 
         public T[] GetFlatData()
@@ -155,7 +155,7 @@ namespace Datastructure
             return -1;
         }
 
-        public void Save(string fileName, Func<T, float[]> Decompose, int Types)
+        public void Save(string fileName, Func<T, float[]> decompose, int types)
         {
             using (var writer = new BinaryWriter(new
                 FileStream(fileName, FileMode.Create, FileAccess.Write,
@@ -171,14 +171,14 @@ namespace Datastructure
                 }
                 writer.Write(highestZone);
                 writer.Write(Version);
-                writer.Write(Types);
-                WriteSparseIndexes(writer, Types);
+                writer.Write(types);
+                WriteSparseIndexes(writer, types);
 
                 for(var i = 0; i < dataLength; i++)
                 {
                     if(Data[i] != null)
                     {
-                        var data = Decompose(Data[i]);
+                        var data = decompose(Data[i]);
                         for(var j = 0; j < data.Length; j++)
                         {
                             writer.Write(data[j]);
@@ -228,24 +228,24 @@ namespace Datastructure
         private static SparseArray<T> CreateSparseArray(IList<T> data, int length, SortStruct[] indexes)
         {
             Array.Sort(indexes, new CompareSortStruct());
-            var Data = new T[length];
+            var localData = new T[length];
             if (data != null)
             {
                 for (var i = 0; i < length; i++)
                 {
-                    Data[i] = data[indexes[i].DataSpace];
+                    localData[i] = data[indexes[i].DataSpace];
                 }
             }
-            return new SparseArray<T>(GenerateIndexes(indexes), Data);
+            return new SparseArray<T>(GenerateIndexes(indexes), localData);
         }
 
         private static SparseIndexing GenerateIndexes(SortStruct[] data)
         {
-            var Indexes = new SparseIndexing();
+            var indexes = new SparseIndexing();
             var elements = new List<SparseSet>();
             var length = data.Length;
             var current = default(SparseSet);
-            if(length == 0) return Indexes;
+            if(length == 0) return indexes;
             current.Start = data[0].SparseSpace;
             var expected = data[0].SparseSpace + 1;
             for(var i = 1; i < length; i++)
@@ -261,8 +261,8 @@ namespace Datastructure
             }
             current.Stop = data[length - 1].SparseSpace;
             elements.Add(current);
-            Indexes.Indexes = elements.ToArray();
-            return Indexes;
+            indexes.Indexes = elements.ToArray();
+            return indexes;
         }
 
         private void GenerateStructure()

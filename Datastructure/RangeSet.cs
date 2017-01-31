@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,14 +18,15 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Text;
+using static System.Char;
+using static System.String;
 
 namespace Datastructure
 {
     public class RangeSet : IList<Range>
     {
-        protected Range[] SetRanges;
+        protected readonly Range[] SetRanges;
 
         public RangeSet(List<Range> tempRange)
         {
@@ -38,6 +39,7 @@ namespace Datastructure
         /// <param name="numbers">The numbers to use to generate the ranges</param>
         public RangeSet(IList<int> numbers)
         {
+            if (numbers == null) throw new ArgumentNullException(nameof(numbers));
             var array = new int[numbers.Count];
             numbers.CopyTo(array, 0);
             Array.Sort(array);
@@ -94,7 +96,7 @@ namespace Datastructure
             var phase = 0;
             var lastPlus = false;
             var tallyingInZero = false;
-            if (String.IsNullOrWhiteSpace(rangeString))
+            if (IsNullOrWhiteSpace(rangeString))
             {
                 output = new RangeSet(tempRange);
                 return true;
@@ -102,80 +104,79 @@ namespace Datastructure
             for (var i = 0; i < length; i++)
             {
                 var c = str[i];
-                if (Char.IsWhiteSpace(c) || Char.IsLetter(c)) continue;
+                if (IsWhiteSpace(c) || IsLetter(c)) continue;
                 lastPlus = false;
                 switch (phase)
                 {
                     case 0:
-                        if (Char.IsNumber(c))
+                        if (IsNumber(c))
                         {
                             index = ((index << 3) + (index << 1)) + (c - '0');
                             tallyingInZero = true;
                         }
-                        else if (c == ',')
+                        else switch (c)
                         {
-                            tempRange.Add(new Range(index, index));
-                            index = 0;
-                            start = 0;
-                            end = 0;
-                        }
-                        else if (c == '-')
-                        {
-                            if (!tallyingInZero)
-                            {
-                                error = "No number was inserted before a range!";
+                            case ',':
+                                tempRange.Add(new Range(index, index));
+                                index = 0;
+                                start = 0;
+                                end = 0;
+                                break;
+                            case '-':
+                                if (!tallyingInZero)
+                                {
+                                    error = "No number was inserted before a range!";
+                                    return false;
+                                }
+                                start = index;
+                                end = 0;
+                                phase = 2;
+                                break;
+                            case '+':
+                                if (!tallyingInZero)
+                                {
+                                    error = "No number was inserted before a range!";
+                                    return false;
+                                }
+                                end = int.MaxValue;
+                                tempRange.Add(new Range(start, end));
+                                index = 0;
+                                start = 0;
+                                phase = 0;
+                                tallyingInZero = false;
+                                lastPlus = true;
+                                break;
+                            default:
+                                error = "Unrecognized symbol " + c;
                                 return false;
-                            }
-                            start = index;
-                            end = 0;
-                            phase = 2;
-                        }
-                        else if (c == '+')
-                        {
-                            if (!tallyingInZero)
-                            {
-                                error = "No number was inserted before a range!";
-                                return false;
-                            }
-                            end = int.MaxValue;
-                            tempRange.Add(new Range(start, end));
-                            index = 0;
-                            start = 0;
-                            phase = 0;
-                            tallyingInZero = false;
-                            lastPlus = true;
-                        }
-                        else
-                        {
-                            error = "Unrecognized symbol " + c;
-                            return false;
                         }
                         break;
 
                     case 1:
-                        if (Char.IsNumber(c))
+                        if (IsNumber(c))
                         {
                             start = ((start << 3) + (start << 1)) + (c - '0');
                         }
-                        else if (c == '+')
+                        else switch (c)
                         {
-                            end = int.MaxValue;
-                            tempRange.Add(new Range(start, end));
-                            index = 0;
-                            start = 0;
-                            phase = 0;
-                            tallyingInZero = false;
-                            lastPlus = true;
-                        }
-                        else if (c == '-')
-                        {
-                            end = 0;
-                            phase = 2;
+                            case '+':
+                                end = int.MaxValue;
+                                tempRange.Add(new Range(start, end));
+                                index = 0;
+                                start = 0;
+                                phase = 0;
+                                tallyingInZero = false;
+                                lastPlus = true;
+                                break;
+                            case '-':
+                                end = 0;
+                                phase = 2;
+                                break;
                         }
                         break;
 
                     case 2:
-                        if (Char.IsNumber(c))
+                        if (IsNumber(c))
                         {
                             end = ((end << 3) + (end << 1)) + (c - '0');
                         }
@@ -246,19 +247,15 @@ namespace Datastructure
         public override bool Equals(object obj)
         {
             var other = obj as RangeSet;
-            if (other != null)
+            if (other?.Count != Count) return false;
+            for (var i = 0; i < SetRanges.Length; i++)
             {
-                if (other.Count != Count) return false;
-                for (var i = 0; i < SetRanges.Length; i++)
+                if (!(SetRanges[i] == other[i]))
                 {
-                    if (!(SetRanges[i] == other[i]))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-                return true;
             }
-            return base.Equals(obj);
+            return true;
         }
 
         public IEnumerator<Range> GetEnumerator()

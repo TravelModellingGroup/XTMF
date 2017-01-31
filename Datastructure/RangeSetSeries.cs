@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -24,7 +24,7 @@ namespace Datastructure
 {
     public sealed class RangeSetSeries : IList<RangeSet>
     {
-        private RangeSet[] RangeSets;
+        private readonly RangeSet[] RangeSets;
 
         public RangeSetSeries(List<RangeSet> tempRange)
         {
@@ -59,14 +59,13 @@ namespace Datastructure
             var rangeSets = new List<RangeSet>();
             output = null;
             var strLength = rangeString.Length;
-            var endPos = 0;
             int startPos;
             for ( startPos = 0; startPos < strLength; startPos++ )
             {
                 if ( rangeString[startPos] == '{' )
                 {
                     var success = false;
-                    for ( endPos = startPos + 1; endPos < strLength; endPos++ )
+                    for ( var endPos = startPos + 1; endPos < strLength; endPos++ )
                     {
                         if ( rangeString[endPos] == '}' )
                         {
@@ -114,7 +113,6 @@ namespace Datastructure
         /// <summary>
         /// Not Supported
         /// </summary>
-        /// <param name="item"></param>
         public void Clear()
         {
             throw new NotSupportedException();
@@ -145,19 +143,15 @@ namespace Datastructure
         public override bool Equals(object obj)
         {
             var other = obj as RangeSetSeries;
-            if ( other != null )
+            if (Count != other?.Count ) return false;
+            for ( var i = 0; i < RangeSets.Length; i++ )
             {
-                if (Count != other.Count ) return false;
-                for ( var i = 0; i < RangeSets.Length; i++ )
+                if ( !RangeSets[i].Equals( other.RangeSets[i] ) )
                 {
-                    if ( !RangeSets[i].Equals( other.RangeSets[i] ) )
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-                return true;
             }
-            return base.Equals( obj );
+            return true;
         }
 
         public IEnumerator<RangeSet> GetEnumerator()
@@ -172,7 +166,7 @@ namespace Datastructure
             {
                 hash += RangeSets[i].GetHashCode();
             }
-            return base.GetHashCode();
+            return hash;
         }
 
         public int IndexOf(RangeSet item)
@@ -206,6 +200,7 @@ namespace Datastructure
         /// <summary>
         /// Not Supported
         /// </summary>
+        /// <param name="index"></param>
         /// <param name="item"></param>
         public void Insert(int index, RangeSet item)
         {
@@ -220,7 +215,6 @@ namespace Datastructure
         /// <summary>
         /// Not Supported
         /// </summary>
-        /// <param name="item"></param>
         public void RemoveAt(int index)
         {
             throw new NotSupportedException();
@@ -243,7 +237,7 @@ namespace Datastructure
                 }
                 first = false;
                 builder.Append( '{' );
-                builder.Append( RangeSets[i].ToString() );
+                builder.Append( RangeSets[i] );
                 builder.Append( '}' );
             }
             return builder.ToString();

@@ -30,11 +30,11 @@ namespace Datastructure
         public SparseTwinIndex(SparseIndexing indexes, T[][] data = null)
         {
             Indexes = indexes;
-            if ( data != null )
+            if (data != null)
             {
                 Data = data;
             }
-            if ( indexes.Indexes != null )
+            if (indexes.Indexes != null)
             {
                 GenerateStructure();
             }
@@ -57,14 +57,14 @@ namespace Datastructure
         {
             get
             {
-                if (GetTransformedIndexes( ref o, ref d ) )
+                if (GetTransformedIndexes(ref o, ref d))
                 {
                     return Data[o][d];
                 }
                 else
                 {
                     // return null / whatever the closest thing to null is
-                    return default( T );
+                    return default(T);
                 }
             }
 
@@ -72,48 +72,47 @@ namespace Datastructure
             {
                 var originalO = o;
                 var originalD = d;
-                if (GetTransformedIndexes( ref o, ref d ) )
+                if (GetTransformedIndexes(ref o, ref d))
                 {
                     Data[o][d] = value;
                 }
                 else
                 {
-                    throw new IndexOutOfRangeException( String.Format( "The location {0}:{1} is invalid for this Sparse Twin Index Datastructure!", originalO, originalD ) );
+                    throw new IndexOutOfRangeException(String.Format("The location {0}:{1} is invalid for this Sparse Twin Index Datastructure!", originalO, originalD));
                 }
             }
         }
 
-        public static SparseTwinIndex<T> CreateSimilarArray<J, K>(SparseArray<J> first, SparseArray<K> second)
+        public static SparseTwinIndex<T> CreateSimilarArray<TFirst, TSecond>(SparseArray<TFirst> first, SparseArray<TSecond> second)
         {
             var indexes = new SparseIndexing();
-            indexes.Indexes = first.Indexing.Indexes.Clone() as SparseSet[];
+            indexes.Indexes = (SparseSet[])first.Indexing.Indexes.Clone();
             var length = indexes.Indexes.Length;
-            for ( var i = 0; i < length; i++ )
+            for (var i = 0; i < length; i++)
             {
                 indexes.Indexes[i].SubIndex = new SparseIndexing() { Indexes = second.Indexing.Indexes.Clone() as SparseSet[] };
             }
-            return new SparseTwinIndex<T>( indexes );
+            return new SparseTwinIndex<T>(indexes);
         }
 
         public static SparseTwinIndex<T> CreateTwinIndex(int[] first, int[] second, T[] data)
         {
             var length = data.Length;
-            if ( length == 0 )
+            if (length == 0)
             {
-                return new SparseTwinIndex<T>( new SparseIndexing() { Indexes = null }, null );
+                return new SparseTwinIndex<T>(new SparseIndexing());
             }
             var indexes = new SortStruct[length];
-            for ( var i = 0; i < length; i++ )
+            for (var i = 0; i < length; i++)
             {
                 indexes[i].SparseSpaceFirst = first[i];
                 indexes[i].SparseSpaceSecond = second[i];
                 indexes[i].DataSpace = i;
             }
-            Array.Sort( indexes, new CompareSortStruct() );
-            var processedIndexes = GenerateIndexes( indexes );
-            T[][] Data;
-
-            return new SparseTwinIndex<T>( ConvertToIndexes( processedIndexes, out Data, data, indexes ), Data ) { Count = length };
+            Array.Sort(indexes, new CompareSortStruct());
+            var processedIndexes = GenerateIndexes(indexes);
+            T[][] localData;
+            return new SparseTwinIndex<T>(ConvertToIndexes(processedIndexes, out localData, data, indexes), localData) { Count = length };
         }
 
         /// <summary>
@@ -126,7 +125,7 @@ namespace Datastructure
         public static SparseTwinIndex<T> CreateSquareTwinIndex(int[] firstIndex, int[] secondIndex, T[] data = null)
         {
             // check the parameters
-            if(firstIndex == null)
+            if (firstIndex == null)
             {
                 throw new ArgumentNullException("firstIndex");
             }
@@ -145,7 +144,7 @@ namespace Datastructure
             // first figure out the stretches of consecutive values for each index
             var firstRangeSet = new RangeSet(firstIndex);
             var secondRangeSet = new RangeSet(secondIndex);
-            return new SparseTwinIndex<T>(CreateSquareIndexes(firstRangeSet, secondRangeSet), ConvertArrayToMatrix(firstIndex, secondIndex, data)) { Count = firstIndex.Length * secondIndex.Length } ;
+            return new SparseTwinIndex<T>(CreateSquareIndexes(firstRangeSet, secondRangeSet), ConvertArrayToMatrix(firstIndex, secondIndex, data)) { Count = firstIndex.Length * secondIndex.Length };
         }
 
         private static SparseIndexing CreateSquareIndexes(RangeSet firstRangeSet, RangeSet secondRangeSet)
@@ -169,7 +168,7 @@ namespace Datastructure
             return ret;
         }
 
-        
+
 
         private static T[][] ConvertArrayToMatrix(int[] firstIndex, int[] secondIndex, T[] data)
         {
@@ -189,12 +188,12 @@ namespace Datastructure
 
         public bool ContainsIndex(int o, int d)
         {
-            return GetTransformedIndexes( ref o, ref d );
+            return GetTransformedIndexes(ref o, ref d);
         }
 
-        public SparseTwinIndex<K> CreateSimilarArray<K>()
+        public SparseTwinIndex<TKey> CreateSimilarArray<TKey>()
         {
-            var ret = new SparseTwinIndex<K>(Indexes);
+            var ret = new SparseTwinIndex<TKey>(Indexes);
             return ret;
         }
 
@@ -205,7 +204,7 @@ namespace Datastructure
 
         public int GetFlatIndex(int sparseSpaceIndex)
         {
-            if (GetTransformedIndex( ref sparseSpaceIndex ) )
+            if (GetTransformedIndex(ref sparseSpaceIndex))
             {
                 // the now transformed sparse space index for O
                 return sparseSpaceIndex;
@@ -215,7 +214,7 @@ namespace Datastructure
 
         public int GetFlatIndex(int sparseSpaceIndexO, int sparseSpaceIndexD)
         {
-            if (GetTransformedIndexes( ref sparseSpaceIndexO, ref sparseSpaceIndexD ) )
+            if (GetTransformedIndexes(ref sparseSpaceIndexO, ref sparseSpaceIndexD))
             {
                 // the now transformed sparse space index for D
                 return sparseSpaceIndexD;
@@ -231,13 +230,13 @@ namespace Datastructure
         public int GetSparseIndex(int flatIndex)
         {
             var soFar = 0;
-            for ( var i = 0; i < Indexes.Indexes.Length; i++ )
+            for (var i = 0; i < Indexes.Indexes.Length; i++)
             {
                 var index = Indexes.Indexes[i];
                 var length = index.Stop - index.Start + 1;
-                if ( soFar + length > flatIndex )
+                if (soFar + length > flatIndex)
                 {
-                    return index.Start + ( flatIndex - soFar );
+                    return index.Start + (flatIndex - soFar);
                 }
                 soFar += length;
             }
@@ -253,21 +252,21 @@ namespace Datastructure
         public int GetSparseIndex(int flatIndexI, int flatIndexJ)
         {
             var soFar = 0;
-            for ( var i = 0; i < Indexes.Indexes.Length; i++ )
+            for (var i = 0; i < Indexes.Indexes.Length; i++)
             {
                 var index = Indexes.Indexes[i];
                 var length = index.Stop - index.Start + 1;
-                if ( soFar + length > flatIndexI )
+                if (soFar + length > flatIndexI)
                 {
                     soFar = 0;
                     var iIndex = Indexes.Indexes[i];
-                    for ( var j = 0; j < iIndex.SubIndex.Indexes.Length; j++ )
+                    for (var j = 0; j < iIndex.SubIndex.Indexes.Length; j++)
                     {
                         index = iIndex.SubIndex.Indexes[j];
                         length = index.Stop - index.Start + 1;
-                        if ( soFar + length > flatIndexJ )
+                        if (soFar + length > flatIndexJ)
                         {
-                            return index.Start + ( flatIndexJ - soFar );
+                            return index.Start + (flatIndexJ - soFar);
                         }
                         soFar += length;
                     }
@@ -287,10 +286,10 @@ namespace Datastructure
             var pos = 0;
             var ret = new int[Data.Length];
             var length = Indexes.Indexes.Length;
-            for ( var i = 0; i < length; i++ )
+            for (var i = 0; i < length; i++)
             {
                 var stop = Indexes.Indexes[i].Stop;
-                for ( var j = Indexes.Indexes[i].Start; j <= stop; j++ )
+                for (var j = Indexes.Indexes[i].Start; j <= stop; j++)
                 {
                     ret[pos++] = j;
                 }
@@ -300,13 +299,13 @@ namespace Datastructure
 
         public IEnumerable<int> ValidIndexes()
         {
-            if ( Indexes.Indexes != null )
+            if (Indexes.Indexes != null)
             {
                 var length = Indexes.Indexes.Length;
-                for ( var i = 0; i < length; i++ )
+                for (var i = 0; i < length; i++)
                 {
                     var stop = Indexes.Indexes[i].Stop;
-                    for ( var j = Indexes.Indexes[i].Start; j <= stop; j++ )
+                    for (var j = Indexes.Indexes[i].Start; j <= stop; j++)
                     {
                         yield return j;
                     }
@@ -318,15 +317,15 @@ namespace Datastructure
         {
             SparseSet oSet;
             var indexes = Indexes.Indexes;
-            if ( indexes != null )
+            if (indexes != null)
             {
-                if (TansformO( indexes, ref first, out oSet ) )
+                if (TansformO(indexes, ref first, out oSet))
                 {
                     var length = oSet.SubIndex.Indexes.Length;
-                    for ( var i = 0; i < length; i++ )
+                    for (var i = 0; i < length; i++)
                     {
                         var stop = oSet.SubIndex.Indexes[i].Stop;
-                        for ( var j = oSet.SubIndex.Indexes[i].Start; j <= stop; j++ )
+                        for (var j = oSet.SubIndex.Indexes[i].Start; j <= stop; j++)
                         {
                             yield return j;
                         }
@@ -335,19 +334,19 @@ namespace Datastructure
             }
         }
 
-        private static SparseIndexing ConvertToIndexes(List<SparseSet> processedIndexes, out T[][] Data, T[] data, SortStruct[] index)
+        private static SparseIndexing ConvertToIndexes(List<SparseSet> processedIndexes, out T[][] outputData, T[] data, SortStruct[] index)
         {
             var start = new SparseIndexing();
             var iLength = processedIndexes.Count;
-            Data = new T[iLength][];
+            outputData = new T[iLength][];
             start.Indexes = new SparseSet[iLength];
             var dataProcessed = 0;
-            for ( var i = 0; i < iLength; i++ )
+            for (var i = 0; i < iLength; i++)
             {
                 start.Indexes[i] = processedIndexes[i];
                 var jLength = 0;
                 var jSections = processedIndexes[i].SubIndex.Indexes.Length;
-                for ( var jSection = 0; jSection < jSections; jSection++ )
+                for (var jSection = 0; jSection < jSections; jSection++)
                 {
                     var indexStop = processedIndexes[i].SubIndex.Indexes[jSection].Stop;
                     var indexStart = processedIndexes[i].SubIndex.Indexes[jSection].Start;
@@ -355,10 +354,10 @@ namespace Datastructure
                     start.Indexes[i].SubIndex.Indexes[jSection].Stop = indexStop;
                     jLength += indexStop - indexStart + 1;
                 }
-                Data[i] = new T[jLength];
-                for ( var j = 0; j < jLength; j++ )
+                outputData[i] = new T[jLength];
+                for (var j = 0; j < jLength; j++)
                 {
-                    Data[i][j] = data[index[dataProcessed++].DataSpace];
+                    outputData[i][j] = data[index[dataProcessed++].DataSpace];
                 }
             }
             return start;
@@ -372,13 +371,13 @@ namespace Datastructure
             var currentSet = new SparseSet();
             currentSet.Start = currentSet.Stop = indexes[0].SparseSpaceSecond;
             var subSets = new List<SparseSet>();
-            for ( var i = 1; i < indexes.Length; i++ )
+            for (var i = 1; i < indexes.Length; i++)
             {
-                if ( indexes[i].SparseSpaceFirst == indexes[i - 1].SparseSpaceFirst )
+                if (indexes[i].SparseSpaceFirst == indexes[i - 1].SparseSpaceFirst)
                 {
-                    if ( indexes[i].SparseSpaceSecond > indexes[i - 1].SparseSpaceSecond + 1 )
+                    if (indexes[i].SparseSpaceSecond > indexes[i - 1].SparseSpaceSecond + 1)
                     {
-                        subSets.Add( currentSet );
+                        subSets.Add(currentSet);
                         currentSet.Start = currentSet.Stop = indexes[i].SparseSpaceSecond;
                     }
                     else
@@ -388,56 +387,56 @@ namespace Datastructure
                 }
                 else
                 {
-                    subSets.Add( currentSet );
-                    meta.Add( new SparseSet()
+                    subSets.Add(currentSet);
+                    meta.Add(new SparseSet()
                     {
                         Start = indexes[i - 1].SparseSpaceFirst,
                         Stop = indexes[i - 1].SparseSpaceFirst,
                         SubIndex = new SparseIndexing() { Indexes = subSets.ToArray() }
-                    } );
+                    });
                     subSets.Clear();
                     currentSet.Start = currentSet.Stop = indexes[i].SparseSpaceSecond;
                 }
             }
-            subSets.Add( currentSet );
-            meta.Add( new SparseSet()
+            subSets.Add(currentSet);
+            meta.Add(new SparseSet()
             {
                 Start = indexes[length - 1].SparseSpaceFirst,
                 Stop = indexes[length - 1].SparseSpaceFirst,
                 SubIndex = new SparseIndexing() { Indexes = subSets.ToArray() }
-            } );
+            });
             return meta;
         }
 
         private void GenerateStructure()
         {
             var totalFirst = 0;
-            var malloc = (Data == null );
-            for ( var i = 0; i < Indexes.Indexes.Length; i++ )
+            var malloc = (Data == null);
+            for (var i = 0; i < Indexes.Indexes.Length; i++)
             {
                 Indexes.Indexes[i].BaseLocation = totalFirst;
                 totalFirst += Indexes.Indexes[i].Stop - Indexes.Indexes[i].Start + 1;
             }
-            if ( malloc )
+            if (malloc)
             {
                 Data = new T[totalFirst][];
             }
             var currentDataPlace = 0;
             // Now make the matrix's second rows
-            for ( var i = 0; i < Indexes.Indexes.Length; i++ )
+            for (var i = 0; i < Indexes.Indexes.Length; i++)
             {
                 var length = Indexes.Indexes[i].SubIndex.Indexes.Length;
                 var totalSecond = 0;
                 // calculate the total
-                for ( var j = 0; j < length; j++ )
+                for (var j = 0; j < length; j++)
                 {
                     Indexes.Indexes[i].SubIndex.Indexes[j].BaseLocation = totalSecond;
                     totalSecond += Indexes.Indexes[i].SubIndex.Indexes[j].Stop - Indexes.Indexes[i].SubIndex.Indexes[j].Start + 1;
                 }
-                if ( malloc )
+                if (malloc)
                 {
                     // malloc the data
-                    for ( var k = Indexes.Indexes[i].Start; k <= Indexes.Indexes[i].Stop; k++ )
+                    for (var k = Indexes.Indexes[i].Start; k <= Indexes.Indexes[i].Stop; k++)
                     {
                         Data[currentDataPlace++] = new T[totalSecond];
                     }
@@ -450,23 +449,23 @@ namespace Datastructure
             var indexes = Indexes.Indexes;
             var min = 0;
             var max = indexes.Length - 1;
-            while ( min <= max )
+            while (min <= max)
             {
-                var mid = ( ( min + max ) >> 1 );
+                var mid = ((min + max) >> 1);
                 var midIndex = indexes[mid];
 
-                if ( o < midIndex.Start )
+                if (o < midIndex.Start)
                 {
                     max = mid - 1;
                 }
-                else if ( o > midIndex.Stop )
+                else if (o > midIndex.Stop)
                 {
                     min = mid + 1;
                 }
                 else
                 {
                     // then we are in a valid range
-                    o = ( o - midIndex.Start + midIndex.BaseLocation );
+                    o = (o - midIndex.Start + midIndex.BaseLocation);
                     return true;
                 }
             }
@@ -479,42 +478,42 @@ namespace Datastructure
         {
             SparseSet oSet;
             var indexes = Indexes.Indexes;
-            if (Indexes.Indexes == null ) return false;
-            if ( TansformO( indexes, ref o, out oSet ) )
+            if (Indexes.Indexes == null) return false;
+            if (TansformO(indexes, ref o, out oSet))
             {
                 var subIndexes = oSet.SubIndex.Indexes;
-                if ( subIndexes.Length >= LookUpLinearMax )
+                if (subIndexes.Length >= LookUpLinearMax)
                 {
                     var min = 0;
                     var max = subIndexes.Length - 1;
-                    while ( min <= max )
+                    while (min <= max)
                     {
-                        var mid = ( ( min + max ) >> 1 );
+                        var mid = ((min + max) >> 1);
 
-                        if ( d < subIndexes[mid].Start )
+                        if (d < subIndexes[mid].Start)
                         {
                             max = mid - 1;
                         }
-                        else if ( d > subIndexes[mid].Stop )
+                        else if (d > subIndexes[mid].Stop)
                         {
                             min = mid + 1;
                         }
                         else
                         {
                             // then we are in a valid range
-                            d = ( d - subIndexes[mid].Start + subIndexes[mid].BaseLocation );
+                            d = (d - subIndexes[mid].Start + subIndexes[mid].BaseLocation);
                             return true;
                         }
                     }
                 }
                 else
                 {
-                    for ( var i = 0; i < subIndexes.Length; i++ )
+                    for (var i = 0; i < subIndexes.Length; i++)
                     {
-                        if ( ( subIndexes[i].Start <= d & subIndexes[i].Stop >= d ) )
+                        if ((subIndexes[i].Start <= d & subIndexes[i].Stop >= d))
                         {
                             // then we are in a valid range
-                            d = ( d - subIndexes[i].Start + subIndexes[i].BaseLocation );
+                            d = (d - subIndexes[i].Start + subIndexes[i].BaseLocation);
                             return true;
                         }
                     }
@@ -526,14 +525,14 @@ namespace Datastructure
         private bool TansformO(SparseSet[] subIndexes, ref int o, out SparseSet oSet)
         {
             // if it is large use binary search
-            if ( subIndexes.Length < LookUpLinearMax )
+            if (subIndexes.Length < LookUpLinearMax)
             {
                 //otherwise just do a linear search\
-                for ( var i = 0; i < subIndexes.Length; i++ )
+                for (var i = 0; i < subIndexes.Length; i++)
                 {
-                    if ( ( subIndexes[i].Start <= o & subIndexes[i].Stop >= o ) )
+                    if ((subIndexes[i].Start <= o & subIndexes[i].Stop >= o))
                     {
-                        o = ( o - subIndexes[i].Start + subIndexes[i].BaseLocation );
+                        o = (o - subIndexes[i].Start + subIndexes[i].BaseLocation);
                         oSet = subIndexes[i];
                         return true;
                     }
@@ -543,21 +542,21 @@ namespace Datastructure
             {
                 var min = 0;
                 var max = subIndexes.Length - 1;
-                while ( min <= max )
+                while (min <= max)
                 {
-                    var mid = ( ( min + max ) >> 1 );
-                    if ( o < subIndexes[mid].Start )
+                    var mid = ((min + max) >> 1);
+                    if (o < subIndexes[mid].Start)
                     {
                         max = mid - 1;
                     }
-                    else if ( o > subIndexes[mid].Stop )
+                    else if (o > subIndexes[mid].Stop)
                     {
                         min = mid + 1;
                     }
                     else
                     {
                         // then we are in a valid range
-                        o = ( o - subIndexes[mid].Start + subIndexes[mid].BaseLocation );
+                        o = (o - subIndexes[mid].Start + subIndexes[mid].BaseLocation);
                         oSet = subIndexes[mid];
                         return true;
                     }
@@ -583,14 +582,14 @@ namespace Datastructure
         {
             public int Compare(SortStruct x, SortStruct y)
             {
-                if ( x.SparseSpaceFirst < y.SparseSpaceFirst ) return -1;
-                if ( x.SparseSpaceFirst == y.SparseSpaceFirst )
+                if (x.SparseSpaceFirst < y.SparseSpaceFirst) return -1;
+                if (x.SparseSpaceFirst == y.SparseSpaceFirst)
                 {
-                    if ( x.SparseSpaceSecond < y.SparseSpaceSecond )
+                    if (x.SparseSpaceSecond < y.SparseSpaceSecond)
                     {
                         return -1;
                     }
-                    else if ( x.SparseSpaceSecond == y.SparseSpaceSecond )
+                    else if (x.SparseSpaceSecond == y.SparseSpaceSecond)
                     {
                         return 0;
                     }
