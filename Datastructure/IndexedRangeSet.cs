@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,40 +18,47 @@
 */
 using System;
 using System.Collections.Generic;
+using static System.Char;
 
 namespace Datastructure
 {
     public class IndexedRangeSet : RangeSet
     {
-        protected int[] Indexes;
+        protected readonly int[] Indexes;
 
         public IndexedRangeSet(List<Range> ranges, List<int> indexes)
-            : base( ranges )
+            : base(ranges)
         {
+            Indexes = indexes.ToArray();
         }
 
         public IndexedRangeSet(List<Range> ranges)
-            : base( ranges )
+            : base(ranges)
         {
+            Indexes = new int[ranges.Count];
+            for (var i = 0; i < Indexes.Length; i++)
+            {
+                Indexes[i] = i;
+            }
         }
 
         public override Range this[int index]
         {
             get
             {
-                return base[GetIndexOf( index )];
+                return base[GetIndexOf(index)];
             }
 
             set
             {
-                base[GetIndexOf( index )] = value;
+                base[GetIndexOf(index)] = value;
             }
         }
 
         public static bool TryParse(string rangeString, out IndexedRangeSet output)
         {
             string error = null;
-            return TryParse( ref error, rangeString, out output );
+            return TryParse(ref error, rangeString, out output);
         }
 
         public static bool TryParse(ref string error, string rangeString, out IndexedRangeSet output)
@@ -70,40 +77,40 @@ namespace Datastructure
             var phase = 0;
             var lastPlus = false;
             var tallyingInZero = false;
-            if ( String.IsNullOrWhiteSpace( rangeString ) )
+            if (String.IsNullOrWhiteSpace(rangeString))
             {
-                output = new IndexedRangeSet( tempRange, tempIndexes );
+                output = new IndexedRangeSet(tempRange, tempIndexes);
                 return true;
             }
-            for ( var i = 0; i < length; i++ )
+            for (var i = 0; i < length; i++)
             {
                 var c = str[i];
-                if ( Char.IsWhiteSpace( c ) || Char.IsLetter( c ) ) continue;
+                if (IsWhiteSpace(c) || IsLetter(c)) continue;
                 lastPlus = false;
-                switch ( phase )
+                switch (phase)
                 {
                     case 0:
-                        if ( Char.IsNumber( c ) )
+                        if (IsNumber(c))
                         {
-                            index = ( ( index << 3 ) + ( index << 1 ) ) + ( c - '0' );
+                            index = ((index << 3) + (index << 1)) + (c - '0');
                             tallyingInZero = true;
                         }
-                        else if ( c == ':' )
+                        else if (c == ':')
                         {
                             start = 0;
                             phase = 1;
                         }
-                        else if ( c == ',' )
+                        else if (c == ',')
                         {
-                            tempRange.Add( new Range() { Start = index, Stop = index } );
-                            tempIndexes.Add( index );
+                            tempRange.Add(new Range(index, index));
+                            tempIndexes.Add(index);
                             index = 0;
                             start = 0;
                             end = 0;
                         }
-                        else if ( c == '-' )
+                        else if (c == '-')
                         {
-                            if ( !tallyingInZero )
+                            if (!tallyingInZero)
                             {
                                 error = "No number was inserted before a range!";
                                 return false;
@@ -112,16 +119,16 @@ namespace Datastructure
                             end = 0;
                             phase = 2;
                         }
-                        else if ( c == '+' )
+                        else if (c == '+')
                         {
-                            if ( !tallyingInZero )
+                            if (!tallyingInZero)
                             {
                                 error = "No number was inserted before a range!";
                                 return false;
                             }
                             end = int.MaxValue;
-                            tempRange.Add( new Range { Start = start, Stop = end } );
-                            tempIndexes.Add( start );
+                            tempRange.Add(new Range(start, end));
+                            tempIndexes.Add(start);
                             index = 0;
                             start = 0;
                             phase = 0;
@@ -136,22 +143,22 @@ namespace Datastructure
                         break;
 
                     case 1:
-                        if ( Char.IsNumber( c ) )
+                        if (IsNumber(c))
                         {
-                            start = ( ( start << 3 ) + ( start << 1 ) ) + ( c - '0' );
+                            start = ((start << 3) + (start << 1)) + (c - '0');
                         }
-                        else if ( c == '+' )
+                        else if (c == '+')
                         {
                             end = int.MaxValue;
-                            tempRange.Add( new Range() { Start = start, Stop = end } );
-                            tempIndexes.Add( index );
+                            tempRange.Add(new Range(start, end));
+                            tempIndexes.Add(index);
                             index = 0;
                             start = 0;
                             phase = 0;
                             tallyingInZero = false;
                             lastPlus = true;
                         }
-                        else if ( c == '-' )
+                        else if (c == '-')
                         {
                             end = 0;
                             phase = 2;
@@ -159,14 +166,14 @@ namespace Datastructure
                         break;
 
                     case 2:
-                        if ( Char.IsNumber( c ) )
+                        if (IsNumber(c))
                         {
-                            end = ( ( end << 3 ) + ( end << 1 ) ) + ( c - '0' );
+                            end = ((end << 3) + (end << 1)) + (c - '0');
                         }
-                        else if ( c == ',' )
+                        else if (c == ',')
                         {
-                            tempRange.Add( new Range() { Start = start, Stop = end } );
-                            tempIndexes.Add( index );
+                            tempRange.Add(new Range(start, end));
+                            tempIndexes.Add(index);
                             index = 0;
                             phase = 0;
                             start = 0;
@@ -176,30 +183,30 @@ namespace Datastructure
                         break;
                 }
             }
-            if ( phase == 2 )
+            if (phase == 2)
             {
-                tempRange.Add( new Range() { Start = start, Stop = end } );
-                tempIndexes.Add( index );
+                tempRange.Add(new Range(start, end));
+                tempIndexes.Add(index);
             }
-            else if ( phase == 0 && tallyingInZero )
+            else if (phase == 0 && tallyingInZero)
             {
-                tempRange.Add( new Range() { Start = index, Stop = index } );
-                tempIndexes.Add( index );
+                tempRange.Add(new Range(start, end));
+                tempIndexes.Add(index);
             }
-            else if ( !lastPlus )
+            else if (!lastPlus)
             {
-                error = "Ended while reading a " + ( phase == 0 ? "range's index!" : "range's start value!" );
+                error = "Ended while reading a " + (phase == 0 ? "range's index!" : "range's start value!");
                 return false;
             }
-            output = new IndexedRangeSet( tempRange, tempIndexes );
+            output = new IndexedRangeSet(tempRange, tempIndexes);
             return true;
         }
 
         private int GetIndexOf(int index)
         {
-            for ( var i = 0; i < Indexes.Length; i++ )
+            for (var i = 0; i < Indexes.Length; i++)
             {
-                if (Indexes[i] == index )
+                if (Indexes[i] == index)
                 {
                     return i;
                 }

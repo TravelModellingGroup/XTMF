@@ -164,13 +164,13 @@ namespace XTMF.Testing
             {
                 new RangeSet(new List<Range>()
                 {
-                    new Range() { Start= 1, Stop=2 },
-                    new Range() { Start= 4, Stop = 5 }
+                    new Range(1, 2),
+                    new Range(4, 5)
                 }),
                 new RangeSet(new List<Range>()
                 {
-                    new Range() { Start= 11, Stop= 12 },
-                    new Range() { Start= 14, Stop = 15 }
+                    new Range(11, 12),
+                    new Range(14, 15)
                 })
             };
             return tempRange;

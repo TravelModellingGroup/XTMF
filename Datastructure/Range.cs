@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -23,23 +23,33 @@ namespace Datastructure
 {
     public struct Range
     {
-        public int Start;
-        public int Stop;
+        public readonly int Start;
+        public readonly int Stop;
+
+        public Range(int start, int stop)
+        {
+            Start = start;
+            Stop = stop;
+        }
 
         public static bool operator !=(Range first, Range other)
         {
-            return ( first.Start != other.Start ) | ( first.Stop != other.Stop );
+            return (first.Start != other.Start) | (first.Stop != other.Stop);
         }
 
         public static bool operator ==(Range first, Range other)
         {
-            return ( first.Start == other.Start ) & ( first.Stop == other.Stop );
+            return (first.Start == other.Start) & (first.Stop == other.Stop);
         }
 
         public override bool Equals(object obj)
         {
-            var other = (Range)( obj );
-            return this == other;
+            if (obj is Range)
+            {
+                var other = (Range)(obj);
+                return this == other;
+            }
+            return false;
         }
 
         public override int GetHashCode()
@@ -49,10 +59,9 @@ namespace Datastructure
 
         public static SparseArray<Range> Parse(string rangeString)
         {
-            var length = rangeString.Length;
             var tempRange = new List<Pair<int, Range>>();
-            LoadRanges( tempRange, rangeString );
-            return SaveToArray( tempRange );
+            LoadRanges(tempRange, rangeString);
+            return SaveToArray(tempRange);
         }
 
         /// <summary>
@@ -62,7 +71,7 @@ namespace Datastructure
         /// <returns>True IFF i is greater than or equal to Start and i is less than Stop.</returns>
         public bool Contains(int i)
         {
-            return ( ( i >= Start) & ( i < Stop) );
+            return ((i >= Start) & (i < Stop));
         }
 
         /// <summary>
@@ -72,7 +81,7 @@ namespace Datastructure
         /// <returns>True IFF i is less than Start and i is less than Stop.</returns>
         public bool ContainsExcusive(int i)
         {
-            return ( ( i > Start) & ( i < Stop) );
+            return ((i > Start) & (i < Stop));
         }
 
         /// <summary>
@@ -82,7 +91,7 @@ namespace Datastructure
         /// <returns>True IFF i is greater than or equal to Start and i is less than or equal to Stop.</returns>
         public bool ContainsInclusive(int i)
         {
-            return ( ( i >= Start) & ( i <= Stop) );
+            return ((i >= Start) & (i <= Stop));
         }
 
         /// <summary>
@@ -92,12 +101,12 @@ namespace Datastructure
         /// <returns></returns>
         public bool Overlaps(Range other)
         {
-            return (ContainsInclusive( other.Start ) || ContainsInclusive( other.Stop ) );
+            return (ContainsInclusive(other.Start) || ContainsInclusive(other.Stop));
         }
 
         public override string ToString()
         {
-            return String.Format( "{0}-{1}", Start, Stop);
+            return String.Format("{0}-{1}", Start, Stop);
         }
 
         private static void LoadRanges(List<Pair<int, Range>> tempRange, string rangeString)
@@ -112,19 +121,19 @@ namespace Datastructure
             //Phase == 2 -> end
             var phase = 0;
             var lastPlus = false;
-            for ( var i = 0; i < length; i++ )
+            for (var i = 0; i < length; i++)
             {
                 var c = str[i];
-                if ( Char.IsWhiteSpace( c ) || Char.IsLetter( c ) ) continue;
+                if (Char.IsWhiteSpace(c) || Char.IsLetter(c)) continue;
                 lastPlus = false;
-                switch ( phase )
+                switch (phase)
                 {
                     case 0:
-                        if ( Char.IsNumber( c ) )
+                        if (Char.IsNumber(c))
                         {
-                            index = ( ( index << 3 ) + ( index << 1 ) ) + ( c - '0' );
+                            index = ((index << 3) + (index << 1)) + (c - '0');
                         }
-                        else if ( c == ':' )
+                        else if (c == ':')
                         {
                             start = 0;
                             phase = 1;
@@ -132,20 +141,20 @@ namespace Datastructure
                         break;
 
                     case 1:
-                        if ( Char.IsNumber( c ) )
+                        if (Char.IsNumber(c))
                         {
-                            start = ( ( start << 3 ) + ( start << 1 ) ) + ( c - '0' );
+                            start = ((start << 3) + (start << 1)) + (c - '0');
                         }
-                        else if ( c == '+' )
+                        else if (c == '+')
                         {
                             end = int.MaxValue;
-                            tempRange.Add( new Pair<int, Range>( index, new Range() { Start = start, Stop = end } ) );
+                            tempRange.Add(new Pair<int, Range>(index, new Range(start, end)));
                             index = 0;
                             start = 0;
                             phase = 0;
                             lastPlus = true;
                         }
-                        else if ( c == '-' )
+                        else if (c == '-')
                         {
                             end = 0;
                             phase = 2;
@@ -153,26 +162,26 @@ namespace Datastructure
                         break;
 
                     case 2:
-                        if ( Char.IsNumber( c ) )
+                        if (Char.IsNumber(c))
                         {
-                            end = ( ( end << 3 ) + ( end << 1 ) ) + ( c - '0' );
+                            end = ((end << 3) + (end << 1)) + (c - '0');
                         }
-                        else if ( c == ',' )
+                        else if (c == ',')
                         {
-                            tempRange.Add( new Pair<int, Range>( index, new Range() { Start = start, Stop = end } ) );
+                            tempRange.Add(new Pair<int, Range>(index, new Range(start, end)));
                             index = 0;
                             phase = 0;
                         }
                         break;
                 }
             }
-            if ( phase == 2 )
+            if (phase == 2)
             {
-                tempRange.Add( new Pair<int, Range>( index, new Range() { Start = start, Stop = end } ) );
+                tempRange.Add(new Pair<int, Range>(index, new Range(start, end)));
             }
-            else if ( !lastPlus )
+            else if (!lastPlus)
             {
-                throw new ArgumentException( "The range string was incomplete we ended while reading " + ( phase == 0 ? "range's index!" : "range's start value!" ) );
+                throw new ArgumentException("The range string was incomplete we ended while reading " + (phase == 0 ? "range's index!" : "range's start value!"));
             }
         }
 
@@ -181,23 +190,23 @@ namespace Datastructure
             var found = tempRange.Count;
             var place = new int[found];
             var ranges = new Range[found];
-            for ( var i = 0; i < found; i++ )
+            for (var i = 0; i < found; i++)
             {
                 var pair = tempRange[i];
                 place[i] = pair.First;
                 ranges[i] = pair.Second;
             }
-            for ( var i = 0; i < found; i++ )
+            for (var i = 0; i < found; i++)
             {
-                for ( var j = i + 1; j < found; j++ )
+                for (var j = i + 1; j < found; j++)
                 {
-                    if ( place[i] == place[j] )
+                    if (place[i] == place[j])
                     {
-                        throw new ArgumentException( "There were multiple ranges with the index " + place[i] + "!" );
+                        throw new ArgumentException("There were multiple ranges with the index " + place[i] + "!");
                     }
                 }
             }
-            return SparseArray<Range>.CreateSparseArray( place, ranges );
+            return SparseArray<Range>.CreateSparseArray(place, ranges);
         }
     }
 }

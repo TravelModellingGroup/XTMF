@@ -21,8 +21,8 @@ using System.Collections.Generic;
 
 namespace Datastructure
 {
-    public class Multimap<K, V>
-        : AvlTree<Pair<K, V>> where K : IComparable<K>
+    public class Multimap<TK, TV>
+        : AvlTree<Pair<TK, TV>> where TK : IComparable<TK>
     {
         /// <summary>
         /// This is how you are supposed to access inserting
@@ -30,7 +30,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="k"></param>
         /// <returns></returns>
-        public V this[K k]
+        public TV this[TK k]
         {
             get
             {
@@ -48,9 +48,9 @@ namespace Datastructure
         /// </summary>
         /// <param name="item">What we are looking for</param>
         /// <returns>True if it is found, false otherwise</returns>
-        public V Get(K item)
+        public TV Get(TK item)
         {
-            if ( item == null ) return default( V );
+            if ( item == null ) return default( TV );
             IncreaseReaders();
             var current = Root;
             while ( current != null )
@@ -70,15 +70,14 @@ namespace Datastructure
                 }
             }
             DecreaseReaders();
-            return ( current != null ? current.Data.Second : default( V ) );
+            return ( current != null ? current.Data.Second : default( TV ) );
         }
 
         /// <summary>
         /// Checks to see if the data exists in the AST
         /// </summary>
-        /// <param name="item">What we are looking for</param>
         /// <returns>True if it is found, false otherwise</returns>
-        public bool Get(K key, ref V value)
+        public bool Get(TK key, ref TV value)
         {
             if ( key == null ) return false;
             IncreaseReaders();
@@ -110,12 +109,14 @@ namespace Datastructure
         /// <summary>
         /// Checks to see if the data exists in the AST
         /// </summary>
-        /// <param name="item">What we are looking for</param>
         /// <returns>True if it is found, false otherwise</returns>
-        public void Set(K key, V value)
+        public void Set(TK key, TV value)
         {
-            if ( key == null ) return;
-            var path = new Stack<AvlTree<Pair<K, V>>.Node>();
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+            var path = new Stack<Node>();
             lock (WriterLock)
             {
                 Node current = Root, prev = null;
@@ -140,12 +141,9 @@ namespace Datastructure
 
                 if ( current == null )
                 {
-                    var n = new AvlTree<Pair<K, V>>.Node();
-                    n.Height = 0;
+                    var n = new Node {Height = 0};
                     n.Left = n.Right = null;
-                    n.Data = new Pair<K, V>();
-                    n.Data.First = key;
-                    n.Data.Second = value;
+                    n.Data = new Pair<TK, TV>(key, value);
                     WaitForReaders();
                     IncreaseCount();
                     if ( prev != null )
@@ -168,7 +166,7 @@ namespace Datastructure
                 else
                 {
                     // if we found the item
-                    current.Data.Second = value;
+                    current.Data = new Pair<TK, TV>(key, value);
                 }
                 // We need to make sure all of the nodes memory is now shared between processors
                 System.Threading.Thread.MemoryBarrier();

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -22,6 +22,7 @@ using System.IO;
 using Datastructure;
 using TMG.Emme;
 using XTMF;
+using static System.String;
 
 namespace TMG.NetworkEstimation
 {
@@ -64,12 +65,11 @@ namespace TMG.NetworkEstimation
             List<Pair<char, char>> foundModes = new List<Pair<char, char>>();
             var ttsLines = transitLine.Length;
             var predictedLines = predicted.Length;
-            var compairePair = new Pair<char, char>();
             for ( int i = 0; i < ttsLines; i++ )
             {
                 if ( i > transitLine.Length )
                 {
-                    throw new XTMFRuntimeException( String.Format( "i = {0}, ttsLines = {1}, transitLine.Length = {2}",
+                    throw new XTMFRuntimeException( Format( "i = {0}, ttsLines = {1}, transitLine.Length = {2}",
                         i, ttsLines, transitLine.Length ) );
                 }
                 var mode = transitLine[i].Mode;
@@ -86,8 +86,7 @@ namespace TMG.NetworkEstimation
                     throw new XTMFRuntimeException( "There is an invalid ID for the TTS line #" + i + "!" );
                 }
                 var firstLetter = transitLine[i].ID[0][0];
-                compairePair.First = mode;
-                compairePair.Second = firstLetter;
+                var compairePair = new Pair<char, char>(mode, firstLetter);
                 if ( !foundModes.Contains( compairePair ) )
                 {
                     foundModes.Add( new Pair<char, char>( mode, firstLetter ) );
@@ -97,11 +96,9 @@ namespace TMG.NetworkEstimation
             float[] aggTTSToMode = new float[numberOfModesFirstLetters];
             float[] aggPredToMode = new float[numberOfModesFirstLetters];
             // first pass agg all of the tts numbers
-            var testPair = new Pair<char, char>();
             for ( int i = 0; i < ttsLines; i++ )
             {
-                testPair.First = transitLine[i].Mode;
-                testPair.Second = transitLine[i].ID[0][0];
+                var testPair = new Pair<char, char>(transitLine[i].Mode, transitLine[i].ID[0][0]);
                 var indexOfTransitLine = foundModes.IndexOf( testPair );
                 if ( indexOfTransitLine == -1 )
                 {
@@ -112,8 +109,7 @@ namespace TMG.NetworkEstimation
             // second pass agg all of the predicted numbers
             for ( int i = 0; i < predictedLines; i++ )
             {
-                testPair.First = predicted[i].Mode;
-                testPair.Second = predicted[i].ID[0][0];
+                var testPair = new Pair<char, char>(predicted[i].Mode, predicted[i].ID[0][0]);
                 var indexOfPredictedMode = foundModes.IndexOf( testPair );
                 if ( indexOfPredictedMode == -1 )
                 {
@@ -126,16 +122,16 @@ namespace TMG.NetworkEstimation
             double terror = 0;
             for ( int i = 0; i < numberOfModesFirstLetters; i++ )
             {
-                float error = this.RegionPercentError ? (float)( Math.Abs( aggPredToMode[i] - aggTTSToMode[i] ) / aggTTSToMode[i] ) : aggTTSToMode[i] - aggPredToMode[i];
+                float error = RegionPercentError ? (float)( Math.Abs( aggPredToMode[i] - aggTTSToMode[i] ) / aggTTSToMode[i] ) : aggTTSToMode[i] - aggPredToMode[i];
                 rmse += error * error;
                 mabs += Math.Abs( error );
                 terror += error;
             }
-            var finalError = (float)( ( rmse * this.RMSEWeight ) + ( mabs * this.MABSWeight ) + ( terror * this.TERRORWeight ) );
-            if ( !String.IsNullOrWhiteSpace( this.RegionErrorFile ) )
+            var finalError = (float)( ( rmse * RMSEWeight ) + ( mabs * MABSWeight ) + ( terror * TERRORWeight ) );
+            if ( !IsNullOrWhiteSpace( RegionErrorFile ) )
             {
-                bool exists = File.Exists( this.RegionErrorFile );
-                using ( var writer = new StreamWriter( this.RegionErrorFile, true ) )
+                bool exists = File.Exists( RegionErrorFile );
+                using ( var writer = new StreamWriter( RegionErrorFile, true ) )
                 {
                     if ( !exists )
                     {
@@ -146,7 +142,7 @@ namespace TMG.NetworkEstimation
                             writer.Write( foundModes[i].First );
                             if ( i == numberOfModesFirstLetters - 1 )
                             {
-                                if ( this.RegionPercentError )
+                                if ( RegionPercentError )
                                 {
                                     writer.WriteLine( ",%Error" );
                                 }
@@ -163,7 +159,7 @@ namespace TMG.NetworkEstimation
                     }
                     for ( int i = 0; i < numberOfModesFirstLetters; i++ )
                     {
-                        if ( this.RegionPercentError )
+                        if ( RegionPercentError )
                         {
                             writer.Write( (float)( Math.Abs( aggPredToMode[i] - aggTTSToMode[i] ) / aggTTSToMode[i] ) );
                         }

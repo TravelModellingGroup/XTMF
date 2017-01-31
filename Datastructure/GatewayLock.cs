@@ -24,7 +24,7 @@ namespace Datastructure
     public class GatewayLock
     {
         private object Gateway = new object();
-        private long ThingsIn = 0;
+        private long ThingsIn;
 
         /// <summary>
         /// The number of things that are currently being processed
@@ -34,8 +34,8 @@ namespace Datastructure
         /// <summary>
         /// Lock the Gateway until "This" is done
         /// </summary>
-        /// <param name="DoThis">What we need to do</param>
-        public void Lock(Action DoThis)
+        /// <param name="doThis">What we need to do</param>
+        public void Lock(Action doThis)
         {
             lock (Gateway)
             {
@@ -43,7 +43,7 @@ namespace Datastructure
                 {
                     Thread.Sleep( 0 );
                 }
-                DoThis();
+                doThis();
             }
         }
 
@@ -51,14 +51,14 @@ namespace Datastructure
         /// Execute a procedure when the gate
         /// is not being blocked
         /// </summary>
-        /// <param name="DoThis">The thing to do</param>
-        public void PassThrough(Action DoThis)
+        /// <param name="doThis">The thing to do</param>
+        public void PassThrough(Action doThis)
         {
             lock (Gateway)
             {
                 Interlocked.Increment( ref ThingsIn );
             }
-            DoThis();
+            doThis();
             Interlocked.Decrement( ref ThingsIn );
         }
     }

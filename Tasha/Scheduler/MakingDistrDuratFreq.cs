@@ -294,7 +294,7 @@ namespace Tasha.Scheduler
                         Thread.MemoryBarrier();
                     }
                 }
-                // add our event to our local count
+                // add our event to our local _Count
                 try
                 {
                     Interlocked.Increment(ref eventCount[id][startTime][duration]);
@@ -382,7 +382,7 @@ namespace Tasha.Scheduler
                             return;
                         }
                         var id = GetID(person, ThisTrip);
-                        // check to see if we have a real distribution id, if so add it in to our count
+                        // check to see if we have a real distribution id, if so add it in to our _Count
                         AddStartTimeDuration(eventCount, person, startTime, TripDuration, id);
                     }
                 }
@@ -706,7 +706,7 @@ namespace Tasha.Scheduler
 
         private void StoreResults(float expFactor, int[][][] eventCount)
         {
-            // now that we have the count of all of the events go and add them to the totals
+            // now that we have the _Count of all of the events go and add them to the totals
             System.Threading.Tasks.Parallel.For(0, NumberOfDistributionsLocal, delegate (int id)
             {
                 // if there is no data for this ID just continue

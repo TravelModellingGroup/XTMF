@@ -34,7 +34,7 @@ namespace TMG.GTAModel.Analysis
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation( Description = "The modules to count the demand." )]
+        [SubModelInformation( Description = "The modules to _Count the demand." )]
         public List<IModeAggregationTally> Tallies;
 
         public string Name

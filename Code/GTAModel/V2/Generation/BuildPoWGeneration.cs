@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -75,19 +75,9 @@ namespace TMG.GTAModel.V2.Generation
             }
         }
 
-        private RangeSet CreateRangeSet(int occ)
-        {
-            var set = new List<Range>();
-            set.Add( new Range() { Start = occ, Stop = occ } );
-            return new RangeSet( set );
-        }
+        private RangeSet CreateRangeSet(int occ) => new RangeSet(new List<Range> { new Range(occ, occ) });
 
-        private RangeSet CreateRangeSet(Range range)
-        {
-            var set = new List<Range>();
-            set.Add( range );
-            return new RangeSet( set );
-        }
+        private RangeSet CreateRangeSet(Range range) => new RangeSet(new List<Range> { range });
 
         private void GenerateChildren()
         {
@@ -96,7 +86,7 @@ namespace TMG.GTAModel.V2.Generation
             list.Remove( this );
             foreach ( var occSet in this.OccupationCategory )
             {
-                for ( int occ = occSet.Start; occ <= occSet.Stop; occ++ )
+                for ( var occ = occSet.Start; occ <= occSet.Stop; occ++ )
                 {
                     foreach ( var empSet in this.EmploymentStatusCategory )
                     {

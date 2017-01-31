@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -25,19 +25,19 @@ namespace Datastructure
     /// <summary>
     /// A generic Key->Data Hashtable
     /// </summary>
-    /// <typeparam name="K">The Identifyer</typeparam>
-    /// <typeparam name="D">What to store</typeparam>
-    public class LocklessHashtable<K, D> where K : IComparable<K>
+    /// <typeparam name="TK">The Identifyer</typeparam>
+    /// <typeparam name="TD">What to store</typeparam>
+    public class LocklessHashtable<TK, TD> where TK : IComparable<TK>
     {
         /// <summary>
         /// How many items we currently have
         /// </summary>
-        protected int count = 0;
+        protected int _Count;
 
         /// <summary>
         /// The table of starting nodes
         /// </summary>
-        protected Node[] Table = null;
+        protected readonly Node[] Table;
 
         /// <summary>
         /// Create a new Hashtable
@@ -59,12 +59,12 @@ namespace Datastructure
         /// <summary>
         /// Learn how many items we have
         /// </summary>
-        public int Count => count;
+        public int Count => _Count;
 
         /// <summary>
         /// The data stored in the hashtable
         /// </summary>
-        public IEnumerable<D> Data
+        public IEnumerable<TD> Data
         {
             get
             {
@@ -83,11 +83,11 @@ namespace Datastructure
         /// <summary>
         /// The keys stored in the hash table
         /// </summary>
-        public IEnumerable<K> Keys
+        public IEnumerable<TK> Keys
         {
             get
             {
-                var keysList = new List<K>( Table.Length );
+                var keysList = new List<TK>( Table.Length );
                 for ( var i = 0; i < Table.Length; i++ )
                 {
                     keysList.Clear();
@@ -111,19 +111,21 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">The identifier for this data</param>
         /// <returns></returns>
-        public D this[K key]
+        public TD this[TK key]
         {
             get
             {
                 var place = Math.Abs( key.GetHashCode() % Table.Length );
-                Node current = null;
-                current = Table[place];
+                var current = Table[place];
                 while ( current != null )
                 {
-                    if ( current.Key.CompareTo( key ) == 0 ) return current.Storage;
+                    if (current.Key.CompareTo(key) == 0)
+                    {
+                        return current.Storage;
+                    }
                     current = current.Next;
                 }
-                return current != null ? current.Storage : default( D );
+                return default( TD );
             }
         }
 
@@ -132,7 +134,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What the key for this data is</param>
         /// <param name="data">What data to store with this key</param>
-        public virtual void Add(K key, D data)
+        public virtual void Add(TK key, TD data)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
             var n = new Node();
@@ -140,7 +142,7 @@ namespace Datastructure
             n.Storage = data;
             n.Next = Table[place];
             Table[place] = n;
-            Interlocked.Increment( ref count );
+            Interlocked.Increment( ref _Count );
         }
 
         /// <summary>
@@ -148,23 +150,19 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What key to look for</param>
         /// <returns>True if it was found</returns>
-        public bool Contains(K key)
+        public bool Contains(TK key)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node current = null;
-            var found = false;
-
-            current = Table[place];
+            var current = Table[place];
             while ( current != null )
             {
                 if ( current.Key.CompareTo( key ) == 0 )
                 {
-                    found = true;
-                    return found;
+                    return true;
                 }
                 current = current.Next;
             }
-            return found;
+            return false;
         }
 
         /// <summary>
@@ -172,22 +170,19 @@ namespace Datastructure
         /// </summary>
         /// <param name="data">What data to look for</param>
         /// <returns>True if it was found</returns>
-        public bool Contains(D data)
+        public bool Contains(TD data)
         {
             var place = Math.Abs( data.GetHashCode() % Table.Length );
-            Node current = null;
-            var found = false;
-            current = Table[place];
+            var current = Table[place];
             while ( current != null )
             {
                 if ( current.Storage.Equals( data ) )
                 {
-                    found = true;
-                    return found;
+                    return true;
                 }
                 current = current.Next;
             }
-            return found;
+            return false;
         }
 
         /// <summary>
@@ -195,7 +190,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What key to remove</param>
         /// <returns>True, if something was removed</returns>
-        public virtual bool Remove(K key)
+        public virtual bool Remove(TK key)
         {
             throw new NotImplementedException( "Don't remove things quite yet" );
         }
@@ -205,7 +200,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What key to test for uniqueness and to store</param>
         /// <param name="data">What to store</param>
-        public virtual void UniqueAdd(K key, D data)
+        public virtual void UniqueAdd(TK key, TD data)
         {
             var place = Math.Abs( key.GetHashCode() % Table.Length );
             var n = new Node();
@@ -227,7 +222,7 @@ namespace Datastructure
             if ( add )
             {
                 Table[place] = n;
-                Interlocked.Increment( ref count );
+                Interlocked.Increment( ref _Count );
             }
         }
 
@@ -236,9 +231,9 @@ namespace Datastructure
         /// </summary>
         protected class Node
         {
-            public K Key;
+            public TK Key;
             public Node Next;
-            public D Storage;
+            public TD Storage;
         }
     }
 }

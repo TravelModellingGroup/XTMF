@@ -43,7 +43,7 @@ namespace TMG.Tasha
         [RunParameter( "Exclude External Trips", false, "Exclude the households that have trips that end up in external zones." )]
         public bool ExcludeExternalTrips;
 
-        [RunParameter( "External Ranges", "", typeof( RangeSet ), "The ranges of zones to count as external and exclude." )]
+        [RunParameter( "External Ranges", "", typeof( RangeSet ), "The ranges of zones to _Count as external and exclude." )]
         public RangeSet ExternalRanges;
 
         [RunParameter( "First Trip in Trip Chain", 1, "What number represents the first trip in a trip chain in your records" )]

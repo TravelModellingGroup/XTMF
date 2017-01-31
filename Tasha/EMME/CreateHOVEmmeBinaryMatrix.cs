@@ -189,7 +189,7 @@ namespace Tasha.EMME
             [RunParameter("Mode Name", "DAT", "The name of the mode")]
             public string ModeName;
 
-            [RunParameter("Count Access", true, "True to count for access, false to count for egress.")]
+            [RunParameter("Count Access", true, "True to _Count for access, false to _Count for egress.")]
             public bool CountAccess;
 
             [RunParameter("Access Tag Name", "AccessStation", "The tag used for storing the zone used for access.")]

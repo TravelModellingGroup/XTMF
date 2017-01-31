@@ -39,7 +39,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]
         public FileLocation VKT_Output;
 
-        [SubModelInformation(Required = true, Description = "Which modes do you want to count the VKTs for?")]
+        [SubModelInformation(Required = true, Description = "Which modes do you want to _Count the VKTs for?")]
         public Tasha.EMME.CreateEmmeBinaryMatrix.ModeLink[] AnalyzeModes;
 
         [RunParameter("Start Time", "6:00", typeof(Time), "The start time for this scenario")]

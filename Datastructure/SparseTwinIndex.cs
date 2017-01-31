@@ -38,7 +38,7 @@ namespace Datastructure
             {
                 GenerateStructure();
             }
-            //Generate count
+            //Generate _Count
             var count = 0;
             for (var i = 0; i < Data.Length; i++)
             {

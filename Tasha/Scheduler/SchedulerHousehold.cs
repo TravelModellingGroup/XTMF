@@ -191,7 +191,7 @@ namespace Tasha.Scheduler
                     int outerAttempts = 0;
                     for (int j = 0; j < freq_I; ++j)
                     {
-                        //Update the trip generation count
+                        //Update the trip generation _Count
 
                         Time startTime;
                         Time duration;

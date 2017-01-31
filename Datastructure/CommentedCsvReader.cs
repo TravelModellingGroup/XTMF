@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -29,23 +29,27 @@ namespace Datastructure
     /// </summary>
     public sealed class CommentedCsvReader : IDisposable
     {
-        private long linesRead;
-        private CsvReader Reader;
+        private long LinesRead;
+        private readonly CsvReader Reader;
 
         /// <summary>
         /// </summary>
-        /// <param name="FileName">The full path to the file.</param>
-        public CommentedCsvReader(string FileName)
+        /// <param name="fileName">The full path to the file.</param>
+        public CommentedCsvReader(string fileName)
         {
-            Reader = new CsvReader( FileName );
-            linesRead = 0;
+            if (fileName == null)
+            {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+            Reader = new CsvReader(fileName);
+            LinesRead = 0;
             SetupReader();
         }
 
-        public CommentedCsvReader(Stream Stream)
+        public CommentedCsvReader(Stream stream)
         {
-            Reader = new CsvReader( Stream );
-            linesRead = 0;
+            Reader = new CsvReader( stream );
+            LinesRead = 0;
             SetupReader();
         }
 
@@ -79,24 +83,24 @@ namespace Datastructure
             Reader.Dispose();
         }
 
-        public void Get(out string Item, int Index)
+        public void Get(out string item, int index)
         {
-            Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
-        public void Get(out char Item, int Index)
+        public void Get(out char item, int index)
         {
-            Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
-        public void Get(out float Item, int Index)
+        public void Get(out float item, int index)
         {
-            Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
-        public void Get(out int Item, int Index)
+        public void Get(out int item, int index)
         {
-            Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
         /// <summary>
@@ -115,11 +119,11 @@ namespace Datastructure
                     if ( Reader.LineBuffer[0] == '/' & Reader.LineBuffer[1] == '/' ) continue; //Skip commented lines
                 }
 
-                linesRead++;
+                LinesRead++;
                 if (Headers == null ) return true;
                 if (NumberOfCurrentCells != Headers.Length )
                 {
-                    throw new IOException( "Error reading file '" + Reader.FileName + "' at line " + linesRead + ": number of cells in the row (" + NumberOfCurrentCells +
+                    throw new IOException( "Error reading file '" + Reader.FileName + "' at line " + LinesRead + ": number of cells in the row (" + NumberOfCurrentCells +
                         ") is not equal to the number of headers defined in the file (" + Headers.Length + ")." );
                 }
                 return true;
@@ -134,10 +138,13 @@ namespace Datastructure
         private void SetupReader()
         {
             // iterate here until we are either at the end of the file or a place with a header
-            while (NextLine() && NumberOfCurrentCells <= 0 ) ;
+            while (NextLine() && NumberOfCurrentCells <= 0)
+            {
+                // iterate until we have found the line containing headers
+            }
 
             Headers = new string[NumberOfCurrentCells];
-            var h = "";
+            string h;
             for ( var i = 0; i < NumberOfCurrentCells; i++ )
             {
                 Get( out h, i );

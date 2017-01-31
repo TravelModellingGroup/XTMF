@@ -114,7 +114,7 @@ namespace TMG.GTAModel.V2.Distribution
                         {
                             throw new XTMFRuntimeException( "In '" + this.Name + "' it is required that all generates be of the type DemographicCategoryGeneration!" );
                         }
-                        rangeSet[0] = new Range() { Start = mobility, Stop = mobility };
+                        rangeSet[0] = new Range(mobility, mobility);
                         realCat.Mobility = rangeSet;
                         DistributePopulation( realCat, ageRate.GetFlatData(), linkages.GetFlatData(), catIndex, ret.GetFlatData() );
                         Task save = null;

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,10 +27,10 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestRangeSetIntList()
         {
-            RangeSet rangeSet = new RangeSet( new int[] { 1, 2, 3, 4, 5, 7, 8, 9, 10 } );
-            Assert.AreEqual( 2, rangeSet.Count );
-            Assert.AreEqual( new Range() { Start = 1, Stop = 5 }, rangeSet[0] );
-            Assert.AreEqual( new Range() { Start = 7, Stop = 10 }, rangeSet[1] );
+            RangeSet rangeSet = new RangeSet(new int[] { 1, 2, 3, 4, 5, 7, 8, 9, 10 });
+            Assert.AreEqual(2, rangeSet.Count);
+            Assert.AreEqual(new Range(1, 5), rangeSet[0]);
+            Assert.AreEqual(new Range(7, 10), rangeSet[1]);
         }
     }
 }

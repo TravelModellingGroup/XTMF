@@ -39,20 +39,20 @@ namespace Datastructure
         public RangeSet(IList<int> numbers)
         {
             var array = new int[numbers.Count];
-            numbers.CopyTo( array, 0 );
-            Array.Sort( array );
+            numbers.CopyTo(array, 0);
+            Array.Sort(array);
             var tempRange = new List<Range>();
             var start = 0;
-            for ( var i = 1; i < array.Length; i++ )
+            for (var i = 1; i < array.Length; i++)
             {
-                if ( array[i] > array[i - 1] + 1 )
+                if (array[i] > array[i - 1] + 1)
                 {
-                    tempRange.Add( new Range() { Start = array[start], Stop = array[i - 1] } );
+                    tempRange.Add(new Range(array[start], array[i - 1]));
                     start = i;
                 }
             }
             // and in the end
-            tempRange.Add( new Range() { Start = array[start], Stop = array[array.Length - 1] } );
+            tempRange.Add(new Range(array[start], array[array.Length - 1]));
             SetRanges = tempRange.ToArray();
         }
 
@@ -76,7 +76,7 @@ namespace Datastructure
         public static bool TryParse(string rangeString, out RangeSet output)
         {
             string error = null;
-            return TryParse( ref error, rangeString, out output );
+            return TryParse(ref error, rangeString, out output);
         }
 
         public static bool TryParse(ref string error, string rangeString, out RangeSet output)
@@ -94,34 +94,34 @@ namespace Datastructure
             var phase = 0;
             var lastPlus = false;
             var tallyingInZero = false;
-            if ( String.IsNullOrWhiteSpace( rangeString ) )
+            if (String.IsNullOrWhiteSpace(rangeString))
             {
-                output = new RangeSet( tempRange );
+                output = new RangeSet(tempRange);
                 return true;
             }
-            for ( var i = 0; i < length; i++ )
+            for (var i = 0; i < length; i++)
             {
                 var c = str[i];
-                if ( Char.IsWhiteSpace( c ) || Char.IsLetter( c ) ) continue;
+                if (Char.IsWhiteSpace(c) || Char.IsLetter(c)) continue;
                 lastPlus = false;
-                switch ( phase )
+                switch (phase)
                 {
                     case 0:
-                        if ( Char.IsNumber( c ) )
+                        if (Char.IsNumber(c))
                         {
-                            index = ( ( index << 3 ) + ( index << 1 ) ) + ( c - '0' );
+                            index = ((index << 3) + (index << 1)) + (c - '0');
                             tallyingInZero = true;
                         }
-                        else if ( c == ',' )
+                        else if (c == ',')
                         {
-                            tempRange.Add( new Range() { Start = index, Stop = index } );
+                            tempRange.Add(new Range(index, index));
                             index = 0;
                             start = 0;
                             end = 0;
                         }
-                        else if ( c == '-' )
+                        else if (c == '-')
                         {
-                            if ( !tallyingInZero )
+                            if (!tallyingInZero)
                             {
                                 error = "No number was inserted before a range!";
                                 return false;
@@ -130,15 +130,15 @@ namespace Datastructure
                             end = 0;
                             phase = 2;
                         }
-                        else if ( c == '+' )
+                        else if (c == '+')
                         {
-                            if ( !tallyingInZero )
+                            if (!tallyingInZero)
                             {
                                 error = "No number was inserted before a range!";
                                 return false;
                             }
                             end = int.MaxValue;
-                            tempRange.Add( new Range { Start = start, Stop = end } );
+                            tempRange.Add(new Range(start, end));
                             index = 0;
                             start = 0;
                             phase = 0;
@@ -153,21 +153,21 @@ namespace Datastructure
                         break;
 
                     case 1:
-                        if ( Char.IsNumber( c ) )
+                        if (Char.IsNumber(c))
                         {
-                            start = ( ( start << 3 ) + ( start << 1 ) ) + ( c - '0' );
+                            start = ((start << 3) + (start << 1)) + (c - '0');
                         }
-                        else if ( c == '+' )
+                        else if (c == '+')
                         {
                             end = int.MaxValue;
-                            tempRange.Add( new Range() { Start = start, Stop = end } );
+                            tempRange.Add(new Range(start, end));
                             index = 0;
                             start = 0;
                             phase = 0;
                             tallyingInZero = false;
                             lastPlus = true;
                         }
-                        else if ( c == '-' )
+                        else if (c == '-')
                         {
                             end = 0;
                             phase = 2;
@@ -175,13 +175,13 @@ namespace Datastructure
                         break;
 
                     case 2:
-                        if ( Char.IsNumber( c ) )
+                        if (Char.IsNumber(c))
                         {
-                            end = ( ( end << 3 ) + ( end << 1 ) ) + ( c - '0' );
+                            end = ((end << 3) + (end << 1)) + (c - '0');
                         }
-                        else if ( c == ',' )
+                        else if (c == ',')
                         {
-                            tempRange.Add( new Range() { Start = start, Stop = end } );
+                            tempRange.Add(new Range(start, end));
                             index = 0;
                             phase = 0;
                             start = 0;
@@ -191,43 +191,43 @@ namespace Datastructure
                         break;
                 }
             }
-            if ( phase == 2 )
+            if (phase == 2)
             {
-                tempRange.Add( new Range() { Start = start, Stop = end } );
+                tempRange.Add(new Range(start, end));
             }
-            else if ( phase == 0 && tallyingInZero )
+            else if (phase == 0 && tallyingInZero)
             {
-                tempRange.Add( new Range() { Start = index, Stop = index } );
+                tempRange.Add(new Range(start, end));
             }
-            else if ( !lastPlus )
+            else if (!lastPlus)
             {
-                error = "Ended while reading a " + ( phase == 0 ? "range's index!" : "range's start value!" );
+                error = "Ended while reading a " + (phase == 0 ? "range's index!" : "range's start value!");
                 return false;
             }
-            output = new RangeSet( tempRange );
+            output = new RangeSet(tempRange);
             return true;
         }
 
         public void Add(Range item)
         {
-            throw new InvalidOperationException( "Unable to add items" );
+            throw new InvalidOperationException("Unable to add items");
         }
 
         public void Clear()
         {
-            throw new InvalidOperationException( "Unable to remove items" );
+            throw new InvalidOperationException("Unable to remove items");
         }
 
         public bool Contains(Range item)
         {
-            return IndexOf( item ) != -1;
+            return IndexOf(item) != -1;
         }
 
         public bool Contains(int number)
         {
-            for ( var i = 0; i < SetRanges.Length; i++ )
+            for (var i = 0; i < SetRanges.Length; i++)
             {
-                if ( ( number >= SetRanges[i].Start ) && ( number <= SetRanges[i].Stop ) )
+                if ((number >= SetRanges[i].Start) && (number <= SetRanges[i].Stop))
                 {
                     return true;
                 }
@@ -237,7 +237,7 @@ namespace Datastructure
 
         public void CopyTo(Range[] array, int arrayIndex)
         {
-            for ( var i = 0; i < SetRanges.Length; i++ )
+            for (var i = 0; i < SetRanges.Length; i++)
             {
                 array[arrayIndex + i] = SetRanges[i];
             }
@@ -246,30 +246,30 @@ namespace Datastructure
         public override bool Equals(object obj)
         {
             var other = obj as RangeSet;
-            if ( other != null )
+            if (other != null)
             {
-                if ( other.Count != Count) return false;
-                for ( var i = 0; i < SetRanges.Length; i++ )
+                if (other.Count != Count) return false;
+                for (var i = 0; i < SetRanges.Length; i++)
                 {
-                    if ( !(SetRanges[i] == other[i] ) )
+                    if (!(SetRanges[i] == other[i]))
                     {
                         return false;
                     }
                 }
                 return true;
             }
-            return base.Equals( obj );
+            return base.Equals(obj);
         }
 
         public IEnumerator<Range> GetEnumerator()
         {
-            return ( (ICollection<Range>)SetRanges).GetEnumerator();
+            return ((ICollection<Range>)SetRanges).GetEnumerator();
         }
 
         public override int GetHashCode()
         {
             var hash = 0;
-            for ( var i = 0; i < SetRanges.Length; i++ )
+            for (var i = 0; i < SetRanges.Length; i++)
             {
                 hash += SetRanges.GetHashCode();
             }
@@ -278,9 +278,9 @@ namespace Datastructure
 
         public int IndexOf(Range item)
         {
-            for ( var i = 0; i < SetRanges.Length; i++ )
+            for (var i = 0; i < SetRanges.Length; i++)
             {
-                if (SetRanges[i] == item )
+                if (SetRanges[i] == item)
                 {
                     return i;
                 }
@@ -295,9 +295,9 @@ namespace Datastructure
         /// <returns>-1 if not found, otherwise the index of the Range in the rangeset that first contains this integer</returns>
         public int IndexOf(int integerToFind)
         {
-            for ( var i = 0; i < SetRanges.Length; i++ )
+            for (var i = 0; i < SetRanges.Length; i++)
             {
-                if (SetRanges[i].ContainsInclusive( integerToFind ) )
+                if (SetRanges[i].ContainsInclusive(integerToFind))
                 {
                     return i;
                 }
@@ -312,9 +312,9 @@ namespace Datastructure
 
         public bool Overlaps(Range other)
         {
-            for ( var i = 0; i < SetRanges.Length; i++ )
+            for (var i = 0; i < SetRanges.Length; i++)
             {
-                if (SetRanges[i].Contains( other.Start ) || SetRanges[i].Contains( other.Stop ) )
+                if (SetRanges[i].Contains(other.Start) || SetRanges[i].Contains(other.Stop))
                 {
                     return true;
                 }
@@ -324,11 +324,11 @@ namespace Datastructure
 
         public bool Overlaps(RangeSet other)
         {
-            for ( var i = 0; i < SetRanges.Length; i++ )
+            for (var i = 0; i < SetRanges.Length; i++)
             {
-                for ( var j = 0; j < other.SetRanges.Length; j++ )
+                for (var j = 0; j < other.SetRanges.Length; j++)
                 {
-                    if (SetRanges[i].Contains( other.SetRanges[j].Start ) || SetRanges[i].Contains( other.SetRanges[j].Stop ) )
+                    if (SetRanges[i].Contains(other.SetRanges[j].Start) || SetRanges[i].Contains(other.SetRanges[j].Stop))
                     {
                         return true;
                     }
@@ -339,12 +339,12 @@ namespace Datastructure
 
         public bool Remove(Range item)
         {
-            throw new InvalidOperationException( "Unable to remove items" );
+            throw new InvalidOperationException("Unable to remove items");
         }
 
         public void RemoveAt(int index)
         {
-            throw new InvalidOperationException( "Unable to remove items" );
+            throw new InvalidOperationException("Unable to remove items");
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -356,27 +356,27 @@ namespace Datastructure
         {
             var builder = new StringBuilder();
             var first = true;
-            if (SetRanges.Length == 0 )
+            if (SetRanges.Length == 0)
             {
                 // do nothing we already have a blank builder
             }
             else
             {
-                foreach ( var res in SetRanges)
+                foreach (var res in SetRanges)
                 {
-                    if ( !first )
+                    if (!first)
                     {
-                        builder.Append( ',' );
+                        builder.Append(',');
                     }
-                    if ( res.Start != res.Stop )
+                    if (res.Start != res.Stop)
                     {
-                        builder.Append( res.Start );
-                        builder.Append( '-' );
-                        builder.Append( res.Stop );
+                        builder.Append(res.Start);
+                        builder.Append('-');
+                        builder.Append(res.Stop);
                     }
                     else
                     {
-                        builder.Append( res.Start );
+                        builder.Append(res.Start);
                     }
                     first = false;
                 }

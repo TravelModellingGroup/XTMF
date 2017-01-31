@@ -456,7 +456,7 @@ namespace TMG.GTAModel.V2.Distribution
         {
             // this.CurrentMultiSet == Occupation [0,3] * NumberOfMobilityCategories + mobility Category
             this.WCatParameters.SetDemographicCategory(this.CurrentMultiSetIndex * 5 + mobilityCategory);
-            cats[subset][0].Mobility = new RangeSet(new List<Range>() { new Range() { Start = mobilityCategory, Stop = mobilityCategory } });
+            cats[subset][0].Mobility = new RangeSet(new List<Range>() { new Range(mobilityCategory, mobilityCategory)});
             cats[subset][0].InitializeDemographicCategory();
         }
 
@@ -611,8 +611,8 @@ namespace TMG.GTAModel.V2.Distribution
                             }
                             temp[0].Add(new Segment()
                             {
-                                Origin = new Range() { Start = os, Stop = oe },
-                                Destination = new Range() { Start = ds, Stop = de },
+                                Origin = new Range(os, oe),
+                                Destination = new Range(ds, de),
                                 ModificationForMode = modeData
                             });
                         }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -97,7 +97,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="node">The node that we start on</param>
         /// <returns>Null if the node doesn't exist, otherwise the leftmost node</returns>
-        private AvlTree<TK>.Node GetLeftmost(AvlTree<TK>.Node node)
+        private Node GetLeftmost(Node node)
         {
             var prev = node;
             while ( node != null )
@@ -113,7 +113,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="node">The node that we start on</param>
         /// <returns>Null if the node doesn't exist, otherwise the rightmost node</returns>
-        private AvlTree<TK>.Node GetRightmost(AvlTree<TK>.Node node)
+        private Node GetRightmost(Node node)
         {
             var prev = node;
             while ( node != null )

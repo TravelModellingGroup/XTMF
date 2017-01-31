@@ -53,7 +53,7 @@ namespace Datastructure
         {
             var ival = 0;
             var dval = 0;
-            var multiplyer = 0;
+            int multiplyer;
             int i;
             char c;
             unsafe

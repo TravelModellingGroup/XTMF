@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -462,57 +462,58 @@ namespace TMG.GTAModel
                     return -1;
                 } ) );
             this.EmploymentStatusRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            Range currentRange = new Range();
+            int start = 0;
+            int stop = 0;
             var employmentLength = employment.Count;
             int[] firstIndex;
             int[] secondIndex;
             float[] d;
             int numberOfElements;
-            for ( int i = 1; i < employmentLength; i++ )
+            for ( var i = 1; i < employmentLength; i++ )
             {
                 if ( employment[i].Zone == employment[i - 1].Zone )
                 {
-                    currentRange.Stop = i;
+                    stop = i;
                 }
                 else
                 {
-                    numberOfElements = currentRange.Stop - currentRange.Start + 1;
+                    numberOfElements = stop - start + 1;
                     firstIndex = new int[numberOfElements * 3];
                     secondIndex = new int[numberOfElements * 3];
                     d = new float[numberOfElements * 3];
-                    for ( int j = 0; j < numberOfElements; j++ )
+                    for ( var j = 0; j < numberOfElements; j++ )
                     {
-                        var ageCat = employment[currentRange.Start + j].AgeCat;
+                        var ageCat = employment[start + j].AgeCat;
                         for ( int k = 0; k < 3; k++ )
                         {
                             firstIndex[j * 3 + k] = ageCat;
                             secondIndex[j * 3 + k] = k;
                         }
-                        d[j * 3] = employment[currentRange.Start + j].NonWork;
-                        d[j * 3 + 1] = employment[currentRange.Start + j].FullTime;
-                        d[j * 3 + 2] = employment[currentRange.Start + j].PartTime;
+                        d[j * 3] = employment[start + j].NonWork;
+                        d[j * 3 + 1] = employment[start + j].FullTime;
+                        d[j * 3 + 2] = employment[start + j].PartTime;
                     }
                     foreach ( var z in this.PDZoneMap[employment[i - 1].Zone] )
                     {
                         this.EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
                     }
-                    currentRange.Start = i;
+                    start = i;
                 }
             }
-            numberOfElements = currentRange.Stop - currentRange.Start + 1;
+            numberOfElements = stop - start + 1;
             firstIndex = new int[numberOfElements * 3];
             secondIndex = new int[numberOfElements * 3];
             d = new float[numberOfElements * 3];
-            for ( int j = 0; j < numberOfElements; j++ )
+            for ( var j = 0; j < numberOfElements; j++ )
             {
-                for ( int k = 0; k < 3; k++ )
+                for ( var k = 0; k < 3; k++ )
                 {
-                    firstIndex[j * 3 + k] = employment[currentRange.Start + j].AgeCat;
+                    firstIndex[j * 3 + k] = employment[start + j].AgeCat;
                     secondIndex[j * 3 + k] = k;
                 }
-                d[j * 3] = employment[currentRange.Start + j].NonWork;
-                d[j * 3 + 1] = employment[currentRange.Start + j].FullTime;
-                d[j * 3 + 2] = employment[currentRange.Start + j].PartTime;
+                d[j * 3] = employment[start + j].NonWork;
+                d[j * 3 + 1] = employment[start + j].FullTime;
+                d[j * 3 + 2] = employment[start + j].PartTime;
             }
             foreach ( var z in this.PDZoneMap[employment[employmentLength - 1].Zone] )
             {
@@ -703,7 +704,8 @@ namespace TMG.GTAModel
                 return -1;
             } ) );
             this.OccupationRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            Range currentRange = new Range();
+            var start = 0;
+            var stop = 0;
             var employmentLength = occupation.Count;
             int[] firstIndex;
             int[] secondIndex;
@@ -714,11 +716,11 @@ namespace TMG.GTAModel
             {
                 if ( occupation[i].Zone == occupation[i - 1].Zone )
                 {
-                    currentRange.Stop = i;
+                    stop = i;
                 }
                 else
                 {
-                    numberOfElements = currentRange.Stop - currentRange.Start + 1;
+                    numberOfElements = stop - start + 1;
                     firstIndex = new int[numberOfElements * 5];
                     secondIndex = new int[numberOfElements * 5];
                     thirdIndex = new int[numberOfElements * 5];
@@ -727,14 +729,14 @@ namespace TMG.GTAModel
                     {
                         for ( int k = 0; k < 5; k++ )
                         {
-                            firstIndex[j * 5 + k] = occupation[currentRange.Start + j].AgeCat;
-                            secondIndex[j * 5 + k] = occupation[currentRange.Start + j].EmploymentStatus;
+                            firstIndex[j * 5 + k] = occupation[start + j].AgeCat;
+                            secondIndex[j * 5 + k] = occupation[start + j].EmploymentStatus;
                             thirdIndex[j * 5 + k] = k;
                         }
-                        d[j * 5 + 1] = occupation[currentRange.Start + j].Professional;
-                        d[j * 5 + 2] = occupation[currentRange.Start + j].General;
-                        d[j * 5 + 3] = occupation[currentRange.Start + j].Sales;
-                        d[j * 5 + 4] = occupation[currentRange.Start + j].Manufacturing;
+                        d[j * 5 + 1] = occupation[start + j].Professional;
+                        d[j * 5 + 2] = occupation[start + j].General;
+                        d[j * 5 + 3] = occupation[start + j].Sales;
+                        d[j * 5 + 4] = occupation[start + j].Manufacturing;
                     }
                     if ( this.OccupationByPD )
                     {
@@ -747,10 +749,10 @@ namespace TMG.GTAModel
                     {
                         this.OccupationRates[occupation[i - 1].Zone] = SparseTriIndex<float>.CreateSparseTriIndex( firstIndex, secondIndex, thirdIndex, d );
                     }
-                    currentRange.Start = i;
+                    start = i;
                 }
             }
-            numberOfElements = currentRange.Stop - currentRange.Start + 1;
+            numberOfElements = stop - start + 1;
             firstIndex = new int[numberOfElements * 5];
             secondIndex = new int[numberOfElements * 5];
             thirdIndex = new int[numberOfElements * 5];
@@ -759,15 +761,15 @@ namespace TMG.GTAModel
             {
                 for ( int k = 0; k < 5; k++ )
                 {
-                    firstIndex[j * 5 + k] = occupation[currentRange.Start + j].AgeCat;
-                    secondIndex[j * 5 + k] = occupation[currentRange.Start + j].EmploymentStatus;
+                    firstIndex[j * 5 + k] = occupation[start + j].AgeCat;
+                    secondIndex[j * 5 + k] = occupation[start + j].EmploymentStatus;
                     thirdIndex[j * 5 + k] = k;
                 }
 
-                d[j * 5 + 1] = occupation[currentRange.Start + j].Professional;
-                d[j * 5 + 2] = occupation[currentRange.Start + j].General;
-                d[j * 5 + 3] = occupation[currentRange.Start + j].Sales;
-                d[j * 5 + 4] = occupation[currentRange.Start + j].Manufacturing;
+                d[j * 5 + 1] = occupation[start + j].Professional;
+                d[j * 5 + 2] = occupation[start + j].General;
+                d[j * 5 + 3] = occupation[start + j].Sales;
+                d[j * 5 + 4] = occupation[start + j].Manufacturing;
             }
             if ( this.OccupationByPD )
             {
@@ -824,7 +826,7 @@ namespace TMG.GTAModel
                     } );
                 }
             }
-            studentData.Sort( new Comparison<StudentDist>( delegate(StudentDist first, StudentDist second)
+            studentData.Sort( delegate(StudentDist first, StudentDist second)
             {
                 if ( first.Zone > second.Zone )
                 {
@@ -849,10 +851,11 @@ namespace TMG.GTAModel
                     }
                 }
                 return -1;
-            } ) );
+            } );
             // Employment is now sorted Zone,Age,EmploymentStatus
             this.SchoolRates = this.Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            Range currentRange = new Range();
+            var start = 0;
+            var stop = 0;
             var studentDataLength = studentData.Count;
             int[] firstIndex;
             int[] secondIndex;
@@ -862,17 +865,17 @@ namespace TMG.GTAModel
             {
                 if ( studentData[i].Zone == studentData[i - 1].Zone )
                 {
-                    currentRange.Stop = i;
+                    stop = i;
                 }
                 else
                 {
-                    numberOfElements = currentRange.Stop - currentRange.Start + 1;
+                    numberOfElements = stop - start + 1;
                     firstIndex = new int[numberOfElements];
                     secondIndex = new int[numberOfElements];
                     d = new float[numberOfElements];
                     for ( int j = 0; j < numberOfElements; j++ )
                     {
-                        var data = studentData[currentRange.Start + j];
+                        var data = studentData[start + j];
                         firstIndex[j] = data.AgeCat;
                         secondIndex[j] = data.EmploymentStatus;
                         d[j] = data.Chance;
@@ -881,18 +884,18 @@ namespace TMG.GTAModel
                     {
                         this.SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex( firstIndex, secondIndex, d );
                     }
-                    currentRange.Start = i;
+                    start = i;
                 }
             }
-            numberOfElements = currentRange.Stop - currentRange.Start + 1;
+            numberOfElements = stop - start + 1;
             firstIndex = new int[numberOfElements];
             secondIndex = new int[numberOfElements];
             d = new float[numberOfElements];
             for ( int j = 0; j < numberOfElements; j++ )
             {
-                firstIndex[j] = studentData[currentRange.Start + j].AgeCat;
-                secondIndex[j] = studentData[currentRange.Start + j].EmploymentStatus;
-                d[j] = studentData[currentRange.Start + j].Chance;
+                firstIndex[j] = studentData[start + j].AgeCat;
+                secondIndex[j] = studentData[start + j].EmploymentStatus;
+                d[j] = studentData[start + j].Chance;
             }
             foreach ( var z in this.PDZoneMap[studentData[studentDataLength - 1].Zone] )
             {

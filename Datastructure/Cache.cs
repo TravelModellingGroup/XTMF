@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -28,9 +28,9 @@ namespace Datastructure
     ///
     /// Thread Safe
     /// </summary>
-    /// <typeparam name="K">The type for the key</typeparam>
-    /// <typeparam name="D">The type for the data</typeparam>
-    public class Cache<K, D> : Hashtable<K, D> where K : IComparable<K>
+    /// <typeparam name="TK">The type for the key</typeparam>
+    /// <typeparam name="TD">The type for the data</typeparam>
+    public class Cache<TK, TD> : Hashtable<TK, TD> where TK : IComparable<TK>
     {
         /// <summary>
         /// Create a new Cache
@@ -54,10 +54,10 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">The key for this entry</param>
         /// <param name="data">The data contained for this key</param>
-        public override void Add(K key, D data)
+        public override void Add(TK key, TD data)
         {
             var place = Math.Abs( ( key.GetHashCode() ) % Table.Length );
-            TableLocks[place].Lock( delegate()
+            TableLocks[place].Lock( ()=>
             {
                 if (Table[place] == null )
                 {
@@ -66,7 +66,7 @@ namespace Datastructure
                     n.Storage = data;
                     n.Next = null;
                     Table[place] = n;
-                    Interlocked.Increment( ref count);
+                    Interlocked.Increment( ref _Count);
                 }
                 else
                 {

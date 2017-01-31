@@ -498,15 +498,9 @@ namespace Tasha.ModeChoice
                 ModeSet[] sets = (ModeSet[])tripChain["BestForVehicle"];
                 ModeSet set = sets[bestForVehicle];
                 Time travelTime = set.ChosenMode[0].TravelTime( tripChain.Trips[0].OriginalZone, tripChain.Trips[0].DestinationZone, tripChain.Trips[0].ActivityStartTime );
-                Pair<Time, int> start = new Pair<Time, int>();
-                start.First = tripChain.Trips[0].ActivityStartTime - travelTime;
-                start.Second = 1;
-                tripIntervals.Add( start );
+                tripIntervals.Add(new Pair<Time, int>(tripChain.Trips[0].ActivityStartTime - travelTime, 1));
                 //add end time to list
-                Pair<Time, int> end = new Pair<Time, int>();
-                end.First = tripChain.EndTime;
-                end.Second = -1;
-                tripIntervals.Add( end );
+                tripIntervals.Add(new Pair<Time, int>(tripChain.EndTime, -1));
             }
             //sort based on times
             tripIntervals.Sort( delegate(Pair<Time, int> p1, Pair<Time, int> p2)

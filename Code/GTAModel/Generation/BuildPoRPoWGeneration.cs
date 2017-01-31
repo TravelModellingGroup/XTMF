@@ -122,7 +122,7 @@ namespace TMG.GTAModel.Generation
         private RangeSet CreateRangeSet(int occ)
         {
             var set = new List<Range>();
-            set.Add( new Range() { Start = occ, Stop = occ } );
+            set.Add( new Range(occ, occ));
             return new RangeSet( set );
         }
 

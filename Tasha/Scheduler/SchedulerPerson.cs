@@ -126,7 +126,7 @@ namespace Tasha.Scheduler
         /// <summary>
         /// Used for debugging only.  Counts how many episodes were generated for this person
         /// </summary>
-        /// <param name="person">The person we want to count their events for</param>
+        /// <param name="person">The person we want to _Count their events for</param>
         internal static int CountEpisodes(this ITashaPerson person)
         {
             int count = 0;

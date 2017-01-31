@@ -168,8 +168,8 @@ namespace TMG.GTAModel.Input
                 data.Add( new SegmentData()
                 {
                     SegmentNumber = (int)line[0],
-                    OriginRange = new Range() { Start = (int)line[1], Stop = (int)line[2] },
-                    DestinationRange = new Range() { Start = (int)line[3], Stop = (int)line[4] }
+                    OriginRange = new Range((int)line[1], (int)line[2]),
+                    DestinationRange = new Range((int)line[3], (int)line[4])
                 } );
             }
             var segmentArray = data.ToArray();
