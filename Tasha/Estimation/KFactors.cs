@@ -100,7 +100,7 @@ namespace Tasha.Estimation
             bool firstTime = false;
             if ( ret == null )
             {
-                Data = ret = ZoneSystemHelper.CreatePDTwinArray<float>( Root.ZoneSystem.ZoneArray );
+                Data = ret = ZoneSystemHelper.CreatePdTwinArray<float>( Root.ZoneSystem.ZoneArray );
                 firstTime = true;
             }
             var data = ret.GetFlatData();

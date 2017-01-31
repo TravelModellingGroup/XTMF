@@ -59,7 +59,7 @@ namespace Tasha.Validation.ModeChoice
         public void Execute(int iterationNumber, int totalIterations)
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var regions = TMG.Functions.ZoneSystemHelper.CreatePDArray<int>(zoneSystem);
+            var regions = TMG.Functions.ZoneSystemHelper.CreatePdArray<int>(zoneSystem);
             float[][][] data = BuildData(Root.AllModes.Select(m => m.ModeName).ToArray(), zoneSystem, regions);
             SaveData(data, regions);
         }

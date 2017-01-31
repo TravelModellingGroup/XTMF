@@ -634,8 +634,8 @@ namespace XTMF.Testing.TMG.Data
             Expression ex;
             Assert.IsTrue(Compiler.Compile(equation, out ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
             var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
+            Assert.IsTrue(result.IsOdResult);
+            var flat = result.OdData.GetFlatData();
             Assert.AreEqual(m11, flat[0][0], 0.00001f);
             Assert.AreEqual(m12, flat[0][1], 0.00001f);
             Assert.AreEqual(m21, flat[1][0], 0.00001f);

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,10 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
-using System.Numerics;
+
 namespace TMG.Functions
 {
     public sealed class GravityModel
@@ -34,36 +33,31 @@ namespace TMG.Functions
         private int MaxIterations;
         private SparseArray<float> Productions;
         private Action<float> ProgressCallback;
-        private float MaxErrorChangePerIteration;
 
-        public GravityModel(Func<int, int, double> frictionFunction, Action<float> progressCallback = null, float epsilon = 0.8f, int maxIterations = 100,
-            float maxErrorChangePerIteration = 0.000100f)
+        public GravityModel(Func<int, int, double> frictionFunction, Action<float> progressCallback = null, float epsilon = 0.8f, int maxIterations = 100)
         {
             Epsilon = epsilon;
             FrictionFunction = frictionFunction;
             MaxIterations = maxIterations;
             ProgressCallback = progressCallback;
-            MaxErrorChangePerIteration = maxErrorChangePerIteration;
         }
 
-        public GravityModel(SparseTwinIndex<float> friction, Action<float> progressCallback = null, float epsilon = 0.8f, int maxIterations = 100,
-            float maxErrorChangePerIteration = 0.000100f)
+        public GravityModel(SparseTwinIndex<float> friction, Action<float> progressCallback = null, float epsilon = 0.8f, int maxIterations = 100)
         {
             Epsilon = epsilon;
             Friction = friction;
             MaxIterations = maxIterations;
             ProgressCallback = progressCallback;
-            MaxErrorChangePerIteration = maxErrorChangePerIteration;
         }
 
-        public SparseTwinIndex<float> ProcessFlow(SparseArray<float> O, SparseArray<float> D, int[] validIndexes, SparseArray<float> attractionStar = null)
+        public SparseTwinIndex<float> ProcessFlow(SparseArray<float> o, SparseArray<float> d, int[] validIndexes, SparseArray<float> attractionStar = null)
         {
             int length = validIndexes.Length;
-            Productions = O;
-            Attractions = D;
+            Productions = o;
+            Attractions = d;
             if (attractionStar == null)
             {
-                AttractionsStar = D.CreateSimilarArray<float>();
+                AttractionsStar = d.CreateSimilarArray<float>();
             }
             else
             {
@@ -84,7 +78,7 @@ namespace TMG.Functions
             }
             int iteration = 0;
             float[] columnTotals = new float[length];
-            var balanced = false;
+            bool balanced;
             do
             {
                 // this doesn't go to 100%, but that is alright since when we end, the progress
@@ -92,25 +86,22 @@ namespace TMG.Functions
                 ProgressCallback?.Invoke(iteration / (float)MaxIterations);
                 Array.Clear(columnTotals, 0, columnTotals.Length);
                 VectorProcessFlow(columnTotals, FlowMatrix.GetFlatData());
-                balanced = Balance(columnTotals, oldTotal);
+                balanced = Balance(columnTotals);
             } while ((++iteration) < MaxIterations && !balanced);
 
             ProgressCallback?.Invoke(1f);
             return FlowMatrix;
         }
 
-        private bool Balance(float[] columnTotals, float[] oldTotal)
+        private bool Balance(float[] columnTotals)
         {
-            bool balanced = true;
             var flatAttractions = Attractions.GetFlatData();
-            var flatFlows = FlowMatrix.GetFlatData();
             var flatAttractionStar = AttractionsStar.GetFlatData();
-            int length = flatAttractions.Length;
-            float ep = (float)Epsilon;
+            float ep = Epsilon;
             VectorHelper.Divide(columnTotals, 0, flatAttractions, 0, columnTotals, 0, columnTotals.Length);
             VectorHelper.Multiply(flatAttractionStar, 0, flatAttractionStar, 0, columnTotals, 0, flatAttractionStar.Length);
             VectorHelper.ReplaceIfNotFinite(flatAttractionStar, 0, 1.0f, flatAttractionStar.Length);
-            return balanced = VectorHelper.AreBoundedBy(columnTotals, 0, 1.0f, ep, columnTotals.Length);
+            return VectorHelper.AreBoundedBy(columnTotals, 0, 1.0f, ep, columnTotals.Length);
         }
 
         private void InitializeFriction(int length)
@@ -131,7 +122,7 @@ namespace TMG.Functions
         {
             Parallel.For(0, Productions.GetFlatData().Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 () => new float[columnTotals.Length],
-                (int flatOrigin, ParallelLoopState state, float[] localTotals) =>
+                (flatOrigin, state, localTotals) =>
             {
                 var flatProductions = Productions.GetFlatData();
                 // check to see if there is no production, if not skip this
@@ -141,18 +132,18 @@ namespace TMG.Functions
                     var flatAStar = AttractionsStar.GetFlatData();
                     var flatAttractions = Attractions.GetFlatData();
                     var flatFrictionRow = flatFriction[flatOrigin];
-                    var sumAF = VectorHelper.Multiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, flatFriction.Length);
-                    sumAF = (flatProductions[flatOrigin] / sumAF);
-                    if (float.IsInfinity(sumAF) | float.IsNaN(sumAF))
+                    var sumAf = VectorHelper.Multiply3AndSum(flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, flatFriction.Length);
+                    sumAf = (flatProductions[flatOrigin] / sumAf);
+                    if (float.IsInfinity(sumAf) | float.IsNaN(sumAf))
                     {
                         // this needs to be 0f, otherwise we will be making the attractions have to be balanced higher
-                        sumAF = 0f;
+                        sumAf = 0f;
                     }
-                    VectorHelper.Multiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAF, localTotals, 0, flatFriction.Length);
+                    VectorHelper.Multiply3Scalar1AndColumnSum(flatFlows[flatOrigin], 0, flatFrictionRow, 0, flatAttractions, 0, flatAStar, 0, sumAf, localTotals, 0, flatFriction.Length);
                 }
                 return localTotals;
             },
-            (float[] localTotals) =>
+            localTotals =>
             {
                 lock (columnTotals)
                 {

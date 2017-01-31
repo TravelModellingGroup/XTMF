@@ -576,7 +576,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 if (!Parent.EstimationMode || PDCube == null)
                 {
-                    var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
+                    var pds = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
                     BuildPDCube(pds);
                     if (FlatZoneToPDCubeLookup == null)
                     {

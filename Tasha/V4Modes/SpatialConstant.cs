@@ -86,7 +86,7 @@ namespace Tasha.V4Modes
         public void BuildMatrix()
         {
             //build the region constants
-            var planningDistricts = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
+            var planningDistricts = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
             var pdIndexes = planningDistricts.ValidIndexArray();
             PlanningDistrictConstants = planningDistricts.CreateSquareTwinArray<float>();
             var data = PlanningDistrictConstants.GetFlatData();

@@ -141,7 +141,7 @@ namespace Tasha.Estimation.PoRPoW
                 InverseOfTotalTrips = 1.0f / TruthRows.Sum();
                 if (AggregateToPlanningDistricts)
                 {
-                    PDError = ZoneSystemHelper.CreatePDTwinArray<float>(ZoneSystem.ZoneArray);
+                    PDError = ZoneSystemHelper.CreatePdTwinArray<float>(ZoneSystem.ZoneArray);
                     ZoneToPDIndexMap = (from zone in zones
                                         select PDError.GetFlatIndex(zone.PlanningDistrict)).ToArray();
                     // transform the truth to be PD based

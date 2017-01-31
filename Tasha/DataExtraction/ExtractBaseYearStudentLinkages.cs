@@ -207,7 +207,7 @@ GROUP BY [{3}].[{0}];",
                         }
                     }
                 }
-                var pdStudents = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>( zoneArray );
+                var pdStudents = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>( zoneArray );
                 var pdPopulation = pdStudents.CreateSimilarArray<float>();
                 for ( int i = 0; i < flatResult.Length; i++ )
                 {

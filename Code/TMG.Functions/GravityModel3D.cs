@@ -17,12 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Datastructure;
+
 namespace TMG.Functions
 {
     public static class GravityModel3D
@@ -43,7 +38,7 @@ namespace TMG.Functions
             {
                 Array.Clear(columnTotals, 0, columnTotals.Length);
                 VectorApply(ret, categoriesByOrigin, friction, destinationStar, columnTotals, categories);
-                balanced = VectorBalance(ret, destinations, destinationStar, columnTotals, epsilon, categories);
+                balanced = VectorBalance(destinations, destinationStar, columnTotals, epsilon);
             } while (iterations++ < maxIterations & !balanced);
             return ret;
         }
@@ -61,21 +56,19 @@ namespace TMG.Functions
                     var catByOrigin = categoriesByOrigin[i + k * numberOfZones];
                     if (catByOrigin <= 0) continue;
                     int index = (k * numberOfZones * numberOfZones) + (i * numberOfZones);
-                    var sumAF = VectorHelper.MultiplyAndSum(friction, index, dStar, 0, numberOfZones);
-                    if (sumAF <= 0) continue;
-                    VectorHelper.Multiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAF, columnTotals, 0, numberOfZones);
+                    var sumAf = VectorHelper.MultiplyAndSum(friction, index, dStar, 0, numberOfZones);
+                    if (sumAf <= 0) continue;
+                    VectorHelper.Multiply2Scalar1AndColumnSum(ret, index, friction, index, dStar, 0, catByOrigin / sumAf, columnTotals, 0, numberOfZones);
                 }
             }
         }
 
-        private static bool VectorBalance(float[] ret, float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon, int categories)
+        private static bool VectorBalance(float[] destinations, float[] destinationStar, float[] columnTotals, float epsilon)
         {
-            bool balanced = true;
             VectorHelper.Divide(columnTotals, 0, destinations, 0, columnTotals, 0, columnTotals.Length);
             VectorHelper.Multiply(destinationStar, 0, destinationStar, 0, columnTotals, 0, destinationStar.Length);
             VectorHelper.ReplaceIfNotFinite(destinationStar, 0, 1.0f, destinationStar.Length);
-            balanced = VectorHelper.AreBoundedBy(columnTotals, 0, 1.0f, epsilon, columnTotals.Length);
-            return balanced;
+            return VectorHelper.AreBoundedBy(columnTotals, 0, 1.0f, epsilon, columnTotals.Length);
         }
     }
 }

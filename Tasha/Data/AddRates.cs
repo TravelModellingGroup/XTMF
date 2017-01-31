@@ -66,7 +66,7 @@ namespace Tasha.Data
                     })
                 ).ToArray();
             SparseArray<float> data;
-            data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePDArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
+            data = SaveRatesBasedOnPD ? ZoneSystemHelper.CreatePdArray<float>(zoneArray) : zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
             for (int j = 0; j < resources.Length; j++)
             {

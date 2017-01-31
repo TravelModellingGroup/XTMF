@@ -16,11 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using XTMF;
 namespace TMG.Functions
 {
@@ -33,9 +29,9 @@ namespace TMG.Functions
         /// Invoke this method during runtime to ensure that only one of the two given are setup to run and that only one is available.
         /// </summary>
         /// <param name="caller">The method in runtime validation</param>
-        /// <param name="first">The first module to test</param>
-        /// <param name="second">The second module to test</param>
+        /// <param name="resource"></param>
         /// <param name="error">A description of the error if one occurs</param>
+        /// <param name="dataSource"></param>
         /// <returns>True if there is no issue, false if both are either filler out or none are.</returns>
         public static bool EnsureExactlyOneAndOfSameType<T>(this IModule caller, IDataSource<T> dataSource, IResource resource, ref string error)
         {
@@ -54,7 +50,7 @@ namespace TMG.Functions
         {
             if (!(first != null ^ second != null))
             {
-                if (first != null && second != null)
+                if (first != null)
                 {
                     error = "In '" + caller.Name + "' both of the modules '" + first.Name + "' and '" + second.Name + "' have been initialized and where only one is allowed!";
                 }

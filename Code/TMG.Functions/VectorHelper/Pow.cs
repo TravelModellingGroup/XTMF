@@ -17,11 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TMG.Functions
@@ -58,7 +53,7 @@ namespace TMG.Functions
         public static void Pow(float[][] flat, float[][] lhs, float[][] rhs)
         {
             // Vectorize this when possible
-            Parallel.For(0, flat.Length, (int i) =>
+            Parallel.For(0, flat.Length, i =>
             {
                 Pow(flat[i], lhs[i], rhs[i]);
             });
@@ -67,7 +62,7 @@ namespace TMG.Functions
         public static void Pow(float[][] flat, float[][] lhs, float rhs)
         {
             // Vectorize this when possible
-            Parallel.For(0, flat.Length, (int i) =>
+            Parallel.For(0, flat.Length, i =>
             {
                 Pow(flat[i], lhs[i], rhs);
             });
@@ -76,7 +71,7 @@ namespace TMG.Functions
         public static void Pow(float[][] flat, float lhs, float[][] rhs)
         {
             // Vectorize this when possible
-            Parallel.For(0, flat.Length, (int i) =>
+            Parallel.For(0, flat.Length, i =>
             {
                 Pow(flat[i], lhs, rhs[i]);
             });

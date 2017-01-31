@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,13 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace TMG.Functions
 {
@@ -33,9 +28,6 @@ namespace TMG.Functions
     /// </summary>
     public static partial class VectorHelper
     {
-        // Dummy code to get the JIT to startup with SIMD
-        static Vector<float> _Unused;
-
         /// <summary>
         /// A vector containing the maximum value of a float
         /// </summary>
@@ -43,7 +35,6 @@ namespace TMG.Functions
 
         static VectorHelper()
         {
-            _Unused = Vector<float>.One;
             MaxFloat = new Vector<float>(float.MaxValue);
         }
 
@@ -84,7 +75,7 @@ namespace TMG.Functions
                 {
                     var f = new Vector<float>(array, i);
                     var s = new Vector<float>(array, i + Vector<float>.Count);
-                    var t = new Vector<float>(array, i + Vector<float>.Count * 2); ;
+                    var t = new Vector<float>(array, i + Vector<float>.Count * 2);
                     acc += f;
                     acc2 += s;
                     acc3 += t;
@@ -494,7 +485,9 @@ namespace TMG.Functions
         /// <param name="firstIndex">The index to start at</param>
         /// <param name="second">The second array to multiply</param>
         /// <param name="secondIndex">The index to start at for the second array</param>
+        /// <param name="thirdIndex"></param>
         /// <param name="length">The amount of data to multiply</param>
+        /// <param name="third"></param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Multiply3AndSum(float[] first, int firstIndex, float[] second, int secondIndex,
@@ -563,7 +556,10 @@ namespace TMG.Functions
         /// <param name="firstIndex">The index to start at</param>
         /// <param name="second">The second array to multiply</param>
         /// <param name="secondIndex">The index to start at for the second array</param>
+        /// <param name="columnIndex"></param>
         /// <param name="length">The amount of data to multiply</param>
+        /// <param name="scalar"></param>
+        /// <param name="columnSum"></param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply2Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
@@ -622,7 +618,12 @@ namespace TMG.Functions
         /// <param name="firstIndex">The index to start at</param>
         /// <param name="second">The second array to multiply</param>
         /// <param name="secondIndex">The index to start at for the second array</param>
+        /// <param name="columnIndex"></param>
         /// <param name="length">The amount of data to multiply</param>
+        /// <param name="third"></param>
+        /// <param name="thirdIndex"></param>
+        /// <param name="scalar"></param>
+        /// <param name="columnSum"></param>
         /// <returns>The sum of all of the multiplies</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Multiply3Scalar1AndColumnSum(float[] destination, int destIndex, float[] first, int firstIndex,
@@ -783,6 +784,7 @@ namespace TMG.Functions
         /// </summary>
         /// <param name="baseValues">The values to test for their finite property</param>
         /// <param name="alternateValues">The values to replace if the base value is not finite</param>
+        /// <param name="minimumV"></param>
         /// <returns>A new vector containing the proper mix of the base and alternate values</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector<float> SelectIfFiniteAndLessThan(Vector<float> baseValues, Vector<float> alternateValues, Vector<float> minimumV)
@@ -1055,8 +1057,10 @@ namespace TMG.Functions
         /// </summary>
         /// <param name="x">The first parameter vector. This parameter must be non negative!</param>
         /// <param name="y">The second parameter vector. This parameter must be non negative!</param>
+        /// <seealso>
+        ///     <cref>https://en.wikipedia.org/wiki/Arithmetic–geometric_mean</cref>
+        /// </seealso>
         /// <returns>The AGM for each element in the parameters</returns>
-        /// <see cref="https://en.wikipedia.org/wiki/Arithmetic–geometric_mean"/>
         public static Vector<float> ArithmeticGeometricMean(Vector<float> x, Vector<float> y)
         {
             var half = new Vector<float>(0.5f);
@@ -1077,7 +1081,9 @@ namespace TMG.Functions
         /// </summary>
         /// <param name="x">The values to compute the logarithms of</param>
         /// <returns>The vector of logarithms</returns>
-        /// <see cref="https://en.wikipedia.org/wiki/Natural_logarithm"/>
+        /// <see>
+        ///     <cref>https://en.wikipedia.org/wiki/Natural_logarithm</cref>
+        /// </see>
         public static Vector<float> Log(Vector<float> x)
         {
             var two = new Vector<float>(2.0f);

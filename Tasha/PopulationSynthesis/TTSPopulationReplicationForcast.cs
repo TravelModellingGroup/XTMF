@@ -176,7 +176,7 @@ namespace Tasha.PopulationSynthesis
         public void IterationStarting(int iteration)
         {
             // initialize data structures
-            HouseholdsByPD = ZoneSystemHelper.CreatePDArray<PDData>(Root.ZoneSystem.ZoneArray);
+            HouseholdsByPD = ZoneSystemHelper.CreatePdArray<PDData>(Root.ZoneSystem.ZoneArray);
             var flat = HouseholdsByPD.GetFlatData();
             for(int i = 0; i < flat.Length; i++)
             {

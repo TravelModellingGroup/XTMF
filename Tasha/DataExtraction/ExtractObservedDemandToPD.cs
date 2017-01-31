@@ -145,7 +145,7 @@ namespace Tasha.DataExtraction
 
             public void Initialize()
             {
-                Demand = Parent.Modes.Select( _ => TMG.Functions.ZoneSystemHelper.CreatePDTwinArray<float>(Root.ZoneSystem.ZoneArray).GetFlatData()).ToArray();
+                Demand = Parent.Modes.Select( _ => TMG.Functions.ZoneSystemHelper.CreatePdTwinArray<float>(Root.ZoneSystem.ZoneArray).GetFlatData()).ToArray();
                 ContainedActivities = AllowedActivities.Select(module => module.Activity).ToArray();
             }
 
@@ -232,7 +232,7 @@ namespace Tasha.DataExtraction
         public void IterationStarting(int iteration)
         {
             Modes = Modes ?? Root.AllModes.OrderBy(m => m.ModeName).ToArray();
-            PDArray = PDArray ?? TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
+            PDArray = PDArray ?? TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
             foreach(var period in TimePeriods)
             {
                 period.Initialize();

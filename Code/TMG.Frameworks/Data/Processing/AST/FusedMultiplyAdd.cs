@@ -240,22 +240,22 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         if (add.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            VectorHelper.FusedMultiplyAddVerticalRHSVerticalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
+                            VectorHelper.FusedMultiplyAddVerticalRhsVerticalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
                         }
                         else
                         {
-                            VectorHelper.FusedMultiplyAddVerticalRHSHorizontalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
+                            VectorHelper.FusedMultiplyAddVerticalRhsHorizontalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
                         }
                     }
                     else
                     {
                         if (add.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            VectorHelper.FusedMultiplyAddHorizontalRHSVerticalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
+                            VectorHelper.FusedMultiplyAddHorizontalRhsVerticalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
                         }
                         else
                         {
-                            VectorHelper.FusedMultiplyAddHorizontalRHSHorizontalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
+                            VectorHelper.FusedMultiplyAddHorizontalRhsHorizontalAdd(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.VectorData.GetFlatData());
                         }
                     }
                     return new ComputationResult(retMatrix, true);
@@ -339,11 +339,11 @@ namespace TMG.Frameworks.Data.Processing.AST
                         (lhs.Accumulator ? lhs.OdData : add.OdData.CreateSimilarArray<float>());
                     if (rhs.Direction == ComputationResult.VectorDirection.Vertical)
                     {
-                        VectorHelper.FusedMultiplyAddVerticalRHS(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.OdData.GetFlatData());
+                        VectorHelper.FusedMultiplyAddVerticalRhs(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.OdData.GetFlatData());
                     }
                     else
                     {
-                        VectorHelper.FusedMultiplyAddHorizontalRHS(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.OdData.GetFlatData());
+                        VectorHelper.FusedMultiplyAddHorizontalRhs(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.VectorData.GetFlatData(), add.OdData.GetFlatData());
                     }
                     return new ComputationResult(retMatrix, true);
                 }

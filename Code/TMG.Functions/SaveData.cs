@@ -60,7 +60,7 @@ namespace TMG.Functions
                 },
                 () =>
                 {
-                    Parallel.For(0, zones.Length, (int i) =>
+                    Parallel.For(0, zones.Length, i =>
                     {
                         zoneLines[i] = new StringBuilder();
                         zoneLines[i].Append(zones[i]);
@@ -157,7 +157,6 @@ namespace TMG.Functions
 
         public static void SaveMatrix(IZone[] zones, float[][] data, string fileName)
         {
-            StringBuilder[] zoneLines = new StringBuilder[zones.Length];
             var dir = Path.GetDirectoryName(fileName);
             if (!String.IsNullOrWhiteSpace(dir))
             {
@@ -182,6 +181,7 @@ namespace TMG.Functions
                             int currentRow = task.RowNumber;
                             if (nextRow == currentRow)
                             {
+                                // ReSharper disable once AccessToDisposedClosure
                                 writer.WriteLine(currentString);
                                 nextRow++;
                             }
@@ -212,7 +212,7 @@ namespace TMG.Functions
                 }
                 toWrite.Add(new SaveTask() { RowNumber = 0, Text = stringBuilder.ToString() });
                 Parallel.For(0, zones.Length, () => new StringBuilder(),
-                    (int i, ParallelLoopState _, StringBuilder strBuilder) =>
+                    (i, _, strBuilder) =>
                 {
                     strBuilder.Clear();
                     strBuilder.Append(zones[i].ZoneNumber);
@@ -234,7 +234,7 @@ namespace TMG.Functions
                     }
                     toWrite.Add(new SaveTask() { RowNumber = i + 1, Text = strBuilder.ToString() });
                     return strBuilder;
-                }, (StringBuilder _) => { });
+                }, _ => { });
                 toWrite.CompleteAdding();
                 saveTask.Wait();
             }
@@ -272,7 +272,7 @@ namespace TMG.Functions
                 },
                 () =>
                 {
-                    Parallel.For(0, zones.Length, (int i) =>
+                    Parallel.For(0, zones.Length, i =>
                     {
                         zoneLines[i] = new StringBuilder();
                         zoneLines[i].Append(zones[i].ZoneNumber);

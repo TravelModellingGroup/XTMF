@@ -153,7 +153,7 @@ namespace Tasha.DataExtraction
         /// <returns>The occupation data stored per PD</returns>
         private SparseArray<float[]> Execute(char employmentStatusChar, IDbCommand command, SparseArray<IZone> zones)
         {
-            var pds = ZoneSystemHelper.CreatePDArray<float[]>( zones );
+            var pds = ZoneSystemHelper.CreatePdArray<float[]>( zones );
             command.CommandText = @"
 SELECT Persons.EmploymentStatus, PlanningDistrict.PD, Persons.Occupation, SUM(Persons.ExpansionFactor) AS ExpandedPersons
 FROM (((Households INNER JOIN Persons ON Households.TTSYear = Persons.TTSYear AND Households.HouseholdId = Persons.HouseholdId)

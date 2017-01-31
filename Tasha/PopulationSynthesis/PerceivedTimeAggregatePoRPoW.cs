@@ -343,7 +343,7 @@ namespace Tasha.PopulationSynthesis
         {
             if (HighPerformanceMap == null)
             {
-                var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<int>(zoneArray);
+                var pds = TMG.Functions.ZoneSystemHelper.CreatePdArray<int>(zoneArray);
                 var pdIndexes = pds.ValidIndexArray();
                 HighPerformanceMap = new int[pdIndexes.Max() + 1][];
                 Parallel.For(0, HighPerformanceMap.Length, (int i) =>

@@ -16,12 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TMG.Functions
@@ -79,7 +76,7 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                Parallel.For(0, destination.Length, (int row) =>
+                Parallel.For(0, destination.Length, row =>
                 {
                     Vector<float> n = new Vector<float>(numerator);
                     var dest = destination[row];
@@ -101,7 +98,7 @@ namespace TMG.Functions
             }
             else
             {
-                Parallel.For(0, destination.Length, (int i) =>
+                Parallel.For(0, destination.Length, i =>
                 {
                     for (int j = 0; j < destination[i].Length; j++)
                     {
@@ -115,7 +112,7 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                Parallel.For(0, destination.Length, (int row) =>
+                Parallel.For(0, destination.Length, row =>
                 {
                     Vector<float> d = new Vector<float>(denominator);
                     var dest = destination[row];
@@ -137,7 +134,7 @@ namespace TMG.Functions
             }
             else
             {
-                Parallel.For(0, destination.Length, (int i) =>
+                Parallel.For(0, destination.Length, i =>
                 {
                     for (int j = 0; j < destination[i].Length; j++)
                     {
@@ -151,7 +148,7 @@ namespace TMG.Functions
         {
             if (Vector.IsHardwareAccelerated)
             {
-                Parallel.For(0, destination.Length, (int row) =>
+                Parallel.For(0, destination.Length, row =>
                 {
                     var dest = destination[row];
                     var length = dest.Length;
@@ -174,7 +171,7 @@ namespace TMG.Functions
             }
             else
             {
-                Parallel.For(0, destination.Length, (int i) =>
+                Parallel.For(0, destination.Length, i =>
                 {
                     for (int j = 0; j < destination[i].Length; j++)
                     {

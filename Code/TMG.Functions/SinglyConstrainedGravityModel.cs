@@ -69,7 +69,7 @@ namespace TMG.Functions
                 }
                 else
                 {
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
+                    throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
                 }
             }
             return ret;

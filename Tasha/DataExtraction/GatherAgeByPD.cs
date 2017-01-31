@@ -117,7 +117,7 @@ namespace Tasha.DataExtraction
 
         private static void BuildPlanningDistrictData(float[][] populationByAge, SparseArray<IZone> zones, SparseArray<float>[] pdData)
         {
-            pdData[0] = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>( zones );
+            pdData[0] = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>( zones );
             for ( int i = 1; i < pdData.Length; i++ )
             {
                 pdData[i] = pdData[0].CreateSimilarArray<float>();

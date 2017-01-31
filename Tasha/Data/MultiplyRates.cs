@@ -68,7 +68,7 @@ namespace Tasha.Data
             SparseArray<float> data;
             if(this.SaveRatesBasedOnPD)
             {
-                data = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(zoneArray);
+                data = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(zoneArray);
                 var pds = data.ValidIndexArray();
                 for(int i = 0; i < pds.Length; i++)
                 {
