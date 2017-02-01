@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,97 +27,73 @@ using System.Threading.Tasks;
 namespace XTMF
 {
     /// <summary>
-    /// This class provides access to all of the
-    /// projects currently being managed by this
-    /// installation of XTMF
+    ///     This class provides access to all of the
+    ///     projects currently being managed by this
+    ///     installation of XTMF
     /// </summary>
     public class ProjectRepository : IProjectRepository
     {
         /// <summary>
-        /// Initiate the project repository
+        ///     Initiate the project repository
         /// </summary>
         public ProjectRepository(IConfiguration configuration)
         {
-            this.Projects = new List<IProject>();
-            this.Configuration = configuration;
+            Projects = new List<IProject>();
+            Configuration = configuration;
             FindAndLoadProjects();
         }
 
-        public event Action<IProject> ProjectAdded;
-
-        public event Action<IProject, int> ProjectRemoved;
+        public IConfiguration Configuration { get; }
 
         /// <summary>
-        /// The project that this repository is currently working with
-        /// in order to run XTMF
+        ///     The project that this repository is currently working with
+        ///     in order to run XTMF
         /// </summary>
         public IProject ActiveProject { get; private set; }
 
-        public IConfiguration Configuration { get; set; }
-
         /// <summary>
-        /// A List of projects that are currently being managed
+        ///     A List of projects that are currently being managed
         /// </summary>
-        public IList<IProject> Projects { get; private set; }
+        public IList<IProject> Projects { get; }
 
         public bool AddProject(IProject project)
         {
             lock (this)
             {
-                if (!this.ValidateProjectName(project)) return false;
-                // If everything is good, add it to the list of projects
-                this.Projects.Add(project);
-                (this.Projects as List<IProject>).Sort(delegate (IProject first, IProject second)
-             {
-                 return first.Name.CompareTo(second.Name);
-             });
-            }
-            var pad = this.ProjectAdded;
-            if (pad != null)
-            {
-                pad(project);
-            }
-            return true;
-        }
-
-        private bool ValidateProjectName(IProject project)
-        {
-            var projects = this.Projects;
-            // make sure there are no projects with the same name
-            for (int i = 0; i < projects.Count; i++)
-            {
-                // we need to ignore case because of the Windows directory code since
-                // they do not distinguish between case due to FAT32's structure
-                if (projects[i].Name.Equals(project.Name, StringComparison.InvariantCultureIgnoreCase))
+                if (!ValidateProjectName(project))
                 {
                     return false;
                 }
+                // If everything is good, add it to the list of projects
+                Projects.Add(project);
+                ((List<IProject>) Projects).Sort(
+                    delegate(IProject first, IProject second) { return first.Name.CompareTo(second.Name); });
             }
-            // Make sure that there are no invalid characters for a project name
-            return Project.ValidateProjectName(project.Name);
+            ProjectAdded?.Invoke(project);
+            return true;
         }
 
         public IEnumerator<IProject> GetEnumerator()
         {
-            return this.Projects.GetEnumerator();
+            return Projects.GetEnumerator();
         }
 
         public bool Remove(IProject project)
         {
-            if (this.ActiveProject == project)
+            if (ActiveProject == project)
             {
-                this.ActiveProject = null;
+                ActiveProject = null;
             }
             lock (this)
             {
-                var numberOfProjects = this.Projects.Count;
-                int found = -1;
-                for (int i = 0; i < numberOfProjects; i++)
+                var numberOfProjects = Projects.Count;
+                var found = -1;
+                for (var i = 0; i < numberOfProjects; i++)
                 {
-                    if (this.Projects[i] == project)
+                    if (Projects[i] == project)
                     {
                         found = i;
-                        this.Projects.RemoveAt(i);
+                        Projects.RemoveAt(i);
                         numberOfProjects--;
                         i--;
                     }
@@ -125,49 +103,22 @@ namespace XTMF
                     try
                     {
                         // only delete the project file, losing run data is too bad to risk
-                        File.Delete(Path.Combine(this.Configuration.ProjectDirectory, project.Name, "Project.xml"));
+                        File.Delete(Path.Combine(Configuration.ProjectDirectory, project.Name, "Project.xml"));
                     }
                     catch
                     {
                         // we made our best attempt, just let it continue
                     }
                 }
-                var prd = this.ProjectRemoved;
-                if (prd != null)
-                {
-                    prd(project, found);
-                }
+                ProjectRemoved?.Invoke(project, found);
                 return found >= 0;
             }
         }
 
         public bool RenameProject(IProject project, string newName)
         {
-            if (project == null)
-            {
-                throw new ArgumentNullException("project");
-            }
-            // make sure that the new project name is valid
-            lock (this)
-            {
-                if (!Project.ValidateProjectName(newName) || this.Projects.Any((p) => (p.Name.Equals(newName, StringComparison.InvariantCultureIgnoreCase))))
-                {
-                    return false;
-                }
-
-                var oldName = project.Name;
-                try
-                {
-                    Directory.Move(Path.Combine(this.Configuration.ProjectDirectory, oldName),
-                        Path.Combine(this.Configuration.ProjectDirectory, newName));
-                }
-                catch
-                {
-                    return false;
-                }
-                project.Name = newName;
-            }
-            return true;
+            string error = null;
+            return RenameProject(project, newName, ref error);
         }
 
         public bool SetDescription(IProject project, string newDescription, ref string error)
@@ -181,71 +132,132 @@ namespace XTMF
             return ourProject.Save(ref error);
         }
 
-        /// <summary>
-        /// Set the given project to be the active one
-        /// </summary>
-        /// <param name="project">The project to become the active one</param>
-        public void SetActiveProject(IProject project)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            this.ActiveProject = project;
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this.Projects.GetEnumerator();
+            return Projects.GetEnumerator();
         }
 
         public bool ValidateProjectName(string name)
         {
-            if (!Project.ValidateProjectName(name)) return false;
-            foreach (var project in this.Projects)
+            if (!Project.ValidateProjectName(name))
+            {
+                return false;
+            }
+            foreach (var project in Projects)
             {
                 if (project.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                {
                     return false;
+                }
             }
             return true;
         }
 
-       
+        public event Action<IProject> ProjectAdded;
+
+        public event Action<IProject, int> ProjectRemoved;
+
+        private bool ValidateProjectName(IProject project)
+        {
+            var projects = Projects;
+            // make sure there are no projects with the same name
+            for (var i = 0; i < projects.Count; i++)
+            {
+                // we need to ignore case because of the Windows directory code since
+                // they do not distinguish between case due to FAT32's structure
+                if (projects[i].Name.Equals(project.Name, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return false;
+                }
+            }
+            // Make sure that there are no invalid characters for a project name
+            return Project.ValidateProjectName(project.Name);
+        }
+
+        public bool RenameProject(IProject project, string newName, ref string error)
+        {
+            if (project == null)
+            {
+                throw new ArgumentNullException(nameof(project));
+            }
+            // make sure that the new project name is valid
+            lock (this)
+            {
+                if (!Project.ValidateProjectName(newName))
+                {
+                    error = $"The project name {newName} was invalid!";
+                    return false;
+                }
+                if (Projects.Any(p => p.Name.Equals(newName, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    error = $"The project name {newName} already exists!";
+                    return false;
+                }
+                var oldName = project.Name;
+                try
+                {
+                    Directory.Move(Path.Combine(Configuration.ProjectDirectory, oldName),
+                        Path.Combine(Configuration.ProjectDirectory, newName));
+                }
+                catch (IOException e)
+                {
+                    error = e.Message;
+                    return false;
+                }
+                project.Name = newName;
+            }
+            return true;
+        }
+
+        /// <summary>
+        ///     Set the given project to be the active one
+        /// </summary>
+        /// <param name="project">The project to become the active one</param>
+        public void SetActiveProject(IProject project)
+        {
+            ActiveProject = project;
+        }
+
 
         private void FindAndLoadProjects()
         {
-            if (!Directory.Exists(this.Configuration.ProjectDirectory)) return;
-            string[] subDirectories = Directory.GetDirectories(this.Configuration.ProjectDirectory);
-            Parallel.For(0, subDirectories.Length, (int i) =>
-           {
-               var files = Directory.GetFiles(subDirectories[i], "Project.xml", SearchOption.TopDirectoryOnly);
-               if (files != null && files.Length > 0)
-               {
-                   try
-                   {
-                       Project p = new Project(Path.GetFileName(subDirectories[i]), this.Configuration);
-                       lock (this)
-                       {
-                           if (this.ValidateProjectName(p))
-                           {
+            if (!Directory.Exists(Configuration.ProjectDirectory))
+            {
+                return;
+            }
+            var subDirectories = Directory.GetDirectories(Configuration.ProjectDirectory);
+            Parallel.For(0, subDirectories.Length, i =>
+            {
+                var files = Directory.GetFiles(subDirectories[i], "Project.xml", SearchOption.TopDirectoryOnly);
+                if (files != null && files.Length > 0)
+                {
+                    try
+                    {
+                        var p = new Project(Path.GetFileName(subDirectories[i]), Configuration);
+                        lock (this)
+                        {
+                            if (ValidateProjectName(p))
+                            {
                                 // If everything is good, add it to the list of projects
-                                this.Projects.Add(p);
-                           }
-                       }
-                   }
-                   catch
-                   {
-                   }
-               }
-           });
+                                Projects.Add(p);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            });
             lock (this)
             {
-                (this.Projects as List<IProject>).Sort(delegate (IProject first, IProject second)
-             {
-                 return first.Name.CompareTo(second.Name);
-             });
+                ((List<IProject>) Projects).Sort(
+                    delegate(IProject first, IProject second) { return first.Name.CompareTo(second.Name); });
             }
         }
 
         /// <summary>
-        /// This should be called if an project's clone gets saved, effectively removing the old project
-        /// from existence.
+        ///     This should be called if an project's clone gets saved, effectively removing the old project
+        ///     from existence.
         /// </summary>
         /// <param name="baseProject">The project to be replaced</param>
         /// <param name="replaceWith">The project to replace it with</param>

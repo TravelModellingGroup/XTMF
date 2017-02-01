@@ -141,9 +141,8 @@ namespace XTMF
         {
             lock (EditingSessionLock)
             {
-                if (!Runtime.Configuration.ProjectRepository.RenameProject(project, newName))
+                if (!((ProjectRepository)Runtime.Configuration.ProjectRepository).RenameProject(project, newName, ref error))
                 {
-                    error = "The project name was invalid!";
                     return false;
                 }
                 return true;
