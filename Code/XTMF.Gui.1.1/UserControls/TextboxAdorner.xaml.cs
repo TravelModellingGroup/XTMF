@@ -1,69 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿/*
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for TextboxAdorner.xaml
+    ///     Interaction logic for TextboxAdorner.xaml
     /// </summary>
-    public partial class TextboxAdorner : Adorner
+    public partial class TextboxAdorner
     {
-        Border Border = new Border();
+        private static readonly Brush Background;
+        private readonly Border Border = new Border();
 
-        Grid Grid = new Grid();
-        TextBlock TextBlock = new TextBlock();
 
-        public TextBox Textbox = new TextBox()
+        private readonly Action<string> GiveResult;
+
+        private readonly Grid Grid = new Grid();
+        private readonly TextBlock TextBlock = new TextBlock();
+
+        private readonly TextBox Textbox = new TextBox
         {
             Width = 400,
             Height = 25
         };
 
-        private static Brush Background;
+        private bool AlreadySaved;
+
+        private IInputElement PreviousFocus;
 
         static TextboxAdorner()
         {
-            Background = (Brush)Application.Current.TryFindResource("ControlBackgroundBrush");
+            Background = (Brush) Application.Current.TryFindResource("ControlBackgroundBrush");
         }
 
         public TextboxAdorner(UIElement adornedElement) :
-        base(adornedElement)
+            base(adornedElement)
         {
-                
-            }
+        }
 
-
-        Action<string> GiveResult;
-
-        public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "") : base(attachedTo)
+        public TextboxAdorner(string question, Action<string> giveResult, UIElement attachedTo, string initialValue = "")
+            : base(attachedTo)
         {
-            this.Opacity = 0.9;
+            Opacity = 0.9;
             Border.BorderBrush = Brushes.White;
             Border.Background = Background;
             Border.BorderThickness = new Thickness(2.0);
             Border.Width = 400;
             Border.Height = 52;
-            Grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(25) });
-            Grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(25) });
+            Grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
+            Grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
             Grid.Margin = new Thickness(2.0);
-            Border.Child = this.Grid;
+            Border.Child = Grid;
             TextBlock.Text = question;
             TextBlock.Foreground = Brushes.White;
             TextBlock.FontSize = 14.0;
-            if(initialValue == null)
+            if (initialValue == null)
             {
-                initialValue = String.Empty;
+                initialValue = string.Empty;
             }
             Textbox.Text = initialValue;
             Textbox.CaretIndex = initialValue.Length;
@@ -77,7 +92,7 @@ namespace XTMF.Gui.UserControls
             Loaded += MainLoaded;
         }
 
-        private IInputElement PreviousFocus;
+        protected override int VisualChildrenCount => 1;
 
         private void MainLoaded(object sender, RoutedEventArgs e)
         {
@@ -92,14 +107,15 @@ namespace XTMF.Gui.UserControls
 
         private void ExitAdorner(bool save = false)
         {
-            if(VisualParent != null)
+            if (VisualParent != null)
             {
                 AdornerLayer.GetAdornerLayer(VisualParent as UIElement).Remove(this);
             }
             Keyboard.Focus(PreviousFocus);
-            if(save)
+            if (save && !AlreadySaved)
             {
                 GiveResult?.Invoke(Textbox.Text);
+                AlreadySaved = true;
             }
         }
 
@@ -110,17 +126,12 @@ namespace XTMF.Gui.UserControls
             Keyboard.Focus(Textbox);
         }
 
-        protected override int VisualChildrenCount
-        {
-            get
-            {
-                return 1;
-            }
-        }
-
         protected override Visual GetVisualChild(int index)
         {
-            if(index != 0) throw new ArgumentOutOfRangeException();
+            if (index != 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
             return Border;
         }
 
@@ -138,14 +149,14 @@ namespace XTMF.Gui.UserControls
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if(e.Handled == false)
+            if (e.Handled == false)
             {
-                if(e.Key == Key.Escape)
+                if (e.Key == Key.Escape)
                 {
                     ExitAdorner();
                     e.Handled = true;
                 }
-                else if(e.Key == Key.Enter)
+                else if (e.Key == Key.Enter)
                 {
                     ExitAdorner(true);
                     e.Handled = true;

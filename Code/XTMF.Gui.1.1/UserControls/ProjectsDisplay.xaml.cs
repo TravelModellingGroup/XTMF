@@ -236,9 +236,9 @@ namespace XTMF.Gui.UserControls
         private void RenameCurrentProject()
         {
             var project = Display.SelectedItem as Project;
-            var name = project.Name;
             if (project != null)
             {
+                var name = project.Name;
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
                 Renaming = true;
@@ -253,7 +253,6 @@ namespace XTMF.Gui.UserControls
                     {
                         Runtime.Configuration.RenameRecentProject(name, result);
                         Runtime.Configuration.Save();
-
                         RefreshProjects();
                     }
                 }, selectedModuleControl, project.Name);
