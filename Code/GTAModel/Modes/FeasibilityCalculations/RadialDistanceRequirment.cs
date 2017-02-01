@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using XTMF;
@@ -78,7 +79,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
             }
             if ( !any )
             {
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find any zone number in the range '" + TestAgainstZones.ToString() + "' in order to compute the minimum distance!" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find any zone number in the range '" + TestAgainstZones + "' in order to compute the minimum distance!" );
             }
             MinimumDistance = minDistance;
         }

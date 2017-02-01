@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Threading;
 using Datastructure;
@@ -115,9 +116,9 @@ namespace TMG.GTAModel.V2.Modes
 
         private int _Parking;
 
-        private bool CacheLoaded = false;
+        private bool CacheLoaded;
 
-        private bool LocalTransitCacheLoaded = false;
+        private bool LocalTransitCacheLoaded;
 
         private float LogOfParking;
 
@@ -307,12 +308,12 @@ namespace TMG.GTAModel.V2.Modes
                 error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if ( Second == null )
+            if ( Second == null )
             {
                 error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
             }
-            else if ( Third == null && ComputeEgressStation )
+            if ( Third == null && ComputeEgressStation )
             {
                 error = "In '" + Name + "' the name of the egress network data type was not found or does not contain trip component data!";
                 return false;
@@ -448,11 +449,11 @@ namespace TMG.GTAModel.V2.Modes
             }
             if ( bestEgressZone < 0 )
             {
-                return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice() { EgressZone = null } );
+                return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice { EgressZone = null } );
             }
-            return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice()
-                        {
-                            EgressZone = zones.GetFlatData()[bestEgressZone],
+            return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice
+            {
+                            EgressZone = zones.GetFlatData()[bestEgressZone]
                         } );
         }
 

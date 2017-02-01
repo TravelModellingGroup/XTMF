@@ -16,16 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TMG;
-using XTMF;
-using Datastructure;
-using System.Threading.Tasks;
-using TMG.Input;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Datastructure;
+using TMG.Input;
+using XTMF;
+
 namespace TMG.GTAModel.DataResources
 {
     [ModuleInformation(Description =
@@ -123,7 +123,7 @@ namespace TMG.GTAModel.DataResources
                 var zoneArray = Root.ZoneSystem.ZoneArray;
                 var zones = zoneArray.GetFlatData();
                 int[] accessZones = null;
-                float[] parking = null, trains = null;
+                float[] parking = null, trains;
                 SparseTwinIndex<Tuple<IZone[], IZone[], float[]>> data = null;
                 // these will be flagged to true if we needed to load a network
                 bool loadedAuto = false, loadedTransit = false;
@@ -164,7 +164,7 @@ namespace TMG.GTAModel.DataResources
                     {
                         // you also don't need to compute the access station choices for destinations that are access stations
                         if ( accessZones.Contains( d ) ) continue;
-                        ComputeUtility( o, d, zones, accessZones, parking, trains, flatData );
+                        ComputeUtility( o, d, zones, accessZones, parking, flatData );
                     }
                 } );
                 watch.Stop();
@@ -234,7 +234,8 @@ namespace TMG.GTAModel.DataResources
         /// <param name="zones">the array of zones</param>
         /// <param name="flatAccessZones">the array of access stations</param>
         /// <param name="data">Where the results will be stored</param>
-        private void ComputeUtility(int o, int d, IZone[] zones, int[] flatAccessZones, float[] parking, float[] trains, Tuple<IZone[], IZone[], float[]>[][] data)
+        /// <param name="parking"></param>
+        private void ComputeUtility(int o, int d, IZone[] zones, int[] flatAccessZones, float[] parking, Tuple<IZone[], IZone[], float[]>[][] data)
         {
             // for each access station
             Tuple<IZone[], IZone[], float[]> odData = null;
@@ -246,7 +247,7 @@ namespace TMG.GTAModel.DataResources
             for ( int i = 0; i < flatAccessZones.Length; i++ )
             {
                 float result, distance;
-                if ( ComputeUtility( o, d, zones, flatAccessZones[i], parking, trains, distances == null | soFar < MaximumAccessStations
+                if ( ComputeUtility( o, d, zones, flatAccessZones[i], parking, distances == null | soFar < MaximumAccessStations
                     ? float.MaxValue : distances[distances.Length - 1], out result, out distance ) )
                 {
                     if ( odData == null )
@@ -317,19 +318,6 @@ namespace TMG.GTAModel.DataResources
         }
 
         /// <summary>
-        /// Swap the two elements
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        private static void Swap<T>(ref T first, ref T second)
-        {
-            var temp = first;
-            first = second;
-            second = temp;
-        }
-
-        /// <summary>
         /// Computes the utility of a single interchange
         /// </summary>
         /// <param name="o">flat origin zone</param>
@@ -339,8 +327,9 @@ namespace TMG.GTAModel.DataResources
         /// <param name="maxDistance">The maximum distance allowed</param>
         /// <param name="result">the utility of using this interchange</param>
         /// <param name="distanceByAuto">The distance the origin is from the interchange in auto travel time</param>
+        /// <param name="parking"></param>
         /// <returns>True if this is a valid interchange zone, false if not feasible.</returns>
-        private bool ComputeUtility(int o, int d, IZone[] zones, int interchange, float[] parking, float[] trains, float maxDistance,
+        private bool ComputeUtility(int o, int d, IZone[] zones, int interchange, float[] parking, float maxDistance,
             out float result, out float distanceByAuto)
         {
             result = float.NaN;

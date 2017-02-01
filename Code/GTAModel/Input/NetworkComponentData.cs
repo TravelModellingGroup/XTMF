@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -134,7 +135,7 @@ namespace TMG.GTAModel
         [RunParameter( "Use Cache", false, "Dynamically load in data from the disk instead of all at once" )]
         public bool UseCache;
 
-        private bool AlreadyLoaded = false;
+        private bool AlreadyLoaded;
         private OdCache Data;
         private int DataEntries, NumberOfZones;
         private float[] StoredData;
@@ -178,11 +179,8 @@ namespace TMG.GTAModel
             {
                 return Time.FromMinutes( Data[origin.ZoneNumber, destination.ZoneNumber, 0, (int)DataTypes.BoardingTime] );
             }
-            else
-            {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                return BoardingTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
-            }
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            return BoardingTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
         }
 
         public Time BoardingTime(int flatOrigin, int flatDestination, Time time)
@@ -192,12 +190,9 @@ namespace TMG.GTAModel
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 return BoardingTime( zones[flatOrigin], zones[flatDestination], time );
             }
-            else
-            {
-                var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
-                var timeIndex = GetTimePeriod( time );
-                return Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.BoardingTime )] );
-            }
+            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
+            var timeIndex = GetTimePeriod( time );
+            return Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.BoardingTime )] );
         }
 
         public int[] ClosestStations(IZone zone)
@@ -252,11 +247,8 @@ namespace TMG.GTAModel
                 cost = Data[origin.ZoneNumber, destination.ZoneNumber, timePeriod, (int)DataTypes.Cost];
                 return true;
             }
-            else
-            {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                return GetAllData( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time, out ivtt, out walk, out wait, out boarding, out cost );
-            }
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            return GetAllData( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time, out ivtt, out walk, out wait, out boarding, out cost );
         }
 
         public bool GetAllData(int flatOrigin, int flatDestination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost)
@@ -266,17 +258,14 @@ namespace TMG.GTAModel
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 return GetAllData( zones[flatOrigin], zones[flatDestination], time, out ivtt, out walk, out wait, out boarding, out cost );
             }
-            else
-            {
-                var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
-                var timeIndex = GetTimePeriod( time );
-                ivtt = Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.TravelTime )] );
-                walk = Time.FromMinutes( StoredData[zoneIndex + ( 3 * (int)DataTypes.WalkTime )] );
-                wait = Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.WaitTime )] );
-                boarding = Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.BoardingTime )] );
-                cost = StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.Cost )];
-                return true;
-            }
+            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
+            var timeIndex = GetTimePeriod( time );
+            ivtt = Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.TravelTime )] );
+            walk = Time.FromMinutes( StoredData[zoneIndex + ( 3 * (int)DataTypes.WalkTime )] );
+            wait = Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.WaitTime )] );
+            boarding = Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.BoardingTime )] );
+            cost = StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.Cost )];
+            return true;
         }
 
         public INetworkData GiveData()
@@ -290,11 +279,8 @@ namespace TMG.GTAModel
             {
                 return Time.FromMinutes( Data[origin.ZoneNumber, destination.ZoneNumber, 0, (int)DataTypes.TravelTime] );
             }
-            else
-            {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                return InVehicleTravelTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
-            }
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            return InVehicleTravelTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
         }
 
         public Time InVehicleTravelTime(int flatOrigin, int flatDestination, Time time)
@@ -304,12 +290,9 @@ namespace TMG.GTAModel
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 return InVehicleTravelTime( zones[flatOrigin], zones[flatDestination], time );
             }
-            else
-            {
-                var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
-                var timeIndex = GetTimePeriod( time );
-                return Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.TravelTime )] );
-            }
+            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
+            var timeIndex = GetTimePeriod( time );
+            return Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.TravelTime )] );
         }
 
         public bool Loaded
@@ -367,11 +350,8 @@ namespace TMG.GTAModel
             {
                 return Data[start.ZoneNumber, end.ZoneNumber, 0, (int)DataTypes.Cost];
             }
-            else
-            {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                return TravelCost( zoneArray.GetFlatIndex( start.ZoneNumber ), zoneArray.GetFlatIndex( end.ZoneNumber ), time );
-            }
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            return TravelCost( zoneArray.GetFlatIndex( start.ZoneNumber ), zoneArray.GetFlatIndex( end.ZoneNumber ), time );
         }
 
         public float TravelCost(int flatOrigin, int flatDestination, Time time)
@@ -381,12 +361,9 @@ namespace TMG.GTAModel
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 return TravelCost( zones[flatOrigin], zones[flatDestination], time );
             }
-            else
-            {
-                var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
-                var timeIndex = GetTimePeriod( time );
-                return StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.Cost )];
-            }
+            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
+            var timeIndex = GetTimePeriod( time );
+            return StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.Cost )];
         }
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
@@ -398,11 +375,8 @@ namespace TMG.GTAModel
                     + Data[origin.ZoneNumber, destination.ZoneNumber, timePeriod, (int)DataTypes.WalkTime]
                     + Data[origin.ZoneNumber, destination.ZoneNumber, timePeriod, (int)DataTypes.WaitTime] );
             }
-            else
-            {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                return TravelTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
-            }
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            return TravelTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
         }
 
         public Time TravelTime(int flatOrigin, int flatDestination, Time time)
@@ -412,15 +386,12 @@ namespace TMG.GTAModel
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 return TravelTime( zones[flatOrigin], zones[flatDestination], time );
             }
-            else
-            {
-                var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
-                var timeIndex = GetTimePeriod( time );
-                return Time.FromMinutes(
-                    StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.TravelTime )]
-                    + StoredData[zoneIndex + ( timeIndex + (int)DataTypes.WalkTime )]
-                    + StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.WaitTime )] );
-            }
+            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
+            var timeIndex = GetTimePeriod( time );
+            return Time.FromMinutes(
+                StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.TravelTime )]
+                + StoredData[zoneIndex + ( timeIndex + (int)DataTypes.WalkTime )]
+                + StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.WaitTime )] );
         }
 
         public void UnloadData()
@@ -440,7 +411,7 @@ namespace TMG.GTAModel
             {
                 return true;
             }
-            else if ( !NoWalkTimeInfeasible || WalkTime( start, end, time ) > Time.Zero )
+            if ( !NoWalkTimeInfeasible || WalkTime( start, end, time ) > Time.Zero )
             {
                 return true;
             }
@@ -454,7 +425,7 @@ namespace TMG.GTAModel
                 var zoneArray = Root.ZoneSystem.ZoneArray.GetFlatData();
                 return ValidOd( zoneArray[flatOrigin], zoneArray[flatDestination], time );
             }
-            else if ( !NoWalkTimeInfeasible || WalkTime( flatOrigin, flatDestination, time ) > Time.Zero )
+            if ( !NoWalkTimeInfeasible || WalkTime( flatOrigin, flatDestination, time ) > Time.Zero )
             {
                 return true;
             }
@@ -467,11 +438,8 @@ namespace TMG.GTAModel
             {
                 return Time.FromMinutes( Data[origin.ZoneNumber, destination.ZoneNumber, 0, (int)DataTypes.WaitTime] );
             }
-            else
-            {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                return WaitTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
-            }
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            return WaitTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
         }
 
         public Time WaitTime(int flatOrigin, int flatDestination, Time time)
@@ -481,12 +449,9 @@ namespace TMG.GTAModel
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 return WaitTime( zones[flatOrigin], zones[flatDestination], time );
             }
-            else
-            {
-                var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
-                var timeIndex = GetTimePeriod( time );
-                return Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.WaitTime )] );
-            }
+            var zoneIndex = ( flatOrigin * NumberOfZones + flatDestination ) * DataEntries;
+            var timeIndex = GetTimePeriod( time );
+            return Time.FromMinutes( StoredData[zoneIndex + ( timeIndex + 3 * (int)DataTypes.WaitTime )] );
         }
 
         public Time WalkTime(IZone origin, IZone destination, Time time)
@@ -495,11 +460,8 @@ namespace TMG.GTAModel
             {
                 return Time.FromMinutes( Data[origin.ZoneNumber, destination.ZoneNumber, 0, (int)DataTypes.WalkTime] );
             }
-            else
-            {
-                var zoneArray = Root.ZoneSystem.ZoneArray;
-                return WalkTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
-            }
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            return WalkTime( zoneArray.GetFlatIndex( origin.ZoneNumber ), zoneArray.GetFlatIndex( destination.ZoneNumber ), time );
         }
 
         public Time WalkTime(int flatOrigin, int flatDestination, Time time)
@@ -509,11 +471,8 @@ namespace TMG.GTAModel
             {
                 return WalkTime( zones[flatOrigin], zones[flatDestination], time );
             }
-            else
-            {
-                var zoneIndex = ( flatOrigin * zones.Length + flatDestination ) * DataEntries;
-                return Time.FromMinutes( StoredData[zoneIndex + ( 3 * (int)DataTypes.WalkTime )] );
-            }
+            var zoneIndex = ( flatOrigin * zones.Length + flatDestination ) * DataEntries;
+            return Time.FromMinutes( StoredData[zoneIndex + ( 3 * (int)DataTypes.WalkTime )] );
         }
 
         private string FailIfNotExist(string localPath)
@@ -553,7 +512,7 @@ namespace TMG.GTAModel
             {
                 return 0;
             }
-            else if ( time >= PMStartTime && time < PMEndTime )
+            if ( time >= PMStartTime && time < PMEndTime )
             {
                 return 1;
             }

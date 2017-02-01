@@ -16,11 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -50,12 +52,12 @@ namespace TMG.GTAModel.Output
 
         public void SaveMatrix(SparseTwinIndex<float> matrix, string fileName)
         {
-            Functions.SaveData.SaveMatrix( matrix, fileName );
+            SaveData.SaveMatrix( matrix, fileName );
         }
 
         public void SaveMatrix(float[][] data, string fileName)
         {
-            Functions.SaveData.SaveMatrix( Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
+            SaveData.SaveMatrix( Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
         }
 
         public void SaveMatrix(float[] data, string fileName)

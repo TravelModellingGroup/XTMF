@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.Threading;
 using Datastructure;
 using XTMF;
 
@@ -89,7 +91,7 @@ namespace TMG.GTAModel.V2.Modes
 
         private int _Parking;
 
-        private bool CacheLoaded = false;
+        private bool CacheLoaded;
 
         private float LogOfParking;
 
@@ -227,7 +229,7 @@ namespace TMG.GTAModel.V2.Modes
                 error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if ( Second == null )
+            if ( Second == null )
             {
                 error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
@@ -273,7 +275,7 @@ namespace TMG.GTAModel.V2.Modes
             {
                 lock ( this )
                 {
-                    System.Threading.Thread.MemoryBarrier();
+                    Thread.MemoryBarrier();
                     if ( !CacheLoaded )
                     {
                         var zones = Root.ZoneSystem.ZoneArray;
@@ -293,7 +295,7 @@ namespace TMG.GTAModel.V2.Modes
                         }
 
                         CacheLoaded = true;
-                        System.Threading.Thread.MemoryBarrier();
+                        Thread.MemoryBarrier();
                     }
                 }
             }

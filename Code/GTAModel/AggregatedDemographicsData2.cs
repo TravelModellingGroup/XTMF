@@ -16,12 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
 using XTMF;
+
 // ReSharper disable UnassignedField.Global
 
 namespace TMG.GTAModel
@@ -196,7 +199,7 @@ namespace TMG.GTAModel
                 var employmentStatusIndexes = EmploymentStatus.ValidIndexArray();
                 var ageCategoryIndexes = AgeCategories.ValidIndexArray();
                 var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-                System.Threading.Tasks.Parallel.For( 0, zones.Length, zone =>
+                Parallel.For( 0, zones.Length, zone =>
                 {
                     var z = zones[zone];
                     float generalworker = 0;
@@ -330,7 +333,7 @@ namespace TMG.GTAModel
                         {
                             reader.Get( out ageD[i - 1], i );
                         }
-                        ageDistributions.Add( new AgeDist() { Zone = zone, Percentages = ageD } );
+                        ageDistributions.Add( new AgeDist { Zone = zone, Percentages = ageD } );
                     }
                 }
             }
@@ -427,7 +430,7 @@ namespace TMG.GTAModel
                     {
                         reader.Get( out data[i], i );
                     }
-                    employment.Add( new EmploymentDist() { AgeCat = (int)data[1], Zone = (int)data[0], NonWork = data[2], FullTime = data[3], PartTime = data[4] } );
+                    employment.Add( new EmploymentDist { AgeCat = (int)data[1], Zone = (int)data[0], NonWork = data[2], FullTime = data[3], PartTime = data[4] } );
                 }
             }
             employment.Sort( delegate(EmploymentDist first, EmploymentDist second)
@@ -436,13 +439,13 @@ namespace TMG.GTAModel
                 {
                     return 1;
                 }
-                else if ( first.Zone == second.Zone )
+                if ( first.Zone == second.Zone )
                 {
                     if ( first.AgeCat > second.AgeCat )
                     {
                         return 1;
                     }
-                    else if ( first.AgeCat == second.AgeCat )
+                    if ( first.AgeCat == second.AgeCat )
                     {
                         return 0;
                     }
@@ -576,9 +579,9 @@ namespace TMG.GTAModel
         {
             NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 2 } } } );
+                new SparseArray<float>( new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
             SparseArray<float> driversLicense =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 1 } } } );
+                new SparseArray<float>( new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } } );
             if ( !NonWorkerVehicleRateFile.ContainsFileName() )
             {
                 return;
@@ -652,7 +655,7 @@ namespace TMG.GTAModel
                     {
                         reader.Get( out data[i], i );
                     }
-                    occupation.Add( new OccupationDist()
+                    occupation.Add( new OccupationDist
                     {
                         AgeCat = (int)data[1],
                         Zone = (int)data[0],
@@ -670,19 +673,19 @@ namespace TMG.GTAModel
                 {
                     return 1;
                 }
-                else if ( first.Zone == second.Zone )
+                if ( first.Zone == second.Zone )
                 {
                     if ( first.AgeCat > second.AgeCat )
                     {
                         return 1;
                     }
-                    else if ( first.AgeCat == second.AgeCat )
+                    if ( first.AgeCat == second.AgeCat )
                     {
                         if ( first.EmploymentStatus > second.EmploymentStatus )
                         {
                             return 1;
                         }
-                        else if ( first.EmploymentStatus == second.EmploymentStatus )
+                        if ( first.EmploymentStatus == second.EmploymentStatus )
                         {
                             return 0;
                         }
@@ -804,7 +807,7 @@ namespace TMG.GTAModel
                     {
                         reader.Get( out data[i], i );
                     }
-                    studentData.Add( new StudentDist()
+                    studentData.Add( new StudentDist
                     {
                         Zone = (int)data[0],
                         AgeCat = (int)data[1],
@@ -819,19 +822,19 @@ namespace TMG.GTAModel
                 {
                     return 1;
                 }
-                else if ( first.Zone == second.Zone )
+                if ( first.Zone == second.Zone )
                 {
                     if ( first.AgeCat > second.AgeCat )
                     {
                         return 1;
                     }
-                    else if ( first.AgeCat == second.AgeCat )
+                    if ( first.AgeCat == second.AgeCat )
                     {
                         if ( first.EmploymentStatus > second.EmploymentStatus )
                         {
                             return 1;
                         }
-                        else if ( first.EmploymentStatus == second.EmploymentStatus )
+                        if ( first.EmploymentStatus == second.EmploymentStatus )
                         {
                             return 0;
                         }
@@ -894,9 +897,9 @@ namespace TMG.GTAModel
         {
             WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 2 } } } );
+                new SparseArray<float>( new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
             SparseArray<float> driversLicense =
-                new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 1 } } } );
+                new SparseArray<float>( new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } } );
             if ( !WorkerVehicleRateFile.ContainsFileName() )
             {
                 return;

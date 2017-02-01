@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,10 +49,6 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>( 100, 200, 100 );
 
         private int[] ValidAges;
-
-        public PopulationSynthesis()
-        {
-        }
 
         [RunParameter( "Input Directory", "../../Input", "The directory that stores the input for this model system." )]
         public string InputBaseDirectory
@@ -200,7 +197,7 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
             Household[] Households = new Household[3];
             for ( int i = 0; i < 3; i++ )
             {
-                Households[i] = new Household() { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
+                Households[i] = new Household { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
             }
             Person[] people = new Person[pop];
             population[zoneIndex] = people;
@@ -300,10 +297,7 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
                     {
                         throw e.InnerException;
                     }
-                    else
-                    {
-                        throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                    }
+                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
                 }
                 watch.Stop();
                 performance.WriteLine( "Generation Time: " + watch.ElapsedMilliseconds + "ms" );
@@ -380,7 +374,7 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private SparseArray<int> SplitCars(Person[] people, int zoneIndex, int validAgeIndex, int validOccupationIndex, bool license, int ageOffset, int agePop, Random rand, out int[] indexes)
         {
-            SparseArray<float> ret = new SparseArray<float>( new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 2 } } } );
+            SparseArray<float> ret = new SparseArray<float>( new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
             // Because everything is random at this point we actually need to scan to see how many people we have
             List<int> indexesList = new List<int>( agePop );
             if ( validOccupationIndex == UnemployedOccupation )

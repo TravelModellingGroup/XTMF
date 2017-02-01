@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
@@ -113,7 +115,7 @@ namespace TMG.GTAModel.V2.Modes
 
         private SparseTwinIndex<CacheData> Cache;
 
-        private Time CacheTime = new Time() { Hours = -1 };
+        private Time CacheTime = new Time { Hours = -1 };
 
         private SparseArray<int[]> ClosestStations;
 
@@ -147,7 +149,7 @@ namespace TMG.GTAModel.V2.Modes
                 {
                     foreach ( var child in Children )
                     {
-                        ( child as SubwayAccessStation ).CurrentlyFeasible = value;
+                        child.CurrentlyFeasible = value;
                     }
                 }
             }
@@ -273,7 +275,7 @@ namespace TMG.GTAModel.V2.Modes
                         logsum = childrenV[0];
                         childrenV[0] = (float)Math.Exp( childrenV[0] );
                     }
-                    data = new CacheData()
+                    data = new CacheData
                     {
                         Feasible = true,
                         AccessUtil = childrenV,
@@ -286,7 +288,7 @@ namespace TMG.GTAModel.V2.Modes
                 }
                 else
                 {
-                    data = new CacheData()
+                    data = new CacheData
                     {
                         Feasible = false,
                         Logsum = float.NaN
@@ -329,10 +331,7 @@ namespace TMG.GTAModel.V2.Modes
             {
                 return null;
             }
-            else
-            {
-                return new Tuple<IZone[], IZone[], float[]>( data.AccessZone, null, data.AccessUtil );
-            }
+            return new Tuple<IZone[], IZone[], float[]>( data.AccessZone, null, data.AccessUtil );
         }
 
         public void IterationEnding(int iterationNumber, int maxIterations)
@@ -382,7 +381,7 @@ namespace TMG.GTAModel.V2.Modes
                 error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if ( Second == null )
+            if ( Second == null )
             {
                 error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
@@ -533,12 +532,12 @@ namespace TMG.GTAModel.V2.Modes
         {
             lock ( this )
             {
-                System.Threading.Thread.MemoryBarrier();
+                Thread.MemoryBarrier();
                 if ( lastIteration == Root.CurrentIteration ) return;
                 Cache = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<CacheData>();
                 lastIteration = Root.CurrentIteration;
                 CacheTime = time;
-                System.Threading.Thread.MemoryBarrier();
+                Thread.MemoryBarrier();
             }
         }
 

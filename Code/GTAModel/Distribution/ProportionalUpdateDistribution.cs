@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,10 +97,7 @@ namespace TMG.GTAModel
                 {
                     throw new XTMFRuntimeException( e.Message );
                 }
-                else
-                {
-                    throw new XTMFRuntimeException( e.Message + "\r\n" + e.StackTrace );
-                }
+                throw new XTMFRuntimeException( e.Message + "\r\n" + e.StackTrace );
             }
         }
 
@@ -110,7 +108,7 @@ namespace TMG.GTAModel
             var numberOfZones = flatProd.Length;
             try
             {
-                Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+                Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                 {
                     var p = flatProd[i];
                     if ( p == 0 )
@@ -149,10 +147,7 @@ namespace TMG.GTAModel
                 {
                     throw new XTMFRuntimeException( e.InnerException.Message );
                 }
-                else
-                {
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                }
+                throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
             }
         }
     }

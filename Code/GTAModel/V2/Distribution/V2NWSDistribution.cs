@@ -16,10 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Datastructure;
+using TMG.Functions;
 using XTMF;
 
 namespace TMG.GTAModel.V2.Distribution
@@ -68,11 +71,11 @@ namespace TMG.GTAModel.V2.Distribution
             ApplyBaseRates( zones, o, d );
             // make O and D equal to the same thing, averaged in the middle of the two
             Balance( o, d );
-            Functions.Fratar.Run( ret.GetFlatData(), o, d, BaseYearObservations.GiveData().GetFlatData(), MaximumError, MaxIterations );
+            Fratar.Run( ret.GetFlatData(), o, d, BaseYearObservations.GiveData().GetFlatData(), MaximumError, MaxIterations );
             BaseYearObservations.UnloadData();
             if ( !String.IsNullOrWhiteSpace( SaveDistribution ) )
             {
-                Functions.SaveData.SaveMatrix( ret, System.IO.Path.Combine( SaveDistribution, "NWSDistribution.csv" ) );
+                SaveData.SaveMatrix( ret, Path.Combine( SaveDistribution, "NWSDistribution.csv" ) );
             }
             yield return ret;
         }

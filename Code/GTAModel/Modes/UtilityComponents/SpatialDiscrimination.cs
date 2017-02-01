@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using TMG.Modes;
@@ -130,14 +131,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             {
                 return ( !contained ) ^ validRanges.Contains( zone.RegionNumber );
             }
-            else if ( useZonePlanningDistrict )
+            if ( useZonePlanningDistrict )
             {
                 return ( !contained ) ^ validRanges.Contains( zone.PlanningDistrict );
             }
-            else
-            {
-                return ( !contained ) ^ validRanges.Contains( zone.ZoneNumber );
-            }
+            return ( !contained ) ^ validRanges.Contains( zone.ZoneNumber );
         }
 
         private bool CheckOriginDestinationSame(IZone origin, IZone destination)
@@ -146,14 +144,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             {
                 return origin.RegionNumber == destination.RegionNumber;
             }
-            else if ( OriginPlanningDistrict )
+            if ( OriginPlanningDistrict )
             {
                 return origin.PlanningDistrict == destination.PlanningDistrict;
             }
-            else
-            {
-                return origin.ZoneNumber == destination.ZoneNumber;
-            }
+            return origin.ZoneNumber == destination.ZoneNumber;
         }
     }
 }

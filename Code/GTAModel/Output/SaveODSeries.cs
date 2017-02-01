@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using TMG.Input;
@@ -34,7 +35,7 @@ namespace TMG.GTAModel.Output
         [SubModelInformation( Required = true, Description = "The module to write the data." )]
         public ISaveODData<float> Writer;
 
-        private int CurrentIndex = 0;
+        private int CurrentIndex;
 
         public string Name { get; set; }
 

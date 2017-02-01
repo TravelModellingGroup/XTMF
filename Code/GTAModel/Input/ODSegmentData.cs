@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -165,7 +166,7 @@ namespace TMG.GTAModel.Input
         {
             foreach ( var line in SegmentDefinitions.Read() )
             {
-                data.Add( new SegmentData()
+                data.Add( new SegmentData
                 {
                     SegmentNumber = (int)line[0],
                     OriginRange = new Range((int)line[1], (int)line[2]),
@@ -185,7 +186,7 @@ namespace TMG.GTAModel.Input
 
             public override string ToString()
             {
-                return SegmentNumber + " : " + OriginRange.ToString() + " -> " + DestinationRange.ToString();
+                return SegmentNumber + " : " + OriginRange + " -> " + DestinationRange;
             }
         }
     }

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -114,11 +115,8 @@ it will skip the first line so that standard csv data will also work.</p>"
                                 reader.BaseStream.Position--;
                                 break;
                             }
-                            else
-                            {
-                                BurnLine(reader);
-                                c = reader.ReadChar();
-                            }
+                            BurnLine(reader);
+                            c = reader.ReadChar();
                         } while (reader.BaseStream.Position < reader.BaseStream.Length &&
                             c == '/');
                     }

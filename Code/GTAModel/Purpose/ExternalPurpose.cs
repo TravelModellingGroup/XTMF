@@ -16,16 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
+using System.Threading;
 using System.Threading.Tasks;
-using TMG;
-using TMG.Input;
-using XTMF;
 using Datastructure;
+using TMG.Functions;
 using TMG.GTAModel.DataUtility;
+using XTMF;
+
 namespace TMG.GTAModel.Purpose
 {
     public class ExternalPurpose : PurposeBase
@@ -53,7 +51,7 @@ namespace TMG.GTAModel.Purpose
             // We only need to run in the first iteration
             if ( Root.CurrentIteration == 0 )
             {
-                Flows = Functions.MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
+                Flows = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
                 // Gather the data, process, then unload the data
                 ExternalBaseYearDistribution.LoadData();
                 ExternalBaseYearPopulation.LoadData();
@@ -195,7 +193,7 @@ namespace TMG.GTAModel.Purpose
 
         private void AddData(int mode, int originIndex, int destinationIndex, float ammount, int numberOfZones)
         {
-            TreeData<float[][]> modeData = Functions.MirrorModeTree.GetLeafNodeWithIndex( Flows, RemapMode( mode ) - 1 );
+            TreeData<float[][]> modeData = MirrorModeTree.GetLeafNodeWithIndex( Flows, RemapMode( mode ) - 1 );
             // ensure there is data for us to store a result
             if ( modeData.Result == null )
             {
@@ -211,7 +209,7 @@ namespace TMG.GTAModel.Purpose
             {
                 lock ( modeData )
                 {
-                    System.Threading.Thread.MemoryBarrier();
+                    Thread.MemoryBarrier();
                     if ( modeData.Result[originIndex] == null )
                     {
                         modeData.Result[originIndex] = new float[numberOfZones];

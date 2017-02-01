@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -140,7 +141,7 @@ GPU to enhance the processing time of the model.")]
             cat.InitializeDemographicCategory();
             try
             {
-                Parallel.For(0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
                {
                    int index = i * numberOfZones;
                    if (production[i] == 0)
@@ -179,10 +180,7 @@ GPU to enhance the processing time of the model.")]
                 {
                     throw new XTMFRuntimeException(e.InnerException.Message);
                 }
-                else
-                {
-                    throw new XTMFRuntimeException(e.InnerException.Message + "\r\n" + e.InnerException.StackTrace);
-                }
+                throw new XTMFRuntimeException(e.InnerException.Message + "\r\n" + e.InnerException.StackTrace);
             }
             // Use the Log-Sum from the V's as the impedence function
             return ret;
@@ -197,7 +195,7 @@ GPU to enhance the processing time of the model.")]
             cat.InitializeDemographicCategory();
             try
             {
-                Parallel.For(0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
                {
                    for (int j = 0; j < numberOfZones; j++)
                    {
@@ -207,10 +205,7 @@ GPU to enhance the processing time of the model.")]
                        {
                            throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
                        }
-                       else
-                       {
-                           friction[i][j] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
-                       }
+                       friction[i][j] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
                    }
                });
             }

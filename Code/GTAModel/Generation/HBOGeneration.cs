@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Linq;
@@ -69,7 +70,7 @@ namespace TMG.GTAModel
         private float ComputeProduction(float[] flatProduction, int numberOfZones)
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate (int i)
             {
                 if ( ( zones[i].Population == 0 ) | ( zones[i].RegionNumber == 0 ) ) return;
@@ -141,7 +142,7 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, emp] * ncars[1, occ, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility.ToString() + "'!" );
+                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
             }
         }
 
@@ -162,7 +163,7 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, 0] * ncars[1, age, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility.ToString() + "'!" );
+                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
             }
         }
 

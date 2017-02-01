@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -143,7 +144,7 @@ namespace TMG.GTAModel.Input
                     {
                         var temp = new byte[flatRet.Length * sizeof( float )];
                         FillBuffer( reader, temp );
-                        toProcess.Add( new ProcessOrder() { RawData = temp, RowIndex = i } );
+                        toProcess.Add( new ProcessOrder { RawData = temp, RowIndex = i } );
                     }
                 }
             }

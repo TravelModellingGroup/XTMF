@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,7 +50,7 @@ This module will also work for a regular Logit model as well."
         [RunParameter( "Simulation Time", "7:00 AM", typeof( Time ), "The time that this mode split will be running as." )]
         public Time SimulationTime;
 
-        public int TimesRun = 0;
+        public int TimesRun;
         private float _MinLogSum;
 
         private List<TreeData<float[]>> InteractiveUtilityTrees;
@@ -57,7 +58,7 @@ This module will also work for a regular Logit model as well."
         // This variable is the one we are actually going to be working with, and will be set by XTMF
         private float MinLogSumToE;
 
-        private int NumberOfInteractiveCategories = 0;
+        private int NumberOfInteractiveCategories;
 
         [RunParameter( "Min LogSum", -70.0f, "The cutoff point for the logsum term for nested mode choices." )]
         public float MinLogSum
@@ -187,7 +188,7 @@ This module will also work for a regular Logit model as well."
 
         protected void WriteModeSplit(TreeData<float[]> split, IModeChoiceNode modeNode, string directoryName)
         {
-            Task writeTask = new Task( delegate()
+            Task writeTask = new Task( delegate
             {
                 if ( split.Result != null )
                 {
@@ -290,7 +291,7 @@ This module will also work for a regular Logit model as well."
             }
             for ( int i = 0; i < length; i++ )
             {
-                utility[i].Result[index] = flow * (float)utility[i].Result[index] * totalUtility;
+                utility[i].Result[index] = flow * utility[i].Result[index] * totalUtility;
             }
             // now see if we have children
             for ( int i = 0; i < length; i++ )
@@ -502,7 +503,7 @@ This module will also work for a regular Logit model as well."
                 treeData.Result[index] = node.CurrentlyFeasible > 0 ? (float)Math.Exp( node.CalculateV( zones[o], zones[d], SimulationTime ) ) : float.NaN;
                 return !float.IsNaN( treeData.Result[index] );
             }
-            else if ( cat.Correlation > 0 )
+            if ( cat.Correlation > 0 )
             {
                 bool hasAlternatives = false;
                 float totalUtility = 0;
@@ -525,7 +526,7 @@ This module will also work for a regular Logit model as well."
                         {
                             if ( localUtility == 0f )
                             {
-                                treeData.Result[index] = (float)( totalUtility );
+                                treeData.Result[index] = totalUtility;
                             }
                             else
                             {
@@ -567,7 +568,7 @@ This module will also work for a regular Logit model as well."
                 treeData.Result = ( node.CurrentlyFeasible > 0 ? (float)Math.Exp( node.CalculateV( zones[o], zones[d], SimulationTime ) ) : float.NaN );
                 return !float.IsNaN( treeData.Result );
             }
-            else if ( cat.CurrentlyFeasible > 0 )
+            if ( cat.CurrentlyFeasible > 0 )
             {
                 bool hasAlternatives = false;
                 float totalUtility = 0;
@@ -595,7 +596,7 @@ This module will also work for a regular Logit model as well."
             return false;
         }
 
-        private int ModeUtilitiesProcessed = 0;
+        private int ModeUtilitiesProcessed;
         private void InteractiveModeSplit(int numberOfCategories, List<TreeData<float[][]>> ret, IZone[] zones, int flows, SparseTwinIndex<float> flow)
         {
             int soFar = 0;
@@ -608,7 +609,7 @@ This module will also work for a regular Logit model as well."
                     WriteModeSplit( InteractiveUtilityTrees[i], Root.Modes[i], dir );
                 }
             }
-            Parallel.For( 0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, zones.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int o)
                 {
                     var flatFlows = flow.GetFlatData();
@@ -637,7 +638,7 @@ This module will also work for a regular Logit model as well."
             {
                 for ( int i = 0; i < ret.Count; i++ )
                 {
-                    Reconstitute( ret[i], (float)ratio );
+                    Reconstitute( ret[i], ratio );
                 }
             }
         }
@@ -803,9 +804,8 @@ This module will also work for a regular Logit model as well."
             try
             {
                 int soFar = 0;
-                Parallel.For( 0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                    delegate()
-                    {
+                Parallel.For( 0, zones.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                    delegate {
                         return MirrorModeTree.CreateMirroredTree<float>( Root.Modes );
                     },
                     delegate(int o, ParallelLoopState _unused, List<TreeData<float>> utility)
@@ -824,7 +824,7 @@ This module will also work for a regular Logit model as well."
                         Progress = ( ( Interlocked.Increment( ref soFar ) / (float)zones.Length ) / numberOfCategories ) + ( flows / (float)numberOfCategories );
                         return utility;
                     },
-                delegate(List<TreeData<float>> _unused)
+                delegate
                 {
                     // do nothing
                 } );

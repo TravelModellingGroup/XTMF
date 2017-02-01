@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using XTMF;
 
@@ -202,14 +203,11 @@ be based off of this module."
             {
                 return NetworkData.ValidOd(origin, destination, time) && (!CheckPositiveIVTT || NetworkData.TravelTime(origin, destination, time).ToMinutes() > 0);
             }
-            else
-            {
-                float ivtt, walk, wait, boarding, cost;
-                AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost);
-                return AdvancedNetworkData.ValidOd(origin, destination, time)
-                && ((!CheckPositiveIVTT || ivtt > 0))
-                && ((!CheckPositiveWalk || walk > 0));
-            }
+            float ivtt, walk, wait, boarding, cost;
+            AdvancedNetworkData.GetAllData(origin, destination, time, out ivtt, out walk, out wait, out boarding, out cost);
+            return AdvancedNetworkData.ValidOd(origin, destination, time)
+                   && ((!CheckPositiveIVTT || ivtt > 0))
+                   && ((!CheckPositiveWalk || walk > 0));
         }
 
         public virtual bool RuntimeValidation(ref string error)

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Linq;
 using TMG.Modes;
 using XTMF;
@@ -39,7 +40,7 @@ namespace TMG.GTAModel.ParameterDatabase
                 return false;
             }
             // get the Util Component
-            var utilComponent = mode.UtilityComponents.FirstOrDefault( (uc) => uc.UtilityComponentName == UtilityComponentName );
+            var utilComponent = mode.UtilityComponents.FirstOrDefault( uc => uc.UtilityComponentName == UtilityComponentName );
             if ( utilComponent == null )
             {
                 error = "In '" + mode.ModeName + "' we were unable to find a Utility Component with the Utility Component Name '" + UtilityComponentName + "'.";

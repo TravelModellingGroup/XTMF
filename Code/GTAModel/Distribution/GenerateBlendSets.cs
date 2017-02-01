@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using Datastructure;
 using XTMF;
@@ -36,7 +37,7 @@ namespace TMG.GTAModel.Distribution
                 {
                     var item = new List<Range>(1);
                     item.Add(new Range(i, i));
-                    Parent.Subsets.Add(new BlendSet() { Set = new RangeSet(item) });
+                    Parent.Subsets.Add(new BlendSet { Set = new RangeSet(item) });
                 }
             }
             return true;

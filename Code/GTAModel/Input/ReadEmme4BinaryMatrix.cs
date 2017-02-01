@@ -16,13 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using TMG.Input;
 using TMG.Emme;
+using TMG.Input;
 using XTMF;
 
 namespace TMG.GTAModel.Input
@@ -62,7 +61,7 @@ namespace TMG.GTAModel.Input
                 EmmeMatrix matrix = new EmmeMatrix( reader );
                 if ( !matrix.IsValidHeader() )
                 {
-                    throw new XTMFRuntimeException( "In '" + Name + "' we were unable to load the matrix '" + (string)InputFile + "'" );
+                    throw new XTMFRuntimeException( "In '" + Name + "' we were unable to load the matrix '" + InputFile + "'" );
                 }
                 ODData<float> result = new ODData<float>();
                 int pos = 0;

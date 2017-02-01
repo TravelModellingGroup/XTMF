@@ -16,11 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Linq;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
@@ -138,10 +138,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
-            else
-            {
-                return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
-            }
+            return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

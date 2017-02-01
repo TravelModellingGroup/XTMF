@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using Datastructure;
@@ -29,7 +30,7 @@ namespace TMG.GTAModel.Input
         [SubModelInformation( Required = true, Description = "The module that reads in the data that we will aggregate." )]
         public IReadODData<float> Reader;
 
-        [RunParameterAttribute("Apply Default", false, "Should we apply the default value before loading in the data?")]
+        [RunParameter("Apply Default", false, "Should we apply the default value before loading in the data?")]
         public bool ApplyDefault;
 
         [RunParameter("Default Value", 0.0f, "The default value to use.")]

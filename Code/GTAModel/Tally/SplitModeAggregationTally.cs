@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Threading.Tasks;
 using XTMF;
@@ -51,7 +52,7 @@ namespace TMG.GTAModel
                     if ( data == null ) continue;
                     if ( CountFromOrigin )
                     {
-                        Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                             delegate(int o)
                             {
                                 if ( data[o] == null ) return;
@@ -64,7 +65,7 @@ namespace TMG.GTAModel
                     else
                     {
                         // we have to go parallel on the destination or we will have overlap in parallel
-                        Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                             delegate(int d)
                             {
                                 for ( int o = 0; o < numberOfZones; o++ )

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using XTMF;
@@ -94,7 +95,7 @@ namespace TMG.GTAModel
             var cars = person.Household.Cars;
             mobilityCategory = cars + ( person.DriversLicense ? 3 : 0 );
             return ( EmploymentStatusCategory.Contains( person.EmploymentStatus ) ) & ( OccupationCategory.Contains( person.Occupation ) )
-                        & ( AgeCategoryRange.Contains( age ) ) & ( Mobility.Contains( (int)mobilityCategory ) );
+                        & ( AgeCategoryRange.Contains( age ) ) & ( Mobility.Contains( mobilityCategory ) );
         }
 
         public virtual bool RuntimeValidation(ref string error)

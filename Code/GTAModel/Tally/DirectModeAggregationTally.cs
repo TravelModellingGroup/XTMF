@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -229,23 +230,20 @@ Leaving any of the options blank will select all of the given type (purposes or 
                 }
                 return true;
             }
-            else
+            string[] parts = ModeNames.Split( ',' );
+            var modes = Root.Modes;
+            var numberOfModes = modes.Count;
+            foreach ( var part in parts )
             {
-                string[] parts = ModeNames.Split( ',' );
-                var modes = Root.Modes;
-                var numberOfModes = modes.Count;
-                foreach ( var part in parts )
-                {
-                    var trimmed = part.Trim();
-                    int index = GetModeIndex( trimmed );
+                var trimmed = part.Trim();
+                int index = GetModeIndex( trimmed );
 
-                    if ( index == -1 )
-                    {
-                        error = "In " + Name + "We were unable to find a mode with the name \"" + trimmed + "\"!";
-                        return false;
-                    }
-                    care.Add( index );
+                if ( index == -1 )
+                {
+                    error = "In " + Name + "We were unable to find a mode with the name \"" + trimmed + "\"!";
+                    return false;
                 }
+                care.Add( index );
             }
             ModeIndexes = care.ToArray();
             return true;

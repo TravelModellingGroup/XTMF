@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -246,7 +247,7 @@ namespace TMG.GTAModel.V2.Distribution
             if ( catIndex % NumberOfCategoriesPerOccupation == 0 )
             {
                 var loadIn = catIndex / NumberOfCategoriesPerOccupation;
-                var file = WorkCacheFile + loadIn.ToString() + ".bin";
+                var file = WorkCacheFile + loadIn + ".bin";
                 using ( BinaryReader reader = new BinaryReader( File.OpenRead( file ) ) )
                 {
                     var length = (int)reader.BaseStream.Length;
@@ -275,7 +276,7 @@ namespace TMG.GTAModel.V2.Distribution
             {
                 // time for the next one
                 var loadIn = catIndex / NumberOfCategoriesPerOccupation;
-                var file = MobilityCacheFile + loadIn.ToString() + ".bin";
+                var file = MobilityCacheFile + loadIn + ".bin";
                 using ( BinaryReader reader = new BinaryReader( File.OpenRead( file ) ) )
                 {
                     var size = (int)reader.BaseStream.Length / 4;

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -40,10 +41,10 @@ namespace TMG.GTAModel.ModeSplit
 
         private float CurrentInteractiveCategory;
         private float[] CurrentUtility;
-        private bool InterativeMode = false;
+        private bool InterativeMode;
         private bool LoadedAdjustments = false;
         private IModeChoiceNode[] Modes;
-        private int NumberOfInteractiveCategories = 0;
+        private int NumberOfInteractiveCategories;
 
         private TreeData<float[][]>[] Results;
         private IZone[] Zones;
@@ -89,7 +90,7 @@ namespace TMG.GTAModel.ModeSplit
                     }
                 }
             }
-            return any ? (float)sum : float.NaN;
+            return any ? sum : float.NaN;
         }
 
         public void EndInterativeModeSplit()
@@ -248,7 +249,7 @@ namespace TMG.GTAModel.ModeSplit
                        }
                    }
                });
-            Progress = ((CurrentInteractiveCategory + 1) / (float)NumberOfInteractiveCategories);
+            Progress = ((CurrentInteractiveCategory + 1) / NumberOfInteractiveCategories);
         }
 
         private void SetModes()
@@ -258,7 +259,7 @@ namespace TMG.GTAModel.ModeSplit
                 Modes = new IModeChoiceNode[Root.Modes.Count];
                 for (int i = 0; i < Modes.Length; i++)
                 {
-                    Modes[i] = (IModeChoiceNode)Root.Modes[i];
+                    Modes[i] = Root.Modes[i];
                 }
             }
         }
@@ -344,7 +345,7 @@ namespace TMG.GTAModel.ModeSplit
                         {
                             reader.Get(out modeData[i], 5 + i);
                         }
-                        temp[occ - OccupationStartIndex].Add(new Segment()
+                        temp[occ - OccupationStartIndex].Add(new Segment
                         {
                             Origin = new Range(os, oe),
                             Destination = new Range(ds, de),

@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Datastructure;
 using TMG.Input;
 using TMG.Modes;
@@ -156,7 +158,7 @@ namespace TMG.GTAModel.Modes
 
         private SparseTwinIndex<CacheData> Cache;
 
-        private Time CacheTime = new Time() { Hours = -1 };
+        private Time CacheTime = new Time { Hours = -1 };
 
         private int lastIteration = -1;
 
@@ -299,7 +301,7 @@ namespace TMG.GTAModel.Modes
                     logsum = Math.Log(logsum);
                     if (logsum >= MinAccessStationLogsumValue)
                     {
-                        data = new CacheData()
+                        data = new CacheData
                         {
                             Feasible = true,
                             Logsum = (float)logsum
@@ -307,7 +309,7 @@ namespace TMG.GTAModel.Modes
                     }
                     else
                     {
-                        data = new CacheData()
+                        data = new CacheData
                         {
                             Feasible = false,
                             Logsum = float.NaN
@@ -316,7 +318,7 @@ namespace TMG.GTAModel.Modes
                 }
                 else
                 {
-                    data = new CacheData()
+                    data = new CacheData
                     {
                         Feasible = false,
                         Logsum = float.NaN
@@ -352,39 +354,36 @@ namespace TMG.GTAModel.Modes
             {
                 return null;
             }
-            else
+            List<IZone> possibleZones = new List<IZone>();
+            List<float> splits = new List<float>();
+            var zoneSystem = Root.ZoneSystem.ZoneArray;
+            var v = 0.0;
+            foreach (var child in Children)
             {
-                List<IZone> possibleZones = new List<IZone>();
-                List<float> splits = new List<float>();
-                var zoneSystem = Root.ZoneSystem.ZoneArray;
-                var v = 0.0;
-                foreach (var child in Children)
+                if (child.Feasible(origin, destination, time))
                 {
-                    if (child.Feasible(origin, destination, time))
+                    var localV = child.CalculateV(origin, destination, time);
+                    if (!float.IsNaN(localV))
                     {
-                        var localV = child.CalculateV(origin, destination, time);
-                        if (!float.IsNaN(localV))
-                        {
-                            var ev = Math.Exp(localV);
-                            v += ev;
-                            splits.Add((float)ev);
-                            possibleZones.Add(zoneSystem[child.StationZone]);
-                        }
+                        var ev = Math.Exp(localV);
+                        v += ev;
+                        splits.Add((float)ev);
+                        possibleZones.Add(zoneSystem[child.StationZone]);
                     }
                 }
-                // make sure at least one choice has been made
-                if (splits.Count <= 0)
-                {
-                    return null;
-                }
-                v = 1.0 / v;
-                // apply the total to generate the split rates
-                for (int i = 0; i < splits.Count; i++)
-                {
-                    splits[i] *= (float)v;
-                }
-                return new Tuple<IZone[], IZone[], float[]>(possibleZones.ToArray(), null, splits.ToArray());
             }
+            // make sure at least one choice has been made
+            if (splits.Count <= 0)
+            {
+                return null;
+            }
+            v = 1.0 / v;
+            // apply the total to generate the split rates
+            for (int i = 0; i < splits.Count; i++)
+            {
+                splits[i] *= (float)v;
+            }
+            return new Tuple<IZone[], IZone[], float[]>(possibleZones.ToArray(), null, splits.ToArray());
         }
 
         public bool RuntimeValidation(ref string error)
@@ -433,12 +432,12 @@ namespace TMG.GTAModel.Modes
                 error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if (Second == null)
+            if (Second == null)
             {
                 error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
             }
-            else if (Third == null && ComputeEgressStation)
+            if (Third == null && ComputeEgressStation)
             {
                 error = "In '" + Name + "' the name of the egress network data type was not found or does not contain trip component data!";
                 return false;
@@ -557,7 +556,7 @@ namespace TMG.GTAModel.Modes
         {
             lock (this)
             {
-                System.Threading.Thread.MemoryBarrier();
+                Thread.MemoryBarrier();
                 if (lastIteration == Root.CurrentIteration) return;
                 Cache = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<CacheData>();
                 foreach (var child in Children)
@@ -566,7 +565,7 @@ namespace TMG.GTAModel.Modes
                 }
                 lastIteration = Root.CurrentIteration;
                 CacheTime = time;
-                System.Threading.Thread.MemoryBarrier();
+                Thread.MemoryBarrier();
             }
         }
 

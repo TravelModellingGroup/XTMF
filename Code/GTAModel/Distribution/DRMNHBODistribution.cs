@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -107,7 +108,7 @@ namespace TMG.GTAModel.Distribution
             cat.InitializeDemographicCategory();
             try
             {
-                Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
+                Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
                 {
                     var destination = zones[j];
                     int regionIndex;
@@ -148,10 +149,7 @@ namespace TMG.GTAModel.Distribution
                 {
                     throw new XTMFRuntimeException( e.InnerException.Message );
                 }
-                else
-                {
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                }
+                throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
             }
             // Use the Log-Sum from the V's as the impedence function
             return ret;

@@ -16,10 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
@@ -76,9 +78,9 @@ This module requires the root module in the model system to be of type ‘ITrave
             {
                 IZone zone = flatZones[i];
                 flatHouseholds[i] = new[]
-                    {   new Household() { Cars = 0, Zone = zone },
-                        new Household() { Cars = 1, Zone = zone },
-                        new Household() { Cars = 2, Zone = zone }
+                    {   new Household { Cars = 0, Zone = zone },
+                        new Household { Cars = 1, Zone = zone },
+                        new Household { Cars = 2, Zone = zone }
                     };
             } );
             using ( CommentedCsvReader reader = new CommentedCsvReader( fileName ) )
@@ -104,7 +106,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                         {
                             zoneData = tempPop[zone] = new List<IPerson>( 10 );
                         }
-                        zoneData.Add( new Person()
+                        zoneData.Add( new Person
                         {
                             Age = age,
                             DriversLicense = driversLicense > 0,
@@ -233,11 +235,11 @@ This module requires the root module in the model system to be of type ‘ITrave
                         builder.Append( ',' );
                         builder.Append( person.WorkZone != null ? person.WorkZone.ZoneNumber : -1 );
                         builder.Append( ',' );
-                        builder.Append( (int)person.EmploymentStatus );
+                        builder.Append( person.EmploymentStatus );
                         builder.Append( ',' );
-                        builder.Append( (int)person.StudentStatus );
+                        builder.Append( person.StudentStatus );
                         builder.Append( ',' );
-                        builder.Append( (int)person.Occupation );
+                        builder.Append( person.Occupation );
                         builder.Append( ',' );
                         builder.Append( person.DriversLicense ? 1 : 0 );
                         builder.Append( ',' );
@@ -245,7 +247,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                         builder.AppendLine();
                     }
                     flatOutput[i] = builder;
-                    System.Threading.Interlocked.Increment( ref current );
+                    Interlocked.Increment( ref current );
                     Progress = (float)current / length;
                 } );
 

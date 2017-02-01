@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG.Modes;
@@ -72,7 +74,7 @@ namespace TMG.GTAModel.Tally
 
         private void ComputeFromDestination(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
         {
-            Parallel.For(0, data.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For(0, data.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate (int j)
             {
                 for(int i = 0; i < data.Length; i++)
@@ -105,7 +107,7 @@ namespace TMG.GTAModel.Tally
                         {
                             lock (data)
                             {
-                                System.Threading.Thread.MemoryBarrier();
+                                Thread.MemoryBarrier();
                                 if(currentTally[flatZoneNumber] == null)
                                 {
                                     currentTally[flatZoneNumber] = new float[data[i].Length];
@@ -121,7 +123,7 @@ namespace TMG.GTAModel.Tally
 
         private void ComputeFromOrigin(float[][] currentTally, SparseArray<IZone> zoneArray, IZone[] zones, int m, float[][] data)
         {
-            Parallel.For(0, data.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For(0, data.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate (int i)
             {
                 if(data[i] == null) return;

@@ -16,10 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Datastructure;
+using TMG.Functions;
 using XTMF;
 
 namespace TMG.GTAModel.V2.Distribution
@@ -64,11 +67,11 @@ namespace TMG.GTAModel.V2.Distribution
             var distribution = ret.GetFlatData();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[][] generationRates = ProduceNormalizedObservedData();
-            Functions.SaveData.SaveMatrix( zones, generationRates, System.IO.Path.Combine( SaveDistribution, "GenerationRates.csv" ) );
+            SaveData.SaveMatrix( zones, generationRates, Path.Combine( SaveDistribution, "GenerationRates.csv" ) );
             Apply( ret, generationRates );
             if ( !String.IsNullOrWhiteSpace( SaveDistribution ) )
             {
-                Functions.SaveData.SaveMatrix( ret, System.IO.Path.Combine( SaveDistribution, "ExternalDistribution.csv" ) );
+                SaveData.SaveMatrix( ret, Path.Combine( SaveDistribution, "ExternalDistribution.csv" ) );
             }
             yield return ret;
         }

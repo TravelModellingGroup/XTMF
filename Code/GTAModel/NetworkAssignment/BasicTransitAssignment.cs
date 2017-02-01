@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -117,10 +118,7 @@ namespace TMG.GTAModel.NetworkAssignment
             {
                 return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
-            else
-            {
-                return mc.Run(OldToolName, sb.ToString(), (p => Progress = p), ref result);
-            }
+            return mc.Run(OldToolName, sb.ToString(), (p => Progress = p), ref result);
 
             /*
              * ScenarioNumber, DemandMatrixNumber, ModeString, WaitPerception,

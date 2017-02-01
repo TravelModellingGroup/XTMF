@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -122,7 +123,7 @@ namespace TMG.GTAModel
             var tree = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
             try
             {
-                BinaryHelpers.ExecuteReader( (reader) =>
+                BinaryHelpers.ExecuteReader( reader =>
                     {
                         foreach ( var t in tree )
                         {
@@ -184,7 +185,7 @@ namespace TMG.GTAModel
                 {
                     Directory.CreateDirectory( dir );
                 }
-                BinaryHelpers.ExecuteWriter( (writer) =>
+                BinaryHelpers.ExecuteWriter( writer =>
                     {
                         foreach ( var tree in value )
                         {
@@ -217,7 +218,7 @@ namespace TMG.GTAModel
                     {
                         for ( int j = 0; j < numberOfZones; j++ )
                         {
-                            writer.Write( (float)0f );
+                            writer.Write( 0f );
                         }
                     }
                     else

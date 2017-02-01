@@ -16,12 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
+
 namespace TMG.GTAModel.Input
 {
     public class ReadPurposeData : IReadODData<float>

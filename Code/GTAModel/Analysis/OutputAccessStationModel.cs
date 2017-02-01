@@ -16,11 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using TMG.Input;
 using XTMF;
@@ -83,15 +81,9 @@ namespace TMG.GTAModel.Analysis
 
         public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {

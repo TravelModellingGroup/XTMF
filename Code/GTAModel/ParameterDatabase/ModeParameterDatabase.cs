@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +44,7 @@ its mode when switching context between different demographic categories."
 
         private int _NumberOfParameterSets = -1;
 
-        private bool Loaded = false;
+        private bool Loaded;
 
         /// <summary>
         /// The root for each parameter set
@@ -146,7 +147,6 @@ its mode when switching context between different demographic categories."
                 string mode;
                 if ( endOfMode == -1 )
                 {
-                    continue;
                 }
                 else
                 {
@@ -168,7 +168,7 @@ its mode when switching context between different demographic categories."
                             Array.Copy( temp, coRespondingStructure.Parameters, temp.Length );
                         }
                         // store the new parameter in our return list and in the recursive structure
-                        ret[i] = coRespondingStructure.Parameters[coRespondingStructure.Parameters.Length - 1] = new Parameter()
+                        ret[i] = coRespondingStructure.Parameters[coRespondingStructure.Parameters.Length - 1] = new Parameter
                         {
                             Field = field,
                             Property = property,
@@ -183,7 +183,7 @@ its mode when switching context between different demographic categories."
         private void CreateStructure()
         {
             var modes = Root.Modes;
-            RootNode = new ParameterSetStructureRoot()
+            RootNode = new ParameterSetStructureRoot
             {
                 Children = CreateStructure( modes )
             };

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -168,7 +169,7 @@ namespace TMG.GTAModel
             Household[] Households = new Household[numberOfCarCategories];
             for ( int i = 0; i < numberOfCarCategories; i++ )
             {
-                Households[i] = new Household() { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
+                Households[i] = new Household { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
             }
             var numberOfAgeCategories = ValidAges.Length;
             var driversLicenceCatrogies = 2;
@@ -242,10 +243,7 @@ namespace TMG.GTAModel
                     {
                         throw e.InnerException;
                     }
-                    else
-                    {
-                        throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                    }
+                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
                 }
                 watch.Stop();
                 performance.WriteLine( "Generation Time: " + watch.ElapsedMilliseconds + "ms" );

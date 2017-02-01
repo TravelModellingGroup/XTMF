@@ -16,10 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
@@ -68,15 +69,9 @@ namespace TMG.GTAModel.Analysis
             set;
         }
 
-        public float Progress
-        {
-            get { return 0; }
-        }
+        public float Progress => 0;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {
@@ -94,12 +89,9 @@ namespace TMG.GTAModel.Analysis
 
         private static void ComputeDifferences(SparseTwinIndex<float> runData, SparseTwinIndex<float> truthData, float[][] diff)
         {
-            var runDataSum = Sum( runData );
-            var truthDataSum = Sum( truthData );
-            var runDataFactor = truthDataSum / runDataSum;
             var flatRunData = runData.GetFlatData();
             var flatTruthData = truthData.GetFlatData();
-            Parallel.For( 0, diff.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, diff.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
                     var diffRow = diff[i];
@@ -116,18 +108,6 @@ namespace TMG.GTAModel.Analysis
         {
 
             return data.GetFlatData().AsParallel().Sum(row => row.Sum());
-        }
-
-        private void Clear(float[][] matrix)
-        {
-            for ( int i = 0; i < matrix.Length; i++ )
-            {
-                var row = matrix[i];
-                for ( int j = 0; j < row.Length; j++ )
-                {
-                    row[j] = 0;
-                }
-            }
         }
 
         private SparseArray<int> CreatePDArray()
@@ -220,7 +200,6 @@ namespace TMG.GTAModel.Analysis
         private void ProducePDData(float[][] diff, SparseTwinIndex<float> runData, SparseTwinIndex<float> baseData)
         {
             var pdMap = CreatePDArray();
-            var flatMap = pdMap.GetFlatData();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var pdData = pdMap.CreateSquareTwinArray<float>().GetFlatData();
             var pdDataentries = pdMap.CreateSquareTwinArray<int>().GetFlatData();
@@ -327,16 +306,13 @@ namespace TMG.GTAModel.Analysis
             ComputeDifferences( runData, truthData, diff );
             // we can save all of the files at the same time and work out the aggregations
             Parallel.Invoke(
-                delegate()
-                {
+                delegate {
                     ProduceZoneData( diff, runData, truthData );
                 },
-                delegate()
-                {
+                delegate {
                     ProducePDData( diff, runData, truthData );
                 },
-                delegate()
-                {
+                delegate {
                     ProduceRegionData( diff, runData, truthData );
                 }
             );

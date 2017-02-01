@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -98,7 +99,7 @@ namespace TMG.GTAModel
         [RunParameter( "Year", 2006, "The simulation year.  This number will be attached to the metadata when creating a new cache file." )]
         public int Year;
 
-        private bool AlreadyLoaded = false;
+        private bool AlreadyLoaded;
 
         private OdCache Data;
 
@@ -289,7 +290,7 @@ namespace TMG.GTAModel
             {
                 return 0;
             }
-            else if ( time >= PMStartTime && time < PMEndTime )
+            if ( time >= PMStartTime && time < PMEndTime )
             {
                 return 1;
             }

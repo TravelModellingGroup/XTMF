@@ -16,10 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMG.Emme;
 using XTMF;
 
@@ -210,8 +209,8 @@ namespace TMG.GTAModel.NetworkAssignment
                                         mc.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
                                         string.Join(",", from ttf in TTF
-                                                         select ttf.TTFNumber.ToString() + ":"
-                                                         + mc.ToEmmeFloat(ttf.CongestionPerception).ToString() + ":"
+                                                         select ttf.TTFNumber + ":"
+                                                         + mc.ToEmmeFloat(ttf.CongestionPerception) + ":"
                                                          + mc.ToEmmeFloat(ttf.CongestionExponent)),
                                         ImpedanceMatrix,
                                         UseBoardingLevels);

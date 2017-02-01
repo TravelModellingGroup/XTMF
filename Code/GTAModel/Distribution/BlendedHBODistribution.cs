@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,52 +26,53 @@ using TMG.Functions;
 using TMG.GTAModel.DataUtility;
 using TMG.ModeSplit;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
     public class BlendedHBODistribution : IDemographicDistribution
     {
-        [RunParameter( "Auto Network Name", "Auto", "The name of the auto network." )]
+        [RunParameter("Auto Network Name", "Auto", "The name of the auto network.")]
         public string AutoNetworkName;
 
-        [SubModelInformation( Description = "The Sets of demographic categories to blend together", Required = true )]
+        [SubModelInformation(Description = "The Sets of demographic categories to blend together", Required = true)]
         public List<MultiBlendSet> BlendSets;
 
-        [RunParameter( "Load Friction File Name", "", "The start of the name of the file (First Default = FrictionCache1.bin) to load for friction, leaving this empty will generate new friction." )]
+        [RunParameter("Load Friction File Name", "", "The start of the name of the file (First Default = FrictionCache1.bin) to load for friction, leaving this empty will generate new friction.")]
         public string LoadFrictionFileName;
 
         [ParentModel]
         public IPurpose Parent;
 
-        [RunParameter( "Region Auto Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for Auto Times." )]
+        [RunParameter("Region Auto Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for Auto Times.")]
         public FloatList RegionAutoParameter;
 
-        [RunParameter( "Region Employment Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for Employment besides manufacturing." )]
+        [RunParameter("Region Employment Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for Employment besides manufacturing.")]
         public FloatList RegionNonManufacturingEmploymentParameter;
 
-        [RunParameter( "Region Numbers", "1,2,3,4,5", typeof( NumberList ), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters." )]
+        [RunParameter("Region Numbers", "1,2,3,4,5", typeof(NumberList), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters.")]
         public NumberList RegionNumbers;
 
-        [RunParameter( "Region Population Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for the Population." )]
+        [RunParameter("Region Population Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for the Population.")]
         public FloatList RegionPopulationParameter;
 
         [RootModule]
         public IDemographic4StepModelSystemTemplate Root;
 
-        [RunParameter( "Save Friction File Name", "", "The start of the name of the file (First Default = FrictionCache1.bin). If this is empty nothing will be saved." )]
+        [RunParameter("Save Friction File Name", "", "The start of the name of the file (First Default = FrictionCache1.bin). If this is empty nothing will be saved.")]
         public string SaveFrictionFileName;
 
-        [RunParameter( "Simulation Time", "7:00AM", typeof( Time ), "The time of day this will be simulating." )]
+        [RunParameter("Simulation Time", "7:00AM", typeof(Time), "The time of day this will be simulating.")]
         public Time SimulationTime;
 
-        [RunParameter( "Transpose Distribution", false, "Transpose the final result of the model." )]
+        [RunParameter("Transpose Distribution", false, "Transpose the final result of the model.")]
         public bool Transpose;
 
         [DoNotAutomate]
         protected IInteractiveModeSplit InteractiveModeSplit;
 
-        private int currentNumber;
-        private int lastIteration = -1;
+        private int CurrentNumber;
+        private int LastIteration = -1;
         private INetworkData NetworkData;
 
         private int TotalBlendSets;
@@ -97,32 +99,35 @@ namespace TMG.GTAModel
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var productions = new List<SparseArray<float>>();
             var cats = new List<IDemographicCategory>();
-            var ep = eps.GetEnumerator();
-            var ec = ecs.GetEnumerator();
-            while ( ep.MoveNext() && ec.MoveNext() )
+            using (var ep = eps.GetEnumerator())
+            using (var ec = ecs.GetEnumerator())
             {
-                productions.Add( ep.Current );
-                cats.Add( ec.Current );
+
+                while (ep.MoveNext() && ec.MoveNext())
+                {
+                    productions.Add(ep.Current);
+                    cats.Add(ec.Current);
+                }
             }
             SparseArray<float> production = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
             TotalBlendSets = 0;
-            for ( int i = 0; i < BlendSets.Count; i++ )
+            for (int i = 0; i < BlendSets.Count; i++)
             {
                 TotalBlendSets += BlendSets[i].Subsets.Count;
             }
-            foreach ( var multiset in BlendSets )
+            foreach (var multiset in BlendSets)
             {
                 var setLength = multiset.Subsets.Count;
                 var productionSet = new float[setLength][][];
                 var catSet = new IDemographicCategory[setLength][];
-                SetupFrictionData( productions, cats, multiset, productionSet, catSet );
-                for ( int subIndex = 0; subIndex < multiset.Subsets.Count; subIndex++ )
+                SetupFrictionData(productions, cats, multiset, productionSet, catSet);
+                for (int subIndex = 0; subIndex < multiset.Subsets.Count; subIndex++)
                 {
-                    friction = ComputeFriction( zones, catSet, productionSet, friction, production.GetFlatData(), subIndex );
-                    var ret = SinglyConstrainedGravityModel.Process( production, friction );
-                    if ( Transpose )
+                    friction = ComputeFriction(zones, catSet, productionSet, friction, production.GetFlatData(), subIndex);
+                    var ret = SinglyConstrainedGravityModel.Process(production, friction);
+                    if (Transpose)
                     {
-                        TransposeMatrix( ret );
+                        TransposeMatrix(ret);
                     }
                     yield return ret;
                 }
@@ -131,33 +136,33 @@ namespace TMG.GTAModel
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !LoadNetwork() )
+            if (!LoadNetwork())
             {
                 error = "In " + Name + " we were unable to find the network data '" + AutoNetworkName + "' to use as the auto network!";
                 return false;
             }
-            if ( !CompareParameterCount( RegionAutoParameter ) )
+            if (!CompareParameterCount(RegionAutoParameter))
             {
                 error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( RegionAutoParameter ) )
+            if (!CompareParameterCount(RegionAutoParameter))
             {
                 error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( RegionPopulationParameter ) )
+            if (!CompareParameterCount(RegionPopulationParameter))
             {
                 error = "In " + Name + " the number of parameters for Population does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( RegionNonManufacturingEmploymentParameter ) )
+            if (!CompareParameterCount(RegionNonManufacturingEmploymentParameter))
             {
                 error = "In " + Name + " the number of parameters for Professional Employment does not match the number of regions!";
                 return false;
             }
             InteractiveModeSplit = Parent.ModeSplit as IInteractiveModeSplit;
-            if ( InteractiveModeSplit == null )
+            if (InteractiveModeSplit == null)
             {
                 error = "In module '" + Name + "' we we require the mode choice for the purpose '" + Parent.PurposeName + "' to be of type IInteractiveModeSplit!";
                 return false;
@@ -170,25 +175,25 @@ namespace TMG.GTAModel
             IDemographicCategory[][] multiCatSet)
         {
             int subsetIndex = -1;
-            foreach ( var blendSet in multiset.Subsets )
+            foreach (var blendSet in multiset.Subsets)
             {
                 subsetIndex++;
                 var set = blendSet.Set;
                 var length = set.Count;
                 int place = 0;
                 int blendSetCount = 0;
-                for ( int i = 0; i < length; i++ )
+                for (int i = 0; i < length; i++)
                 {
-                    for ( int pos = set[i].Start; pos <= set[i].Stop; pos++ )
+                    for (int pos = set[i].Start; pos <= set[i].Stop; pos++)
                     {
                         blendSetCount++;
                     }
                 }
                 productionSet[subsetIndex] = new float[blendSetCount][];
                 multiCatSet[subsetIndex] = new IDemographicCategory[blendSetCount];
-                for ( int i = 0; i < length; i++ )
+                for (int i = 0; i < length; i++)
                 {
-                    for ( int pos = set[i].Start; pos <= set[i].Stop; pos++ )
+                    for (int pos = set[i].Start; pos <= set[i].Stop; pos++)
                     {
                         productionSet[subsetIndex][place] = productions[pos].GetFlatData();
                         multiCatSet[subsetIndex][place] = cats[pos];
@@ -201,9 +206,9 @@ namespace TMG.GTAModel
         private static void SetupModeChoiceParameters(IDemographicCategory[] cats, float[] ratio, IModeParameterDatabase mpd)
         {
             mpd.InitializeBlend();
-            for ( int c = 0; c < cats.Length; c++ )
+            for (int c = 0; c < cats.Length; c++)
             {
-                mpd.SetBlendWeight( ratio[c] );
+                mpd.SetBlendWeight(ratio[c]);
                 cats[c].InitializeDemographicCategory();
             }
             mpd.CompleteBlend();
@@ -213,9 +218,9 @@ namespace TMG.GTAModel
         {
             var flatData = ret.GetFlatData();
             var length = flatData.Length;
-            for ( int i = 0; i < length; i++ )
+            for (int i = 0; i < length; i++)
             {
-                for ( int j = 0; j < i; j++ )
+                for (int j = 0; j < i; j++)
                 {
                     var temp = flatData[i][j];
                     flatData[i][j] = flatData[j][i];
@@ -233,104 +238,105 @@ namespace TMG.GTAModel
         {
             var numberOfZones = zones.Length;
             float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
-            var rootModes = Root.Modes;
-            var numberOfModes = rootModes.Count;
-            if ( !String.IsNullOrWhiteSpace( LoadFrictionFileName ) )
+            if (!String.IsNullOrWhiteSpace(LoadFrictionFileName))
             {
-                LoadFriction( ret );
+                LoadFriction(ret);
             }
             else
             {
-                ComputeFriction( zones, numberOfZones, ret );
+                ComputeFriction(zones, numberOfZones, ret);
             }
-            InteractiveModeSplit.StartNewInteractiveModeSplit( TotalBlendSets );
-            SumProduction( production, productionSet, subsetIndex );
+            InteractiveModeSplit.StartNewInteractiveModeSplit(TotalBlendSets);
+            SumProduction(production, productionSet, subsetIndex);
             try
             {
                 float[] ratio = new float[cats[subsetIndex].Length];
                 var mpd = Root.ModeParameterDatabase;
-                for ( int i = 0; i < numberOfZones; i++ )
+                for (int i = 0; i < numberOfZones; i++)
                 {
                     // let it setup the modes so we can compute friction
-                    ProcessRatio( i, ratio, production, productionSet[subsetIndex] );
-                    SetupModeChoiceParameters( cats[subsetIndex], ratio, mpd );
-                    SaveModeChoice( zones, numberOfZones, i );
+                    ProcessRatio(i, ratio, production, productionSet[subsetIndex]);
+                    SetupModeChoiceParameters(cats[subsetIndex], ratio, mpd);
+                    SaveModeChoice(zones, numberOfZones, i);
                 }
             }
-            catch ( AggregateException e )
+            catch (AggregateException e)
             {
-                throw e.InnerException;
+                if (e.InnerException != null)
+                {
+                    throw e.InnerException;
+                }
             }
-            // Use the Log-Sum from the V's as the impedence function
-            if ( !String.IsNullOrWhiteSpace( SaveFrictionFileName ) )
+            // Use the Log-Sum from the V's as the impedance function
+            if (!String.IsNullOrWhiteSpace(SaveFrictionFileName))
             {
-                SaveFriction( ret );
+                SaveFriction(ret);
             }
             return ret;
         }
 
         private void ComputeFriction(IZone[] zones, int numberOfZones, float[] ret)
         {
-            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
-            {
-                int regionIndex;
-                var origin = zones[i];
-                if ( !InverseLookup( origin.RegionNumber, out regionIndex ) )
-                {
-                    return;
-                }
-                int index = ( i * numberOfZones );
-                for ( int j = 0; j < numberOfZones; j++ )
-                {
-                    var destination = zones[j];
-                    ret[index++] = (float)( RegionAutoParameter[regionIndex] * NetworkData.TravelTime( origin, destination, SimulationTime ).ToMinutes()
-                        // population
-                        + RegionPopulationParameter[regionIndex] * Math.Log( destination.Population + 1 )
-                        // employment
-                        + RegionNonManufacturingEmploymentParameter[regionIndex] * Math.Log( destination.ProfessionalEmployment
-                        + destination.GeneralEmployment + destination.RetailEmployment + 1 ) );
-                }
-            } );
+            Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+           {
+               int regionIndex;
+               var origin = zones[i];
+               if (!InverseLookup(origin.RegionNumber, out regionIndex))
+               {
+                   return;
+               }
+               int index = (i * numberOfZones);
+               for (int j = 0; j < numberOfZones; j++)
+               {
+                   var destination = zones[j];
+                   ret[index++] = (float)(RegionAutoParameter[regionIndex] * NetworkData.TravelTime(origin, destination, SimulationTime).ToMinutes()
+                       // population
+                       + RegionPopulationParameter[regionIndex] * Math.Log(destination.Population + 1)
+                       // employment
+                       + RegionNonManufacturingEmploymentParameter[regionIndex] * Math.Log(destination.ProfessionalEmployment
+                       + destination.GeneralEmployment + destination.RetailEmployment + 1));
+               }
+           });
         }
 
         private string GetFrictionFileName(string baseName)
         {
-            if ( Root.CurrentIteration != lastIteration )
+            if (Root.CurrentIteration != LastIteration)
             {
-                currentNumber = 0;
-                lastIteration = Root.CurrentIteration;
+                CurrentNumber = 0;
+                LastIteration = Root.CurrentIteration;
             }
-            return String.Concat( baseName, currentNumber++, ".bin" );
+            return String.Concat(baseName, CurrentNumber++, ".bin");
         }
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return (regionIndex = RegionNumbers.IndexOf(regionNumber)) != -1;
         }
 
         private void LoadFriction(float[] ret)
         {
             try
             {
-                BinaryHelpers.ExecuteReader( (reader) =>
-                    {
-                        for ( int i = 0; i < ret.Length; i++ )
-                        {
-                            ret[i] = reader.ReadSingle();
-                        }
-                    }, GetFrictionFileName( LoadFrictionFileName ) );
+                BinaryHelpers.ExecuteReader(reader =>
+                   {
+                       for (int i = 0; i < ret.Length; i++)
+                       {
+                           ret[i] = reader.ReadSingle();
+                       }
+                   }, GetFrictionFileName(LoadFrictionFileName));
             }
-            catch ( IOException e )
+            catch (IOException e)
             {
-                throw new XTMFRuntimeException( "Unable to load distribution cache file!\r\n" + e.Message );
+                throw new XTMFRuntimeException("Unable to load distribution cache file!\r\n" + e.Message);
             }
         }
 
         private bool LoadNetwork()
         {
-            foreach ( var data in Root.NetworkData )
+            foreach (var data in Root.NetworkData)
             {
-                if ( data.NetworkType == AutoNetworkName )
+                if (data.NetworkType == AutoNetworkName)
                 {
                     NetworkData = data;
                     return true;
@@ -342,13 +348,13 @@ namespace TMG.GTAModel
         private void ProcessRatio(int i, float[] ratio, float[] production, float[][] productions)
         {
             var denom = production[i];
-            if ( denom != 0 )
+            if (denom != 0)
             {
                 denom = 1 / denom;
             }
-            for ( int j = 0; j < ratio.Length; j++ )
+            for (int j = 0; j < ratio.Length; j++)
             {
-                if ( denom == 0 )
+                if (denom == 0)
                 {
                     ratio[j] = 0;
                 }
@@ -363,58 +369,62 @@ namespace TMG.GTAModel
         {
             try
             {
-                var fileName = GetFrictionFileName( SaveFrictionFileName );
-                var dirName = Path.GetDirectoryName( fileName );
-                if ( !Directory.Exists( dirName ) )
+                var fileName = GetFrictionFileName(SaveFrictionFileName);
+                var dirName = Path.GetDirectoryName(fileName);
+                if (dirName == null)
                 {
-                    Directory.CreateDirectory( dirName );
+                    throw new XTMFRuntimeException($"In {Name} we were unable to get the directory name from the file {fileName}!");
                 }
-                BinaryHelpers.ExecuteWriter( (writer) =>
-                    {
-                        for ( int i = 0; i < ret.Length; i++ )
-                        {
-                            writer.Write( ret[i] );
-                        }
-                    }, fileName );
+                if (!Directory.Exists(dirName))
+                {
+                    Directory.CreateDirectory(dirName);
+                }
+                BinaryHelpers.ExecuteWriter(writer =>
+                   {
+                       for (int i = 0; i < ret.Length; i++)
+                       {
+                           writer.Write(ret[i]);
+                       }
+                   }, fileName);
             }
-            catch ( IOException e )
+            catch (IOException e)
             {
-                throw new XTMFRuntimeException( "Unable to save distribution cache file!\r\n" + e.Message );
+                throw new XTMFRuntimeException("Unable to save distribution cache file!\r\n" + e.Message);
             }
         }
 
         private void SaveModeChoice(IZone[] zones, int numberOfZones, int i)
         {
-            if ( Transpose )
+            if (Transpose)
             {
-                Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
-                {
-                    if ( zones[j].RegionNumber > 0 )
-                    {
-                        InteractiveModeSplit.ComputeUtility( zones[j], zones[i] );
-                    }
-                } );
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int j)
+               {
+                   if (zones[j].RegionNumber > 0)
+                   {
+                       InteractiveModeSplit.ComputeUtility(zones[j], zones[i]);
+                   }
+               });
             }
             else
             {
-                Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
-                {
-                    if ( zones[j].RegionNumber > 0 )
-                    {
-                        InteractiveModeSplit.ComputeUtility( zones[i], zones[j] );
-                    }
-                } );
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int j)
+               {
+                   if (zones[j].RegionNumber > 0)
+                   {
+                       InteractiveModeSplit.ComputeUtility(zones[i], zones[j]);
+                   }
+               });
             }
         }
 
         private void SumProduction(float[] production, float[][][] productions, int subset)
         {
             // i is the zone number
-            for ( int i = 0; i < production.Length; i++ )
+            for (int i = 0; i < production.Length; i++)
             {
                 float productionSum = 0f;
                 // for each blend set in the subset
-                for ( int j = 0; j < productions[subset].Length; j++ )
+                for (int j = 0; j < productions[subset].Length; j++)
                 {
                     // add up the production
                     productionSum += productions[subset][j][i];

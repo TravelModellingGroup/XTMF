@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -322,27 +323,24 @@ namespace TMG.GTAModel.Purpose
             {
                 return tree;
             }
-            else
+            var cat = mode as IModeCategory;
+            if ( cat == null )
             {
-                var cat = mode as IModeCategory;
-                if ( cat == null )
+                return null;
+            }
+            var treeChildren = tree.Children;
+            var modeChildren = cat.Children;
+            // make sure that it actually contains children first
+            if ( treeChildren == null | modeChildren == null )
+            {
+                return null;
+            }
+            for ( int i = 0; i < treeChildren.Length; i++ )
+            {
+                var temp = GetAutoModeData( treeChildren[i], modeChildren[i] );
+                if ( temp != null )
                 {
-                    return null;
-                }
-                var treeChildren = tree.Children;
-                var modeChildren = cat.Children;
-                // make sure that it actually contains children first
-                if ( treeChildren == null | modeChildren == null )
-                {
-                    return null;
-                }
-                for ( int i = 0; i < treeChildren.Length; i++ )
-                {
-                    var temp = GetAutoModeData( treeChildren[i], modeChildren[i] );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
+                    return temp;
                 }
             }
             return null;

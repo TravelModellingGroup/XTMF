@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using XTMF;
@@ -97,11 +98,8 @@ It can take a list of children and will take the max utility of its children as 
                 {
                     return float.NaN;
                 }
-                else
-                {
-                    var thisLevel = CalculateCombinedV( origin, destination, time );
-                    return float.IsNaN( thisLevel ) ? float.NaN : ( (float)Math.Log( total ) * Correlation + thisLevel );
-                }
+                var thisLevel = CalculateCombinedV( origin, destination, time );
+                return float.IsNaN( thisLevel ) ? float.NaN : ( (float)Math.Log( total ) * Correlation + thisLevel );
             }
             return float.MinValue;
         }

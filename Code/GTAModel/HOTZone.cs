@@ -20,10 +20,6 @@ namespace TMG.GTAModel
 {
     internal class HOTZone : IZone
     {
-        public HOTZone()
-        {
-        }
-
         public float ArterialRoadRatio
         {
             get;

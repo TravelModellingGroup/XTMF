@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -107,7 +108,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
             string ret = null;
             mc.Run( "TMG2.XTMF.ImportMatrix", "\"" + Path.GetFullPath( outputFileName ) + "\" " + ScenarioNumber,
-                ( (p) => { Progress = p; } ), ref ret );
+                ( p => { Progress = p; } ), ref ret );
 
             File.Delete( outputFileName );
 

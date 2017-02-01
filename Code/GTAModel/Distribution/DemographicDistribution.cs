@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace TMG.GTAModel
             while (productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext())
             {
                 friction = ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
-                yield return new GravityModel(sparseFriction, ((p) => Progress = p), Epsilon, MaxIterations).ProcessFlow(productionEnum.Current, attractionEnum.Current, validZones);
+                yield return new GravityModel(sparseFriction, (p => Progress = p), Epsilon, MaxIterations).ProcessFlow(productionEnum.Current, attractionEnum.Current, validZones);
             }
             friction = null;
         }

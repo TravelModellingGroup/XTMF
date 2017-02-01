@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Reflection;
 using TMG.ParameterDatabase;
@@ -43,11 +44,11 @@ namespace TMG.GTAModel.ParameterDatabase
 
         protected PropertyInfo Property;
 
-        private bool CurrentBlendBool = false;
+        private bool CurrentBlendBool;
 
-        private double CurrentBlendNumber = 0;
+        private double CurrentBlendNumber;
 
-        private int TypeIndex = 0;
+        private int TypeIndex;
 
         public string Name
         {

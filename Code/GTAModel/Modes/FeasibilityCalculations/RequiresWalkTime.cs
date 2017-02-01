@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using XTMF;
@@ -81,11 +82,8 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
                         NetworkData = advancedData;
                         return true;
                     }
-                    else
-                    {
-                        error = "In '" + Name + "' the given network data '" + NetworkType + "' is not ITripComponentData compliant!";
-                        return false;
-                    }
+                    error = "In '" + Name + "' the given network data '" + NetworkType + "' is not ITripComponentData compliant!";
+                    return false;
                 }
             }
             error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";

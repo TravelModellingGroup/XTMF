@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using Datastructure;
 using TMG.Input;
@@ -95,7 +96,7 @@ namespace TMG.GTAModel.Generation
             gen.ExternalRates = WorkExternal;
             gen.WorkAtHomeRates = WorkAtHomeRates;
             gen.GenerationOutputFileName = GenerationOutputFileName;
-            gen.Name = Name + " - " + gen.ToString();
+            gen.Name = Name + " - " + gen;
             gen.AttractionFileName = AttractionFileName;
             gen.AllAges = AllAges;
             gen.WorkerData = WorkerData;

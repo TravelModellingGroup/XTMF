@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -184,8 +185,8 @@ namespace TMG.GTAModel
             {
                 Directory.CreateDirectory( directoryName );
             }
-            Task writeTask = new Task( delegate()
-                {
+            Task writeTask = new Task( delegate
+            {
                     using ( StreamWriter writer = new StreamWriter( Path.Combine( directoryName, modeNode.ModeName + ".csv" ) ) )
                     {
                         var header = true;

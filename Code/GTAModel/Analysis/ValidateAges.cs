@@ -16,14 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
-using TMG;
-using TMG.Input;
 using System.IO;
+using TMG.Input;
+using XTMF;
+
 namespace TMG.GTAModel.Analysis
 {
     public class ValidateAges : ISelfContainedModule
@@ -67,7 +65,7 @@ namespace TMG.GTAModel.Analysis
 
         public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {

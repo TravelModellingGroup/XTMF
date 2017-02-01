@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -138,7 +139,7 @@ This module requires the root module of the model system to be an 'I4StepModel'.
             {
                 GatherModes( flatModes, modeSplit[i] );
             }
-            Parallel.For( 0, flatModes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, flatModes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
                     TransposeMatrix( flatModes[i] );

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using Datastructure;
 using TMG.Input;
@@ -80,15 +81,15 @@ namespace TMG.GTAModel.V2.Generation
                 AgeCategoryRange = CreateRangeSet(age),
                 EmploymentStatusCategory = CreateRangeSet(employmentStatus),
                 ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex,
-                Mobility = new RangeSet(new List<Range>() { new Range(0, 0) }),
+                Mobility = new RangeSet(new List<Range> { new Range(0, 0) }),
                 ExternalJobs = ExternalJobs,
                 ExternalRates = WorkExternal,
                 WorkIntrazonal = WorkIntraZonal,
                 WorkAtHomeRates = WorkAtHomeRates,
-                AllAges = new RangeSet(new List<Range>() { new Range(2, 5) }),
+                AllAges = new RangeSet(new List<Range> { new Range(2, 5) }),
                 GenerationOutputFileName = GenerationOutputFileName
             };
-            gen.Name = Name + " - " + gen.ToString();
+            gen.Name = Name + " - " + gen;
             gen.AttractionFileName = AttractionFileName;
             list.Add(gen);
         }

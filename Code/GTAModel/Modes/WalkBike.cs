@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using XTMF;
 
@@ -190,10 +191,7 @@ Using the distance ranges either walk or bike parameters will be used for a give
             {
                 return Time.FromMinutes( distance / BikeMetersPerMinute );
             }
-            else
-            {
-                return Time.FromMinutes( distance / WalkMetersPerMinute );
-            }
+            return Time.FromMinutes( distance / WalkMetersPerMinute );
         }
 
         private float GetDensityV(IZone origin, IZone destination)

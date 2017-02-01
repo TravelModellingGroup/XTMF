@@ -16,16 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
-using TMG.Modes;
 using XTMF;
+
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.DataResources
 {
@@ -83,6 +84,7 @@ namespace TMG.GTAModel.DataResources
         public float ParkingFactor;
 
         [RunParameter("bfnew", 0.0f, "The factor applied to the go rail cost while computing the transit fare factor.  In DRM V2.5 2006, this parameter was set to 0, which ignores all rail cost.")]
+        // ReSharper disable once InconsistentNaming
         public float bfnew;
 
         [RunParameter("Maximum Access Stations", 5, "The number of access stations for each OD pair allowed.")]
@@ -202,7 +204,7 @@ namespace TMG.GTAModel.DataResources
                                 egressUtility[i][j] = float.NaN;
                                 egressZones[i][j] = -1;
                             }
-                            ComputeEgressStation( interchange, i, j, accessZones, trains, parking, zones, out egressUtility[i][j], out egressTime[i][j], out egressZones[i][j] );
+                            ComputeEgressStation( interchange, j, accessZones, trains, parking, out egressUtility[i][j], out egressTime[i][j], out egressZones[i][j] );
                         }
                     } );
                 // using the egress data compute access stations
@@ -299,7 +301,10 @@ namespace TMG.GTAModel.DataResources
         /// <param name="d">flat destination zone</param>
         /// <param name="zones">the array of zones</param>
         /// <param name="flatAccessZones">the array of access stations</param>
+        /// <param name="egressZones"></param>
         /// <param name="data">Where the results will be stored</param>
+        /// <param name="egressUtility"></param>
+        /// <param name="egressTime"></param>
         private void ComputeUtility(int o, int d, IZone[] zones, int[] flatAccessZones, float[][] egressUtility, float[][] egressTime,
             int[][] egressZones, Tuple<IZone[], IZone[], float[]>[][] data)
         {
@@ -357,7 +362,9 @@ namespace TMG.GTAModel.DataResources
         /// <param name="results">The utilities for the different access stations</param>
         /// <param name="distances">The distances for the different access stations</param>
         /// <param name="resultZones">The zones that represent the different access stations</param>
+        /// <param name="egressZones"></param>
         /// <param name="currentAccessStationIndex">The current access station that is being processed</param>
+        /// <param name="egressZone"></param>
         /// <param name="result">The value of the access station that is being processed</param>
         /// <param name="distance">The distance to the access station that is being processed</param>
         private static void Insert(IZone[] zones, int[] flatAccessZones, float[] results, float[] distances,
@@ -394,12 +401,19 @@ namespace TMG.GTAModel.DataResources
         /// <param name="d">flat destination zone</param>
         /// <param name="zones">an array of zones</param>
         /// <param name="interchange">the flat interchange zone to use</param>
+        /// <param name="egressZones"></param>
         /// <param name="maxDistance">The maximum distance allowed</param>
+        /// <param name="selectedEgressZones"></param>
         /// <param name="result">the utility of using this interchange</param>
         /// <param name="distance">The distance the origin is from the interchange in auto travel time</param>
+        /// <param name="accessStationIndex"></param>
+        /// <param name="egressUtility"></param>
+        /// <param name="egressTime"></param>
+        /// <param name="egressZone"></param>
         /// <returns>True if this is a valid interchange zone, false if not feasible.</returns>
-        private bool ComputeUtility(int o, int d, IZone[] zones, int interchange, int accessStationIndex, int[] egressZones, float maxDistance, float[][] egressUtility, float[][] egressTime,
-            int[][] selectedEgressZones, out float result, out float distance, out IZone egressZone)
+        // ReSharper disable once UnusedParameter.Local
+        private bool ComputeUtility(int o, int d, IZone[] zones, int interchange, int accessStationIndex, int[] egressZones, float maxDistance, float[][] egressUtility, float[][] egressTime, int[][] selectedEgressZones, out float result, out float distance, out IZone egressZone)
+
         {
             float v = ComputeAccessUtility( o, interchange, out distance );
             // our total travel time / distance is the egress time plus the time it takes to get to the station to begin with
@@ -430,6 +444,7 @@ namespace TMG.GTAModel.DataResources
         /// </summary>
         /// <param name="origin">The origin of the trip, flat</param>
         /// <param name="interchange">The access station, flat</param>
+        /// <param name="weightedTravelTime"></param>
         /// <returns>The utility of picking the access station, NaN if it isn't possible</returns>
         private float ComputeAccessUtility(int origin, int interchange, out float weightedTravelTime)
         {
@@ -449,12 +464,13 @@ namespace TMG.GTAModel.DataResources
         /// </summary>
         /// <param name="interchange">The access zone to start from, flat</param>
         /// <param name="destination">The destination zone that we need to get to, flat</param>
-        /// <param name="parking">The amount of parking available</param>
         /// <param name="egressZones">The list of all possible egress zones, flat</param>
+        /// <param name="trains"></param>
+        /// <param name="parking">The amount of parking available</param>
         /// <param name="egressUtility">The utility of taking the given egress station</param>
+        /// <param name="egressTime"></param>
         /// <param name="egressZone">The egress station to use for this access station</param>
-        /// <returns>If we were successful in finding an egress station for this access station.</returns>
-        private bool ComputeEgressStation(int interchange, int interchangeIndex, int destination, int[] egressZones, float[] trains, float[] parking, IZone[] zones, out float egressUtility, out float egressTime, out int egressZone)
+        private void ComputeEgressStation(int interchange, int destination, int[] egressZones, float[] trains, float[] parking, out float egressUtility, out float egressTime, out int egressZone)
         {
             int bestZone = -1;
             // only compute the egress logic if we have parking spots available.
@@ -490,19 +506,20 @@ namespace TMG.GTAModel.DataResources
                 }
             }
             // If there is no egress station we are invalid
-            if ( ( bestZone < 0 ) | ( bestZone == interchange ) )
+            if ((bestZone < 0) | (bestZone == interchange))
             {
                 egressUtility = float.NaN;
                 egressZone = -1;
                 egressTime = float.NaN;
-                return false;
             }
-            egressUtility = ComputeEgressStationUtility( interchange, bestZone, destination )
-                + TrainsFactor * trains[interchange]
-                + ParkingFactor * parking[interchange];
-            egressZone = bestZone;
-            egressTime = ComputeWeightedTimeWithoutRail( bestZone, destination );
-            return true;
+            else
+            {
+                egressUtility = ComputeEgressStationUtility(interchange, bestZone, destination)
+                                + TrainsFactor * trains[interchange]
+                                + ParkingFactor * parking[interchange];
+                egressZone = bestZone;
+                egressTime = ComputeWeightedTimeWithoutRail(bestZone, destination);
+            }
         }
 
         /// <summary>
@@ -526,26 +543,6 @@ namespace TMG.GTAModel.DataResources
         }
 
         /// <summary>
-        /// Compute the general time for the given egress zone.  This will be used
-        /// to compare all of the possible egress stations for the one to use.
-        /// </summary>
-        /// <param name="interchange">The access zone to start from, flat</param>
-        /// <param name="egress">The egress station to test,flat</param>
-        /// <param name="destination">The final destination to reach, flat</param>
-        /// <returns>The weighted time it takes to get to the destination from this access station.</returns>
-        private float ComputeEgressGeneralTimeNoGo(int interchange, int egress, int destination)
-        {
-            var goIvtt = GoTransitNetwork.InVehicleTravelTime( interchange, egress, TimeOfDay ).ToMinutes();
-            float withoutGo;
-            // don't bother to compute the weighted travel time if there is no 
-            if ( goIvtt > 0 && !float.IsNaN( ( withoutGo = ComputeWeightedTimeWithoutRail( egress, destination ) ) ) )
-            {
-                return goIvtt + withoutGo;
-            }
-            return float.NaN;
-        }
-
-        /// <summary>
         /// Compute the utility of taking a particular egress station
         /// </summary>
         /// <param name="interchange">The access station to start from</param>
@@ -558,7 +555,6 @@ namespace TMG.GTAModel.DataResources
             float cost;
 
             var goIvtt = GoTransitNetwork.InVehicleTravelTime( interchange, egress, TimeOfDay );
-            var goCost = GoTransitNetwork.TravelCost( interchange, egress, TimeOfDay );
             if ( TransitNetwork.GetAllData( egress, destination, TimeOfDay, out ivtt, out walk, out wait, out boardings, out cost ) )
             {
                 if ( ivtt <= Time.Zero )

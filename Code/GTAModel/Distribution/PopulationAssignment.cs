@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -46,7 +47,7 @@ This module requires the root module of the model system to be of type ‘IDemog
         [RootModule]
         public IDemographicsModelSystemTemplate Root;
 
-        private IRead<IZone, IPerson> getDest = null;
+        private IRead<IZone, IPerson> getDest;
 
         public string Name
         {

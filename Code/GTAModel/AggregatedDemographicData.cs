@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Datastructure;
 using XTMF;
@@ -306,9 +308,9 @@ type ITravelDemandModel.")]
         private string GetFullPath(string localPath)
         {
             var fullPath = localPath;
-            if(!System.IO.Path.IsPathRooted(fullPath))
+            if(!Path.IsPathRooted(fullPath))
             {
-                fullPath = System.IO.Path.Combine(Root.InputBaseDirectory, fullPath);
+                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
             }
             return fullPath;
         }
@@ -345,7 +347,7 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out ageD[i - 1], i);
                     }
-                    ageDistributions.Add(new AgeDist() { Zone = zone, Percentages = ageD });
+                    ageDistributions.Add(new AgeDist { Zone = zone, Percentages = ageD });
                 }
             }
             int numberOfSetZones = 0;
@@ -451,7 +453,7 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out data[i], i);
                     }
-                    employment.Add(new EmploymentDist() { AgeCat = (int)data[1], Zone = (int)data[0], NonWork = data[2], FullTime = data[3], PartTime = data[4] });
+                    employment.Add(new EmploymentDist { AgeCat = (int)data[1], Zone = (int)data[0], NonWork = data[2], FullTime = data[3], PartTime = data[4] });
                 }
             }
             employment.Sort(delegate(EmploymentDist first, EmploymentDist second)
@@ -622,9 +624,9 @@ type ITravelDemandModel.")]
         {
             NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 2 } } });
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
             SparseArray<float> driversLicense =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 1 } } });
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
             using(CsvReader reader = new CsvReader(GetFullPath(NonWorkerVehicleRateFile)))
             {
                 int pd;
@@ -705,7 +707,7 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out data[i], i);
                     }
-                    occupation.Add(new OccupationDist()
+                    occupation.Add(new OccupationDist
                     {
                         AgeCat = (int)data[1],
                         Zone = (int)data[0],
@@ -723,19 +725,19 @@ type ITravelDemandModel.")]
                 {
                     return 1;
                 }
-                else if(first.Zone == second.Zone)
+                if(first.Zone == second.Zone)
                 {
                     if(first.AgeCat > second.AgeCat)
                     {
                         return 1;
                     }
-                    else if(first.AgeCat == second.AgeCat)
+                    if(first.AgeCat == second.AgeCat)
                     {
                         if(first.EmploymentStatus > second.EmploymentStatus)
                         {
                             return 1;
                         }
-                        else if(first.EmploymentStatus == second.EmploymentStatus)
+                        if(first.EmploymentStatus == second.EmploymentStatus)
                         {
                             return 0;
                         }
@@ -855,7 +857,7 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out data[i], i);
                     }
-                    studentData.Add(new StudentDist()
+                    studentData.Add(new StudentDist
                     {
                         Zone = (int)data[0],
                         AgeCat = (int)data[1],
@@ -870,19 +872,19 @@ type ITravelDemandModel.")]
                 {
                     return 1;
                 }
-                else if(first.Zone == second.Zone)
+                if(first.Zone == second.Zone)
                 {
                     if(first.AgeCat > second.AgeCat)
                     {
                         return 1;
                     }
-                    else if(first.AgeCat == second.AgeCat)
+                    if(first.AgeCat == second.AgeCat)
                     {
                         if(first.EmploymentStatus > second.EmploymentStatus)
                         {
                             return 1;
                         }
-                        else if(first.EmploymentStatus == second.EmploymentStatus)
+                        if(first.EmploymentStatus == second.EmploymentStatus)
                         {
                             return 0;
                         }
@@ -951,9 +953,9 @@ type ITravelDemandModel.")]
         {
             WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
             SparseArray<float> numberOfVehicles =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 2 } } } );
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
             SparseArray<float> driversLicense =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new[] { new SparseSet() { Start = 0, Stop = 1 } } } );
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } } );
             using (CsvReader reader = new CsvReader(GetFullPath(WorkerVehicleRateFile)))
             {
                 int pd;

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using TMG.Input;
@@ -59,7 +60,7 @@ namespace TMG.GTAModel.Input
             {
                 if ( ValidateLine( line ) )
                 {
-                    yield return new ODData<float>() { O = (int)line[IndexOfO], D = (int)line[IndexOfD], Data = line[IndexOfData] };
+                    yield return new ODData<float> { O = (int)line[IndexOfO], D = (int)line[IndexOfD], Data = line[IndexOfData] };
                 }
             }
         }

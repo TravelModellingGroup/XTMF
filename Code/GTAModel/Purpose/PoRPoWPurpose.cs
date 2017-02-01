@@ -16,13 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using Datastructure;
+using TMG.Functions;
 using TMG.ModeSplit;
 using XTMF;
-using TMG.Functions;
 
 namespace TMG.GTAModel.Purpose
 {
@@ -108,7 +109,7 @@ namespace TMG.GTAModel.Purpose
                 {
                     Directory.CreateDirectory( dirName );
                 }
-                BinaryHelpers.ExecuteWriter( (writer) =>
+                BinaryHelpers.ExecuteWriter( writer =>
                     {
                         for ( int i = 0; i < ret.Length; i++ )
                         {

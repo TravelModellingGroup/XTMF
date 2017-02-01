@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -196,7 +197,7 @@ namespace TMG.GTAModel.V2.Distribution
         {
             ClearFriction(friction, zones.Length);
             InteractiveModeSplit.StartNewInteractiveModeSplit(MultiBlendSets.Count);
-            using (var mobilityStream = File.OpenWrite(MobilityCacheFileName.GetFileName() + CurrentMultiSetIndex.ToString() + ".bin"))
+            using (var mobilityStream = File.OpenWrite(MobilityCacheFileName.GetFileName() + CurrentMultiSetIndex + ".bin"))
             {
                 var mpd = Root.ModeParameterDatabase;
                 float[] subsetRatios = new float[productions.Length];
@@ -345,7 +346,7 @@ namespace TMG.GTAModel.V2.Distribution
             }
 
             // get the region index
-            Parallel.For(0, tempMobility.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int j)
+            Parallel.For(0, tempMobility.Length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int j)
             {
                 if((i == j) | zones[j].RegionNumber <= 0 | attraction[j] <= 0)
                 {
@@ -456,7 +457,7 @@ namespace TMG.GTAModel.V2.Distribution
         {
             // this.CurrentMultiSet == Occupation [0,3] * NumberOfMobilityCategories + mobility Category
             WCatParameters.SetDemographicCategory(CurrentMultiSetIndex * 5 + mobilityCategory);
-            cats[subset][0].Mobility = new RangeSet(new List<Range>() { new Range(mobilityCategory, mobilityCategory)});
+            cats[subset][0].Mobility = new RangeSet(new List<Range> { new Range(mobilityCategory, mobilityCategory)});
             cats[subset][0].InitializeDemographicCategory();
         }
 
@@ -609,7 +610,7 @@ namespace TMG.GTAModel.V2.Distribution
                             {
                                 reader.Get(out modeData[i], 5 + i);
                             }
-                            temp[0].Add(new Segment()
+                            temp[0].Add(new Segment
                             {
                                 Origin = new Range(os, oe),
                                 Destination = new Range(ds, de),

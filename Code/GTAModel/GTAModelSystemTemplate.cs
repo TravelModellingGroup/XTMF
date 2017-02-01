@@ -16,8 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.GTAModel
@@ -133,7 +137,7 @@ for assigning school zones." )]
         [SubModelInformation( Description = "The module that loads the zone system", Required = true )]
         public IZoneSystem ZoneSystem { get; set; }
 
-        private bool ExitRequested = false;
+        private bool ExitRequested;
 
         public bool ExitRequest()
         {
@@ -241,9 +245,9 @@ for assigning school zones." )]
         private string GetFullPath(string localPath)
         {
             var fullPath = localPath;
-            if ( !System.IO.Path.IsPathRooted( fullPath ) )
+            if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = System.IO.Path.Combine( InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
@@ -297,11 +301,11 @@ for assigning school zones." )]
                 // launch all of the post processing in parallel
                 if ( ParallelPostProcessing )
                 {
-                    System.Threading.Tasks.Parallel.ForEach( PostRun,
+                    Parallel.ForEach( PostRun,
                         delegate(ISelfContainedModule module)
                         {
                             module.Start();
-                            System.Threading.Interlocked.Increment( ref complete );
+                            Interlocked.Increment( ref complete );
                         } );
                 }
                 else

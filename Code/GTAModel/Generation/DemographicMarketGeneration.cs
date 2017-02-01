@@ -16,6 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.Threading;
+using System.Threading.Tasks;
+using Datastructure;
 using XTMF;
 
 namespace TMG.GTAModel
@@ -29,7 +33,7 @@ This module requires the root module of the model system to be an ‘IDemographi
         [RunParameter( "Probability", 0.25f, "The probability of a person in this category making this kind of trip." )]
         public float Probability;
 
-        override public void Generate(Datastructure.SparseArray<float> production, Datastructure.SparseArray<float> attractions)
+        override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             var flatProduction = production.GetFlatData();
             var flatAttraction = attractions.GetFlatData();
@@ -74,7 +78,7 @@ This module requires the root module of the model system to be an ‘IDemographi
         {
             int totalProduction = 0;
             var flatPopulation = Root.Population.Population.GetFlatData();
-            System.Threading.Tasks.Parallel.For( 0, numberOfZones, delegate(int i)
+            Parallel.For( 0, numberOfZones, delegate(int i)
             {
                 var zonePop = flatPopulation[i];
                 if ( zonePop == null ) return;
@@ -89,7 +93,7 @@ This module requires the root module of the model system to be an ‘IDemographi
                     }
                 }
                 flatProduction[i] = count * Probability;
-                System.Threading.Interlocked.Add( ref totalProduction, count );
+                Interlocked.Add( ref totalProduction, count );
             } );
             return totalProduction * Probability;
         }

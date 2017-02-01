@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -130,7 +131,7 @@ namespace TMG.GTAModel.Generation
                 RegionHomeOtherDriveParameter, RegionHomeOtherOtherParameter );
             // Now that all of the purposes have been added in we can go and add in the professions
             var flatProduction = production.GetFlatData();
-            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+            Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
                         var increment = 0f;
                         int regionIndex;
@@ -220,7 +221,7 @@ namespace TMG.GTAModel.Generation
                 if ( driveData == data )
                 {
                     // Auto drive case
-                    Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
                         var increment = 0f;
                         int regionIndex;
@@ -236,7 +237,7 @@ namespace TMG.GTAModel.Generation
                 else
                 {
                     // not auto drive case
-                    Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
                         var increment = 0f;
                         int regionIndex;

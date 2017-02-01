@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
@@ -25,9 +26,9 @@ using XTMF;
 
 namespace TMG.GTAModel.DataUtility
 {
-    internal static class UniversalRead<D>
+    internal static class UniversalRead<TDestination>
     {
-        internal static IRead<D, S> CreateReader<S>(S instanceOfObject, string variableName)
+        internal static IRead<TDestination, TSource> CreateReader<TSource>(TSource instanceOfObject, string variableName)
         {
             Type[] sourceType;
             bool[] property;
@@ -35,19 +36,19 @@ namespace TMG.GTAModel.DataUtility
             {
                 throw new XTMFRuntimeException( "Unable to create a reader from a null instance!" );
             }
-            Type instanceType = instanceOfObject.GetType();
-            string[] variableNameParts = variableName.Split( '.' );
+            var instanceType = instanceOfObject.GetType();
+            var variableNameParts = variableName.Split( '.' );
             if ( !VerrifyType( instanceType, variableNameParts, out sourceType, out property ) )
             {
                 throw new XTMFRuntimeException( "Unable to find \"" + variableName + "\" inside of a \"" + instanceType.FullName + "\"" );
             }
 
-            return CreateReader<S>( instanceType, variableNameParts, sourceType, property );
+            return CreateReader<TSource>( instanceType, variableNameParts, sourceType, property );
         }
 
         private static CodeNamespace AddNamespaces(CodeCompileUnit unit)
         {
-            CodeNamespace namespaceXTMF = new CodeNamespace( "XTMF.DataUtilities.Generated" );
+            var namespaceXTMF = new CodeNamespace( "XTMF.DataUtilities.Generated" );
             namespaceXTMF.Imports.Add( new CodeNamespaceImport( "System" ) );
             namespaceXTMF.Imports.Add( new CodeNamespaceImport( "TMG.GTAModel.DataUtility" ) );
             unit.Namespaces.Add( namespaceXTMF );
@@ -79,36 +80,33 @@ namespace TMG.GTAModel.DataUtility
             var root = new CodeCastExpression( instanceType, new CodeVariableReferenceExpression( from.Name ) );
             if ( sourceType.Length > 0 )
             {
-                CodeExpression expression = Get( variableNameParts, sourceType, property, root, 0 );
+                var expression = Get( variableNameParts, sourceType, property, root, 0 );
                 return new CodeAssignStatement( new CodeVariableReferenceExpression( result.Name ), expression );
             }
-            else
-            {
-                return new CodeAssignStatement( new CodeVariableReferenceExpression( result.Name ), root );
-            }
+            return new CodeAssignStatement( new CodeVariableReferenceExpression( result.Name ), root );
         }
 
-        private static IRead<D, S> CreateReader<S>(Type instanceType, string[] variableNameParts, Type[] sourceType, bool[] property)
+        private static IRead<TDestination, TSource> CreateReader<TSource>(Type instanceType, string[] variableNameParts, Type[] sourceType, bool[] property)
         {
-            var destinationType = typeof(D);
-            CodeCompileUnit unit = new CodeCompileUnit();
+            var destinationType = typeof(TDestination);
+            var unit = new CodeCompileUnit();
             AddReferences( unit );
-            CodeNamespace namespaceXTMF = AddNamespaces( unit );
-            long uniqueID = DateTime.Now.Ticks;
-            CodeTypeDeclaration realTimeReader = new CodeTypeDeclaration( String.Format( "RealtimeCompiledReader{0}", uniqueID ) );
-            realTimeReader.BaseTypes.Add( new CodeTypeReference( String.Format( "IRead<{0},{1}>", destinationType.FullName, typeof(S) ) ) );
-            CodeMemberMethod CopyMethod = new CodeMemberMethod();
-            CopyMethod.Name = "Read";
-            CopyMethod.Attributes = MemberAttributes.Public;
-            CopyMethod.ReturnType = new CodeTypeReference( typeof(bool) );
-            var readFrom = new CodeParameterDeclarationExpression( typeof(S), "readFrom" ) { Direction = FieldDirection.In };
-            var storeIn = new CodeParameterDeclarationExpression( typeof(D), "result" ) { Direction = FieldDirection.Out };
-            CopyMethod.Parameters.AddRange( new[] { readFrom, storeIn } );
-            CopyMethod.Statements.Add( CreateAssingmentStatement( storeIn, readFrom, instanceType, variableNameParts, sourceType, property ) );
-            CopyMethod.Statements.Add( new CodeMethodReturnStatement( new CodePrimitiveExpression( true ) ) );
-            realTimeReader.Members.Add( CopyMethod );
+            var namespaceXTMF = AddNamespaces( unit );
+            var uniqueID = DateTime.Now.Ticks;
+            var realTimeReader = new CodeTypeDeclaration( String.Format( "RealtimeCompiledReader{0}", uniqueID ) );
+            realTimeReader.BaseTypes.Add( new CodeTypeReference( String.Format( "IRead<{0},{1}>", destinationType.FullName, typeof(TSource) ) ) );
+            var copyMethod = new CodeMemberMethod();
+            copyMethod.Name = "Read";
+            copyMethod.Attributes = MemberAttributes.Public;
+            copyMethod.ReturnType = new CodeTypeReference( typeof(bool) );
+            var readFrom = new CodeParameterDeclarationExpression( typeof(TSource), "readFrom" ) { Direction = FieldDirection.In };
+            var storeIn = new CodeParameterDeclarationExpression( typeof(TDestination), "result" ) { Direction = FieldDirection.Out };
+            copyMethod.Parameters.AddRange( new[] { readFrom, storeIn } );
+            copyMethod.Statements.Add( CreateAssingmentStatement( storeIn, readFrom, instanceType, variableNameParts, sourceType, property ) );
+            copyMethod.Statements.Add( new CodeMethodReturnStatement( new CodePrimitiveExpression( true ) ) );
+            realTimeReader.Members.Add( copyMethod );
             namespaceXTMF.Types.Add( realTimeReader );
-            CodeDomProvider compiler = CodeDomProvider.CreateProvider( "CSharp" );
+            var compiler = CodeDomProvider.CreateProvider( "CSharp" );
             var options = new CompilerParameters();
             options.IncludeDebugInformation = false;
             options.GenerateInMemory = true;
@@ -127,28 +125,25 @@ namespace TMG.GTAModel.DataUtility
             var assembly = results.CompiledAssembly;
             var theClass = assembly.GetType( String.Format( "XTMF.DataUtilities.Generated.RealtimeCompiledReader{0}", uniqueID ) );
             var constructor = theClass.GetConstructor( new Type[0] );
-            var output = constructor.Invoke( new object[0] );
-            return output as IRead<D, S>;
+            var output = constructor?.Invoke( new object[0] );
+            return output as IRead<TDestination, TSource>;
         }
 
         private static CodeExpression Get(string[] variableNameParts, Type[] sourceType, bool[] property, CodeExpression root, int index)
         {
             CodeExpression expression = new CodeCastExpression( new CodeTypeReference( sourceType[index] ),
-                ( property[index] ? (CodeExpression)new CodePropertyReferenceExpression( root, variableNameParts[index] )
+                ( property[index] ? new CodePropertyReferenceExpression( root, variableNameParts[index] )
                 : (CodeExpression)new CodeFieldReferenceExpression( root, variableNameParts[index] ) ) );
             if ( index < variableNameParts.Length - 1 )
             {
                 return Get( variableNameParts, sourceType, property, expression, index + 1 );
             }
-            else
-            {
-                return expression;
-            }
+            return expression;
         }
 
         private static string GetModuleDirectory()
         {
-            string programPath = Path.GetFullPath( Assembly.GetEntryAssembly().CodeBase.Replace( "file:///", String.Empty ) );
+            var programPath = Path.GetFullPath( Assembly.GetEntryAssembly().CodeBase.Replace( "file:///", String.Empty ) );
             return Path.Combine( Path.GetDirectoryName( programPath ), "Modules" );
         }
 
@@ -156,24 +151,21 @@ namespace TMG.GTAModel.DataUtility
         {
             sourceType = new Type[parts.Length];
             property = new bool[parts.Length];
-            for ( int i = 0; i < parts.Length; i++ )
+            for ( var i = 0; i < parts.Length; i++ )
             {
                 var field = instanceType.GetField( parts[i] );
                 if ( field == null )
                 {
                     var p = instanceType.GetProperty( parts[i] );
-                    if ( property == null )
+                    if (p == null )
                     {
                         sourceType = null;
                         property = null;
                         return false;
                     }
-                    else
-                    {
-                        instanceType = p.PropertyType;
-                        sourceType[i] = instanceType;
-                        property[i] = true;
-                    }
+                    instanceType = p.PropertyType;
+                    sourceType[i] = instanceType;
+                    property[i] = true;
                 }
                 else
                 {

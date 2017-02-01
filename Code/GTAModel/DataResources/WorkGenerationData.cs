@@ -16,13 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TMG;
-using XTMF;
 using Datastructure;
+using XTMF;
+
 namespace TMG.GTAModel.DataResources
 {
     [ModuleInformation(Description=
@@ -81,7 +79,6 @@ namespace TMG.GTAModel.DataResources
             // initialize the first one, and use it for the first zone
             flatTemp[0] = SparseTriIndex<float>.CreateSparseTriIndex( first, second, third, data );
             //release memory resources before we allocate a bunch more
-            first = second = third = null;
             // now create a clone of this for each zone [i starts at 1 since 0 has already been set]
             for ( int i = 1; i < flatTemp.Length; i++ )
             {

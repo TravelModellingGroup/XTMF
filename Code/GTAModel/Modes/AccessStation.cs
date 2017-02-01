@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Threading;
 using Datastructure;
@@ -123,13 +124,13 @@ namespace TMG.GTAModel.Modes
 
         private int _Parking;
 
-        private bool CacheLoaded = false;
+        private bool CacheLoaded;
 
         private SparseArray<EgressZoneChoice> EgressChoiceCache;
 
         private IZone InterchangeZone;
 
-        private bool LocalTransitCacheLoaded = false;
+        private bool LocalTransitCacheLoaded;
 
         private float LogOfParking;
 
@@ -368,12 +369,12 @@ namespace TMG.GTAModel.Modes
                 error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if ( Second == null )
+            if ( Second == null )
             {
                 error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
             }
-            else if ( Third == null && ComputeEgressStation )
+            if ( Third == null && ComputeEgressStation )
             {
                 error = "In '" + Name + "' the name of the egress network data type was not found or does not contain trip component data!";
                 return false;
@@ -442,11 +443,8 @@ namespace TMG.GTAModel.Modes
                 return ComputeSubV( Second, flatInterchanceZone, flatEgress, time, InVehicleTravelTime, WalkTime, WaitTime, BoardingTime, CostFactor )
                 + ComputeSubV( Third, flatEgress, flatDestination, time, InVehicleTravelTime, WalkTime, WaitTime, BoardingTime, CostFactor );
             }
-            else
-            {
-                return ComputeSubV( Second, flatEgress, flatInterchanceZone, time, InVehicleTravelTime, WalkTime, WaitTime, BoardingTime, CostFactor )
-                + ComputeSubV( Third, flatDestination, flatEgress, time, InVehicleTravelTime, WalkTime, WaitTime, BoardingTime, CostFactor );
-            }
+            return ComputeSubV( Second, flatEgress, flatInterchanceZone, time, InVehicleTravelTime, WalkTime, WaitTime, BoardingTime, CostFactor )
+                   + ComputeSubV( Third, flatDestination, flatEgress, time, InVehicleTravelTime, WalkTime, WaitTime, BoardingTime, CostFactor );
         }
 
         private void CheckInterchangeZone()
@@ -522,9 +520,9 @@ namespace TMG.GTAModel.Modes
             }
             if ( bestEgressZone < 0 )
             {
-                return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice() { Zones = null, EgressUtility = float.NaN } );
+                return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice { Zones = null, EgressUtility = float.NaN } );
             }
-            return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice() { Zones = zones.GetFlatData()[bestEgressZone], EgressUtility = CalculateEgressUtility( bestEgressZone, flatDestination, time ) } );
+            return ( EgressChoiceCache.GetFlatData()[flatDestination] = new EgressZoneChoice { Zones = zones.GetFlatData()[bestEgressZone], EgressUtility = CalculateEgressUtility( bestEgressZone, flatDestination, time ) } );
         }
 
         private bool GetEgressTT(int flatEgressZone, int flatDestinationZone, Time time, float bestTime, out float tt)

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using Datastructure;
 using XTMF;
 
@@ -75,18 +76,15 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             {
                 return containsOrigin ^ containsDestination;
             }
-            else if ( ContainsOnePD )
+            if ( ContainsOnePD )
             {
                 return containsOrigin | containsDestination;
             }
-            else if ( ContainsBothPD )
+            if ( ContainsBothPD )
             {
                 return containsOrigin & containsDestination;
             }
-            else
-            {
-                return !( containsOrigin | containsDestination );
-            }
+            return !( containsOrigin | containsDestination );
         }
     }
 }

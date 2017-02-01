@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using Datastructure;
 using TMG.Input;
 using XTMF;
 
@@ -72,7 +74,7 @@ namespace TMG.GTAModel.Input
             return true;
         }
 
-        private void CombineData(Datastructure.SparseArray<IZone> zones, float[][] matrix)
+        private void CombineData(SparseArray<IZone> zones, float[][] matrix)
         {
             foreach ( var source in DataSources )
             {

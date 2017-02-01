@@ -16,9 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using TMG.ParameterDatabase;
 using XTMF;
@@ -42,15 +44,15 @@ namespace TMG.GTAModel.ParameterDatabase
         [RootModule]
         public IModelSystemTemplate Root;
 
-        private bool Blending = false;
+        private bool Blending;
 
-        private float CurrentBlendWeight = 0f;
+        private float CurrentBlendWeight;
 
         private List<string[]> DemographicAlternativeParameters = new List<string[]>();
 
         private List<bool[]> DemographicSwitches = new List<bool[]>();
 
-        private bool Loaded = false;
+        private bool Loaded;
 
         private List<string[]> ParameterSets = new List<string[]>();
 
@@ -108,7 +110,7 @@ namespace TMG.GTAModel.ParameterDatabase
 
         public void CompleteBlend()
         {
-            Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, Modes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
                     Modes[i].FinishBlending();
@@ -119,7 +121,7 @@ namespace TMG.GTAModel.ParameterDatabase
         public void InitializeBlend()
         {
             Blending = true;
-            Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, Modes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
                     Modes[i].StartBlend();
@@ -150,7 +152,7 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             // now in parallel setup all of our modes at the same time
             if ( CurrentBlendWeight == 0 ) return;
-            Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, Modes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
                     Modes[i].AssignBlendedParameters( Parameters, CurrentBlendWeight );
@@ -160,7 +162,7 @@ namespace TMG.GTAModel.ParameterDatabase
         private void AssignParameters()
         {
             // now in parallel setup all of our modes at the same time
-            Parallel.For( 0, Modes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, Modes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
                     Modes[i].AssignParameters( Parameters );
@@ -178,7 +180,7 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             lock ( this )
             {
-                System.Threading.Thread.MemoryBarrier();
+                Thread.MemoryBarrier();
                 if ( Loaded ) return;
                 // First load in the parameters
                 var headers = LoadParameters();
@@ -186,12 +188,10 @@ namespace TMG.GTAModel.ParameterDatabase
                 try
                 {
                     Parallel.Invoke(
-                        delegate()
-                        {
+                        delegate {
                             LoadSwitches( headers );
                         },
-                        delegate()
-                        {
+                        delegate {
                             LoadAlternatives( headers );
                         } );
                 }
@@ -201,14 +201,11 @@ namespace TMG.GTAModel.ParameterDatabase
                     {
                         throw new XTMFRuntimeException( e.InnerException.Message );
                     }
-                    else
-                    {
-                        throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                    }
+                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
                 }
                 // now that we have finished loading, flip that switch
                 Loaded = true;
-                System.Threading.Thread.MemoryBarrier();
+                Thread.MemoryBarrier();
             }
         }
 

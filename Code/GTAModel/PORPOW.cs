@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -98,7 +99,7 @@ namespace TMG.GTAModel
                     error = "A file name needs to be selected when trying to save the work assigned population!";
                     return false;
                 }
-                else if (!Uri.IsWellFormedUriString(SaveFileName, UriKind.RelativeOrAbsolute))
+                if (!Uri.IsWellFormedUriString(SaveFileName, UriKind.RelativeOrAbsolute))
                 {
                     error = String.Concat('"', SaveFileName, "\" is not a valid file name!");
                     return false;
@@ -140,10 +141,9 @@ namespace TMG.GTAModel
             var flatPopulation = Root.Population.Population.GetFlatData();
             try
             {
-                Parallel.For(0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                    delegate ()
-                    {
-                        return new Assignment() { dist = ZoneArray.CreateSimilarArray<float>(), indexes = null };
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                    delegate {
+                        return new Assignment { dist = ZoneArray.CreateSimilarArray<float>(), indexes = null };
                     },
                 delegate (int z, ParallelLoopState unused, Assignment assign)
                 {
@@ -215,7 +215,7 @@ namespace TMG.GTAModel
                         offset += ammount;
                     }
                     return assign;
-                }, delegate (Assignment unused) { });
+                }, delegate { });
             }
             catch (AggregateException e)
             {
@@ -234,7 +234,7 @@ namespace TMG.GTAModel
             cat.InitializeDemographicCategory();
             try
             {
-                Parallel.For(0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
                {
                    int index = i * numberOfZones;
                    var origin = zones[i];
@@ -263,10 +263,7 @@ namespace TMG.GTAModel
                        {
                            throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
                        }
-                       else
-                       {
-                           ret[index++] = (float)Math.Exp(ImpedianceParameter * Math.Log(c));
-                       }
+                       ret[index++] = (float)Math.Exp(ImpedianceParameter * Math.Log(c));
                    }
                });
             }
@@ -321,8 +318,8 @@ namespace TMG.GTAModel
                 Task assignToPopulation = null;
                 if (i > 0)
                 {
-                    assignToPopulation = new Task(delegate ()
-                       {
+                    assignToPopulation = new Task(delegate
+                    {
                            if (prevWorkplaceDistribution != null)
                            {
                                // We actually are assigning to the previous category with this data so we need i - 1
@@ -335,8 +332,7 @@ namespace TMG.GTAModel
                 Task computeNextFriction = null;
                 if (i + 1 < numCat)
                 {
-                    computeNextFriction = new Task(delegate ()
-                   {
+                    computeNextFriction = new Task(delegate {
                        nextFriction = ComputeFriction(ZoneArray.GetFlatData(), Categories[i + 1], nextFriction);
                    });
                     computeNextFriction.Start();

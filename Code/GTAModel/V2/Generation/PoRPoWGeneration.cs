@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Linq;
@@ -326,11 +327,11 @@ namespace TMG.GTAModel.V2.Generation
             bool first = !File.Exists( AttractionFileName.GetFileName() );
             StringBuilder buildInside = new StringBuilder();
             buildInside.Append( ',' );
-            buildInside.Append( AgeCategoryRange.ToString() );
+            buildInside.Append( AgeCategoryRange );
             buildInside.Append( ',' );
-            buildInside.Append( EmploymentStatusCategory.ToString() );
+            buildInside.Append( EmploymentStatusCategory );
             buildInside.Append( ',' );
-            buildInside.Append( OccupationCategory.ToString() );
+            buildInside.Append( OccupationCategory );
             buildInside.Append( ',' );
             string categoryData = buildInside.ToString();
             using ( StreamWriter writer = new StreamWriter( AttractionFileName.GetFileName(), true ) )

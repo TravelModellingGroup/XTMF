@@ -18,8 +18,8 @@
 */
 namespace TMG.GTAModel.DataUtility
 {
-    public interface IRead<D, S>
+    public interface IRead<TDestination, TSource>
     {
-        bool Read(S readFrom, out D result);
+        bool Read(TSource readFrom, out TDestination result);
     }
 }
