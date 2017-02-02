@@ -44,7 +44,7 @@
             </WrapPanel>
         </Border>
 
-        <Grid  >
+        <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />

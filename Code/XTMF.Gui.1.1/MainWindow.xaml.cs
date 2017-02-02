@@ -27,9 +27,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -40,6 +40,11 @@ using Xceed.Wpf.AvalonDock.Layout;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
+using Application = System.Windows.Application;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using MenuItem = System.Windows.Controls.MenuItem;
+using MessageBox = System.Windows.MessageBox;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui
 {
@@ -111,6 +116,7 @@ namespace XTMF.Gui
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, this.Minimize_Click, this.OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, this.OnRestoreWindow, this.OnCanResizeWindow));
 
+            
 
         }
 
@@ -1236,13 +1242,14 @@ namespace XTMF.Gui
             {
                 ExternalGrid.Margin = new Thickness()
                 {
-                    Left = 6,
-                    Top = 6,
-                    Right = 6,
-                    Bottom = 6
-                };
-
+                    Left = 0,
+                    Top = 0,
+                    Right = 0,
+                    Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
+                  };
                 SystemCommands.MaximizeWindow(this);
+
+
             }
         }
 
