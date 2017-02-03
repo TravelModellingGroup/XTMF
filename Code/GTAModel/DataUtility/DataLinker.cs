@@ -93,8 +93,8 @@ namespace TMG.GTAModel.DataUtility
             namespaceXTMF.Imports.Add( new CodeNamespaceImport( "System" ) );
             namespaceXTMF.Imports.Add( new CodeNamespaceImport( "XTMF.DataUtilities" ) );
             unit.Namespaces.Add( namespaceXTMF );
-            var uniqueID = DateTime.Now.Ticks;
-            var transitionClass = new CodeTypeDeclaration($"TransitionClass{uniqueID}");
+            var uniqueId = DateTime.Now.Ticks;
+            var transitionClass = new CodeTypeDeclaration($"TransitionClass{uniqueId}");
             transitionClass.BaseTypes.Add( new CodeTypeReference($"IDataLink<{destinationType.FullName}>") );
             var copyMethod = new CodeMemberMethod
             {
@@ -132,7 +132,7 @@ namespace TMG.GTAModel.DataUtility
                 throw new XTMFRuntimeException( results.Errors[0].ToString() );
             }
             var assembly = results.CompiledAssembly;
-            var theClass = assembly.GetType( String.Format( "XTMF.DataUtilities.Generated.TransitionClass{0}", uniqueID ) );
+            var theClass = assembly.GetType( String.Format( "XTMF.DataUtilities.Generated.TransitionClass{0}", uniqueId ) );
             var constructor = theClass.GetConstructor( new Type[0] );
             var output = constructor?.Invoke( new object[0] );
             return output as IDataLink<T>;

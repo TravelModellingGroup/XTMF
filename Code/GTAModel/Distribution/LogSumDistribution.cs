@@ -209,7 +209,7 @@ GPU to enhance the processing time of the model.")]
            });
         }
 
-        private IEnumerable<SparseTwinIndex<float>> CPUDoublyConstrained(IZone[] zones, IEnumerator<SparseArray<float>> ep, IEnumerator<SparseArray<float>> ea, IEnumerator<IDemographicCategory> ec)
+        private IEnumerable<SparseTwinIndex<float>> CpuDoublyConstrained(IZone[] zones, IEnumerator<SparseArray<float>> ep, IEnumerator<SparseArray<float>> ea, IEnumerator<IDemographicCategory> ec)
         {
             var frictionSparse = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var friction = frictionSparse.GetFlatData();
@@ -218,7 +218,6 @@ GPU to enhance the processing time of the model.")]
                 var production = ep.Current;
                 var attraction = ea.Current;
                 var cat = ec.Current;
-                var ret = production.CreateSquareTwinArray<float>();
                 ComputeFriction(zones, cat, friction);
                 yield return new GravityModel(frictionSparse, (p => Progress = p), Epsilon, MaxIterations)
                     .ProcessFlow(production, attraction, production.ValidIndexArray());
@@ -306,7 +305,7 @@ GPU to enhance the processing time of the model.")]
 
         private IEnumerable<SparseTwinIndex<float>> SolveDoublyConstrained(IZone[] zones, IEnumerator<SparseArray<float>> ep, IEnumerator<SparseArray<float>> ea, IEnumerator<IDemographicCategory> ec)
         {
-            foreach (var ret in CPUDoublyConstrained(zones, ep, ea, ec))
+            foreach (var ret in CpuDoublyConstrained(zones, ep, ea, ec))
             {
                 yield return ret;
             }
@@ -318,9 +317,7 @@ GPU to enhance the processing time of the model.")]
             while (ep.MoveNext() && ea.MoveNext() && ec.MoveNext())
             {
                 var production = ep.Current;
-                var attraction = ea.Current;
                 var cat = ec.Current;
-                var ret = production.CreateSquareTwinArray<float>();
                 friction = ComputeFriction(zones, cat, production.GetFlatData(), null, friction);
                 yield return SinglyConstrainedGravityModel.Process(production, friction);
             }

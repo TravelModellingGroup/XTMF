@@ -116,10 +116,10 @@ namespace TMG.GTAModel.Analysis
             List<int> pdNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {
-                var pdID = zones[i].PlanningDistrict;
-                if ( !pdNumbersFound.Contains( pdID ) )
+                var pdId = zones[i].PlanningDistrict;
+                if ( !pdNumbersFound.Contains( pdId ) )
                 {
-                    pdNumbersFound.Add( pdID );
+                    pdNumbersFound.Add( pdId );
                 }
             }
             var pdArray = pdNumbersFound.ToArray();
@@ -132,10 +132,10 @@ namespace TMG.GTAModel.Analysis
             List<int> regionNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {
-                var regionID = zones[i].RegionNumber;
-                if ( !regionNumbersFound.Contains( regionID ) )
+                var regionId = zones[i].RegionNumber;
+                if ( !regionNumbersFound.Contains( regionId ) )
                 {
-                    regionNumbersFound.Add( regionID );
+                    regionNumbersFound.Add( regionId );
                 }
             }
             var regionArray = regionNumbersFound.ToArray();

@@ -92,8 +92,8 @@ namespace TMG.GTAModel.DataUtility
             var unit = new CodeCompileUnit();
             AddReferences( unit );
             var namespaceXTMF = AddNamespaces( unit );
-            var uniqueID = DateTime.Now.Ticks;
-            var realTimeReader = new CodeTypeDeclaration( String.Format( "RealtimeCompiledReader{0}", uniqueID ) );
+            var uniqueId = DateTime.Now.Ticks;
+            var realTimeReader = new CodeTypeDeclaration( String.Format( "RealtimeCompiledReader{0}", uniqueId ) );
             realTimeReader.BaseTypes.Add( new CodeTypeReference( String.Format( "IRead<{0},{1}>", destinationType.FullName, typeof(TSource) ) ) );
             var copyMethod = new CodeMemberMethod();
             copyMethod.Name = "Read";
@@ -123,7 +123,7 @@ namespace TMG.GTAModel.DataUtility
             }
 
             var assembly = results.CompiledAssembly;
-            var theClass = assembly.GetType( String.Format( "XTMF.DataUtilities.Generated.RealtimeCompiledReader{0}", uniqueID ) );
+            var theClass = assembly.GetType( String.Format( "XTMF.DataUtilities.Generated.RealtimeCompiledReader{0}", uniqueId ) );
             var constructor = theClass.GetConstructor( new Type[0] );
             var output = constructor?.Invoke( new object[0] );
             return output as IRead<TDestination, TSource>;

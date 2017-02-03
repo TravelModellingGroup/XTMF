@@ -47,7 +47,7 @@ This module requires the root module of the model system to be of type ‘IDemog
         [RootModule]
         public IDemographicsModelSystemTemplate Root;
 
-        private IRead<IZone, IPerson> getDest;
+        private IRead<IZone, IPerson> GetDest;
 
         public string Name
         {
@@ -86,14 +86,14 @@ This module requires the root module of the model system to be of type ‘IDemog
                         if ( localPop != null && ( popLength = localPop.Length ) > 0 )
                         {
                             var iArray = flatRet[i];
-                            EnsureGetDest( ref getDest, localPop[0] );
+                            EnsureGetDest( ref GetDest, localPop[0] );
                             for ( int j = 0; j < popLength; j++ )
                             {
                                 IZone destZone;
                                 var person = localPop[j];
                                 if ( cat.IsContained( person ) )
                                 {
-                                    getDest.Read( person, out destZone );
+                                    GetDest.Read( person, out destZone );
                                     if ( destZone != null )
                                     {
                                         iArray[zoneArray.GetFlatIndex( destZone.ZoneNumber )] += Probability;
