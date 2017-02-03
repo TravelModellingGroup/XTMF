@@ -27,6 +27,7 @@ using XTMF;
 
 namespace TMG.GTAModel.Distribution
 {
+    // ReSharper disable once InconsistentNaming
     public class DRMNHBODistribution : IDemographicDistribution
     {
         [RunParameter( "Auto Network Name", "Auto", "The name of the auto network." )]
@@ -73,14 +74,16 @@ namespace TMG.GTAModel.Distribution
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            var ep = productions.GetEnumerator();
-            var ec = category.GetEnumerator();
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            float[] friction = null;
-            while ( ep.MoveNext() && ec.MoveNext() )
+            using (var ep = productions.GetEnumerator())
+            using (var ec = category.GetEnumerator())
             {
-                friction = ComputeFriction( zones, ec.Current, friction );
-                yield return SinglyConstrainedGravityModel.Process( ep.Current, friction );
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                float[] friction = null;
+                while (ep.MoveNext() && ec.MoveNext())
+                {
+                    friction = ComputeFriction(zones, ec.Current, friction);
+                    yield return SinglyConstrainedGravityModel.Process(ep.Current, friction);
+                }
             }
         }
 
@@ -93,11 +96,6 @@ namespace TMG.GTAModel.Distribution
                 return false;
             }
             return true;
-        }
-
-        private bool CompareParameterCount(FloatList data)
-        {
-            return RegionNumbers.Count == data.Count;
         }
 
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] friction)
@@ -149,7 +147,7 @@ namespace TMG.GTAModel.Distribution
                 {
                     throw new XTMFRuntimeException( e.InnerException.Message );
                 }
-                throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
+                throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
             }
             // Use the Log-Sum from the V's as the impedence function
             return ret;
@@ -160,17 +158,16 @@ namespace TMG.GTAModel.Distribution
             return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
         }
 
-        private bool LoadNetwork()
+        private void LoadNetwork()
         {
             foreach ( var data in Root.NetworkData )
             {
                 if ( data.NetworkType == AutoNetworkName )
                 {
                     NetworkData = data;
-                    return true;
+                    return;
                 }
             }
-            return false;
         }
     }
 }

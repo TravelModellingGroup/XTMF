@@ -63,20 +63,22 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> cat)
         {
-            var productionEnum = productions.GetEnumerator();
-            var attractionEnum = attractions.GetEnumerator();
-            var catEnum = cat.GetEnumerator();
-            var numberOfZones = Root.ZoneSystem.ZoneArray.GetFlatData().Length;
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var sparseFriction = zoneArray.CreateSquareTwinArray<float>();
-            float[][] friction = sparseFriction.GetFlatData();
-            var validZones = zoneArray.ValidIndexArray();
-            while (productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext())
+            using (var productionEnum = productions.GetEnumerator())
+            using (var attractionEnum = attractions.GetEnumerator())
+            using (var catEnum = cat.GetEnumerator())
             {
-                friction = ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
-                yield return new GravityModel(sparseFriction, (p => Progress = p), Epsilon, MaxIterations).ProcessFlow(productionEnum.Current, attractionEnum.Current, validZones);
+                var zoneArray = Root.ZoneSystem.ZoneArray;
+                var sparseFriction = zoneArray.CreateSquareTwinArray<float>();
+                float[][] friction = sparseFriction.GetFlatData();
+                var validZones = zoneArray.ValidIndexArray();
+                while (productionEnum.MoveNext() && attractionEnum.MoveNext() && catEnum.MoveNext())
+                {
+                    friction = ComputeFriction(zoneArray.GetFlatData(), catEnum.Current, friction);
+                    yield return
+                        new GravityModel(sparseFriction, (p => Progress = p), Epsilon, MaxIterations).ProcessFlow(
+                            productionEnum.Current, attractionEnum.Current, validZones);
+                }
             }
-            friction = null;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -89,27 +91,21 @@ namespace TMG.GTAModel
             var numberOfZones = zones.Length;
             var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
-            var minFrictionInc = (float)Math.Exp(-10);
             // initialize the category so we can compute the friction
             cat.InitializeDemographicCategory();
             Parallel.For(0, numberOfZones, delegate (int i)
            {
                var origin = zones[i];
-               int vIndex = i * numberOfZones * numberOfModes;
                for (int j = 0; j < numberOfZones; j++)
                {
                    double logsum = 0f;
-                   var destination = zones[j];
-                   int feasibleModes = 0;
                    for (int mIndex = 0; mIndex < numberOfModes; mIndex++)
                    {
                        var mode = rootModes[mIndex];
                        if (!mode.Feasible(origin, zones[j], SimulationTime))
                        {
-                           vIndex++;
                            continue;
                        }
-                       feasibleModes++;
                        var inc = mode.CalculateV(origin, zones[j], SimulationTime);
                        if (float.IsNaN(inc))
                        {

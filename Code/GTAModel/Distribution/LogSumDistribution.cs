@@ -19,11 +19,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
@@ -88,25 +90,29 @@ GPU to enhance the processing time of the model.")]
             set;
         }
 
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
             Progress = 0f;
-            var ep = SwapAttraction ? attractions.GetEnumerator() : productions.GetEnumerator();
-            var ea = SwapAttraction ? productions.GetEnumerator() : attractions.GetEnumerator();
-            var ec = category.GetEnumerator();
-            if (KFactorDataReader != null)
+            using (var ep = SwapAttraction ? attractions.GetEnumerator() : productions.GetEnumerator())
+            using (var ea = SwapAttraction ? productions.GetEnumerator() : attractions.GetEnumerator())
+            using (var ec = category.GetEnumerator())
             {
-                LoadKFactors();
-            }
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            foreach (var ret in DoublyConstrained ?
-                SolveDoublyConstrained(zones, ep, ea, ec) : SolveSinglyConstrained(zones, ep, ea, ec))
-            {
-                if (Transpose)
+                if (KFactorDataReader != null)
                 {
-                    TransposeMatrix(ret);
+                    LoadKFactors();
                 }
-                yield return ret;
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                foreach (var ret in DoublyConstrained
+                    ? SolveDoublyConstrained(zones, ep, ea, ec)
+                    : SolveSinglyConstrained(zones, ep, ea, ec))
+                {
+                    if (Transpose)
+                    {
+                        TransposeMatrix(ret);
+                    }
+                    yield return ret;
+                }
             }
             KFactor = null;
         }
@@ -135,8 +141,6 @@ GPU to enhance the processing time of the model.")]
         {
             var numberOfZones = zones.Length;
             float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
-            var rootModes = Root.Modes;
-            var numberOfModes = rootModes.Count;
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
             try
@@ -160,12 +164,12 @@ GPU to enhance the processing time of the model.")]
                        }
                        else
                        {
-                           var utility = 0f;
+                           float utility;
                            if (!GatherAllUtility(zones[i], zones[j], out utility))
                            {
                                ret[index++] = 0;
-                                //throw new XTMFRuntimeException( "There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber );
-                            }
+                               //throw new XTMFRuntimeException( "There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber );
+                           }
                            else
                            {
                                ret[index++] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
@@ -180,7 +184,7 @@ GPU to enhance the processing time of the model.")]
                 {
                     throw new XTMFRuntimeException(e.InnerException.Message);
                 }
-                throw new XTMFRuntimeException(e.InnerException.Message + "\r\n" + e.InnerException.StackTrace);
+                throw new XTMFRuntimeException(e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
             }
             // Use the Log-Sum from the V's as the impedence function
             return ret;
@@ -189,30 +193,20 @@ GPU to enhance the processing time of the model.")]
         private void ComputeFriction(IZone[] zones, IDemographicCategory cat, float[][] friction)
         {
             var numberOfZones = zones.Length;
-            var rootModes = Root.Modes;
-            var numberOfModes = rootModes.Count;
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
-            try
-            {
-                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+            Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+           {
+               for (int j = 0; j < numberOfZones; j++)
                {
-                   for (int j = 0; j < numberOfZones; j++)
+                   float utility;
+                   if (!GatherAllUtility(zones[i], zones[j], out utility))
                    {
-                       var destination = zones[j];
-                       float utility;
-                       if (!GatherAllUtility(zones[i], zones[j], out utility))
-                       {
-                           throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
-                       }
-                       friction[i][j] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
+                       throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
                    }
-               });
-            }
-            catch (AggregateException e)
-            {
-                throw e.InnerException;
-            }
+                   friction[i][j] = (float)Math.Pow(utility, ImpedianceParameter) * (KFactor != null ? (float)Math.Exp(KFactor[i * NumberOfZones + j]) : 1f);
+               }
+           });
         }
 
         private IEnumerable<SparseTwinIndex<float>> CPUDoublyConstrained(IZone[] zones, IEnumerator<SparseArray<float>> ep, IEnumerator<SparseArray<float>> ea, IEnumerator<IDemographicCategory> ec)
