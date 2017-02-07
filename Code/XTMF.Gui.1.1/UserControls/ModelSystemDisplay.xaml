@@ -282,8 +282,29 @@
                                 <Style.Triggers>
                                     <Trigger Property="IsKeyboardFocusWithin" Value="true">
                                         <Setter Property="IsSelected" Value="true" />
+                                        <Setter Property="Background" Value="Aquamarine"></Setter>
                                     </Trigger>
+                                    
+                                    <!--<Trigger Property="IsMouseOver" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Duration="0:0:0.100" To="#FF222222" Storyboard.TargetProperty="Background" />
+
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Duration="0:0:0.100" To="#FF000000" Storyboard.TargetProperty="Background" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger> -->
                                 </Style.Triggers>
+                                
+                               
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ItemsPanel>

@@ -444,6 +444,7 @@ namespace XTMF.Gui.UserControls
 
                         us.ParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
                         us.QuickParameterRecentLinkedParameters.ItemsSource = us.RecentLinkedParameters;
+
                     });
                 });
             }
@@ -694,28 +695,45 @@ namespace XTMF.Gui.UserControls
 
         private void SetFocus(StackPanel border)
         {
-            if (border.Background.IsFrozen)
-            {
-                border.Background = border.Background.CloneCurrentValue();
-            }
-            ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin ?
-                (Color)Application.Current.FindResource("FocusColour") :
-                (Color)Application.Current.FindResource("SelectionBlue"),
-                new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-            border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+              if (border.Background.IsFrozen)
+              {
+
+                  border.Background = Brushes.Transparent;
+                  //border.Background = border.Background.CloneCurrentValue();
+
+
+
+              }
+
+              /*
+             // else
+              //{
+                  ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin
+                          ? (Color) Application.Current.FindResource("FocusColour")
+                          : Colors.Transparent,
+                      new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                  border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+             // } */
+
+          
         }
 
         new private void LostFocus(StackPanel border)
         {
             if (border.Background.IsFrozen)
             {
-                border.Background = border.Background.CloneCurrentValue();
+                //border.Background = new SolidColorBrush((Color)Application.Current.FindResource("FocusColour"));
+
+                border.Background = Brushes.Transparent;
             }
+
             if (!border.IsKeyboardFocusWithin)
             {
-                var background = (Color)Application.Current.FindResource("ControlBackgroundColour");
+                //var background = (Color)Application.Current.FindResource("ControlBackgroundColour");
+
+                var background = Colors.Transparent;
                 ColorAnimation setFocus = new ColorAnimation(background, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-                border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+              // border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
             }
         }
 
@@ -1112,6 +1130,8 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.RefreshFilter();
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
 
+                        
+                        
 
                         if (type != null)
                         {
