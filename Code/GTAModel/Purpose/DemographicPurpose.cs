@@ -55,19 +55,19 @@ This module requires the root module of the model system to be an 'I4StepModel'.
         public override void Run()
         {
             var numberOfCategories = Categories.Count;
-            SparseArray<float>[] O = new SparseArray<float>[numberOfCategories];
-            SparseArray<float>[] D = new SparseArray<float>[numberOfCategories];
+            SparseArray<float>[] o = new SparseArray<float>[numberOfCategories];
+            SparseArray<float>[] d = new SparseArray<float>[numberOfCategories];
 
             Generation = true;
             for ( int i = 0; i < numberOfCategories; i++ )
             {
-                O[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                D[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                Categories[i].Generate( O[i], D[i] );
+                o[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                d[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                Categories[i].Generate( o[i], d[i] );
             }
             Generation = false;
 
-            var modeSplit = ModeSplit.ModeSplit( Distribution.Distribute( O, D, Categories ), Categories.Count );
+            var modeSplit = ModeSplit.ModeSplit( Distribution.Distribute( o, d, Categories ), Categories.Count );
             if ( Transpose )
             {
                 TransposeMatrix( modeSplit );
@@ -84,11 +84,6 @@ This module requires the root module of the model system to be an 'I4StepModel'.
                 }
             }
             Flows = modeSplit;
-        }
-
-        public override bool RuntimeValidation(ref string error)
-        {
-            return base.RuntimeValidation( ref error );
         }
 
         private static void TransposeMatrix(TreeData<float[][]> treeData)

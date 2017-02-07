@@ -28,29 +28,29 @@ using XTMF;
 
 namespace TMG.GTAModel
 {
-    [ModuleInformation(Description=
+    [ModuleInformation(Description =
         @"This model system template is designed for quickly generating a synthetic population for GTAModel.  
 It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         )]
     public class PopulationSynthesis : ITravelDemandModel
     {
-        [SubModelInformation( Description = "The model used for getting the demographics information", Required = true )]
+        [SubModelInformation(Description = "The model used for getting the demographics information", Required = true)]
         public IDemographicsData Demographics;
 
-        [SubModelInformation( Description = "The model used for saving the population", Required = true )]
+        [SubModelInformation(Description = "The model used for saving the population", Required = true)]
         public IPopulation Population;
 
-        [RunParameter( "Random Seed", 12345, "The random seed to use for the choice of work and school." )]
+        [RunParameter("Random Seed", 12345, "The random seed to use for the choice of work and school.")]
         public int RandomSeed;
 
-        [RunParameter( "Unemployed Status", 0, "The index of the unemployed Employment Status" )]
+        [RunParameter("Unemployed Status", 0, "The index of the unemployed Employment Status")]
         public int UnemployedOccupation;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>( 100, 200, 100 );
+        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(100, 200, 100);
 
         private int[] ValidAges;
 
-        [RunParameter( "Input Directory", "../../Input", "The directory that stores the input for this model system." )]
+        [RunParameter("Input Directory", "../../Input", "The directory that stores the input for this model system.")]
         public string InputBaseDirectory
         {
             get;
@@ -82,7 +82,7 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
             get { return Colour; }
         }
 
-        [SubModelInformation( Description = "The model used for handelling the zone system", Required = true )]
+        [SubModelInformation(Description = "The model used for handelling the zone system", Required = true)]
         public IZoneSystem ZoneSystem { get; set; }
 
         public bool ExitRequest()
@@ -102,15 +102,15 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private static void AssignEmploymentStatus(Person[] people, int ageOffset, int employmentOffset, int validEmploymentStatusIndex, int numberOfEmploymentClassifiedPeople)
         {
-            for ( int p = 0; p < numberOfEmploymentClassifiedPeople; p++ )
+            for (int p = 0; p < numberOfEmploymentClassifiedPeople; p++)
             {
                 people[p + ageOffset + employmentOffset].EmploymentStatus = validEmploymentStatusIndex;
             }
         }
 
-        private static void AssignSchools(Person[] people, int ageOffset, int employmentOffset, int StudentPop)
+        private static void AssignSchools(Person[] people, int ageOffset, int employmentOffset, int studentPop)
         {
-            for ( int p = 0; p < StudentPop; p++ )
+            for (int p = 0; p < studentPop; p++)
             {
                 people[p + ageOffset + employmentOffset].StudentStatus = 1;
             }
@@ -119,9 +119,9 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         private void AssignAge(Random rand, Person[] people, int ageOffset, int validAgeIndex, int numberOfPeople)
         {
             Range ageRange = Demographics.AgeCategories[validAgeIndex];
-            for ( int p = 0; p < numberOfPeople; p++ )
+            for (int p = 0; p < numberOfPeople; p++)
             {
-                people[p + ageOffset].Age = rand.Next( ageRange.Start, int.MaxValue == ageRange.Stop ? int.MaxValue : ageRange.Stop + 1 );
+                people[p + ageOffset].Age = rand.Next(ageRange.Start, int.MaxValue == ageRange.Stop ? int.MaxValue : ageRange.Stop + 1);
                 people[p + ageOffset].ExpansionFactor = 1;
             }
         }
@@ -130,19 +130,19 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         {
             var numberOfPeople = indexes.Length;
             // randomly shuffle the indexes before we actually assign the households
-            for ( int i = 0; i < numberOfPeople; i++ )
+            for (int i = 0; i < numberOfPeople; i++)
             {
-                var selectedIndex = rand.Next( i, numberOfPeople );
+                var selectedIndex = rand.Next(i, numberOfPeople);
                 var temp = indexes[selectedIndex];
                 indexes[selectedIndex] = indexes[i];
                 indexes[i] = temp;
             }
 
             int typeOffset = 0;
-            foreach ( var carType in split.ValidIndexies() )
+            foreach (var carType in split.ValidIndexies())
             {
                 var numberInType = split[carType];
-                for ( int i = 0; i < numberInType; i++ )
+                for (int i = 0; i < numberInType; i++)
                 {
                     people[indexes[i + typeOffset] + ageOffset].Household = households[carType];
                 }
@@ -150,43 +150,43 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
             }
         }
 
-        private void AssignOccupationAndLicenese(Person[] people, int ageOffset, int employmentOffset, SparseArray<int> OccupationSplit, int numberOfEmploymentClassifiedPeople,
+        private void AssignOccupationAndLicenese(Person[] people, int ageOffset, int employmentOffset, SparseArray<int> occupationSplit, int numberOfEmploymentClassifiedPeople,
             int numberOfLicenses, Random r)
         {
             int[] personIndex = new int[numberOfEmploymentClassifiedPeople];
-            for ( int i = 0; i < numberOfEmploymentClassifiedPeople; i++ )
+            for (int i = 0; i < numberOfEmploymentClassifiedPeople; i++)
             {
                 personIndex[i] = i;
             }
             // Randomize the population for assignment (Card shuffle algorithm)
-            for ( int i = 0; i < numberOfEmploymentClassifiedPeople; i++ )
+            for (int i = 0; i < numberOfEmploymentClassifiedPeople; i++)
             {
-                var selectedIndex = r.Next( i, numberOfEmploymentClassifiedPeople );
+                var selectedIndex = r.Next(i, numberOfEmploymentClassifiedPeople);
                 var temp = personIndex[selectedIndex];
                 personIndex[selectedIndex] = personIndex[i];
                 personIndex[i] = temp;
             }
             // assign the occupations
             int occOffset = 0;
-            foreach ( var occIndex in OccupationSplit.ValidIndexies() )
+            foreach (var occIndex in occupationSplit.ValidIndexies())
             {
-                var occPop = OccupationSplit[occIndex];
-                for ( int i = 0; i < occPop; i++ )
+                var occPop = occupationSplit[occIndex];
+                for (int i = 0; i < occPop; i++)
                 {
                     people[personIndex[occOffset + i] + ageOffset + employmentOffset].Occupation = occIndex;
                 }
                 occOffset += occPop;
             }
             // Randomize the population for assignment (Card shuffle algorithm)
-            for ( int i = 0; i < numberOfEmploymentClassifiedPeople; i++ )
+            for (int i = 0; i < numberOfEmploymentClassifiedPeople; i++)
             {
-                var selectedIndex = r.Next( i, numberOfEmploymentClassifiedPeople );
+                var selectedIndex = r.Next(i, numberOfEmploymentClassifiedPeople);
                 var temp = personIndex[selectedIndex];
                 personIndex[selectedIndex] = personIndex[i];
                 personIndex[i] = temp;
             }
             // assign the occupations
-            for ( int i = 0; i < numberOfLicenses; i++ )
+            for (int i = 0; i < numberOfLicenses; i++)
             {
                 people[personIndex[i] + ageOffset + employmentOffset].DriversLicense = true;
             }
@@ -194,14 +194,15 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private void GenerateZone(SparseArray<IPerson[]> population, int zoneIndex, int pop, Random rand)
         {
-            Household[] Households = new Household[3];
-            for ( int i = 0; i < 3; i++ )
+            Household[] households = new Household[3];
+            for (int i = 0; i < 3; i++)
             {
-                Households[i] = new Household { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
+                households[i] = new Household { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
             }
             Person[] people = new Person[pop];
+            // ReSharper disable once CoVariantArrayConversion
             population[zoneIndex] = people;
-            for ( int k = 0; k < pop; k++ )
+            for (int k = 0; k < pop; k++)
             {
                 people[k] = new Person();
             }
@@ -212,40 +213,40 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
              * Step 3) Split into ( Non-Student, Student ) , ( Occupation )
              * Step 4) Split into Driver's License ( Not Have / Have )
              */
-            SparseArray<int> agePop = SplitAges( zoneIndex, pop, rand );
+            SparseArray<int> agePop = SplitAges(zoneIndex, pop, rand);
             int ageOffset = 0;
-            foreach ( var validAgeIndex in ValidAges )
+            foreach (var validAgeIndex in ValidAges)
             {
                 var numberOfPeople = agePop[validAgeIndex];
-                var employmentPop = SplitEmployment( zoneIndex, validAgeIndex, numberOfPeople, rand );
+                var employmentPop = SplitEmployment(zoneIndex, validAgeIndex, numberOfPeople, rand);
                 int employmentOffset = 0;
-                foreach ( var validEmploymentStatusIndex in employmentPop.ValidIndexies() )
+                foreach (var validEmploymentStatusIndex in employmentPop.ValidIndexies())
                 {
                     var numberOfEmploymentClassifiedPeople = employmentPop[validEmploymentStatusIndex];
-                    int StudentPop = SplitStudents( zoneIndex, validAgeIndex, validEmploymentStatusIndex, numberOfEmploymentClassifiedPeople, rand );
-                    int numberOfDriversLicenses = SplitDrivers( zoneIndex, validAgeIndex, validEmploymentStatusIndex, numberOfEmploymentClassifiedPeople, rand );
-                    var OccupationSplit = SplitOccupations( zoneIndex, validAgeIndex, validEmploymentStatusIndex,
-                        numberOfEmploymentClassifiedPeople, rand );
+                    int studentPop = SplitStudents(zoneIndex, validAgeIndex, validEmploymentStatusIndex, numberOfEmploymentClassifiedPeople, rand);
+                    int numberOfDriversLicenses = SplitDrivers(zoneIndex, validAgeIndex, validEmploymentStatusIndex, numberOfEmploymentClassifiedPeople, rand);
+                    var occupationSplit = SplitOccupations(zoneIndex, validAgeIndex, validEmploymentStatusIndex,
+                        numberOfEmploymentClassifiedPeople, rand);
 
-                    AssignEmploymentStatus( people, ageOffset, employmentOffset, validEmploymentStatusIndex, numberOfEmploymentClassifiedPeople );
-                    AssignSchools( people, ageOffset, employmentOffset, StudentPop );
-                    AssignOccupationAndLicenese( people, ageOffset, employmentOffset, OccupationSplit, numberOfEmploymentClassifiedPeople,
-                        numberOfDriversLicenses, rand );
+                    AssignEmploymentStatus(people, ageOffset, employmentOffset, validEmploymentStatusIndex, numberOfEmploymentClassifiedPeople);
+                    AssignSchools(people, ageOffset, employmentOffset, studentPop);
+                    AssignOccupationAndLicenese(people, ageOffset, employmentOffset, occupationSplit, numberOfEmploymentClassifiedPeople,
+                        numberOfDriversLicenses, rand);
                     employmentOffset += numberOfEmploymentClassifiedPeople;
                 }
 
-                AssignAge( rand, people, ageOffset, validAgeIndex, numberOfPeople );
+                AssignAge(rand, people, ageOffset, validAgeIndex, numberOfPeople);
 
                 // Assign people to households depending on the number of cars they will have
-                foreach ( var validOccupationIndex in Demographics.OccupationCategories.ValidIndexies() )
+                foreach (var validOccupationIndex in Demographics.OccupationCategories.ValidIndexies())
                 {
                     int[] haveLicenseIndexes, doNotHaveLicenseIndexes;
-                    var haveLicense = SplitCars( people, zoneIndex, validAgeIndex, validOccupationIndex,
-                        true, ageOffset, numberOfPeople, rand, out haveLicenseIndexes );
-                    var doNotHaveLicense = SplitCars( people, zoneIndex, validAgeIndex, validOccupationIndex,
-                        false, ageOffset, numberOfPeople, rand, out doNotHaveLicenseIndexes );
-                    AssignCars( people, haveLicenseIndexes, haveLicense, Households, ageOffset, rand );
-                    AssignCars( people, doNotHaveLicenseIndexes, doNotHaveLicense, Households, ageOffset, rand );
+                    var haveLicense = SplitCars(people, zoneIndex, validAgeIndex, validOccupationIndex,
+                        true, ageOffset, numberOfPeople, rand, out haveLicenseIndexes);
+                    var doNotHaveLicense = SplitCars(people, zoneIndex, validAgeIndex, validOccupationIndex,
+                        false, ageOffset, numberOfPeople, rand, out doNotHaveLicenseIndexes);
+                    AssignCars(people, haveLicenseIndexes, haveLicense, households, ageOffset, rand);
+                    AssignCars(people, doNotHaveLicenseIndexes, doNotHaveLicense, households, ageOffset, rand);
                 }
                 ageOffset += numberOfPeople;
             }
@@ -253,59 +254,48 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private void Generation(SparseArray<IZone> zoneArray, int[] validZones, int numberOfZones, SparseArray<IPerson[]> population, int i)
         {
-            Random rand = new Random( RandomSeed * i );
-            for ( int j = 0; j < 100 && j + i * 100 < numberOfZones; j++ )
+            Random rand = new Random(RandomSeed * i);
+            for (int j = 0; j < 100 && j + i * 100 < numberOfZones; j++)
             {
                 var zoneIndex = validZones[i * 100 + j];
                 var zone = zoneArray[zoneIndex];
                 var pop = zone.Population;
-                if ( pop == 0 ) continue;
-                GenerateZone( population, zoneIndex, pop, rand );
+                if (pop == 0) continue;
+                GenerateZone(population, zoneIndex, pop, rand);
             }
         }
 
         private void ProducePopulation()
         {
-            using ( StreamWriter performance = new StreamWriter( "Performance.txt" ) )
+            using (StreamWriter performance = new StreamWriter("Performance.txt"))
             {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
                 ZoneSystem.LoadData();
                 watch.Stop();
-                performance.WriteLine( "Loading Zones :" + watch.ElapsedMilliseconds + "ms" );
+                performance.WriteLine("Loading Zones :" + watch.ElapsedMilliseconds + "ms");
                 watch.Restart();
                 Demographics.LoadData();
                 ValidAges = Demographics.AgeCategories.ValidIndexies().ToArray();
                 watch.Stop();
-                performance.WriteLine( "Loading Demographics :" + watch.ElapsedMilliseconds + "ms" );
+                performance.WriteLine("Loading Demographics :" + watch.ElapsedMilliseconds + "ms");
                 var zoneArray = ZoneSystem.ZoneArray;
                 var validZones = zoneArray.ValidIndexArray();
                 var numberOfZones = validZones.Length;
                 SparseArray<IPerson[]> population = zoneArray.CreateSimilarArray<IPerson[]>();
                 watch.Restart();
-                try
+                Parallel.For(0, (int)Math.Ceiling((float)numberOfZones / 100), delegate (int i)
+                //for (int i = 0; i < (int)Math.Ceiling((float)numberOfZones / 100); i++)
                 {
-                    Parallel.For( 0, (int)Math.Ceiling( (float)numberOfZones / 100 ), delegate(int i)
-                    //for (int i = 0; i < (int)Math.Ceiling((float)numberOfZones / 100); i++)
-                    {
-                        Generation( zoneArray, validZones, numberOfZones, population, i );
-                    } );
-                }
-                catch ( AggregateException e )
-                {
-                    if ( e.InnerException is XTMFRuntimeException )
-                    {
-                        throw e.InnerException;
-                    }
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                }
+                    Generation(zoneArray, validZones, numberOfZones, population, i);
+                });
                 watch.Stop();
-                performance.WriteLine( "Generation Time: " + watch.ElapsedMilliseconds + "ms" );
+                performance.WriteLine("Generation Time: " + watch.ElapsedMilliseconds + "ms");
                 watch.Restart();
                 Population.Population = population;
                 Population.Save();
                 watch.Stop();
-                performance.WriteLine( "Output Time: " + watch.ElapsedMilliseconds + "ms" );
+                performance.WriteLine("Output Time: " + watch.ElapsedMilliseconds + "ms");
                 Demographics.UnloadData();
                 ZoneSystem.UnloadData();
             }
@@ -314,11 +304,11 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         private SparseArray<int> SplitAges(int zoneIndex, int pop, Random rand)
         {
             var ageSplit = Demographics.AgeCategories.CreateSimilarArray<float>();
-            for ( int i = 0; i < ValidAges.Length; i++ )
+            for (int i = 0; i < ValidAges.Length; i++)
             {
                 ageSplit[ValidAges[i]] = Demographics.AgeRates[zoneIndex, ValidAges[i]];
             }
-            return SplitAndClear( pop, ageSplit, rand );
+            return SplitAndClear(pop, ageSplit, rand);
         }
 
         private SparseArray<int> SplitAndClear(int pop, SparseArray<float> splitPercentages, Random rand)
@@ -328,26 +318,26 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
             var ret = splitPercentages.CreateSimilarArray<int>();
             var flatRet = ret.GetFlatData();
             var flatRemainder = new float[length];
-            float remainderTotal = 0;
+            float remainderTotal;
             int total = 0;
-            for ( int i = 0; i < length; i++ )
+            for (int i = 0; i < length; i++)
             {
-                float element = ( flatSplitPercentages[i] * pop );
-                total += ( flatRet[i] = (int)Math.Floor( element ) );
+                float element = (flatSplitPercentages[i] * pop);
+                total += (flatRet[i] = (int)Math.Floor(element));
                 flatRemainder[i] = element - flatRet[i];
             }
             int notAssigned = pop - total;
             // Make sure that we do not over assign
             remainderTotal = notAssigned;
-            for ( int i = 0; i < notAssigned; i++ )
+            for (int i = 0; i < notAssigned; i++)
             {
                 var randPop = rand.NextDouble() * remainderTotal;
-                float ammountToReduce = 0;
+                float ammountToReduce;
                 int j = 0;
-                for ( ; j < length; j++ )
+                for (; j < length; j++)
                 {
-                    randPop -= ( ammountToReduce = flatRemainder[j] );
-                    if ( randPop <= 0 )
+                    randPop -= (ammountToReduce = flatRemainder[j]);
+                    if (randPop <= 0)
                     {
                         remainderTotal -= ammountToReduce;
                         flatRemainder[j] = 0;
@@ -355,11 +345,11 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
                         break;
                     }
                 }
-                if ( j == length )
+                if (j == length)
                 {
-                    for ( j = 0; j < length; j++ )
+                    for (j = 0; j < length; j++)
                     {
-                        if ( flatRemainder[j] >= 0 )
+                        if (flatRemainder[j] >= 0)
                         {
                             remainderTotal -= flatRemainder[j];
                             flatRemainder[j] = 0;
@@ -374,58 +364,58 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
 
         private SparseArray<int> SplitCars(Person[] people, int zoneIndex, int validAgeIndex, int validOccupationIndex, bool license, int ageOffset, int agePop, Random rand, out int[] indexes)
         {
-            SparseArray<float> ret = new SparseArray<float>( new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
+            SparseArray<float> ret = new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
             // Because everything is random at this point we actually need to scan to see how many people we have
-            List<int> indexesList = new List<int>( agePop );
-            if ( validOccupationIndex == UnemployedOccupation )
+            List<int> indexesList = new List<int>(agePop);
+            if (validOccupationIndex == UnemployedOccupation)
             {
-                for ( int i = 0; i < agePop; i++ )
+                for (int i = 0; i < agePop; i++)
                 {
                     var person = people[i + ageOffset];
-                    if ( person.DriversLicense == license )
+                    if (person.DriversLicense == license)
                     {
                         var range = Demographics.AgeCategories[validAgeIndex];
                         var age = person.Age;
-                        if ( age >= range.Start && age <= range.Stop )
+                        if (age >= range.Start && age <= range.Stop)
                         {
-                            indexesList.Add( i );
+                            indexesList.Add(i);
                         }
                     }
                 }
                 var data = Demographics.NonWorkerVehicleRates[zoneIndex];
-                foreach ( var validCarsIndex in ret.ValidIndexies() )
+                foreach (var validCarsIndex in ret.ValidIndexies())
                 {
                     ret[validCarsIndex] = data[license ? 1 : 0, validAgeIndex, validCarsIndex];
                 }
             }
             else
             {
-                for ( int i = 0; i < agePop; i++ )
+                for (int i = 0; i < agePop; i++)
                 {
                     var person = people[i + ageOffset];
-                    if ( person.DriversLicense == license
-                        && person.Occupation == validOccupationIndex )
+                    if (person.DriversLicense == license
+                        && person.Occupation == validOccupationIndex)
                     {
-                        indexesList.Add( i );
+                        indexesList.Add(i);
                     }
                 }
                 var data = Demographics.WorkerVehicleRates[zoneIndex];
-                foreach ( var validCarsIndex in ret.ValidIndexies() )
+                foreach (var validCarsIndex in ret.ValidIndexies())
                 {
                     ret[validCarsIndex] = data[license ? 1 : 0, validOccupationIndex, validCarsIndex];
                 }
             }
             indexes = indexesList.ToArray();
 
-            return SplitAndClear( indexes.Length, ret, rand );
+            return SplitAndClear(indexes.Length, ret, rand);
         }
 
         private int SplitDrivers(int zoneIndex, int ageCat, int employmentCat, int numberOfEmploymentClassifiedPeople, Random rand)
         {
-            int numberOfDrivers = 0;
+            int numberOfDrivers;
             float probability = Demographics.DriversLicenseRates[zoneIndex][ageCat, employmentCat];
-            numberOfDrivers = (int)( numberOfEmploymentClassifiedPeople * probability ) +
-                ( rand.NextDouble() < ( ( probability * numberOfEmploymentClassifiedPeople ) - (int)( probability * numberOfEmploymentClassifiedPeople ) ) ? 1 : 0 );
+            numberOfDrivers = (int)(numberOfEmploymentClassifiedPeople * probability) +
+                (rand.NextDouble() < ((probability * numberOfEmploymentClassifiedPeople) - (int)(probability * numberOfEmploymentClassifiedPeople)) ? 1 : 0);
             return numberOfDrivers;
         }
 
@@ -433,11 +423,11 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         {
             var employmentSplit = Demographics.EmploymentStatus.CreateSimilarArray<float>();
             var zoneData = Demographics.EmploymentStatusRates[zoneIndex];
-            foreach ( var valid in employmentSplit.ValidIndexies() )
+            foreach (var valid in employmentSplit.ValidIndexies())
             {
                 employmentSplit[valid] = zoneData[ageCat, valid];
             }
-            return SplitAndClear( popAge, employmentSplit, rand );
+            return SplitAndClear(popAge, employmentSplit, rand);
         }
 
         private SparseArray<int> SplitOccupations(int zoneIndex, int ageIndex, int employmentStatusIndex,
@@ -445,20 +435,19 @@ It requires an IZoneSystem, and IDemographicsData, and an IPopulation module."
         {
             var occupationSplit = Demographics.OccupationCategories.CreateSimilarArray<float>();
             var zoneData = Demographics.OccupationRates[zoneIndex];
-            foreach ( var valid in occupationSplit.ValidIndexies() )
+            foreach (var valid in occupationSplit.ValidIndexies())
             {
                 occupationSplit[valid] = zoneData[ageIndex, employmentStatusIndex, valid];
             }
-            return SplitAndClear( numberOfEmploymentClassifiedPeople, occupationSplit, rand );
+            return SplitAndClear(numberOfEmploymentClassifiedPeople, occupationSplit, rand);
         }
 
         private int SplitStudents(int zoneIndex, int ageCat, int employmentCat,
             int numberOfEmploymentClassifiedPeople, Random rand)
         {
-            int numberOfStudents = 0;
             float probability = Demographics.SchoolRates[zoneIndex][ageCat, employmentCat];
-            numberOfStudents = (int)( numberOfEmploymentClassifiedPeople * probability ) +
-                ( rand.NextDouble() < ( ( probability * numberOfEmploymentClassifiedPeople ) - (int)( probability * numberOfEmploymentClassifiedPeople ) ) ? 1 : 0 );
+            var numberOfStudents = (int)(numberOfEmploymentClassifiedPeople * probability) +
+                                   (rand.NextDouble() < ((probability * numberOfEmploymentClassifiedPeople) - (int)(probability * numberOfEmploymentClassifiedPeople)) ? 1 : 0);
             return numberOfStudents;
         }
     }

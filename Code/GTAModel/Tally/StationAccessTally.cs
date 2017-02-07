@@ -51,7 +51,7 @@ namespace TMG.GTAModel.Tally
                 {
                     var data = GetResult(purpose.Flows, ModeIndexes[m]);
                     if(data == null) continue;
-                    var mode = GetMode(ModeIndexes[m]) as IStationCollectionMode;
+                    var mode = (IStationCollectionMode)GetMode(ModeIndexes[m]);
                     if(LineHaull)
                     {
                         ComputeLineHaull(currentTally, zoneArray, zones, m, data);

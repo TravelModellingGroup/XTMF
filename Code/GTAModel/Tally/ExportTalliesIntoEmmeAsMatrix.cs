@@ -95,8 +95,8 @@ namespace TMG.GTAModel.NetworkAssignment
                     var convertedO = flatZones[o].ZoneNumber;
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        mc.ToEmmeFloat( tally[o][d], strBuilder );
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }
                 } );
@@ -123,64 +123,6 @@ namespace TMG.GTAModel.NetworkAssignment
                 return false;
             }
             return true;
-        }
-
-        private string GetPath(string localPath)
-        {
-            var fullPath = localPath;
-            if ( !Path.IsPathRooted( fullPath ) )
-            {
-                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
-            }
-            return fullPath;
-        }
-
-        private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
-        {
-            if ( modeIndex == current )
-            {
-                return node.Result;
-            }
-            current++;
-            if ( node.Children != null )
-            {
-                for ( int i = 0; i < node.Children.Length; i++ )
-                {
-                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Process floats to work with emme
-        /// </summary>
-        /// <param name="number">The float you want to send</param>
-        /// <returns>A limited precision non scientific number in a string</returns>
-        private void ToEmmeFloat(float number, StringBuilder builder)
-        {
-            builder.Clear();
-            builder.Append( (int)number );
-            number = number - (int)number;
-            if ( number > 0 )
-            {
-                var integerSize = builder.Length;
-                builder.Append( '.' );
-                for ( int i = integerSize; i < 4; i++ )
-                {
-                    number = number * 10;
-                    builder.Append( (int)number );
-                    number = number - (int)number;
-                    if ( number == 0 )
-                    {
-                        break;
-                    }
-                }
-            }
         }
     }
 }

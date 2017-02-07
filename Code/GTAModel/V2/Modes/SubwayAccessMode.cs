@@ -64,7 +64,7 @@ namespace TMG.GTAModel.V2.Modes
         public INetworkData FirstAlternative;
 
         [RunParameter( "fttc", 1.71f, "The fair to add for driving to the TTC, in V2 this was 1.71." )]
-        public float FTTC;
+        public float FareTTC;
 
         [RunParameter( "General Time", -0.103420f, "The factor to apply to the general time of travel." )]
         public float GeneralTime;
@@ -119,7 +119,7 @@ namespace TMG.GTAModel.V2.Modes
 
         private SparseArray<int[]> ClosestStations;
 
-        private int lastIteration = -1;
+        private int LastIteration = -1;
 
         [RunParameter( "Access", true, "Is this mode in access mode or egress mode?" )]
         public bool Access
@@ -203,7 +203,7 @@ namespace TMG.GTAModel.V2.Modes
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( ( lastIteration != Root.CurrentIteration ) | ( time != CacheTime ) )
+            if ( ( LastIteration != Root.CurrentIteration ) | ( time != CacheTime ) )
             {
                 RebuildCache( time );
             }
@@ -387,7 +387,7 @@ namespace TMG.GTAModel.V2.Modes
                 return false;
             }
             // If everything is fine we can now Generate our children
-            if ( !GenerateChildren( ref error ) )
+            if ( !GenerateChildren() )
             {
                 return false;
             }
@@ -428,7 +428,7 @@ namespace TMG.GTAModel.V2.Modes
             station.LogParkingFactor = ParkingFactor;
             station.WaitTime = WaitTime;
             station.WalkTime = WalkTime;
-            station.FTTC = FTTC;
+            station.FareTTC = FareTTC;
 
             // Setup the modes
             station.First = First;
@@ -442,12 +442,12 @@ namespace TMG.GTAModel.V2.Modes
             Children.Add( station );
         }
 
-        private bool GenerateChildren(ref string error)
+        private bool GenerateChildren()
         {
             Children = new List<SubwayAccessStation>();
             List<Range> rangeList = new List<Range>();
             var start = 0;
-            var stop = 0;
+            int stop;
             int current = 0;
             bool first = true;
             foreach ( var record in StationZoneData.Read() )
@@ -461,7 +461,6 @@ namespace TMG.GTAModel.V2.Modes
                 }
                 if ( first )
                 {
-                    current = start = zoneNumber;
                     first = false;
                 }
                 else if ( current + 1 != zoneNumber )
@@ -533,9 +532,9 @@ namespace TMG.GTAModel.V2.Modes
             lock ( this )
             {
                 Thread.MemoryBarrier();
-                if ( lastIteration == Root.CurrentIteration ) return;
+                if ( LastIteration == Root.CurrentIteration ) return;
                 Cache = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<CacheData>();
-                lastIteration = Root.CurrentIteration;
+                LastIteration = Root.CurrentIteration;
                 CacheTime = time;
                 Thread.MemoryBarrier();
             }

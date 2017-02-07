@@ -95,7 +95,7 @@ namespace TMG.GTAModel.NetworkAssignment
                  WalkPerception, InVehiclePerception, BoardingPerception, FarePerception, \
                  UseAdditiveDemand, WaitFactor
         */
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public string Name
         {
@@ -111,7 +111,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool Execute(Controller controller)

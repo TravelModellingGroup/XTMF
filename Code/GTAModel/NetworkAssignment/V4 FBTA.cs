@@ -140,15 +140,15 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("Add Congestion to IVTT", false, "Set to TRUE to extract the congestion matrix and add its weighted value to the in vehicle time (IVTT) matrix.")]
         public bool ExtractCongestedInVehicleTimeFlag;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "tmg.assignment.transit.V4_FBTA";
+        private const string ToolName = "tmg.assignment.transit.V4_FBTA";
 
 
-        public sealed class TTFDefinitions : IModule
+        public sealed class TtfDefinitions : IModule
         {
             [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
-            public int TTFNumber;
+            public int TtfNumber;
 
             [RunParameter("Congestion Perception", 0.0f, "The congestion exponent to apply to this TTF.")]
             public float CongestionPerception;
@@ -169,7 +169,7 @@ namespace TMG.GTAModel.NetworkAssignment
         }
 
         [SubModelInformation(Description = "The TTF's to apply in the assignment.")]
-        public TTFDefinitions[] TTF;
+        public TtfDefinitions[] Ttf;
 
 
         public bool Execute(Controller controller)
@@ -208,15 +208,15 @@ namespace TMG.GTAModel.NetworkAssignment
                                         DistanceMatrixNumber,
                                         mc.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
-                                        string.Join(",", from ttf in TTF
-                                                         select ttf.TTFNumber + ":"
+                                        string.Join(",", from ttf in Ttf
+                                                         select ttf.TtfNumber + ":"
                                                          + mc.ToEmmeFloat(ttf.CongestionPerception) + ":"
                                                          + mc.ToEmmeFloat(ttf.CongestionExponent)),
                                         ImpedanceMatrix,
                                         UseBoardingLevels);
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name
@@ -233,7 +233,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool RuntimeValidation(ref string error)

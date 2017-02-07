@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,8 +34,6 @@ namespace TMG.GTAModel.NetworkAssignment
             " This is converted to generalized cost using the Toll Perception Factor parameter.")]
     public class TollBasedEmmeRoadAssignment : IEmmeTool
     {
-        private const string OldToolName = "TMG2.Assignment.RoadAssignment.TollBasedRoadAssignment";
-
         private const string ToolName = "tmg.assignment.road.tolled.Toll_Based_Road_Assignment";
 
         [RunParameter("Best Relative Gap", 0.01f, "(%) Best Relative Gap convergence criteria.")]
@@ -96,12 +95,12 @@ namespace TMG.GTAModel.NetworkAssignment
         public int TravelTimeMatrixNumber;
 
         [Parameter("SOLA Flag", true, "Emme 4.1 and newer ONLY! Flag to use SOLA traffic assignment algorithm instead of standard.")]
-        public bool SOLAFlag;
+        public bool SolaFlag;
 
-        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
-        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+        private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public string Name
         {
@@ -117,7 +116,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool Execute(Controller controller)
@@ -136,10 +135,10 @@ namespace TMG.GTAModel.NetworkAssignment
             var sb = new StringBuilder();
             sb.AppendFormat("{0} {1} mf{2} mf{3} mf{4} {5} {6} {7} {8} {9} {10} {11} {12} {13} \"{14}\" {15} {16}",
                 ScenarioNumber, DemandMatrixNumber, TravelTimeMatrixNumber, CostMatrixNumber,
-                TollMatrixNumber, (PeakHourMatrix != 0 ? "mf" + PeakHourMatrix : PeakHourFactor.ToString()),
+                TollMatrixNumber, (PeakHourMatrix != 0 ? "mf" + PeakHourMatrix : PeakHourFactor.ToString(CultureInfo.InvariantCulture)),
                 LinkCost, TollUnitCost, TollPerceptionFactor,
                 MaxIterations, RelativeGap, BestRelativeGap, NormalizedGap, HighPerformanceMode,
-                runName, TollLinkSelector, SOLAFlag);
+                runName, TollLinkSelector, SolaFlag);
             string result = null;
             return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
             /*
@@ -189,8 +188,9 @@ namespace TMG.GTAModel.NetworkAssignment
                     var convertedO = flatZones[o].ZoneNumber;
                     for(int d = 0; d < numberOfZones; d++)
                     {
-                        build.AppendFormat("{0,-4:G} {1,-4:G} {2,-6:G}\r\n",
-                            convertedO, flatZones[d].ZoneNumber, mc.ToEmmeFloat(tally[o][d]));
+                        mc.ToEmmeFloat(tally[o][d], strBuilder);
+                        build.AppendFormat("{0,-4:G} {1,-4:G} {2}\r\n",
+                            convertedO, flatZones[d].ZoneNumber, strBuilder);
                     }
                 });
                 for(int i = 0; i < numberOfZones; i++)
@@ -201,13 +201,13 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                if(mc.CheckToolExists(_ImportToolName))
+                if(mc.CheckToolExists(ImportToolName))
                 {
-                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
                 else
                 {
-                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
             }
             finally

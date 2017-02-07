@@ -25,6 +25,8 @@ using Datastructure;
 using TMG.Input;
 using TMG.ModeSplit;
 using XTMF;
+// ReSharper disable AccessToModifiedClosure
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.V2.Distribution
 {
@@ -89,49 +91,53 @@ namespace TMG.GTAModel.V2.Distribution
             {
                 SaveDistributionSeries.Reset();
             }
-            IDemographicCategory cat = null;
+            IDemographicCategory cat;
             var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             var linkages = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var catEnum = category.GetEnumerator();
-            var productionEnum = productions.GetEnumerator();
-            int catIndex = 0;
-            var rangeSet = new RangeSet( new[] { 0 } );
-            // just multiply by the number of occupations in v2 since this is a throw away module
-            NumberOfGenerations = NumberOfCategoriesPerOccupation * 4;
-            while ( catEnum.MoveNext() & productionEnum.MoveNext() )
+            using (var catEnum = category.GetEnumerator())
+            using (var productionEnum = productions.GetEnumerator())
             {
-                cat = catEnum.Current;
-                var ageRate = productionEnum.Current;
-                Parallel.Invoke(
-                    () => SetupMobilityInformation( catIndex ),
-                    () => LoadLinkages( catIndex, linkages.GetFlatData() )
-                );
-                foreach ( var mobilitySet in MobilityRanges )
+                int catIndex = 0;
+                var rangeSet = new RangeSet(new[] {0});
+                // just multiply by the number of occupations in v2 since this is a throw away module
+                NumberOfGenerations = NumberOfCategoriesPerOccupation * 4;
+                while (catEnum.MoveNext() & productionEnum.MoveNext())
                 {
-                    for ( int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++ )
+                    cat = catEnum.Current;
+                    var ageRate = productionEnum.Current;
+                    Parallel.Invoke(
+                        () => SetupMobilityInformation(catIndex),
+                        () => LoadLinkages(catIndex, linkages.GetFlatData())
+                    );
+                    foreach (var mobilitySet in MobilityRanges)
                     {
-                        var realCat = cat as DemographicCategoryGeneration;
-                        if ( realCat == null )
+                        for (int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++)
                         {
-                            throw new XTMFRuntimeException( "In '" + Name + "' it is required that all generates be of the type DemographicCategoryGeneration!" );
-                        }
-                        rangeSet[0] = new Range(mobility, mobility);
-                        realCat.Mobility = rangeSet;
-                        DistributePopulation( realCat, ageRate.GetFlatData(), linkages.GetFlatData(), catIndex, ret.GetFlatData() );
-                        Task save = null;
-                        if ( SaveDistributionSeries != null )
-                        {
-                            save = Task.Factory.StartNew( () =>
+                            var realCat = cat as DemographicCategoryGeneration;
+                            if (realCat == null)
+                            {
+                                throw new XTMFRuntimeException("In '" + Name +
+                                                               "' it is required that all generates be of the type DemographicCategoryGeneration!");
+                            }
+                            rangeSet[0] = new Range(mobility, mobility);
+                            realCat.Mobility = rangeSet;
+                            DistributePopulation(realCat, ageRate.GetFlatData(), linkages.GetFlatData(), catIndex,
+                                ret.GetFlatData());
+                            Task save = null;
+                            if (SaveDistributionSeries != null)
+                            {
+                                save = Task.Factory.StartNew(() =>
                                 {
-                                    SaveDistribution( ret, Root.ZoneSystem.ZoneArray.GetFlatData(), catIndex );
-                                } );
+                                    SaveDistribution(ret);
+                                });
+                            }
+                            yield return ret;
+                            if (save != null)
+                            {
+                                save.Wait();
+                            }
+                            catIndex++;
                         }
-                        yield return ret;
-                        if ( save != null )
-                        {
-                            save.Wait();
-                        }
-                        catIndex++;
                     }
                 }
             }
@@ -265,7 +271,7 @@ namespace TMG.GTAModel.V2.Distribution
             }
         }
 
-        private void SaveDistribution(SparseTwinIndex<float> sparseRet, IZone[] zone, int index)
+        private void SaveDistribution(SparseTwinIndex<float> sparseRet)
         {
             SaveDistributionSeries.SaveMatrix( sparseRet.GetFlatData() );
         }

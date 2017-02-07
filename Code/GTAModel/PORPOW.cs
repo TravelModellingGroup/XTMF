@@ -25,9 +25,12 @@ using System.Threading.Tasks;
 using Datastructure;
 using TMG.Functions;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable AccessToModifiedClosure
 
 namespace TMG.GTAModel
 {
+    // ReSharper disable once InconsistentNaming
     public class PORPOW : ISelfContainedModule
     {
         [SubModelInformation(Description = "Occupation Generation", Required = false)]
@@ -122,8 +125,8 @@ namespace TMG.GTAModel
         /// Assign workers to zones
         /// </summary>
         /// <param name="workplaceDistribution"></param>
-        /// <param name="occupation"></param>
-        private void AssignToWorkers(SparseTwinIndex<float> workplaceDistribution, IDemographicCategoryGeneration cat)
+        /// <param name="category"></param>
+        private void AssignToWorkers(SparseTwinIndex<float> workplaceDistribution, IDemographicCategoryGeneration category)
         {
             /*
              * -> For each zone
@@ -139,88 +142,81 @@ namespace TMG.GTAModel
             var numberOfZones = zoneIndexes.Length;
             var flatWorkplaceDistribution = workplaceDistribution.GetFlatData();
             var flatPopulation = Root.Population.Population.GetFlatData();
-            try
-            {
-                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                    delegate {
-                        return new Assignment { dist = ZoneArray.CreateSimilarArray<float>(), indexes = null };
-                    },
-                delegate (int z, ParallelLoopState unused, Assignment assign)
+            Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                delegate
                 {
-                    var dist = assign.dist;
-                    var indexes = assign.indexes;
-                    var flatDist = dist.GetFlatData();
-                    var distributionForZone = flatWorkplaceDistribution[z];
-                    Random rand = new Random((RandomSeed * z) * (CurrentOccupationIndex * numberOfZones));
-                    IZone zoneI = flatZones[z];
-                    var zonePop = flatPopulation[z];
-                    int popLength = zonePop.Length;
-                    if (indexes == null || indexes.Length < popLength)
-                    {
-                        indexes = new int[(int)(popLength * 1.5)];
-                        assign.indexes = indexes;
-                    }
-
-                    int totalPeopleInCat = 0;
-                    // 1+2) learn who is qualified for this distribution
-                    for (int i = 0; i < popLength; i++)
-                    {
-                        var person = zonePop[i];
-                        if (cat.IsContained(person))
-                        {
-                            indexes[totalPeopleInCat] = i;
-                            totalPeopleInCat++;
-                        }
-                    }
-                    // 3) Count how many jobs are expected to come from this zone
-                    double totalJobsFromThisOrigin = 0;
-                    for (int i = 0; i < numberOfZones; i++)
-                    {
-                        totalJobsFromThisOrigin += (flatDist[i] = distributionForZone[i]);
-                    }
-                    if (totalJobsFromThisOrigin == 0)
-                    {
-                        return assign;
-                    }
-                    // 4) Calculate the ratio of people who work to the number of jobs so we can balance it again
-                    float normalizationFactor = 1 / (float)totalJobsFromThisOrigin;
-                    for (int i = 0; i < numberOfZones; i++)
-                    {
-                        flatDist[i] = flatDist[i] * normalizationFactor;
-                    }
-
-                    // 5) card sort algo
-                    for (int i = totalPeopleInCat - 1; i > 0; i--)
-                    {
-                        var swapIndex = rand.Next(i);
-                        var temp = indexes[i];
-                        indexes[i] = indexes[swapIndex];
-                        indexes[swapIndex] = temp;
-                    }
-                    // 6) Apply the random split algorithm from the Population Synthesis to finish it off
-                    var flatResult = SplitAndClear(totalPeopleInCat, dist, rand);
-                    int offset = 0;
-                    for (int i = 0; i < numberOfZones; i++)
-                    {
-                        var ammount = flatResult[i];
-                        for (int j = 0; j < ammount; j++)
-                        {
-                            if (offset + j >= indexes.Length ||
-                                indexes[offset + j] > zonePop.Length)
-                            {
-                                throw new XTMFRuntimeException("We tried to assign to a person that does not exist!");
-                            }
-                            zonePop[indexes[offset + j]].WorkZone = flatZones[i];
-                        }
-                        offset += ammount;
-                    }
-                    return assign;
-                }, delegate { });
-            }
-            catch (AggregateException e)
+                    return new Assignment { Dist = ZoneArray.CreateSimilarArray<float>(), Indexes = null };
+                },
+            delegate (int z, ParallelLoopState unused, Assignment assign)
             {
-                throw new XTMFRuntimeException(e.InnerException.Message + "\r\n" + e.InnerException.StackTrace);
-            }
+                var dist = assign.Dist;
+                var indexes = assign.Indexes;
+                var flatDist = dist.GetFlatData();
+                var distributionForZone = flatWorkplaceDistribution[z];
+                Random rand = new Random((RandomSeed * z) * (CurrentOccupationIndex * numberOfZones));
+                var zonePop = flatPopulation[z];
+                int popLength = zonePop.Length;
+                if (indexes == null || indexes.Length < popLength)
+                {
+                    indexes = new int[(int)(popLength * 1.5)];
+                    assign.Indexes = indexes;
+                }
+
+                int totalPeopleInCat = 0;
+                // 1+2) learn who is qualified for this distribution
+                for (int i = 0; i < popLength; i++)
+                {
+                    var person = zonePop[i];
+                    if (category.IsContained(person))
+                    {
+                        indexes[totalPeopleInCat] = i;
+                        totalPeopleInCat++;
+                    }
+                }
+                // 3) Count how many jobs are expected to come from this zone
+                double totalJobsFromThisOrigin = 0;
+                for (int i = 0; i < numberOfZones; i++)
+                {
+                    totalJobsFromThisOrigin += (flatDist[i] = distributionForZone[i]);
+                }
+                if (totalJobsFromThisOrigin == 0)
+                {
+                    return assign;
+                }
+                // 4) Calculate the ratio of people who work to the number of jobs so we can balance it again
+                float normalizationFactor = 1 / (float)totalJobsFromThisOrigin;
+                for (int i = 0; i < numberOfZones; i++)
+                {
+                    flatDist[i] = flatDist[i] * normalizationFactor;
+                }
+
+                // 5) card sort algo
+                for (int i = totalPeopleInCat - 1; i > 0; i--)
+                {
+                    var swapIndex = rand.Next(i);
+                    var temp = indexes[i];
+                    indexes[i] = indexes[swapIndex];
+                    indexes[swapIndex] = temp;
+                }
+                // 6) Apply the random split algorithm from the Population Synthesis to finish it off
+                var flatResult = SplitAndClear(totalPeopleInCat, dist, rand);
+                int offset = 0;
+                for (int i = 0; i < numberOfZones; i++)
+                {
+                    var ammount = flatResult[i];
+                    for (int j = 0; j < ammount; j++)
+                    {
+                        if (offset + j >= indexes.Length ||
+                            indexes[offset + j] > zonePop.Length)
+                        {
+                            throw new XTMFRuntimeException("We tried to assign to a person that does not exist!");
+                        }
+                        zonePop[indexes[offset + j]].WorkZone = flatZones[i];
+                    }
+                    offset += ammount;
+                }
+                return assign;
+            }, delegate { });
         }
 
         private float[] ComputeFriction(IZone[] zones, IDemographicCategoryGeneration cat, float[] friction)
@@ -229,49 +225,37 @@ namespace TMG.GTAModel
             float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
             var rootModes = Root.Modes;
             var numberOfModes = rootModes.Count;
-            var minFrictionInc = (float)Math.Exp(-10);
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
-            try
-            {
-                Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+            Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+           {
+               int index = i * numberOfZones;
+               for (int j = 0; j < numberOfZones; j++)
                {
-                   int index = i * numberOfZones;
-                   var origin = zones[i];
-                   int vIndex = i * numberOfZones * numberOfModes;
-                   for (int j = 0; j < numberOfZones; j++)
+                   double c = 0f;
+                   int feasibleModes = 0;
+                   for (int mIndex = 0; mIndex < numberOfModes; mIndex++)
                    {
-                       double c = 0f;
-                       var destination = zones[j];
-                       int feasibleModes = 0;
-                       for (int mIndex = 0; mIndex < numberOfModes; mIndex++)
+                       var mode = rootModes[mIndex];
+                       if (!mode.Feasible(zones[i], zones[j], SimulationTime))
                        {
-                           var mode = rootModes[mIndex];
-                           if (!mode.Feasible(zones[i], zones[j], SimulationTime))
-                           {
-                               vIndex++;
-                               continue;
-                           }
-                           var inc = mode.CalculateV(zones[i], zones[j], SimulationTime);
-                           if (!(double.IsInfinity(inc) | double.IsNaN(inc)))
-                           {
-                               feasibleModes++;
-                               c += inc >= 0 ? 1.0 : Math.Exp(inc);
-                           }
+                           continue;
                        }
-                       if (feasibleModes == 0)
+                       var inc = mode.CalculateV(zones[i], zones[j], SimulationTime);
+                       if (!(double.IsInfinity(inc) | double.IsNaN(inc)))
                        {
-                           throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
+                           feasibleModes++;
+                           c += inc >= 0 ? 1.0 : Math.Exp(inc);
                        }
-                       ret[index++] = (float)Math.Exp(ImpedianceParameter * Math.Log(c));
                    }
-               });
-            }
-            catch (AggregateException e)
-            {
-                throw e.InnerException;
-            }
-            // Use the Log-Sum from the V's as the impedence function
+                   if (feasibleModes == 0)
+                   {
+                       throw new XTMFRuntimeException("There was no valid mode to travel between " + zones[i].ZoneNumber + " and " + zones[j].ZoneNumber);
+                   }
+                   ret[index++] = (float)Math.Exp(ImpedianceParameter * Math.Log(c));
+               }
+           });
+            // Use the Log-Sum from the V's as the impedance function
             return ret;
         }
 
@@ -296,21 +280,16 @@ namespace TMG.GTAModel
             Progress = 0;
             // we are going to need to split based on this information
             ZoneArray = Root.ZoneSystem.ZoneArray;
-            var occupations = Root.Demographics.OccupationCategories;
             var validZones = ZoneArray.ValidIndexies().ToArray();
-            var numberOfZones = validZones.Length;
-            //[Occupation][O , D]
-            var distribution = occupations.CreateSimilarArray<SparseTwinIndex<float>>();
             //Generate the place of work place of residence OD's
-            SparseArray<float> O = ZoneArray.CreateSimilarArray<float>();
-            SparseArray<float> D = ZoneArray.CreateSimilarArray<float>();
-            var occupationIndexes = occupations.ValidIndexies().ToArray();
+            SparseArray<float> o = ZoneArray.CreateSimilarArray<float>();
+            SparseArray<float> d = ZoneArray.CreateSimilarArray<float>();
             var numCat = Categories.Count;
             // Start burning that CPU
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
             SparseTwinIndex<float> workplaceDistribution = null;
             SparseTwinIndex<float> prevWorkplaceDistribution = null;
-            float[] friction = null;
+            float[] friction;
             float[] nextFriction = null;
             for (int i = 0; i < numCat; i++)
             {
@@ -320,64 +299,46 @@ namespace TMG.GTAModel
                 {
                     assignToPopulation = new Task(delegate
                     {
-                           if (prevWorkplaceDistribution != null)
-                           {
-                               // We actually are assigning to the previous category with this data so we need i - 1
-                               AssignToWorkers(prevWorkplaceDistribution, Categories[i - 1]);
-                               prevWorkplaceDistribution = null;
-                           }
-                       });
+                        if (prevWorkplaceDistribution != null)
+                        {
+                            // We actually are assigning to the previous category with this data so we need i - 1
+                            AssignToWorkers(prevWorkplaceDistribution, Categories[i - 1]);
+                            prevWorkplaceDistribution = null;
+                        }
+                    });
                     assignToPopulation.Start();
                 }
                 Task computeNextFriction = null;
                 if (i + 1 < numCat)
                 {
-                    computeNextFriction = new Task(delegate {
-                       nextFriction = ComputeFriction(ZoneArray.GetFlatData(), Categories[i + 1], nextFriction);
-                   });
+                    computeNextFriction = new Task(delegate
+                    {
+                        nextFriction = ComputeFriction(ZoneArray.GetFlatData(), Categories[i + 1], nextFriction);
+                    });
                     computeNextFriction.Start();
                 }
 
-                Categories[i].Generate(O, D);
+                Categories[i].Generate(o, d);
                 GravityModel gravityModel = new GravityModel(ImpedenceFunction, (progress => Progress = (progress / numCat) + ((float)i / numCat)), Epsilon, MaxIterations);
-                workplaceDistribution = gravityModel.ProcessFlow(O, D, validZones);
+                workplaceDistribution = gravityModel.ProcessFlow(o, d, validZones);
                 Progress = ((float)(i + 1) / numCat);
                 if (assignToPopulation != null)
                 {
-                    try
-                    {
-                        assignToPopulation.Wait();
-                        assignToPopulation.Dispose();
-                        assignToPopulation = null;
-                    }
-                    catch (AggregateException e)
-                    {
-                        throw new XTMFRuntimeException(e.InnerException.Message + "\r\n" + e.InnerException.StackTrace);
-                    }
+                    assignToPopulation.Wait();
+                    assignToPopulation.Dispose();
                 }
                 if (computeNextFriction != null)
                 {
-                    try
-                    {
-                        computeNextFriction.Wait();
-                        computeNextFriction.Dispose();
-                        computeNextFriction = null;
-                    }
-                    catch (AggregateException e)
-                    {
-                        throw new XTMFRuntimeException(e.InnerException.Message + "\r\n" + e.InnerException.StackTrace);
-                    }
+                    computeNextFriction.Wait();
+                    computeNextFriction.Dispose();
                 }
                 prevWorkplaceDistribution = workplaceDistribution;
-                var frictionTemp = friction;
                 friction = nextFriction;
                 nextFriction = friction;
             }
-            friction = null;
             nextFriction = null;
             prevWorkplaceDistribution = null;
             AssignToWorkers(workplaceDistribution, Categories[numCat - 1]);
-            workplaceDistribution = null;
             // ok now we can relax
             Thread.CurrentThread.Priority = ThreadPriority.Normal;
             GC.Collect();
@@ -389,7 +350,7 @@ namespace TMG.GTAModel
             var length = flatSplitPercentages.Length;
             var flatRet = new int[length];
             var flatRemainder = new float[length];
-            float remainderTotal = 0;
+            float remainderTotal;
             int total = 0;
             for (int i = 0; i < length; i++)
             {
@@ -403,7 +364,7 @@ namespace TMG.GTAModel
             for (int i = 0; i < notAssigned; i++)
             {
                 var randPop = rand.NextDouble() * remainderTotal;
-                float ammountToReduce = 0;
+                float ammountToReduce;
                 int j = 0;
                 for (; j < length; j++)
                 {
@@ -435,8 +396,8 @@ namespace TMG.GTAModel
 
         private struct Assignment
         {
-            internal SparseArray<float> dist;
-            internal int[] indexes;
+            internal SparseArray<float> Dist;
+            internal int[] Indexes;
         }
     }
 }

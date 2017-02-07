@@ -64,7 +64,6 @@ namespace TMG.GTAModel.V2.Distribution
             IEnumerable<IDemographicCategory> category)
         {
             var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var distribution = ret.GetFlatData();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[][] generationRates = ProduceNormalizedObservedData();
             SaveData.SaveMatrix( zones, generationRates, Path.Combine( SaveDistribution, "GenerationRates.csv" ) );
