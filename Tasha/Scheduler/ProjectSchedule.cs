@@ -31,7 +31,7 @@ namespace Tasha.Scheduler
 
         public ProjectSchedule(ITashaHousehold household)
         {
-            this.Household = household;
+            Household = household;
         }
 
         internal Project Project
@@ -48,31 +48,31 @@ namespace Tasha.Scheduler
         public override Time CheckOverlap(Episode episode)
         {
             Time total = Time.Zero;
-            for(int i = 0; i < this.EpisodeCount; i++)
+            for(int i = 0; i < EpisodeCount; i++)
             {
-                if(this.Episodes[i].StartTime <= episode.StartTime
-                    && this.Episodes[i].EndTime >= episode.EndTime)
+                if(Episodes[i].StartTime <= episode.StartTime
+                    && Episodes[i].EndTime >= episode.EndTime)
                 {
                     // this [i] completely covers the given episode
                     total += episode.Duration;
                 }
-                else if(this.Episodes[i].StartTime >= episode.StartTime
-                    && this.Episodes[i].EndTime >= episode.EndTime)
+                else if(Episodes[i].StartTime >= episode.StartTime
+                    && Episodes[i].EndTime >= episode.EndTime)
                 {
                     // if the episode happens before we start, but we end after
-                    total += episode.EndTime - this.Episodes[i].StartTime;
+                    total += episode.EndTime - Episodes[i].StartTime;
                 }
-                else if(this.Episodes[i].StartTime <= episode.StartTime
-                    && this.Episodes[i].EndTime <= episode.EndTime)
+                else if(Episodes[i].StartTime <= episode.StartTime
+                    && Episodes[i].EndTime <= episode.EndTime)
                 {
                     //if we started before this episode, but we finished first
-                    total += this.Episodes[i].EndTime - episode.StartTime;
+                    total += Episodes[i].EndTime - episode.StartTime;
                 }
-                else if(this.Episodes[i].StartTime >= episode.StartTime
-                    && this.Episodes[i].EndTime <= episode.EndTime)
+                else if(Episodes[i].StartTime >= episode.StartTime
+                    && Episodes[i].EndTime <= episode.EndTime)
                 {
                     // if the episode is larger and 100% covering this [i]
-                    total += this.Episodes[i].Duration;
+                    total += Episodes[i].Duration;
                 }
             }
             return total;
@@ -101,25 +101,25 @@ namespace Tasha.Scheduler
              * 2) We are not allowed to squish things past the threshold allowed (50% by default)
             */
             // Learn what type of case we are going to be in
-            ConflictReport conflict = this.InsertCase(null, ep, false);
+            ConflictReport conflict = InsertCase(null, ep, false);
             switch(conflict.Type)
             {
                 case ScheduleConflictType.NoConflict:
                     {
-                        this.InsertAt(ep, conflict.Position);
+                        InsertAt(ep, conflict.Position);
                         return true;
                     }
                 case ScheduleConflictType.Split:
                     {
                         if((ep.ActivityType != Activity.WorkBasedBusiness) & (ep.ActivityType != Activity.ReturnFromWork)) return false;
-                        if(this.Episodes[conflict.Position].ActivityType != Activity.PrimaryWork) return false;
+                        if(Episodes[conflict.Position].ActivityType != Activity.PrimaryWork) return false;
                         // Since it is a primary work episode we need to split it
-                        var postEp = new ActivityEpisode(0, new TimeWindow(ep.EndTime, this.Episodes[conflict.Position].EndTime), Activity.PrimaryWork,
-                             this.Episodes[conflict.Position].Owner);
-                        postEp.Zone = this.Episodes[conflict.Position].Zone;
-                        ((Episode)this.Episodes[conflict.Position]).EndTime = ep.StartTime;
-                        this.InsertAt(ep, conflict.Position + 1);
-                        this.InsertAt(postEp, conflict.Position + 2);
+                        var postEp = new ActivityEpisode(0, new TimeWindow(ep.EndTime, Episodes[conflict.Position].EndTime), Activity.PrimaryWork,
+                             Episodes[conflict.Position].Owner);
+                        postEp.Zone = Episodes[conflict.Position].Zone;
+                        ((Episode)Episodes[conflict.Position]).EndTime = ep.StartTime;
+                        InsertAt(ep, conflict.Position + 1);
+                        InsertAt(postEp, conflict.Position + 2);
                         return true;
                     }
                 case ScheduleConflictType.Posterior:
@@ -127,21 +127,21 @@ namespace Tasha.Scheduler
                         // the given position is the element we need to go after
                         Time earlyTimeBound = Time.StartOfDay;
                         Time lateTimeBound = Time.EndOfDay;
-                        Episode prior = (Episode)this.Episodes[conflict.Position];
+                        Episode prior = (Episode)Episodes[conflict.Position];
                         Episode middle = ep;
-                        Episode post = (Episode)((conflict.Position < this.EpisodeCount - 1)
-                            ? this.Episodes[conflict.Position + 1] : null);
+                        Episode post = (Episode)((conflict.Position < EpisodeCount - 1)
+                            ? Episodes[conflict.Position + 1] : null);
                         if(conflict.Position >= 1)
                         {
-                            earlyTimeBound = this.Episodes[conflict.Position - 1].EndTime;
+                            earlyTimeBound = Episodes[conflict.Position - 1].EndTime;
                         }
-                        if(this.EpisodeCount - conflict.Position > 2)
+                        if(EpisodeCount - conflict.Position > 2)
                         {
-                            lateTimeBound = this.Episodes[conflict.Position + 2].StartTime;
+                            lateTimeBound = Episodes[conflict.Position + 2].StartTime;
                         }
-                        if(this.Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
+                        if(Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
                         {
-                            this.InsertAt(ep, conflict.Position + 1);
+                            InsertAt(ep, conflict.Position + 1);
                             return true;
                         }
                         return false;
@@ -151,20 +151,20 @@ namespace Tasha.Scheduler
                         // The given position is the element we need to go before
                         Time earlyTimeBound = Time.StartOfDay;
                         Time lateTimeBound = Time.EndOfDay;
-                        Episode prior = (Episode)(conflict.Position > 0 ? this.Episodes[conflict.Position - 1] : null);
+                        Episode prior = (Episode)(conflict.Position > 0 ? Episodes[conflict.Position - 1] : null);
                         Episode middle = ep;
-                        Episode post = (Episode)this.Episodes[conflict.Position];
+                        Episode post = (Episode)Episodes[conflict.Position];
                         if(conflict.Position >= 2)
                         {
-                            earlyTimeBound = this.Episodes[conflict.Position - 2].EndTime;
+                            earlyTimeBound = Episodes[conflict.Position - 2].EndTime;
                         }
-                        if(this.EpisodeCount - conflict.Position > 1)
+                        if(EpisodeCount - conflict.Position > 1)
                         {
-                            lateTimeBound = this.Episodes[conflict.Position + 1].StartTime;
+                            lateTimeBound = Episodes[conflict.Position + 1].StartTime;
                         }
-                        if(this.Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
+                        if(Insert(earlyTimeBound, prior, middle, post, lateTimeBound))
                         {
-                            this.InsertAt(ep, conflict.Position);
+                            InsertAt(ep, conflict.Position);
                             return true;
                         }
                         return false;
@@ -355,12 +355,12 @@ namespace Tasha.Scheduler
             if(post.EndTime > lateTimeBound)
             {
                 throw new XTMFRuntimeException("We ended too late when inserting with 3 into a person schedule!\r\n"
-                    + Schedule.Dump(this));
+                    + Dump(this));
             }
             else if(prior.StartTime < earlyTimeBound)
             {
                 throw new XTMFRuntimeException("We started too early when inserting with 3 into a person schedule!\r\n"
-                    + Schedule.Dump(this));
+                    + Dump(this));
             }
             return true;
         }
@@ -394,7 +394,7 @@ namespace Tasha.Scheduler
             }
             else
             {
-                return this.ShiftToInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
+                return ShiftToInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
             }
             return true;
         }

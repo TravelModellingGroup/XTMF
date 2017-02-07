@@ -19,15 +19,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using XTMF;
 using TMG.Input;
 using TMG;
 using Tasha.Common;
-using Tasha.Internal;
-using System.Threading.Tasks;
 
 namespace Tasha.Estimation.AccessStation
 {
@@ -85,13 +81,7 @@ namespace Tasha.Estimation.AccessStation
             }
         }
 
-        public object SyncRoot
-        {
-            get
-            {
-                return null;
-            }
-        }
+        public object SyncRoot { get; } = new object();
 
         public void CopyTo(Array array, int index)
         {
@@ -105,7 +95,7 @@ namespace Tasha.Estimation.AccessStation
 
         public IEnumerator<ITripChain> GetEnumerator()
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public void LoadData()
@@ -114,7 +104,7 @@ namespace Tasha.Estimation.AccessStation
             {
                 if(mode.ModeName == TripModeName)
                 {
-                    this.TripMode = mode;
+                    TripMode = mode;
                     break;
                 }
             }
@@ -123,11 +113,11 @@ namespace Tasha.Estimation.AccessStation
                 throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode with the name '" + TripModeName + "'.");
             }
             // if the data has already been loaded we are done
-            if(this.Data != null)
+            if(Data != null)
             {
                 return;
             }
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             List<AccessTourData> tours = new List<AccessTourData>();
             // we only need to load the data once so lets do that now
             using (CsvReader reader = new CsvReader(FileLocation))
@@ -158,7 +148,7 @@ namespace Tasha.Estimation.AccessStation
                         GetZoneFromColumn(zones, reader, 6)));
                 }
             }
-            this.Data = ConvertToursToTripChains(tours);
+            Data = ConvertToursToTripChains(tours);
         }
 
         private ITripChain[] ConvertToursToTripChains(List<AccessTourData> tours)
@@ -169,7 +159,7 @@ namespace Tasha.Estimation.AccessStation
                 var tc = new AuxiliaryTripChain();
                 tc.Trips.Add(CreateTrip(tours[i].FirstOrigin, tours[i].FirstDestination, tours[i].FirstTime));
                 tc.Trips.Add(CreateTrip(tours[i].SecondOrigin, tours[i].SecondDestination, tours[i].SecondTime));
-                tc[this.AccessStationTag] = tours[i].AccessStation;
+                tc[AccessStationTag] = tours[i].AccessStation;
                 ret[i] = tc;
             }
             return ret;
@@ -192,7 +182,7 @@ namespace Tasha.Estimation.AccessStation
             trip.OriginalZone = origin;
             trip.DestinationZone = destination;
             trip.TripStartTime = time;
-            trip.Mode = this.TripMode;
+            trip.Mode = TripMode;
             return trip;
         }
 
@@ -227,7 +217,7 @@ namespace Tasha.Estimation.AccessStation
 
         public ITripChain[] ToArray()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool TryAdd(ITripChain item)
@@ -243,7 +233,7 @@ namespace Tasha.Estimation.AccessStation
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return null;
+            throw new NotImplementedException();
         }
     }
 }

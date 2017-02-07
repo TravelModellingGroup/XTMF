@@ -18,15 +18,11 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using XTMF;
 using TMG;
 using Tasha.Common;
 using Datastructure;
 using System.Threading.Tasks;
-using Tasha.ModeChoice;
 using TMG.Input;
 using TMG.Functions;
 
@@ -154,7 +150,7 @@ namespace Tasha.StationAccess
                     AutoFromAccessStationToDestination = new float[stationZones.Length * zones.Length];
                 }
                 // compute the toAccess utilities
-                Parallel.For(0, zones.Length, (int originIndex) =>
+                Parallel.For(0, zones.Length, originIndex =>
                 {
                     var zoneNumber = zones[originIndex].ZoneNumber;
                     if (spatialZones.Contains(zoneNumber))
@@ -175,7 +171,7 @@ namespace Tasha.StationAccess
                 });
 
                 // compute the toDesinstination utilities
-                Parallel.For(0, zones.Length, (int destIndex) =>
+                Parallel.For(0, zones.Length, destIndex =>
                 {
                     var zoneNumber = zones[destIndex].ZoneNumber;
                     if (spatialZones.Contains(zoneNumber))
@@ -283,7 +279,7 @@ namespace Tasha.StationAccess
             {
                 Console.WriteLine("Loading Station Access Choice...");
             }
-            if (ReloadZoneSystem || FirstLoad == true)
+            if (ReloadZoneSystem || FirstLoad)
             {
                 zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 LoadMode();
@@ -316,7 +312,7 @@ namespace Tasha.StationAccess
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var temp = new int[zones.Length];
-            Parallel.For(0, temp.Length, (int i) =>
+            Parallel.For(0, temp.Length, i =>
             {
                 var origin = zones[i];
                 int bestIndex = 0;

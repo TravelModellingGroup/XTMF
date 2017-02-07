@@ -56,14 +56,14 @@ namespace Tasha.PopulationSynthesis
             var expFactor = household.ExpansionFactor;
             for ( int i = 0; i < persons.Length; i++ )
             {
-                this.Data.AddEntry( persons[i], pd, expFactor );
+                Data.AddEntry( persons[i], pd, expFactor );
             }
         }
 
         public void IterationFinished(int iteration)
         {
-            this.Data.Save();
-            this.Data = null;
+            Data.Save();
+            Data = null;
         }
 
         public void Load(int maxIterations)
@@ -78,7 +78,7 @@ namespace Tasha.PopulationSynthesis
 
         public void IterationStarting(int iteration)
         {
-            this.Data = new PersonData( this );
+            Data = new PersonData( this );
         }
 
         private class PersonData
@@ -92,8 +92,8 @@ namespace Tasha.PopulationSynthesis
             public PersonData(ExtractPersonData self)
             {
                 this.self = self;
-                this.EntryList = new List<PersonEntry>( 25 );
-                this.EntryLock = new GatewayLock();
+                EntryList = new List<PersonEntry>( 25 );
+                EntryLock = new GatewayLock();
             }
 
             internal void AddEntry(ITashaPerson tashaPerson, int pd, float expFactor)
@@ -104,9 +104,9 @@ namespace Tasha.PopulationSynthesis
                 var empStat = tashaPerson.EmploymentStatus;
                 var female = tashaPerson.Female;
                 var dlic = tashaPerson.Licence;
-                this.EntryLock.PassThrough( () =>
+                EntryLock.PassThrough( () =>
                 {
-                    for ( int i = 0; i < this.EntryList.Count; i++ )
+                    for ( int i = 0; i < EntryList.Count; i++ )
                     {
                         if ( EntryList[i].AddIfEquals( ageCat, occ, empStat, dlic, female, expFactor ) )
                         {
@@ -117,9 +117,9 @@ namespace Tasha.PopulationSynthesis
                 } );
                 if ( !success )
                 {
-                    this.EntryLock.Lock( () =>
+                    EntryLock.Lock( () =>
                     {
-                        for ( int i = 0; i < this.EntryList.Count; i++ )
+                        for ( int i = 0; i < EntryList.Count; i++ )
                         {
                             if ( EntryList[i].AddIfEquals( ageCat, occ, empStat, dlic, female, expFactor ) )
                             {
@@ -128,7 +128,7 @@ namespace Tasha.PopulationSynthesis
                         }
                         // if we get here it doesn't exist yet
                         // we don't need to lock here since the writer is always unique
-                        this.EntryList.Add( new PersonEntry()
+                        EntryList.Add( new PersonEntry()
                         {
                             AgeCat = ageCat,
                             Occupation = occ,
@@ -144,12 +144,12 @@ namespace Tasha.PopulationSynthesis
 
             internal void Save()
             {
-                using ( StreamWriter writer = new StreamWriter( this.self.SaveFile.GetFileName() ) )
+                using ( StreamWriter writer = new StreamWriter( self.SaveFile.GetFileName() ) )
                 {
                     WriterHeader( writer );
-                    for ( int entry = 0; entry < this.EntryList.Count; entry++ )
+                    for ( int entry = 0; entry < EntryList.Count; entry++ )
                     {
-                        var personType = this.EntryList[entry];
+                        var personType = EntryList[entry];
                         writer.Write( personType.PlaningDistrict );
                         writer.Write( ',' );
                         writer.Write( personType.AgeCat );
@@ -219,16 +219,16 @@ namespace Tasha.PopulationSynthesis
                 internal bool AddIfEquals(int ageCat, Occupation occ, TTSEmploymentStatus empStat, bool dlic, bool female, float expFac)
                 {
                     if (
-                            this.AgeCat == ageCat
-                        & this.Female == female
-                        & this.Occupation == occ
-                        & this.EmploymentStatus == empStat
-                        & this.DriversLicense == dlic
+                            AgeCat == ageCat
+                        & Female == female
+                        & Occupation == occ
+                        & EmploymentStatus == empStat
+                        & DriversLicense == dlic
                             )
                     {
                         lock ( this )
                         {
-                            this.ExpansionFactor += expFac;
+                            ExpansionFactor += expFac;
                         }
                         return true;
                     }

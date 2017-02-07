@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
@@ -49,18 +46,16 @@ namespace Tasha.Data
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
             var first = ModuleHelper.GetDataFromDatasourceOrResource(FirstRateToApplyRaw, FirstRateToApply, FirstRateToApplyRaw != null);
             var firstRate = first.GetFlatData();
             var secondRate = ModuleHelper.GetDataFromDatasourceOrResource(SecondRateToApplyRaw, SecondRateToApply, FirstRateToApplyRaw != null).GetFlatData();
@@ -71,12 +66,12 @@ namespace Tasha.Data
             {
                 VectorHelper.Subtract(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
             }
-            this.Data = data;
+            Data = data;
         }
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         public string Name { get; set; }

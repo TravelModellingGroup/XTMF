@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
@@ -47,22 +44,22 @@ namespace Tasha.Data
 
         public SparseArray<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
             var data = zoneArray.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
             var studentRates = ModuleHelper.GetDataFromDatasourceOrResource(RatesToApplyRaw, RatesToApply, RatesToApplyRaw != null);
-            if ( this.RatesBasedOnPD )
+            if ( RatesBasedOnPD )
             {
                 for ( int i = 0; i < zones.Length; i++ )
                 {
@@ -80,12 +77,12 @@ namespace Tasha.Data
                     flatData[i] = pop * studentRates[zoneNumber];
                 }
             }
-            this.Data = data;
+            Data = data;
         }
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         public string Name { get; set; }

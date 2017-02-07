@@ -52,20 +52,12 @@ namespace Tasha.Modes
         [RunParameter( "travelTime", 0f, "The factor applied the the travel time" )]
         public float travelTime;
 
-        private byte modeChoiceArrIndex = 0;
-
-        /// <summary>
-        /// Create a new Auto mode, this will be called when
-        /// Tasha# loads us
-        /// </summary>
-        public RideShare()
-        {
-        }
+        private byte modeChoiceArrIndex;
 
         [DoNotAutomate]
         public ITashaMode AssociatedMode
         {
-            get { return this.TashaRuntime.AutoMode; }
+            get { return TashaRuntime.AutoMode; }
         }
 
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
@@ -83,7 +75,7 @@ namespace Tasha.Modes
 
             set
             {
-                this.modeChoiceArrIndex = value;
+                modeChoiceArrIndex = value;
             }
         }
 
@@ -146,7 +138,7 @@ namespace Tasha.Modes
         /// </summary>
         public IVehicleType RequiresVehicle
         {
-            get { return this.TashaRuntime.AutoType; }
+            get { return TashaRuntime.AutoType; }
         }
 
         [DoNotAutomate]
@@ -168,16 +160,16 @@ namespace Tasha.Modes
         {
             double V = 0;
 
-            V += this.cridesh;
+            V += cridesh;
 
             //calculate the transit time
             IZone o = trip.OriginalZone, d = trip.DestinationZone;
-            V += TravelTime( o, d, trip.ActivityStartTime ).ToFloat() * this.travelTime;
-            V += Cost( o, d, trip.TripStartTime ) * this.travelCost;
+            V += TravelTime( o, d, trip.ActivityStartTime ).ToFloat() * travelTime;
+            V += Cost( o, d, trip.TripStartTime ) * travelCost;
             V += d.ParkingCost * parking;
 
-            if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket ) V += this.dpurp_shop_drive;
-            if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther ) V += this.dpurp_oth_drive;
+            if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket ) V += dpurp_shop_drive;
+            if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther ) V += dpurp_oth_drive;
 
             return V;
         }
@@ -195,7 +187,7 @@ namespace Tasha.Modes
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return this.TravelData.TravelCost( origin, destination, time );
+            return TravelData.TravelCost( origin, destination, time );
         }
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
@@ -234,7 +226,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -253,7 +245,7 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            var networks = this.TashaRuntime.NetworkData;
+            var networks = TashaRuntime.NetworkData;
             if ( networks == null )
             {
                 error = "There was no Auto Network loaded for the Rideshare Mode!";
@@ -264,7 +256,7 @@ namespace Tasha.Modes
             {
                 if ( network.NetworkType == "Auto" )
                 {
-                    this.TravelData = network;
+                    TravelData = network;
                     found = true;
                     break;
                 }
@@ -286,7 +278,7 @@ namespace Tasha.Modes
         /// <returns>The amount of time it will take</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.TravelData.TravelTime( origin, destination, time );
+            return TravelData.TravelTime( origin, destination, time );
         }
     }
 }

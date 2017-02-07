@@ -47,7 +47,7 @@ namespace Tasha.ModeChoice
         [DoNotAutomate]
         public List<ITashaMode> AllModes
         {
-            get { return this.TashaRuntime.AllModes; }
+            get { return TashaRuntime.AllModes; }
         }
 
         public string Name
@@ -63,7 +63,7 @@ namespace Tasha.ModeChoice
         [DoNotAutomate]
         public List<ITashaMode> NonSharedModes
         {
-            get { return this.TashaRuntime.NonSharedModes; }
+            get { return TashaRuntime.NonSharedModes; }
         }
 
         public float Progress
@@ -125,7 +125,7 @@ namespace Tasha.ModeChoice
             double sum = 0;
             if ( Rand == null )
             {
-                Rand = new Random( this.RandomSeed );
+                Rand = new Random( RandomSeed );
             }
             for ( int i = 0; i < 12; i++ )
             {
@@ -141,7 +141,7 @@ namespace Tasha.ModeChoice
         /// </summary>
         public void LoadOneTimeLocalData()
         {
-            var modes = this.AllModes;
+            var modes = AllModes;
             var modeLength = modes.Count;
             for ( int i = 0; i < modeLength; i++ )
             {
@@ -162,7 +162,7 @@ namespace Tasha.ModeChoice
         public void IterationStarting()
         {
             //loads the random numbers
-            if ( ModeChoice.Rand == null )
+            if ( Rand == null )
             {
                 Rand = new Random( TashaRuntime.RandomSeed );
             }
@@ -177,7 +177,7 @@ namespace Tasha.ModeChoice
             // Compute the error terms and feasibility of non shared modes
             ComputeErrorTerms( h );
             //there are no "trip chains" so return true
-            for ( int i = 0; i < this.HouseholdIterations; i++ )
+            for ( int i = 0; i < HouseholdIterations; i++ )
             {
                 // To start with Generate the LogLikelyhoods
                 if ( i == 0 )
@@ -226,7 +226,7 @@ namespace Tasha.ModeChoice
                 h.MultiPersonMode();
 
                 //finally store it to the list of "generated" realities
-                DoAssignment( h, i );
+                DoAssignment( h );
             }
             ReleaseModeSets( h );
             return true;
@@ -235,10 +235,10 @@ namespace Tasha.ModeChoice
         public bool RuntimeValidation(ref string error)
         {
             // Update our helper classes with links back to ourself
-            ModeChoiceTrip.TashaRuntime = this.TashaRuntime;
-            ModeChoiceTripChain.TashaRuntime = this.TashaRuntime;
+            ModeChoiceTrip.TashaRuntime = TashaRuntime;
+            ModeChoiceTripChain.TashaRuntime = TashaRuntime;
             ModeChoiceHousehold.ModeChoice = this;
-            ModeData.TashaRuntime = this.TashaRuntime;
+            ModeData.TashaRuntime = TashaRuntime;
             return true;
         }
 
@@ -279,7 +279,7 @@ namespace Tasha.ModeChoice
                 foreach ( var tripChain in person.TripChains )
                 {
                     ModeSet[] sets = (ModeSet[])tripChain["BestForVehicle"];
-                    ModeSet set = sets[this.VehicleTypes.IndexOf( bestAssignment[i++] ) + 1];
+                    ModeSet set = sets[VehicleTypes.IndexOf( bestAssignment[i++] ) + 1];
                     if ( set != null )
                     {
                         var numberOfTrips = tripChain.Trips.Count;
@@ -292,11 +292,10 @@ namespace Tasha.ModeChoice
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="household"></param>
-        private void DoAssignment(ITashaHousehold household, int iteration)
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="household"></param>
+        private void DoAssignment(ITashaHousehold household)
         {
             foreach ( var person in household.Persons )
             {

@@ -59,26 +59,26 @@ namespace Tasha.XTMFScheduler
         {
             if ( person.StudentStatus == StudentStatus.FullTime )
             {
-                this.School.Generate( household, person, episodes, rand );
-                this.Work.Generate( household, person, episodes, rand );
+                School.Generate( household, person, episodes, rand );
+                Work.Generate( household, person, episodes, rand );
             }
             else
             {
-                this.Work.Generate( household, person, episodes, rand );
-                this.School.Generate( household, person, episodes, rand );
+                Work.Generate( household, person, episodes, rand );
+                School.Generate( household, person, episodes, rand );
             }
         }
 
         public void IterationComplete(int currentIteration, int totalIterations)
         {
-            this.Work.IterationComplete( currentIteration, totalIterations );
-            this.School.IterationComplete( currentIteration, totalIterations );
+            Work.IterationComplete( currentIteration, totalIterations );
+            School.IterationComplete( currentIteration, totalIterations );
         }
 
         public void IterationStart(int currentIteration, int totalIterations)
         {
-            this.Work.IterationStart( currentIteration, totalIterations );
-            this.School.IterationStart( currentIteration, totalIterations );
+            Work.IterationStart( currentIteration, totalIterations );
+            School.IterationStart( currentIteration, totalIterations );
         }
 
         public bool RuntimeValidation(ref string error)

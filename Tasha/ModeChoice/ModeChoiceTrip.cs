@@ -35,25 +35,25 @@ namespace Tasha.ModeChoice
         /// <param name="trip">The trip to work on</param>
         public static bool CalculateVTrip(this ITrip trip)
         {
-            ModeData Data = ModeData.MakeModeData();
+            ModeData data = ModeData.MakeModeData();
             //initializes mode set
-            Data.Store( trip );
+            data.Store( trip );
             bool feasible = false;
             var modes = TashaRuntime.NonSharedModes;
             int numberOfModes = modes.Count;
             for ( int i = 0; i < numberOfModes; i++ )
             {
                 // start processing the next mode number
-                if ( !( Data.Feasible[i] = modes[i].Feasible( trip ) ) )
+                if ( !( data.Feasible[i] = modes[i].Feasible( trip ) ) )
                 {
                     continue;
                 }
                 feasible = true;
-                Data.V[i] = modes[i].CalculateV( trip );
+                data.V[i] = modes[i].CalculateV( trip );
             }
             // This will generate the error for all of the modes
             // including the shared modes
-            Data.GenerateError();
+            data.GenerateError();
             return feasible;
         }
 

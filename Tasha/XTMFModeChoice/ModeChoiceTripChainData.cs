@@ -18,9 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Tasha.Common;
-using XTMF;
 
 namespace Tasha.XTMFModeChoice
 {
@@ -244,7 +242,6 @@ namespace Tasha.XTMFModeChoice
                             level++;
                             currentTrip = trips[level];
                             mode = -1;
-                            continue;
                         }
                     }
                 }

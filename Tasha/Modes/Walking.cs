@@ -73,13 +73,6 @@ namespace Tasha.Modes
         [RunParameter( "Youth Constant", 0.0f, "The constant factor for being a youth" )]
         public float Youth;
 
-        /// <summary>
-        /// We are not a personal vehicle
-        /// </summary>
-        public Walking()
-        {
-        }
-
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
@@ -127,21 +120,21 @@ namespace Tasha.Modes
         public double CalculateV(ITrip trip)
         {
             double V = 0;
-            V += this.CWalk;
+            V += CWalk;
 
             ITashaPerson Person = trip.TripChain.Person;
 
             //if person has a license
             if ( Person.Licence )
             {
-                V += this.DLicense;
+                V += DLicense;
             }
 
-            V += TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * this.TravelTimeWeight;
+            V += TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * TravelTimeWeight;
 
             //if its Morning or Afternoon
-            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Morning ) ||
-                ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Afternoon ) )
+            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Morning ) ||
+                ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Afternoon ) )
             {
                 V += PeakTrip;
             }
@@ -161,7 +154,7 @@ namespace Tasha.Modes
             //if intrazonal trip
             if ( trip.OriginalZone == trip.DestinationZone )
             {
-                V += this.Intrazonal;
+                V += Intrazonal;
             }
 
             //if no vehicles
@@ -171,11 +164,11 @@ namespace Tasha.Modes
             }
             if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket )
             {
-                V += this.dpurp_shop_drive;
+                V += dpurp_shop_drive;
             }
             else if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther )
             {
-                V += this.dpurp_oth_drive;
+                V += dpurp_oth_drive;
             }
 
             return V;
@@ -184,20 +177,20 @@ namespace Tasha.Modes
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             float V = 0;
-            V += this.CWalk;
+            V += CWalk;
 
-            V += TravelTime( origin, destination, time ).ToMinutes() * this.TravelTimeWeight;
+            V += TravelTime( origin, destination, time ).ToMinutes() * TravelTimeWeight;
 
             //if its Morning or Afternoon
-            if ( ( Common.GetTimePeriod( time ) == Tasha.Common.TravelTimePeriod.Morning ) ||
-                ( Common.GetTimePeriod( time ) == Tasha.Common.TravelTimePeriod.Afternoon ) )
+            if ( ( Common.GetTimePeriod( time ) == TravelTimePeriod.Morning ) ||
+                ( Common.GetTimePeriod( time ) == TravelTimePeriod.Afternoon ) )
             {
                 V += PeakTrip;
             }
 
             if ( origin.ZoneNumber == destination.ZoneNumber )
             {
-                V += this.Intrazonal;
+                V += Intrazonal;
             }
 
             return V;
@@ -220,7 +213,7 @@ namespace Tasha.Modes
         /// <returns>true if the Trip is feasible for walking</returns>
         public bool Feasible(ITrip trip)
         {
-            return this.Feasible( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
+            return Feasible( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
         }
 
         public bool Feasible(ITripChain tripChain)
@@ -239,7 +232,7 @@ namespace Tasha.Modes
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
             double distance = origin == destination ? origin.InternalDistance : origin.Distance( destination );
-            Time ret = Time.FromMinutes( (float)( distance / this.AvgWalkSpeed ) );
+            Time ret = Time.FromMinutes( (float)( distance / AvgWalkSpeed ) );
             return ret;
         }
 
@@ -282,7 +275,7 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.AvgWalkSpeed = this.AvgWalkSpeedInKmPerHour * 1000f / 60f;
+            AvgWalkSpeed = AvgWalkSpeedInKmPerHour * 1000f / 60f;
             return true;
         }
     }

@@ -90,7 +90,7 @@ namespace Tasha.Scheduler
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -648,7 +648,7 @@ namespace Tasha.Scheduler
         public DistributionFactor[] ModificationFactors;
 
 
-        public sealed class DistributionFactor : XTMF.IModule
+        public sealed class DistributionFactor : IModule
         {
             [RunParameter("ID Range", "", typeof(RangeSet), "The range of distributions to apply this factor to non zero frequencies.")]
             public RangeSet IDRange;

@@ -259,18 +259,18 @@ namespace Tasha.XTMFModeChoice
                     for(int i = 0; i < numModes; i++)
                     {
                         writer.Write(',');
-                        writer.Write("{0:0.##}%", 100 * ((Observations[i][j]) / (float)total));
+                        writer.Write("{0:0.##}%", 100 * ((Observations[i][j]) / total));
                         rowTotal += Observations[i][j];
                     }
-                    writer.WriteLine(",{0:0.##}%", 100 * (rowTotal / (float)total));
+                    writer.WriteLine(",{0:0.##}%", 100 * (rowTotal / total));
                 }
                 writer.Write("Column Total,");
                 for(int i = 0; i < numModes; i++)
                 {
-                    writer.Write("{0:0.##}%", 100 * (columnTotals[i] / (float)total));
+                    writer.Write("{0:0.##}%", 100 * (columnTotals[i] / total));
                     writer.Write(',');
                 }
-                writer.WriteLine("{0:0.##}%", 100 * (correctTotal / (float)total));
+                writer.WriteLine("{0:0.##}%", 100 * (correctTotal / total));
 
                 if(ComputeFitness)
                 {

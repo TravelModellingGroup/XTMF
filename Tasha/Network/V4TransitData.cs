@@ -17,12 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using Datastructure;
-using Tasha.Common;
 using TMG;
 using TMG.Input;
 using System.Threading.Tasks;
@@ -77,25 +73,25 @@ namespace Tasha.Network
             /// <summary>
             /// This value is used to do averaged travel times
             /// </summary>
-            int TimesLoaded = 0;
+            int TimesLoaded;
 
             internal void LoadData(SparseArray<IZone> zoneArray)
             {
                 var zones = zoneArray.GetFlatData();
-                this.NumberOfZones = zones.Length;
+                NumberOfZones = zones.Length;
                 var dataSize = zones.Length * zones.Length * NumberOfDataTypes;
                 // now that we have zones we can build our data
                 var data = Data == null || dataSize != Data.Length ? new float[dataSize] : Data;
                 //now we need to load in each type
-                Parallel.Invoke(() => LoadData(data, this.IvttReader, TravelTimeIndex, zoneArray, TimesLoaded),
-                () => LoadData(data, this.CostReader, CostIndex, zoneArray, TimesLoaded),
-                () => LoadData(data, this.WalkReader, WalkTimeIndex, zoneArray, TimesLoaded),
-                () => LoadData(data, this.WaitReader, WaitTimeIndex, zoneArray, TimesLoaded),
-                () => LoadData(data, this.BoardingReader, BoardingTimeIndex, zoneArray, TimesLoaded));
+                Parallel.Invoke(() => LoadData(data, IvttReader, TravelTimeIndex, zoneArray, TimesLoaded),
+                () => LoadData(data, CostReader, CostIndex, zoneArray, TimesLoaded),
+                () => LoadData(data, WalkReader, WalkTimeIndex, zoneArray, TimesLoaded),
+                () => LoadData(data, WaitReader, WaitTimeIndex, zoneArray, TimesLoaded),
+                () => LoadData(data, BoardingReader, BoardingTimeIndex, zoneArray, TimesLoaded));
                 // increase the number of times that we have been loaded
                 TimesLoaded++;
                 // now store it
-                this.Data = data;
+                Data = data;
             }
 
             private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset, SparseArray<IZone> zoneArray, int timesLoaded)
@@ -152,7 +148,7 @@ namespace Tasha.Network
                 out float travelTime, out float travelCost, out float walkTime, out float waitTime, out float boardingTime)
             {
                 var data = Data;
-                var index = (this.NumberOfZones * flatO + flatD) * NumberOfDataTypes;
+                var index = (NumberOfZones * flatO + flatD) * NumberOfDataTypes;
                 travelTime = data[index + TravelTimeIndex];
                 waitTime = data[index + WaitTimeIndex];
                 walkTime = data[index + WalkTimeIndex];
@@ -163,7 +159,7 @@ namespace Tasha.Network
 
             internal bool GetTimePeriodData(Time time, ref float[] data)
             {
-                if (time < this.StartTime | time >= this.EndTime) return false;
+                if (time < StartTime | time >= EndTime) return false;
                 data = Data;
                 return true;
             }
@@ -270,13 +266,13 @@ namespace Tasha.Network
 
         public Time BoardingTime(IZone origin, IZone destination, Time time)
         {
-            return BoardingTime(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
+            return BoardingTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time BoardingTime(int flatOrigin, int flatDestination, Time time)
         {
             float ivttTime, walkTime, waitTime, boardingtime, cost;
-            this.GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
             return Time.FromMinutes(boardingtime);
         }
 
@@ -287,47 +283,47 @@ namespace Tasha.Network
 
         public bool GetAllData(IZone origin, IZone destination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost)
         {
-            return GetAllData(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time,
+            return GetAllData(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time,
                 out ivtt, out walk, out wait, out boarding, out cost);
         }
 
         public bool GetAllData(IZone origin, IZone destination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost)
         {
-            return GetAllData(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time,
+            return GetAllData(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time,
                 out ivtt, out walk, out wait, out boarding, out cost);
         }
 
         public bool GetAllData(int flatOrigin, int flatDestination, Time time, out Time ivtt, out Time walk, out Time wait, out Time boarding, out float cost)
         {
             float ivttTime, walkTime, waitTime, boardingtime;
-            this.GetData(flatOrigin, flatDestination, time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
+            GetData(flatOrigin, flatDestination, time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
             ivtt = Time.FromMinutes(ivttTime);
             walk = Time.FromMinutes(walkTime);
             wait = Time.FromMinutes(waitTime);
             boarding = Time.FromMinutes(boardingtime);
-            return !(this.NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
+            return !(NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
         }
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
             float ivttTime, walkTime, waitTime, boardingtime;
-            this.GetData(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
+            GetData(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
             ivtt = Time.FromMinutes(ivttTime + walkTime + waitTime);
-            return !(this.NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
+            return !(NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
         }
 
         public bool GetAllData(int start, int end, Time time, out float ivtt, out float cost)
         {
             float ivttTime, walkTime, waitTime, boardingtime;
-            this.GetData(start, end, time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
+            GetData(start, end, time, out ivttTime, out cost, out walkTime, out waitTime, out boardingtime);
             ivtt = ivttTime + walkTime + waitTime;
-            return !(this.NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
+            return !(NoWalkTimeInfeasible & (walkTime <= 0 & ivttTime <= 0));
         }
 
         public bool GetAllData(int flatOrigin, int flatDestination, Time time, out float ivtt, out float walk, out float wait, out float boarding, out float cost)
         {
-            this.GetData(flatOrigin, flatDestination, time, out ivtt, out walk, out wait, out boarding, out cost);
-            return !(this.NoWalkTimeInfeasible & (walk <= 0 & ivtt <= 0));
+            GetData(flatOrigin, flatDestination, time, out ivtt, out walk, out wait, out boarding, out cost);
+            return !(NoWalkTimeInfeasible & (walk <= 0 & ivtt <= 0));
         }
 
         public INetworkData GiveData()
@@ -337,13 +333,13 @@ namespace Tasha.Network
 
         public Time InVehicleTravelTime(IZone origin, IZone destination, Time time)
         {
-            return InVehicleTravelTime(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
+            return InVehicleTravelTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time InVehicleTravelTime(int flatOrigin, int flatDestination, Time time)
         {
             float ivttTime, walkTime, waitTime, boardingtime, cost;
-            this.GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
             return Time.FromMinutes(ivttTime);
         }
 
@@ -356,7 +352,7 @@ namespace Tasha.Network
         public void LoadData()
         {
             // setup our zones
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             ZoneArray = zoneArray;
             if (!Loaded)
             {
@@ -372,7 +368,7 @@ namespace Tasha.Network
                     }
                 }
                 // since we are doing more CPU work here we can load it in parallel
-                Parallel.For(0, TimePeriods.Length, (int i) =>
+                Parallel.For(0, TimePeriods.Length, i =>
                 {
                     TimePeriods[i].LoadData(zoneArray);
                 });
@@ -388,7 +384,7 @@ namespace Tasha.Network
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.IterativeRoot = this.Root as IIterativeModel;
+            IterativeRoot = Root as IIterativeModel;
             return true;
         }
 
@@ -399,44 +395,44 @@ namespace Tasha.Network
 
         public float TravelCost(IZone start, IZone end, Time time)
         {
-            return TravelCost(this.ZoneArray.GetFlatIndex(start.ZoneNumber), this.ZoneArray.GetFlatIndex(end.ZoneNumber), time);
+            return TravelCost(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time);
         }
 
         public float TravelCost(int flatOrigin, int flatDestination, Time time)
         {
             float ivttTime, walkTime, waitTime, boardingtime, cost;
-            this.GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
             return cost;
         }
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return TravelTime(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
+            return TravelTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time TravelTime(int flatOrigin, int flatDestination, Time time)
         {
             float ivttTime, walkTime, waitTime, boardingtime, cost;
-            this.GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
             return Time.FromMinutes(ivttTime + walkTime + waitTime);
         }
 
         public void UnloadData()
         {
-            if (!this.NoUnload)
+            if (!NoUnload)
             {
-                this.ZoneArray = null;
-                for (int i = 0; i < this.TimePeriods.Length; i++)
+                ZoneArray = null;
+                for (int i = 0; i < TimePeriods.Length; i++)
                 {
-                    this.TimePeriods[i].UnloadData();
+                    TimePeriods[i].UnloadData();
                 }
-                this.Loaded = false;
+                Loaded = false;
             }
         }
 
         public bool ValidOd(IZone start, IZone end, Time time)
         {
-            if (!this.NoWalkTimeInfeasible || this.WalkTime(start, end, time) > Time.Zero)
+            if (!NoWalkTimeInfeasible || WalkTime(start, end, time) > Time.Zero)
             {
                 return true;
             }
@@ -445,30 +441,30 @@ namespace Tasha.Network
 
         public bool ValidOd(int flatOrigin, int flatDestination, Time time)
         {
-            return (!this.NoWalkTimeInfeasible || this.WalkTime(flatOrigin, flatDestination, time) > Time.Zero);
+            return (!NoWalkTimeInfeasible || WalkTime(flatOrigin, flatDestination, time) > Time.Zero);
         }
 
         public Time WaitTime(IZone origin, IZone destination, Time time)
         {
-            return WaitTime(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
+            return WaitTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time WaitTime(int flatOrigin, int flatDestination, Time time)
         {
             float ivttTime, walkTime, waitTime, boardingtime, cost;
-            this.GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
             return Time.FromMinutes(waitTime);
         }
 
         public Time WalkTime(IZone origin, IZone destination, Time time)
         {
-            return WalkTime(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
+            return WalkTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public Time WalkTime(int flatOrigin, int flatDestination, Time time)
         {
             float ivttTime, walkTime, waitTime, boardingtime, cost;
-            this.GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
+            GetData(flatOrigin, flatDestination, time, out ivttTime, out walkTime, out waitTime, out boardingtime, out cost);
             return Time.FromMinutes(walkTime);
         }
     }

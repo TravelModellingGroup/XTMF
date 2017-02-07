@@ -88,7 +88,7 @@ namespace Tasha.Scheduler
 
         public override string ToString()
         {
-            return string.Format( "{0}->{1}", this.start, this.end );
+            return string.Format( "{0}->{1}", start, end );
         }
     }
 }

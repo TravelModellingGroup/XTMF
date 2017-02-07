@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Tasha.Common;
 using XTMF;
 using TMG;
@@ -167,7 +165,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     break;
             }
             v += GetPlanningDistrictConstant(trip.TripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
-            return (double)v;
+            return v;
         }
 
         private void GetPersonVariables(ITashaPerson person, out float constant, out float perceivedTime, out float cost)

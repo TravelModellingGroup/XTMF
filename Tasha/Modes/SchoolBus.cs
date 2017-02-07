@@ -82,13 +82,6 @@ namespace Tasha.Modes
         [DoNotAutomate]
         private INetworkData data;
 
-        /// <summary>
-        ///
-        /// </summary>
-        public SchoolBus()
-        {
-        }
-
         [RunParameter( "AvailableZones", "0-2200", "Example \"0-2200,3000-3500\" is all of the zones between 0 and 2200 and all of the zones between 3000 and 3500." )]
         public string availableZones
         {
@@ -99,8 +92,8 @@ namespace Tasha.Modes
 
             set
             {
-                this._availableZones = value;
-                this.AvailableZones = Common.ConvertToIntList( value );
+                _availableZones = value;
+                AvailableZones = Common.ConvertToIntList( value );
             }
         }
 
@@ -183,20 +176,20 @@ namespace Tasha.Modes
         {
             double V = 0;
 
-            V += this.CSchoolBus;
+            V += CSchoolBus;
 
             if ( trip.TripChain.Person.Licence )
-                V += this.DriversLicence;
+                V += DriversLicence;
 
             if ( trip.TripChain.Person.Youth )
             {
-                V += this.YouthPassenger;
-                V += this.YouthWalk;
+                V += YouthPassenger;
+                V += YouthWalk;
             }
             if ( trip.TripChain.Person.YoungAdult )
             {
-                V += this.YoungAdultPassenger;
-                V += this.YoungAdultWalk;
+                V += YoungAdultPassenger;
+                V += YoungAdultWalk;
             }
 
             if ( trip.Purpose == Activity.School )
@@ -207,16 +200,16 @@ namespace Tasha.Modes
             {
                 V += SchoolPurpose;
             }
-            V += this.data.TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * this.Distance;
-            V += trip.TripChain.Person.Age * this.Age;
+            V += data.TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * Distance;
+            V += trip.TripChain.Person.Age * Age;
             return V;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             float V = 0;
-            V += this.CSchoolBus;
-            V += this.data.TravelTime( origin, destination, time ).ToMinutes() * this.Distance;
+            V += CSchoolBus;
+            V += data.TravelTime( origin, destination, time ).ToMinutes() * Distance;
             return V;
         }
 
@@ -245,8 +238,8 @@ namespace Tasha.Modes
         {
             int indexOfthisTrip = trip.TripChain.Trips.IndexOf( trip );
 
-            return ( this.AvailableZones.Contains( trip.OriginalZone.ZoneNumber )
-                && this.AvailableZones.Contains( trip.DestinationZone.ZoneNumber )
+            return ( AvailableZones.Contains( trip.OriginalZone.ZoneNumber )
+                && AvailableZones.Contains( trip.DestinationZone.ZoneNumber )
                 && trip.TripChain.Person.StudentStatus != StudentStatus.NotStudent
                 && DistanceRequirement( trip.OriginalZone, trip.DestinationZone, trip.TripChain.Person )
                 && ( ( trip.Purpose == Activity.Home && trip.TripChain.Trips[indexOfthisTrip - 1].Purpose == Activity.School ) || trip.Purpose == Activity.School )
@@ -267,7 +260,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -286,20 +279,20 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.TashaRuntime == null )
+            if ( TashaRuntime == null )
             {
                 error = "The Root Model System for the taxi mode was never loaded!";
                 return false;
             }
-            if ( this.TashaRuntime.NetworkData == null )
+            if ( TashaRuntime.NetworkData == null )
             {
                 error = "There was no network data in this model system to load from!";
                 return false;
             }
             bool found = false;
-            foreach ( var data in this.TashaRuntime.NetworkData )
+            foreach ( var data in TashaRuntime.NetworkData )
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if ( data.NetworkType == AutoNetworkName )
                 {
                     found = true;
                     this.data = data;
@@ -308,7 +301,7 @@ namespace Tasha.Modes
             }
             if ( !found )
             {
-                error = "We could not find any data named " + this.AutoNetworkName + " to load as the auto network data for the Taxi mode!";
+                error = "We could not find any data named " + AutoNetworkName + " to load as the auto network data for the Taxi mode!";
                 return false;
             }
             return true;
@@ -319,7 +312,7 @@ namespace Tasha.Modes
         /// </summary>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.data.TravelTime( origin, destination, time );
+            return data.TravelTime( origin, destination, time );
         }
 
         private bool DistanceRequirement(IZone iZone, IZone iZone_2, ITashaPerson iPerson)

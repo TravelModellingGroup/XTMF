@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
 namespace Tasha.DataExtraction
@@ -34,22 +31,22 @@ namespace Tasha.DataExtraction
 
         public IZoneSystem GiveData()
         {
-            return this.ZoneSystem;
+            return ZoneSystem;
         }
 
         public bool Loaded
         {
-            get { return this.ZoneSystem != null; }
+            get { return ZoneSystem != null; }
         }
 
         public void LoadData()
         {
-            this.ZoneSystem.LoadData();
+            ZoneSystem.LoadData();
         }
 
         public void UnloadData()
         {
-            this.ZoneSystem.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         public string Name { get; set; } 

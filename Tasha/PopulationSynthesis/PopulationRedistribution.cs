@@ -28,7 +28,6 @@ using TMG.Functions;
 using TMG.Input;
 using System.IO;
 using TMG;
-using System.Threading;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -122,7 +121,7 @@ where you still want the same demographics."
             }
             Console.WriteLine("Starting Pass 2");
             //Step 2 do intra-regional redistribution
-            Parallel.For(0, remainingHouseholds.Length, (int regionIndex) =>
+            Parallel.For(0, remainingHouseholds.Length, regionIndex =>
             {
                 if (regionIndex != 0)
                 {
@@ -165,7 +164,7 @@ where you still want the same demographics."
             SparseArray<List<int>> householdsByZoneIndexToRegion = zoneArray.CreateSimilarArray<List<int>>();
             SetupSpatialListByElement(householdsByZoneIndexToRegion.GetFlatData());
             Console.WriteLine("Preparing household Index");
-            Parallel.For(0, HouseholdsByZone.Count, (int i) =>
+            Parallel.For(0, HouseholdsByZone.Count, i =>
             {
                 var list = householdsByZoneIndexToRegion.GetFlatData()[i];
                 var total = HouseholdsByZone.GetFlatData()[i].Count;
@@ -175,7 +174,7 @@ where you still want the same demographics."
                 }
             });
             Console.WriteLine("Building household index");
-            Parallel.For(0, HouseholdsByRegion.Count, (int flatRegionIndex) =>
+            Parallel.For(0, HouseholdsByRegion.Count, flatRegionIndex =>
             {
                 if (flatRegionIndex == 0)
                 {
@@ -195,7 +194,7 @@ where you still want the same demographics."
                 }
             });
             Console.WriteLine("Starting Pass 1");
-            Parallel.For(0, HouseholdsByRegion.Count, (int flatRegionIndex) =>
+            Parallel.For(0, HouseholdsByRegion.Count, flatRegionIndex =>
             {
                 if (flatRegionIndex == 0)
                 {
@@ -274,7 +273,7 @@ where you still want the same demographics."
                 seeds[i] = randomSeedGenerator.Next();
             }
             //now that we have our seeds shuffle each position once for each region
-            Parallel.For(0, numberOfRegions, (int flatRegionIndex) =>
+            Parallel.For(0, numberOfRegions, flatRegionIndex =>
             {
                 Random r = new Random(seeds[flatRegionIndex]);
                 var list = HouseholdsByRegion.GetFlatData()[flatRegionIndex];

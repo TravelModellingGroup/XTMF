@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Emme;
 using XTMF;
 using Tasha.Common;
@@ -231,7 +228,6 @@ namespace Tasha.EMME
         /// <summary>
         /// check to see if the mode being used for this trip is one that we are interested in.
         /// </summary>
-        /// <param name="trip"></param>
         /// <returns></returns>
         private bool UsesMode(ITashaMode mode)
         {
@@ -306,7 +302,7 @@ namespace Tasha.EMME
                     SpecialGenerators[i].IncludeTally(specialGenerationResults);
                 }
                 // Now scale the by household iterations and integrate it back into the result matrix
-                Parallel.For(0, specialGenerationResults.Length, (int i) =>
+                Parallel.For(0, specialGenerationResults.Length, i =>
                 {
                     VectorHelper.Multiply(specialGenerationResults[i], 0, specialGenerationResults[i], 0, HouseholdIterations, specialGenerationResults[i].Length);
                     VectorHelper.Add(Matrix[i], 0, Matrix[i], 0, specialGenerationResults[i], 0, specialGenerationResults.Length);

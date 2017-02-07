@@ -588,7 +588,6 @@ namespace Tasha.XTMFModeChoice
                         }
                         break;
                     }
-                    continue;
                 }
             }
         }

@@ -82,7 +82,7 @@ namespace Tasha.Scheduler
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -128,7 +128,7 @@ namespace Tasha.Scheduler
         }
 
         [SubModelInformation(Description = "Network Data", Required = false)]
-        public IList<TMG.INetworkData> NetworkData { get; set; }
+        public IList<INetworkData> NetworkData { get; set; }
 
         [DoNotAutomate]
         public List<ITashaMode> NonSharedModes { get; set; }
@@ -164,7 +164,7 @@ namespace Tasha.Scheduler
 
         public float Progress
         {
-            get { return ( (float)this.CurrentHousehold / this.NumberOfHouseholds ); }
+            get { return ( (float)CurrentHousehold / NumberOfHouseholds ); }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -200,9 +200,9 @@ namespace Tasha.Scheduler
         public float WorkBusinessInflation { get; set; }
 
         [SubModelInformation(Description = "Zone System", Required = true)]
-        public TMG.IZoneSystem ZoneSystem { get; set; }
+        public IZoneSystem ZoneSystem { get; set; }
 
-        public ITrip CreateTrip(ITripChain chain, TMG.IZone originalZone, TMG.IZone destinationZone, Activity purpose, Time startTime)
+        public ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime)
         {
             throw new NotImplementedException();
         }
@@ -225,36 +225,36 @@ namespace Tasha.Scheduler
 
         public void Start()
         {
-            this.Status = "Loading Data";
+            Status = "Loading Data";
 
-            this.ZoneSystem.LoadData();
+            ZoneSystem.LoadData();
 
-            if ( this.PostHousehold != null )
+            if ( PostHousehold != null )
             {
-                foreach ( var module in this.PostHousehold )
+                foreach ( var module in PostHousehold )
                 {
-                    module.Load( this.TotalIterations );
+                    module.Load( TotalIterations );
                 }
             }
 
-            this.IterationPercentage = 1f / this.TotalIterations;
+            IterationPercentage = 1f / TotalIterations;
 
-            for ( int i = 0; i < this.TotalIterations; i++ )
+            for ( int i = 0; i < TotalIterations; i++ )
             {
-                this.CurrentHousehold = 0;
-                this.CompletedIterationPercentage = i * this.IterationPercentage;
-                this.HouseholdLoader.LoadData();
+                CurrentHousehold = 0;
+                CompletedIterationPercentage = i * IterationPercentage;
+                HouseholdLoader.LoadData();
                 RunIteration( i );
             }
 
-            if ( this.PostRun != null )
+            if ( PostRun != null )
             {
-                foreach ( var module in this.PostRun )
+                foreach ( var module in PostRun )
                 {
                     module.Start();
                 }
             }
-            this.ZoneSystem.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         public override string ToString()
@@ -317,7 +317,7 @@ namespace Tasha.Scheduler
         {
             person.InitializePersonalProjects();
             var PersonData = person["SData"] as SchedulerPersonData;
-            var primaryVehicle = this.PrimaryMode.RequiresVehicle;
+            var primaryVehicle = PrimaryMode.RequiresVehicle;
 
             foreach ( var TripChain in person.TripChains )
             {
@@ -325,7 +325,7 @@ namespace Tasha.Scheduler
                 {
                     var ThisTrip = TripChain.Trips[j];
                     var NextTrip = TripChain.Trips[j + 1];
-                    ThisTrip.Mode = this.PrimaryMode;
+                    ThisTrip.Mode = PrimaryMode;
                     var startTime = ThisTrip.OriginalZone == null || ThisTrip.DestinationZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
                     var endTime = NextTrip.TripStartTime;
                     var duration = endTime - startTime;
@@ -367,7 +367,7 @@ namespace Tasha.Scheduler
 
         private void PrintResults()
         {
-            this.Status = "Writing Number of Adult Frequency File";
+            Status = "Writing Number of Adult Frequency File";
         }
 
         private void Run(ITashaHousehold household, BlockingCollection<Result> resultList)
@@ -381,8 +381,8 @@ namespace Tasha.Scheduler
                 {
                     AssignEpisodes( household.Persons[i], ref workStartTimes[i], ref workEndTimes[i], null );
                 }
-                int[] jointMarket = new int[this.NumberOfAdults];
-                int[] jointOther = new int[this.NumberOfAdults];
+                int[] jointMarket = new int[NumberOfAdults];
+                int[] jointOther = new int[NumberOfAdults];
                 bool any = false;
                 foreach ( var person in household.Persons )
                 {
@@ -400,7 +400,7 @@ namespace Tasha.Scheduler
                                 }
                             }
                             any = true;
-                            adults = adults > this.NumberOfAdults ? this.NumberOfAdults : adults;
+                            adults = adults > NumberOfAdults ? NumberOfAdults : adults;
                             foreach ( var trip in tc.Trips )
                             {
                                 switch ( trip.Purpose )
@@ -428,32 +428,32 @@ namespace Tasha.Scheduler
                     } );
                 }
             }
-            System.Threading.Interlocked.Increment( ref this.CurrentHousehold );
+            System.Threading.Interlocked.Increment( ref CurrentHousehold );
             household.Recycle();
         }
 
         private void RunIteration(int i)
         {
-            if ( this.NetworkData != null )
+            if ( NetworkData != null )
             {
-                System.Threading.Tasks.Parallel.ForEach( this.NetworkData,
+                System.Threading.Tasks.Parallel.ForEach( NetworkData,
                     delegate (INetworkData network)
                 {
                     network.LoadData();
                 } );
             }
 
-            if ( this.PostScheduler != null )
+            if ( PostScheduler != null )
             {
-                foreach ( var module in this.PostScheduler )
+                foreach ( var module in PostScheduler )
                 {
                     module.IterationStarting( i );
                 }
             }
 
-            if ( this.PostHousehold != null )
+            if ( PostHousehold != null )
             {
-                foreach ( var module in this.PostHousehold )
+                foreach ( var module in PostHousehold )
                 {
                     module.IterationStarting( i );
                 }
@@ -461,30 +461,30 @@ namespace Tasha.Scheduler
 
             RunSerial( i );
 
-            if ( this.NetworkData != null )
+            if ( NetworkData != null )
             {
-                foreach ( var network in this.NetworkData )
+                foreach ( var network in NetworkData )
                 {
                     network.UnloadData();
                 }
             }
 
-            if ( this.PostScheduler != null )
+            if ( PostScheduler != null )
             {
-                foreach ( var module in this.PostScheduler )
+                foreach ( var module in PostScheduler )
                 {
                     module.IterationFinished( i );
                 }
             }
 
-            if ( this.PostHousehold != null )
+            if ( PostHousehold != null )
             {
-                foreach ( var module in this.PostHousehold )
+                foreach ( var module in PostHousehold )
                 {
                     module.IterationFinished( i );
                 }
             }
-            this.HouseholdLoader.Reset();
+            HouseholdLoader.Reset();
         }
 
         private struct Result
@@ -498,8 +498,8 @@ namespace Tasha.Scheduler
 
         private void RunSerial(int iteration)
         {
-            this.Status = "Calculating Distributions...";
-            var households = this.HouseholdLoader.ToArray();
+            Status = "Calculating Distributions...";
+            var households = HouseholdLoader.ToArray();
             var resultList = new BlockingCollection<Result>();
             var saveResultsTask = System.Threading.Tasks.Task.Factory.StartNew( () =>
                 {
@@ -507,7 +507,7 @@ namespace Tasha.Scheduler
                     float[][] combinedResults = new float[6][];
                     for ( int i = 0; i < combinedResults.Length; i++ )
                     {
-                        combinedResults[i] = new float[this.NumberOfAdults];
+                        combinedResults[i] = new float[NumberOfAdults];
                     }
                     //process results
                     foreach ( var result in resultList.GetConsumingEnumerable() )
@@ -535,7 +535,7 @@ namespace Tasha.Scheduler
                     // save results
                     //NO HEADER
                     //DistributionID,NumberOfAdults,ExpandedSum,Probability,CDF
-                    using (StreamWriter writer = new StreamWriter( this.ResultFile.GetFilePath() ))
+                    using (StreamWriter writer = new StreamWriter( ResultFile.GetFilePath() ))
                     {
                         for ( int dist = 0; dist < combinedResults.Length; dist++ )
                         {
@@ -569,9 +569,9 @@ namespace Tasha.Scheduler
                         }
                     }
                 } );
-            System.Threading.Tasks.Parallel.For( 0, households.Length, (int i) =>
+            System.Threading.Tasks.Parallel.For( 0, households.Length, i =>
             {
-                this.Run( households[i], resultList );
+                Run( households[i], resultList );
             } );
             resultList.CompleteAdding();
             saveResultsTask.Wait();
@@ -579,7 +579,7 @@ namespace Tasha.Scheduler
 
         private void SetNoAddZero(bool[] addZero)
         {
-            for ( int i = 0; i < this.NumberOfDistributionsLocal; i++ )
+            for ( int i = 0; i < NumberOfDistributionsLocal; i++ )
             {
                 addZero[i] = false;
             }
@@ -587,17 +587,17 @@ namespace Tasha.Scheduler
 
         private void SimulateScheduler()
         {
-            Scheduler.MaxFrequency = this.MaxFrequencyLocal;
-            Scheduler.NumberOfAdultDistributions = this.NumberOfAdultDistributionsLocal;
-            Scheduler.NumberOfAdultFrequencies = this.NumberOfAdultFrequenciesLocal;
-            Scheduler.NumberOfDistributions = this.NumberOfDistributionsLocal;
-            Scheduler.StartTimeQuanta = this.StartTimeQuantums;
-            Scheduler.FullTimeActivity = this.FullTimeActivityDateTime;
-            Scheduler.MaxPrimeWorkStartTimeForReturnHomeFromWork = this.MaxPrimeWorkStartTimeForReturnHomeFromWorkDateTime;
-            Scheduler.MinPrimaryWorkDurationForReturnHomeFromWork = this.MinPrimaryWorkDurationForReturnHomeFromWorkDateTime;
-            Scheduler.ReturnHomeFromWorkMaxEndTime = this.ReturnHomeFromWorkMaxEndTimeDateTime;
-            Scheduler.SecondaryWorkThreshold = this.SecondaryWorkThresholdDateTime;
-            Scheduler.SecondaryWorkMinStartTime = this.SecondaryWorkMinStartTimeDateTime;
+            Scheduler.MaxFrequency = MaxFrequencyLocal;
+            Scheduler.NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
+            Scheduler.NumberOfAdultFrequencies = NumberOfAdultFrequenciesLocal;
+            Scheduler.NumberOfDistributions = NumberOfDistributionsLocal;
+            Scheduler.StartTimeQuanta = StartTimeQuantums;
+            Scheduler.FullTimeActivity = FullTimeActivityDateTime;
+            Scheduler.MaxPrimeWorkStartTimeForReturnHomeFromWork = MaxPrimeWorkStartTimeForReturnHomeFromWorkDateTime;
+            Scheduler.MinPrimaryWorkDurationForReturnHomeFromWork = MinPrimaryWorkDurationForReturnHomeFromWorkDateTime;
+            Scheduler.ReturnHomeFromWorkMaxEndTime = ReturnHomeFromWorkMaxEndTimeDateTime;
+            Scheduler.SecondaryWorkThreshold = SecondaryWorkThresholdDateTime;
+            Scheduler.SecondaryWorkMinStartTime = SecondaryWorkMinStartTimeDateTime;
         }
     }
 }

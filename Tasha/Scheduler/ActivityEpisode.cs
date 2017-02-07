@@ -34,10 +34,10 @@ namespace Tasha.Scheduler
         internal ActivityEpisode(long id, TimeWindow window, Activity type, ITashaPerson owner)
             : base( window, owner )
         {
-            this.People = null;
-            this.ActivityType = type;
-            this.OriginalDuration = window.Duration;
-            this.Owner = owner;
+            People = null;
+            ActivityType = type;
+            OriginalDuration = window.Duration;
+            Owner = owner;
         }
 
         public override int Adults
@@ -45,10 +45,10 @@ namespace Tasha.Scheduler
             get
             {
                 int total = 0;
-                var numberOfPeople = this.People.Count;
+                var numberOfPeople = People.Count;
                 for ( int i = 0; i < numberOfPeople; i++ )
                 {
-                    if ( this.People[i].Adult )
+                    if ( People[i].Adult )
                     {
                         total++;
                     }
@@ -65,26 +65,26 @@ namespace Tasha.Scheduler
 
         public override bool IsPersonIncluded(ITashaPerson person)
         {
-            if ( this.People == null ) return false;
-            return this.People.Contains( person );
+            if ( People == null ) return false;
+            return People.Contains( person );
         }
 
         public override string ToString()
         {
-            return String.Format( "{0}->{1}", this.StartTime, this.EndTime );
+            return String.Format( "{0}->{1}", StartTime, EndTime );
         }
 
         internal override void AddPerson(ITashaPerson person)
         {
             // only allow people who are not included added to the episode
-            if ( this.People == null )
+            if ( People == null )
             {
-                this.People = new List<ITashaPerson>();
+                People = new List<ITashaPerson>();
             }
 
-            if ( !this.IsPersonIncluded( person ) )
+            if ( !IsPersonIncluded( person ) )
             {
-                this.People.Add( person );
+                People.Add( person );
             }
             else
             {

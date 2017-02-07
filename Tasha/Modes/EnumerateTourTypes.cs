@@ -71,13 +71,13 @@ namespace Tasha.Modes
                         continue; //Skip people with no trips
 
                     var sb = new StringBuilder();
-                    if ( string.IsNullOrEmpty( this.HomeAnchorOverrideName ) )
+                    if ( string.IsNullOrEmpty( HomeAnchorOverrideName ) )
                     {
                         sb.Append( Activity.Home.ToString() );
                     }
                     else
                     {
-                        var x = p.TripChains[0].GetVariable( this.HomeAnchorOverrideName );
+                        var x = p.TripChains[0].GetVariable( HomeAnchorOverrideName );
                         if ( x != null ) sb.Append( x.ToString() );
                         else sb.Append( Activity.Home.ToString() );
                     }
@@ -88,26 +88,26 @@ namespace Tasha.Modes
                     }
 
                     var key = sb.ToString();
-                    if ( this.data.ContainsKey( key ) )
+                    if ( data.ContainsKey( key ) )
                     {
-                        if ( this.UseExpansionFactor )
+                        if ( UseExpansionFactor )
                         {
-                            this.data[key] += household.ExpansionFactor;
+                            data[key] += household.ExpansionFactor;
                         }
                         else
                         {
-                            this.data[key]++;
+                            data[key]++;
                         }
                     }
                     else
                     {
-                        if ( this.UseExpansionFactor )
+                        if ( UseExpansionFactor )
                         {
-                            this.data.Add( key, household.ExpansionFactor );
+                            data.Add( key, household.ExpansionFactor );
                         }
                         else
                         {
-                            this.data.Add( key, 1 );
+                            data.Add( key, 1 );
                         }
                     }
                 }
@@ -116,14 +116,14 @@ namespace Tasha.Modes
 
         public void IterationFinished(int iteration)
         {
-            var path = this.ResultsFile;
+            var path = ResultsFile;
             using ( StreamWriter sw = new StreamWriter( path ) )
             {
                 sw.WriteLine( "TOUR ENUMERATION" );
                 sw.WriteLine();
                 sw.WriteLine( "Frequency,[List of activities]" );
 
-                foreach ( var e in this.data )
+                foreach ( var e in data )
                 {
                     sw.WriteLine( e.Value + "," + e.Key );
                 }
@@ -134,7 +134,7 @@ namespace Tasha.Modes
 
         public void Load(int maxIterations)
         {
-            this.data = new Dictionary<string, double>();
+            data = new Dictionary<string, double>();
         }
 
         public bool RuntimeValidation(ref string error)

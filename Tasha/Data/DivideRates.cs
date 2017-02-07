@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
@@ -43,31 +40,29 @@ namespace Tasha.Data
 
         public SparseArray<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
-            var firstRate = this.FirstRateToApply.AcquireResource<SparseArray<float>>();
-            var secondRate = this.SecondRateToApply.AcquireResource<SparseArray<float>>();
+            var firstRate = FirstRateToApply.AcquireResource<SparseArray<float>>();
+            var secondRate = SecondRateToApply.AcquireResource<SparseArray<float>>();
             SparseArray<float> data = firstRate.CreateSimilarArray<float>();
             var flatFirst = firstRate.GetFlatData();
             var flatSecond = secondRate.GetFlatData();
             var flat = data.GetFlatData();
             VectorHelper.Divide(flat, 0, flatFirst, 0, flatSecond, 0, flat.Length);
-            this.Data = data;
+            Data = data;
         }
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         public string Name { get; set; }
@@ -84,14 +79,14 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.FirstRateToApply.CheckResourceType<SparseArray<float>>() )
+            if ( !FirstRateToApply.CheckResourceType<SparseArray<float>>() )
             {
-                error = "In '" + this.Name + "' the first rates resource is not of type SparseArray<float>!";
+                error = "In '" + Name + "' the first rates resource is not of type SparseArray<float>!";
                 return false;
             }
-            if ( !this.SecondRateToApply.CheckResourceType<SparseArray<float>>() )
+            if ( !SecondRateToApply.CheckResourceType<SparseArray<float>>() )
             {
-                error = "In '" + this.Name + "' the second rate resource is not of type SparseArray<float>!";
+                error = "In '" + Name + "' the second rate resource is not of type SparseArray<float>!";
                 return false;
             }
             return true;

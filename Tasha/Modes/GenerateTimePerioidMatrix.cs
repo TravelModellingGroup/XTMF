@@ -84,13 +84,13 @@ namespace Tasha.Modes
                     string key = p.Occupation.ToString() + "," + p.EmploymentStatus.ToString() + "," + p.StudentStatus.ToString(); //The key to determine which table the person's trips belong to.
 
                     string prevAct;
-                    if ( string.IsNullOrEmpty( this.HomeAnchorOverrideName ) )
+                    if ( string.IsNullOrEmpty( HomeAnchorOverrideName ) )
                     {
                         prevAct = Activity.Home.ToString();
                     }
                     else
                     {
-                        var x = p.TripChains[0].GetVariable( this.HomeAnchorOverrideName );
+                        var x = p.TripChains[0].GetVariable( HomeAnchorOverrideName );
                         if ( x != null ) prevAct = x.ToString();
                         else prevAct = Activity.Home.ToString();
                     }
@@ -125,18 +125,18 @@ namespace Tasha.Modes
                             Time incomingTripTime = trip.TripStartTime;
 
                             //Save tour in matrix
-                            if ( ( workActCounter <= ( 1 + this.Degrees ) ) && ( schoolActCounter <= ( this.Degrees + 1 ) ) ) //Only if there were fewer deviations than allowed.
+                            if ( ( workActCounter <= ( 1 + Degrees ) ) && ( schoolActCounter <= ( Degrees + 1 ) ) ) //Only if there were fewer deviations than allowed.
                             {
                                 float[,] matrix = null;
-                                if ( !this.workMatrices.ContainsKey( key ) ) //Check if this specific key has already been mapped.
+                                if ( !workMatrices.ContainsKey( key ) ) //Check if this specific key has already been mapped.
                                 {
                                     matrix = new float[4, 4];
                                     matrix[_getTimePeriod( outgoingTripTime ), _getTimePeriod( incomingTripTime )] = household.ExpansionFactor;
-                                    this.workMatrices.Add( key, matrix );
+                                    workMatrices.Add( key, matrix );
                                 }
                                 else
                                 {
-                                    this.workMatrices.TryGetValue( key, out matrix );
+                                    workMatrices.TryGetValue( key, out matrix );
                                     matrix[_getTimePeriod( outgoingTripTime ), _getTimePeriod( incomingTripTime )] += household.ExpansionFactor;
                                 }
                                 //matrix[_getTimePeriod(outgoingTripTime), _getTimePeriod(incomingTripTime)] += household.ExpansionFactor;
@@ -160,20 +160,20 @@ namespace Tasha.Modes
 
         public void IterationFinished(int iteration)
         {
-            var path = this.ResultsFile;
+            var path = ResultsFile;
 
             using ( StreamWriter sw = new StreamWriter( path ) )
             {
                 sw.WriteLine( "Time Period Matrices" );
                 sw.WriteLine();
-                sw.WriteLine( "Morning Period [0]: " + this.MorningTimePeriod.ToString() );
-                sw.WriteLine( "Midday Period [1]: " + this.MiddayTimePeriod.ToString() );
-                sw.WriteLine( "Afternoon Period [2]: " + this.AfternoonTimePeriod.ToString() );
+                sw.WriteLine( "Morning Period [0]: " + MorningTimePeriod.ToString() );
+                sw.WriteLine( "Midday Period [1]: " + MiddayTimePeriod.ToString() );
+                sw.WriteLine( "Afternoon Period [2]: " + AfternoonTimePeriod.ToString() );
                 sw.WriteLine( "Offpeak [3]" );
                 sw.WriteLine();
                 sw.WriteLine( "Table Names = [Occupation], [Employment Status], [Student Status]" );
 
-                foreach ( var e in this.workMatrices )
+                foreach ( var e in workMatrices )
                 {
                     sw.WriteLine();
                     var table = e.Value;
@@ -193,8 +193,8 @@ namespace Tasha.Modes
 
         public void Load(int maxIterations)
         {
-            this.workMatrices = new Dictionary<string, float[,]>();
-            this.schoolMatrices = new Dictionary<string, float[,]>();
+            workMatrices = new Dictionary<string, float[,]>();
+            schoolMatrices = new Dictionary<string, float[,]>();
         }
 
         public bool RuntimeValidation(ref string error)
@@ -228,9 +228,9 @@ namespace Tasha.Modes
             // Returns 1 if H-W-H or W-H-W trip, 2 if H-S-H or S-H-S, 0 otherwise.
 
             string prevAct = "";
-            if ( !string.IsNullOrEmpty( this.HomeAnchorOverrideName ) )
+            if ( !string.IsNullOrEmpty( HomeAnchorOverrideName ) )
             {
-                var x = chain.GetVariable( this.HomeAnchorOverrideName );
+                var x = chain.GetVariable( HomeAnchorOverrideName );
                 if ( x != null )
                 {
                     var q = (Activity)x;
@@ -251,7 +251,7 @@ namespace Tasha.Modes
                 {
                     if ( prevAct == "W" && nextAct == "H" )
                     {
-                        if ( homeWorkCount <= ( this.Degrees + 1 ) )
+                        if ( homeWorkCount <= ( Degrees + 1 ) )
                             return 1;
                         homeWorkCount = 0;
                     }
@@ -265,7 +265,7 @@ namespace Tasha.Modes
                 {
                     if ( prevAct == "S" && nextAct == "H" )
                     {
-                        if ( homeSchoolCount <= ( this.Degrees + 1 ) )
+                        if ( homeSchoolCount <= ( Degrees + 1 ) )
                             return 2;
                         homeSchoolCount = 0;
                     }

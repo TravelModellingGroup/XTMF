@@ -263,7 +263,6 @@ namespace Tasha.V4Modes
             }
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
-            return;
         }
 
         /// <summary>

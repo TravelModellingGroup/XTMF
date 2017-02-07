@@ -268,7 +268,7 @@ namespace Tasha.PopulationSynthesis
             if (KFactors != null)
             {
                 kFactors = KFactors.AcquireResource<SparseTwinIndex<float>>();
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
                 {
                     var distanceRow = distances[i];
                     var iPD = pds[i];
@@ -286,7 +286,7 @@ namespace Tasha.PopulationSynthesis
             }
             else
             {
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
                 {
                     var distanceRow = distances[i];
                     var iPD = pds[i];
@@ -304,7 +304,7 @@ namespace Tasha.PopulationSynthesis
 
             SparseArray<float> employmentSeekers = EmployedPopulationResidenceByZone.AcquireResource<SparseArray<float>>();
             var jobs = CreateNormalizedJobs(employmentSeekers, JobsByZone.AcquireResource<SparseArray<float>>().GetFlatData());
-            var results = TMG.Functions.GravityModel3D.ProduceFlows(MaxIterations, Epsilon,
+            var results = GravityModel3D.ProduceFlows(MaxIterations, Epsilon,
                                 CreateWorkersByCategory(employmentSeekers, workerSplits),
                                 jobs, data,
                                 NumberOfWorkerCategories, zones.Length);
@@ -322,10 +322,10 @@ namespace Tasha.PopulationSynthesis
         {
             if (HighPerformanceMap == null)
             {
-                var pds = TMG.Functions.ZoneSystemHelper.CreatePdArray<int>(zoneArray);
+                var pds = ZoneSystemHelper.CreatePdArray<int>(zoneArray);
                 var pdIndexes = pds.ValidIndexArray();
                 HighPerformanceMap = new int[pdIndexes.Max() + 1][];
-                Parallel.For(0, HighPerformanceMap.Length, (int i) =>
+                Parallel.For(0, HighPerformanceMap.Length, i =>
                 {
                     var row = HighPerformanceMap[i] = new int[HighPerformanceMap.Length];
                     for (int j = 0; j < row.Length; j++)
@@ -404,7 +404,7 @@ namespace Tasha.PopulationSynthesis
             var iterativeRoot = Root as IIterativeModel;
             if (iterativeRoot == null || iterativeRoot.CurrentIteration == 0)
             {
-                Parallel.For(0, numberOfZones, (int i) =>
+                Parallel.For(0, numberOfZones, i =>
                 {
                     for (int workerCategory = 0; workerCategory < r.Length; workerCategory++)
                     {
@@ -416,7 +416,7 @@ namespace Tasha.PopulationSynthesis
             }
             else
             {
-                Parallel.For(0, numberOfZones, (int i) =>
+                Parallel.For(0, numberOfZones, i =>
                 {
                     for (int workerCategory = 0; workerCategory < r.Length; workerCategory++)
                     {

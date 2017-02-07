@@ -18,9 +18,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG;
@@ -96,7 +93,7 @@ namespace Tasha.Data
             switch (CombinationType)
             {
                 case CombinationTypes.And:
-                    Parallel.For(0, originMasks.Length, (int i) =>
+                    Parallel.For(0, originMasks.Length, i =>
                     {
 
                         var toMaskRow = toMask[i];
@@ -108,7 +105,7 @@ namespace Tasha.Data
                     });
                     break;
                 case CombinationTypes.Or:
-                    Parallel.For(0, originMasks.Length, (int i) =>
+                    Parallel.For(0, originMasks.Length, i =>
                     {
 
                         var toMaskRow = toMask[i];
@@ -120,7 +117,7 @@ namespace Tasha.Data
                     });
                     break;
                 case CombinationTypes.Xor:
-                    Parallel.For(0, originMasks.Length, (int i) =>
+                    Parallel.For(0, originMasks.Length, i =>
                     {
 
                         var toMaskRow = toMask[i];

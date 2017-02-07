@@ -181,7 +181,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     v += OtherFlag;
                     break;
             }
-            return (double)(v + GetPlanningDistrictConstant(trip.ActivityStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict));
+            return v + GetPlanningDistrictConstant(trip.ActivityStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
         }
 
         public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
@@ -262,7 +262,6 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
-            return;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)

@@ -85,11 +85,11 @@ namespace Tasha.Scheduler
                 {
                     if ( i == 0 )
                     {
-                        startTime = Distribution.DistributionToDuration( 1 );
+                        startTime = DistributionToDuration( 1 );
                     }
                     else
                     {
-                        startTime = Distribution.DistributionToDuration( i ); ;
+                        startTime = DistributionToDuration( i ); ;
                     }
                     if ( startTime == Time.Zero )
                     {
@@ -99,7 +99,7 @@ namespace Tasha.Scheduler
                 }
             }
             // if we get here, it was the last one but off due to rounding errors
-            startTime = Distribution.DistributionToDuration( max );
+            startTime = DistributionToDuration( max );
             return true;
         }
 
@@ -109,7 +109,7 @@ namespace Tasha.Scheduler
 
             if ( min >= max )
             {
-                startTime = Distribution.DistributionToTimeOfDay( max );
+                startTime = DistributionToTimeOfDay( max );
                 return true;
             }
 
@@ -133,7 +133,7 @@ namespace Tasha.Scheduler
 
                 if ( rand < cdf )
                 {
-                    startTime = Distribution.DistributionToTimeOfDay( i );
+                    startTime = DistributionToTimeOfDay( i );
                     if ( startTime == Time.Zero )
                     {
                         throw new XTMFRuntimeException( "Tried to create an episode that starts at time 0!" );
@@ -142,7 +142,7 @@ namespace Tasha.Scheduler
                 }
             }
             // if we get here, it was the last one but off due to rounding errors
-            startTime = Distribution.DistributionToTimeOfDay( max );
+            startTime = DistributionToTimeOfDay( max );
             return true;
         }
 
@@ -244,7 +244,7 @@ namespace Tasha.Scheduler
                     baseOffset = 40;
                     ageOffset = 0;
                     occupationOffset = 0;
-                    Tasha.Common.Occupation occupation = person.Occupation;
+                    Occupation occupation = person.Occupation;
                     if ( person.EmploymentStatus != TTSEmploymentStatus.FullTime
                          && person.EmploymentStatus != TTSEmploymentStatus.PartTime )
                     {
@@ -539,14 +539,14 @@ namespace Tasha.Scheduler
                 default:
                     return 0;
             }
-            return Distribution.GetRandomAdultFrequency( distID, min, max, random );
+            return GetRandomAdultFrequency( distID, min, max, random );
         }
 
         private static int GetRandomAdultFrequency(int distid, int min, int max, Random random)
         {
             double rand_num = random.NextDouble();
             float pdf_factor = 0.0f;
-            var data = Distribution.AdultDistributions[distid];
+            var data = AdultDistributions[distid];
             if ( data == null )
             {
                 throw new XTMFRuntimeException( "Unable to load the adult frequency distribution!" );

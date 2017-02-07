@@ -214,10 +214,10 @@ namespace Tasha.Scheduler
 
                     if ( kz.TotalEmployment > 0 )
                     {
-                        empT = Math.Log( ( (double)kz.TotalEmployment / 1000.0 ) + 1.0 );
+                        empT = Math.Log( ( kz.TotalEmployment / 1000.0 ) + 1.0 );
 
                         //distance in KM
-                        distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                        distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                         if ( distkm >= 0 && distkm <= p[0, 4] )
                         {
                             sh0 = 0.0;
@@ -240,9 +240,9 @@ namespace Tasha.Scheduler
 
                     if ( kz.TotalEmployment > 0 )
                     {
-                        empT = Math.Log( ( (double)kz.TotalEmployment / 1000.0 ) + 1.0 );
+                        empT = Math.Log( ( kz.TotalEmployment / 1000.0 ) + 1.0 );
 
-                        distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                        distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                         if ( distkm >= 0 && distkm <= p[0, 4] && kz.InternalDistance > 0 )
                         {
                             sh0 = 0.0;
@@ -268,8 +268,8 @@ namespace Tasha.Scheduler
                         continue;
                     if ( kz.TotalEmployment > 0 )
                     {
-                        empT = Math.Log( ( (double)kz.TotalEmployment / 1000.0 ) + 1.0 );
-                        distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                        empT = Math.Log( ( kz.TotalEmployment / 1000.0 ) + 1.0 );
+                        distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                         if ( distkm >= 0 && distkm <= p[1, 5] )
                         {
                             sh0 = 0.0;
@@ -293,7 +293,7 @@ namespace Tasha.Scheduler
                     {
                         empT = Math.Log( ( (double)kz.TotalEmployment / 1000 ) + 1.0 );
 
-                        distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                        distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                         if ( distkm >= 0 && distkm <= p[1, 5] && kz.InternalDistance > 0 )
                         {
                             sh0 = 0.0;
@@ -318,9 +318,9 @@ namespace Tasha.Scheduler
                     if ( kz.InternalDistance == 0 || kz.TotalEmployment <= 0 )
                         continue;
 
-                    empT = Math.Log( ( (double)kz.TotalEmployment / 1000.0 ) + 1.0 );
-                    double pop = Math.Log( ( (double)kz.Population / 1000.0 ) + 1.0 );
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    empT = Math.Log( ( kz.TotalEmployment / 1000.0 ) + 1.0 );
+                    double pop = Math.Log( ( kz.Population / 1000.0 ) + 1.0 );
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                     if ( distkm >= 0 && distkm <= p[2, 4] )
                     {
                         empP = ( kz.ProfessionalEmployment / 1000 ) + 0.001;
@@ -343,10 +343,10 @@ namespace Tasha.Scheduler
 
                     if ( kz.TotalEmployment > 0 )
                     {
-                        empT = Math.Log( ( (double)kz.TotalEmployment / 1000.0 ) + 1.0 );
-                        double pop = Math.Log( ( (double)kz.Population / 1000.0 ) + 1.0 );
+                        empT = Math.Log( ( kz.TotalEmployment / 1000.0 ) + 1.0 );
+                        double pop = Math.Log( ( kz.Population / 1000.0 ) + 1.0 );
 
-                        distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                        distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                         if ( distkm >= 0 && distkm <= p[2, 4] && kz.InternalDistance > 0 )
                         {
                             sh0 = 0.0;
@@ -371,8 +371,8 @@ namespace Tasha.Scheduler
                     if ( kz.InternalDistance == 0 || kz.TotalEmployment <= 0 )
                         continue;
 
-                    empR = Math.Log( ( (double)kz.RetailEmployment / 1000.0 ) + 1.0 );
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    empR = Math.Log( ( kz.RetailEmployment / 1000.0 ) + 1.0 );
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
 
                     double maxDist;
                     int index;
@@ -427,8 +427,8 @@ namespace Tasha.Scheduler
 
                     if ( kz.TotalEmployment > 0 )
                     {
-                        empR = Math.Log( ( (double)kz.RetailEmployment / 1000.0 ) + 1.0 );
-                        distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                        empR = Math.Log( ( kz.RetailEmployment / 1000.0 ) + 1.0 );
+                        distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
 
                         double maxDist;
                         int index;
@@ -486,7 +486,7 @@ namespace Tasha.Scheduler
             //    TashaConfiguration.GetDirectory("LocationChoiceModelParameters");
             SparseZoneCreator creator = new SparseZoneCreator( 3, ( 4 * flatZones.Last().ZoneNumber ) + 1 );
             creator.LoadCsv( temp, false );
-            creator.Save( this.LocatonChoiceModelHomeCache );
+            creator.Save( LocatonChoiceModelHomeCache );
             File.Delete( temp );
         }
 
@@ -502,8 +502,8 @@ namespace Tasha.Scheduler
 
         public void Start()
         {
-            this.ZoneSystem.LoadData();
-            ActivityDistribution.LoadDistributions( ActivityLevels, this.ZoneSystem.ZoneArray );
+            ZoneSystem.LoadData();
+            ActivityDistribution.LoadDistributions( ActivityLevels, ZoneSystem.ZoneArray );
 
             //G = office
             //M = Manufacturing
@@ -570,11 +570,11 @@ namespace Tasha.Scheduler
             parArray2[3, 17] = MMMaxDist2;
             parArray2[3, 18] = MMMaxDist3;
 
-            IZone[] flatZones = this.ZoneSystem.ZoneArray.GetFlatData();
+            IZone[] flatZones = ZoneSystem.ZoneArray.GetFlatData();
 
             BuildLocationChoiceCache( parArray, flatZones );
             BuildLocationChoiceCacheHome( parArray2, flatZones );
-            this.ZoneSystem.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         private void BuildManufacturingWorkCache(StringBuilder line, IZone iz, float[,] p, IZone[] flatZones)
@@ -597,11 +597,11 @@ namespace Tasha.Scheduler
                 if ( kz.TotalEmployment > 0 )
                 {
                     //distance in KM
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
 
                     if ( distkm >= 0 && distkm <= p[h, 6] && kz.InternalDistance > 0 )
                     {
-                        empM = ( (double)kz.ManufacturingEmployment / 1000.0 ) + 1.0;
+                        empM = ( kz.ManufacturingEmployment / 1000.0 ) + 1.0;
                         sh0 = 0.0; // sh0 is a flag for trips between 0 and 1 km
                         sh1 = 0.0; // sh1 is a flag for trips between 1 and 2 km
                         sh2 = 0.0; // sh2 is a flag for trips between 2 and 3 km
@@ -625,10 +625,10 @@ namespace Tasha.Scheduler
                 IZone kz = flatZones[k];
                 if ( kz.TotalEmployment > 0 )
                 {
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                     if ( distkm >= 0 && distkm <= p[h, 6] && kz.InternalDistance > 0 )
                     {
-                        empM = ( (double)kz.ManufacturingEmployment / 1000.0 ) + 1.0;
+                        empM = ( kz.ManufacturingEmployment / 1000.0 ) + 1.0;
                         sh0 = 0.0; // sh0 is a flag for trips between 0 and 1 km
                         sh1 = 0.0; // sh1 is a flag for trips between 1 and 2 km
                         sh2 = 0.0; // sh2 is a flag for trips between 2 and 3 km
@@ -672,12 +672,12 @@ namespace Tasha.Scheduler
                     //if (!TashaConfiguration.ZoneRetriever.ZoneHasEmploymentData(kz))
                     //    continue;
 
-                    empP = Math.Log( ( (double)kz.ProfessionalEmployment / 1000.0 ) + 1.0 );
-                    empG = Math.Log( ( (double)kz.GeneralEmployment / 1000.0 ) + 1.0 );
+                    empP = Math.Log( ( kz.ProfessionalEmployment / 1000.0 ) + 1.0 );
+                    empG = Math.Log( ( kz.GeneralEmployment / 1000.0 ) + 1.0 );
 
                     //distance in KM
 
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
 
                     if ( distkm >= 0 && distkm <= p[h, 6] && kz.InternalDistance > 0 )
                     {
@@ -701,10 +701,10 @@ namespace Tasha.Scheduler
 
                 if ( kz.TotalEmployment > 0 )
                 {
-                    empP = Math.Log( ( (double)kz.ProfessionalEmployment / 1000.0 ) + 1.0 );
-                    empG = Math.Log( ( (double)kz.GeneralEmployment / 1000.0 ) + 1.0 );
+                    empP = Math.Log( ( kz.ProfessionalEmployment / 1000.0 ) + 1.0 );
+                    empG = Math.Log( ( kz.GeneralEmployment / 1000.0 ) + 1.0 );
 
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                     if ( distkm >= 0 && distkm <= p[h, 6] && kz.InternalDistance > 0 )
                     {
                         sh0 = 0.0;
@@ -744,9 +744,9 @@ namespace Tasha.Scheduler
                     continue;
 
                 // empR = Math.Log((kz.RetailEmployment / 1000.0) + 0.001);
-                empP = ( (double)kz.ProfessionalEmployment / 1000.0 ) + 1.0;
-                empG = ( (double)kz.GeneralEmployment / 1000.0 ) + 1.0;
-                distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                empP = ( kz.ProfessionalEmployment / 1000.0 ) + 1.0;
+                empG = ( kz.GeneralEmployment / 1000.0 ) + 1.0;
+                distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
 
                 if ( distkm >= 0 && distkm <= p[h, 5] )
                 {
@@ -768,10 +768,10 @@ namespace Tasha.Scheduler
 
                 if ( kz.TotalEmployment > 0 )
                 {
-                    empP = Math.Log( ( (double)kz.ProfessionalEmployment / 1000.0 ) + 1.0 );
-                    empG = Math.Log( ( (double)kz.GeneralEmployment / 1000.0 ) + 1.0 );
+                    empP = Math.Log( ( kz.ProfessionalEmployment / 1000.0 ) + 1.0 );
+                    empG = Math.Log( ( kz.GeneralEmployment / 1000.0 ) + 1.0 );
 
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                     if ( distkm >= 0 && distkm <= p[h, 5] && kz.InternalDistance > 0 )
                     {
                         sh0 = 0.0;
@@ -805,8 +805,8 @@ namespace Tasha.Scheduler
 
                 if ( kz.TotalEmployment > 0 )
                 {
-                    empR = Math.Log( ( (double)kz.RetailEmployment / 1000.0 ) + 1.0 );
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    empR = Math.Log( ( kz.RetailEmployment / 1000.0 ) + 1.0 );
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                     if ( distkm >= 0 && distkm <= p[h, 5] && kz.InternalDistance > 0 )
                     {
                         sh0 = 0.0;
@@ -831,9 +831,9 @@ namespace Tasha.Scheduler
 
                 if ( kz.TotalEmployment > 0 )
                 {
-                    empR = Math.Log( ( (double)kz.RetailEmployment / 1000.0 ) + 1.0 );
+                    empR = Math.Log( ( kz.RetailEmployment / 1000.0 ) + 1.0 );
 
-                    distkm = this.ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
+                    distkm = ZoneSystem.Distances[iz.ZoneNumber, kz.ZoneNumber] / 1000;
                     if ( distkm >= 0 && distkm <= p[h, 5] && kz.InternalDistance > 0 )
                     {
                         sh0 = 0.0;

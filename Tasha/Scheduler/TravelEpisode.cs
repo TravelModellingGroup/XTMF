@@ -28,10 +28,10 @@ namespace Tasha.Scheduler
             : base( timeWindow, owner )
         {
             //TODO: verify this line:
-            this.ActivityType = to.ActivityType;
+            ActivityType = to.ActivityType;
             //-----
-            this.From = from;
-            this.To = to;
+            From = from;
+            To = to;
         }
 
         public override int Adults
@@ -75,13 +75,13 @@ namespace Tasha.Scheduler
 
         public override bool IsPersonIncluded(ITashaPerson person)
         {
-            if ( this.From != null )
+            if ( From != null )
             {
-                return this.From.IsOwner( person );
+                return From.IsOwner( person );
             }
-            else if ( this.To != null )
+            else if ( To != null )
             {
-                return this.To.IsOwner( person );
+                return To.IsOwner( person );
             }
             return false;
         }

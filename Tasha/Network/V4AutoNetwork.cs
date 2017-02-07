@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG;
 using TMG.Input;
 using XTMF;
@@ -65,22 +62,22 @@ namespace Tasha.Network
             /// <summary>
             /// This value is used to do averaged travel times
             /// </summary>
-            int TimesLoaded = 0;
+            int TimesLoaded;
 
             internal void LoadData(SparseArray<IZone> zoneArray)
             {
                 var zones = zoneArray.GetFlatData();
-                this.NumberOfZones = zones.Length;
+                NumberOfZones = zones.Length;
                 var dataSize = zones.Length * zones.Length * NumberOfDataTypes;
                 // now that we have zones we can build our data
                 var data = Data == null || dataSize != Data.Length ? new float[dataSize] : Data;
                 //now we need to load in each type
                 Parallel.Invoke(
-                    () => LoadData(data, this.TravelTimeReader, TravelTimeIndex, zoneArray, TimesLoaded),
-                    () => LoadData(data, this.CostReader, CostIndex, zoneArray, TimesLoaded));
+                    () => LoadData(data, TravelTimeReader, TravelTimeIndex, zoneArray, TimesLoaded),
+                    () => LoadData(data, CostReader, CostIndex, zoneArray, TimesLoaded));
                 TimesLoaded++;
                 // now store it
-                this.Data = data;
+                Data = data;
             }
 
             private void LoadData(float[] data, IReadODData<float> readODData, int dataTypeOffset, SparseArray<IZone> zoneArray, int timesLoaded)
@@ -135,21 +132,21 @@ namespace Tasha.Network
 
             internal bool GetDataIfInTimePeriod(Time time, int flatO, int flatD, out float travelTime, out float travelCost)
             {
-                if (time < this.StartTime | time >= this.EndTime)
+                if (time < StartTime | time >= EndTime)
                 {
                     travelTime = 0;
                     travelCost = 0;
                     return false;
                 }
-                var index = (this.NumberOfZones * flatO + flatD) * (NumberOfDataTypes);
-                travelTime = this.Data[index + TravelTimeIndex];
-                travelCost = this.Data[index + CostIndex];
+                var index = (NumberOfZones * flatO + flatD) * (NumberOfDataTypes);
+                travelTime = Data[index + TravelTimeIndex];
+                travelCost = Data[index + CostIndex];
                 return true;
             }
 
             internal bool GetTimePeriodData(Time time, ref float[] data)
             {
-                if (time < this.StartTime | time >= this.EndTime) return false;
+                if (time < StartTime | time >= EndTime) return false;
                 data = Data;
                 return true;
             }
@@ -227,7 +224,7 @@ namespace Tasha.Network
         public void LoadData()
         {
             // setup our zones
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             ZoneArray = zoneArray;
             if (!Loaded)
             {
@@ -242,7 +239,7 @@ namespace Tasha.Network
                         }
                     }
                 }
-                Parallel.For(0, TimePeriods.Length, (int i) =>
+                Parallel.For(0, TimePeriods.Length, i =>
                 {
                     TimePeriods[i].LoadData(zoneArray);
                 });
@@ -258,25 +255,25 @@ namespace Tasha.Network
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.Loaded = false;
-            this.IterativeRoot = this.Root as IIterativeModel;
+            Loaded = false;
+            IterativeRoot = Root as IIterativeModel;
             return true;
         }
 
         public float TravelCost(IZone start, IZone end, Time time)
         {
-            return TravelCost(this.ZoneArray.GetFlatIndex(start.ZoneNumber), this.ZoneArray.GetFlatIndex(end.ZoneNumber), time);
+            return TravelCost(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time);
         }
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return TravelTime(this.ZoneArray.GetFlatIndex(origin.ZoneNumber), this.ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
+            return TravelTime(ZoneArray.GetFlatIndex(origin.ZoneNumber), ZoneArray.GetFlatIndex(destination.ZoneNumber), time);
         }
 
         public bool GetAllData(IZone start, IZone end, Time time, out Time ivtt, out float cost)
         {
             float localIvtt;
-            if (GetData(this.ZoneArray.GetFlatIndex(start.ZoneNumber), this.ZoneArray.GetFlatIndex(end.ZoneNumber), time, out localIvtt, out cost))
+            if (GetData(ZoneArray.GetFlatIndex(start.ZoneNumber), ZoneArray.GetFlatIndex(end.ZoneNumber), time, out localIvtt, out cost))
             {
                 ivtt = Time.FromMinutes(localIvtt);
                 return true;
@@ -287,9 +284,9 @@ namespace Tasha.Network
 
         private bool GetData(int flatO, int flatD, Time time, out float travelTime, out float cost)
         {
-            for (int i = 0; i < this.TimePeriods.Length; i++)
+            for (int i = 0; i < TimePeriods.Length; i++)
             {
-                if (this.TimePeriods[i].GetDataIfInTimePeriod(time, flatO, flatD, out travelTime, out cost))
+                if (TimePeriods[i].GetDataIfInTimePeriod(time, flatO, flatD, out travelTime, out cost))
                 {
                     return true;
                 }
@@ -314,9 +311,9 @@ namespace Tasha.Network
 
         public bool GetAllData(int start, int end, Time time, out float ivtt, out float cost)
         {
-            for (int i = 0; i < this.TimePeriods.Length; i++)
+            for (int i = 0; i < TimePeriods.Length; i++)
             {
-                if (this.TimePeriods[i].GetDataIfInTimePeriod(time, start, end, out ivtt, out cost))
+                if (TimePeriods[i].GetDataIfInTimePeriod(time, start, end, out ivtt, out cost))
                 {
                     return true;
                 }
@@ -342,11 +339,11 @@ namespace Tasha.Network
         {
             if (!NoUnload)
             {
-                this.ZoneArray = null;
-                this.Loaded = false;
-                for (int i = 0; i < this.TimePeriods.Length; i++)
+                ZoneArray = null;
+                Loaded = false;
+                for (int i = 0; i < TimePeriods.Length; i++)
                 {
-                    this.TimePeriods[i].UnloadData();
+                    TimePeriods[i].UnloadData();
                 }
             }
         }

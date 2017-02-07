@@ -115,13 +115,13 @@ namespace Tasha.Scheduler
                 Writer = new StreamWriter( Distributions1 );
             }
 
-            this.SimulateScheduler();
+            SimulateScheduler();
             Distribution.InitializeDistributions();
             var distributionData = Distribution.Distributions.GetFlatData();
             var adultData = Distribution.AdultDistributions.GetFlatData();
 
             GraphTripPurpose( distributionData );
-            this.Dispose( true );
+            Dispose( true );
         }
 
         public override string ToString()
@@ -143,7 +143,6 @@ namespace Tasha.Scheduler
 
                     if ( primaryWork.Contains( Distribution.GetDistributionID( person, Activity.PrimaryWork ) ) )
                     {
-                        continue;
                     }
 
                     else
@@ -167,7 +166,7 @@ namespace Tasha.Scheduler
                         series.ChartType = SeriesChartType.Bar;
                         for ( int i = 0; i < values.Length; i++ )
                         {
-                            series.Points.Add( new DataPoint( i, values[i] ) { AxisLabel = ( Time.FromMinutes( ( 60 * 4 ) + i * ( 1440 / this.StartTimeQuantums ) ) ).ToString() } );
+                            series.Points.Add( new DataPoint( i, values[i] ) { AxisLabel = ( Time.FromMinutes( ( 60 * 4 ) + i * ( 1440 / StartTimeQuantums ) ) ).ToString() } );
                         }
                         area.AxisX.Title = xAxisName;// "Start Time ";
                         area.AxisY.Title = yAxisName;// "#Episodes";
@@ -186,14 +185,14 @@ namespace Tasha.Scheduler
             // find the time in minutes starting from 4 AM
             var minutes = (int)time.ToMinutes() - ( 60 * 4 );
             // 1440 is the number of minutes in 24 hours
-            return minutes / ( 1440 / this.StartTimeQuantums );
+            return minutes / ( 1440 / StartTimeQuantums );
         }
 
         private string GetFullPath(string localPath)
         {
-            if ( !System.IO.Path.IsPathRooted( localPath ) )
+            if ( !Path.IsPathRooted( localPath ) )
             {
-                return System.IO.Path.Combine( this.InputBaseDirectory, localPath );
+                return Path.Combine( InputBaseDirectory, localPath );
             }
             return localPath;
         }
@@ -216,13 +215,13 @@ namespace Tasha.Scheduler
 
             LoadDistributioNumbers( person, primaryWork, Occupations );
 
-            float[] data = new float[this.StartTimeQuantums];
+            float[] data = new float[StartTimeQuantums];
             foreach ( int ID in primaryWork )
             {
                 var table = distributionData[ID].StartTimeFrequency;
-                for ( int i = 0; i < this.StartTimeQuantums; i++ )
+                for ( int i = 0; i < StartTimeQuantums; i++ )
                 {
-                    for ( int j = 0; j < this.MaxFrequencyLocal; j++ )
+                    for ( int j = 0; j < MaxFrequencyLocal; j++ )
                     {
                         data[i] += table[i][j];
                     }
@@ -235,7 +234,7 @@ namespace Tasha.Scheduler
             for ( int number = 0; number < data.Length; number++ )
             {
                 data[number] = data[number] / sum * 100;
-                Writer.WriteLine( "{0}, {1}", ( Time.FromMinutes( ( 60 * 4 ) + number * ( 1440 / this.StartTimeQuantums ) ) ), data[number] );
+                Writer.WriteLine( "{0}, {1}", ( Time.FromMinutes( ( 60 * 4 ) + number * ( 1440 / StartTimeQuantums ) ) ), data[number] );
             }
 
             GenerateChart( String.Format( "OfficeDur.png" ), data, "Time of Day", "Probability" );
@@ -243,27 +242,27 @@ namespace Tasha.Scheduler
 
         private void SimulateScheduler()
         {
-            Scheduler.MaxFrequency = this.MaxFrequencyLocal;
-            Scheduler.NumberOfAdultDistributions = this.NumberOfAdultDistributionsLocal;
-            Scheduler.NumberOfAdultFrequencies = this.NumberOfAdultFrequenciesLocal;
-            Scheduler.NumberOfDistributions = this.NumberOfDistributionsLocal;
-            Scheduler.StartTimeQuanta = this.StartTimeQuantums;
-            Scheduler.FrequencyDistributionsFile = this.GetFullPath( this.FrequencyDistributionsFileLocal );
-            Scheduler.AdultDistributionsFile = this.GetFullPath( this.AdultDistributionsFileLocal );
+            Scheduler.MaxFrequency = MaxFrequencyLocal;
+            Scheduler.NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
+            Scheduler.NumberOfAdultFrequencies = NumberOfAdultFrequenciesLocal;
+            Scheduler.NumberOfDistributions = NumberOfDistributionsLocal;
+            Scheduler.StartTimeQuanta = StartTimeQuantums;
+            Scheduler.FrequencyDistributionsFile = GetFullPath( FrequencyDistributionsFileLocal );
+            Scheduler.AdultDistributionsFile = GetFullPath( AdultDistributionsFileLocal );
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
             GC.SuppressFinalize( this );
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Writer != null )
+            if ( Writer != null )
             {
-                this.Writer.Dispose();
-                this.Writer = null;
+                Writer.Dispose();
+                Writer = null;
             }
         }
     }

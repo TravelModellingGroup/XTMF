@@ -74,13 +74,6 @@ namespace Tasha.Modes
         [DoNotAutomate]
         private IVehicleType AutoType;
 
-        /// <summary>
-        ///
-        /// </summary>
-        public TransitEgress()
-        {
-        }
-
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
@@ -141,7 +134,7 @@ namespace Tasha.Modes
         /// </summary>
         public IVehicleType RequiresVehicle
         {
-            get { return this.AutoType; }
+            get { return AutoType; }
         }
 
         [RootModule]
@@ -166,27 +159,27 @@ namespace Tasha.Modes
         {
             int egressStation = (int)trip["AccessStation"];
             //LatestAccessStation(trip.TripChain, trip);
-            var auto = this.TashaRuntime.AutoMode;
-            var station = this.TashaRuntime.ZoneSystem.Get( egressStation );
-            float V = this.CDriveEgress;
-            V += this.AutoTime * auto.TravelTime( trip.DestinationZone, station, trip.TripStartTime ).ToMinutes();
-            V += this.WalkTime * this.TransitAccessData.WalkTime( station, trip.OriginalZone, trip.TripStartTime ).ToMinutes();
-            V += this.WaitTime * this.TransitAccessData.WaitTime( station, trip.OriginalZone, trip.TripStartTime ).ToMinutes();
-            V += this.AutoCost * auto.Cost( trip.DestinationZone, station, trip.TripStartTime );
-            V += this.TransitTime * this.TransitAccessData.InVehicleTravelTime( station, trip.OriginalZone, trip.TripStartTime ).ToMinutes();
-            V += this.ParkingCost * this.TransitAccessData.Station( station ).ParkingCost;
-            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Morning ) ||
-                    ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Afternoon ) )
+            var auto = TashaRuntime.AutoMode;
+            var station = TashaRuntime.ZoneSystem.Get( egressStation );
+            float V = CDriveEgress;
+            V += AutoTime * auto.TravelTime( trip.DestinationZone, station, trip.TripStartTime ).ToMinutes();
+            V += WalkTime * TransitAccessData.WalkTime( station, trip.OriginalZone, trip.TripStartTime ).ToMinutes();
+            V += WaitTime * TransitAccessData.WaitTime( station, trip.OriginalZone, trip.TripStartTime ).ToMinutes();
+            V += AutoCost * auto.Cost( trip.DestinationZone, station, trip.TripStartTime );
+            V += TransitTime * TransitAccessData.InVehicleTravelTime( station, trip.OriginalZone, trip.TripStartTime ).ToMinutes();
+            V += ParkingCost * TransitAccessData.Station( station ).ParkingCost;
+            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Morning ) ||
+                    ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Afternoon ) )
             {
                 V += PeakTrip;
             }
             if ( trip.TripChain.Person.Occupation == Occupation.Retail )
             {
-                V += this.OccSalesTransit;
+                V += OccSalesTransit;
             }
             else if ( trip.TripChain.Person.Occupation == Occupation.Office )
             {
-                V += this.OccGeneralTransit;
+                V += OccGeneralTransit;
             }
             return V;
         }
@@ -204,15 +197,15 @@ namespace Tasha.Modes
         /// <returns>The lowest cost</returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            int[] egressStations = this.TransitAccessData.ClosestStations( destination );
+            int[] egressStations = TransitAccessData.ClosestStations( destination );
 
             float MinCost = float.MaxValue;
-            var auto = this.TashaRuntime.AutoMode;
+            var auto = TashaRuntime.AutoMode;
             for ( int i = 0; i < egressStations.Length; i++ )
             {
-                var station = this.TashaRuntime.ZoneSystem.Get( egressStations[i] );
+                var station = TashaRuntime.ZoneSystem.Get( egressStations[i] );
                 float cost = auto.Cost( destination, station, time )
-                                    + this.TransitAccessData.Station( station ).ParkingCost;
+                                    + TransitAccessData.Station( station ).ParkingCost;
 
                 if ( cost < MinCost )
                 {
@@ -237,19 +230,19 @@ namespace Tasha.Modes
         /// <returns>if it was feasible</returns>
         public bool Feasible(ITrip trip)
         {
-            if ( trip.OriginalZone.Distance( trip.DestinationZone ) < this.MinDistance ) return false;
+            if ( trip.OriginalZone.Distance( trip.DestinationZone ) < MinDistance ) return false;
             if ( !trip.TripChain.Person.Licence || trip.TripChain.Person.Household.Vehicles.Length == 0 )
             {
                 return false;
             }
             int egressStation;
             if ( ( egressStation = LatestAccessStation( trip.TripChain, trip ) ) == -1 ) return false;
-            var station = this.TashaRuntime.ZoneSystem.Get( egressStation );
-            var auto = this.TashaRuntime.AutoMode;
+            var station = TashaRuntime.ZoneSystem.Get( egressStation );
+            var auto = TashaRuntime.AutoMode;
             //checking if there auto travel time is > 0 and the time in transit > 0 : meaning there exists
             //a route from origin to destination through subway station
             if ( auto.TravelTime( trip.DestinationZone, station, trip.TripStartTime ) > Time.Zero
-                && this.TransitAccessData.InVehicleTravelTime( station, trip.OriginalZone, trip.TripStartTime ) > Time.Zero )
+                && TransitAccessData.InVehicleTravelTime( station, trip.OriginalZone, trip.TripStartTime ) > Time.Zero )
             {
                 trip.Attach( "AccessStation", egressStation );
                 return true;
@@ -290,7 +283,7 @@ namespace Tasha.Modes
                     }
                     AccessOccured = true;
                 }
-                else if ( mode.RequiresVehicle == this.AutoType )
+                else if ( mode.RequiresVehicle == AutoType )
                 {
                     carLocation = trip.DestinationZone.ZoneNumber;
                 }
@@ -303,7 +296,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -318,7 +311,7 @@ namespace Tasha.Modes
         /// </summary>
         public void ReleaseData()
         {
-            this.TransitAccessData.UnloadData();
+            TransitAccessData.UnloadData();
         }
 
         /// <summary>
@@ -326,7 +319,7 @@ namespace Tasha.Modes
         /// </summary>
         public void ReloadNetworkData()
         {
-            this.TransitAccessData.LoadData();
+            TransitAccessData.LoadData();
         }
 
         /// <summary>
@@ -337,7 +330,7 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.AutoType = this.TashaRuntime.AutoType;
+            AutoType = TashaRuntime.AutoType;
             return true;
         }
 
@@ -352,15 +345,15 @@ namespace Tasha.Modes
         /// <returns>The lowest travel time among closest stations</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            int[] egressStations = this.TransitAccessData.ClosestStations( origin );
+            int[] egressStations = TransitAccessData.ClosestStations( origin );
 
             Time MinTravelTime = Time.EndOfDay;
-            var auto = this.TashaRuntime.AutoMode;
+            var auto = TashaRuntime.AutoMode;
             for ( int i = 0; i < egressStations.Length; i++ )
             {
-                var station = this.TashaRuntime.ZoneSystem.Get( egressStations[i] );
+                var station = TashaRuntime.ZoneSystem.Get( egressStations[i] );
                 Time TravelTime = auto.TravelTime( destination, station, time )
-                                    + this.TransitAccessData.TravelTime( station, origin, time );
+                                    + TransitAccessData.TravelTime( station, origin, time );
 
                 if ( TravelTime < MinTravelTime )
                 {

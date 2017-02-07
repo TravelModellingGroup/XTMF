@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
 using Tasha.Common;
@@ -349,7 +347,7 @@ namespace Tasha.PopulationSynthesis
         {
             if (file != null)
             {
-                TMG.Functions.SaveData.SaveMatrix(matrix, file);
+                SaveData.SaveMatrix(matrix, file);
             }
         }
 

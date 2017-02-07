@@ -55,7 +55,6 @@ namespace Tasha.Data
         public void LoadData()
         {
             var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
             var resources = ResourcesToAdd.Select(resource => resource.AcquireResource<SparseArray<float>>().GetFlatData()).Union(
                     ResourcesToAddRaw.Select(source =>
                     {

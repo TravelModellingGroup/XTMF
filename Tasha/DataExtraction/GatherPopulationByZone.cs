@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Text;
 using XTMF;
 using TMG;
 using TMG.Input;
@@ -72,21 +69,21 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            float[] population = null;
-            var zoneSystem = this.ZoneSystem.AcquireResource<IZoneSystem>();
-            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
+            float[] population;
+            var zoneSystem = ZoneSystem.AcquireResource<IZoneSystem>();
+            var connection = DatabaseConnection.AcquireResource<IDbConnection>();
             using ( var command = connection.CreateCommand() )
             {
                 population = ExtractPopulation( command, zoneSystem.ZoneArray );
             }
 
-            this.WritePopulation( population, zoneSystem.ZoneArray );
+            WritePopulation( population, zoneSystem.ZoneArray );
         }
 
         private void WritePopulation(float[] population, SparseArray<IZone> zones)
         {
             var flatZones = zones.GetFlatData();
-            using ( var writer = new StreamWriter( this.OutputFile.GetFilePath() ) )
+            using ( var writer = new StreamWriter( OutputFile.GetFilePath() ) )
             {
                 writer.WriteLine( "Zone,Population" );
                 for ( int i = 0; i < population.Length; i++ )
@@ -157,16 +154,16 @@ GROUP BY [{3}].[{0}];",
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.DatabaseConnection.CheckResourceType( typeof( IDbConnection ) ) )
+            if ( !DatabaseConnection.CheckResourceType( typeof( IDbConnection ) ) )
             {
-                error = "In '" + this.Name + "' the database connection resource does not contain a database connection!\r\n"
-                    + " Instead it contains '" + this.DatabaseConnection.GetResourceType() + "'!";
+                error = "In '" + Name + "' the database connection resource does not contain a database connection!\r\n"
+                    + " Instead it contains '" + DatabaseConnection.GetResourceType() + "'!";
                 return false;
             }
-            if ( !this.ZoneSystem.CheckResourceType( typeof( IZoneSystem ) ) )
+            if ( !ZoneSystem.CheckResourceType( typeof( IZoneSystem ) ) )
             {
-                error = "In '" + this.Name + "' the zone system resource does not contain a zone system!\r\n"
-                    + " Instead it contains '" + this.ZoneSystem.GetResourceType() + "'!";
+                error = "In '" + Name + "' the zone system resource does not contain a zone system!\r\n"
+                    + " Instead it contains '" + ZoneSystem.GetResourceType() + "'!";
                 return false;
             }
             return true;

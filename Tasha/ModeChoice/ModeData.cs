@@ -55,9 +55,9 @@ namespace Tasha.ModeChoice
         /// </summary>
         private ModeData()
         {
-            this.V = new double[TashaRuntime.NonSharedModes.Count + TashaRuntime.SharedModes.Count];
-            this.Feasible = new bool[TashaRuntime.NonSharedModes.Count + TashaRuntime.SharedModes.Count];
-            this.Error = new double[TashaRuntime.NonSharedModes.Count + TashaRuntime.SharedModes.Count];
+            V = new double[TashaRuntime.NonSharedModes.Count + TashaRuntime.SharedModes.Count];
+            Feasible = new bool[TashaRuntime.NonSharedModes.Count + TashaRuntime.SharedModes.Count];
+            Error = new double[TashaRuntime.NonSharedModes.Count + TashaRuntime.SharedModes.Count];
         }
 
         /// <summary>
@@ -87,13 +87,13 @@ namespace Tasha.ModeChoice
             for ( int i = 0; i < modesLength; i++ )
             {
                 // Don't bother computing things that we won't use
-                if ( this.Feasible[i] )
+                if ( Feasible[i] )
                 {
-                    this.Error[i] = GetNormal() * modes[i].VarianceScale;
+                    Error[i] = GetNormal() * modes[i].VarianceScale;
                 }
                 else
                 {
-                    this.Error[i] = 0;
+                    Error[i] = 0;
                 }
             }
             var sharedModes = TashaRuntime.SharedModes;
@@ -101,7 +101,7 @@ namespace Tasha.ModeChoice
             for ( int i = 0; i < sharedModesLength; i++ )
             {
                 // Compute all of the shared modes here
-                this.Error[i + modesLength] = GetNormal() * sharedModes[i].VarianceScale;
+                Error[i + modesLength] = GetNormal() * sharedModes[i].VarianceScale;
             }
         }
 

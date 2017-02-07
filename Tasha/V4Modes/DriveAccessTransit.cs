@@ -304,7 +304,6 @@ namespace Tasha.V4Modes
                 }
             }
             constant = NonWorkerStudentConstant;
-            return;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
@@ -730,7 +729,7 @@ namespace Tasha.V4Modes
         [RunParameter("Unload Access Station Per Iteration", true, "Should we unload the access station choice model or keep it between iterations?")]
         public bool UnloadAccessStationModelEachIteration;
 
-        public bool AccessStationChoiceLoaded = false;
+        public bool AccessStationChoiceLoaded;
 
         public void IterationEnding(int iterationNumber, int maxIterations)
         {

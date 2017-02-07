@@ -22,6 +22,7 @@ using System.Linq;
 using Datastructure;
 using Tasha.Common;
 using XTMF;
+// ReSharper disable InconsistentNaming
 
 namespace Tasha.ModeChoice
 {
@@ -63,7 +64,7 @@ namespace Tasha.ModeChoice
     {
         public static ITashaRuntime TashaRuntime;
         internal static ModeChoice ModeChoice;
-        private static PassengerAlgo passAlgo;
+        private static PassengerAlgo PassAlgo;
 
         public enum ModeAssignmentHouseHold
         {
@@ -167,7 +168,6 @@ namespace Tasha.ModeChoice
                 {
                     SetModes( tripChains, nonVehicleModesChosen );
                     //go to next joint trip
-                    continue;
                 }
             }
         }
@@ -301,7 +301,7 @@ namespace Tasha.ModeChoice
             AssignFeasibility( household );
             //passenger algorithm traverses through all possible auxiliary trips and assigns the most desirable one
             InitializePassengerAlgo();
-            passAlgo.AssignPassengerTrips( household );
+            PassAlgo.AssignPassengerTrips( household );
         }
 
         /// <summary>
@@ -407,7 +407,6 @@ namespace Tasha.ModeChoice
                         {
                             if ( !( md.Feasible[l + nonSharedModes] = modes[l].Feasible( trips[k] ) ) )
                             {
-                                continue;
                             }
                         }
                     }
@@ -426,8 +425,6 @@ namespace Tasha.ModeChoice
         {
             bestSet = null;
             U = Double.MinValue;
-            ITripChain firstTripChain = tour[0];
-            IList<ModeSet> firstModeSet = (IList<ModeSet>)firstTripChain["ModeSets"];
             List<List<ModeSet>> ModeSets = new List<List<ModeSet>>();
             foreach ( var chain in tour )
             {
@@ -479,15 +476,16 @@ namespace Tasha.ModeChoice
             return true;
         }
 
-        /// <summary>
-        /// Are their less vehicles than the amount of vehicles needed by the trips in the household at one point
-        /// in the day?
-        ///
-        /// Using Marzullo's algorithm
-        ///
-        /// </summary>
-        /// <param name="tripChains">The trip chains of the household</param>
-        /// <param name="numVehicles">The number of this vehicle type the household has available</param>
+        ///  <summary>
+        ///  Are their less vehicles than the amount of vehicles needed by the trips in the household at one point
+        ///  in the day?
+        /// 
+        ///  Using Marzullo's algorithm
+        /// 
+        ///  </summary>
+        ///  <param name="tripChains">The trip chains of the household</param>
+        ///  <param name="numVehicles">The number of this vehicle type the household has available</param>
+        /// <param name="bestForVehicle"></param>
         /// <returns></returns>
         private static bool Conflict(List<ITripChain> tripChains, int numVehicles, int bestForVehicle)
         {
@@ -523,14 +521,14 @@ namespace Tasha.ModeChoice
         [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity" )]
         private static void InitializePassengerAlgo()
         {
-            if ( passAlgo == null )
+            if ( PassAlgo == null )
             {
                 lock ( typeof( ModeChoiceHousehold ) )
                 {
                     System.Threading.Thread.MemoryBarrier();
-                    if ( passAlgo == null )
+                    if ( PassAlgo == null )
                     {
-                        passAlgo = new PassengerAlgo( TashaRuntime );
+                        PassAlgo = new PassengerAlgo( TashaRuntime );
                         System.Threading.Thread.MemoryBarrier();
                     }
                 }
@@ -701,7 +699,7 @@ namespace Tasha.ModeChoice
             }
             foreach ( ITripChain tripchain in TripChains )
             {
-                int BestForVehicle = 0;
+                int BestForVehicle;
                 //if it does require a vehicle
                 if ( ( BestForVehicle = BestVehicle( (ModeSet[])tripchain["BestForVehicle"] ) ) > 0 )
                 {

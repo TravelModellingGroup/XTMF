@@ -54,12 +54,12 @@ namespace Tasha.Estimation
 
         public TestParameterSignificance(IConfiguration config)
         {
-            this.Config = config;
+            Config = config;
         }
 
         private bool FindTasha(IModelSystemStructure mst, ref IModelSystemStructure modelSystemStructure)
         {
-            if ( mst.Module == this.Root )
+            if ( mst.Module == Root )
             {
                 modelSystemStructure = mst;
                 return true;
@@ -98,21 +98,21 @@ namespace Tasha.Estimation
 
         public void Execute(ITashaHousehold household, int iteration)
         {
-            var householdFitness = this.EvaluateHousehold( household );
+            var householdFitness = EvaluateHousehold( household );
             if ( iteration == 0 )
             {
-                var randomFitness = this.EvalateRandomFitness( household );
+                var randomFitness = EvalateRandomFitness( household );
                 lock ( this )
                 {
-                    this.Fitness += householdFitness;
-                    this.BaseRandomFitness += randomFitness;
+                    Fitness += householdFitness;
+                    BaseRandomFitness += randomFitness;
                 }
             }
             else
             {
                 lock ( this )
                 {
-                    this.Fitness += householdFitness;
+                    Fitness += householdFitness;
                 }
             }
         }
@@ -122,23 +122,23 @@ namespace Tasha.Estimation
             // check to see if we are in the base case
             if ( iteration == 0 )
             {
-                this.BaseFitness = this.Fitness;
-                using ( StreamWriter writer = new StreamWriter( this.SignificanceResultFile.GetFilePath() ) )
+                BaseFitness = Fitness;
+                using ( StreamWriter writer = new StreamWriter( SignificanceResultFile.GetFilePath() ) )
                 {
                     writer.WriteLine( "Parameter,Rho^2,Difference" );
                     writer.Write( "Base," );
-                    writer.Write( 1.0 - ( this.BaseFitness / this.BaseRandomFitness ) );
+                    writer.Write( 1.0 - ( BaseFitness / BaseRandomFitness ) );
                     writer.Write( ',' );
                     writer.WriteLine( '0' );
                 }
             }
             else
             {
-                var baseRho = ( 1.0 - ( this.BaseFitness / this.BaseRandomFitness ) );
-                var ourRho = ( 1.0 - ( this.Fitness / this.BaseRandomFitness ) );
-                using ( StreamWriter writer = new StreamWriter( this.SignificanceResultFile.GetFilePath(), true ) )
+                var baseRho = ( 1.0 - ( BaseFitness / BaseRandomFitness ) );
+                var ourRho = ( 1.0 - ( Fitness / BaseRandomFitness ) );
+                using ( StreamWriter writer = new StreamWriter( SignificanceResultFile.GetFilePath(), true ) )
                 {
-                    writer.Write( this.Parameters[iteration - 1].Names[0] );
+                    writer.Write( Parameters[iteration - 1].Names[0] );
                     writer.Write( ',' );
                     writer.Write( ourRho );
                     writer.Write( ',' );
@@ -146,12 +146,12 @@ namespace Tasha.Estimation
                 }
             }
             // Reset rho
-            this.Fitness = 0.0;
+            Fitness = 0.0;
         }
 
         public void Load(int maxIterations)
         {
-            this.TotalIterations = maxIterations;
+            TotalIterations = maxIterations;
             LoadParameterFile();
             LoadEstimationResult();
             DoubleCheckRightNumberOfParameters();
@@ -160,21 +160,21 @@ namespace Tasha.Estimation
         public bool RuntimeValidation(ref string error)
         {
             IModelSystemStructure tashaStructure = null;
-            foreach ( var mst in this.Config.ProjectRepository.ActiveProject.ModelSystemStructure )
+            foreach ( var mst in Config.ProjectRepository.ActiveProject.ModelSystemStructure )
             {
                 if ( FindTasha( mst, ref tashaStructure ) )
                 {
                     foreach ( var child in tashaStructure.Children )
                     {
-                        this.TashaMSS = child;
+                        TashaMSS = child;
                         break;
                     }
                     break;
                 }
             }
-            if ( this.TashaMSS == null )
+            if ( TashaMSS == null )
             {
-                error = "In '" + this.Name + "' we were unable to find the Client Model System!";
+                error = "In '" + Name + "' we were unable to find the Client Model System!";
                 return false;
             }
             return true;
@@ -182,17 +182,17 @@ namespace Tasha.Estimation
 
         public void IterationStarting(int iteration)
         {
-            this.InitializeParameterValues( iteration );
-            this.AssignParameters();
+            InitializeParameterValues( iteration );
+            AssignParameters();
         }
 
         private void AssignParameters()
         {
-            for ( int i = 0; i < this.Parameters.Length; i++ )
+            for ( int i = 0; i < Parameters.Length; i++ )
             {
-                for ( int j = 0; j < this.Parameters[i].Names.Length; j++ )
+                for ( int j = 0; j < Parameters[i].Names.Length; j++ )
                 {
-                    AssignValue( this.Parameters[i].Names[j], this.Parameters[i].Current );
+                    AssignValue( Parameters[i].Names[j], Parameters[i].Current );
                 }
             }
         }
@@ -200,7 +200,7 @@ namespace Tasha.Estimation
         private void AssignValue(string parameterName, float value)
         {
             string[] parts = SplitNameToParts( parameterName );
-            AssignValue( parts, 0, this.TashaMSS, value );
+            AssignValue( parts, 0, TashaMSS, value );
         }
 
         private void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, float value)
@@ -245,7 +245,7 @@ namespace Tasha.Estimation
             }
             throw new XTMFRuntimeException( 
                 String.Format("In '{0}' we were unable to find a variable named '{1}' in '{2}'.",
-                this.Name, variableName, currentStructure.Name) );
+                Name, variableName, currentStructure.Name) );
         }
 
 
@@ -287,9 +287,9 @@ namespace Tasha.Estimation
 
         private void DoubleCheckRightNumberOfParameters()
         {
-            if ( this.Parameters.Length + 1 != this.TotalIterations )
+            if ( Parameters.Length + 1 != TotalIterations )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were expecting " + ( this.Parameters.Length + 1 )
+                throw new XTMFRuntimeException( "In '" + Name + "' we were expecting " + ( Parameters.Length + 1 )
                 + " iterations!" );
             }
         }
@@ -297,7 +297,7 @@ namespace Tasha.Estimation
         private double EvalateRandomFitness(ITashaHousehold household)
         {
             double fitness = 0.0;
-            var householdData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
+            var householdData = (ModeChoiceHouseholdData)household["ModeChoiceData"];
             for ( int i = 0; i < householdData.PersonData.Length; i++ )
             {
                 for ( int j = 0; j < householdData.PersonData[i].TripChainData.Length; j++ )
@@ -346,7 +346,7 @@ namespace Tasha.Estimation
         private double EvaluateTrip(ITrip trip)
         {
             int correct = 0;
-            var observedMode = trip[this.ObservedMode];
+            var observedMode = trip[ObservedMode];
             foreach ( var choice in trip.ModesChosen )
             {
                 if ( choice == observedMode )
@@ -359,7 +359,7 @@ namespace Tasha.Estimation
 
         private void InitializeParameterValues(int iteration)
         {
-            var localParameters = this.Parameters;
+            var localParameters = Parameters;
             for ( int i = 0; i < localParameters.Length; i++ )
             {
                 localParameters[i].Current = localParameters[i].InitialValue;
@@ -372,7 +372,7 @@ namespace Tasha.Estimation
 
         private void LoadEstimationResult()
         {
-            var modeParameterFile = this.EstimationResult.GetFilePath();
+            var modeParameterFile = EstimationResult.GetFilePath();
             using ( StreamReader reader = new StreamReader( modeParameterFile ) )
             {
                 // First read the header, we will need that data to store in the mode parameters
@@ -382,20 +382,18 @@ namespace Tasha.Estimation
                     throw new XTMFRuntimeException( "The file \"" + modeParameterFile + "\" does not contain any data to load parameters from!" );
                 }
                 string[] header = headerLine.Split( ',' );
-                for ( int i = 1; ( i < this.ModeParameterFileRow ) && ( reader.ReadLine() != null ); i++ )
+                for ( int i = 1; ( i < ModeParameterFileRow ) && ( reader.ReadLine() != null ); i++ )
                 {
                     // do nothing
                 }
                 string line = reader.ReadLine();
                 if ( line == null )
                 {
-                    throw new XTMFRuntimeException( "We were unable to find a row#" + this.ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"" );
+                    throw new XTMFRuntimeException( "We were unable to find a row#" + ModeParameterFileRow + " in the data set at \"" + modeParameterFile + "\"" );
                 }
                 var parameters = line.Split( ',' );
-                var localParameters = this.Parameters;
+                var localParameters = Parameters;
                 var numberOfParameters = header.Length;
-                var modes = this.Root.AllModes;
-                var numberOfModes = modes.Count;
                 for ( int i = 0; i < numberOfParameters; i++ )
                 {
                     var endOfMode = header[i].IndexOf( '.' );
@@ -413,7 +411,7 @@ namespace Tasha.Estimation
                             {
                                 if ( !float.TryParse( parameters[i], out localParameters[j].Current ) )
                                 {
-                                    throw new XTMFRuntimeException( "In '" + this.Name
+                                    throw new XTMFRuntimeException( "In '" + Name
                                         + "' we were unable to read in the parameter, '" + parameters[i]
                                         + "' in order to assign it as a value." );
                                 }
@@ -424,7 +422,7 @@ namespace Tasha.Estimation
                     }
                     if ( !found )
                     {
-                        throw new XTMFRuntimeException( "In '" + this.Name
+                        throw new XTMFRuntimeException( "In '" + Name
                                         + "' we were unable to match a parameter called '" + header[i] + "'" );
                     }
                 }
@@ -434,33 +432,37 @@ namespace Tasha.Estimation
         private void LoadParameterFile()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load( this.ParameterFile.GetFilePath() );
+            doc.Load( ParameterFile.GetFilePath() );
             List<ParameterSetting> parameters = new List<ParameterSetting>();
-            foreach ( XmlNode child in doc["Root"].ChildNodes )
+            var children = doc["Root"]?.ChildNodes;
+            if (children != null)
             {
-                if ( child.Name == "Parameter" )
+                foreach (XmlNode child in  children)
                 {
-                    ParameterSetting current = new ParameterSetting();
-                    if ( child.HasChildNodes )
+                    if (child.Name == "Parameter")
                     {
-                        var nodes = child.ChildNodes;
-                        current.Names = new string[nodes.Count];
-                        for ( int i = 0; i < nodes.Count; i++ )
+                        ParameterSetting current = new ParameterSetting();
+                        if (child.HasChildNodes)
                         {
-                            XmlNode name = nodes[i];
-                            var parameterPath = name.Attributes["ParameterPath"].InnerText;
-                            current.Names[i] = parameterPath;
+                            var nodes = child.ChildNodes;
+                            current.Names = new string[nodes.Count];
+                            for (int i = 0; i < nodes.Count; i++)
+                            {
+                                XmlNode name = nodes[i];
+                                var parameterPath = name.Attributes?["ParameterPath"].InnerText;
+                                current.Names[i] = parameterPath;
+                            }
                         }
+                        else
+                        {
+                            var parameterPath = child.Attributes?["ParameterPath"].InnerText;
+                            current.Names = new[] {parameterPath};
+                        }
+                        parameters.Add(current);
                     }
-                    else
-                    {
-                        var parameterPath = child.Attributes["ParameterPath"].InnerText;
-                        current.Names = new string[] { parameterPath };
-                    }
-                    parameters.Add( current );
                 }
             }
-            this.Parameters = parameters.ToArray();
+            Parameters = parameters.ToArray();
         }
 
         protected struct ParameterSetting

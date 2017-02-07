@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using TMG;
 using TMG.Input;
 using XTMF;
@@ -49,8 +46,8 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
-            var zones = this.ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
+            var connection = DatabaseConnection.AcquireResource<IDbConnection>();
+            var zones = ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
             using ( var command = connection.CreateCommand() )
             {
                 // Gather the data
@@ -108,7 +105,7 @@ namespace Tasha.DataExtraction
         /// <param name="partTime">The part time data</param>
         private void SaveData(SparseArray<float[]> fullTime, SparseArray<float[]> partTime)
         {
-            using ( var writer = new StreamWriter( this.OutputFile ) )
+            using ( var writer = new StreamWriter( OutputFile ) )
             {
                 writer.WriteLine( "EmpStat,PD,Occ,Probability" );
                 WriteData( writer, fullTime, '1' );
@@ -159,7 +156,7 @@ SELECT Persons.EmploymentStatus, PlanningDistrict.PD, Persons.Occupation, SUM(Pe
 FROM (((Households INNER JOIN Persons ON Households.TTSYear = Persons.TTSYear AND Households.HouseholdId = Persons.HouseholdId)
 	INNER JOIN HouseholdZones ON Households.TTSYear = HouseholdZones.TTSYear AND Households.HouseholdId = HouseholdZones.HouseholdId)
 	INNER JOIN PlanningDistrict ON HouseholdZones.ZoneSystem = PlanningDistrict.ZoneSystem AND HouseholdZones.Zone = PlanningDistrict.Zone)
-" + "WHERE Households.TTSYear = " + this.TTSYear + " AND HouseholdZones.ZoneSystem = " + this.ZoneSystemNumber + " AND (Persons.EmploymentStatus = '" + employmentStatusChar + "' )"
+" + "WHERE Households.TTSYear = " + TTSYear + " AND HouseholdZones.ZoneSystem = " + ZoneSystemNumber + " AND (Persons.EmploymentStatus = '" + employmentStatusChar + "' )"
         + @" AND Persons.Occupation <> '9'
 GROUP BY Persons.EmploymentStatus, PlanningDistrict.PD, Persons.Occupation
 ORDER BY Persons.EmploymentStatus ASC, PlanningDistrict.PD ASC, Persons.Occupation ASC;
@@ -226,16 +223,16 @@ ORDER BY Persons.EmploymentStatus ASC, PlanningDistrict.PD ASC, Persons.Occupati
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.DatabaseConnection.CheckResourceType<IDbConnection>() )
+            if ( !DatabaseConnection.CheckResourceType<IDbConnection>() )
             {
-                error = "In '" + this.Name + "' the database connection resource does not contain a database connection!\r\n"
-                    + " Instead it contains '" + this.DatabaseConnection.GetResourceType() + "'!";
+                error = "In '" + Name + "' the database connection resource does not contain a database connection!\r\n"
+                    + " Instead it contains '" + DatabaseConnection.GetResourceType() + "'!";
                 return false;
             }
-            if ( !this.ZoneSystem.CheckResourceType<IZoneSystem>() )
+            if ( !ZoneSystem.CheckResourceType<IZoneSystem>() )
             {
-                error = "In '" + this.Name + "' the zone system resource does not contain a zone system!\r\n"
-                    + " Instead it contains '" + this.ZoneSystem.GetResourceType() + "'!";
+                error = "In '" + Name + "' the zone system resource does not contain a zone system!\r\n"
+                    + " Instead it contains '" + ZoneSystem.GetResourceType() + "'!";
                 return false;
             }
             return true;

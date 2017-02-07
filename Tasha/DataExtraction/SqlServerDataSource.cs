@@ -17,11 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
-using TMG;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading;
@@ -41,31 +37,31 @@ a connection string visit the <a href='http://www.connectionstrings.com/'>websit
 
         public IDbConnection GiveData()
         {
-            return this.Connection;
+            return Connection;
         }
 
         public bool Loaded
         {
-            get { return this.Connection != null; }
+            get { return Connection != null; }
         }
 
         public void LoadData()
         {
-            if ( this.Connection == null )
+            if ( Connection == null )
             {
                 lock ( this )
                 {
                     Thread.MemoryBarrier();
-                    if ( this.Connection == null )
+                    if ( Connection == null )
                     {
                         try
                         {
-                            this.Connection = new System.Data.SqlClient.SqlConnection( this.ConnectionString );
-                            this.Connection.Open();
+                            Connection = new SqlConnection( ConnectionString );
+                            Connection.Open();
                         }
                         catch ( SqlException )
                         {
-                            throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to connect to the the SQLServer."
+                            throw new XTMFRuntimeException( "In '" + Name + "' we were unable to connect to the the SQLServer."
                              + "Please check to make sure that the SQLServer is online and the connection string is correct." );
                         }
                     }
@@ -75,7 +71,7 @@ a connection string visit the <a href='http://www.connectionstrings.com/'>websit
 
         public void UnloadData()
         {
-            this.LocalDispose();
+            LocalDispose();
         }
 
         public void Dispose()
@@ -87,16 +83,16 @@ a connection string visit the <a href='http://www.connectionstrings.com/'>websit
 
         private void LocalDispose()
         {
-            if ( this.Connection != null )
+            if ( Connection != null )
             {
-                this.Connection.Dispose();
+                Connection.Dispose();
             }
-            this.Connection = null;
+            Connection = null;
         }
 
         ~SqlServerDataSource()
         {
-            this.LocalDispose();
+            LocalDispose();
         }
 
         public string Name { get; set; }
@@ -113,9 +109,9 @@ a connection string visit the <a href='http://www.connectionstrings.com/'>websit
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.ConnectionString ) )
+            if ( String.IsNullOrWhiteSpace( ConnectionString ) )
             {
-                error = "In '" + this.Name + "' the connection string is empty!  A connection string is required to access the database!";
+                error = "In '" + Name + "' the connection string is empty!  A connection string is required to access the database!";
                 return false;
             }
             return true;

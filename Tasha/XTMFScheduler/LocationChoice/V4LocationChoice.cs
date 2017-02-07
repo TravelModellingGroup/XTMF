@@ -17,13 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
 using Tasha.Common;
-using Tasha.Scheduler;
 using TMG;
 using XTMF;
 using TMG.Functions;
@@ -278,7 +275,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         EstimationTWAIT = new float[odPairs];
                         EstimationTBOARDING = new float[odPairs];
                         EstimationTFARE = new float[odPairs];
-                        Parallel.For(0, size, (int i) =>
+                        Parallel.For(0, size, i =>
                         {
                             var time = StartTime;
                             int baseIndex = i * size;
@@ -302,7 +299,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 var rowData = (RowTravelTimes == null || RowTravelTimes.Length != size * size) ? new float[size * size] : RowTravelTimes;
                 var columnData = (ColumnTravelTimes == null || ColumnTravelTimes.Length != size * size) ? new float[size * size] : ColumnTravelTimes;
-                Parallel.For(0, size, (int i) =>
+                Parallel.For(0, size, i =>
                 {
                     var time = StartTime;
                     int startingIndex = i * size;
@@ -339,7 +336,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
 
-            public class TimePeriodParameters : XTMF.IModule
+            public class TimePeriodParameters : IModule
             {
                 [SubModelInformation(Description = "The PD constants for this time period.")]
                 public SpatialRegion[] PDConstant;
@@ -464,7 +461,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     timePeriod.EstimationTempSpace = autoSpace = new float[zones2];
                     timePeriod.EstimationTempSpace2 = transitSpace = new float[zones2];
                 }
-                Parallel.For(0, zones.Length, (int i) =>
+                Parallel.For(0, zones.Length, i =>
                 {
                     var start = i * zones.Length;
                     var end = start + zones.Length;
@@ -523,7 +520,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         }
                     }
                 });
-                Parallel.For(0, zones2, (int index) =>
+                Parallel.For(0, zones2, index =>
                 {
                     autoSpace[index] = (float)(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index]));
                 });
@@ -576,7 +573,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 if (!Parent.EstimationMode || PDCube == null)
                 {
-                    var pds = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
+                    var pds = ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
                     BuildPDCube(pds);
                     if (FlatZoneToPDCubeLookup == null)
                     {
@@ -639,7 +636,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 for (int i = 0; i < TimePeriod.Length; i++)
                 {
                     jSum[i] = new float[zones.Length];
-                    Parallel.For(0, jSum[i].Length, (int j) =>
+                    Parallel.For(0, jSum[i].Length, j =>
                     {
                         var jPD = zones[j].PlanningDistrict;
 
@@ -684,7 +681,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 var itterRoot = (Root as IIterativeModel);
                 int currentIteration = itterRoot != null ? itterRoot.CurrentIteration : 0;
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
                 {
                     var numberOfZones = zones.Length;
                     var network = Parent.AutoNetwork;

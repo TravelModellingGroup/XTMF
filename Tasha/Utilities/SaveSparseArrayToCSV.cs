@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using Datastructure;
 using TMG.Input;
@@ -28,7 +24,7 @@ using TMG.Input;
 namespace Tasha.Utilities
 {
 
-    public class SaveSparseArrayToCSV : XTMF.ISelfContainedModule
+    public class SaveSparseArrayToCSV : ISelfContainedModule
     {
 
         public string Name { get; set; }

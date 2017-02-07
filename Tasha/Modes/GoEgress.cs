@@ -99,13 +99,6 @@ namespace Tasha.Modes
         [RunParameter( "WalkTime", 0.0f, "The factor applied to the walk time" )]
         public float WalkTime;
 
-        /// <summary>
-        ///
-        /// </summary>
-        public GoEgress()
-        {
-        }
-
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
@@ -168,7 +161,7 @@ namespace Tasha.Modes
         /// </summary>
         public IVehicleType RequiresVehicle
         {
-            get { return this.TashaRuntime.AutoType; }
+            get { return TashaRuntime.AutoType; }
         }
 
         [RunParameter( "Variance Scale", 1.0f, "The scale for varriance used for variance testing." )]
@@ -198,7 +191,7 @@ namespace Tasha.Modes
             if ( trip["Walking"] != null )
             {
                 ITrip intermediateTrip = (ITrip)trip["Walking"];
-                V += this.Walking.CalculateV( intermediateTrip );
+                V += Walking.CalculateV( intermediateTrip );
             }
             else
             {
@@ -206,27 +199,27 @@ namespace Tasha.Modes
                 V += WalkTime * goData.GetEgressWalkTime( trip.OriginalZone.ZoneNumber, accessStation );
                 V += WaitTime * goData.GetEgressWaitTime( trip.OriginalZone.ZoneNumber, accessStation );
             }
-            V = this.CDriveEgress;
+            V = CDriveEgress;
             V += AutoTime * goData.GetAutoTime( trip.DestinationZone.ZoneNumber, egressStation );
             V += AutoCost * goData.GetAutoCost( trip.DestinationZone.ZoneNumber, egressStation );
             V += TransitRailTime * goData.GetLineHaulTime( accessStation, egressStation );
             V += FareCost * ( goData.GetGoFair( accessStation, egressStation )
                                               + goData.GetTransitFair( trip.DestinationZone.ZoneNumber, egressStation ) );
 
-            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Morning ) ||
-( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Afternoon ) )
+            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Morning ) ||
+( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Afternoon ) )
             {
                 V += PeakTrip;
             }
 
             if ( trip.TripChain.Person.Occupation == Occupation.Retail )
             {
-                V += this.OccSalesTransit;
+                V += OccSalesTransit;
             }
 
             if ( trip.TripChain.Person.Occupation == Occupation.Office )
             {
-                V += this.OccGeneralTransit;
+                V += OccGeneralTransit;
             }
 
             return V;
@@ -313,7 +306,7 @@ namespace Tasha.Modes
 
                     if ( transitStation.ClosestZone == -1 ) continue;
 
-                    ITrip intermediateTrip = this.TashaRuntime.CreateTrip( trip.TripChain, trip.OriginalZone, this.TashaRuntime.ZoneSystem.Get( transitStation.ClosestZone ), Activity.Intermediate,
+                    ITrip intermediateTrip = TashaRuntime.CreateTrip( trip.TripChain, trip.OriginalZone, TashaRuntime.ZoneSystem.Get( transitStation.ClosestZone ), Activity.Intermediate,
                         trip.ActivityStartTime );
 
                     if ( Walking.Feasible( intermediateTrip ) )
@@ -339,8 +332,8 @@ namespace Tasha.Modes
             //if there was an access before this egress
             if ( egressStation == accessStation
                 || goData.GetGoFrequency( accessStation, egressStation, trip.ActivityStartTime.ToFloat() ) == 0
-                || duration + trip.ActivityStartTime < new Time( this.goData.StartTime )
-                || duration + trip.ActivityStartTime > new Time( this.goData.EndTime )
+                || duration + trip.ActivityStartTime < new Time( goData.StartTime )
+                || duration + trip.ActivityStartTime > new Time( goData.EndTime )
                 )
             {
                 return false;

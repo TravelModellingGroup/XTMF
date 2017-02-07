@@ -23,6 +23,7 @@ using XTMF;
 namespace Tasha.Common
 {
     [ModuleInformation(Description = "This module is designed to allow the integration of ISelfContainedModules to execute during the pre iteration phase in the TASHA pipeline.")]
+    // ReSharper disable once InconsistentNaming
     public class PreIterationMSIntegration : IPreIteration
     {
         [SubModelInformation( Required = false, Description = "The model systems to host after an iteration has completed." )]
@@ -41,7 +42,7 @@ namespace Tasha.Common
 
         public float Progress
         {
-            get { return this.GetProgress(); }
+            get { return GetProgress(); }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -53,9 +54,9 @@ namespace Tasha.Common
         {
             if(ExecuteModelSystems)
             {
-                foreach(var ms in this.ModelSystems)
+                foreach(var ms in ModelSystems)
                 {
-                    this.GetProgress = () => ms.Progress;
+                    GetProgress = () => ms.Progress;
                     ms.Start();
                 }
             }

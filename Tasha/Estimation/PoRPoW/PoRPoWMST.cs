@@ -30,6 +30,7 @@ using System.IO;
 
 namespace Tasha.Estimation.PoRPoW
 {
+    // ReSharper disable once InconsistentNaming
     public class PoRPoWMST : ITravelDemandModel, IResourceSource
     {
 
@@ -100,13 +101,13 @@ namespace Tasha.Estimation.PoRPoW
             return true;
         }
 
-        [SubModelInformation(Required = true, Description = "The truth matrix to test against.")]
+        [SubModelInformation(Required = true, Description = "The Truth matrix to test against.")]
         public IResource TruthData;
 
-        [SubModelInformation(Required = true, Description = "The model to test against the truth data.")]
+        [SubModelInformation(Required = true, Description = "The model to test against the Truth data.")]
         public IResource ModelData;
 
-        [RunParameter("Reload Truth", false, "Reload the truth data each iteration.  Set this to true for batch runs.")]
+        [RunParameter("Reload Truth", false, "Reload the Truth data each iteration.  Set this to true for batch runs.")]
         public bool LoadTruthEveryTime;
 
         bool FirstTime = true;
@@ -115,7 +116,7 @@ namespace Tasha.Estimation.PoRPoW
         private float[] TruthRows;
         private int[] ZoneToPDIndexMap;
         private SparseTwinIndex<float> PDError;
-        private float[][] truth;
+        private float[][] Truth;
 
         public void Start()
         {
@@ -126,16 +127,16 @@ namespace Tasha.Estimation.PoRPoW
                 {
                     network.LoadData();
                 }
-                truth = TruthData.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+                Truth = TruthData.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
                 TruthData.ReleaseResource();
             }
             var model = ModelData.AcquireResource<SparseTriIndex<float>>().GetFlatData();
             var zones = ZoneSystem.ZoneArray.GetFlatData();
-            // sum up the truth
+            // sum up the Truth
             if (FirstTime || LoadTruthEveryTime)
             {
                 // we only need to do this once
-                TruthRows = (from row in truth
+                TruthRows = (from row in Truth
                              select row.Sum()).ToArray();
 
                 InverseOfTotalTrips = 1.0f / TruthRows.Sum();
@@ -144,15 +145,15 @@ namespace Tasha.Estimation.PoRPoW
                     PDError = ZoneSystemHelper.CreatePdTwinArray<float>(ZoneSystem.ZoneArray);
                     ZoneToPDIndexMap = (from zone in zones
                                         select PDError.GetFlatIndex(zone.PlanningDistrict)).ToArray();
-                    // transform the truth to be PD based
-                    truth = AggregateResults((new float[][][] { truth }), zones)
+                    // transform the Truth to be PD based
+                    Truth = AggregateResults((new[] { Truth }), zones)
                         .Select(row => row.Select(element => element).ToArray()).ToArray();
                 }
                 FirstTime = false;
             }
             var aggregated = AggregateResults(model, zones);
             // calculate the error
-            float error = ComputeError(truth, aggregated);
+            float error = ComputeError(Truth, aggregated);
             // set the value in the root
             Root.RetrieveValue = () => error;
             if (ModelSaveFile != null)
@@ -160,10 +161,10 @@ namespace Tasha.Estimation.PoRPoW
                 SaveData.SaveMatrix(zones, AggregateResults(model, zones), ModelSaveFile);
             }
 
-            if (this.DistanceHistogram != null)
+            if (DistanceHistogram != null)
             {
                 var distances = ZoneSystem.Distances.GetFlatData();
-                this.DistanceHistogram.Export(distances, model);
+                DistanceHistogram.Export(distances, model);
             }
 
 
@@ -190,7 +191,7 @@ namespace Tasha.Estimation.PoRPoW
             {
                 // we start with no error
                 return 0.0f;
-            }, (int i, ParallelLoopState state, float localError) =>
+            }, (i, state, localError) =>
             {
                 var currentError = 0.0;
                 var truthRow = truth[i];
@@ -233,8 +234,8 @@ namespace Tasha.Estimation.PoRPoW
                         {
                             var pTruth = (truthRow[j] * InverseOfTotalTrips);
                             var pModel = aggRow[j] * InverseOfTotalTrips;
-                            // if in truth it was picked and we did not, and if it was not picked and we did.
-                            // Let P(T) == the probability it was picked in truth
+                            // if in Truth it was picked and we did not, and if it was not picked and we did.
+                            // Let P(T) == the probability it was picked in Truth
                             // Let P(X) == the probability it was picked in the model
                             // error = P(T) * ln(1 - P(X)) + (1 - P(T)) * ln(P(X))
                             var cellError = pTruth * Math.Log(1.0f - pModel) + (1.0f - pTruth) * Math.Log(pModel);
@@ -254,7 +255,7 @@ namespace Tasha.Estimation.PoRPoW
                 // the local error becomes the error for this zone plus the error that we have seen before
                 return localError + (float)currentError;
             },
-            (float localError) =>
+            localError =>
             {
                 // add the local error to the total error
                 lock (this)
@@ -280,7 +281,7 @@ namespace Tasha.Estimation.PoRPoW
                 }
                 AggArray = ret;
             }
-            Parallel.For(0, zones.Length, (int i) =>
+            Parallel.For(0, zones.Length, i =>
                 {
                     var retRow = ret[i];
                     if (model.Length > 0)
@@ -322,26 +323,7 @@ namespace Tasha.Estimation.PoRPoW
             return ret;
         }
 
-        private static float SumModel(float[][][] model, int i, int j)
-        {
-            var total = 0.0f;
-            for (int workerCategory = 0; workerCategory < model.Length; workerCategory++)
-            {
-                total += model[workerCategory][i][j];
-            }
-            return total;
-        }
-
-        public static float SumModelRow(float[][][] model, int i)
-        {
-            var total = 0.0f;
-            for (int workerCategory = 0; workerCategory < model.Length; workerCategory++)
-            {
-                total += model[workerCategory][i].Sum();
-            }
-            return total;
-        }
-
+        // ReSharper disable once InconsistentNaming
         public class PoRPoWDistanceHistogram : IModule
         {
             [RootModule]
@@ -360,29 +342,30 @@ namespace Tasha.Estimation.PoRPoW
             {
                 //var odMatrixData = model[this.WorkerCategory];
 
-                float[][] binData = new float[1 + this.HistogramBins.Count][]; //Extra bin for outside of the array
+                float[][] binData = new float[1 + HistogramBins.Count][]; //Extra bin for outside of the array
                 for (int i = 0; i < binData.Length; i++) binData[i] = new float[model.Length];
 
                 for (int wcat = 0; wcat < model.Length; wcat++)
                 {
                     var odMatrixData = model[wcat];
 
-                    Parallel.For(0, odMatrixData.Length, (int i) =>
+                    Parallel.For(0, odMatrixData.Length, i =>
                     {
                         var row = odMatrixData[i];
                         var distanceRow = distances[i];
 
                         for (int j = 0; j < row.Length; j++)
                         {
-                            var distance = (int)(distanceRow[j] * this.CoordinateFactor);
+                            var distance = (int)(distanceRow[j] * CoordinateFactor);
 
-                            int index = this.HistogramBins.IndexOf(distance);
+                            int index = HistogramBins.IndexOf(distance);
 
                             if (index < 0)
                             {
-                                index = this.HistogramBins.Count; //The last index
+                                index = HistogramBins.Count; //The last index
                             }
 
+                            // ReSharper disable once AccessToModifiedClosure
                             binData[index][wcat] += row[j];
                         }
                     });
@@ -390,15 +373,15 @@ namespace Tasha.Estimation.PoRPoW
 
 
 
-                using (var writer = new StreamWriter(this.SaveFile.GetFilePath()))
+                using (var writer = new StreamWriter(SaveFile.GetFilePath()))
                 {
                     var header = "Distance";
                     foreach (var wcat in model) header += ",WCAT " + wcat;
                     writer.WriteLine(header);
 
-                    for (int i = 0; i < this.HistogramBins.Count; i++)
+                    for (int i = 0; i < HistogramBins.Count; i++)
                     {
-                        var range = this.HistogramBins[i];
+                        var range = HistogramBins[i];
                         var binrow = binData[i];
 
                         var line = range.ToString();
@@ -407,15 +390,15 @@ namespace Tasha.Estimation.PoRPoW
                         writer.WriteLine(line);
                     }
 
-                    var lastline = this.HistogramBins[this.HistogramBins.Count - 1].Start + "+";
-                    var lastbin = binData[this.HistogramBins.Count - 1];
+                    var lastline = HistogramBins[HistogramBins.Count - 1].Start + "+";
+                    var lastbin = binData[HistogramBins.Count - 1];
                     foreach (var count in lastbin) lastline += "," + count;
 
                     writer.WriteLine(lastline);
 
                 }
 
-                Console.WriteLine("Exported PoRPoW histogram to " + this.SaveFile.GetFilePath());
+                Console.WriteLine("Exported PoRPoW histogram to " + SaveFile.GetFilePath());
             }
 
             private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
@@ -425,11 +408,7 @@ namespace Tasha.Estimation.PoRPoW
                 get; set;
             }
 
-            public float Progress
-            {
-                get;
-                private set;
-            }
+            public float Progress { get; } = 0.0f;
 
             public Tuple<byte, byte, byte> ProgressColour
             {
@@ -441,7 +420,7 @@ namespace Tasha.Estimation.PoRPoW
 
             public bool RuntimeValidation(ref string error)
             {
-                if (this.HistogramBins.Count < 1)
+                if (HistogramBins.Count < 1)
                 {
                     error = "Histogram bins must define at least one range.";
                     return false;

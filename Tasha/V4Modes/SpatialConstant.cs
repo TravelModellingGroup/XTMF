@@ -17,13 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
-using Tasha.Common;
 using TMG;
 
 namespace Tasha.V4Modes
@@ -53,7 +49,7 @@ namespace Tasha.V4Modes
     }
 
     [ModuleInformation(Description = "This module provides the ability to apply constants to the utility function of modes depending on the time of day, origin, and destination for the trip.")]
-    public sealed class TimePeriodSpatialConstant : XTMF.IModule
+    public sealed class TimePeriodSpatialConstant : IModule
     {
         [RootModule]
         public ITravelDemandModel Root;
@@ -86,7 +82,7 @@ namespace Tasha.V4Modes
         public void BuildMatrix()
         {
             //build the region constants
-            var planningDistricts = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
+            var planningDistricts = ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
             var pdIndexes = planningDistricts.ValidIndexArray();
             PlanningDistrictConstants = planningDistricts.CreateSquareTwinArray<float>();
             var data = PlanningDistrictConstants.GetFlatData();

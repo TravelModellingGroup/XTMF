@@ -49,14 +49,9 @@ namespace Tasha
         {
         }
 
-        protected override void GenerateInitialPopulation()
-        {
-            base.GenerateInitialPopulation();
-        }
-
         protected override void GenerateNextGeneration()
         {
-            this.Clearing();
+            Clearing();
             // the base will sort the population again before performing its selection
             base.GenerateNextGeneration();
         }
@@ -71,27 +66,27 @@ namespace Tasha
         /// </summary>
         private void Clearing()
         {
-            int populationSize = this.PopulationSize;
+            int populationSize = PopulationSize;
             // sort the population
-            Array.Sort( this.Population, new CompareParameterSet() );
+            Array.Sort( Population, new CompareParameterSet() );
             for ( int i = 0; i < populationSize; i++ )
             {
                 int win = 0;
-                if ( this.Population[i].Value > float.MinValue )
+                if ( Population[i].Value > float.MinValue )
                 {
                     win = 1;
                 }
                 for ( int j = i + 1; j < populationSize; j++ )
                 {
-                    if ( ( this.Population[j].Value > float.MinValue ) && this.ComputeDistance( i, j ) <= this.Distance )
+                    if ( ( Population[j].Value > float.MinValue ) && ComputeDistance( i, j ) <= Distance )
                     {
-                        if ( win < this.NicheCapacity )
+                        if ( win < NicheCapacity )
                         {
                             win++;
                         }
                         else
                         {
-                            this.Population[j].Value = float.MinValue;
+                            Population[j].Value = float.MinValue;
                         }
                     }
                 }
@@ -101,13 +96,13 @@ namespace Tasha
         private float ComputeDistance(int first, int second)
         {
             double distance = 0;
-            var firstParameters = this.Population[first].Parameters;
-            var secondParameters = this.Population[second].Parameters;
+            var firstParameters = Population[first].Parameters;
+            var secondParameters = Population[second].Parameters;
             var numberOfParameters = firstParameters.Length;
             for ( int i = 0; i < numberOfParameters; i++ )
             {
                 float unit;
-                if ( this.PercentDistance )
+                if ( PercentDistance )
                 {
                     unit = ( firstParameters[i].Current - secondParameters[i].Current ) / ( firstParameters[i].Stop - firstParameters[i].Start );
                 }

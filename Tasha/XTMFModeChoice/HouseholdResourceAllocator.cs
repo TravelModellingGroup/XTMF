@@ -71,9 +71,9 @@ namespace Tasha.XTMFModeChoice
         /// <summary>
         /// The list of conflicts for this household iteration
         /// </summary>
-        public List<Conflict> Conflicts = null;
+        public List<Conflict> Conflicts;
 
-        public List<VehicleAllocationWindow> VehicleAvailability = null;
+        public List<VehicleAllocationWindow> VehicleAvailability;
         private float BestConflictUtility = float.NegativeInfinity;
         private ITashaHousehold household;
         private ITashaMode[] Modes;
@@ -83,7 +83,7 @@ namespace Tasha.XTMFModeChoice
         /// </summary>
         private int[][] ResolutionWorkingSet;
 
-        private CurrentPosition[] Scan = null;
+        private CurrentPosition[] Scan;
 
         public HouseholdResourceAllocator(ITashaHousehold household, ITashaMode[] modes)
         {

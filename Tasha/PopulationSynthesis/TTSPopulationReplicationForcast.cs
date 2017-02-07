@@ -205,7 +205,7 @@ namespace Tasha.PopulationSynthesis
             var zoneArray = Root.ZoneSystem.ZoneArray;
             var zones = zoneArray.GetFlatData();
             List<KeyValuePair<int, int>>[] results = new List<KeyValuePair<int, int>>[flatPD.Length];
-            Parallel.For(0, flatPD.Length, (int i) =>
+            Parallel.For(0, flatPD.Length, i =>
             {
                 var pd = HouseholdsByPD.GetSparseIndex(i);
                 var zoneIndexes = (from zone in zones

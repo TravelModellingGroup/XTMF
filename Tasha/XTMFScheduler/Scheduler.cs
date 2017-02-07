@@ -59,7 +59,7 @@ namespace Tasha.XTMFScheduler
 
         public void Run(ITashaHousehold household)
         {
-            Random householdRandom = new Random( this.Seed * household.HouseholdId );
+            Random householdRandom = new Random( Seed * household.HouseholdId );
             var persons = household.Persons;
             List<IActivityEpisode>[] episodes = InitializeEpisodes( persons );
             GenerateEpisodes( household, householdRandom, persons, episodes );
@@ -123,11 +123,11 @@ namespace Tasha.XTMFScheduler
 
         private void GenerateEpisodes(ITashaHousehold household, Random householdsRandom, ITashaPerson[] persons, List<IActivityEpisode>[] episodes)
         {
-            for ( int i = 0; i < this.Projects.Count; i++ )
+            for ( int i = 0; i < Projects.Count; i++ )
             {
                 for ( int p = 0; p < persons.Length; p++ )
                 {
-                    this.Projects[i].Generate( household, persons[p], episodes[p], householdsRandom );
+                    Projects[i].Generate( household, persons[p], episodes[p], householdsRandom );
                 }
             }
         }
@@ -139,7 +139,7 @@ namespace Tasha.XTMFScheduler
             ISchedule[] schedules = new ISchedule[episodes.Length];
             for ( int i = 0; i < schedules.Length; i++ )
             {
-                schedules[i] = this.SchedulingAgorithm.Generate();
+                schedules[i] = SchedulingAgorithm.Generate();
             }
             // insert into the schedule
             for ( int episodeIndex = 0; episodeIndex < totalEpisodes; episodeIndex++ )
