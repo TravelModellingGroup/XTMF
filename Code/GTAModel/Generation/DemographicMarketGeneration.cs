@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
@@ -41,10 +42,10 @@ This module requires the root module of the model system to be an ‘IDemographi
             var numberOfIndexes = flatAttraction.Length;
 
             // Compute the Production and Attractions
-            float totalProduction = 0;
-            float totalAttraction = 0;
+            float totalProduction;
+            float totalAttraction;
             totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            totalAttraction = ComputeAttraction( flatAttraction, Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
+            totalAttraction = ComputeAttraction( flatAttraction, numberOfIndexes );
 
             // Normalize the attractions
             float productionAttractionRatio;
@@ -62,7 +63,7 @@ This module requires the root module of the model system to be an ‘IDemographi
             }
         }
 
-        private float ComputeAttraction(float[] flatAttraction, IZone[] zones, int numberOfZones)
+        private float ComputeAttraction(float[] flatAttraction, int numberOfZones)
         {
             float totalAttractions = 0;
             var zoneArray = Root.ZoneSystem.ZoneArray.GetFlatData();

@@ -28,6 +28,7 @@ namespace TMG.GTAModel.Generation
         = "This module is designed to at runtime generate a full set of TMG.GTAModel.Generation.PoRPoWGeneration and pre-load their data."
         + "  This class will then remove itself from the demographic category list."
         + "  Demographic indexes are based on the Durham Model." )]
+    // ReSharper disable once InconsistentNaming
     public class BuildPoRPoWGeneration : DemographicCategoryGeneration
     {
         [RunParameter( "All Ages", "2-6", typeof( RangeSet ), "All of the working ages in the model system." )]
@@ -113,8 +114,6 @@ namespace TMG.GTAModel.Generation
                 case 1:
                 case 2:
                     return 1;
-                case 4:
-                case 5:
                 default:
                     return 2;
             }
@@ -182,19 +181,12 @@ namespace TMG.GTAModel.Generation
                                 empOffset = 0;
                                 break;
 
-                            case 1:
                             default:
                                 empOffset = 3;
                                 break;
                         }
                         return ChildAgeIndex( mobility ) + 3 + empOffset;
                     }
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
                 default:
                     int ageOffset = ( ( age < 6 ? age : 6 ) - 3 ) * 12;
                     int employmentOffset = ( employmentStatus == 1 ? 3 : 0 );

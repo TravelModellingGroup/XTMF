@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.NetworkAssignment
 {
@@ -40,10 +41,10 @@ namespace TMG.GTAModel.NetworkAssignment
                             TMG2.Assignment.TransitAnalysis.")]
     public class LegacyFBTA : IEmmeTool
     {
-        private const string _ToolName = "tmg.assignment.transit.V3_FBTA";
-        private const string _OldToolName = "TMG2.Assignment.TransitAssignment.LegacyFBTA";
-        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
-        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+        private const string ToolName = "tmg.assignment.transit.V3_FBTA";
+        private const string OldToolName = "TMG2.Assignment.TransitAssignment.LegacyFBTA";
+        private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
         [Parameter("Boarding Parameter", 1.0f, "The perception factor for boarding penalties.")]
         public float BoardingPerception;
 
@@ -134,11 +135,11 @@ namespace TMG.GTAModel.NetworkAssignment
                 ScenarioNumber, DemandMatrixNumber, Modes, WalkSpeed, WaitPerception, WalkPerception,
                 InVehiclePerception, BoardingPerception, FarePerception, UseAdditiveDemand, WaitFactor);
             string result = null;
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
+                return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
-            return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(OldToolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)
@@ -151,27 +152,6 @@ namespace TMG.GTAModel.NetworkAssignment
                 return false;
             }
             return true;
-        }
-
-        private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
-        {
-            if(modeIndex == current)
-            {
-                return node.Result;
-            }
-            current++;
-            if(node.Children != null)
-            {
-                for(int i = 0; i < node.Children.Length; i++)
-                {
-                    float[][] temp = GetResult(node.Children[i], modeIndex, ref current);
-                    if(temp != null)
-                    {
-                        return temp;
-                    }
-                }
-            }
-            return null;
         }
 
         private bool PassMatrixIntoEmme(ModellerController mc)
@@ -213,7 +193,7 @@ namespace TMG.GTAModel.NetworkAssignment
                         {
                             localAny = true;
                             ToEmmeFloat(result, strBuilder);
-                            build.AppendFormat("{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                            build.AppendFormat("{0,-4:G} {1,-4:G} {2}\r\n",
                                 convertedO, flatZones[d].ZoneNumber, strBuilder);
                         }
                     }
@@ -234,13 +214,13 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                if(mc.CheckToolExists(_ImportToolName))
+                if(mc.CheckToolExists(ImportToolName))
                 {
-                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
                 else
                 {
-                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
             }
             finally
@@ -257,6 +237,7 @@ namespace TMG.GTAModel.NetworkAssignment
         /// Process floats to work with emme
         /// </summary>
         /// <param name="number">The float you want to send</param>
+        /// <param name="builder"></param>
         /// <returns>A limited precision non scientific number in a string</returns>
         private void ToEmmeFloat(float number, StringBuilder builder)
         {

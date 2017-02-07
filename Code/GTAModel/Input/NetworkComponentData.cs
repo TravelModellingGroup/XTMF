@@ -22,6 +22,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
+// ReSharper disable InconsistentNaming
 
 namespace TMG.GTAModel
 {
@@ -231,7 +232,6 @@ namespace TMG.GTAModel
                 creator.LoadEmme2( FailIfNotExist( Fares ), 2, (int)DataTypes.Cost );
             }
             creator.Save( GetFullPath( AlreadyLoaded ? UpdatedODC : ODC ), false );
-            creator = null;
             GC.Collect();
         }
 

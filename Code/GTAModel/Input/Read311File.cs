@@ -57,7 +57,7 @@ namespace TMG.GTAModel.Input
                 FileStream( EmmeFile.GetFilePath(), FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan ) ) )
             {
-                line = BurnHeader( reader );
+                BurnHeader( reader );
                 while ( ( line = reader.ReadLine() ) != null )
                 {
                     pos = 0;
@@ -135,7 +135,7 @@ namespace TMG.GTAModel.Input
             return false;
         }
 
-        private static string BurnHeader(StreamReader reader)
+        private static void BurnHeader(StreamReader reader)
         {
             string line;
             while ( ( line = reader.ReadLine() ) != null )
@@ -151,7 +151,6 @@ namespace TMG.GTAModel.Input
             {
                 if ( line.Length > 0 && line[0] == 'a' ) break;
             }
-            return line;
         }
 
         public bool RuntimeValidation(ref string error)

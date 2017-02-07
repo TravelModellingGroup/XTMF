@@ -62,12 +62,9 @@ namespace TMG.GTAModel.Input
             {
                 s = File.OpenRead( f );
             }
-            catch ( IOException e )
+            catch ( IOException)
             {
-                if (s != null)
-                {
-                    s.Close();
-                }
+                s?.Close();
                 throw;
             }
 

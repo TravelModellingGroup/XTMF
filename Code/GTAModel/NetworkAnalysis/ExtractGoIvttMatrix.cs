@@ -31,7 +31,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter("Result Matrix", 5, "The number of the full matrix in which to store extracted results. It will be created if it does not already exist.")]
         public int ResultMatrixNumber;
 
-        private const string _ToolName = "tmg.analysis.transit.strategy_analysis.extract_rail_IVTT_matrix";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_rail_IVTT_matrix";
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
@@ -62,7 +62,7 @@ namespace TMG.GTAModel.NetworkAnalysis
 
             string args = string.Join(" ", ScenarioNumber, "mf" + ResultMatrixNumber);
             string result = null;
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

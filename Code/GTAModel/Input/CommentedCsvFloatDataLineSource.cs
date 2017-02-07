@@ -64,7 +64,7 @@ namespace TMG.GTAModel.Input
             int maxColumn = ColumnNumbers.Max();
             var numberOfColumnNumbers = ColumnNumbers.Count;
             float[] data = new float[numberOfColumnNumbers];
-            CommentedCsvReader reader = null;
+            CommentedCsvReader reader;
             var fileName = InputFile.GetFileName( Root.InputBaseDirectory );
             try
             {

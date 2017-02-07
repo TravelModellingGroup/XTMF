@@ -113,7 +113,7 @@ namespace TMG.GTAModel.Input
         private void LoadData(int index, float[][] flatRet)
         {
             var fileNameWithIndexing = InputFileBase.GetFileName();
-            int indexOfInsert = fileNameWithIndexing.IndexOf( "%X" );
+            int indexOfInsert = fileNameWithIndexing.IndexOf( "%X", StringComparison.InvariantCulture );
             if ( indexOfInsert == -1 )
             {
                 throw new XTMFRuntimeException( "In '" + Name

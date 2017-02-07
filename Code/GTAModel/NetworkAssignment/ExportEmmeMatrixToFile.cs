@@ -28,8 +28,8 @@ namespace TMG.GTAModel.NetworkAssignment
     [ModuleInformation(Name = "Export EMME Matrix To File", Description = "Basic tool for extracting matrix results from Emme. This module is considered deprecated after Emme 4.04")]
     public class ExportEmmeMatrixToFile : IEmmeTool
     {
-        private const string _ToolName = "tmg.XTMF_internal.export_matrix_batch_file";
-        private const string _OldToolName = "TMG2.XTMF.ExportMatrix";
+        private const string ToolName = "tmg.XTMF_internal.export_matrix_batch_file";
+        private const string OldToolName = "TMG2.XTMF.ExportMatrix";
         [SubModelInformation(Required = true, Description = "The location to save the matrix (.311) to.")]
         public FileLocation FileName;
 
@@ -59,11 +59,11 @@ namespace TMG.GTAModel.NetworkAssignment
                 throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
 
             string filepath = Path.GetFullPath( FileName );
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
+                return mc.Run(ToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
             }
-            return mc.Run(_OldToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
+            return mc.Run(OldToolName, MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber);
         }
 
         public bool RuntimeValidation(ref string error)

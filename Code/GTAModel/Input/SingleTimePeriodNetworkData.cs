@@ -222,7 +222,6 @@ namespace TMG.GTAModel.Input
             LoadTimes( creator, AlreadyLoaded ? UpdatedTravelTimeData : BaseTravelTimeData, 0 );
             LoadCosts( creator, AlreadyLoaded ? UpdatedCostData : BaseTravelCostData, 0 );
             creator.Save( cacheFile, false );
-            creator = null;
             GC.Collect();
         }
 
@@ -236,28 +235,28 @@ namespace TMG.GTAModel.Input
             return fullPath;
         }
 
-        private void LoadCosts(OdMatrixWriter<IZone> writer, string FileName, int i)
+        private void LoadCosts(OdMatrixWriter<IZone> writer, string fileName, int i)
         {
-            if ( Path.GetExtension( FileName ) == ".311" )
+            if ( Path.GetExtension( fileName ) == ".311" )
             {
-                writer.LoadEmme2( FailIfNotExist( FileName ), i, (int)AutoDataTypes.CarCost );
+                writer.LoadEmme2( FailIfNotExist( fileName ), i, (int)AutoDataTypes.CarCost );
             }
 
             else
             {
-                writer.LoadCsvTimes( FailIfNotExist( FileName ), HeaderBoolean, i, (int)AutoDataTypes.CarCost );
+                writer.LoadCsvTimes( FailIfNotExist( fileName ), HeaderBoolean, i, (int)AutoDataTypes.CarCost );
             }
         }
 
-        private void LoadTimes(OdMatrixWriter<IZone> writer, string FileName, int i)
+        private void LoadTimes(OdMatrixWriter<IZone> writer, string fileName, int i)
         {
-            if ( Path.GetExtension( FileName ) == ".311" )
+            if ( Path.GetExtension( fileName ) == ".311" )
             {
-                writer.LoadEmme2( FailIfNotExist( FileName ), i, (int)AutoDataTypes.TravelTime );
+                writer.LoadEmme2( FailIfNotExist( fileName ), i, (int)AutoDataTypes.TravelTime );
             }
             else
             {
-                writer.LoadCsvTimes( FailIfNotExist( FileName ), HeaderBoolean, i, (int)AutoDataTypes.TravelTime );
+                writer.LoadCsvTimes( FailIfNotExist( fileName ), HeaderBoolean, i, (int)AutoDataTypes.TravelTime );
             }
         }
 

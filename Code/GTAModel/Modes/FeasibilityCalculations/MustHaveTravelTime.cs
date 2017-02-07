@@ -77,13 +77,8 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
                 if ( dataSource.NetworkType == NetworkType )
                 {
                     INetworkData advancedData = dataSource;
-                    if ( advancedData != null )
-                    {
-                        NetworkData = advancedData;
-                        return true;
-                    }
-                    error = "In '" + Name + "' the given network data '" + NetworkType + "' is not INetworkData compliant!";
-                    return false;
+                    NetworkData = advancedData;
+                    return true;
                 }
             }
             error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";

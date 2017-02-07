@@ -18,7 +18,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         public FileLocation LineAggregationFile;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "tmg.analysis.transit.export_boardings";
+        private const string ToolName = "tmg.analysis.transit.export_boardings";
 
         public bool Execute(Controller controller)
         {
@@ -34,7 +34,7 @@ namespace TMG.GTAModel.NetworkAnalysis
                                         aggregationFilePath);
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

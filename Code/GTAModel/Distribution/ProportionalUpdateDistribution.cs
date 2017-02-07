@@ -19,11 +19,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
@@ -54,26 +54,31 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            var eProd = productions.GetEnumerator();
-            var eBaseData = BaseData.GetEnumerator();
-            var eCat = category.GetEnumerator();
-            var zones = Root.ZoneSystem.ZoneArray;
-            if ( BaseData.Count != category.Count() )
+            using (var eProd = productions.GetEnumerator())
+            using (var eBaseData = BaseData.GetEnumerator())
+            using (var eCat = category.GetEnumerator())
             {
-                throw new XTMFRuntimeException( "In " + Name + " the number of BaseData entries is not the same as the number of demographic categories!" );
-            }
-            while ( eProd.MoveNext() && eBaseData.MoveNext() && eCat.MoveNext() )
-            {
-                var prod = eProd.Current;
-                var data = eBaseData.Current;
-                var cat = eCat.Current;
+                var zones = Root.ZoneSystem.ZoneArray;
+                var explored = 0;
+                while (eProd.MoveNext() && eBaseData.MoveNext() && eCat.MoveNext())
+                {
+                    var prod = eProd.Current;
+                    var data = eBaseData.Current;
+                    var cat = eCat.Current;
 
-                // Setup everything for this category
-                cat.InitializeDemographicCategory();
-                var ret = zones.CreateSquareTwinArray<float>();
-                LoadInBaseData( ret, data );
-                UpdateData( ret, prod );
-                yield return ret;
+                    // Setup everything for this category
+                    cat.InitializeDemographicCategory();
+                    var ret = zones.CreateSquareTwinArray<float>();
+                    LoadInBaseData(ret, data);
+                    UpdateData(ret, prod);
+                    yield return ret;
+                    explored++;
+                }
+                if (BaseData.Count != explored)
+                {
+                    throw new XTMFRuntimeException("In " + Name +
+                                                   " the number of BaseData entries is not the same as the number of demographic categories!");
+                }
             }
         }
 
@@ -145,9 +150,9 @@ namespace TMG.GTAModel
             {
                 if ( e.InnerException is XTMFRuntimeException )
                 {
-                    throw new XTMFRuntimeException( e.InnerException.Message );
+                    throw new XTMFRuntimeException( e.InnerException?.Message );
                 }
-                throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
+                throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
             }
         }
     }

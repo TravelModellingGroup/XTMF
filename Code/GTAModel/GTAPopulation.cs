@@ -30,6 +30,7 @@ namespace TMG.GTAModel
 {
     [ModuleInformation(Description=@"This module provides a loader for a population. 
 This module requires the root module in the model system to be of type ‘ITravelDemandModel’.")]
+    // ReSharper disable once InconsistentNaming
     public class GTAPopulation : IPopulation
     {
         [RunParameter( "Pop File Name", "SyntheticPopulation.csv", "The name of the file to use for loading/saving the population." )]
@@ -52,8 +53,7 @@ This module requires the root module in the model system to be of type ‘ITrave
 
         public float Progress
         {
-            get;
-            set;
+            get; private set;
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -70,8 +70,8 @@ This module requires the root module in the model system to be of type ‘ITrave
                 throw new XTMFRuntimeException( String.Format( "The file {0} was not found when trying to load the population!", fileName ) );
             }
             SparseArray<IPerson[]> pop = Root.ZoneSystem.ZoneArray.CreateSimilarArray<IPerson[]>();
-            SparseArray<Household[]> Households = Root.ZoneSystem.ZoneArray.CreateSimilarArray<Household[]>();
-            var flatHouseholds = Households.GetFlatData();
+            SparseArray<Household[]> households = Root.ZoneSystem.ZoneArray.CreateSimilarArray<Household[]>();
+            var flatHouseholds = households.GetFlatData();
             var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             Dictionary<int, List<IPerson>> tempPop = new Dictionary<int, List<IPerson>>( flatZones.Length );
             Parallel.For( 0, flatZones.Length, delegate(int i)
@@ -112,7 +112,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                             DriversLicense = driversLicense > 0,
                             EmploymentStatus = employmentStatus,
                             ExpansionFactor = expansionFactor,
-                            Household = Households[zone][cars],
+                            Household = households[zone][cars],
                             Occupation = occupation,
                             StudentStatus = studentStatus
                         } );
@@ -180,11 +180,7 @@ This module requires the root module in the model system to be of type ‘ITrave
             }
             finally
             {
-                if ( fs != null )
-                {
-                    fs.Dispose();
-                    fs = null;
-                }
+                fs?.Dispose();
             }
         }
 
@@ -200,7 +196,7 @@ This module requires the root module in the model system to be of type ‘ITrave
                 }
                 else
                 {
-                    flatPop[i] = new Person[0];
+                    flatPop[i] = new IPerson[0];
                 }
             } );
             Population = pop;

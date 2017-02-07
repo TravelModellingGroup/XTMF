@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
@@ -149,27 +150,6 @@ This module requires the root module in the model system to be of type ‘I4Step
             return fullPath;
         }
 
-        private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
-        {
-            if ( modeIndex == current )
-            {
-                return node.Result;
-            }
-            current++;
-            if ( node.Children != null )
-            {
-                for ( int i = 0; i < node.Children.Length; i++ )
-                {
-                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
-                }
-            }
-            return null;
-        }
-
         private string SetupRun()
         {
             var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
@@ -199,7 +179,7 @@ This module requires the root module in the model system to be of type ‘I4Step
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
                         ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }
                 } );
@@ -215,6 +195,7 @@ This module requires the root module in the model system to be of type ‘I4Step
         /// Process floats to work with emme
         /// </summary>
         /// <param name="number">The float you want to send</param>
+        /// <param name="builder"></param>
         /// <returns>A limited precision non scientific number in a string</returns>
         private void ToEmmeFloat(float number, StringBuilder builder)
         {

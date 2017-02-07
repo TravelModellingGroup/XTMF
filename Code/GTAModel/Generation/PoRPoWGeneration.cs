@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -25,9 +26,12 @@ using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Generation
 {
+    // ReSharper disable once InconsistentNaming
+    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
     public class PoRPoWGeneration : DemographicCategoryGeneration
     {
         [RunParameter("All Ages", "2-8", typeof(RangeSet), "All of the working ages in the model system.")]
@@ -162,7 +166,6 @@ namespace TMG.GTAModel.Generation
                         {
                             Parallel.For(0, numberOfZones, delegate (int i)
                             {
-                                int pd = zones[i].PlanningDistrict;
                                 var temp = flatEmploymentRates[i][emp][occ];
                                 temp *= flatJobTypes[i][emp];
                                 temp *= zones[i].Employment;

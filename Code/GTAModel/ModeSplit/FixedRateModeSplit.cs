@@ -30,7 +30,7 @@ namespace TMG.GTAModel.ModeSplit
 {
     public class FixedRateModeSplit : IMultiModeSplit
     {
-        [SubModelInformation( Description = "Data to use to get data on modes.", Required = true )]
+        [SubModelInformation(Description = "Data to use to get data on modes.", Required = true)]
         public List<ModeData> Data;
 
         [RootModule]
@@ -54,34 +54,35 @@ namespace TMG.GTAModel.ModeSplit
 
         public List<TreeData<float[][]>> ModeSplit(IEnumerable<SparseTwinIndex<float>> flowMatrix, int numberOfCategories)
         {
-            var ret = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
+            var ret = MirrorModeTree.CreateMirroredTree<float[][]>(Root.Modes);
             int matrixNumber = 0;
-            foreach ( var matrix in flowMatrix )
+            foreach (var matrix in flowMatrix)
             {
                 var flatMatrix = matrix.GetFlatData();
                 var numberOfZones = flatMatrix.Length;
                 try
                 {
-                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                        delegate(int i)
+                    Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                        delegate (int i)
                         {
                             var modes = Root.Modes;
-                            for ( int j = 0; j < numberOfZones; j++ )
+                            for (int j = 0; j < numberOfZones; j++)
                             {
-                                for ( int m = ret.Count - 1; m >= 0; m-- )
+                                for (int m = ret.Count - 1; m >= 0; m--)
                                 {
-                                    ProcessMode( ret[m], i, j, flatMatrix[i][j], modes[m], matrixNumber );
+                                    // ReSharper disable once AccessToModifiedClosure
+                                    ProcessMode(ret[m], i, j, flatMatrix[i][j], modes[m], matrixNumber);
                                 }
                             }
-                        } );
+                        });
                 }
-                catch ( AggregateException e )
+                catch (AggregateException e)
                 {
-                    if ( e.InnerException is XTMFRuntimeException )
+                    if (e.InnerException is XTMFRuntimeException)
                     {
-                        throw new XTMFRuntimeException( e.InnerException.Message );
+                        throw new XTMFRuntimeException(e.InnerException?.Message);
                     }
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
+                    throw new XTMFRuntimeException(e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace);
                 }
                 matrixNumber++;
             }
@@ -91,7 +92,7 @@ namespace TMG.GTAModel.ModeSplit
         public List<TreeData<float[][]>> ModeSplit(SparseTwinIndex<float> flowMatrix)
         {
             // no need to optimize this case since it is very rare.
-            return ModeSplit( new[] { flowMatrix }, 1 );
+            return ModeSplit(new[] { flowMatrix }, 1);
         }
 
         public bool RuntimeValidation(ref string error)
@@ -102,47 +103,47 @@ namespace TMG.GTAModel.ModeSplit
         private void ProcessMode(TreeData<float[][]> treeData, int i, int j, float flow, IModeChoiceNode node, int matrixNumber)
         {
             var cat = node as IModeCategory;
-            if ( cat != null )
+            if (cat != null)
             {
                 // then go 1 level deeper
-                for ( int m = cat.Children.Count - 1; m >= 0; m-- )
+                for (int m = cat.Children.Count - 1; m >= 0; m--)
                 {
-                    ProcessMode( treeData.Children[m], i, j, flow, cat.Children[m], matrixNumber );
+                    ProcessMode(treeData.Children[m], i, j, flow, cat.Children[m], matrixNumber);
                 }
                 // then sum
                 var sum = 0f;
-                for ( int m = cat.Children.Count - 1; m >= 0; m-- )
+                for (int m = cat.Children.Count - 1; m >= 0; m--)
                 {
                     var res = treeData.Children[m].Result;
-                    if ( res == null || res[i] == null ) continue;
+                    if (res == null || res[i] == null) continue;
                     sum += res[i][j];
                 }
-                SetData( treeData.Result, i, j, sum );
+                SetData(treeData.Result, i, j, sum);
             }
             else
             {
-                for ( int dataIndex = 0; dataIndex < Data.Count; dataIndex++ )
+                for (int dataIndex = 0; dataIndex < Data.Count; dataIndex++)
                 {
-                    if ( Data[dataIndex].Mode == node )
+                    if (Data[dataIndex].Mode == node)
                     {
                         var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                         var data = Data[dataIndex].Data;
-                        if ( data == null )
+                        if (data == null)
                         {
-                            throw new XTMFRuntimeException( "In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!" );
+                            throw new XTMFRuntimeException("In '" + Name + "' we tried to access the data for mode split from mode '" + Data[dataIndex].ModeName + "' however it was not initialized!");
                         }
-                        if ( treeData.Result == null )
+                        if (treeData.Result == null)
                         {
-                            lock ( treeData )
+                            lock (treeData)
                             {
                                 Thread.MemoryBarrier();
-                                if ( treeData.Result == null )
+                                if (treeData.Result == null)
                                 {
                                     treeData.Result = new float[zones.Length][];
                                 }
                             }
                         }
-                        SetData( treeData.Result, i, j, flow * data.GetDataFrom( zones[i].ZoneNumber, zones[j].ZoneNumber, matrixNumber ) );
+                        SetData(treeData.Result, i, j, flow * data.GetDataFrom(zones[i].ZoneNumber, zones[j].ZoneNumber, matrixNumber));
                     }
                 }
             }
@@ -150,7 +151,7 @@ namespace TMG.GTAModel.ModeSplit
 
         private void SetData(float[][] data, int i, int j, float value)
         {
-            if ( data[i] == null )
+            if (data[i] == null)
             {
                 data[i] = new float[data.Length];
             }
@@ -159,10 +160,10 @@ namespace TMG.GTAModel.ModeSplit
 
         public class ModeData : IModule
         {
-            [SubModelInformation( Description = "The data that represents this mode's share.", Required = true )]
+            [SubModelInformation(Description = "The data that represents this mode's share.", Required = true)]
             public IODDataSource<float> Data;
 
-            [RunParameter( "Mode Name", "Auto", "The name of the mode that the contained data will be used for." )]
+            [RunParameter("Mode Name", "Auto", "The name of the mode that the contained data will be used for.")]
             public string ModeName;
 
             [RootModule]
@@ -175,7 +176,7 @@ namespace TMG.GTAModel.ModeSplit
             {
                 get
                 {
-                    if ( _Mode == null )
+                    if (_Mode == null)
                     {
                         return LoadMode();
                     }
@@ -186,15 +187,15 @@ namespace TMG.GTAModel.ModeSplit
             private IModeChoiceNode LoadMode()
             {
                 var modes = Root.Modes;
-                for ( int i = 0; i < modes.Count; i++ )
+                for (int i = 0; i < modes.Count; i++)
                 {
-                    if ( FindOurMode( modes[i] ) )
+                    if (FindOurMode(modes[i]))
                     {
                         return _Mode;
                     }
                 }
-                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a mode called '"
-                    + ModeName + "', please make sure that this mode exists!" );
+                throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '"
+                    + ModeName + "', please make sure that this mode exists!");
             }
 
             public string Name { get; set; }
@@ -210,17 +211,17 @@ namespace TMG.GTAModel.ModeSplit
 
             private bool FindOurMode(IModeChoiceNode node)
             {
-                if ( node.ModeName == ModeName )
+                if (node.ModeName == ModeName)
                 {
                     _Mode = node;
                     return true;
                 }
                 var cat = node as IModeCategory;
-                if ( cat != null )
+                if (cat != null)
                 {
-                    for ( int i = 0; i < cat.Children.Count; i++ )
+                    for (int i = 0; i < cat.Children.Count; i++)
                     {
-                        if ( FindOurMode( cat ) )
+                        if (FindOurMode(cat))
                         {
                             return true;
                         }

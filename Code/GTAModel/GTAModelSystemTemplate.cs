@@ -19,10 +19,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using XTMF;
+// ReSharper disable AccessToModifiedClosure
 
 namespace TMG.GTAModel
 {
@@ -33,6 +33,7 @@ a list of INetworkData, a list of IModeChoiceNode, an INetworkAssignment, a list
 IPopulation, and finally a list of ISelfContainedModule for running at the end of the model system. 
 Optionally it can also take in 2 other ISelfContainedModule, one for assigning work zones and another 
 for assigning school zones." )]
+    // ReSharper disable once InconsistentNaming
     public class GTAModelSystemTemplate : IDemographic4StepModelSystemTemplate, IResourceSource
     {
         [RunParameter( "Parallel Post Processing", true, "Process the post run modules in parallel." )]
@@ -40,8 +41,6 @@ for assigning school zones." )]
 
         [SubModelInformation( Required = false, Description = "Model systems that should be executed before each iteration" )]
         public List<ISelfContainedModule> PreIteration;
-
-        private int CurrentPurpose;
 
         private Func<string> GetCurrentStatus = ( () => "" );
 
@@ -118,7 +117,6 @@ for assigning school zones." )]
         {
             get
             {
-                DateTime now = DateTime.Now;
                 float ratio = 1;
                 return new Tuple<byte, byte, byte>( (byte)( 0 * ratio ), (byte)( 117 * ratio ), (byte)( 255 * ratio ) );
             }
@@ -199,7 +197,6 @@ for assigning school zones." )]
                 for ( int i = 0; i < purposeLength; i++ )
                 {
                     Status = String.Concat( "Running Iteration ", ( iteration + 1 ), " of ", TotalIterations, " : ", Purpose[i].PurposeName );
-                    CurrentPurpose = i;
                     GetProgress = ( () => Purpose[i].Progress );
                     Purpose[i].Run();
                     if ( ExitRequested ) { return; }
@@ -240,16 +237,6 @@ for assigning school zones." )]
         public override string ToString()
         {
             return String.Concat( Status, ": ", GetCurrentStatus() );
-        }
-
-        private string GetFullPath(string localPath)
-        {
-            var fullPath = localPath;
-            if ( !Path.IsPathRooted( fullPath ) )
-            {
-                fullPath = Path.Combine( InputBaseDirectory, fullPath );
-            }
-            return fullPath;
         }
 
         private void InitializePopulation()
@@ -328,7 +315,6 @@ for assigning school zones." )]
                 {
                     c.IterationEnding( CurrentIteration, TotalIterations );
                 }
-                c = null;
                 TellModesWeAreEndingIteration( mode as IModeCategory );
             }
         }
@@ -344,7 +330,6 @@ for assigning school zones." )]
                     {
                         c.IterationEnding( CurrentIteration, TotalIterations );
                     }
-                    c = null;
                     TellModesWeAreEndingIteration( mode as IModeCategory );
                 }
             }
@@ -359,7 +344,6 @@ for assigning school zones." )]
                 {
                     c.IterationStarting( CurrentIteration, TotalIterations );
                 }
-                c = null;
                 TellModesWeAreStartingNewIteration( mode as IModeCategory );
             }
         }
@@ -377,7 +361,6 @@ for assigning school zones." )]
                         GetProgress = () => mode.Progress;
                         c.IterationStarting( CurrentIteration, TotalIterations );
                     }
-                    c = null;
                     TellModesWeAreStartingNewIteration( mode as IModeCategory );
                 }
             }

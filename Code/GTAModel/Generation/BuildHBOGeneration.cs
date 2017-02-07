@@ -81,8 +81,6 @@ namespace TMG.GTAModel.Generation
                 case 1:
                 case 2:
                     return 1;
-                case 4:
-                case 5:
                 default:
                     return 2;
             }
@@ -131,36 +129,27 @@ namespace TMG.GTAModel.Generation
             {
                 case 0:
                 case 1:
-                    {
-                        return ChildAgeIndex( mobility );
-                    }
+                {
+                    return ChildAgeIndex(mobility);
+                }
                 case 2:
+                    int empOffset;
+                    switch (employmentStatus)
                     {
-                        int empOffset;
-                        switch ( employmentStatus )
-                        {
-                            case 0:
-                            case 2:
-                                empOffset = 0;
-                                break;
+                        case 0:
+                        case 2:
+                            empOffset = 0;
+                            break;
 
-                            case 1:
-                            default:
-                                empOffset = 3;
-                                break;
-                        }
-                        return ChildAgeIndex( mobility ) + 3 + empOffset;
+                        default:
+                            empOffset = 3;
+                            break;
                     }
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
+                    return ChildAgeIndex(mobility) + 3 + empOffset;
                 default:
-                    int ageOffset = ( ( age < 6 ? age : 6 ) - 3 ) * 12;
-                    int employmentOffset = ( employmentStatus == 1 ? 3 : 0 );
-                    int mobilityOffset = ( mobility < 3 ? mobility : ( mobility - 3 ) + 6 );
+                    int ageOffset = ((age < 6 ? age : 6) - 3) * 12;
+                    int employmentOffset = (employmentStatus == 1 ? 3 : 0);
+                    int mobilityOffset = (mobility < 3 ? mobility : (mobility - 3) + 6);
                     return ageOffset + mobilityOffset + employmentOffset + 9;
             }
         }

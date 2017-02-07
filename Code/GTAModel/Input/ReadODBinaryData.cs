@@ -59,7 +59,7 @@ namespace TMG.GTAModel.Input
             var zoneNumbers = zoneArray.ValidIndexArray();
             var zones = zoneArray.GetFlatData();
 
-            BinaryReader reader = null;
+            BinaryReader reader;
             try
             {
                 reader = new BinaryReader( File.OpenRead( FileToRead.GetFileName() ) );

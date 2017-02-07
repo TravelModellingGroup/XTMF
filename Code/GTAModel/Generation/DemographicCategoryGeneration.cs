@@ -91,7 +91,7 @@ namespace TMG.GTAModel
             {
                 return false;
             }
-            int mobilityCategory = 0;
+            int mobilityCategory;
             var cars = person.Household.Cars;
             mobilityCategory = cars + ( person.DriversLicense ? 3 : 0 );
             return ( EmploymentStatusCategory.Contains( person.EmploymentStatus ) ) & ( OccupationCategory.Contains( person.Occupation ) )

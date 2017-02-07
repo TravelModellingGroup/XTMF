@@ -122,7 +122,7 @@ namespace TMG.GTAModel.Input
                     var row = matrix[rowCount++];
                     for ( int i = 0; i < row.Length; i++ )
                     {
-                        var temp = 0f;
+                        float temp;
                         reader.Get( out temp, i + 1 );
                         row[i] += temp;
                     }

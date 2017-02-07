@@ -31,8 +31,8 @@ namespace TMG.GTAModel.NetworkAnalysis
                     " indicates the expression used by the Emme Matrix Calculator to filter transit lines." )]
     public class ImportV3BoardingPenalties : IEmmeTool
     {
-        private const string _ToolName = "tmg.assignment.preprocessing.import_v3_boarding_penalty";
-        private const string _OldToolName = "TMG2.Assignment.PreProcessing.ImportBoardingPenalties";
+        private const string ToolName = "tmg.assignment.preprocessing.import_v3_boarding_penalty";
+        private const string OldToolName = "TMG2.Assignment.PreProcessing.ImportBoardingPenalties";
         [RunParameter( "Data File", "", typeof( FileFromInputDirectory ), "A absolute filepath to a file which specifies which boarding penalty to apply to particular filter" +
                         " expressions. The file must be delimited by ';' and contain the headers 'boarding_penalty' and 'filter_expression'." +
                         " The 'boarding_penalty' column indicates an applied peanlty to be stored in UT3, while the 'filter_expression'" +
@@ -74,11 +74,11 @@ namespace TMG.GTAModel.NetworkAnalysis
             sb.AppendFormat( "{0} {1}",
                 ScenarioNumber, InputFile.GetFileName( Root.InputBaseDirectory ) );
             string result = null;
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
+                return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
-            return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(OldToolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

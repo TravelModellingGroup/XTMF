@@ -19,6 +19,7 @@
 
 using System;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Modes
 {

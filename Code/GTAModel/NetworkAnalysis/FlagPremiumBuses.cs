@@ -28,8 +28,8 @@ namespace TMG.GTAModel.NetworkAnalysis
                         "attribute '@lflag'. Initializes  @lflag to 0 first." )]
     public class FlagPremiumBuses : IEmmeTool
     {
-        private const string _ToolName = "tmg.assignment.preprocessing.flag_premium_buses";
-        private const string _OldToolName = "TMG2.Assignment.PreProcessing.FlagPremiumBusLines";
+        private const string ToolName = "tmg.assignment.preprocessing.flag_premium_buses";
+        private const string OldToolName = "TMG2.Assignment.PreProcessing.FlagPremiumBusLines";
         [RunParameter( "GO Bus Flag", true, "Flag GO buses true\false." )]
         public bool FlagGo;
 
@@ -79,11 +79,11 @@ namespace TMG.GTAModel.NetworkAnalysis
             ScenarioNumber, FlagGO, FlagPremTTC, FlagVIVA, \
                  FlagZum
             */
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
+                return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
-            return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(OldToolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

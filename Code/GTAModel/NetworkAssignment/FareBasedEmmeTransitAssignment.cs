@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.NetworkAssignment
 {
@@ -31,8 +32,8 @@ namespace TMG.GTAModel.NetworkAssignment
         Description = "Executes a transit assignment which can accumulate fares. " )]
     public class FareBasedEmmeTransitAssignment : IEmmeTool
     {
-        private const string _ToolName = "tmg.assignment.road.tolled.toll_attribute_transit_background";
-        private const string _OldToolName = "TMG2.Assignment.RoadAssignment.GTAModelTollBasedRoadAssignment";
+        private const string ToolName = "tmg.assignment.road.tolled.toll_attribute_transit_background";
+        private const string OldToolName = "TMG2.Assignment.RoadAssignment.GTAModelTollBasedRoadAssignment";
 
         [RunParameter( "Boarding Perception", 1.0f, "The perception factor for boarding time." )]
         public float BoardingPerception;
@@ -121,37 +122,16 @@ namespace TMG.GTAModel.NetworkAssignment
                 this.TollMatrixNumber, this.Factor, this.GasCost, this.TollUnitCost, this.TollPerceptionFactor,
                 this.MaxIterations, this.RelativeGap, this.BestRelativeGap, this.NormalizedGap);
             */
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString());
+                return mc.Run(ToolName, sb.ToString());
             }
-            return mc.Run(_OldToolName, sb.ToString());
+            return mc.Run(OldToolName, sb.ToString());
         }
 
         public bool RuntimeValidation(ref string error)
         {
             return true;
-        }
-
-        private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
-        {
-            if ( modeIndex == current )
-            {
-                return node.Result;
-            }
-            current++;
-            if ( node.Children != null )
-            {
-                for ( int i = 0; i < node.Children.Length; i++ )
-                {
-                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
-                }
-            }
-            return null;
         }
 
         private void PassMatrixIntoEmme(ModellerController mc)
@@ -181,7 +161,7 @@ namespace TMG.GTAModel.NetworkAssignment
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
                         ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }
                 } );
@@ -205,6 +185,7 @@ namespace TMG.GTAModel.NetworkAssignment
         /// Process floats to work with emme
         /// </summary>
         /// <param name="number">The float you want to send</param>
+        /// <param name="builder"></param>
         /// <returns>A limited precision non scientific number in a string</returns>
         private void ToEmmeFloat(float number, StringBuilder builder)
         {

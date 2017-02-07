@@ -26,6 +26,7 @@ using System.Reflection;
 using Datastructure;
 using TMG.Modes;
 using XTMF;
+// ReSharper disable BitwiseOperatorOnEnumWithoutFlags
 
 namespace TMG.GTAModel.Modes
 {
@@ -43,7 +44,7 @@ namespace TMG.GTAModel.Modes
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
-        [RunParameter( "Mode Name", "", "The name of this mode.  It should be unique to every other mode." )]
+        [RunParameter( "Mode name", "", "The name of this mode.  It should be unique to every other mode." )]
         public string ModeName { get; set; }
 
         public string Name { get; set; }
@@ -82,7 +83,7 @@ namespace TMG.GTAModel.Modes
             {
                 return false;
             }
-            if ( !AttachUtilityComponentObjects( optimizedMode, ref error ) )
+            if ( !AttachUtilityComponentObjects( optimizedMode ) )
             {
                 return false;
             }
@@ -135,14 +136,14 @@ namespace TMG.GTAModel.Modes
             return Path.Combine( Path.GetDirectoryName( programPath ), "Modules" );
         }
 
-        private void AddProperty(CodeTypeDeclaration modeClass, string Name, Type type, object value, CodeAttributeDeclaration attribute = null)
+        private void AddProperty(CodeTypeDeclaration modeClass, string name, Type type, object value, CodeAttributeDeclaration attribute = null)
         {
-            var backendName = "_Generated_" + Name;
+            var backendName = "_Generated_" + name;
             var backendVariable = new CodeMemberField( type, backendName );
             backendVariable.Attributes = MemberAttributes.Private | MemberAttributes.Final;
             backendVariable.InitExpression = new CodePrimitiveExpression( value );
             var property = new CodeMemberProperty();
-            property.Name = Name;
+            property.Name = name;
             if ( attribute != null )
             {
                 property.CustomAttributes.Add( attribute );
@@ -162,7 +163,7 @@ namespace TMG.GTAModel.Modes
         private void AttachBasicModeProperties(CodeTypeDeclaration modeClass)
         {
             AddProperty( modeClass, "ModeName", typeof( string ), ModeName );
-            AddProperty( modeClass, "Name", typeof( string ), Name );
+            AddProperty( modeClass, "name", typeof( string ), Name );
             AddProperty( modeClass, "Progress", typeof( float ), 0.0f );
             AddProperty( modeClass, "CurrentlyFeasible", typeof( float ), CurrentlyFeasible, new CodeAttributeDeclaration( new CodeTypeReference( typeof( RunParameterAttribute ) ),
                 new CodeAttributeArgument( new CodePrimitiveExpression( "Demographic Category Feasible" ) ), new CodeAttributeArgument( new CodePrimitiveExpression( 1.0f ) ),
@@ -171,7 +172,7 @@ namespace TMG.GTAModel.Modes
             AddProperty( modeClass, "ProgressColour", typeof( Tuple<byte, byte, byte> ), null );
         }
 
-        private void AttachConstructor(CodeTypeDeclaration modeClass)
+        private void AttachConstructor()
         {
             CodeConstructor constructor = new CodeConstructor();
             constructor.Attributes = MemberAttributes.Public;
@@ -263,7 +264,7 @@ namespace TMG.GTAModel.Modes
             modeClass.Members.Add( initializeUtilityComponents );
         }
 
-        private bool AttachUtilityComponentObjects(IUtilityComponentMode optimizedMode, ref string error)
+        private bool AttachUtilityComponentObjects(IUtilityComponentMode optimizedMode)
         {
             var initFunction = optimizedMode.GetType().GetMethod( "InitialzeUtilities" );
             if ( FeasibilityCalculation != null )
@@ -302,7 +303,7 @@ namespace TMG.GTAModel.Modes
             var assembly = results.CompiledAssembly;
             var theClass = assembly.GetType( String.Format( "TMG.Modes.Generated.OptimizedMode{0}", ModeName ) );
             var constructor = theClass.GetConstructor( new Type[0] );
-            optimizedMode = constructor.Invoke( new object[0] ) as IUtilityComponentMode;
+            optimizedMode = constructor?.Invoke( new object[0] ) as IUtilityComponentMode;
             return true;
         }
 
@@ -316,7 +317,7 @@ namespace TMG.GTAModel.Modes
             modeClass.IsClass = true;
             modeClass.TypeAttributes = TypeAttributes.Public | TypeAttributes.Sealed;
             AttachBasicModeProperties( modeClass );
-            AttachConstructor( modeClass );
+            AttachConstructor();
             AttachFeasible( modeClass );
             AttachRuntimeValidation( modeClass );
             AttachUtilityComponentInitializationMethod( modeClass );

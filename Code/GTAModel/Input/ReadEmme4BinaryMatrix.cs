@@ -55,7 +55,6 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             using (BinaryReader reader = new BinaryReader( new FileStream( InputFile, FileMode.Open, FileAccess.Read ) ))
             {
                 EmmeMatrix matrix = new EmmeMatrix( reader );

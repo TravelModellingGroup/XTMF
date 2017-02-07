@@ -160,7 +160,6 @@ namespace TMG.GTAModel.Input
                 creator.LoadEmme2( FailIfNotExist( Fares ), 0, (int)DataTypes.Cost );
             }
             creator.Save( GetFullPath( AlreadyLoaded ? UpdatedODC : ODC ), false );
-            creator = null;
             GC.Collect();
         }
 

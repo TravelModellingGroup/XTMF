@@ -26,6 +26,7 @@ using XTMF;
 
 namespace TMG.GTAModel.Generation
 {
+    // ReSharper disable once InconsistentNaming
     public class DRMNHBOAMGeneration : IDemographicCategoryGeneration
     {
         [RunParameter( "Auto Drive Name", "ADrive", "The name of the auto drive mode." )]
@@ -116,8 +117,6 @@ namespace TMG.GTAModel.Generation
         {
             // no init since we are using raw auto times
             //this.InitializeDemographicCategory();
-            var rootModes = Root.Modes;
-            var numberOfModes = rootModes.Count;
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             // Work
@@ -223,15 +222,13 @@ namespace TMG.GTAModel.Generation
                     // Auto drive case
                     Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
-                        var increment = 0f;
                         int regionIndex;
                         if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
                         }
-                        increment = purposeDrive[regionIndex] * SumWentHere( current, i );
-                        flatProduction[i] += increment;
+                        flatProduction[i] += purposeDrive[regionIndex] * SumWentHere(current, i);
                     } );
                 }
                 else
@@ -239,15 +236,13 @@ namespace TMG.GTAModel.Generation
                     // not auto drive case
                     Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
-                        var increment = 0f;
                         int regionIndex;
                         if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
                         }
-                        increment = purposeOther[regionIndex] * SumWentHere( current, i );
-                        flatProduction[i] += increment;
+                        flatProduction[i] += purposeOther[regionIndex] * SumWentHere(current, i);
                     } );
                 }
             }

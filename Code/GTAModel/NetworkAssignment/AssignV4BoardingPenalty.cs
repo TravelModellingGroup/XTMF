@@ -74,7 +74,7 @@ namespace TMG.GTAModel.NetworkAssignment
         public float HSRBoardingPenalty;
 
 
-        private const string _ToolName = "tmg.assignment.preprocessing.assign_v4_boarding_penalty";
+        private const string ToolName = "tmg.assignment.preprocessing.assign_v4_boarding_penalty";
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public bool Execute(Controller controller)
@@ -129,7 +129,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                      mc.ToEmmeFloat(HaltonBoardingPenalty),
                                      mc.ToEmmeFloat(HSRBoardingPenalty));
             string result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
 
         }
 
@@ -150,6 +150,7 @@ namespace TMG.GTAModel.NetworkAssignment
             get { return _ProgressColour; }
         }
 
+        // ReSharper disable once RedundantAssignment
         public bool RuntimeValidation(ref string error)
         {
             error = Name + " is currently using the now obsolete module TMG.GTAModel.NetworkAssignmentAssignV4BoardingPenalty. " +

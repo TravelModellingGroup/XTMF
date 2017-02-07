@@ -133,6 +133,7 @@ combining Auto times with transit times through an interchange zone." )]
 
         private bool AttachMode(string modeName, ref IMode mode, IModeChoiceNode current)
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
             var cat = mode as IModeCategory;
             if ( cat != null )
             {

@@ -65,10 +65,7 @@ namespace TMG.GTAModel.Input
             get { return 0; }
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public IEnumerable<ODData<float>> Read()
         {
@@ -76,11 +73,7 @@ namespace TMG.GTAModel.Input
             if ( !FixedFormatFile.ContainsFileName() ) yield break;
             // otherwise load in the data
             ODData<float> currentData = new ODData<float>();
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zoneNumbers = zoneArray.ValidIndexArray();
-            var zones = zoneArray.GetFlatData();
-
-            StreamReader reader = null;
+            StreamReader reader;
             try
             {
                 reader = new StreamReader( FixedFormatFile.GetFileName() );
@@ -89,7 +82,7 @@ namespace TMG.GTAModel.Input
             {
                 throw new XTMFRuntimeException( "In '" + Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'" );
             }
-            // find the ammount of data in the line that we need in order to process anything
+            // find the amount of data in the line that we need in order to process anything
             var dataInLine = Math.Max( OriginStart + OriginLenth, DestinationStart + DestinationLenth );
             dataInLine = Math.Max( dataInLine, DataStart + DataLenth );
             using ( reader )

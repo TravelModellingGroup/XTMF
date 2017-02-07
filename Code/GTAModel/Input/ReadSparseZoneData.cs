@@ -127,7 +127,6 @@ namespace TMG.GTAModel.Input
 
         private void LoadInData(List<int> zoneNumbers, int sparseLength, List<float>[] dataColumns)
         {
-            float[] data = new float[sparseLength];
             // now that we have the data to load into, open up the file
             using ( CsvReader reader = new CsvReader( GetInputFileName( FileName ) ) )
             {

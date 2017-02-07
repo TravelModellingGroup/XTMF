@@ -21,9 +21,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Datastructure;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
+    // ReSharper disable once InconsistentNaming
     public sealed class GTAModelGeneration : DemographicCategoryGeneration
     {
         [RunParameter( "Probability", 1.0f, "The probability for a person to make this trip." )]
@@ -92,10 +94,8 @@ namespace TMG.GTAModel
             var numberOfIndexes = flatAttraction.Length;
 
             // Compute the Production and Attractions
-            float totalProduction = 0;
-            float totalAttraction = 0;
-            totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            totalAttraction = ComputeAttraction( flatAttraction, Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
+            var totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
+            var totalAttraction = ComputeAttraction( flatAttraction, Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
 
             // Normalize the attractions
             float productionAttractionRatio;

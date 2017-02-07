@@ -72,7 +72,7 @@ it will skip the first line so that standard csv data will also work.</p>"
 
         public IEnumerable<ODData<float>> Read()
         {
-            BinaryReader reader = null;
+            BinaryReader reader;
             var fileName = FromInputDirectory ? GetInputFileName(FileName) : FileName;
             try
             {
@@ -127,7 +127,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                     }
                     // if we are at the end of file break
                     if (EndOfFile(reader)) yield break;
-                    c = reader.ReadChar();
+                    reader.ReadChar();
                 }
                 reader.BaseStream.Position--;
                 // start to process the data
@@ -164,12 +164,16 @@ it will skip the first line so that standard csv data will also work.</p>"
         protected void BurnLine(BinaryReader reader)
         {
             // read until we are at the end of file or when we hit a new line
-            while (!EndOfFile(reader) && reader.ReadChar() != '\n') ;
+            while (!EndOfFile(reader) && reader.ReadChar() != '\n')
+            {
+            }
         }
 
         protected void BurnWhiteSpace(BinaryReader reader, ref char c)
         {
-            while (!EndOfFile(reader) && WhiteSpace(c = reader.ReadChar())) ;
+            while (!EndOfFile(reader) && WhiteSpace(c = reader.ReadChar()))
+            {
+            }
         }
 
         protected bool EndOfFile(BinaryReader reader)

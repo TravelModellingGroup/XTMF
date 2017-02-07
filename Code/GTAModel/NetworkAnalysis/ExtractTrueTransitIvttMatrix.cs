@@ -35,7 +35,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter("Result Matrix Number", 1, "The number of the full matrix in which to store the results.")]
         public int MatrixNumber;
 
-        private const string _ToolName = "TMG2.Analysis.Transit.Strategies.ExtractRawIvttMatrix";
+        private const string ToolName = "TMG2.Analysis.Transit.Strategies.ExtractRawIvttMatrix";
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
@@ -48,7 +48,7 @@ namespace TMG.GTAModel.NetworkAnalysis
             var args = string.Join(" ", ScenarioNumber, "mf" + MatrixNumber);
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

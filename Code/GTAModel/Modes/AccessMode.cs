@@ -24,6 +24,7 @@ using Datastructure;
 using TMG.Input;
 using TMG.Modes;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Modes
 {
@@ -160,7 +161,7 @@ namespace TMG.GTAModel.Modes
 
         private Time CacheTime = new Time { Hours = -1 };
 
-        private int lastIteration = -1;
+        private int LastIteration = -1;
 
         [RunParameter("Access", true, "Is this mode in access mode or egress mode?")]
         public bool Access
@@ -246,7 +247,7 @@ namespace TMG.GTAModel.Modes
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ((lastIteration != Root.CurrentIteration) | (time != CacheTime))
+            if ((LastIteration != Root.CurrentIteration) | (time != CacheTime))
             {
                 RebuildCache(time);
             }
@@ -303,7 +304,6 @@ namespace TMG.GTAModel.Modes
                     {
                         data = new CacheData
                         {
-                            Feasible = true,
                             Logsum = (float)logsum
                         };
                     }
@@ -311,7 +311,6 @@ namespace TMG.GTAModel.Modes
                     {
                         data = new CacheData
                         {
-                            Feasible = false,
                             Logsum = float.NaN
                         };
                     }
@@ -320,7 +319,6 @@ namespace TMG.GTAModel.Modes
                 {
                     data = new CacheData
                     {
-                        Feasible = false,
                         Logsum = float.NaN
                     };
                 }
@@ -509,12 +507,12 @@ namespace TMG.GTAModel.Modes
             Children.Add(station);
         }
 
-        private bool GenerateChildren(ref string error)
+        private bool GenerateChildren()
         {
             Children = new List<AccessStation>();
             var rangeList = new List<Range>();
             var start = 0;
-            var stop = 0;
+            int stop;
             var current = 0;
             bool first = true;
             var zoneArray = Root.ZoneSystem.ZoneArray;
@@ -526,7 +524,7 @@ namespace TMG.GTAModel.Modes
                     var parkingSpots = record.D;
                     if (first)
                     {
-                        current = start = record.O;
+                        start = record.O;
                         first = false;
                     }
                     else if (current + 1 != record.O)
@@ -557,13 +555,13 @@ namespace TMG.GTAModel.Modes
             lock (this)
             {
                 Thread.MemoryBarrier();
-                if (lastIteration == Root.CurrentIteration) return;
+                if (LastIteration == Root.CurrentIteration) return;
                 Cache = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<CacheData>();
                 foreach (var child in Children)
                 {
                     child.DumpCaches();
                 }
-                lastIteration = Root.CurrentIteration;
+                LastIteration = Root.CurrentIteration;
                 CacheTime = time;
                 Thread.MemoryBarrier();
             }
@@ -571,7 +569,6 @@ namespace TMG.GTAModel.Modes
 
         private class CacheData
         {
-            internal bool Feasible;
             internal float Logsum;
         }
 
@@ -584,11 +581,10 @@ namespace TMG.GTAModel.Modes
         {
             if (iterationNumber == 0)
             {
-                string error = null;
                 // If everything is fine we can now Generate our children
-                if (!GenerateChildren(ref error))
+                if (!GenerateChildren())
                 {
-                    throw new XTMFRuntimeException(error);
+                    throw new XTMFRuntimeException($"In {Name} we experienced an error when generating the access stations.");
                 }
             }
         }

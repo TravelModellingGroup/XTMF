@@ -52,19 +52,12 @@ namespace TMG.GTAModel
             var numberOfIndexes = flatProduction.Length;
 
             // Compute the Production
-            float totalProduction = 0;
-            totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            SaveGenerationData( totalProduction );
+            SaveGenerationData(ComputeProduction(flatProduction, numberOfIndexes));
             //The HBO Model does NOT include having an attraction component.  The distribution will handle this case.
             if ( LoadData )
             {
                 Rates = null;
             }
-        }
-
-        public override bool RuntimeValidation(ref string error)
-        {
-            return base.RuntimeValidation( ref error );
         }
 
         private float ComputeProduction(float[] flatProduction, int numberOfZones)

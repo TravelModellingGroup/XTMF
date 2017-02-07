@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.NetworkAssignment
 {
@@ -67,7 +68,7 @@ namespace TMG.GTAModel.NetworkAssignment
         public bool UseAdditionalDemand;
 
         [Parameter( "Emme 4 Options Flag", false, "Future feature yet to be implemented. Enables new features of the Emme 4 transit assignment procedure." )]
-        public bool UseEM4Options;
+        public bool UseEmme4Options;
 
         [Parameter( "Headway Factor", 0.5f, "The headway factor applied at stops. Should be fixed as 0.5 to get the average headway between transit routes." )]
         public float WaitFactor;
@@ -112,7 +113,7 @@ namespace TMG.GTAModel.NetworkAssignment
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9}",
                 ScenarioNumber, DemandMatrixNumber, ModeString, WaitPerception, WalkPerception,
-                InVehiclePerception, BoardingPerception, UseAdditionalDemand, WaitFactor, UseEM4Options );
+                InVehiclePerception, BoardingPerception, UseAdditionalDemand, WaitFactor, UseEmme4Options );
             string result = null;
             if(mc.CheckToolExists(ToolName))
             {
@@ -165,7 +166,7 @@ namespace TMG.GTAModel.NetworkAssignment
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
                         ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }
                 } );
@@ -199,6 +200,7 @@ namespace TMG.GTAModel.NetworkAssignment
         /// Process floats to work with emme
         /// </summary>
         /// <param name="number">The float you want to send</param>
+        /// <param name="builder"></param>
         /// <returns>A limited precision non scientific number in a string</returns>
         private void ToEmmeFloat(float number, StringBuilder builder)
         {

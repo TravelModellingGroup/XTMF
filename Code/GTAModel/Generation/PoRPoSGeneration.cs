@@ -26,6 +26,7 @@ using XTMF;
 
 namespace TMG.GTAModel
 {
+    // ReSharper disable once InconsistentNaming
     public class PoRPoSGeneration : DemographicCategoryGeneration
     {
         [RunParameter("Generation FileName", "", "The name of the file to save to, this will append the file. Leave blank to not save.")]
@@ -73,11 +74,6 @@ namespace TMG.GTAModel
                 DailyRates = null;
                 TimeOfDayRates = null;
             }
-        }
-
-        public override bool RuntimeValidation(ref string error)
-        {
-            return base.RuntimeValidation( ref error );
         }
 
         private static float EmployedMobilityProbability(int mobility, int emp, int occ, SparseTriIndex<float> ncars, int age, SparseTwinIndex<float> dlicRate)
@@ -134,11 +130,8 @@ namespace TMG.GTAModel
             return EmployedMobilityProbability( mobility, emp, occ, ncars, age, dlicRate );
         }
 
-        private float ComputeProduction(float[] flatProduction, int numberOfZones)
+        private void ComputeProduction(float[] flatProduction, int numberOfZones)
         {
-            float totalProduction = 0;
-            object totalProductionLock = new object();
-            var flatPopulation = Root.Population.Population.GetFlatData();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate (int i)
@@ -181,7 +174,6 @@ namespace TMG.GTAModel
                 }
                 flatProduction[i] = temp;
             } );
-            return totalProduction;
         }
 
         private float GenerateForNonWorkingStudent(IZone[] zones, int zoneIndex, SparseTwinIndex<float> ageRates, SparseTwinIndex<float> empRates, SparseTwinIndex<float> dlicRate, SparseTriIndex<float> unempCars, int age, float ppGenerationRate, int emp, float studentFactor)

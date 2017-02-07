@@ -59,10 +59,8 @@ namespace TMG.GTAModel
             var flatProduction = production.GetFlatData();
             var flatAttraction = attractions.GetFlatData();
 
-            var numberOfIndexes = flatAttraction.Length;
-
             // Compute the Production and Attractions
-            ComputeProduction( flatProduction, flatAttraction, numberOfIndexes );
+            ComputeProduction( flatProduction, flatAttraction );
 
             //We do not normalize the attraction
             if ( LoadData )
@@ -74,9 +72,8 @@ namespace TMG.GTAModel
             }
         }
 
-        private void ComputeProduction(float[] flatProduction, float[] flatAttraction, int numberOfZones)
+        private void ComputeProduction(float[] flatProduction, float[] flatAttraction)
         {
-            var flatPopulation = Root.Population.Population.GetFlatData();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             int emp = EmploymentStatusCategory[0].Start;
             var rateEmp = emp;

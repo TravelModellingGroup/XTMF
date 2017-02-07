@@ -83,23 +83,6 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             return true;
         }
 
-        private float CheckOWS(IZone origin)
-        {
-            if ( ProximityCache == null )
-            {
-                lock ( this )
-                {
-                    Thread.MemoryBarrier();
-                    if ( ProximityCache == null )
-                    {
-                        LoadCache();
-                        Thread.MemoryBarrier();
-                    }
-                }
-            }
-            return ProximityCache[origin.ZoneNumber] ? Constant : 0f;
-        }
-
         private void FindCloseZonesToTargets(IZone[] flatZones, bool[] flatData, List<int> targetedZones)
         {
             var distances = Root.ZoneSystem.Distances.GetFlatData();

@@ -24,6 +24,7 @@ using XTMF;
 
 namespace TMG.GTAModel.Generation
 {
+    // ReSharper disable once InconsistentNaming
     public class DRMNHBOPMGeneration : IDemographicCategoryGeneration
     {
         [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
