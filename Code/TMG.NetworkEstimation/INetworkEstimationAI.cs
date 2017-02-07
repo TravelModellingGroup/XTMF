@@ -32,6 +32,6 @@ namespace TMG.NetworkEstimation
 
         float ErrorCombinationFunction(double rmse, double mabs, double terror);
 
-        void Explore(ParameterSetting[] parameters, Action UpdateProgress, Func<ParameterSetting[], float> evaluationfunction);
+        void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction);
     }
 }

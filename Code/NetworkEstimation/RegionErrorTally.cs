@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +30,7 @@ namespace TMG.NetworkEstimation
     public class RegionErrorTally : IErrorTally
     {
         [RunParameter( "Absolute Error Weight", 0f, "The weight for absolute error." )]
-        public float MABSWeight;
+        public float MabsWeight;
 
         [RunParameter( "Region Error File", "RegionError.csv", "The file name to save the region error into." )]
         public string RegionErrorFile;
@@ -38,10 +39,10 @@ namespace TMG.NetworkEstimation
         public bool RegionPercentError;
 
         [RunParameter( "Root Mean Square Error Weight", 1f, "The weight for root mean square error." )]
-        public float RMSEWeight;
+        public float RmseWeight;
 
         [RunParameter( "Total Error Weight", 0f, "The weight for total error." )]
-        public float TERRORWeight;
+        public float TerrorWeight;
 
         public string Name
         {
@@ -69,19 +70,19 @@ namespace TMG.NetworkEstimation
             {
                 if ( i > transitLine.Length )
                 {
-                    throw new XTMFRuntimeException( Format( "i = {0}, ttsLines = {1}, transitLine.Length = {2}",
-                        i, ttsLines, transitLine.Length ) );
+                    throw new XTMFRuntimeException(
+                        $"i = {i}, ttsLines = {ttsLines}, transitLine.Length = {transitLine.Length}");
                 }
                 var mode = transitLine[i].Mode;
                 if ( transitLine[i].Id == null )
                 {
                     throw new XTMFRuntimeException( "There is a TTS line without an ID!" );
                 }
-                else if ( transitLine[i].Id.Length < 1 )
+                if ( transitLine[i].Id.Length < 1 )
                 {
                     throw new XTMFRuntimeException( "There is a TTS line without an ID!" );
                 }
-                else if ( transitLine[i].Id[0].Length < 1 )
+                if ( transitLine[i].Id[0].Length < 1 )
                 {
                     throw new XTMFRuntimeException( "There is an invalid ID for the TTS line #" + i + "!" );
                 }
@@ -93,7 +94,7 @@ namespace TMG.NetworkEstimation
                 }
             }
             var numberOfModesFirstLetters = foundModes.Count;
-            float[] aggTTSToMode = new float[numberOfModesFirstLetters];
+            float[] aggTtsToMode = new float[numberOfModesFirstLetters];
             float[] aggPredToMode = new float[numberOfModesFirstLetters];
             // first pass agg all of the tts numbers
             for ( int i = 0; i < ttsLines; i++ )
@@ -104,7 +105,7 @@ namespace TMG.NetworkEstimation
                 {
                     continue;
                 }
-                aggTTSToMode[indexOfTransitLine] += transitLine[i].Bordings;
+                aggTtsToMode[indexOfTransitLine] += transitLine[i].Bordings;
             }
             // second pass agg all of the predicted numbers
             for ( int i = 0; i < predictedLines; i++ )
@@ -122,12 +123,12 @@ namespace TMG.NetworkEstimation
             double terror = 0;
             for ( int i = 0; i < numberOfModesFirstLetters; i++ )
             {
-                float error = RegionPercentError ? (float)( Math.Abs( aggPredToMode[i] - aggTTSToMode[i] ) / aggTTSToMode[i] ) : aggTTSToMode[i] - aggPredToMode[i];
+                float error = RegionPercentError ? Math.Abs( aggPredToMode[i] - aggTtsToMode[i] ) / aggTtsToMode[i] : aggTtsToMode[i] - aggPredToMode[i];
                 rmse += error * error;
                 mabs += Math.Abs( error );
                 terror += error;
             }
-            var finalError = (float)( ( rmse * RMSEWeight ) + ( mabs * MABSWeight ) + ( terror * TERRORWeight ) );
+            var finalError = (float)( ( rmse * RmseWeight ) + ( mabs * MabsWeight ) + ( terror * TerrorWeight ) );
             if ( !IsNullOrWhiteSpace( RegionErrorFile ) )
             {
                 bool exists = File.Exists( RegionErrorFile );
@@ -161,11 +162,11 @@ namespace TMG.NetworkEstimation
                     {
                         if ( RegionPercentError )
                         {
-                            writer.Write( (float)( Math.Abs( aggPredToMode[i] - aggTTSToMode[i] ) / aggTTSToMode[i] ) );
+                            writer.Write( Math.Abs( aggPredToMode[i] - aggTtsToMode[i] ) / aggTtsToMode[i] );
                         }
                         else
                         {
-                            writer.Write( aggPredToMode[i] - aggTTSToMode[i] );
+                            writer.Write( aggPredToMode[i] - aggTtsToMode[i] );
                         }
                         writer.Write( ',' );
                     }

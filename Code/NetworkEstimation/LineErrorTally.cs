@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Linq;
 using TMG.Emme;
@@ -26,16 +27,16 @@ namespace TMG.NetworkEstimation
     public class LineErrorTally : IErrorTally
     {
         [RunParameter( "Absolute Error Weight", 0f, "The weight for absolute error." )]
-        public float MABSWeight;
+        public float MabsWeight;
 
         [RunParameter( "Percent Error", false, "Use the percent of error instead of boardings." )]
         public bool PercentError;
 
         [RunParameter( "Root Mean Square Error Weight", 1f, "The weight for root mean square error." )]
-        public float RMSEWeight;
+        public float RmseWeight;
 
         [RunParameter( "Total Error Weight", 0f, "The weight for total error." )]
-        public float TERRORWeight;
+        public float TerrorWeight;
 
         public string Name
         {
@@ -63,7 +64,6 @@ namespace TMG.NetworkEstimation
             float[] aggToTruth = new float[truth.Length];
             for ( int i = 0; i < numberOfLines; i++ )
             {
-                int index = -1;
                 for ( int j = 0; j < truth.Length; j++ )
                 {
                     bool found = false;
@@ -71,7 +71,6 @@ namespace TMG.NetworkEstimation
                     {
                         if ( truth[j].Id.Contains( line ) )
                         {
-                            index = j;
                             found = true;
                             break;
                         }
@@ -85,12 +84,12 @@ namespace TMG.NetworkEstimation
             }
             for ( int i = 0; i < truth.Length; i++ )
             {
-                float error = this.PercentError ? (float)( Math.Abs( aggToTruth[i] - truth[i].Bordings ) / truth[i].Bordings ) : aggToTruth[i] - truth[i].Bordings;
+                float error = PercentError ? Math.Abs( aggToTruth[i] - truth[i].Bordings ) / truth[i].Bordings : aggToTruth[i] - truth[i].Bordings;
                 rmse += error * error;
                 mabs += Math.Abs( error );
                 terror += error;
             }
-            return ( rmse * this.RMSEWeight ) + ( mabs * this.MABSWeight ) + ( terror * this.TERRORWeight );
+            return ( rmse * RmseWeight ) + ( mabs * MabsWeight ) + ( terror * TerrorWeight );
         }
 
         public bool RuntimeValidation(ref string error)

@@ -16,44 +16,43 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
 using TMG.Emme;
 using TMG.Input;
+using XTMF;
+
 namespace TMG.NetworkEstimation
 {
     [ModuleInformation(
-        Description=@"This data source provides access to emme modeller.")]
+        Description = @"This data source provides access to emme modeller.")]
     public class ModellerControllerDataSource : IDataSource<ModellerController>, IDisposable
     {
-        [SubModelInformation( Required = true, Description = "The location of the Emme project file." )]
+        [SubModelInformation(Required = true, Description = "The location of the Emme project file.")]
         public FileLocation ProjectFolder;
 
         private ModellerController Data;
 
         public ModellerController GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            if ( this.Data == null )
+            if (Data == null)
             {
-                lock ( this )
+                lock (this)
                 {
-                    if ( this.Data == null )
+                    if (Data == null)
                     {
-                        GC.ReRegisterForFinalize( this );
-                        this.Data = new ModellerController( this.ProjectFolder.GetFilePath(), false );
+                        GC.ReRegisterForFinalize(this);
+                        Data = new ModellerController(ProjectFolder.GetFilePath());
                     }
                 }
             }
@@ -61,7 +60,7 @@ namespace TMG.NetworkEstimation
 
         public void UnloadData()
         {
-            this.Dispose();
+            Dispose();
         }
 
         public string Name { get; set; }
@@ -83,22 +82,19 @@ namespace TMG.NetworkEstimation
 
         ~ModellerControllerDataSource()
         {
-            this.Dispose( true );
+            Dispose(true);
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( true );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Data != null )
-            {
-                this.Data.Dispose();
-                this.Data = null;
-            }
+            Data?.Dispose();
+            Data = null;
         }
     }
 }

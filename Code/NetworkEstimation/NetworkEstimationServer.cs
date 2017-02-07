@@ -16,9 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using XTMF;
 using XTMF.Networking;
 
@@ -48,9 +50,9 @@ namespace TMG.NetworkEstimation
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 50, 150, 50 );
 
-        private volatile bool Canceled = false;
+        private volatile bool Canceled;
 
-        private int CompletedCount = 0;
+        private int CompletedCount;
 
         /// <summary>
         /// Our connection to the XTMF Configuration so we can setup individual progress
@@ -63,7 +65,7 @@ namespace TMG.NetworkEstimation
 
         public NetworkEstimationServer(IConfiguration config)
         {
-            this.Configuration = config;
+            Configuration = config;
         }
 
         public string InputBaseDirectory
@@ -98,17 +100,17 @@ namespace TMG.NetworkEstimation
         public bool ExitRequest()
         {
             // Kill Everything
-            this.Canceled = true;
-            if ( this.Host != null )
+            Canceled = true;
+            if ( Host != null )
             {
                 lock ( this )
                 {
-                    foreach ( var client in this.ConnectedClients )
+                    foreach ( var client in ConnectedClients )
                     {
                         client.SendCancel( "Cancel Requested By User" );
                     }
                 }
-                this.Host.Shutdown();
+                Host.Shutdown();
             }
             return true;
         }
@@ -120,10 +122,10 @@ namespace TMG.NetworkEstimation
 
         public void Start()
         {
-            this.Host.NewClientConnected += new Action<IRemoteXTMF>( Host_NewClientConnected );
-            this.Host.ProgressUpdated += new Action<IRemoteXTMF, float>( Host_ProgressUpdated );
-            this.Host.ClientRunComplete += new Action<IRemoteXTMF, int, string>( Host_ClientRunComplete );
-            this.Host.RegisterCustomReceiver( this.ResultPort, new Func<Stream, IRemoteXTMF, object>( delegate(Stream s, IRemoteXTMF r)
+            Host.NewClientConnected += Host_NewClientConnected;
+            Host.ProgressUpdated += Host_ProgressUpdated;
+            Host.ClientRunComplete += Host_ClientRunComplete;
+            Host.RegisterCustomReceiver( ResultPort, delegate(Stream s, IRemoteXTMF r)
             {
                 var length = s.Length / 4;
                 BinaryReader reader = new BinaryReader( s );
@@ -132,17 +134,16 @@ namespace TMG.NetworkEstimation
                 {
                     res[i] = reader.ReadSingle();
                 }
-                reader = null;
                 return res;
-            } ) );
-            this.Host.RegisterCustomMessageHandler( this.ResultPort, new Action<object, IRemoteXTMF>( delegate(object result, IRemoteXTMF remote)
+            } );
+            Host.RegisterCustomMessageHandler( ResultPort, delegate(object result, IRemoteXTMF remote)
             {
                 var set = result as float[];
                 if ( set == null || set.Length == 0 ) return;
                 var length = set.Length;
                 lock ( this )
                 {
-                    using ( StreamWriter writer = new StreamWriter( this.ParameterEvaluationFile, true ) )
+                    using ( StreamWriter writer = new StreamWriter( ParameterEvaluationFile, true ) )
                     {
                         writer.Write( set[0] );
                         for ( int i = 0; i < length; i++ )
@@ -153,26 +154,26 @@ namespace TMG.NetworkEstimation
                         writer.WriteLine();
                     }
                 }
-            } ) );
-            this.RandomNumberGenerator = new Random();
+            } );
+            RandomNumberGenerator = new Random();
             string error = null;
-            var baseModelSystem = this.Host.CreateModelSystem( this.NetworkEstimationModelSystemName, ref error );
+            var baseModelSystem = Host.CreateModelSystem( NetworkEstimationModelSystemName, ref error );
             if ( baseModelSystem == null )
             {
                 throw new XTMFRuntimeException( error );
             }
-            for ( int i = 0; i < this.NumberOfChildren; i++ )
+            for ( int i = 0; i < NumberOfChildren; i++ )
             {
                 var msscopy = baseModelSystem.Clone();
-                this.EditModelSystemTemplate( msscopy, i );
-                this.Host.ExecuteModelSystemAsync( msscopy );
+                EditModelSystemTemplate( msscopy, i );
+                Host.ExecuteModelSystemAsync( msscopy );
             }
 
             // We just keep going
-            while ( !( this.Canceled || this.CompletedCount == this.NumberOfChildren ) )
+            while ( !( Canceled || CompletedCount == NumberOfChildren ) )
             {
-                System.Threading.Thread.Sleep( 250 );
-                System.Threading.Thread.MemoryBarrier();
+                Thread.Sleep( 250 );
+                Thread.MemoryBarrier();
             }
         }
 
@@ -189,7 +190,7 @@ namespace TMG.NetworkEstimation
                     {
                         if ( param.Name == "Random Seed" )
                         {
-                            param.Value = this.RandomNumberGenerator.Next();
+                            param.Value = RandomNumberGenerator.Next();
                         }
                     }
                 }
@@ -200,7 +201,7 @@ namespace TMG.NetworkEstimation
                     {
                         if ( param.Name == "Emme Project Folder" )
                         {
-                            param.Value = String.Format( "{0}-{1}/Database", this.NetworkBaseDirectory, ( i + 1 ) );
+                            param.Value = $"{NetworkBaseDirectory}-{(i + 1)}/Database";
                         }
                     }
                 }
@@ -211,28 +212,27 @@ namespace TMG.NetworkEstimation
             {
                 if ( param.Name == "Emme Input Output" )
                 {
-                    param.Value = String.Format( "{0}-{1}/Database/cache/scalars.311", this.NetworkBaseDirectory, ( i + 1 ) );
+                    param.Value = $"{NetworkBaseDirectory}-{(i + 1)}/Database/cache/scalars.311";
                 }
                 else if ( param.Name == "Emme Macro Output" )
                 {
-                    param.Value = String.Format( "{0}-{1}/Database/cache/boardings_predicted.621", this.NetworkBaseDirectory, ( i + 1 ) );
+                    param.Value = $"{NetworkBaseDirectory}-{(i + 1)}/Database/cache/boardings_predicted.621";
                 }
             }
         }
 
         private void Host_ClientRunComplete(IRemoteXTMF arg1, int arg2, string arg3)
         {
-            System.Threading.Interlocked.Increment( ref this.CompletedCount );
+            Interlocked.Increment( ref CompletedCount );
         }
 
         private void Host_NewClientConnected(IRemoteXTMF obj)
         {
             lock ( this )
             {
-                this.ConnectedClients.Add( obj );
+                ConnectedClients.Add( obj );
             }
-            this.Configuration.CreateProgressReport( obj.UniqueID == null ? "Remote Host" : obj.UniqueID, delegate()
-            {
+            Configuration.CreateProgressReport( obj.UniqueID == null ? "Remote Host" : obj.UniqueID, delegate {
                 return obj.Progress;
             }, new Tuple<byte, byte, byte>( 150, 50, 50 ) );
         }
@@ -242,12 +242,12 @@ namespace TMG.NetworkEstimation
             var totalProgress = 0f;
             lock ( this )
             {
-                foreach ( var client in this.ConnectedClients )
+                foreach ( var client in ConnectedClients )
                 {
                     totalProgress += client.Progress;
                 }
             }
-            this.Progress = totalProgress / this.NumberOfChildren;
+            Progress = totalProgress / NumberOfChildren;
         }
     }
 }
