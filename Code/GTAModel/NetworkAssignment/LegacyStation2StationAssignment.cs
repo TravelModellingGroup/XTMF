@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.NetworkAnalysis
 {
@@ -34,11 +35,11 @@ namespace TMG.GTAModel.NetworkAnalysis
                         + " centroids are hard-coded to NCS11 definitions." )]
     public class LegacyStation2StationAssignment : IEmmeTool
     {
-        private const string _ToolName = "tmg.assignment.transit.V3_line_haul";
-        private const string _OldToolName = "TMG2.Assignment.TransitAssignment.LegacyStation2Station";
+        private const string ToolName = "tmg.assignment.transit.V3_line_haul";
+        private const string OldToolName = "TMG2.Assignment.TransitAssignment.LegacyStation2Station";
 
-        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
-        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+        private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
 
         [RunParameter( "Cost Matrix Number", 21, "The full matrix number in which to store the assignment costs. Costs will only be reported for feasible trips from station centroids." )]
         public int CostMatrixNumber;
@@ -80,7 +81,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [Parameter( "Walk Perception", 2.0f, "Walking time perception factor." )]
         public float WalkPerception;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
 
         public string Name
         {
@@ -96,7 +97,7 @@ namespace TMG.GTAModel.NetworkAnalysis
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool Execute(Controller controller)
@@ -119,11 +120,11 @@ namespace TMG.GTAModel.NetworkAnalysis
              */
 
             string result = null;
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString(), (p => Progress = p), ref result);
+                return mc.Run(ToolName, sb.ToString(), (p => Progress = p), ref result);
             }
-            return mc.Run(_OldToolName, sb.ToString(), (p => Progress = p), ref result);
+            return mc.Run(OldToolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)
@@ -138,27 +139,6 @@ namespace TMG.GTAModel.NetworkAnalysis
             }
 
             return true;
-        }
-
-        private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
-        {
-            if ( modeIndex == current )
-            {
-                return node.Result;
-            }
-            current++;
-            if ( node.Children != null )
-            {
-                for ( int i = 0; i < node.Children.Length; i++ )
-                {
-                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
-                }
-            }
-            return null;
         }
 
         private void PassMatrixIntoEmme(ModellerController mc)
@@ -194,7 +174,7 @@ namespace TMG.GTAModel.NetworkAnalysis
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
                         ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }
                 } );
@@ -206,13 +186,13 @@ namespace TMG.GTAModel.NetworkAnalysis
 
             try
             {
-                if(mc.CheckToolExists(_ImportToolName))
+                if(mc.CheckToolExists(ImportToolName))
                 {
-                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
                 else
                 {
-                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
             }
             finally
@@ -228,6 +208,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         /// Process floats to work with emme
         /// </summary>
         /// <param name="number">The float you want to send</param>
+        /// <param name="builder"></param>
         /// <returns>A limited precision non scientific number in a string</returns>
         private void ToEmmeFloat(float number, StringBuilder builder)
         {

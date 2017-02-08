@@ -18,13 +18,12 @@
 */
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Datastructure;
 using TMG;
-using TMG.Functions;
 using TMG.DataUtility;
 using Tasha.Common;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 namespace Tasha.Airport
 {
     [ModuleInformation(Description =
@@ -87,7 +86,7 @@ This is achieved by being integrated into the EMME tally system.")]
         public void IncludeTally(float[][] data)
         {
             var numberOfRegions = RegionNumbers.Count;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             // Sum the employment and the Professional workers in each zone
             // that is not the airport per region aggregate at a regional level
@@ -100,7 +99,7 @@ This is achieved by being integrated into the EMME tally system.")]
             // Now that we have the regional information we can use it to compute the primary airport
             ComputePrimaryAirport( zones, numberOfZones, employmentTotal, professionalTotal, tripsToRegion, data );
             // After computing the primary airport we can continue with the secondary airports
-            ComputeSecondaryAirports( zones, numberOfZones, employmentTotal, professionalTotal, tripsToRegion, data, totalTrips );
+            ComputeSecondaryAirports( zones, numberOfZones, data, totalTrips );
         }
 
         public bool RuntimeValidation(ref string error)
@@ -110,24 +109,24 @@ This is achieved by being integrated into the EMME tally system.")]
 
         private void ComputePrimaryAirport(IZone[] zones, int numberOfZones, float[] employmentTotal, float[] professionalTotal, float[] tripsToRegion, float[][] data)
         {
-            var primaryZone = this.Root.ZoneSystem.ZoneArray.GetFlatIndex( this.PrimaryAirport.ZoneNumber );
+            var primaryZone = Root.ZoneSystem.ZoneArray.GetFlatIndex( PrimaryAirport.ZoneNumber );
             for ( int i = 0; i < numberOfZones; i++ )
             {
                 if ( i != primaryZone )
                 {
                     int regionIndex;
-                    if ( this.InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                    if ( InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                     {
                         var primary = tripsToRegion[regionIndex]
-                            * ( ( zones[i].ProfessionalEmployment * this.RegionEmploymentFactor
-                            + zones[i].WorkProfessional * this.RegionResidenceFactor )
+                            * ( ( zones[i].ProfessionalEmployment * RegionEmploymentFactor
+                            + zones[i].WorkProfessional * RegionResidenceFactor )
                             /
-                            ( employmentTotal[regionIndex] * this.RegionEmploymentFactor
-                            + professionalTotal[regionIndex] * this.RegionResidenceFactor ) );
+                            ( employmentTotal[regionIndex] * RegionEmploymentFactor
+                            + professionalTotal[regionIndex] * RegionResidenceFactor ) );
                         if ( !float.IsNaN( primary ) & !float.IsInfinity( primary ) )
                         {
                             data[i][primaryZone] += primary;
-                            data[primaryZone][i] += primary * this.ReturnFactor;
+                            data[primaryZone][i] += primary * ReturnFactor;
                         }
                     }
                 }
@@ -153,19 +152,19 @@ This is achieved by being integrated into the EMME tally system.")]
             for ( int i = 0; i < numberOfRegions; i++ )
             {
                 // Don't process things not included in our regions nor if it is a zone that contains an airport
-                var value = this.RegionConstants[i]
-                    + employmentTotal[i] * this.RegionEmploymentFactor
-                    + professionalTotal[i] * this.RegionResidenceFactor;
+                var value = RegionConstants[i]
+                    + employmentTotal[i] * RegionEmploymentFactor
+                    + professionalTotal[i] * RegionResidenceFactor;
                 // don't allow negative values
                 value = ( value < 0 ? 0 : value );
                 tripsToRegion[i] = value;
                 denominator += value;
             }
             // normalize the regions and then apply the prediction
-            var timePeriodTrips = this.PrimaryAirport.BaseTimePeriod * ( this.PrimaryAirport.FuturePrediction / this.PrimaryAirport.Base );
+            var timePeriodTrips = PrimaryAirport.BaseTimePeriod * ( PrimaryAirport.FuturePrediction / PrimaryAirport.Base );
             if ( float.IsNaN( timePeriodTrips ) || float.IsInfinity( timePeriodTrips ) )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name
+                throw new XTMFRuntimeException( "In '" + Name
                     + "' we encountered a non real value for the number of trips for the primary airport!\r\n"
                     + "Please make sure that the primary airport base is set properly!" );
             }
@@ -176,25 +175,25 @@ This is achieved by being integrated into the EMME tally system.")]
             return timePeriodTrips;
         }
 
-        private void ComputeSecondaryAirports(IZone[] zones, int numberOfZones, float[] employmentTotal, float[] professionalTotal, float[] tripsToRegion, float[][] data, float totalTrips)
+        private void ComputeSecondaryAirports(IZone[] zones, int numberOfZones, float[][] data, float totalTrips)
         {
-            var numberOfSecondaryAirports = this.SecondaryAirports.Count;
+            var numberOfSecondaryAirports = SecondaryAirports.Count;
             if ( numberOfSecondaryAirports <= 0 )
             {
                 return;
             }
-            var distances = this.Root.ZoneSystem.Distances;
-            var sparseZones = this.Root.ZoneSystem.ZoneArray;
+            var distances = Root.ZoneSystem.Distances;
+            var sparseZones = Root.ZoneSystem.ZoneArray;
             // compute the secondary airport values
             for ( int i = 0; i < numberOfSecondaryAirports; i++ )
             {
                 // get the total amount for this airport
-                var tripsToThisSecondary = totalTrips * ( this.SecondaryAirports[i].FuturePrediction / this.PrimaryAirport.FuturePrediction );
+                var tripsToThisSecondary = totalTrips * ( SecondaryAirports[i].FuturePrediction / PrimaryAirport.FuturePrediction );
                 // if there are no trips don't bother processing it all
                 if ( tripsToThisSecondary == 0 ) continue;
                 // compute the denominator
                 float denominator = 0f;
-                var airportIndex = sparseZones.GetFlatIndex( this.SecondaryAirports[i].ZoneNumber );
+                var airportIndex = sparseZones.GetFlatIndex( SecondaryAirports[i].ZoneNumber );
                 // make sure the airport is in a valid zone
                 if ( airportIndex < 0 || airportIndex >= numberOfZones ) continue;
                 var airportZone = zones[airportIndex];
@@ -207,7 +206,7 @@ This is achieved by being integrated into the EMME tally system.")]
                 for ( int j = 0; j < numberOfZones; j++ )
                 {
                     data[j][airportIndex] += tripsToThisSecondary * data[j][airportIndex] / denominator;
-                    data[airportIndex][j] += data[j][airportIndex] * this.ReturnFactor;
+                    data[airportIndex][j] += data[j][airportIndex] * ReturnFactor;
                 }
             }
         }
@@ -215,31 +214,21 @@ This is achieved by being integrated into the EMME tally system.")]
         private float ComputeSecondaryFriction(IZone from, IZone to, SparseTwinIndex<float> distances)
         {
             var distance = distances[from.ZoneNumber, to.ZoneNumber];
-            if ( distance < this.MaxSecondaryDistance || this.MaxSecondaryDistance <= 0 )
+            if ( distance < MaxSecondaryDistance || MaxSecondaryDistance <= 0 )
             {
-                return ( from.ProfessionalEmployment * this.RegionEmploymentFactor
-                + from.WorkProfessional * this.RegionResidenceFactor )
-                * (float)Math.Exp( this.Beta * distance );
+                return ( from.ProfessionalEmployment * RegionEmploymentFactor
+                + from.WorkProfessional * RegionResidenceFactor )
+                * (float)Math.Exp( Beta * distance );
             }
             return 0f;
         }
 
-        private float[][] CreateData(int numberOfZones)
-        {
-            float[][] ret = new float[numberOfZones][];
-            for ( int i = 0; i < numberOfZones; i++ )
-            {
-                ret[i] = new float[numberOfZones];
-            }
-            return ret;
-        }
-
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            var length = this.RegionNumbers.Count;
+            var length = RegionNumbers.Count;
             for ( int i = 0; i < length; i++ )
             {
-                if ( this.RegionNumbers[i] == regionNumber )
+                if ( RegionNumbers[i] == regionNumber )
                 {
                     regionIndex = i;
                     return true;
@@ -251,7 +240,7 @@ This is achieved by being integrated into the EMME tally system.")]
 
         private bool IsPrimaryAirportZone(int zoneNumber)
         {
-            return this.PrimaryAirport.ZoneNumber == zoneNumber;
+            return PrimaryAirport.ZoneNumber == zoneNumber;
         }
 
     }

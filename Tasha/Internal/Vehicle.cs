@@ -29,7 +29,7 @@ namespace Tasha.Internal
     {
         private TashaVehicle(IVehicleType type)
         {
-            this.VehicleType = type;
+            VehicleType = type;
         }
 
         /// <summary>
@@ -40,10 +40,6 @@ namespace Tasha.Internal
             get
             {
                 throw new System.NotImplementedException();
-            }
-
-            set
-            {
             }
         }
 

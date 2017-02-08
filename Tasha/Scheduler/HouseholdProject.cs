@@ -25,7 +25,7 @@ namespace Tasha.Scheduler
         public HouseholdProject(ITashaHousehold household, Schedule schedule)
             : base( schedule )
         {
-            this.Household = household;
+            Household = household;
         }
 
         /// <summary>

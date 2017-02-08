@@ -231,8 +231,6 @@ Leaving any of the options blank will select all of the given type (purposes or 
                 return true;
             }
             string[] parts = ModeNames.Split( ',' );
-            var modes = Root.Modes;
-            var numberOfModes = modes.Count;
             foreach ( var part in parts )
             {
                 var trimmed = part.Trim();
@@ -253,8 +251,7 @@ Leaving any of the options blank will select all of the given type (purposes or 
         {
             if ( String.IsNullOrWhiteSpace( PurposeNames ) )
             {
-                List<IPurpose> contained;
-                var length = ( contained = Root.Purpose ).Count;
+                var length = Root.Purpose.Count;
                 PurposeIndexes = new int[length];
                 for ( int i = 0; i < length; i++ )
                 {

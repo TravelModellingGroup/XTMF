@@ -272,7 +272,7 @@ namespace Tasha.Scheduler
             throw new NotImplementedException();
         }
 
-        public static float SkippedWorkEpisodes = 0;
+        public static float SkippedWorkEpisodes;
         private static SpinLock SkippedWorkLock = new SpinLock(false);
 
         internal void InsertWorkSchedule(Schedule schedule, Random random)
@@ -675,7 +675,6 @@ namespace Tasha.Scheduler
                     EpisodeCount--;
                     Episodes[EpisodeCount] = null;
                     i--;
-                    continue;
                 }
             }
         }

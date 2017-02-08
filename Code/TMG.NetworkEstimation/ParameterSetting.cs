@@ -23,7 +23,7 @@ namespace TMG.NetworkEstimation
     public struct ParameterSetting
     {
         public float Current;
-        public int MSNumber;
+        public int MsNumber;
         public string ParameterName;
         public float Start;
         public float Stop;

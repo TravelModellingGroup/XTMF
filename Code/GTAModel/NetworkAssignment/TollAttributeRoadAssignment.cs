@@ -29,8 +29,8 @@ namespace TMG.GTAModel.NetworkAssignment
 {
     public class TollAttributeRoadAssignment : IEmmeTool
     {
-        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
-        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+        private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
 
         [RunParameter("Best Relative Gap", 0.01f, "(%) Best Relative Gap convergence criteria.")]
         public float BestRelativeGap;
@@ -88,11 +88,11 @@ namespace TMG.GTAModel.NetworkAssignment
         public bool UseTransitBackground;
 
         [Parameter("SOLA Flag", true, "Emme 4.1 and newer ONLY! Flag to use SOLA traffic assignment algorithm instead of standard.")]
-        public bool SOLAFlag;
+        public bool SolaFlag;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "tmg.assignment.road.tolled.toll_attribute";
-        private const string _ToolNameWithBGTraffic = "tmg.assignment.road.tolled.toll_attribute_transit_background";
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private const string ToolName = "tmg.assignment.road.tolled.toll_attribute";
+        private const string ToolNameWithBgTraffic = "tmg.assignment.road.tolled.toll_attribute_transit_background";
 
         public string Name
         {
@@ -108,7 +108,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool Execute(Controller controller)
@@ -140,7 +140,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                     HighPerformanceMode,
                                     runName,
                                     LinkTollAttribute,
-                                    SOLAFlag);
+                                    SolaFlag);
 
             /*
             Call args:
@@ -153,9 +153,9 @@ namespace TMG.GTAModel.NetworkAssignment
             string result = "";
             if(UseTransitBackground)
             {
-                return mc.Run(_ToolNameWithBGTraffic, args, (p => Progress = p), ref result);
+                return mc.Run(ToolNameWithBgTraffic, args, (p => Progress = p), ref result);
             }
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)
@@ -196,7 +196,7 @@ namespace TMG.GTAModel.NetworkAssignment
                     for(int d = 0; d < numberOfZones; d++)
                     {
                         mc.ToEmmeFloat(tally[o][d], strBuilder);
-                        build.AppendFormat("{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        build.AppendFormat("{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder);
                     }
                 });
@@ -208,13 +208,13 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                if(mc.CheckToolExists(_ImportToolName))
+                if(mc.CheckToolExists(ImportToolName))
                 {
-                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
                 else
                 {
-                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
             }
             finally

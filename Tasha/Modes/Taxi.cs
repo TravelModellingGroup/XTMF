@@ -97,13 +97,6 @@ namespace Tasha.Modes
         [RunParameter( "WaitTime", 5.00f, "The weight for the wait time." )]
         public float WaitTime;
 
-        /// <summary>
-        ///
-        /// </summary>
-        public Taxi()
-        {
-        }
-
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
@@ -189,37 +182,37 @@ namespace Tasha.Modes
             }
             else
             {
-                v += this.CTaxi;
-                v += this.Time * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.TripStartTime ).ToMinutes();
-                v += this.FareCost * CalculateFare( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
+                v += CTaxi;
+                v += Time * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.TripStartTime ).ToMinutes();
+                v += FareCost * CalculateFare( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
             }
             if ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Offpeak )
             {
-                v += this.OffPeakTrip;
+                v += OffPeakTrip;
             }
             if ( TransportTerminal.Contains( trip.OriginalZone.ZoneNumber ) | TransportTerminal.Contains( trip.DestinationZone.ZoneNumber ) )
             {
-                v += this.from_to_transport_terminal;
+                v += from_to_transport_terminal;
             }
             if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket )
             {
-                v += this.dpurp_shop_drive;
+                v += dpurp_shop_drive;
             }
             else if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther )
             {
-                v += this.dpurp_oth_drive;
+                v += dpurp_oth_drive;
             }
             return v;
         }
 
         public float CalculateV(IZone OriginalZone, IZone DestinationZone, Time time)
         {
-            float v = this.CTaxi;
-            v += this.Time * TravelTime( OriginalZone, DestinationZone, time ).ToMinutes();
-            v += this.FareCost * CalculateFare( OriginalZone, DestinationZone, time );
+            float v = CTaxi;
+            v += Time * TravelTime( OriginalZone, DestinationZone, time ).ToMinutes();
+            v += FareCost * CalculateFare( OriginalZone, DestinationZone, time );
             if ( Common.GetTimePeriod( time ) == TravelTimePeriod.Offpeak )
             {
-                v += this.OffPeakTrip;
+                v += OffPeakTrip;
             }
             return v;
         }
@@ -255,7 +248,7 @@ namespace Tasha.Modes
         {
             var originalZone = trip.OriginalZone.ZoneNumber;
             var destinationZone = trip.DestinationZone.ZoneNumber;
-            return ( ( originalZone >= this.MinZone ) & ( originalZone <= this.MaxZone ) & ( destinationZone >= this.MinZone ) & ( destinationZone <= this.MaxZone ) )
+            return ( ( originalZone >= MinZone ) & ( originalZone <= MaxZone ) & ( destinationZone >= MinZone ) & ( destinationZone <= MaxZone ) )
                 && ( ( originalZone == destinationZone && UseIntrazonalRegression ) || TravelTime( trip.OriginalZone, trip.DestinationZone, trip.TripStartTime ) > XTMF.Time.Zero );
         }
 
@@ -272,7 +265,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -288,7 +281,7 @@ namespace Tasha.Modes
         /// </summary>
         public void ReloadNetworkData()
         {
-            this.data.LoadData();
+            data.LoadData();
         }
 
         /// <summary>
@@ -299,20 +292,20 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.Root == null )
+            if ( Root == null )
             {
                 error = "The Root Model System for the taxi mode was never loaded!";
                 return false;
             }
-            if ( this.Root.NetworkData == null )
+            if ( Root.NetworkData == null )
             {
                 error = "There was no network data in this model system to load from!";
                 return false;
             }
             bool found = false;
-            foreach ( var data in this.Root.NetworkData )
+            foreach ( var data in Root.NetworkData )
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if ( data.NetworkType == AutoNetworkName )
                 {
                     found = true;
                     this.data = data;
@@ -321,7 +314,7 @@ namespace Tasha.Modes
             }
             if ( !found )
             {
-                error = String.Concat( "We could not find any data named ", this.AutoNetworkName, " to load as the auto network data for the Taxi mode!" );
+                error = String.Concat( "We could not find any data named ", AutoNetworkName, " to load as the auto network data for the Taxi mode!" );
                 return false;
             }
             return true;
@@ -336,7 +329,7 @@ namespace Tasha.Modes
         /// <returns>The amount of time it takes to go between the zones</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.data.TravelTime( origin, destination, time );
+            return data.TravelTime( origin, destination, time );
         }
 
         /// <summary>
@@ -351,9 +344,9 @@ namespace Tasha.Modes
         {
             float distance = Math.Abs( origin.X - destination.X ) + Math.Abs( origin.Y - destination.Y );
             //gets auto travel time
-            Time traveltime = this.data.TravelTime( origin, destination, time );
+            Time traveltime = data.TravelTime( origin, destination, time );
             //fare formula
-            return ( InitialFare + ( distance / 1000.0f ) * PerKFare + traveltime.ToMinutes() * PerMinuteFare ) * this.TipWeight;
+            return ( InitialFare + ( distance / 1000.0f ) * PerKFare + traveltime.ToMinutes() * PerMinuteFare ) * TipWeight;
         }
     }
 }

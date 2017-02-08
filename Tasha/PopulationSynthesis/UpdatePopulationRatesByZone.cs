@@ -17,8 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Tasha.Common;
 using XTMF;
@@ -236,7 +234,7 @@ namespace Tasha.PopulationSynthesis
                         {
                             float futurePopulation;
                             reader.Get(out futurePopulation, 1);
-                            ExpansionModiferByZone[zone] = futurePopulation / (float)zones[zone].Population;
+                            ExpansionModiferByZone[zone] = futurePopulation / zones[zone].Population;
                             if(zones[zone].Population > 0)
                             {
                                 if(float.IsNaN(ExpansionModiferByZone[zone]) | float.IsInfinity(ExpansionModiferByZone[zone]))

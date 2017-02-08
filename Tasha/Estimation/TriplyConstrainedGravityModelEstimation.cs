@@ -19,13 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TMG.Estimation;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
 using TMG;
+// ReSharper disable AccessToModifiedClosure
 
 namespace Tasha.Estimation
 {
@@ -90,7 +90,7 @@ namespace Tasha.Estimation
         [RunParameter("Maximum Error", -20000.0f, "The maximum error that is allowed in a cell")]
         public float MaximumError;
 
-        bool first = true;
+        bool First = true;
         /// <summary>
         /// The truth for each category
         /// </summary>
@@ -103,7 +103,7 @@ namespace Tasha.Estimation
                 ZoneSystem.LoadData();
             }
             var truth = TruthData.AcquireResource<SparseTriIndex<float>>().GetFlatData();
-            if (first)
+            if (First)
             {
                 TotalTruth = truth.Select(category => category.Sum(row => VectorHelper.Sum(row, 0, row.Length))).ToArray();
                 TotalTruthByZone = new float[TotalTruth.Length][];
@@ -111,7 +111,7 @@ namespace Tasha.Estimation
                 {
                     TotalTruthByZone[category] = new float[truth[category].Length];
                     //normalize the truth data
-                    Parallel.For(0, truth[category].Length, (int i) =>
+                    Parallel.For(0, truth[category].Length, i =>
                     {
                         float[] truthRow = truth[category][i];
                         TotalTruthByZone[category][i] = VectorHelper.Sum(truthRow, 0, truthRow.Length);
@@ -122,7 +122,7 @@ namespace Tasha.Estimation
                 {
                     NetworkData[i].LoadData();
                 }
-                first = false;
+                First = false;
             }
             var model = ModelData.AcquireResource<SparseTriIndex<float>>().GetFlatData();
             ModelData.ReleaseResource();
@@ -131,7 +131,7 @@ namespace Tasha.Estimation
             for (int category = 0; category < modelTotalByCategory.Length; category++)
             {
                 //normalize the truth data
-                Parallel.For(0, model[category].Length, (int i) =>
+                Parallel.For(0, model[category].Length, i =>
                     {
                         float[] modelRow = model[category][i];
                         VectorHelper.Multiply(modelRow, 0, modelRow, 0, 1.0f / modelTotalByCategory[category], modelRow.Length);
@@ -145,7 +145,7 @@ namespace Tasha.Estimation
                 {
                     return new float[truth[category].Length];
                 },
-                (int i, ParallelLoopState _, float[] errorForHomeZone) =>
+                (i, _, errorForHomeZone) =>
                 {
                     var observedLinkagesForZone = TotalTruthByZone[category][i];
                     var truthRow = truth[category][i];
@@ -161,7 +161,7 @@ namespace Tasha.Estimation
                     }
                     return errorForHomeZone;
                 },
-                (float[] errorData) =>
+                errorData =>
                 {
                     var sumOfError = VectorHelper.Sum(errorData, 0, errorData.Length);
                     lock (this)

@@ -27,7 +27,7 @@ using XTMF;
 using TMG.Input;
 using System.Text;
 using System.Linq;
-using System.IO.Compression;
+// ReSharper disable PossibleLossOfFraction
 
 namespace TMG.NetworkEstimation
 {
@@ -106,7 +106,6 @@ namespace TMG.NetworkEstimation
         {
             var start = FirstDataCol;
             var end = LastDataCol;
-            var halfWay = (int)Math.Ceiling(end / 2f);
             Progress = 0;
             var delta = (end - start + 1);
             var individualIncrease = 1f / (((delta * delta) + delta) / 2);
@@ -181,7 +180,7 @@ namespace TMG.NetworkEstimation
                 Series ourSeries = new Series();
 
                 ourSeries.ChartType = SeriesChartType.Point;
-                ProcessData(data, bestIndex, ca, ourSeries, i, j);
+                ProcessData(data, bestIndex, ourSeries, i, j);
                 chart.Series.Add(ourSeries);
                 if (headers != null)
                 {
@@ -189,7 +188,14 @@ namespace TMG.NetworkEstimation
                     ca.AxisY.Title = headers[j];
                 }
                 var fileName = Path.GetTempFileName();
-                chart.SaveImage(String.Format(fileName, headers[i], headers[j]), ChartImageFormat.Png);
+                if (headers != null)
+                {
+                    chart.SaveImage(String.Format(fileName, headers[i], headers[j]), ChartImageFormat.Png);
+                }
+                else
+                {
+                    chart.SaveImage(fileName, ChartImageFormat.Png);
+                }
                 var asWritten = File.ReadAllBytes(fileName);
                 File.Delete(fileName);
                 return asWritten;
@@ -246,7 +252,7 @@ namespace TMG.NetworkEstimation
                             double height = double.Parse(parts[ColourAxisCol]);
                             DataPoint point = new DataPoint();
                             point.XValue = double.Parse(parts[first]);
-                            point.YValues = new double[] { double.Parse(parts[second]) };
+                            point.YValues = new[] { double.Parse(parts[second]) };
                             if (height > maxHeight) maxHeight = height;
                             if (height < minHeight) minHeight = height;
                             points.Add(point);
@@ -275,11 +281,11 @@ namespace TMG.NetworkEstimation
                 rank[i] = i;
             }
             // pass 2 sort
-            Array.Sort(rank, new Comparison<int>(delegate (int f, int s)
-              {
-                  var res = (pointHeight[f] - pointHeight[s]);
-                  if (res < 0) return -1; if (res > 0) return 1; return 0;
-              }));
+            Array.Sort(rank, delegate (int f, int s)
+            {
+                var res = (pointHeight[f] - pointHeight[s]);
+                if (res < 0) return -1; if (res > 0) return 1; return 0;
+            });
 
             for (int i = 0; i < numberOfPoints; i++)
             {
@@ -301,15 +307,15 @@ namespace TMG.NetworkEstimation
             }
         }
 
-        private float CalculateCloseness(double[] XValues, double[] BestValues, int first, int second)
+        private float CalculateCloseness(double[] xValues, double[] bestValues, int first, int second)
         {
-            int dim = XValues.Length;
+            int dim = xValues.Length;
             double distance = 0;
             for (int i = 0; i < dim; i++)
             {
                 if (i != first && i != second)
                 {
-                    distance += Math.Abs(BestValues[i] - XValues[i]);
+                    distance += Math.Abs(bestValues[i] - xValues[i]);
                 }
             }
             return (float)distance;
@@ -327,7 +333,7 @@ namespace TMG.NetworkEstimation
 
         private List<Pair<double[], double>> LoadData(ref string[] headers, out int bestIndex)
         {
-            List<Pair<double[], double>> Data = new List<Pair<double[], double>>();
+            List<Pair<double[], double>> data = new List<Pair<double[], double>>();
             bestIndex = -1;
             using (StreamReader reader = new StreamReader(EstimationFile))
             {
@@ -345,17 +351,17 @@ namespace TMG.NetworkEstimation
                         while ((line = reader.ReadLine()) != null && ((parts = line.Split(',')).Length >= minNumberOfColumns))
                         {
                             double height = double.Parse(parts[ColourAxisCol]);
-                            double[] data = new double[dataColumns];
+                            double[] entry = new double[dataColumns];
                             for (int i = 0; i < dataColumns; i++)
                             {
-                                data[i] = double.Parse(parts[i + FirstDataCol]);
+                                entry[i] = double.Parse(parts[i + FirstDataCol]);
                             }
                             if (height < minHeight)
                             {
                                 minHeight = height;
-                                bestIndex = Data.Count;
+                                bestIndex = data.Count;
                             }
-                            Data.Add(new Pair<double[], double>(data, height));
+                            data.Add(new Pair<double[], double>(entry, height));
                             parts = null;
                         }
                     }
@@ -375,10 +381,10 @@ namespace TMG.NetworkEstimation
                     }
                 } while (line != null);
             }
-            return Data;
+            return data;
         }
 
-        private void ProcessData(Pair<double[], double>[] data, int bestIndex, ChartArea ca, Series ourSeries, int first, int second)
+        private void ProcessData(Pair<double[], double>[] data, int bestIndex, Series ourSeries, int first, int second)
         {
             // now process the colours
             Color red = Color.DarkBlue;
@@ -397,16 +403,16 @@ namespace TMG.NetworkEstimation
                 distanceFromBest[i] = CalculateCloseness(data[i].First, data[bestIndex].First, first, second);
             }
             // pass 2 sort
-            Array.Sort(goodnessOfFitRank, new Comparison<int>(delegate (int f, int s)
-          {
-              var res = (data[f].Second - data[s].Second);
-              if (res < 0) return -1; if (res > 0) return 1; return 0;
-          }));
-            Array.Sort(distanceToBestRank, new Comparison<int>(delegate (int f, int s)
-          {
-              var res = (distanceFromBest[f] - distanceFromBest[s]);
-              if (res < 0) return -1; if (res > 0) return 1; return 0;
-          }));
+            Array.Sort(goodnessOfFitRank, delegate (int f, int s)
+            {
+                var res = (data[f].Second - data[s].Second);
+                if (res < 0) return -1; if (res > 0) return 1; return 0;
+            });
+            Array.Sort(distanceToBestRank, delegate (int f, int s)
+            {
+                var res = (distanceFromBest[f] - distanceFromBest[s]);
+                if (res < 0) return -1; if (res > 0) return 1; return 0;
+            });
             for (int i = 0; i < numberOfPoints; i++)
             {
                 if (i == 0)

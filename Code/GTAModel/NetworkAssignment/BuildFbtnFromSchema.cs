@@ -57,7 +57,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
         public bool StationConnectorFlag;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         private const string ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
 
@@ -93,7 +93,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool RuntimeValidation(ref string error)

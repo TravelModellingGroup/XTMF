@@ -25,12 +25,12 @@ namespace Tasha.Common
     /// The base class of the common objects.
     /// This allows for the attaching of properties to the objects
     /// </summary>
-    public abstract class Attachable : Tasha.Common.IAttachable
+    public abstract class Attachable : IAttachable
     {
         /// <summary>
         /// Where we store all of the attached objects
         /// </summary>
-        protected SortedList<string, object> variables;
+        protected SortedList<string, object> Variables;
 
         /// <summary>
         /// Creates a new attachable object
@@ -38,7 +38,7 @@ namespace Tasha.Common
         protected Attachable()
         {
             // we don't expect it to contain tooo many
-            this.variables = new SortedList<string, object>( 5 );
+            Variables = new SortedList<string, object>( 5 );
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Tasha.Common
             get
             {
                 object o;
-                if ( !variables.TryGetValue( name, out o ) )
+                if ( !Variables.TryGetValue( name, out o ) )
                 {
                     return null;
                 }
@@ -60,7 +60,7 @@ namespace Tasha.Common
 
             set
             {
-                this.Attach( name, value );
+                Attach( name, value );
             }
         }
 
@@ -75,12 +75,11 @@ namespace Tasha.Common
             {
                 throw new XTMFRuntimeException( "Attempted to attach a NULL to an object!" );
             }
-            variables[name] = value;
-            return;
+            Variables[name] = value;
         }
 
         /// <summary>
-        /// Synonamous with Attachable[name].
+        /// Synonymous with Attachable[name].
         /// </summary>
         /// <param name="name">The name of the variable you want</param>
         /// <returns>The variable you wanted</returns>
@@ -96,12 +95,12 @@ namespace Tasha.Common
         /// </summary>
         public IEnumerable<string> Keys
         {
-            get { return this.variables.Keys; }
+            get { return Variables.Keys; }
         }
 
         public void Release()
         {
-            this.variables.Clear();
+            Variables.Clear();
         }
 
         #endregion IAttachable Members

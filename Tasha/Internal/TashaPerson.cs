@@ -26,8 +26,8 @@ namespace Tasha.Internal
     {
         public TashaPerson()
         {
-            this.TripChains = new List<ITripChain>( 2 );
-            this.AuxTripChains = new List<ITripChain>( 1 );
+            TripChains = new List<ITripChain>( 2 );
+            AuxTripChains = new List<ITripChain>( 1 );
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Tasha.Internal
         /// </summary>
         public bool Adult
         {
-            get { return this.Age >= 18; }
+            get { return Age >= 18; }
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Tasha.Internal
 
         public bool Child
         {
-            get { return ( this.Age >= 0 && this.Age <= 10 ); }
+            get { return ( Age >= 0 && Age <= 10 ); }
         }
 
         public TTSEmploymentStatus EmploymentStatus
@@ -100,11 +100,11 @@ namespace Tasha.Internal
 
         public bool Male
         {
-            get { return !this.Female; }
+            get { return !Female; }
 
             internal set
             {
-                this.Female = !value;
+                Female = !value;
             }
         }
 
@@ -146,7 +146,7 @@ namespace Tasha.Internal
 
         public bool YoungAdult
         {
-            get { return ( this.Age >= 16 && this.Age <= 19 ); }
+            get { return ( Age >= 16 && Age <= 19 ); }
         }
 
         /// <summary>
@@ -154,27 +154,27 @@ namespace Tasha.Internal
         /// </summary>
         public bool Youth
         {
-            get { return ( this.Age >= 11 && this.Age <= 15 ); }
+            get { return ( Age >= 11 && Age <= 15 ); }
         }
 
         public ITashaPerson Clone()
         {
-            return (ITashaPerson)this.MemberwiseClone();
+            return (ITashaPerson)MemberwiseClone();
         }
 
         public void Recycle()
         {
-            this.Release();
-            foreach ( var chain in this.TripChains )
+            Release();
+            foreach ( var chain in TripChains )
             {
                 chain.Recycle();
             }
-            foreach ( var chain in this.AuxTripChains )
+            foreach ( var chain in AuxTripChains )
             {
                 chain.Recycle();
             }
-            this.TripChains.Clear();
-            this.AuxTripChains.Clear();
+            TripChains.Clear();
+            AuxTripChains.Clear();
         }
     }
 }

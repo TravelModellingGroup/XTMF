@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Collections.Generic;
 using Tasha.Common;
 using TMG;
@@ -38,9 +38,9 @@ namespace Tasha.Scheduler
         /// <param name="window">The window in time this episode occurs in</param>
         internal Episode(TimeWindow window, ITashaPerson owner)
         {
-            this.Window = window;
+            Window = window;
             // originally we have no travel time
-            this.TravelTime = Time.Zero;
+            TravelTime = Time.Zero;
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Tasha.Scheduler
 
             internal set
             {
-                this.EndTime = this.StartTime + value;
+                EndTime = StartTime + value;
             }
         }
 
@@ -122,13 +122,13 @@ namespace Tasha.Scheduler
         {
             get
             {
-                return new TimeWindow( this.StartTime, this.EndTime );
+                return new TimeWindow( StartTime, EndTime );
             }
 
             set
             {
-                this.StartTime = value.StartTime;
-                this.EndTime = value.EndTime;
+                StartTime = value.StartTime;
+                EndTime = value.EndTime;
             }
         }
 
@@ -137,7 +137,7 @@ namespace Tasha.Scheduler
         /// </summary>
         public bool IsOwner(ITashaPerson person)
         {
-            return person == this.Owner;
+            return person == Owner;
         }
 
         /// <summary>
@@ -155,14 +155,14 @@ namespace Tasha.Scheduler
 
         internal bool CheckDuration(Time testDuration)
         {
-            if ( ( this.ActivityType == Activity.PrimaryWork ) | ( this.ActivityType == Activity.WorkBasedBusiness ) )
+            if ( ( ActivityType == Activity.PrimaryWork ) | ( ActivityType == Activity.WorkBasedBusiness ) )
             {
                 // Check to see if the test duration is the same as the one we are in
-                return this.OriginalDuration == testDuration;
+                return OriginalDuration == testDuration;
             }
             else
             {
-                return Scheduler.PercentOverlapAllowed * Distribution.TashaTimeToDistribution( this.OriginalDuration )
+                return Scheduler.PercentOverlapAllowed * Distribution.TashaTimeToDistribution( OriginalDuration )
                     <= Distribution.TashaTimeToDistribution( testDuration );
             }
         }

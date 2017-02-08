@@ -93,13 +93,6 @@ namespace Tasha.Modes
         [RunParameter( "WalkTime", 0.0f, "The factor applied to the walk time" )]
         public float WalkTime;
 
-        /// <summary>
-        ///
-        /// </summary>
-        public GoNonDrive()
-        {
-        }
-
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
@@ -205,20 +198,20 @@ namespace Tasha.Modes
                                                 + goData.GetGoFair( accessStations[i], egressStation )
                                                 + goData.GetTransitFair( trip.DestinationZone.ZoneNumber, egressStation ) );
 
-                if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Morning ) ||
-  ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Afternoon ) )
+                if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Morning ) ||
+  ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Afternoon ) )
                 {
                     V[i] += PeakTrip;
                 }
 
                 if ( trip.TripChain.Person.Occupation == Occupation.Retail )
                 {
-                    V[i] += this.OccSalesTransit;
+                    V[i] += OccSalesTransit;
                 }
 
                 if ( trip.TripChain.Person.Occupation == Occupation.Office )
                 {
-                    V[i] += this.OccGeneralTransit;
+                    V[i] += OccGeneralTransit;
                 }
             }
 
@@ -307,7 +300,7 @@ namespace Tasha.Modes
                     feasible = true;
                 }
             }
-            Array.Resize<int>( ref feasibleStations, i );
+            Array.Resize( ref feasibleStations, i );
             trip.Attach( "feasible-ndg-stations", feasibleStations );
             return feasible;
         }

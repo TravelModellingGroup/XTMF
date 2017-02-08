@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using Tasha.Common;
 using TMG.Input;
@@ -50,7 +47,7 @@ namespace Tasha.DataExtraction
 
         internal ITashaMode[] Modes;
 
-        public sealed class TimePeriod : XTMF.IModule
+        public sealed class TimePeriod : IModule
         {
             [RootModule]
             public ITashaRuntime Root;
@@ -83,7 +80,7 @@ namespace Tasha.DataExtraction
             /// </summary>
             private float[][][] Demand;
 
-            public sealed class ActivityType : XTMF.IModule
+            public sealed class ActivityType : IModule
             {
                 [RunParameter("Activity", Activity.Home, "The activity to represent.")]
                 public Activity Activity;

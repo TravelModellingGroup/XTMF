@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Datastructure;
 using Tasha.Common;
 using TMG;
@@ -168,7 +167,7 @@ namespace Tasha.PopulationSynthesis
                             saveData[i][j] = total;
                         }
                     }
-                    TMG.Functions.SaveData.SaveMatrix(zones, saveData, SaveProbabilities);
+                    SaveData.SaveMatrix(zones, saveData, SaveProbabilities);
                 }
 
                 public void Unload()

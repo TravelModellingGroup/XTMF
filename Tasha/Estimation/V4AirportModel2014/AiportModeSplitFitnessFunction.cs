@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using XTMF;
 using TMG;
@@ -60,7 +57,7 @@ namespace Tasha.Estimation.V4AirportModel2014
             if(AutoProbabilities == null)
             {
                 // if we are here then we haven't loaded before
-                var travelDemandRoot = Root.MainClient as ITravelDemandModel;
+                var travelDemandRoot = (ITravelDemandModel)Root.MainClient;
                 var zoneSystem = travelDemandRoot.ZoneSystem.ZoneArray;
                 LoadProbabilities(zoneSystem);
             }

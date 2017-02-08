@@ -29,7 +29,7 @@ namespace Tasha.Scheduler
         /// <param name="schedule">The schedule for this project</param>
         internal Project(Schedule schedule)
         {
-            this.Schedule = schedule;
+            Schedule = schedule;
         }
 
         /// <summary>

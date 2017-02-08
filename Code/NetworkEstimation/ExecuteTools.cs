@@ -16,14 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
-using TMG;
-using TMG.Input;
 using TMG.Emme;
+using XTMF;
+
 namespace TMG.NetworkEstimation
 {
     public class ExecuteToolsFromResource : IModelSystemTemplate
@@ -50,19 +48,20 @@ namespace TMG.NetworkEstimation
 
         public void Start()
         {
-            this._Progress = () => 0f;
-            var controller = this.ResourceToEmme.AcquireResource<ModellerController>();
+            _Progress = () => 0f;
+            var controller = ResourceToEmme.AcquireResource<ModellerController>();
             if ( controller == null )
             {
                 throw new XTMFRuntimeException("In '' the EMME Modeller controller resource did not contain a modeller controller!");
             }
             int i = 0;
-            this._Progress = () => (float)i / this.Tools.Count;
-            for ( ; i < this.Tools.Count; i++ )
+            // ReSharper disable once AccessToModifiedClosure
+            _Progress = () => (float)i / Tools.Count;
+            for ( ; i < Tools.Count; i++ )
             {
-                this.Tools[i].Execute( controller );
+                Tools[i].Execute( controller );
             }
-            this._Progress = () => 1f;
+            _Progress = () => 1f;
         }
 
         public string Name { get; set; }
@@ -81,9 +80,9 @@ namespace TMG.NetworkEstimation
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.ResourceToEmme.CheckResourceType<ModellerController>() )
+            if ( !ResourceToEmme.CheckResourceType<ModellerController>() )
             {
-                error = "In '" + this.Name + "' the resource must be returning a ModellerController!";
+                error = "In '" + Name + "' the resource must be returning a ModellerController!";
                 return false;
             }
             return true;

@@ -24,6 +24,7 @@ using Datastructure;
 using TMG.Functions;
 using TMG.GTAModel.DataUtility;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Purpose
 {
@@ -114,7 +115,7 @@ namespace TMG.GTAModel.Purpose
             // Now that we have the regional information we can use it to compute the primary airport
             ComputePrimaryAirport( zones, numberOfZones, employmentTotal, professionalTotal, tripsToRegion, data );
             // After computing the primary airport we can continue with the secondary airports
-            ComputeSecondaryAirports( zones, numberOfZones, employmentTotal, professionalTotal, tripsToRegion, data, totalTrips );
+            ComputeSecondaryAirports( zones, numberOfZones, data, totalTrips );
             // now that we are done attach the data to our tree so that it can be read in for tallies
             AttachDataToTree( data );
 
@@ -213,7 +214,7 @@ namespace TMG.GTAModel.Purpose
             return timePeriodTrips;
         }
 
-        private void ComputeSecondaryAirports(IZone[] zones, int numberOfZones, float[] employmentTotal, float[] professionalTotal, float[] tripsToRegion, float[][] data, float totalTrips)
+        private void ComputeSecondaryAirports(IZone[] zones, int numberOfZones, float[][] data, float totalTrips)
         {
             var numberOfSecondaryAirports = SecondaryAirports.Count;
             if ( numberOfSecondaryAirports <= 0 )

@@ -220,8 +220,8 @@ namespace Tasha.Scheduler
         internal static PersonWorkSchoolProjectStatus GetWorkSchoolProjectStatus(ITashaPerson person)
         {
             //TashaTime workSchoolStartTime = (person["SData"] as SchedulerPersonData).;
-            Time workSchoolStartTime = SchedulerPerson.GetWorkSchoolStartTime( person );
-            Time workSchoolEndTime = SchedulerPerson.GetWorkSchoolEndTime( person );
+            Time workSchoolStartTime = GetWorkSchoolStartTime( person );
+            Time workSchoolEndTime = GetWorkSchoolEndTime( person );
 
             PersonWorkSchoolProjectStatus workSchoolProjectStatus = PersonWorkSchoolProjectStatus.NoWorkOrSchool;
 

@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using Tasha.Common;
 using TMG;
@@ -215,7 +213,6 @@ namespace Tasha.V4Modes
                 }
             }
             constant = NonWorkerStudentConstant;
-            return;
         }
 
 
@@ -435,7 +432,7 @@ namespace Tasha.V4Modes
         [RunParameter("Unload Access Station Per Iteration", true, "Should we unload the access station choice model or keep it between iterations?")]
         public bool UnloadAccessStationModelEachIteration;
 
-        public bool AccessStationChoiceLoaded = false;
+        public bool AccessStationChoiceLoaded;
 
         public void IterationEnding(int iterationNumber, int maxIterations)
         {

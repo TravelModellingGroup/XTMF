@@ -18,9 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TMG;
 using XTMF;
 using Datastructure;
 using TMG.Input;
@@ -39,10 +36,10 @@ It can also read in SparseTwinIndex<float> where the O,D values will be inferred
 
         public IEnumerable<ODData<float>> Read()
         {
-            if ( this.OriginOnly )
+            if ( OriginOnly )
             {
                 ODData<float> temp;
-                var data = this.DataResource.AcquireResource<SparseArray<float>>();
+                var data = DataResource.AcquireResource<SparseArray<float>>();
                 temp.D = 0;
                 var validIndexes = data.ValidIndexArray();
                 var flatData = data.GetFlatData();
@@ -56,7 +53,7 @@ It can also read in SparseTwinIndex<float> where the O,D values will be inferred
             else
             {
                 ODData<float> temp;
-                var data = this.DataResource.AcquireResource<SparseTwinIndex<float>>();
+                var data = DataResource.AcquireResource<SparseTwinIndex<float>>();
                 var flatData = data.GetFlatData();
                 for ( int i = 0; i < flatData.Length; i++ )
                 {
@@ -86,17 +83,17 @@ It can also read in SparseTwinIndex<float> where the O,D values will be inferred
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.DataResource.CheckResourceType<SparseArray<float>>() )
+            if ( DataResource.CheckResourceType<SparseArray<float>>() )
             {
-                this.OriginOnly = true;
+                OriginOnly = true;
             }
-            else if ( this.DataResource.CheckResourceType<SparseTwinIndex<float>>() )
+            else if ( DataResource.CheckResourceType<SparseTwinIndex<float>>() )
             {
-                this.OriginOnly = false;
+                OriginOnly = false;
             }
             else
             {
-                error = "In '" + this.Name + "' the DataResource needs to be either a SparseArray<float> for origin "
+                error = "In '" + Name + "' the DataResource needs to be either a SparseArray<float> for origin "
                     + "only information or SparseTwinIndex<float> for OD data!";
                 return false;
             }

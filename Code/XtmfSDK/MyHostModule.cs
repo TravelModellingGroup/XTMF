@@ -16,9 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.IO;
 using XTMF;
 using XTMF.Networking;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedVariable
 
 namespace XtmfSDK
 {
@@ -65,7 +69,7 @@ namespace XtmfSDK
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.Host == null )
+            if ( Host == null )
             {
                 error = "MyHostModule requires an XTMF that supports XTMF.Networking.IHost";
                 return false;
@@ -75,6 +79,7 @@ namespace XtmfSDK
 
         public void Start()
         {
+            InitializeCustomMessages();
             // Your Code goes here
         }
 
@@ -82,16 +87,16 @@ namespace XtmfSDK
         {
             if ( data is int )
             {
-                this.Jobs.Add( (int)data );
+                Jobs.Add( (int)data );
             }
         }
 
-        private object CustomMessageReceiver(System.IO.Stream inputStream, IRemoteXTMF client)
+        private object CustomMessageReceiver(Stream inputStream, IRemoteXTMF client)
         {
             return null;
         }
 
-        private void CustomMessageSender(object data, IRemoteXTMF client, System.IO.Stream outputStream)
+        private void CustomMessageSender(object data, IRemoteXTMF client, Stream outputStream)
         {
         }
 
@@ -118,21 +123,24 @@ namespace XtmfSDK
 
         private void InitializeCustomMessages()
         {
-            this.Host.NewClientConnected += new Action<IRemoteXTMF>( Host_NewClientConnected );
-            this.Host.ProgressUpdated += new Action<IRemoteXTMF, float>( Host_ProgressUpdated );
-            this.Host.ClientDisconnected += new Action<IRemoteXTMF>( Host_ClientDisconnected );
-            this.Host.ClientRunComplete += new Action<IRemoteXTMF, int, string>( Host_ClientRunComplete );
-            this.Host.AllModelSystemRunsComplete += new Action( Host_AllModelSystemRunsComplete );
-            this.Host.RegisterCustomSender( 1, CustomMessageSender );
-            this.Host.RegisterCustomReceiver( 2, CustomMessageReceiver );
-            this.Host.RegisterCustomMessageHandler( 2, CustomMessageHandler );
+            lock (Host)
+            {
+                Host.NewClientConnected += Host_NewClientConnected;
+                Host.ProgressUpdated += Host_ProgressUpdated;
+                Host.ClientDisconnected += Host_ClientDisconnected;
+                Host.ClientRunComplete += Host_ClientRunComplete;
+                Host.AllModelSystemRunsComplete += Host_AllModelSystemRunsComplete;
+                Host.RegisterCustomSender(1, CustomMessageSender);
+                Host.RegisterCustomReceiver(2, CustomMessageReceiver);
+                Host.RegisterCustomMessageHandler(2, CustomMessageHandler);
+            }
         }
 
         private void LookAtConnectedClients()
         {
-            lock ( this.Host )
+            lock ( Host )
             {
-                foreach ( var client in this.Host.ConnectedClients )
+                foreach ( var client in Host.ConnectedClients )
                 {
                     // Access the client here
                 }

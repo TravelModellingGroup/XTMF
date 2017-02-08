@@ -16,58 +16,61 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
-using TMG.Emme;
 using System.IO;
-using TMG.Input;
 using System.Threading;
+using TMG.Emme;
+using TMG.Input;
+using XTMF;
+
 namespace TMG.NetworkEstimation
 {
-    [ModuleInformation( Description =
-        @"This module is designed to create a temporary copy of the emme database an execute on that." )]
+    [ModuleInformation(Description =
+        @"This module is designed to create a temporary copy of the emme database an execute on that.")]
     public class SpawnEmmeCopyControllerDataSource : IDataSource<ModellerController>, IDisposable
     {
-        [SubModelInformation( Required = true, Description = "The location of the Emme project file." )]
+        [SubModelInformation(Required = true, Description = "The location of the Emme project file.")]
         public FileLocation ProjectFile;
 
-        [SubModelInformation( Required = true, Description = "The location to base the temporary copy." )]
+        [SubModelInformation(Required = true, Description = "The location to base the temporary copy.")]
         public FileLocation TempBaseDirectory;
 
         private ModellerController Controller;
 
         public ModellerController GiveData()
         {
-            return this.Controller;
+            return Controller;
         }
 
         private string TempDirectory;
 
         public bool Loaded
         {
-            get { return this.Controller != null; }
+            get { return Controller != null; }
         }
 
         public void LoadData()
         {
-            if ( this.Controller == null )
+            if (Controller == null)
             {
-                lock ( this )
+                lock (this)
                 {
-                    if ( this.Controller == null )
+                    if (Controller == null)
                     {
-                        GC.ReRegisterForFinalize( this );
-                        var projectFile = this.ProjectFile.GetFilePath();
-                        var originalDir = Path.GetDirectoryName( projectFile );
-                        projectFile = Path.GetFileName( projectFile );
-                        var dir = this.TempDirectory = TempBaseDirectory.GetFilePath();
-                        DirectoryCopy( originalDir, dir );
-                        var actuallyRunning = Path.GetFullPath( Path.Combine( dir, projectFile ) );
-                        Console.WriteLine( "Opening EMME at " + actuallyRunning );
-                        this.Controller = new ModellerController( actuallyRunning, false );
+                        GC.ReRegisterForFinalize(this);
+                        var projectFile = ProjectFile.GetFilePath();
+                        var originalDir = Path.GetDirectoryName(projectFile);
+                        projectFile = Path.GetFileName(projectFile);
+                        if (projectFile == null)
+                        {
+                            throw new XTMFRuntimeException($"In {Name} we were unable to get the file name from {ProjectFile}!");
+                        }
+                        var dir = TempDirectory = TempBaseDirectory.GetFilePath();
+                        DirectoryCopy(originalDir, dir);
+                        var actuallyRunning = Path.GetFullPath(Path.Combine(dir, projectFile));
+                        Console.WriteLine("Opening EMME at " + actuallyRunning);
+                        Controller = new ModellerController(actuallyRunning);
                     }
                 }
             }
@@ -76,34 +79,34 @@ namespace TMG.NetworkEstimation
         private void DirectoryCopy(string sourceDirectory, string destinationDirectory)
         {
             // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new DirectoryInfo( sourceDirectory );
+            DirectoryInfo dir = new DirectoryInfo(sourceDirectory);
             DirectoryInfo[] dirs = dir.GetDirectories();
-            if ( !dir.Exists )
+            if (!dir.Exists)
             {
                 throw new DirectoryNotFoundException(
                     "Source directory does not exist or could not be found: "
-                    + sourceDirectory );
+                    + sourceDirectory);
             }
 
             // If the destination directory doesn't exist, create it.
-            if ( !Directory.Exists( destinationDirectory ) )
+            if (!Directory.Exists(destinationDirectory))
             {
-                Directory.CreateDirectory( destinationDirectory );
+                Directory.CreateDirectory(destinationDirectory);
             }
 
             // Get the files in the directory and copy them to the new location.
             FileInfo[] files = dir.GetFiles();
-            foreach ( FileInfo file in files )
+            foreach (FileInfo file in files)
             {
-                string temppath = Path.Combine( destinationDirectory, file.Name );
-                file.CopyTo( temppath, false );
+                string temppath = Path.Combine(destinationDirectory, file.Name);
+                file.CopyTo(temppath, false);
             }
 
             // If copying subdirectories, copy them and their contents to new location.
-            foreach ( DirectoryInfo subdir in dirs )
+            foreach (DirectoryInfo subdir in dirs)
             {
-                string temppath = Path.Combine( destinationDirectory, subdir.Name );
-                DirectoryCopy( subdir.FullName, temppath );
+                string temppath = Path.Combine(destinationDirectory, subdir.Name);
+                DirectoryCopy(subdir.FullName, temppath);
             }
         }
 
@@ -132,40 +135,36 @@ namespace TMG.NetworkEstimation
 
         ~SpawnEmmeCopyControllerDataSource()
         {
-            this.Dispose( true );
+            Dispose(true);
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( true );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Controller != null )
-            {
-                this.Controller.Dispose();
-                this.Controller = null;
-            }
+            Controller?.Dispose();
+            Controller = null;
             // try to close for up to 2 seconds
-            if ( this.TempDirectory != null )
+            if (TempDirectory != null)
             {
-                for ( int i = 0; i < 10; i++ )
+                for (int i = 0; i < 10; i++)
                 {
                     try
                     {
-                        Directory.Delete( this.TempDirectory, true );
-                        this.TempDirectory = null;
-                        break;
+                        Directory.Delete(TempDirectory, true);
+                        return;
                     }
-                    catch ( UnauthorizedAccessException )
+                    catch (UnauthorizedAccessException)
                     {
-                        Thread.Sleep( 200 );
+                        Thread.Sleep(200);
                     }
-                    catch ( IOException )
+                    catch (IOException)
                     {
-                        Thread.Sleep( 200 );
+                        Thread.Sleep(200);
                     }
                 }
             }

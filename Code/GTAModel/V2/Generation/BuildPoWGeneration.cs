@@ -69,8 +69,6 @@ namespace TMG.GTAModel.V2.Generation
                 case 3:
                     return 1;
 
-                case 2:
-                case 4:
                 default:
                     return 2;
             }
@@ -128,19 +126,12 @@ namespace TMG.GTAModel.V2.Generation
                                 empOffset = 0;
                                 break;
 
-                            case 1:
                             default:
                                 empOffset = 3;
                                 break;
                         }
                         return ChildAgeIndex( mobility ) + 3 + empOffset;
                     }
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
                 default:
                     int ageOffset = ( ( age < 6 ? age : 6 ) - 3 ) * 12;
                     int employmentOffset = ( employmentStatus == 1 ? 3 : 0 );

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Tasha.Common;
 using XTMF;
-using TMG.Input;
 using TMG;
 using System.Threading.Tasks;
 using Datastructure;
@@ -43,11 +39,11 @@ namespace Tasha.PopulationSynthesis
                 return;
             }
             // If we are in the first iteration, or we don't care, load in our data and split
-            var zoneSystem = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zoneSystem = Root.ZoneSystem.ZoneArray.GetFlatData();
             SparseTwinIndex<float> occ, emp;
             LoadInData(out occ, out emp );
             // apply the rates
-            Parallel.For( 0, zoneSystem.Length, (int i) =>
+            Parallel.For( 0, zoneSystem.Length, i =>
             {
                 var zone = zoneSystem[i];
                 var pd = zone.PlanningDistrict;
@@ -67,12 +63,12 @@ namespace Tasha.PopulationSynthesis
 
         private void LoadInData(out SparseTwinIndex<float> occ, out SparseTwinIndex<float> emp)
         {
-            this.OccupationSplit.LoadData();
-            this.EmploymentSplit.LoadData();
-            occ = this.OccupationSplit.GiveData();
-            emp = this.EmploymentSplit.GiveData();
-            this.OccupationSplit.UnloadData();
-            this.EmploymentSplit.UnloadData();
+            OccupationSplit.LoadData();
+            EmploymentSplit.LoadData();
+            occ = OccupationSplit.GiveData();
+            emp = EmploymentSplit.GiveData();
+            OccupationSplit.UnloadData();
+            EmploymentSplit.UnloadData();
         }
 
         public void Load(int maxIterations)

@@ -17,9 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Tasha.Common;
 using XTMF;
 using TMG;
@@ -60,8 +58,8 @@ namespace Tasha.PopulationSynthesis
 
             internal void LoadData()
             {
-                this.BaseYearData.LoadData();
-                this.StudentsByZone.LoadData();
+                BaseYearData.LoadData();
+                StudentsByZone.LoadData();
             }
 
             public string Name { get; set; }
@@ -78,9 +76,9 @@ namespace Tasha.PopulationSynthesis
 
             public bool RuntimeValidation(ref string error)
             {
-                if ( !this.Results.CheckResourceType<SparseTwinIndex<float>>() )
+                if ( !Results.CheckResourceType<SparseTwinIndex<float>>() )
                 {
-                    error = "In '" + this.Name + "' the results resource is not of type SparseTwinIndex<float>!";
+                    error = "In '" + Name + "' the results resource is not of type SparseTwinIndex<float>!";
                     return false;
                 }
                 return true;
@@ -88,14 +86,14 @@ namespace Tasha.PopulationSynthesis
 
             internal void Execute()
             {
-                Console.WriteLine( "Processing '" + this.Name + "'" );
-                var results = this.Results.AcquireResource<SparseTwinIndex<float>>();
+                Console.WriteLine( "Processing '" + Name + "'" );
+                var results = Results.AcquireResource<SparseTwinIndex<float>>();
                 var data = results.GetFlatData();
-                float[] o = this.StudentsByZone.GiveData().GetFlatData();
-                var baseData = this.BaseYearData.GiveData().GetFlatData();
+                float[] o = StudentsByZone.GiveData().GetFlatData();
+                var baseData = BaseYearData.GiveData().GetFlatData();
                 var factors = new ConcurrentDictionary<int, float>();
-                var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-                Parallel.For( 0, baseData.Length, (int i) =>
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                Parallel.For( 0, baseData.Length, i =>
                     {
                         var baseYearRow = baseData[i];
                         float baseYearStudents = VectorHelper.Sum(baseYearRow, 0, baseYearRow.Length);
@@ -120,13 +118,13 @@ namespace Tasha.PopulationSynthesis
                             }
                         }
                     } );
-                if ( this.SaveResults != null )
+                if ( SaveResults != null )
                 {
-                    TMG.Functions.SaveData.SaveMatrix( results, this.SaveResults.GetFilePath() );
+                    SaveData.SaveMatrix( results, SaveResults.GetFilePath() );
                 }
-                if ( this.SaveFactors != null )
+                if ( SaveFactors != null )
                 {
-                    using (var writer = new StreamWriter( this.SaveFactors ))
+                    using (var writer = new StreamWriter( SaveFactors ))
                     {
                         writer.WriteLine( "Zone,Factor" );
                         foreach ( var zoneFactor in from element in factors
@@ -147,7 +145,7 @@ namespace Tasha.PopulationSynthesis
 
         public void Execute(int iterationNumber, int totalIterations)
         {
-            var ageGroups = this.AgeGroups;
+            var ageGroups = AgeGroups;
             Console.WriteLine( "Starting Place of Residence place of School" );
             for ( int i = 0; i < ageGroups.Length; i++ )
             {
@@ -159,7 +157,7 @@ namespace Tasha.PopulationSynthesis
 
         public void Load(int totalIterations)
         {
-            var ageGroups = this.AgeGroups;
+            var ageGroups = AgeGroups;
             for ( int i = 0; i < ageGroups.Length; i++ )
             {
                 ageGroups[i].LoadData();

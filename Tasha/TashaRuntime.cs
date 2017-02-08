@@ -71,7 +71,7 @@ namespace Tasha
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -172,7 +172,7 @@ namespace Tasha
             throw new NotImplementedException();
         }
 
-        private volatile bool _ExitRequested = false;
+        private volatile bool _ExitRequested;
 
         public bool ExitRequest()
         {
@@ -598,7 +598,7 @@ namespace Tasha
                         module.Execute(hhld, i);
                     }
                 }
-                System.Threading.Interlocked.Increment(ref CurrentHousehold);
+                Interlocked.Increment(ref CurrentHousehold);
 
                 if(RecycleHouseholdData)
                 {
@@ -608,7 +608,7 @@ namespace Tasha
             }
         }
 
-        public static int FailedModeChoice = 0;
+        public static int FailedModeChoice;
 
         private void RunIteration(int i)
         {
@@ -770,7 +770,7 @@ namespace Tasha
             if(NetworkData != null)
             {
                 _Status = () => "Loading Network Data for iteration " + (iteration + 1).ToString() + " of " + TotalIterations;
-                System.Threading.Tasks.Parallel.For(0, NetworkData.Count, (int i) =>
+                System.Threading.Tasks.Parallel.For(0, NetworkData.Count, i =>
                 {
                     if (!_ExitRequested)
                     {

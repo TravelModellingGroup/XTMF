@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Datastructure;
 using TMG.Input;
 using XTMF;
+// ReSharper disable InconsistentNaming
 
 namespace TMG.GTAModel.V2.Generation
 {
@@ -94,24 +95,6 @@ namespace TMG.GTAModel.V2.Generation
             list.Add(gen);
         }
 
-        private int ChildAgeIndex(int mobility)
-        {
-            switch (mobility)
-            {
-                case 0:
-                    return 0;
-
-                case 1:
-                case 3:
-                    return 1;
-
-                case 2:
-                case 4:
-                default:
-                    return 2;
-            }
-        }
-
         private RangeSet CreateRangeSet(int occ) => new RangeSet(new List<Range> { new Range(occ, occ) });
 
         private RangeSet CreateRangeSet(Range range) => new RangeSet(new List<Range> { range });
@@ -136,46 +119,6 @@ namespace TMG.GTAModel.V2.Generation
                         }
                     }
                 }
-            }
-        }
-
-        private int GetDemographicIndex(int age, int employmentStatus, int mobility)
-        {
-            switch (age)
-            {
-                case 0:
-                case 1:
-                    {
-                        return ChildAgeIndex(mobility);
-                    }
-                case 2:
-                    {
-                        int empOffset;
-                        switch (employmentStatus)
-                        {
-                            case 0:
-                            case 2:
-                                empOffset = 0;
-                                break;
-
-                            case 1:
-                            default:
-                                empOffset = 3;
-                                break;
-                        }
-                        return ChildAgeIndex(mobility) + 3 + empOffset;
-                    }
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                default:
-                    int ageOffset = ((age < 6 ? age : 6) - 3) * 12;
-                    int employmentOffset = (employmentStatus == 1 ? 3 : 0);
-                    int mobilityOffset = (mobility < 3 ? mobility : (mobility - 3) + 7);
-                    return ageOffset + mobilityOffset + employmentOffset + 9;
             }
         }
 

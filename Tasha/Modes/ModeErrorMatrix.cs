@@ -69,8 +69,8 @@ namespace Tasha.Modes
 
         public void Execute(ITashaHousehold household, int iteration)
         {
-            var numberOfModes = this.Modes.Count;
-            var numberOfSharedModes = this.TashaRuntime.SharedModes.Count;
+            var numberOfModes = Modes.Count;
+            var numberOfSharedModes = TashaRuntime.SharedModes.Count;
             foreach ( var person in household.Persons )
             {
                 foreach ( var tripChain in person.TripChains )
@@ -88,22 +88,22 @@ namespace Tasha.Modes
                             break;
                         }
 
-                        var obs = trip[this.ObservedMode];
+                        var obs = trip[ObservedMode];
                         if ( obs != null )
                         {
                             var obsMode = obs as ITashaMode;
                             if ( obsMode != null )
                             {
                                 // find index
-                                var realIndex = this.Modes.IndexOf( obsMode );
+                                var realIndex = Modes.IndexOf( obsMode );
                                 if ( realIndex >= 0 )
                                 {
                                     foreach ( var chosen in trip.ModesChosen )
                                     {
-                                        var predMode = this.Modes.IndexOf( chosen );
+                                        var predMode = Modes.IndexOf( chosen );
                                         if ( predMode >= 0 )
                                         {
-                                            System.Threading.Interlocked.Increment( ref this.Observations[realIndex, predMode] );
+                                            System.Threading.Interlocked.Increment( ref Observations[realIndex, predMode] );
                                         }
                                         if ( realIndex == predMode )
                                         {
@@ -111,7 +111,7 @@ namespace Tasha.Modes
                                         }
                                     }
                                 }
-                                if ( this.ComputeFitness )
+                                if ( ComputeFitness )
                                 {
                                     var error = (float)Math.Log( ( correct + 1f ) / ( hhldIterations + 1f ) );
                                     int feasibleModes = numberOfSharedModes;
@@ -120,8 +120,8 @@ namespace Tasha.Modes
                                     {
                                         if ( modeData.Feasible[realIndex] == false )
                                         {
-                                            System.Threading.Interlocked.Increment( ref this.BadTrips[realIndex] );
-                                            this.BadTripsQueue.Enqueue( new BadTripEntry()
+                                            System.Threading.Interlocked.Increment( ref BadTrips[realIndex] );
+                                            BadTripsQueue.Enqueue( new BadTripEntry()
                                             {
                                                 HHLD = household.HouseholdId,
                                                 PersonID = person.Id,
@@ -145,8 +145,8 @@ namespace Tasha.Modes
                                     lock ( this )
                                     {
                                         System.Threading.Thread.MemoryBarrier();
-                                        this.Fitness += error;
-                                        this.ZeroParamFitness += zeroFitness;
+                                        Fitness += error;
+                                        ZeroParamFitness += zeroFitness;
                                         System.Threading.Thread.MemoryBarrier();
                                     }
                                 }
@@ -159,28 +159,28 @@ namespace Tasha.Modes
 
         public void IterationFinished(int iteration)
         {
-            var numModes = this.Modes.Count;
+            var numModes = Modes.Count;
             var correctTotal = 0;
             var columnTotals = new int[numModes];
             var total = 0;
-            using ( StreamWriter writer = new StreamWriter( this.FileName ) )
+            using ( StreamWriter writer = new StreamWriter( FileName ) )
             {
                 // print the header
                 writer.Write( "Pred\\Real" );
                 for ( int i = 0; i < numModes; i++ )
                 {
                     writer.Write( ',' );
-                    writer.Write( this.Modes[i].ModeName );
+                    writer.Write( Modes[i].ModeName );
                 }
                 writer.WriteLine( ",Row Total" );
                 // for each row
                 for ( int j = 0; j < numModes; j++ )
                 {
                     int rowTotal = 0;
-                    writer.Write( this.Modes[j].ModeName );
+                    writer.Write( Modes[j].ModeName );
                     for ( int i = 0; i < numModes; i++ )
                     {
-                        var val = this.Observations[i, j];
+                        var val = Observations[i, j];
                         writer.Write( ',' );
                         writer.Write( val );
                         columnTotals[i] += val;
@@ -207,19 +207,19 @@ namespace Tasha.Modes
                 for ( int i = 0; i < numModes; i++ )
                 {
                     writer.Write( ',' );
-                    writer.Write( this.Modes[i].ModeName );
+                    writer.Write( Modes[i].ModeName );
                 }
                 writer.WriteLine( ",Row Total" );
                 // for each row
                 for ( int j = 0; j < numModes; j++ )
                 {
                     int rowTotal = 0;
-                    writer.Write( this.Modes[j].ModeName );
+                    writer.Write( Modes[j].ModeName );
                     for ( int i = 0; i < numModes; i++ )
                     {
                         writer.Write( ',' );
-                        writer.Write( "{0:0.##}%", 100 * ( ( this.Observations[i, j] ) / (float)total ) );
-                        rowTotal += this.Observations[i, j];
+                        writer.Write( "{0:0.##}%", 100 * ( ( Observations[i, j] ) / (float)total ) );
+                        rowTotal += Observations[i, j];
                     }
                     writer.WriteLine( ",{0:0.##}%", 100 * ( rowTotal / (float)total ) );
                 }
@@ -231,28 +231,28 @@ namespace Tasha.Modes
                 }
                 writer.WriteLine( "{0:0.##}%", 100 * ( correctTotal / (float)total ) );
 
-                if ( this.ComputeFitness )
+                if ( ComputeFitness )
                 {
                     writer.Write( "Value," );
-                    writer.WriteLine( this.Fitness );
+                    writer.WriteLine( Fitness );
                     writer.Write( "ZeroParam," );
-                    writer.WriteLine( this.ZeroParamFitness );
+                    writer.WriteLine( ZeroParamFitness );
                     writer.Write( "Rho^2," );
-                    writer.WriteLine( 1 - ( this.Fitness / this.ZeroParamFitness ) );
+                    writer.WriteLine( 1 - ( Fitness / ZeroParamFitness ) );
                     // 2 lines of blank
-                    var numberOfModes = this.Modes.Count;
+                    var numberOfModes = Modes.Count;
                     writer.WriteLine( "\r\n" );
                     writer.WriteLine( "Number of Non-Feasible Trips" );
                     for ( int i = 0; i < numberOfModes; i++ )
                     {
-                        writer.Write( this.Modes[i].ModeName );
+                        writer.Write( Modes[i].ModeName );
                         writer.Write( ',' );
-                        writer.WriteLine( this.BadTrips[i] );
+                        writer.WriteLine( BadTrips[i] );
                     }
                     BadTripEntry t;
                     writer.WriteLine( "Invaid Trips" );
                     writer.WriteLine( "HHLD,Person,Trip#,Mode,Distance,HasTravelTime,OriginZone,DestZone" );
-                    while ( this.BadTripsQueue.TryDequeue( out t ) )
+                    while ( BadTripsQueue.TryDequeue( out t ) )
                     {
                         writer.Write( t.HHLD );
                         writer.Write( ',' );
@@ -273,11 +273,11 @@ namespace Tasha.Modes
                 }
             }
             // after we output reset the fitness
-            this.Fitness = 0;
-            this.ZeroParamFitness = 0;
-            for ( int i = 0; i < this.BadTrips.Length; i++ )
+            Fitness = 0;
+            ZeroParamFitness = 0;
+            for ( int i = 0; i < BadTrips.Length; i++ )
             {
-                this.BadTrips[i] = 0;
+                BadTrips[i] = 0;
             }
             System.Threading.Thread.MemoryBarrier();
         }
@@ -285,10 +285,10 @@ namespace Tasha.Modes
         public void Load(int maxIterations)
         {
             // Create the table
-            var allModes = this.Modes = this.TashaRuntime.AllModes;
-            this.Observations = new int[allModes.Count, allModes.Count];
-            this.BadTrips = new int[allModes.Count];
-            this.BadTripsQueue = new ConcurrentQueue<BadTripEntry>();
+            var allModes = Modes = TashaRuntime.AllModes;
+            Observations = new int[allModes.Count, allModes.Count];
+            BadTrips = new int[allModes.Count];
+            BadTripsQueue = new ConcurrentQueue<BadTripEntry>();
         }
 
         public bool RuntimeValidation(ref string error)
@@ -299,18 +299,18 @@ namespace Tasha.Modes
         public void IterationStarting(int iteration)
         {
             ClearTrips();
-            this.Fitness = 0;
-            this.ZeroParamFitness = 0;
-            for ( int i = 0; i < this.BadTrips.Length; i++ )
+            Fitness = 0;
+            ZeroParamFitness = 0;
+            for ( int i = 0; i < BadTrips.Length; i++ )
             {
-                this.BadTrips[i] = 0;
+                BadTrips[i] = 0;
             }
         }
 
         private void ClearTrips()
         {
             BadTripEntry t;
-            while ( this.BadTripsQueue.TryDequeue( out t ) ) ;
+            while ( BadTripsQueue.TryDequeue( out t ) ) ;
         }
 
         private struct BadTripEntry

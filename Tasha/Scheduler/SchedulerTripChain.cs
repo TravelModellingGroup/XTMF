@@ -29,8 +29,8 @@ namespace Tasha.Scheduler
 
         private SchedulerTripChain(ITashaPerson person)
         {
-            this.Person = person;
-            this.Trips = new List<ITrip>( 3 );
+            Person = person;
+            Trips = new List<ITrip>( 3 );
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Tasha.Scheduler
         {
             get
             {
-                return this.Trips[this.Trips.Count - 1].ActivityStartTime;
+                return Trips[Trips.Count - 1].ActivityStartTime;
             }
         }
 
@@ -65,14 +65,14 @@ namespace Tasha.Scheduler
         {
             get
             {
-                if ( !this.JointTrip ) return null;
+                if ( !JointTrip ) return null;
 
                 List<ITripChain> linkedTripChains = new List<ITripChain>();
-                foreach ( var p in this.Person.Household.Persons )
+                foreach ( var p in Person.Household.Persons )
                 {
                     foreach ( var tripChain in p.TripChains )
                     {
-                        if ( tripChain.JointTripID == this.JointTripID )
+                        if ( tripChain.JointTripID == JointTripID )
                             linkedTripChains.Add( tripChain );
                     }
                 }
@@ -140,7 +140,7 @@ namespace Tasha.Scheduler
         {
             get
             {
-                return this.Trips[0].TripStartTime;
+                return Trips[0].TripStartTime;
             }
         }
 
@@ -148,7 +148,7 @@ namespace Tasha.Scheduler
         {
             get
             {
-                foreach ( var t in this.Trips )
+                foreach ( var t in Trips )
                 {
                     if ( !t.Mode.NonPersonalVehicle )
                     {
@@ -162,7 +162,7 @@ namespace Tasha.Scheduler
         /// <summary>
         /// The trips in this trip chain
         /// </summary>
-        public List<Tasha.Common.ITrip> Trips
+        public List<ITrip> Trips
         {
             get;
             set;
@@ -174,9 +174,9 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         public ITripChain Clone()
         {
-            ITripChain chain = (ITripChain)this.MemberwiseClone();
+            ITripChain chain = (ITripChain)MemberwiseClone();
             chain.Trips = new List<ITrip>();
-            chain.Trips.AddRange( this.Trips );
+            chain.Trips.AddRange( Trips );
             return chain;
         }
 
@@ -187,12 +187,12 @@ namespace Tasha.Scheduler
         public ITripChain DeepClone()
         {
             //shallow clone of tripchain
-            ITripChain chain = (ITripChain)this.MemberwiseClone();
+            ITripChain chain = (ITripChain)MemberwiseClone();
             chain.Trips = new List<ITrip>();
             List<ITrip> trips = new List<ITrip>();
 
             //cloning trips as well and setting their trip chain to cloned chained
-            foreach ( var trip in this.Trips )
+            foreach ( var trip in Trips )
             {
                 ITrip t = trip.Clone();
                 t.TripChain = chain;
@@ -206,20 +206,20 @@ namespace Tasha.Scheduler
 
         public void Recycle()
         {
-            this.Release();
-            foreach ( var t in this.Trips )
+            Release();
+            foreach ( var t in Trips )
             {
                 t.Release();
             }
-            this.Trips.Clear();
-            this.JointTripID = 0;
-            this.JointTripRep = false;
-            this.GetRepTripChain = null;
-            if ( this.JointTripChains != null )
+            Trips.Clear();
+            JointTripID = 0;
+            JointTripRep = false;
+            GetRepTripChain = null;
+            if ( JointTripChains != null )
             {
-                this.JointTripChains.Clear();
+                JointTripChains.Clear();
             }
-            this.Person = null;
+            Person = null;
             if(Chains.Count < 100)
             {
                 Chains.Enqueue(this);

@@ -35,7 +35,7 @@ namespace Tasha.Network
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -45,7 +45,7 @@ namespace Tasha.Network
 
         public INetworkAssignment GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public void LoadData()

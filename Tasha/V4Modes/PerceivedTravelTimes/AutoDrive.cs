@@ -286,7 +286,6 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
-            return;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)

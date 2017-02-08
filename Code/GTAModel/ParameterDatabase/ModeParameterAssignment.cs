@@ -38,7 +38,7 @@ namespace TMG.GTAModel.ParameterDatabase
         [RootModule]
         public I4StepModel Root;
 
-        private int[] parameterIndexes;
+        private int[] ParameterIndexes;
 
         [DoNotAutomate]
         public IModeChoiceNode Mode { get; private set; }
@@ -61,13 +61,13 @@ namespace TMG.GTAModel.ParameterDatabase
 
         public void AssignBlendedParameters(List<Parameter> parameters, float weight)
         {
-            if ( parameterIndexes == null )
+            if ( ParameterIndexes == null )
             {
                 CheckParameterNames( parameters );
             }
             for ( int i = 0; i < Links.Count; i++ )
             {
-                var index = parameterIndexes[i];
+                var index = ParameterIndexes[i];
                 if ( index >= 0 )
                 {
                     Links[i].BlendedAssignment( parameters[index].Value, weight );
@@ -77,13 +77,13 @@ namespace TMG.GTAModel.ParameterDatabase
 
         public void AssignParameters(List<Parameter> parameters)
         {
-            if ( parameterIndexes == null )
+            if ( ParameterIndexes == null )
             {
                 CheckParameterNames( parameters );
             }
             for ( int i = 0; i < Links.Count; i++ )
             {
-                var index = parameterIndexes[i];
+                var index = ParameterIndexes[i];
                 if ( index >= 0 )
                 {
                     Links[i].Assign( parameters[index].Value );
@@ -121,10 +121,10 @@ namespace TMG.GTAModel.ParameterDatabase
 
         private void CheckParameterNames(List<Parameter> parameters)
         {
-            parameterIndexes = new int[Links.Count];
-            for ( int i = 0; i < parameterIndexes.Length; i++ )
+            ParameterIndexes = new int[Links.Count];
+            for ( int i = 0; i < ParameterIndexes.Length; i++ )
             {
-                parameterIndexes[i] = -1;
+                ParameterIndexes[i] = -1;
             }
             Parallel.For( 0, Links.Count, i =>
             {
@@ -132,14 +132,14 @@ namespace TMG.GTAModel.ParameterDatabase
                 {
                     if ( Links[i].ParameterName == parameters[j].ParameterName )
                     {
-                        parameterIndexes[i] = j;
+                        ParameterIndexes[i] = j;
                     }
                 }
-                if ( parameterIndexes[i] == -1 )
+                if ( ParameterIndexes[i] == -1 )
                 {
                     if ( IgnoreBadParameters )
                     {
-                        parameterIndexes[i] = -1;
+                        ParameterIndexes[i] = -1;
                     }
                     else
                     {

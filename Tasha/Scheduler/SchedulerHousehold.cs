@@ -18,7 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Tasha.Common;
 using TMG;
 using XTMF;
@@ -702,7 +701,7 @@ namespace Tasha.Scheduler
                         }
                         Time endTime = startTime + duration;
 
-                        SchedulerHousehold.CheckAndUpdateLatestWorkingTime(person.Household,
+                        CheckAndUpdateLatestWorkingTime(person.Household,
                             endTime);
 
                         Episode primWorkEpisode;
@@ -881,7 +880,7 @@ namespace Tasha.Scheduler
                     }
 
                     Time endTime = startTime + duration;
-                    SchedulerHousehold.CheckAndUpdateLatestWorkingTime(person.Household,
+                    CheckAndUpdateLatestWorkingTime(person.Household,
                         endTime);
                     Episode wahBusinessEpisode;
                     wahBusinessEpisode = new ActivityEpisode(0,

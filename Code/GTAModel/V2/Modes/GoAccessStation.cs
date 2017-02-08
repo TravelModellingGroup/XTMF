@@ -327,30 +327,19 @@ namespace TMG.GTAModel.V2.Modes
             return First.TravelTime( origin, InterchangeZone, time ) + Second.TravelTime( InterchangeZone, destination, time );
         }
 
-        private static float ComputeSubV(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float ivttWeight, float walkWeight, float waitWeight, float costWeight)
+        private static bool ComputeThird(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float walkTime, float waitTime, out float result)
         {
             Time ivtt, walk, wait, boarding;
             float cost;
             data.GetAllData( flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost );
-            return ivttWeight * ivtt.ToMinutes()
-                + walkWeight * walk.ToMinutes()
-                + waitWeight * wait.ToMinutes()
-                + costWeight * cost;
-        }
-
-        private static bool ComputeThird(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float WalkTime, float WaitTime, out float result)
-        {
-            Time ivtt, walk, wait, boarding;
-            float cost;
-            data.GetAllData( flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost );
-            var walkTime = walk.ToMinutes();
-            if ( walkTime <= 0 )
+            var timeWalkingInMinutes = walk.ToMinutes();
+            if ( timeWalkingInMinutes <= 0 )
             {
                 result = float.PositiveInfinity;
                 return false;
             }
-            result = walkTime * WalkTime
-                    + wait.ToMinutes() * WaitTime
+            result = timeWalkingInMinutes * walkTime
+                    + wait.ToMinutes() * waitTime
                     + ivtt.ToMinutes();
             return true;
         }
@@ -437,7 +426,7 @@ namespace TMG.GTAModel.V2.Modes
                         continue;
                     }
                     if ( flatInterchange == flatEgressZone ) continue;
-                    if ( GetEgressTT( flatEgressZone, flatDestination, flatInterchange, time, bestTime, out tt ) )
+                    if ( GetEgressTravelTime( flatEgressZone, flatDestination, flatInterchange, time, bestTime, out tt ) )
                     {
                         if ( tt < bestTime )
                         {
@@ -457,7 +446,7 @@ namespace TMG.GTAModel.V2.Modes
                         } );
         }
 
-        private bool GetEgressTT(int flatEgressZone, int flatDestinationZone, int flatInterchangeZone, Time time, float bestTime, out float tt)
+        private bool GetEgressTravelTime(int flatEgressZone, int flatDestinationZone, int flatInterchangeZone, Time time, float bestTime, out float tt)
         {
             tt = float.MaxValue;
             // make sure that we can actually travel to the end station

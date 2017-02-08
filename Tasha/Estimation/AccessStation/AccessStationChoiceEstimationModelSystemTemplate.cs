@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
 using Tasha.Common;
@@ -27,7 +26,6 @@ using TMG.Estimation;
 using System.Threading;
 using TMG.Input;
 using Datastructure;
-using System.IO;
 using TMG.Functions;
 
 namespace Tasha.Estimation.AccessStation
@@ -145,22 +143,23 @@ namespace Tasha.Estimation.AccessStation
         {
             if (FirstLoad)
             {
-                this.ZoneSystem.LoadData();
-                foreach (var network in this.NetworkData)
+                ZoneSystem.LoadData();
+                foreach (var network in NetworkData)
                 {
                     network.LoadData();
                 }
-                this.TourLoader.LoadData();
-                this.FirstLoad = false;
+                TourLoader.LoadData();
+                FirstLoad = false;
             }
             // the model needs to be loaded every time
-            this.AccessStationChoiceModel.Load();
-            var tours = this.TourLoader.ToArray();
+            AccessStationChoiceModel.Load();
+            var tours = TourLoader.ToArray();
 
-            float result = this.ComputeError(tours);
-            this.Completed = 0;
-            this._Progress = () => Completed / tours.Length;
-            this.Root.RetrieveValue = () =>
+            float result = ComputeError(tours);
+            Completed = 0;
+            // ReSharper disable once PossibleLossOfFraction
+            _Progress = () => Completed / tours.Length;
+            Root.RetrieveValue = () =>
                 {
                     return result;
                 };
@@ -168,7 +167,7 @@ namespace Tasha.Estimation.AccessStation
             {
                 ProduceConfusionMatrix(tours);
             }
-            this._Progress = () => 1.0f;
+            _Progress = () => 1.0f;
         }
 
         private float ComputeError(ITripChain[] tours)
@@ -191,8 +190,8 @@ namespace Tasha.Estimation.AccessStation
             for (int t = 0; t < tours.Length; t++)
             {
                 var tour = tours[t];
-                var observedAccessStation = tour[this.AccessStationTag] as IZone;
-                var result = this.AccessStationChoiceModel.ProduceResult(tour);
+                var observedAccessStation = (IZone)tour[AccessStationTag];
+                var result = AccessStationChoiceModel.ProduceResult(tour);
                 var observedOffset = zoneSystem.GetFlatIndex(observedAccessStation.ZoneNumber);
                 if (result != null)
                 {
@@ -207,7 +206,7 @@ namespace Tasha.Estimation.AccessStation
                     }
                 }
             }
-            TMG.Functions.SaveData.SaveMatrix(zones, results, ConfusionMatrix);
+            SaveData.SaveMatrix(zones, results, ConfusionMatrix);
         }
 
         private bool Normalize(Pair<IZone[], float[]> result)
@@ -222,8 +221,8 @@ namespace Tasha.Estimation.AccessStation
 
         private float ComputeError(ITripChain tour)
         {
-            var observedAccessStation = tour[this.AccessStationTag] as IZone;
-            var result = this.AccessStationChoiceModel.ProduceResult(tour);
+            var observedAccessStation = tour[AccessStationTag] as IZone;
+            var result = AccessStationChoiceModel.ProduceResult(tour);
             float correct = 0.0f;
             if (result != null)
             {
@@ -233,7 +232,6 @@ namespace Tasha.Estimation.AccessStation
                 {
                     if (result.First[i] == null) break;
                     if (result.First[i] == observedAccessStation) correctIndex = i;
-                    var value = result.Second[i];
                     total += result.Second[i];
                 }
                 if ((total > 0) & (correctIndex >= 0))
@@ -242,7 +240,7 @@ namespace Tasha.Estimation.AccessStation
                 }
             }
             // we finished another
-            Interlocked.Increment(ref this.Completed);
+            Interlocked.Increment(ref Completed);
             var error = 1.0f - correct;
             // use squared error
             return error * error;

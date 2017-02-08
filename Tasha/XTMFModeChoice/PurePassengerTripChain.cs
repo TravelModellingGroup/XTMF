@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Collections.Generic;
 using Tasha.Common;
 using XTMF;
@@ -36,7 +36,7 @@ namespace Tasha.XTMFModeChoice
         {
             get
             {
-                return this.Trips[0].ActivityStartTime;
+                return Trips[0].ActivityStartTime;
             }
         }
 
@@ -85,7 +85,7 @@ namespace Tasha.XTMFModeChoice
         {
             get
             {
-                return this.Trips[0].TripStartTime;
+                return Trips[0].TripStartTime;
             }
         }
 

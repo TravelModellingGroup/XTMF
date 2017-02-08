@@ -27,6 +27,7 @@ using XTMF;
 
 namespace TMG.GTAModel.Purpose
 {
+    // ReSharper disable once InconsistentNaming
     public class PoRPoWPurpose : PurposeBase, IDemographicCategoyPurpose, ISelfContainedModule
     {
         [SubModelInformation( Description = "Distribution", Required = true )]
@@ -41,9 +42,9 @@ namespace TMG.GTAModel.Purpose
         [RunParameter( "Save Result File Name", "", "The start of the name of the file (First Default = FrictionCache1.bin). If this is empty nothing will be saved." )]
         public string SaveResultFileName;
 
-        private int currentNumber;
+        private int CurrentNumber;
 
-        private int lastIteration = -1;
+        private int LastIteration = -1;
 
         [SubModelInformation( Description = "Generation", Required = false )]
         public List<IDemographicCategoryGeneration> Categories { get; set; }
@@ -58,18 +59,18 @@ namespace TMG.GTAModel.Purpose
             if ( !Execute ) return;
             // we actually don't write our mode choice
             var numberOfCategories = Categories.Count;
-            SparseArray<float>[] O = new SparseArray<float>[numberOfCategories];
-            SparseArray<float>[] D = new SparseArray<float>[numberOfCategories];
-            for ( int i = 0; i < O.Length; i++ )
+            SparseArray<float>[] o = new SparseArray<float>[numberOfCategories];
+            SparseArray<float>[] d = new SparseArray<float>[numberOfCategories];
+            for ( int i = 0; i < o.Length; i++ )
             {
-                O[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                D[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                Categories[i].Generate( O[i], D[i] );
+                o[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                d[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                Categories[i].Generate( o[i], d[i] );
             }
             // if we only need to run generation we are done
             if ( OnlyDoGeneration ) return;
             // we don't do mode choice
-            foreach ( var distributionData in Distribution.Distribute( O, D, Categories ) )
+            foreach ( var distributionData in Distribution.Distribute( o, d, Categories ) )
             {
                 var interative = ModeSplit as IInteractiveModeSplit;
                 if ( interative != null )
@@ -91,12 +92,12 @@ namespace TMG.GTAModel.Purpose
 
         private string GetFrictionFileName(string baseName)
         {
-            if ( Root.CurrentIteration != lastIteration )
+            if ( Root.CurrentIteration != LastIteration )
             {
-                currentNumber = 0;
-                lastIteration = Root.CurrentIteration;
+                CurrentNumber = 0;
+                LastIteration = Root.CurrentIteration;
             }
-            return String.Concat( baseName, currentNumber++, ".bin" );
+            return String.Concat( baseName, CurrentNumber++, ".bin" );
         }
 
         private void SaveFriction(float[][] ret)
@@ -105,6 +106,10 @@ namespace TMG.GTAModel.Purpose
             {
                 var fileName = GetFrictionFileName( SaveResultFileName );
                 var dirName = Path.GetDirectoryName( fileName );
+                if (dirName == null)
+                {
+                    throw new XTMFRuntimeException($"We were unable to extract the directory name from the path '{fileName}'!");
+                }
                 if ( !Directory.Exists( dirName ) )
                 {
                     Directory.CreateDirectory( dirName );

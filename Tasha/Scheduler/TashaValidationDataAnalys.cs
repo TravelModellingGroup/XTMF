@@ -55,7 +55,7 @@ namespace Tasha.Scheduler
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -90,7 +90,7 @@ namespace Tasha.Scheduler
         }
 
         [DoNotAutomate]
-        public IList<TMG.INetworkData> NetworkData { get; set; }
+        public IList<INetworkData> NetworkData { get; set; }
 
         [DoNotAutomate]
         public List<ITashaMode> NonSharedModes { get; set; }
@@ -148,9 +148,9 @@ namespace Tasha.Scheduler
         public List<IVehicleType> VehicleTypes { get; set; }
 
         [SubModelInformation( Description = "Zone System", Required = true )]
-        public TMG.IZoneSystem ZoneSystem { get; set; }
+        public IZoneSystem ZoneSystem { get; set; }
 
-        public ITrip CreateTrip(ITripChain chain, TMG.IZone originalZone, TMG.IZone destinationZone, Activity purpose, Time startTime)
+        public ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime)
         {
             throw new NotImplementedException();
         }
@@ -173,58 +173,58 @@ namespace Tasha.Scheduler
 
         public void Start()
         {
-            this.ZoneSystem.LoadData();
+            ZoneSystem.LoadData();
 
-            if ( this.PostHousehold != null )
+            if ( PostHousehold != null )
             {
-                foreach ( var module in this.PostHousehold )
+                foreach ( var module in PostHousehold )
                 {
-                    module.Load( this.TotalIterations );
+                    module.Load( TotalIterations );
                 }
             }
 
-            this.IterationPercentage = 1f / this.TotalIterations;
+            IterationPercentage = 1f / TotalIterations;
             //if (this.Scheduler != null)
             //{
             //this.Scheduler.LoadOneTimeLocalData();
             //}
 
-            for ( int i = 0; i < this.TotalIterations; i++ )
+            for ( int i = 0; i < TotalIterations; i++ )
             {
-                this.CurrentHousehold = 0;
-                this.CompletedIterationPercentage = i * this.IterationPercentage;
-                this.HouseholdLoader.LoadData();
+                CurrentHousehold = 0;
+                CompletedIterationPercentage = i * IterationPercentage;
+                HouseholdLoader.LoadData();
                 RunIteration( i );
             }
 
-            if ( this.PostRun != null )
+            if ( PostRun != null )
             {
-                foreach ( var module in this.PostRun )
+                foreach ( var module in PostRun )
                 {
                     module.Start();
                 }
             }
-            this.ZoneSystem.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         private void Run(int i, ITashaHousehold household)
         {
-            foreach ( var module in this.PostHousehold )
+            foreach ( var module in PostHousehold )
             {
                 module.Execute( household, i );
             }
-            System.Threading.Interlocked.Increment( ref this.CurrentHousehold );
-            this.Progress = ( (float)this.CurrentHousehold / this.NumberOfHouseholds ) / this.TotalIterations + this.CompletedIterationPercentage;
+            System.Threading.Interlocked.Increment( ref CurrentHousehold );
+            Progress = ( (float)CurrentHousehold / NumberOfHouseholds ) / TotalIterations + CompletedIterationPercentage;
             household.Recycle();
         }
 
         private void RunIteration(int i)
         {
-            if ( this.NetworkData != null )
+            if ( NetworkData != null )
             {
                 try
                 {
-                    System.Threading.Tasks.Parallel.ForEach( this.NetworkData,
+                    System.Threading.Tasks.Parallel.ForEach( NetworkData,
                         delegate(INetworkData network)
                         {
                             network.LoadData();
@@ -239,23 +239,23 @@ namespace Tasha.Scheduler
                 }
             }
 
-            if ( this.PostScheduler != null )
+            if ( PostScheduler != null )
             {
-                foreach ( var module in this.PostScheduler )
+                foreach ( var module in PostScheduler )
                 {
                     module.IterationStarting( i );
                 }
             }
 
-            if ( this.PostHousehold != null )
+            if ( PostHousehold != null )
             {
-                foreach ( var module in this.PostHousehold )
+                foreach ( var module in PostHousehold )
                 {
                     module.IterationStarting( i );
                 }
             }
 
-            if ( this.Parallel )
+            if ( Parallel )
             {
                 RunParallel( i );
             }
@@ -265,51 +265,51 @@ namespace Tasha.Scheduler
                 RunSerial( i );
             }
 
-            if ( this.NetworkData != null )
+            if ( NetworkData != null )
             {
-                foreach ( var network in this.NetworkData )
+                foreach ( var network in NetworkData )
                 {
                     network.UnloadData();
                 }
             }
 
-            if ( this.PostScheduler != null )
+            if ( PostScheduler != null )
             {
-                foreach ( var module in this.PostScheduler )
+                foreach ( var module in PostScheduler )
                 {
                     module.IterationFinished( i );
                 }
             }
 
-            if ( this.PostHousehold != null )
+            if ( PostHousehold != null )
             {
-                foreach ( var module in this.PostHousehold )
+                foreach ( var module in PostHousehold )
                 {
                     module.IterationFinished( i );
                 }
             }
-            this.HouseholdLoader.Reset();
+            HouseholdLoader.Reset();
         }
 
         private void RunParallel(int iteration)
         {
-            var hhlds = this.HouseholdLoader.ToArray();
+            var hhlds = HouseholdLoader.ToArray();
             System.Threading.Tasks.Parallel.For( 0, hhlds.Length,
                delegate(int i)
                {
                    ITashaHousehold hhld = hhlds[i];
-                   this.Run( iteration, hhld );
+                   Run( iteration, hhld );
                }
              );
         }
 
         private void RunSerial(int iteration)
         {
-            var households = this.HouseholdLoader.ToArray();
+            var households = HouseholdLoader.ToArray();
             for ( int i = 0; i < households.Length; i++ )
             {
                 ITashaHousehold household = households[i];
-                this.Run( iteration, household );
+                Run( iteration, household );
             }
         }
     }

@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Emme;
 using XTMF;
 using Tasha.Common;
@@ -88,32 +85,35 @@ namespace Tasha.EMME
                     {
                         var startTime = trips[k].TripStartTime;
                             var modeChosen = trips[k].Mode;
-                            int accessModeIndex = -1;
+                            int accessModeIndex;
                             if(Passenger.Mode == modeChosen)
                             {
 
                                 var driversTrip = trips[k]["Driver"] as ITrip;
                                 // driver originData
-                                var driverOrigin = GetFlatIndex(driversTrip.OriginalZone);
+                                var driverOrigin = GetFlatIndex(driversTrip?.OriginalZone);
                                 var passengerOrigin = GetFlatIndex(trips[k].OriginalZone);
                                 var passengerDestination = GetFlatIndex(trips[k].DestinationZone);
-                                var driverDestination = GetFlatIndex(driversTrip.DestinationZone);
+                                var driverDestination = GetFlatIndex(driversTrip?.DestinationZone);
                                 
-                                var driverTripChain = driversTrip.TripChain;
-                                var driverOnJoint = driverTripChain.JointTrip;
-                                float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
-                                // subtract out the old data
-                                AddToMatrix(startTime, -driverExpansionFactor, driverOnJoint, driverOrigin, driverDestination);
-                                // add in our 3 trip leg data
-                                if(driverOrigin != passengerOrigin)
+                                var driverTripChain = driversTrip?.TripChain;
+                                var driverOnJoint = driverTripChain != null && driverTripChain.JointTrip;
+                                if (driverTripChain != null)
                                 {
-                                    // this really is driver on joint
-                                    AddToMatrix(startTime, driverExpansionFactor, driverOnJoint, driverOrigin, passengerOrigin);
-                                }
-                                AddToMatrix(startTime, driverExpansionFactor, true, passengerOrigin, passengerDestination);
-                                if(passengerDestination != driverDestination)
-                                {
-                                    AddToMatrix(startTime, driverExpansionFactor, driverOnJoint, passengerDestination, driverDestination);
+                                    float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
+                                    // subtract out the old data
+                                    AddToMatrix(startTime, -driverExpansionFactor, driverOnJoint, driverOrigin, driverDestination);
+                                    // add in our 3 trip leg data
+                                    if(driverOrigin != passengerOrigin)
+                                    {
+                                        // this really is driver on joint
+                                        AddToMatrix(startTime, driverExpansionFactor, driverOnJoint, driverOrigin, passengerOrigin);
+                                    }
+                                    AddToMatrix(startTime, driverExpansionFactor, true, passengerOrigin, passengerDestination);
+                                    if(passengerDestination != driverDestination)
+                                    {
+                                        AddToMatrix(startTime, driverExpansionFactor, driverOnJoint, passengerDestination, driverDestination);
+                                    }
                                 }
                             }
                             else if((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
@@ -246,7 +246,6 @@ namespace Tasha.EMME
         /// <summary>
         /// check to see if the mode being used for this trip is one that we are interested in.
         /// </summary>
-        /// <param name="trip"></param>
         /// <returns></returns>
         private bool UsesMode(ITashaMode mode)
         {
@@ -324,7 +323,7 @@ namespace Tasha.EMME
 
         private void MinZero(float[][] matrix)
         {
-            Parallel.For(0, matrix.Length, (int i) =>
+            Parallel.For(0, matrix.Length, i =>
             {
                 var row = matrix[i];
                 for(int j = 0; j < row.Length; j++)

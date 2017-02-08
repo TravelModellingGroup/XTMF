@@ -17,13 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Datastructure;
 using XTMF;
-using TMG;
-using TMG.Input;
+
 namespace Tasha.Data
 {
     [ModuleInformation(Description = "This module provides a way of storing a single floating point number.  It also provides the interface to set its value.")]
@@ -36,7 +31,7 @@ namespace Tasha.Data
 
         public float GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded

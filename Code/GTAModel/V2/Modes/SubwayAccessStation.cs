@@ -50,7 +50,7 @@ namespace TMG.GTAModel.V2.Modes
         [DoNotAutomate]
         public INetworkData First;
 
-        public float FTTC;
+        public float FareTTC;
 
         [RunParameter( "IVTT", 0f, "The factor to apply to the general time of travel." )]
         public float InVehicleTravelTime;
@@ -173,7 +173,7 @@ namespace TMG.GTAModel.V2.Modes
             // calculate this second in case the toDestinationTime is invalid
             // Cost of accessing the station
             v += AccessInVehicleTravelTime * First.TravelTime( flatOrigin, flatInterchange, time ).ToMinutes()
-                + ( AccessCost * ( First.TravelCost( flatOrigin, flatInterchange, time ) + FTTC ) );
+                + ( AccessCost * ( First.TravelCost( flatOrigin, flatInterchange, time ) + FareTTC ) );
 
             // Station to Destination time
             v += InVehicleTravelTime * toDestinationTime;
@@ -241,17 +241,6 @@ namespace TMG.GTAModel.V2.Modes
         {
             CheckInterchangeZone();
             return First.TravelTime( origin, InterchangeZone, time ) + Second.TravelTime( InterchangeZone, destination, time );
-        }
-
-        private static float ComputeSubV(ITripComponentData data, int flatOrigin, int flatDestination, Time t, float ivttWeight, float walkWeight, float waitWeight, float costWeight)
-        {
-            Time ivtt, walk, wait, boarding;
-            float cost;
-            data.GetAllData( flatOrigin, flatDestination, t, out ivtt, out walk, out wait, out boarding, out cost );
-            return ivttWeight * ivtt.ToMinutes()
-                + walkWeight * walk.ToMinutes()
-                + waitWeight * wait.ToMinutes()
-                + costWeight * cost;
         }
 
         private bool AreWeClosest(IZone origin, SparseArray<IZone> zoneArray, SparseTwinIndex<float> distances)

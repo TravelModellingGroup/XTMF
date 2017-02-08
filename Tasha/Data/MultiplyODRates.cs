@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
@@ -43,19 +40,19 @@ namespace Tasha.Data
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var first = this.FirstRateToApply.AcquireResource<SparseTwinIndex<float>>();
+            var first = FirstRateToApply.AcquireResource<SparseTwinIndex<float>>();
             var firstRate = first.GetFlatData();
-            var secondRate = this.SecondRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var secondRate = SecondRateToApply.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             SparseTwinIndex<float> data;
             data = first.CreateSimilarArray<float>();
             var flatData = data.GetFlatData();
@@ -63,12 +60,12 @@ namespace Tasha.Data
             {
                 VectorHelper.Multiply(flatData[i], 0, firstRate[i], 0, secondRate[i], 0, flatData[i].Length);
             }
-            this.Data = data;
+            Data = data;
         }
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         public string Name { get; set; }
@@ -85,14 +82,14 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!this.FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
-                error = "In '" + this.Name + "' the first rates resource is not of type SparseTwinIndex<float>!";
+                error = "In '" + Name + "' the first rates resource is not of type SparseTwinIndex<float>!";
                 return false;
             }
-            if (!this.SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
-                error = "In '" + this.Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
+                error = "In '" + Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
                 return false;
             }
             return true;

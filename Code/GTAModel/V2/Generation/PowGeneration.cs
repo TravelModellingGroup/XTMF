@@ -67,13 +67,12 @@ namespace TMG.GTAModel.V2.Generation
         public override void InitializeDemographicCategory()
         {
             // first learn what demographic category we should be in
-            DemographicParameterSetIndex = GetDemographicIndex( AgeCategoryRange[0].Start,
-                EmploymentStatusCategory[0].Start, Mobility[0].Start );
+            DemographicParameterSetIndex = GetDemographicIndex( AgeCategoryRange[0].Start, Mobility[0].Start );
             // now we can generate
             base.InitializeDemographicCategory();
         }
 
-        private int GetDemographicIndex(int age, int employmentStatus, int mobility)
+        private int GetDemographicIndex(int age, int mobility)
         {
             return ( age - 2 ) * 5 + mobility;
         }

@@ -70,20 +70,12 @@ namespace Tasha.Modes
         [RunParameter( "travelTime", 0f, "The factor applied to the travel time" )]
         public float travelTime;
 
-        private byte modeChoiceArrIndex = 0;
-
-        /// <summary>
-        /// Create a new Auto mode, this will be called when
-        /// Tasha# loads us
-        /// </summary>
-        public Passenger()
-        {
-        }
+        private byte modeChoiceArrIndex;
 
         [DoNotAutomate]
         public ITashaMode AssociatedMode
         {
-            get { return this.TashaRuntime.AutoMode; }
+            get { return TashaRuntime.AutoMode; }
         }
 
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
@@ -101,7 +93,7 @@ namespace Tasha.Modes
 
             set
             {
-                this.modeChoiceArrIndex = value;
+                modeChoiceArrIndex = value;
             }
         }
 
@@ -165,7 +157,7 @@ namespace Tasha.Modes
         /// </summary>
         public IVehicleType RequiresVehicle
         {
-            get { return this.TashaRuntime.AutoType; }
+            get { return TashaRuntime.AutoType; }
         }
 
         [RunParameter( "Variance Scale", 1.0f, "The scale for varriance used for variance testing." )]
@@ -186,19 +178,19 @@ namespace Tasha.Modes
                 return false;
             }
             // Since this is going to be valid, start building a real utility!
-            v = this.cpass;
+            v = cpass;
             // we are going to add in the time of the to passenger destination twice
-            v += ( ( dToPTime + tToPD + tToDD ).ToMinutes() + tToPD.ToMinutes() ) * this.travelTime;
+            v += ( ( dToPTime + tToPD + tToDD ).ToMinutes() + tToPD.ToMinutes() ) * travelTime;
             // Add in the travel cost
-            v += Cost( passengerTrip.OriginalZone, passengerTrip.DestinationZone, passengerTrip.ActivityStartTime ) * this.travelCost;
-            if ( passengerTrip.Purpose == Activity.Market | passengerTrip.Purpose == Activity.JointMarket ) v += this.dpurp_shop_drive;
-            if ( passengerTrip.Purpose == Activity.IndividualOther | passengerTrip.Purpose == Activity.JointOther ) v += this.dpurp_oth_drive;
-            if ( passengerTrip.Purpose == Activity.School ) v += this.dpurp_sch_passenger;
-            if ( passengerTrip.TripChain.Person.Female ) v += this.sex_f_passenger;
+            v += Cost( passengerTrip.OriginalZone, passengerTrip.DestinationZone, passengerTrip.ActivityStartTime ) * travelCost;
+            if ( passengerTrip.Purpose == Activity.Market | passengerTrip.Purpose == Activity.JointMarket ) v += dpurp_shop_drive;
+            if ( passengerTrip.Purpose == Activity.IndividualOther | passengerTrip.Purpose == Activity.JointOther ) v += dpurp_oth_drive;
+            if ( passengerTrip.Purpose == Activity.School ) v += dpurp_sch_passenger;
+            if ( passengerTrip.TripChain.Person.Female ) v += sex_f_passenger;
             if ( passengerTrip.TripChain.Person.Licence ) v += pass_w_license;
             if ( passengerTrip.OriginalZone == driverOriginalTrip.OriginalZone && passengerTrip.DestinationZone == driverOriginalTrip.DestinationZone )
             {
-                v += this.croundtrip_facil;
+                v += croundtrip_facil;
             }
             else
             {
@@ -232,7 +224,7 @@ namespace Tasha.Modes
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return this.AutoData.TravelCost( origin, destination, time );
+            return AutoData.TravelCost( origin, destination, time );
         }
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
@@ -266,7 +258,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -277,7 +269,7 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            var networks = this.TashaRuntime.NetworkData;
+            var networks = TashaRuntime.NetworkData;
             if ( networks == null )
             {
                 error = "There was no Auto Network loaded for the Passenger Mode!";
@@ -286,9 +278,9 @@ namespace Tasha.Modes
             bool found = false;
             foreach ( var network in networks )
             {
-                if ( network.NetworkType == this.NetworkType )
+                if ( network.NetworkType == NetworkType )
                 {
-                    this.AutoData = network;
+                    AutoData = network;
                     found = true;
                     break;
                 }
@@ -310,20 +302,20 @@ namespace Tasha.Modes
         /// <returns>The amount of time it will take</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.AutoData.TravelTime( origin, destination, time );
+            return AutoData.TravelTime( origin, destination, time );
         }
 
         private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time dToPTime, out Time tToPD, out Time tToDD)
         {
             // Check to see if the driver is able to get there
-            Time earliestPassenger = passengerTrip.ActivityStartTime - this.MaxPassengerTimeThreshold;
-            Time latestPassenger = passengerTrip.ActivityStartTime + this.MaxPassengerTimeThreshold;
+            Time earliestPassenger = passengerTrip.ActivityStartTime - MaxPassengerTimeThreshold;
+            Time latestPassenger = passengerTrip.ActivityStartTime + MaxPassengerTimeThreshold;
             Time originalDriverTime = driverOriginalTrip.ActivityStartTime - driverOriginalTrip.TripStartTime;
             // check to see if the driver is able to get to their destination
-            var timeToPassenger = dToPTime = this.TravelTime( driverOriginalTrip.OriginalZone, passengerTrip.OriginalZone, driverOriginalTrip.TripStartTime );
+            var timeToPassenger = dToPTime = TravelTime( driverOriginalTrip.OriginalZone, passengerTrip.OriginalZone, driverOriginalTrip.TripStartTime );
             var driverArrivesAt = driverOriginalTrip.TripStartTime + timeToPassenger;
-            var earliestDriver = driverArrivesAt - this.MaxDriverTimeThreshold;
-            var latestDriver = driverArrivesAt + this.MaxDriverTimeThreshold;
+            var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
+            var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
             Time overlapStart, overlapEnd;
             if ( !Time.Intersection( earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd ) )
             {
@@ -331,14 +323,14 @@ namespace Tasha.Modes
                 tToDD = Time.Zero;
                 return false;
             }
-            var midLegTravelTime = tToPD = this.TravelTime( passengerTrip.OriginalZone, passengerTrip.DestinationZone, latestDriver );
+            var midLegTravelTime = tToPD = TravelTime( passengerTrip.OriginalZone, passengerTrip.DestinationZone, latestDriver );
             Time finalLegTravelTime = tToDD = Time.Zero;
             if ( passengerTrip.DestinationZone != driverOriginalTrip.DestinationZone )
             {
-                finalLegTravelTime = this.TravelTime( passengerTrip.DestinationZone, driverOriginalTrip.DestinationZone, latestDriver + midLegTravelTime );
+                finalLegTravelTime = TravelTime( passengerTrip.DestinationZone, driverOriginalTrip.DestinationZone, latestDriver + midLegTravelTime );
             }
             var totalDriverTime = timeToPassenger + midLegTravelTime + finalLegTravelTime;
-            if ( overlapStart + totalDriverTime > driverOriginalTrip.ActivityStartTime + this.MaxDriverTimeThreshold )
+            if ( overlapStart + totalDriverTime > driverOriginalTrip.ActivityStartTime + MaxDriverTimeThreshold )
             {
                 return false;
             }

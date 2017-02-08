@@ -75,7 +75,7 @@ namespace Tasha.Estimation.LocationChoice
         }
 
         SpinLock FitnessLock = new SpinLock(false);
-        private float Fitness = 0.0f;
+        private float Fitness;
 
         private SparseArray<IZone> ZoneSystem;
 
@@ -83,7 +83,7 @@ namespace Tasha.Estimation.LocationChoice
         {
             var localFitness = 0.0f;
             var persons = household.Persons;
-            bool taken = false;
+            bool taken;
             if (ConfusionMatrix == null)
             {
                 for (int personIndex = 0; personIndex < persons.Length; personIndex++)
@@ -237,7 +237,7 @@ namespace Tasha.Estimation.LocationChoice
             Fitness = 0.0f;
             if (ConfusionMatrix != null)
             {
-                Choices = (Root.MainClient as ITravelDemandModel).ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                Choices = ((ITravelDemandModel)Root.MainClient).ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
             }
             // reload all of the probabilities
             LocationChoice.LoadLocationChoiceCache();

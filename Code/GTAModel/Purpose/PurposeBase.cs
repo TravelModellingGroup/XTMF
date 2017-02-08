@@ -125,9 +125,10 @@ namespace TMG.GTAModel
             {
                 BinaryHelpers.ExecuteReader( reader =>
                     {
+                        // ReSharper disable once UnusedVariable
                         foreach ( var t in tree )
                         {
-                            LoadData( t, reader );
+                            LoadData(reader );
                         }
                     }, ResultCacheFile );
             }
@@ -138,7 +139,7 @@ namespace TMG.GTAModel
             return tree;
         }
 
-        private void LoadData(TreeData<float[][]> t, BinaryReader reader)
+        private void LoadData(BinaryReader reader)
         {
             var size = reader.ReadSingle();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
@@ -163,7 +164,7 @@ namespace TMG.GTAModel
                     () =>
                     {
                         // and allocate memory at the same time
-                        ret = new float[numberOfZones][]; ;
+                        ret = new float[numberOfZones][];
                         for ( int i = 0; i < numberOfZones; i++ )
                         {
                             ret[i] = new float[numberOfZones];

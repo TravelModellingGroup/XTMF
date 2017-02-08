@@ -82,7 +82,7 @@ namespace Tasha.XTMFScheduler
                     return PrimaryWorkStartTime( person, personIndex, schedule, episode, rand );
 
                 default:
-                    throw new XTMFRuntimeException( "In '" + this.Name + "' we received an episode of purpose '" + episode.Purpose.ToString() + "'" );
+                    throw new XTMFRuntimeException( "In '" + Name + "' we received an episode of purpose '" + episode.Purpose.ToString() + "'" );
             }
         }
 
@@ -93,9 +93,9 @@ namespace Tasha.XTMFScheduler
             {
                 return;
             }
-            var flatPd = this.GenerationProbability.GetFlatIndex( household.HomeZone.PlanningDistrict );
+            var flatPd = GenerationProbability.GetFlatIndex( household.HomeZone.PlanningDistrict );
             var occupation = person.Occupation;
-            var probability = GenerationProbability.GetFlatData()[flatPd][this.Ages.IndexOf( person.Age ), (int)empStatus, (int)occupation];
+            var probability = GenerationProbability.GetFlatData()[flatPd][Ages.IndexOf( person.Age ), (int)empStatus, (int)occupation];
             var pop = rand.NextDouble();
             // If the random number is less than the probability then
             if ( pop <= probability )
@@ -107,34 +107,34 @@ namespace Tasha.XTMFScheduler
 
         public void IterationComplete(int currentIteration, int totalIterations)
         {
-            this.GenerationProbability = null;
-            this.Ages = null;
+            GenerationProbability = null;
+            Ages = null;
         }
 
         public void IterationStart(int currentIteration, int totalIterations)
         {
-            this.GenerationProbability = this.AgeEmpStatOccProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
-            this.DurationProbability = this.EmpStatOccDurationProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
-            this.Ages = this.AgeResource.AcquireResource<IndexedRangeSet>();
+            GenerationProbability = AgeEmpStatOccProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            DurationProbability = EmpStatOccDurationProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            Ages = AgeResource.AcquireResource<IndexedRangeSet>();
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.AgeEmpStatOccProbability.CheckResourceType( typeof( XTMF.IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
+            if ( AgeEmpStatOccProbability.CheckResourceType( typeof( IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
             {
-                error = "In '" + this.Name + "', the resource '" + AgeEmpStatOccProbability.ResourceName
+                error = "In '" + Name + "', the resource '" + AgeEmpStatOccProbability.ResourceName
                     + "' does not contain an IDataSource<SparseTriIndex<float>> for worker generation probabilities!";
                 return false;
             }
-            if ( this.EmpStatOccDurationProbability.CheckResourceType( typeof( XTMF.IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
+            if ( EmpStatOccDurationProbability.CheckResourceType( typeof( IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
             {
-                error = "In '" + this.Name + "', the resource '" + EmpStatOccDurationProbability.ResourceName
+                error = "In '" + Name + "', the resource '" + EmpStatOccDurationProbability.ResourceName
                     + "' does not contain an IDataSource<SparseTriIndex<float>> for full time worker duration probabilities!";
                 return false;
             }
-            if ( this.AgeResource.CheckResourceType( typeof( IndexedRangeSet ) ) )
+            if ( AgeResource.CheckResourceType( typeof( IndexedRangeSet ) ) )
             {
-                error = "In '" + this.Name + "', the resource '" + this.AgeResource.ResourceName + "' for age categories does not contain an IndexedRangeSet!";
+                error = "In '" + Name + "', the resource '" + AgeResource.ResourceName + "' for age categories does not contain an IndexedRangeSet!";
                 return false;
             }
             return true;
@@ -154,7 +154,7 @@ namespace Tasha.XTMFScheduler
             //If there are no episodes in the schedule, then we can place it anywhere
             if ( episodeList.Length == 0 || episodeList[0] == null )
             {
-                timeWindows.Add( new TimeWindow() { StartTime = this.StartOfDay, EndTime = this.EndOfDay } );
+                timeWindows.Add( new TimeWindow() { StartTime = StartOfDay, EndTime = EndOfDay } );
                 return GiveStartTimeForPrimaryWork( timeWindows, episode );
             }
             else
@@ -163,9 +163,9 @@ namespace Tasha.XTMFScheduler
                 {
                     //Check after the last episode
                     var firstStartTime = episodeList[0].StartTime;
-                    if ( firstStartTime - this.StartOfDay >= episodeDuration )
+                    if ( firstStartTime - StartOfDay >= episodeDuration )
                     {
-                        timeWindows.Add( new TimeWindow() { StartTime = this.StartOfDay, EndTime = firstStartTime} );
+                        timeWindows.Add( new TimeWindow() { StartTime = StartOfDay, EndTime = firstStartTime} );
                     }
                 }
                 //Check between each episode
@@ -187,9 +187,9 @@ namespace Tasha.XTMFScheduler
                 {
                     //Check after the last episode
                     var lastEpisodeEndTime = episodeList[episodeList.Length - 1].EndTime;
-                    if ( this.EndOfDay - lastEpisodeEndTime >= episodeDuration )
+                    if ( EndOfDay - lastEpisodeEndTime >= episodeDuration )
                     {
-                        timeWindows.Add( new TimeWindow() { StartTime = lastEpisodeEndTime, EndTime = this.EndOfDay } );
+                        timeWindows.Add( new TimeWindow() { StartTime = lastEpisodeEndTime, EndTime = EndOfDay } );
                     }
                 }
             }

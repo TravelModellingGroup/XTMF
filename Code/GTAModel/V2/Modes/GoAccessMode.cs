@@ -25,6 +25,7 @@ using Datastructure;
 using TMG.Input;
 using TMG.Modes;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.V2.Modes
 {
@@ -148,7 +149,7 @@ namespace TMG.GTAModel.V2.Modes
         /// </summary>
         private int[][] ClosestAccessStationsToOrigins;
 
-        private int lastIteration = -1;
+        private int LastIteration = -1;
 
         [RunParameter( "Access", true, "Is this mode in access mode or egress mode?" )]
         public bool Access
@@ -241,7 +242,7 @@ namespace TMG.GTAModel.V2.Modes
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( ( lastIteration != Root.CurrentIteration ) | ( time != CacheTime ) )
+            if ( ( LastIteration != Root.CurrentIteration ) | ( time != CacheTime ) )
             {
                 RebuildCache( time );
             }
@@ -256,6 +257,7 @@ namespace TMG.GTAModel.V2.Modes
                 float averageTravelTime = 0f;
                 float averageLineHull = 0f;
                 // make sure we clip the number of possible stations
+                // ReSharper disable once InconsistentNaming
                 float[] childrenEToV = new float[4];
                 IZone[] childrenAccessZone = new IZone[4];
                 IZone[] childrenEgressZone = new IZone[4];
@@ -416,11 +418,10 @@ namespace TMG.GTAModel.V2.Modes
         {
             if ( iterationNumber == 0 )
             {
-                string error = null;
                 // If everything is fine we can now Generate our children
-                if ( !GenerateChildren( ref error ) )
+                if ( !GenerateChildren() )
                 {
-                    throw new XTMFRuntimeException( error );
+                    throw new XTMFRuntimeException($"In {Name} when generating the access stations we ran into an issue!" );
                 }
                 // if we are in the first iteration go and make sure that we have our Origin - > Access Station[]'s built
                 BuildOriginToAccessStations();
@@ -625,11 +626,10 @@ namespace TMG.GTAModel.V2.Modes
             return lineLookup;
         }
 
-        private bool GenerateChildren(ref string error)
+        private bool GenerateChildren()
         {
             FreeTransfers.LoadData();
             Children = new List<GoAccessStation>();
-            List<Range> rangeList = new List<Range>();
             SparseTwinIndex<float> frequencies = ReadFrequencies();
             foreach ( var record in StationZoneData.Read() )
             {
@@ -676,13 +676,13 @@ namespace TMG.GTAModel.V2.Modes
             lock ( this )
             {
                 Thread.MemoryBarrier();
-                if ( lastIteration == Root.CurrentIteration ) return;
+                if ( LastIteration == Root.CurrentIteration ) return;
                 Cache = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<CacheData>();
                 foreach ( var child in Children )
                 {
                     child.DumpCaches();
                 }
-                lastIteration = Root.CurrentIteration;
+                LastIteration = Root.CurrentIteration;
                 CacheTime = time;
                 Thread.MemoryBarrier();
             }

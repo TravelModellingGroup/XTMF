@@ -38,7 +38,7 @@ namespace Tasha.XTMFModeChoice
             set;
         }
 
-        public TMG.IZone IntermediateZone
+        public IZone IntermediateZone
         {
             get;
             set;
@@ -58,7 +58,7 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        public TMG.IZone OriginalZone
+        public IZone OriginalZone
         {
             get;
             set;

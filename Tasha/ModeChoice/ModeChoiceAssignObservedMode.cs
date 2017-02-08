@@ -34,7 +34,7 @@ namespace Tasha.ModeChoice
         [RootModule]
         public ITashaRuntime Root;
 
-        private PassengerAlgo passAlgo;
+        private PassengerAlgo PassAlgo;
 
         public string Name
         {
@@ -57,7 +57,7 @@ namespace Tasha.ModeChoice
         {
             ITashaMode rideShare = null;
             int rideShareIndex = -1;
-            var allModes = this.Root.AllModes;
+            var allModes = Root.AllModes;
             var numberOfModes = allModes.Count;
             for ( int i = 0; i < numberOfModes; i++ )
             {
@@ -125,7 +125,7 @@ namespace Tasha.ModeChoice
                 double newU = 0.0;
                 bool success = true;
                 /*
-                 * Now we assign the rideshare mode and if the total U of everyone using rideshare is less than that
+                 * Now we assign the rideshare mode and if the total utility of everyone using rideshare is less than that
                  * of a non personal vehicle mode, everyone uses rideshare
                  *
                  */
@@ -149,7 +149,6 @@ namespace Tasha.ModeChoice
                 {
                     SetModes( tripChains, nonVehicleModesChosen );
                     //go to next joint trip
-                    continue;
                 }
             }
         }
@@ -201,7 +200,7 @@ namespace Tasha.ModeChoice
             //AssignFeasibility(household);
             //passenger algorithm traverses through all possible auxiliary trips and assigns the most desirable one
             InitializePassengerAlgo();
-            passAlgo.AssignPassengerTrips( household );
+            PassAlgo.AssignPassengerTrips( household );
         }
 
         /// <summary>
@@ -226,11 +225,11 @@ namespace Tasha.ModeChoice
 
         public bool RuntimeValidation(ref string error)
         {
-            ModeChoiceHousehold.TashaRuntime = this.Root;
-            ModeChoiceTripChain.TashaRuntime = this.Root;
-            ModeData.TashaRuntime = this.Root;
-            ModeChoiceTrip.TashaRuntime = this.Root;
-            HouseholdExtender.TashaRuntime = this.Root;
+            ModeChoiceHousehold.TashaRuntime = Root;
+            ModeChoiceTripChain.TashaRuntime = Root;
+            ModeData.TashaRuntime = Root;
+            ModeChoiceTrip.TashaRuntime = Root;
+            HouseholdExtender.TashaRuntime = Root;
             return true;
         }
 
@@ -239,29 +238,28 @@ namespace Tasha.ModeChoice
         /// </summary>
         /// <param name="tour"></param>
         /// <param name="bestSet"></param>
-        /// <param name="U"></param>
+        /// <param name="utility"></param>
         /// <returns></returns>
-        private static bool BestNonVehicleModeSetForTour(List<ITripChain> tour, out IList<ITashaMode> bestSet, out double U)
+        private static bool BestNonVehicleModeSetForTour(List<ITripChain> tour, out IList<ITashaMode> bestSet, out double utility)
         {
             bestSet = null;
-            U = Double.MinValue;
-            ITripChain firstTripChain = tour[0];
-            List<List<ModeSet>> ModeSets = new List<List<ModeSet>>();
+            utility = Double.MinValue;
+            List<List<ModeSet>> modeSets = new List<List<ModeSet>>();
             foreach ( var chain in tour )
             {
-                ModeSets.Add( new List<ModeSet>( ModeSet.GetModeSets( chain ) ) );
+                modeSets.Add( new List<ModeSet>( ModeSet.GetModeSets( chain ) ) );
             }
             Dictionary<ModeSet, double> setAndU = new Dictionary<ModeSet, double>();
-            foreach ( var set in ModeSets[0] )
+            foreach ( var set in modeSets[0] )
             {
                 double curU = set.U;
                 bool existsInAllSets = true;
-                for ( int i = 1; i < ModeSets.Count; i++ )
+                for ( int i = 1; i < modeSets.Count; i++ )
                 {
                     bool exists = false;
-                    foreach ( var nextSet in ModeSets[i] )
+                    foreach ( var nextSet in modeSets[i] )
                     {
-                        if ( sameChosenModes( set, nextSet ) )
+                        if ( SameChosenModes( set, nextSet ) )
                         {
                             exists = true;
                             curU += nextSet.U;
@@ -288,28 +286,28 @@ namespace Tasha.ModeChoice
                 IList<ITashaMode> chosen = element.Key.ChosenMode;
                 double u = element.Value;
 
-                if ( u > U )
+                if ( u > utility )
                 {
                     bestSet = chosen;
-                    U = u;
+                    utility = u;
                 }
             }
             return true;
         }
 
-        private static bool sameChosenModes(ModeSet A, ModeSet B)
+        private static bool SameChosenModes(ModeSet a, ModeSet b)
         {
-            var aLength = A.ChosenMode.Length;
-            if ( aLength != B.ChosenMode.Length )
+            var aLength = a.ChosenMode.Length;
+            if ( aLength != b.ChosenMode.Length )
             {
                 return false;
             }
             for ( int i = 0; i < aLength; i++ )
             {
-                if ( A.ChosenMode[i].NonPersonalVehicle == false )
+                if ( a.ChosenMode[i].NonPersonalVehicle == false )
                     return false;
 
-                if ( A.ChosenMode[i] != B.ChosenMode[i] )
+                if ( a.ChosenMode[i] != b.ChosenMode[i] )
                     return false;
             }
             return true;
@@ -333,39 +331,6 @@ namespace Tasha.ModeChoice
             }
         }
 
-        private void AssignFeasibility(ITashaHousehold household)
-        {
-            //loop through each trip in the household and assign all possible auxiliary trips
-            var modes = this.Root.SharedModes;
-            var nonSharedModes = this.Root.NonSharedModes.Count;
-            var modesLength = modes.Count;
-            // clear out all of the aux trip chains to begin with
-            var persons = household.Persons;
-            for ( int i = 0; i < persons.Length; i++ )
-            {
-                persons[i].AuxTripChains.Clear();
-            }
-            for ( int i = 0; i < persons.Length; i++ )
-            {
-                var tripChains = persons[i].TripChains;
-                for ( int j = 0; j < tripChains.Count; j++ )
-                {
-                    var trips = tripChains[j].Trips;
-                    for ( int k = 0; k < trips.Count; k++ )
-                    {
-                        ModeData md = ModeData.Get( trips[k] ); //get the mode data saved on the object
-                        for ( int l = 0; l < modesLength; l++ )
-                        {
-                            if ( !( md.Feasible[l + nonSharedModes] = modes[l].Feasible( trips[k] ) ) )
-                            {
-                                continue;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// Assigns the best mode to each trip in the trip chain for use in pass 3. (No Conflict Vers.)
         /// </summary>
@@ -379,7 +344,7 @@ namespace Tasha.ModeChoice
                     var numberOfTrips = tripChain.Trips.Count;
                     for ( int i = 0; i < numberOfTrips; i++ )
                     {
-                        tripChain.Trips[i].Mode = tripChain.Trips[i][this.ObservedMode] as ITashaMode;
+                        tripChain.Trips[i].Mode = tripChain.Trips[i][ObservedMode] as ITashaMode;
                     }
                 }
             }
@@ -410,14 +375,14 @@ namespace Tasha.ModeChoice
 
         private void InitializePassengerAlgo()
         {
-            if ( passAlgo == null )
+            if ( PassAlgo == null )
             {
                 lock ( this )
                 {
                     System.Threading.Thread.MemoryBarrier();
-                    if ( passAlgo == null )
+                    if ( PassAlgo == null )
                     {
-                        passAlgo = new PassengerAlgo( this.Root );
+                        PassAlgo = new PassengerAlgo( Root );
                         System.Threading.Thread.MemoryBarrier();
                     }
                 }

@@ -85,7 +85,7 @@ namespace Tasha.Scheduler
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -368,7 +368,6 @@ namespace Tasha.Scheduler
                     var ThisTrip = TripChain.Trips[j];
                     if (IsMainWorkTrip(ThisTrip.Purpose))
                     {
-                        continue;
                     }
                     else
                     {
@@ -609,7 +608,7 @@ namespace Tasha.Scheduler
 
             if (SmoothDurations)
             {
-                System.Threading.Tasks.Parallel.For(0, ResultsArray.Length, (int id) =>
+                System.Threading.Tasks.Parallel.For(0, ResultsArray.Length, id =>
                 {
                     // for each start time smooth the distributions
                     for (int start = 0; start < ResultsArray[id].Length; start++)
@@ -635,7 +634,7 @@ namespace Tasha.Scheduler
 
         public DistributionFactor[] ModificationFactors;
 
-        public sealed class DistributionFactor : XTMF.IModule
+        public sealed class DistributionFactor : IModule
         {
             [RunParameter("ID Range", "", typeof(RangeSet), "The range of distributions to apply this factor to.")]
             public RangeSet IDRange;

@@ -76,13 +76,6 @@ namespace Tasha.Modes
         [RunParameter( "walkTime", 0.0f, "The factor for walk time" )]
         public float walkTime;
 
-        /// <summary>
-        ///
-        /// </summary>
-        public Transit()
-        {
-        }
-
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
@@ -170,38 +163,38 @@ namespace Tasha.Modes
             else
             {
                 //transit constant
-                V += this.CTransit;
+                V += CTransit;
                 //In vehicle Travel Time
-                V += Data.InVehicleTravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * this.travelTime;
+                V += Data.InVehicleTravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * travelTime;
                 //Wait time
-                V += Data.WaitTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * this.waitTime;
+                V += Data.WaitTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * waitTime;
                 //walk time
-                V += Data.WalkTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * this.walkTime;
+                V += Data.WalkTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * walkTime;
                 //cost
                 if ( person.TransitPass != TransitPass.Metro | person.TransitPass != TransitPass.Combination )
                 {
-                    V += Data.TravelCost( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ) * this.Fare;
+                    V += Data.TravelCost( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ) * Fare;
                 }
             }
             if ( person.Occupation == Occupation.Retail )
             {
-                V += this.OccSalesTransit;
+                V += OccSalesTransit;
             }
             if ( person.Child )
             {
-                V += this.ChildBus;
+                V += ChildBus;
             }
             if ( person.Occupation == Occupation.Office )
             {
-                V += this.OccGeneralTransit;
+                V += OccGeneralTransit;
             }
             if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket )
             {
-                V += this.dpurp_shop_drive;
+                V += dpurp_shop_drive;
             }
             else if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther )
             {
-                V += this.dpurp_oth_drive;
+                V += dpurp_oth_drive;
             }
             return V;
         }
@@ -209,15 +202,15 @@ namespace Tasha.Modes
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             //transit constant
-            float V = this.CTransit;
+            float V = CTransit;
             //In vehicle Travel Time
-            V += Data.InVehicleTravelTime( origin, destination, time ).ToMinutes() * this.travelTime;
+            V += Data.InVehicleTravelTime( origin, destination, time ).ToMinutes() * travelTime;
             //Wait time
-            V += Data.WaitTime( origin, destination, time ).ToMinutes() * this.waitTime;
+            V += Data.WaitTime( origin, destination, time ).ToMinutes() * waitTime;
             //walk time
-            V += Data.WalkTime( origin, destination, time ).ToMinutes() * this.walkTime;
+            V += Data.WalkTime( origin, destination, time ).ToMinutes() * walkTime;
             //cost
-            V += Data.TravelCost( origin, destination, time ) * this.Fare;
+            V += Data.TravelCost( origin, destination, time ) * Fare;
             return V;
         }
 
@@ -228,7 +221,7 @@ namespace Tasha.Modes
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
         {
-            return ( origin.ZoneNumber == destination.ZoneNumber && UseIntrazonalRegression ) || ( CurrentlyFeasible > 0 & this.Data.ValidOd( origin, destination, timeOfDay ) );
+            return ( origin.ZoneNumber == destination.ZoneNumber && UseIntrazonalRegression ) || ( CurrentlyFeasible > 0 & Data.ValidOd( origin, destination, timeOfDay ) );
         }
 
         /// <summary>
@@ -241,15 +234,15 @@ namespace Tasha.Modes
             var origin = trip.OriginalZone;
             var destination = trip.DestinationZone;
             var time = trip.ActivityStartTime;
-            if ( trip.Purpose != Activity.JointOther && trip.TripChain.Person.Age < this.MinAgeAlone )
+            if ( trip.Purpose != Activity.JointOther && trip.TripChain.Person.Age < MinAgeAlone )
             {
                 return false;
             }
-            if ( this.UseIntrazonalRegression && trip.OriginalZone.ZoneNumber == trip.DestinationZone.ZoneNumber )
+            if ( UseIntrazonalRegression && trip.OriginalZone.ZoneNumber == trip.DestinationZone.ZoneNumber )
             {
                 return true;
             }
-            if ( !this.Data.ValidOd( origin, destination, time ) )
+            if ( !Data.ValidOd( origin, destination, time ) )
             {
                 return false;
             }
@@ -270,7 +263,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -306,17 +299,17 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.Data = null;
-            foreach ( var network in this.TashaRuntime.NetworkData )
+            Data = null;
+            foreach ( var network in TashaRuntime.NetworkData )
             {
-                if ( network.NetworkType == this.NetworkType && network is ITripComponentData )
+                if ( network.NetworkType == NetworkType && network is ITripComponentData )
                 {
-                    this.Data = network as ITripComponentData;
+                    Data = network as ITripComponentData;
                 }
             }
-            if ( this.Data == null )
+            if ( Data == null )
             {
-                error = "We were unable to find a transit network with the name \"" + this.NetworkType + "\"!";
+                error = "We were unable to find a transit network with the name \"" + NetworkType + "\"!";
                 return false;
             }
             return true;

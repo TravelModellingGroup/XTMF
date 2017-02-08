@@ -16,21 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
+using Datastructure;
 using TMG.Emme;
 using TMG.Estimation;
 using TMG.Input;
 using XTMF;
-using Datastructure;
-using System.IO;
+
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.NetworkEstimation
 {
     [ModuleInformation(Description = "Calculates Root Mean Square Error (RMSE) of transit line boardings for AM and PM time periods, including an entry for walk-all-way numbers")]
-    public class CalcRMSEofBoardingsAMPMWAW : IEmmeTool
+    public class CalcRmsEofBoardingsAmpmwaw : IEmmeTool
     {
 
         [RootModule]
@@ -45,7 +47,7 @@ namespace TMG.NetworkEstimation
         [Parameter("WaW Error Factor", 0.5f, "A factor applied to the error term of walk-all-way numbers (which are always compared against a truth value of 0). Therefore " +
                     "the error term (which gets included in the overall mean) for WAW is given by (ErrorFactor * ModelWalkAllWayTrips)^2. A weight of 0 will disable including " +
                     "walk-all-way numbers.")]
-        public float WAWErrorFactor;
+        public float WawErrorFactor;
 
         [Parameter("AM Error Factor", 1.0f, "A factor applied to the non-squared error of AM boardings.")]
         public float AMErrorFactor;
@@ -74,8 +76,8 @@ namespace TMG.NetworkEstimation
         [SubModelInformation(Required = false, Description = "Optionally where to save the deltas of the aggregated boardings to file.")]
         public FileLocation SavePMBoardingDifferencesByAggregatedLine;
 
-        private const string _ToolName = "tmg.XTMF_internal.return_boardings_and_WAW";
-        private const string _WawKey = "Walk-all-way";
+        private const string ToolName = "tmg.XTMF_internal.return_boardings_and_WAW";
+        private const string WawKey = "Walk-all-way";
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public bool Execute(Controller controller)
@@ -87,27 +89,27 @@ namespace TMG.NetworkEstimation
             }
 
             //Load the observed boardings
-            var observationsAM = this.LoadObservedBoardingsFile(this.ObservedBoardingsFileAM.GetFilePath());
-            var observationsPM = this.LoadObservedBoardingsFile(this.ObservedBoardingsFilePM.GetFilePath());
+            var observationsAM = LoadObservedBoardingsFile(ObservedBoardingsFileAM.GetFilePath());
+            var observationsPM = LoadObservedBoardingsFile(ObservedBoardingsFilePM.GetFilePath());
 
             //Load the AM Modelled Boardings
-            var args = string.Join(" ", this.AMScenarioNumber,
-                                        this.LineAggregationFile.GetFilePath(),
-                                        (this.WAWErrorFactor != 0.0f));
+            var args = string.Join(" ", AMScenarioNumber,
+                                        LineAggregationFile.GetFilePath(),
+                                        (WawErrorFactor != 0.0f));
             string result = "";
-            mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
-            var AmModelResults = this.ParseResults(result);
+            mc.Run(ToolName, args, (p => Progress = p), ref result);
+            var amModelResults = ParseResults(result);
 
             //Load the PM Modelled Boardings
-            args = string.Join(" ", this.PMScenarioNumber,
-                                    this.LineAggregationFile.GetFilePath(),
-                                    (this.WAWErrorFactor != 0.0f));
+            args = string.Join(" ", PMScenarioNumber,
+                                    LineAggregationFile.GetFilePath(),
+                                    (WawErrorFactor != 0.0f));
             result = "";
-            mc.Run(_ToolName, args, ref result);
-            var PmModelResults = this.ParseResults(result);
+            mc.Run(ToolName, args, ref result);
+            var pmModelResults = ParseResults(result);
 
             //Calculate the fitness
-            this.CalcFitness(observationsAM, observationsPM, AmModelResults, PmModelResults);
+            CalcFitness(observationsAM, observationsPM, amModelResults, pmModelResults);
 
             return true;
         }
@@ -142,17 +144,17 @@ namespace TMG.NetworkEstimation
             using (CsvReader reader = new CsvReader(filepath))
             {
                 reader.LoadLine(); //Skip the first line                
-                int numCol = 2;
+                int numCol;
                 while (reader.LoadLine(out numCol))
                 {
-                    string lineId = "";
+                    string lineId;
                     reader.Get(out lineId, 0);
 
                     if (string.IsNullOrWhiteSpace(lineId))
                         continue; //Skip over blank lines
 
                     if (numCol < 2)
-                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol.ToString() + ")");
+                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
 
                     float boardings;
                     reader.Get(out boardings, 1);
@@ -181,7 +183,7 @@ namespace TMG.NetworkEstimation
             {
                 if (!modelledBoardingsAm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
                 var modelledBoardings = modelledBoardingsAm[entry.Key];
-                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * this.AMErrorFactor, 2);
+                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * AMErrorFactor, 2);
                 numberOfLines++;
             }
 
@@ -190,7 +192,7 @@ namespace TMG.NetworkEstimation
             {
                 if (!modelledBoardingsPm.ContainsKey(entry.Key)) continue; //Skip over lines not in network
                 var modelledBoardings = observedBoardingsPM[entry.Key];
-                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * this.PMErrorFactor, 2);
+                squaredErrorSum += Math.Pow((modelledBoardings - entry.Value) * PMErrorFactor, 2);
                 numberOfLines++;
             }
 
@@ -205,13 +207,13 @@ namespace TMG.NetworkEstimation
             }
 
             //Add in the values for walk-all-ways
-            if (this.WAWErrorFactor != 0.0f)
+            if (WawErrorFactor != 0.0f)
             {
-                squaredErrorSum += Math.Pow(modelledBoardingsAm[_WawKey] * this.WAWErrorFactor, 2) + Math.Pow(modelledBoardingsPm[_WawKey] + this.WAWErrorFactor, 2);
+                squaredErrorSum += Math.Pow(modelledBoardingsAm[WawKey] * WawErrorFactor, 2) + Math.Pow(modelledBoardingsPm[WawKey] + WawErrorFactor, 2);
                 numberOfLines += 2;
             }
 
-            this.Root.RetrieveValue = (() => (float)(Math.Sqrt(squaredErrorSum / numberOfLines)));
+            Root.RetrieveValue = (() => (float)(Math.Sqrt(squaredErrorSum / numberOfLines)));
         }
 
         private Dictionary<string, float> ComputeDeltas(Dictionary<string, float> observedBoardingsAM, Dictionary<string, float> modelledBoardingsAm)

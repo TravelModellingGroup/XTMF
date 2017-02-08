@@ -16,11 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using TMG.Estimation;
 using TMG.Input;
 using XTMF;
@@ -64,10 +62,10 @@ namespace TMG.NetworkEstimation
 
         public void Start()
         {
-            var task = this.Root.CurrentTask;
+            var task = Root.CurrentTask;
             string id = task.Generation + "-" + task.Index;
 
-            var filepath = this.FileToRename.GetFilePath();
+            var filepath = FileToRename.GetFilePath();
             var newFilepath = Path.GetFileNameWithoutExtension(filepath) + "(" + id + ")" + Path.GetExtension(filepath);
 
             File.Move(filepath, newFilepath);

@@ -36,7 +36,7 @@ namespace Tasha.V4Modes
         [DoNotAutomate]
         public ITashaMode AssociatedMode
         {
-            get { return this.Root.AutoMode; }
+            get { return Root.AutoMode; }
         }
 
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
@@ -101,7 +101,7 @@ namespace Tasha.V4Modes
         /// </summary>
         public IVehicleType RequiresVehicle
         {
-            get { return this.Root.AutoType; }
+            get { return Root.AutoType; }
         }
 
         [DoNotAutomate]
@@ -136,7 +136,7 @@ namespace Tasha.V4Modes
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return this.TravelData.TravelCost( origin, destination, time );
+            return TravelData.TravelCost( origin, destination, time );
         }
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
@@ -175,7 +175,7 @@ namespace Tasha.V4Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace Tasha.V4Modes
         /// <returns>The amount of time it will take</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.TravelData.TravelTime( origin, destination, time );
+            return TravelData.TravelTime( origin, destination, time );
         }
     }
 }

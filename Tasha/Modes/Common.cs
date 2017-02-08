@@ -37,7 +37,7 @@ namespace Tasha.Modes
         {
             int hours = (int)( minutes / 60 );
             float minutes2 = ( minutes - hours * 60 ) / 100;
-            return (float)hours + minutes2;
+            return hours + minutes2;
         }
 
         public static List<int> ConvertToIntList(string values)

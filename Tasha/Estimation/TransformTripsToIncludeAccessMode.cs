@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 
 using System.Data;
-using System.Data.Sql;
 
 namespace Tasha.Estimation
 {
@@ -36,14 +32,10 @@ namespace Tasha.Estimation
 
         public void Start()
         {
-            var dbConnection = this.DatabaseConnection.AcquireResource<IDbConnection>();
+            var dbConnection = DatabaseConnection.AcquireResource<IDbConnection>();
             if ( dbConnection == null )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to get a database connection!" );
-            }
-            using (var command = dbConnection.CreateCommand())
-            {
-                
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to get a database connection!" );
             }
         }
     }

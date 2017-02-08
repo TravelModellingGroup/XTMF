@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Text;
 using TMG.Emme;
 using TMG.Estimation;
@@ -19,7 +19,7 @@ namespace TMG.NetworkEstimation
         public int ScenarioNumber;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "tmg.XTMF_internal.return_boarding_types";
+        private const string ToolName = "tmg.XTMF_internal.return_boarding_types";
 
         public bool Execute(Controller controller)
         {
@@ -29,30 +29,30 @@ namespace TMG.NetworkEstimation
                 throw new XTMFRuntimeException("Controller is not a ModellerController");
             }
             string result = "";
-            mc.Run(_ToolName, this.ScenarioNumber.ToString(), (p => this._Progress = p), ref result);
-            var modelResults = this._ParsePythonResults(result);
+            mc.Run(ToolName, ScenarioNumber.ToString(), (p => _Progress = p), ref result);
+            var modelResults = _ParsePythonResults(result);
 
             StringBuilder builder = new StringBuilder();
-            builder.Append(this.Root.CurrentTask.Generation);
+            builder.Append(Root.CurrentTask.Generation);
             builder.Append(',');
-            builder.Append(this.Root.CurrentTask.Index);
+            builder.Append(Root.CurrentTask.Index);
             builder.Append(',');
-            var func = this.Root.RetrieveValue;
-            builder.Append((func == null) ? "null" : func().ToString());
+            var func = Root.RetrieveValue;
+            builder.Append((func == null) ? "null" : func().ToString(CultureInfo.InvariantCulture));
             foreach (var f in modelResults)
             {
                 builder.Append(',');
                 builder.Append(f);
             }
-            foreach (var val in this.Root.CurrentTask.ParameterValues)
+            foreach (var val in Root.CurrentTask.ParameterValues)
             {
                 builder.Append(',');
-                builder.Append(val.ToString());
+                builder.Append(val.ToString(CultureInfo.InvariantCulture));
             }
             builder.AppendLine();
 
             //now that we have built up the data, send it to the host
-            this.SendToHost(builder.ToString());
+            SendToHost(builder.ToString());
             Console.WriteLine("Extracted line boardings from Emme.");
             return true;
         }

@@ -106,7 +106,7 @@ namespace Tasha.Modes
                             builder.Append(',');
                             builder.Append(expansionFactor);
                             builder.Append(',');
-                            builder.Append((trip.TripStartTime.Hours * 100 + ((int)trip.TripStartTime.Minutes / 30) * 30));
+                            builder.Append((trip.TripStartTime.Hours * 100 + (trip.TripStartTime.Minutes / 30) * 30));
                             builder.Append(',');
                             builder.Append(StraightLineDistance(trip.OriginalZone, trip.DestinationZone));
                             builder.Append(',');

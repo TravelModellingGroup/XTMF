@@ -50,20 +50,20 @@ namespace Tasha.Scheduler
 
         internal static bool GenerateIndividualMarketActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue(0, 1, random,
-                Distribution.GetDistributionID(person, Activity.Market), householdPD, workPD, generationAdjustments) > 0;
+            return GetRandomFrequencyValue(0, 1, random,
+                GetDistributionID(person, Activity.Market), householdPD, workPD, generationAdjustments) > 0;
         }
 
         internal static bool GenerateIndividualOtherActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue(0, 1, random,
-              Distribution.GetDistributionID(person, Activity.IndividualOther), householdPD, workPD, generationAdjustments) > 0;
+            return GetRandomFrequencyValue(0, 1, random,
+              GetDistributionID(person, Activity.IndividualOther), householdPD, workPD, generationAdjustments) > 0;
         }
 
         internal static bool GeneratePrimaryWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue(0, 1, random,
-                Distribution.GetDistributionID(person, Activity.PrimaryWork), householdPD, workPD, generationAdjustments)
+            return GetRandomFrequencyValue(0, 1, random,
+                GetDistributionID(person, Activity.PrimaryWork), householdPD, workPD, generationAdjustments)
                 == 1;
         }
 
@@ -74,28 +74,28 @@ namespace Tasha.Scheduler
         /// <returns></returns>
         internal static bool GenerateReturnFromWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue(0, 1, random,
-               Distribution.GetDistributionID(person, Activity.ReturnFromWork), householdPD, workPD, generationAdjustments)
+            return GetRandomFrequencyValue(0, 1, random,
+               GetDistributionID(person, Activity.ReturnFromWork), householdPD, workPD, generationAdjustments)
                 > 0;
         }
 
         internal static bool GenerateSchoolActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue(0, 1, random,
-                Distribution.GetDistributionID(person, Activity.School), householdPD, workPD, generationAdjustments) > 0;
+            return GetRandomFrequencyValue(0, 1, random,
+                GetDistributionID(person, Activity.School), householdPD, workPD, generationAdjustments) > 0;
         }
 
         internal static bool GenerateSecondaryWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue(0, 1, random,
-                Distribution.GetDistributionID(person, Activity.SecondaryWork), householdPD, workPD, generationAdjustments)
+            return GetRandomFrequencyValue(0, 1, random,
+                GetDistributionID(person, Activity.SecondaryWork), householdPD, workPD, generationAdjustments)
                 > 0;
         }
 
         internal static bool GenerateWorkAtHomesActivity(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
         {
-            return Distribution.GetRandomFrequencyValue(0, 1, random,
-            Distribution.GetDistributionID(person, Activity.WorkAtHomeBusiness), householdPD, householdPD, generationAdjustments)
+            return GetRandomFrequencyValue(0, 1, random,
+            GetDistributionID(person, Activity.WorkAtHomeBusiness), householdPD, householdPD, generationAdjustments)
                 > 0;
         }
 
@@ -111,7 +111,7 @@ namespace Tasha.Scheduler
                 if (household.NumberOfAdults == 2 && household.NumberOfChildren == 0)
                     numEpisodeAdults = 2;
                 else
-                    numEpisodeAdults = Distribution.GetRandomNumberAdults(household, activity, 0, household.NumberOfAdults, random);
+                    numEpisodeAdults = GetRandomNumberAdults(household, activity, 0, household.NumberOfAdults, random);
             }
             return numEpisodeAdults;
         }

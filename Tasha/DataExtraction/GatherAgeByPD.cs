@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using XTMF;
 using TMG;
@@ -74,21 +71,21 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var zones = this.ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
+            var zones = ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
             var numberOfZones = zones.GetFlatData().Length;
-            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
-            float[][] populationByAge = null;
+            var connection = DatabaseConnection.AcquireResource<IDbConnection>();
+            float[][] populationByAge;
             using ( var command = connection.CreateCommand() )
             {
-                populationByAge = new float[this.AgeSets.Count][];
+                populationByAge = new float[AgeSets.Count][];
                 FillInPopulationByZone( zones, numberOfZones, command, populationByAge );
             }
-            WriteOutData( populationByAge, zones, numberOfZones );
+            WriteOutData( populationByAge, zones );
         }
 
-        private void WriteOutData(float[][] populationByAge, SparseArray<IZone> zones, int numberOfZones)
+        private void WriteOutData(float[][] populationByAge, SparseArray<IZone> zones)
         {
-            var pdData = new SparseArray<float>[this.AgeSets.Count];
+            var pdData = new SparseArray<float>[AgeSets.Count];
             BuildPlanningDistrictData( populationByAge, zones, pdData );
             NormalizeData( pdData );
             SaveData( pdData );
@@ -97,7 +94,7 @@ namespace Tasha.DataExtraction
         private void SaveData(SparseArray<float>[] pdData)
         {
             var pdIndexes = pdData[0].ValidIndexArray();
-            using ( var writer = new StreamWriter( this.OutputFileName.GetFilePath() ) )
+            using ( var writer = new StreamWriter( OutputFileName.GetFilePath() ) )
             {
                 writer.WriteLine( "PD,AgeCategory,ExpandedPopulation" );
                 for ( int i = 0; i < pdData.Length; i++ )
@@ -157,18 +154,9 @@ namespace Tasha.DataExtraction
             }
         }
 
-        private void Clear(SparseArray<float> pdArray)
-        {
-            var data = pdArray.GetFlatData();
-            for ( int i = 0; i < data.Length; i++ )
-            {
-                data[i] = 0f;
-            }
-        }
-
         private void FillInPopulationByZone(SparseArray<IZone> zones, int numberOfZones, IDbCommand command, float[][] populationByAge)
         {
-            for ( int i = 0; i < this.AgeSets.Count; i++ )
+            for ( int i = 0; i < AgeSets.Count; i++ )
             {
                 populationByAge[i] = new float[numberOfZones];
                 command.CommandText =
@@ -198,9 +186,9 @@ GROUP BY [{3}].[{0}];",
                     //9
                         AgeColumn,
                     //10
-                        this.AgeSets[i].Start,
+                        AgeSets[i].Start,
                     //11
-                    this.AgeSets[i].Stop );
+                    AgeSets[i].Stop );
                 using ( var reader = command.ExecuteReader() )
                 {
                     while ( reader.Read() )
@@ -230,16 +218,16 @@ GROUP BY [{3}].[{0}];",
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.DatabaseConnection.CheckResourceType<IDbConnection>() )
+            if ( !DatabaseConnection.CheckResourceType<IDbConnection>() )
             {
-                error = "In '" + this.Name + "' the database connection resource does not contain a database connection!\r\n"
-                    + " Instead it contains '" + this.DatabaseConnection.GetResourceType() + "'!";
+                error = "In '" + Name + "' the database connection resource does not contain a database connection!\r\n"
+                    + " Instead it contains '" + DatabaseConnection.GetResourceType() + "'!";
                 return false;
             }
-            if ( !this.ZoneSystem.CheckResourceType<IZoneSystem>() )
+            if ( !ZoneSystem.CheckResourceType<IZoneSystem>() )
             {
-                error = "In '" + this.Name + "' the zone system resource does not contain a zone system!\r\n"
-                    + " Instead it contains '" + this.ZoneSystem.GetResourceType() + "'!";
+                error = "In '" + Name + "' the zone system resource does not contain a zone system!\r\n"
+                    + " Instead it contains '" + ZoneSystem.GetResourceType() + "'!";
                 return false;
             }
             return true;

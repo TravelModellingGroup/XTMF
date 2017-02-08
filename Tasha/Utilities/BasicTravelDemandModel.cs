@@ -18,11 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using TMG.Emme;
 using XTMF;
 using TMG;
 namespace Tasha.Utilities
@@ -39,7 +34,7 @@ namespace Tasha.Utilities
 
         public string OutputBaseDirectory { get; set; }
 
-        private Func<float> _Progress = null;
+        private Func<float> _Progress;
         public float Progress { get { return _Progress == null ? 0.0f : _Progress(); } }
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
@@ -62,7 +57,7 @@ namespace Tasha.Utilities
             return true;
         }
 
-        private Func<string> status = null;
+        private Func<string> status;
 
         public void Start()
         {

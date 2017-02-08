@@ -498,7 +498,6 @@ namespace Tasha.V4Modes
             cost = NonWorkerStudentCost;
             constant = NonWorkerStudentConstant;
             time = NonWorkerStudentTimeFactor;
-            return;
         }
 
         /// <summary>

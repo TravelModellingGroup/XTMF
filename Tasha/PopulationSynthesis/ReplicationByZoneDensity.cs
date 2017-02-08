@@ -76,7 +76,7 @@ namespace Tasha.PopulationSynthesis
         }
 
 
-        public sealed class PopulationPool : XTMF.IModule
+        public sealed class PopulationPool : IModule
         {
 
             [RunParameter("Regions", "1-6", typeof(RangeSet), "The regions that are included in this pool.")]
@@ -277,7 +277,7 @@ namespace Tasha.PopulationSynthesis
             var random = new Random(RandomSeed);
             var randomSeed = PopulationPools.Select(_ => random.Next()).ToArray();
             List<KeyValuePair<int, int>>[] results = new List<KeyValuePair<int, int>>[PopulationPools.Length];
-            Parallel.For(0, PopulationPools.Length, (int i) =>
+            Parallel.For(0, PopulationPools.Length, i =>
             {
                 // make sure we don't generate persons for the external zones
                 results[i] = PopulationPools[i].Process(randomSeed[i], zones, HouseholdExpansionFactor);

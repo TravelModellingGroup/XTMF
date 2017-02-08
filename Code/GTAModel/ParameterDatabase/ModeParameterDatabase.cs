@@ -250,7 +250,6 @@ its mode when switching context between different demographic categories."
                     }
                     string[] header = headerLine.Split( ',' );
                     var numberOfParameters = header.Length;
-                    string[] modeName = new string[numberOfParameters];
                     Parameter[] parameterMapping = CreateParameterMapping( header );
                     string line;
                     int numberOfLines = 0;

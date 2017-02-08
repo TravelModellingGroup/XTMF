@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG;
 using XTMF;
 using Datastructure;
@@ -43,20 +40,18 @@ namespace Tasha.Data
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
-            var zones = zoneArray.GetFlatData();
-            var firstRate = this.FirstRateToApply.AcquireResource<SparseTwinIndex<float>>();
-            var secondRate = this.SecondRateToApply.AcquireResource<SparseTwinIndex<float>>();
+            var firstRate = FirstRateToApply.AcquireResource<SparseTwinIndex<float>>();
+            var secondRate = SecondRateToApply.AcquireResource<SparseTwinIndex<float>>();
             SparseTwinIndex<float> data = firstRate.CreateSimilarArray<float>();
             var flatFirst = firstRate.GetFlatData();
             var flatSecond = secondRate.GetFlatData();
@@ -65,12 +60,12 @@ namespace Tasha.Data
             {
                 VectorHelper.Divide(flat[i], 0, flatFirst[i], 0, flatSecond[i], 0, flat[i].Length);
             }
-            this.Data = data;
+            Data = data;
         }
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         public string Name { get; set; }
@@ -87,14 +82,14 @@ namespace Tasha.Data
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!this.FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!FirstRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
-                error = "In '" + this.Name + "' the first rates resource is not of type SparseArraySparseTwinIndex<float>!";
+                error = "In '" + Name + "' the first rates resource is not of type SparseArraySparseTwinIndex<float>!";
                 return false;
             }
-            if (!this.SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
+            if (!SecondRateToApply.CheckResourceType<SparseTwinIndex<float>>())
             {
-                error = "In '" + this.Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
+                error = "In '" + Name + "' the second rate resource is not of type SparseTwinIndex<float>!";
                 return false;
             }
             return true;

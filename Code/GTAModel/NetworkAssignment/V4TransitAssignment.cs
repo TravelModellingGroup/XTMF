@@ -84,9 +84,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Relative Gap", 0.001f, "Convergence criterion")]
         public float RelativeGap;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "tmg.assignment.transit.V4_FBTA";
+        private const string ToolName = "tmg.assignment.transit.V4_FBTA";
 
         public bool Execute(Controller controller)
         {
@@ -118,7 +118,7 @@ namespace TMG.GTAModel.NetworkAssignment
             */
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name
@@ -135,7 +135,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool RuntimeValidation(ref string error)

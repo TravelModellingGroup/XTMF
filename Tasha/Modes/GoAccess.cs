@@ -96,13 +96,6 @@ namespace Tasha.Modes
         [Parameter( "WalkTime", 0.0f, "The factor applied to the walk time" )]
         public float WalkTime;
 
-        /// <summary>
-        ///
-        /// </summary>
-        public GoAccess()
-        {
-        }
-
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
 
@@ -165,7 +158,7 @@ namespace Tasha.Modes
         /// </summary>
         public IVehicleType RequiresVehicle
         {
-            get { return this.TashaRuntime.AutoType; }
+            get { return TashaRuntime.AutoType; }
         }
 
         [Parameter( "Variance Scale", 1.0f, "The scale for varriance used for variance testing." )]
@@ -189,7 +182,7 @@ namespace Tasha.Modes
 
             for ( int i = 0; i < accessStations.Length; i++ )
             {
-                V[i] = this.CDriveAccess;
+                V[i] = CDriveAccess;
                 V[i] += AutoTime * goData.GetAutoTime( trip.OriginalZone.ZoneNumber, accessStations[i] );
                 V[i] += AutoCost * goData.GetAutoCost( trip.OriginalZone.ZoneNumber, accessStations[i] );
                 V[i] += TransitRailTime * goData.GetLineHaulTime( accessStations[i], egressStation );
@@ -199,20 +192,20 @@ namespace Tasha.Modes
                 V[i] += FareCost * ( goData.GetGoFair( accessStations[i], egressStation )
                                                 + goData.GetTransitFair( trip.DestinationZone.ZoneNumber, egressStation ) );
 
-                if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Morning ) ||
-    ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Afternoon ) )
+                if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Morning ) ||
+    ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Afternoon ) )
                 {
                     V[i] += PeakTrip;
                 }
 
                 if ( trip.TripChain.Person.Occupation == Occupation.Retail )
                 {
-                    V[i] += this.OccSalesTransit;
+                    V[i] += OccSalesTransit;
                 }
 
                 if ( trip.TripChain.Person.Occupation == Occupation.Office )
                 {
-                    V[i] += this.OccGeneralTransit;
+                    V[i] += OccGeneralTransit;
                 }
             }
             Array.Sort(V);
@@ -312,7 +305,7 @@ namespace Tasha.Modes
                     feasibleStations[i++] = access;
                 }
             }
-            Array.Resize<int>( ref feasibleStations, i );
+            Array.Resize( ref feasibleStations, i );
             trip.Attach( "feasible-go-stations", feasibleStations );
             return feasible;
         }
@@ -349,7 +342,7 @@ namespace Tasha.Modes
         /// <returns></returns>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         public void ModeChoiceIterationComplete()

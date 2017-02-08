@@ -17,15 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using Tasha.Common;
-using TMG;
 using TMG.Estimation;
-using Tasha.Internal;
-using Tasha.XTMFModeChoice;
 using System.Threading;
 
 namespace Tasha.Estimation

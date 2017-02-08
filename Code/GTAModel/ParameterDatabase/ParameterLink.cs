@@ -26,10 +26,10 @@ namespace TMG.GTAModel.ParameterDatabase
 {
     public class ParameterLink : IParameterLink
     {
-        [RunParameter( "Mode Parameter Name", "", "The name of the parameter of the mode's module or Utility Component to bind to." )]
+        [RunParameter("Mode Parameter Name", "", "The name of the parameter of the mode's module or Utility Component to bind to.")]
         public string ModeParameterName;
 
-        [RunParameter( "Multiplier", 1f, "The amount to multiply against floating point parameters." )]
+        [RunParameter("Multiplier", 1f, "The amount to multiply against floating point parameters.")]
         public float Multiplier;
 
         [ParentModel]
@@ -56,7 +56,7 @@ namespace TMG.GTAModel.ParameterDatabase
             set;
         }
 
-        [RunParameter( "Parameter Name", "", "The name of the parameter from the mode choice file to bind to." )]
+        [RunParameter("Parameter Name", "", "The name of the parameter from the mode choice file to bind to.")]
         public string ParameterName { get; set; }
 
         public float Progress
@@ -73,61 +73,61 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             string error = null;
             object temp;
-            if ( TypeIndex == 1 )
+            if (TypeIndex == 1)
             {
                 // do float assignment
-                temp = float.Parse( value ) * Multiplier;
+                temp = float.Parse(value) * Multiplier;
             }
-            else if ( TypeIndex == 2 )
+            else if (TypeIndex == 2)
             {
                 // do double assignment
-                temp = double.Parse( value ) * Multiplier;
+                temp = double.Parse(value) * Multiplier;
             }
             else
             {
-                var t = ( Field == null ? Property.PropertyType : Field.FieldType );
-                if ( ( temp = ArbitraryParameterParser.ArbitraryParameterParse( t, value, ref error ) ) == null )
+                var t = (Field == null ? Property.PropertyType : Field.FieldType);
+                if ((temp = ArbitraryParameterParser.ArbitraryParameterParse(t, value, ref error)) == null)
                 {
-                    throw new XTMFRuntimeException( "Unable to convert value!" );
+                    throw new XTMFRuntimeException("Unable to convert value!");
                 }
             }
 
-            if ( Field != null )
+            if (Field != null)
             {
-                Field.SetValue( AssignTo, temp );
+                Field.SetValue(AssignTo, temp);
             }
             else
             {
-                Property.SetValue( AssignTo, temp, null );
+                Property.SetValue(AssignTo, temp, null);
             }
         }
 
         public void BlendedAssignment(string value, float ammount)
         {
-            var t = ( Field != null ? Field.FieldType : Property.PropertyType );
-            if ( t == typeof( float ) )
+            var t = (Field != null ? Field.FieldType : Property.PropertyType);
+            if (t == typeof(float))
             {
                 double temp;
-                if ( double.TryParse( value, out temp ) )
+                if (double.TryParse(value, out temp))
                 {
                     // do float assignment
                     CurrentBlendNumber += temp * ammount;
                 }
             }
-            else if ( t == typeof( double ) )
+            else if (t == typeof(double))
             {
                 double temp;
-                if ( double.TryParse( value, out temp ) )
+                if (double.TryParse(value, out temp))
                 {
                     // do float assignment
                     CurrentBlendNumber += temp * ammount;
                 }
             }
-            else if ( t == typeof( bool ) )
+            else if (t == typeof(bool))
             {
                 // take the "true'est value
                 bool temp;
-                if ( bool.TryParse( value, out temp ) )
+                if (bool.TryParse(value, out temp))
                 {
                     CurrentBlendBool = CurrentBlendBool | temp;
                 }
@@ -136,73 +136,73 @@ namespace TMG.GTAModel.ParameterDatabase
             {
                 string error = null;
                 object temp;
-                if ( ( temp = ArbitraryParameterParser.ArbitraryParameterParse( t, value, ref error ) ) == null )
+                if ((temp = ArbitraryParameterParser.ArbitraryParameterParse(t, value, ref error)) == null)
                 {
-                    throw new XTMFRuntimeException( "Unable to convert value!" );
+                    throw new XTMFRuntimeException("Unable to convert value!");
                 }
-                if ( Field != null )
+                if (Field != null)
                 {
-                    Field.SetValue( Parent.Mode, temp );
+                    Field.SetValue(Parent.Mode, temp);
                 }
                 else
                 {
-                    Property.SetValue( Parent.Mode, temp, null );
+                    Property.SetValue(Parent.Mode, temp, null);
                 }
             }
         }
 
         public void FinishBlending()
         {
-            var t = ( Field != null ? Field.FieldType : Property.PropertyType );
-            if ( t == typeof( float ) )
+            var t = (Field != null ? Field.FieldType : Property.PropertyType);
+            if (t == typeof(float))
             {
-                float temp = (float)( CurrentBlendNumber * Multiplier );
-                if ( Field != null )
+                float temp = (float)(CurrentBlendNumber * Multiplier);
+                if (Field != null)
                 {
-                    Field.SetValue( AssignTo, temp );
+                    Field.SetValue(AssignTo, temp);
                 }
                 else
                 {
-                    Property.SetValue( AssignTo, temp, null );
+                    Property.SetValue(AssignTo, temp, null);
                 }
             }
-            else if ( t == typeof( double ) )
+            else if (t == typeof(double))
             {
                 double temp = CurrentBlendNumber * Multiplier;
-                if ( Field != null )
+                if (Field != null)
                 {
-                    Field.SetValue( AssignTo, temp );
+                    Field.SetValue(AssignTo, temp);
                 }
                 else
                 {
-                    Property.SetValue( AssignTo, temp, null );
+                    Property.SetValue(AssignTo, temp, null);
                 }
             }
-            else if ( t == typeof( bool ) )
+            else if (t == typeof(bool))
             {
-                if ( Field != null )
+                if (Field != null)
                 {
-                    Field.SetValue( AssignTo, CurrentBlendBool );
+                    Field.SetValue(AssignTo, CurrentBlendBool);
                 }
                 else
                 {
-                    Property.SetValue( AssignTo, CurrentBlendBool, null );
+                    Property.SetValue(AssignTo, CurrentBlendBool, null);
                 }
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !LinkModeParameter( ref error ) )
+            if (!LinkModeParameter(ref error))
             {
                 return false;
             }
             var t = Field == null ? Property.PropertyType : Field.FieldType;
-            if ( t == typeof( float ) )
+            if (t == typeof(float))
             {
                 TypeIndex = 1;
             }
-            else if ( t == typeof( double ) )
+            else if (t == typeof(double))
             {
                 TypeIndex = 2;
             }
@@ -219,41 +219,35 @@ namespace TMG.GTAModel.ParameterDatabase
         {
             IModeChoiceNode mode = Parent.Mode;
             AssignTo = Parent.Mode;
-            if ( mode == null )
+            if (mode == null)
             {
                 error = "In '" + Parent.Name + "' it failed to present a mode for '" + Name + "'!";
                 return false;
             }
             var modeType = mode.GetType();
-            var parameterType = typeof( ParameterAttribute );
-            foreach ( var field in modeType.GetFields() )
+            var parameterType = typeof(ParameterAttribute);
+            foreach (var field in modeType.GetFields())
             {
-                var attributes = field.GetCustomAttributes( parameterType, true );
-                if ( attributes != null )
+                var attributes = field.GetCustomAttributes(parameterType, true);
+                for (int i = 0; i < attributes.Length; i++)
                 {
-                    for ( int i = 0; i < attributes.Length; i++ )
+                    if (((ParameterAttribute)attributes[i]).Name == ModeParameterName)
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == ModeParameterName )
-                        {
-                            Field = field;
-                            return true;
-                        }
+                        Field = field;
+                        return true;
                     }
                 }
             }
 
-            foreach ( var field in modeType.GetProperties() )
+            foreach (var field in modeType.GetProperties())
             {
-                var attributes = field.GetCustomAttributes( parameterType, true );
-                if ( attributes != null )
+                var attributes = field.GetCustomAttributes(parameterType, true);
+                for (int i = 0; i < attributes.Length; i++)
                 {
-                    for ( int i = 0; i < attributes.Length; i++ )
+                    if (((ParameterAttribute)attributes[i]).Name == ModeParameterName)
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == ModeParameterName )
-                        {
-                            Property = field;
-                            return true;
-                        }
+                        Property = field;
+                        return true;
                     }
                 }
             }
