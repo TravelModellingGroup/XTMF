@@ -784,7 +784,7 @@ namespace XTMF.Gui.UserControls
                 textbox.Background = textbox.Background.CloneCurrentValue();
             }
             ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-            textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+           // textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -800,7 +800,7 @@ namespace XTMF.Gui.UserControls
                     box.Background = box.Background.CloneCurrentValue();
                 }
                 ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-                box.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
+            //    box.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
             }
         }
 

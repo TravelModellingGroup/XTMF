@@ -24,6 +24,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using XTMF.Update.Properties;
 
 namespace XTMF.Update
 {
@@ -295,7 +296,7 @@ namespace XTMF.Update
             }
             catch
             {
-                MessageBox.Show( "We were unable to start up XTMF.UpdateCore.exe!" );
+                MessageBox.Show( Resources.UpdateController_RebootAndCopyBase_We_were_unable_to_start_up_XTMF_UpdateCore_exe_ );
             }
             finally
             {
@@ -389,10 +390,7 @@ namespace XTMF.Update
 
         private void WriteIfNotNull<T>(Action<T> func, T data)
         {
-            if ( func != null )
-            {
-                func( data );
-            }
+            func?.Invoke( data );
         }
     }
 }
