@@ -18,9 +18,10 @@
 */
 namespace XTMF
 {
-    public interface IDatachainLoader<Given, Produced> : IModule
+    // ReSharper disable once UnusedTypeParameter
+    public interface IDatachainLoader<TGiven, TProduced> : IModule
     {
-        bool Load(Given data);
+        bool Load(TGiven data);
 
         void Reset();
 

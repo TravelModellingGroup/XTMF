@@ -366,7 +366,6 @@ namespace XTMF
                             {
                                 currentNumber *= 10;
                                 currentNumber += (c - '0');
-                                continue;
                             }
                             else if (c == ':')
                             {
@@ -463,14 +462,13 @@ namespace XTMF
 
                     case 2:
                         {
-                            if (Char.IsLetter(c))
+                            if (!Char.IsLetter(c))
                             {
-                                continue;
-                            }
-                            else if ((c >= '0') & (c <= '9'))
-                            {
-                                currentNumber = (c - '0');
-                                state = 1;
+                                if ((c >= '0') & (c <= '9'))
+                                {
+                                    currentNumber = (c - '0');
+                                    state = 1;
+                                }
                             }
                         }
                         break;
@@ -584,7 +582,7 @@ namespace XTMF
         /// <returns></returns>
         public float ToFloat()
         {
-            return (float)(Hours + (Minutes * 0.01f) + (Seconds * 0.0001f));
+            return Hours + (Minutes * 0.01f) + (Seconds * 0.0001f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

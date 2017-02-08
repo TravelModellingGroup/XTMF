@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TMG.Functions;
@@ -26,13 +26,6 @@ namespace XTMF.Testing
     [TestClass]
     public class TestVector
     {
-        static Vector<float> _Unused;
-
-        static TestVector()
-        {
-            _Unused = Vector<float>.One;
-        }
-
         [TestInitialize]
         public void Initialize()
         {

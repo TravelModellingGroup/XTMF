@@ -16,14 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF.Testing.Modules;
-using XTMF.Testing.Modules.Editing;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.ObjectModel;
 
 namespace XTMF.Testing.Editing
 {
@@ -47,7 +41,6 @@ namespace XTMF.Testing.Editing
                 string error = null;
                 Assert.IsTrue( linkedParameters.NewLinkedParameter( "Test", ref error ), "We failed to create our first linked parameter!" );
                 Assert.AreEqual( 1, linkedParameters.Count, "After adding a linked parameter it still reports that there isn't one linked parameter." );
-                ObservableCollection<LinkedParameterModel> linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( session.Undo( ref error ) );
                 Assert.AreEqual( 0, linkedParameters.Count, "After undoing the add new linked parameter there was still a linked parameter left!" );
                 Assert.IsTrue( session.Redo( ref error ) );

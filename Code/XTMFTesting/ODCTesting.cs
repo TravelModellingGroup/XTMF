@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace XTMF.Testing
 {
@@ -33,10 +34,10 @@ namespace XTMF.Testing
         {
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -59,14 +60,15 @@ namespace XTMF.Testing
         }
 
         [TestMethod]
+        // ReSharper disable once InconsistentNaming
         public void TestCSVODC()
         {
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -94,10 +96,10 @@ namespace XTMF.Testing
             float[][][] allData = new float[4][][];
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -135,10 +137,10 @@ namespace XTMF.Testing
             float[][][] allData = new float[times * types][][];
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -270,6 +272,14 @@ namespace XTMF.Testing
 
         private void ValidateData(int[] zones, float[][][] data, string odcFileName)
         {
+            if (zones == null)
+            {
+                throw new ArgumentNullException(nameof(zones));
+            }
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
             OdCache odc = new OdCache( odcFileName );
             var storedData = odc.StoreAll().GetFlatData();
             odc.Release();
@@ -279,6 +289,10 @@ namespace XTMF.Testing
             }
             for ( int i = 0; i < storedData.Length; i++ )
             {
+                if (data[i] == null)
+                {
+                    Assert.Fail("No data provided for data[i]");
+                }
                 if ( ( storedData[i] == null ) != ( data[i] == null ) )
                 {
                     Assert.Fail( "The data differs at zone " + zones[i] );
@@ -290,17 +304,25 @@ namespace XTMF.Testing
                 }
                 for ( int j = 0; j < storedData[i].Length; j++ )
                 {
+                    if (data[i][j] == null)
+                    {
+                        Assert.Fail("No data provided for data[i][j]");
+                    }
                     if ( ( storedData[i][j] == null ) != ( data[i][j] == null ) )
                     {
                         Assert.Fail( "The data differs at zone " + zones[i] + " in zone " + zones[j] );
                     }
-                    for ( int k = 0; k < storedData[i][j].Length; k++ )
+                    if (storedData[i][j] != null)
                     {
-                        if ( storedData[i][j][k] != data[i][j][k] )
+                        for (int k = 0; k < storedData[i][j].Length; k++)
                         {
-                            if ( Math.Round( storedData[i][j][k], 5 ) != Math.Round( data[i][j][k], 5 ) )
+                            if (storedData[i][j][k] != data[i][j][k])
                             {
-                                Assert.Fail( "The data differs at index " + i + ":" + j + ":" + k + " (" + storedData[i][j][k] + " / " + data[i][j][k] + ")" );
+                                if (Math.Round(storedData[i][j][k], 5) != Math.Round(data[i][j][k], 5))
+                                {
+                                    Assert.Fail("The data differs at index " + i + ":" + j + ":" + k + " (" +
+                                                storedData[i][j][k] + " / " + data[i][j][k] + ")");
+                                }
                             }
                         }
                     }

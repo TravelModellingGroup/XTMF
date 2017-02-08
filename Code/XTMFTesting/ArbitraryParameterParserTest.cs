@@ -138,6 +138,7 @@ namespace XTMF.Testing
 
         private struct TestStruct
         {
+            // ReSharper disable once UnusedMember.Local
             public static bool TryParse(ref string error, string input, out TestStruct output)
             {
                 output = default( TestStruct );

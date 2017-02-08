@@ -29,24 +29,6 @@ namespace XTMF.Testing
     [TestClass()]
     public class RangeSetSeriesTest
     {
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-
-            set
-            {
-                testContextInstance = value;
-            }
-        }
 
         #region Additional test attributes
 
@@ -100,8 +82,7 @@ namespace XTMF.Testing
             List<RangeSet> tempRange = GenerateTempRange();
             RangeSetSeries target = new RangeSetSeries( tempRange ); // TODO: Initialize to an appropriate value
             string expected = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
-            string actual;
-            actual = target.ToString();
+            var actual = target.ToString();
             Assert.AreEqual( expected, actual );
         }
 
@@ -113,14 +94,11 @@ namespace XTMF.Testing
         {
             string error = null; // TODO: Initialize to an appropriate value
             string rangeString = "{1-2,4-5},{11-12,14-15"; // TODO: Initialize to an appropriate value
-            RangeSetSeries output = null; // TODO: Initialize to an appropriate value
-            RangeSetSeries outputExpected = null; // TODO: Initialize to an appropriate value
-            bool expected = false; // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = RangeSetSeries.TryParse( ref error, rangeString, out output );
+            RangeSetSeries output; // TODO: Initialize to an appropriate value
+            bool actual = RangeSetSeries.TryParse(ref error, rangeString, out output);
             Assert.IsNotNull( error );
-            Assert.AreEqual( outputExpected, output );
-            Assert.AreEqual( expected, actual );
+            Assert.AreEqual( null, output );
+            Assert.AreEqual( false, actual );
         }
 
         /// <summary>
@@ -130,13 +108,11 @@ namespace XTMF.Testing
         public void TryParseTestNonError()
         {
             string rangeString = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
-            RangeSetSeries output = null; // TODO: Initialize to an appropriate value
+            RangeSetSeries output; // TODO: Initialize to an appropriate value
             RangeSetSeries outputExpected = new RangeSetSeries( GenerateTempRange() ); // TODO: Initialize to an appropriate value
-            bool expected = true; // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = RangeSetSeries.TryParse( rangeString, out output );
+            var actual = RangeSetSeries.TryParse( rangeString, out output );
             Assert.AreEqual( outputExpected, output );
-            Assert.AreEqual( expected, actual );
+            Assert.AreEqual( true, actual );
         }
 
         /// <summary>
@@ -146,16 +122,13 @@ namespace XTMF.Testing
         public void TryParseTestSuccess()
         {
             string error = null; // TODO: Initialize to an appropriate value
-            string errorExpected = null; // TODO: Initialize to an appropriate value
             string rangeString = "{1-2,4-5},{11-12,14-15}"; // TODO: Initialize to an appropriate value
-            RangeSetSeries output = null; // TODO: Initialize to an appropriate value
+            RangeSetSeries output; // TODO: Initialize to an appropriate value
             RangeSetSeries outputExpected = new RangeSetSeries( GenerateTempRange() ); // TODO: Initialize to an appropriate value
-            bool expected = true; // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = RangeSetSeries.TryParse( ref error, rangeString, out output );
-            Assert.AreEqual( errorExpected, error );
+            var actual = RangeSetSeries.TryParse( ref error, rangeString, out output );
+            Assert.AreEqual( null, error );
             Assert.AreEqual( outputExpected, output );
-            Assert.AreEqual( expected, actual );
+            Assert.AreEqual( true, actual );
         }
 
         private static List<RangeSet> GenerateTempRange()

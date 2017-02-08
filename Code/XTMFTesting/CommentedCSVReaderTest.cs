@@ -25,18 +25,18 @@ namespace XTMF.Testing
     [TestClass]
     public class CommentedCSVReaderTest
     {
-        private const int EXPECTED_NUMBER_OF_LINES = 100;
-        private const int FAIL_NUMBER_OF_LINES = 5;
+        private const int ExpectedNumberOfLines = 100;
+        private const int FailNumberOfLines = 5;
 
         [TestInitialize]
         public void CreateTestEnvironment()
         {
-            if ( !this.IsEnvironmentLoaded() )
+            if ( !IsEnvironmentLoaded() )
             {
                 using ( StreamWriter writer = new StreamWriter( "CommentedCSVReaderTest.csv" ) )
                 {
                     writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
-                    for ( int i = 0; i < EXPECTED_NUMBER_OF_LINES; i++ )
+                    for ( int i = 0; i < ExpectedNumberOfLines; i++ )
                     {
                         writer.WriteLine( "1,2,3,4,5" );
                     }
@@ -45,7 +45,7 @@ namespace XTMF.Testing
                 using ( StreamWriter writer = new StreamWriter( "CommentedCSVReaderTestFail.csv" ) )
                 {
                     writer.WriteLine( "Zone,Age,EmpStat,OccGroup,Value" );
-                    for ( int i = 0; i < FAIL_NUMBER_OF_LINES; i++ )
+                    for ( int i = 0; i < FailNumberOfLines; i++ )
                     {
                         writer.WriteLine( "1,2,3,4,5" );
                     }
@@ -75,17 +75,17 @@ namespace XTMF.Testing
                 {
                     if ( reader.NumberOfCurrentCells > 0 )
                     {
-                        Assert.AreEqual<int>( 5, reader.NumberOfCurrentCells );
-                        float val = 0.0f;
+                        Assert.AreEqual( 5, reader.NumberOfCurrentCells );
+                        float val;
                         reader.Get( out val, 5 );
                         lines++;
                     }
                 }
-                Assert.AreEqual<int>( EXPECTED_NUMBER_OF_LINES, lines );
+                Assert.AreEqual( ExpectedNumberOfLines, lines );
             }
             using ( var reader = new CommentedCsvReader( "CommentedCSVReaderTestFail.csv" ) )
             {
-                for ( int i = 0; i < FAIL_NUMBER_OF_LINES; i++ )
+                for ( int i = 0; i < FailNumberOfLines; i++ )
                 {
                     reader.NextLine();
                 }

@@ -27,7 +27,7 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestRangeSetIntList()
         {
-            RangeSet rangeSet = new RangeSet(new int[] { 1, 2, 3, 4, 5, 7, 8, 9, 10 });
+            RangeSet rangeSet = new RangeSet(new[] { 1, 2, 3, 4, 5, 7, 8, 9, 10 });
             Assert.AreEqual(2, rangeSet.Count);
             Assert.AreEqual(new Range(1, 5), rangeSet[0]);
             Assert.AreEqual(new Range(7, 10), rangeSet[1]);

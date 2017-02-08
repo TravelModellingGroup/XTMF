@@ -32,7 +32,7 @@ namespace XTMF.Testing
         [Parameter( StringName, "Success", "Used for testing that this is in fact working." )]
         public string OurInputString;
 
-        private Tuple<byte, byte, byte>[] Colours = new Tuple<byte, byte, byte>[]
+        private Tuple<byte, byte, byte>[] Colours = new[]
         {
             new Tuple<byte,byte,byte>(200, 150, 150),
             new Tuple<byte,byte,byte>(150, 200, 150),
@@ -40,16 +40,16 @@ namespace XTMF.Testing
             new Tuple<byte,byte,byte>(200, 0, 0)
         };
 
-        private int ColourToSend = 0;
+        private int ColourToSend;
 
         public TestModelClass()
         {
-            this.Name = "TestModel";
+            Name = "TestModel";
         }
 
         public string Name { get; set; }
 
-        public float Progress { get; private set; }
+        public float Progress { get; } = 0f;
 
         public Tuple<byte, byte, byte> ProgressColour
         {

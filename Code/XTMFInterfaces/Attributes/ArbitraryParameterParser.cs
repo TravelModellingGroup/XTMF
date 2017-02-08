@@ -38,18 +38,18 @@ namespace XTMF
         public static object ArbitraryParameterParse(Type t, string input, ref string error)
         {
             // strings are always just themselves
-            if ( t == null )
+            if (t == null)
             {
                 error = "We are not able to parse the null type!";
                 return null;
             }
-            if ( t == typeof( string ) )
+            if (t == typeof(string))
             {
                 return input;
             }
-            if(t.IsEnum)
+            if (t.IsEnum)
             {
-                if(!Enum.IsDefined(t, input))
+                if (!Enum.IsDefined(t, input))
                 {
                     error = "'" + input + "' is not a valid input!";
                     return null;
@@ -57,29 +57,29 @@ namespace XTMF
                 return Enum.Parse(t, input);
             }
             KeyValuePair<int, MethodInfo> info;
-            if ( !ParserLookup.TryGetValue( t, out info ) )
+            if (!ParserLookup.TryGetValue(t, out info))
             {
                 // If we are not a string to try find a try parse with an error first
                 string typeParse = "TryParse";
-                var errorTryParse = t.GetMethod( typeParse, new Type[] { typeof( string ).MakeByRefType(), typeof( string ), t.MakeByRefType() } );
-                if ( errorTryParse != null && errorTryParse.IsStatic )
+                var errorTryParse = t.GetMethod(typeParse, new[] { typeof(string).MakeByRefType(), typeof(string), t.MakeByRefType() });
+                if (errorTryParse != null && errorTryParse.IsStatic)
                 {
-                    ParserLookup.TryAdd( t, new KeyValuePair<int, MethodInfo>( 3, errorTryParse ) );
-                    return ErrorTryParse( input, ref error, errorTryParse );
+                    ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(3, errorTryParse));
+                    return ErrorTryParse(input, ref error, errorTryParse);
                 }
                 // if there is no error try parse, just try the TryParse
-                var regularTryParse = t.GetMethod( typeParse, new Type[] { typeof( string ), t.MakeByRefType() } );
-                if ( regularTryParse != null && regularTryParse.IsStatic )
+                var regularTryParse = t.GetMethod(typeParse, new[] { typeof(string), t.MakeByRefType() });
+                if (regularTryParse != null && regularTryParse.IsStatic)
                 {
-                    ParserLookup.TryAdd( t, new KeyValuePair<int, MethodInfo>( 2, regularTryParse ) );
-                    return TryParse( input, ref error, regularTryParse );
+                    ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(2, regularTryParse));
+                    return TryParse(input, ref error, regularTryParse);
                 }
                 // If there is no TryParse at all, fall back to the regular Parse method
-                var regularParse = t.GetMethod( "Parse", new Type[] { typeof( string ) } );
-                if ( regularParse != null && regularParse.IsStatic )
+                var regularParse = t.GetMethod("Parse", new[] { typeof(string) });
+                if (regularParse != null && regularParse.IsStatic)
                 {
-                    ParserLookup.TryAdd( t, new KeyValuePair<int, MethodInfo>( 1, regularParse ) );
-                    return RegularParse( input, ref error, regularParse );
+                    ParserLookup.TryAdd(t, new KeyValuePair<int, MethodInfo>(1, regularParse));
+                    return RegularParse(input, ref error, regularParse);
                 }
                 // If it doesn't have any parse method we need to return null and let them know that this type can not have a parameter
                 error = "Unable to find a static method to parse type " + t.FullName;
@@ -87,16 +87,16 @@ namespace XTMF
             }
             else
             {
-                switch ( info.Key )
+                switch (info.Key)
                 {
                     case 1:
-                        return RegularParse( input, ref error, info.Value );
+                        return RegularParse(input, ref error, info.Value);
 
                     case 2:
-                        return TryParse( input, ref error, info.Value );
+                        return TryParse(input, ref error, info.Value);
 
                     case 3:
-                        return ErrorTryParse( input, ref error, info.Value );
+                        return ErrorTryParse(input, ref error, info.Value);
                     // if we get here there is a new type of parse that we are not handling
                     default:
                         return null;
@@ -113,28 +113,30 @@ namespace XTMF
         /// <returns>True if it is a value value, false otherwise with a reason inside of error.</returns>
         public static bool Check(Type type, string value, ref string error)
         {
-            return ArbitraryParameterParse( type, value, ref error ) != null;
+            return ArbitraryParameterParse(type, value, ref error) != null;
         }
 
         private static object ErrorTryParse(string input, ref string error, MethodInfo errorTryParse)
         {
             object output = null;
-            var parameters = new object[] { error, input, output };
+            // ReSharper disable once ExpressionIsAlwaysNull
+            var parameters = new[] { error, input, output };
             try
             {
-                if ( (bool)errorTryParse.Invoke( null, parameters ) == true )
-                {
-                    // a fail appears
-                    output = parameters[2];
-                }
-                else
-                {
-                    error = parameters[0] as string;
-                }
+                if ((bool)errorTryParse.Invoke(null, parameters))
+                    if ((bool)errorTryParse.Invoke(null, parameters))
+                    {
+                        // a fail appears
+                        output = parameters[2];
+                    }
+                    else
+                    {
+                        error = parameters[0] as string;
+                    }
             }
-            catch ( Exception e )
+            catch (Exception e)
             {
-                if ( e.InnerException != null )
+                if (e.InnerException != null)
                 {
                     error = e.InnerException.Message;
                 }
@@ -152,11 +154,11 @@ namespace XTMF
             var parameters = new object[] { input };
             try
             {
-                output = regularParse.Invoke( null, parameters );
+                output = regularParse.Invoke(null, parameters);
             }
-            catch ( Exception e )
+            catch (Exception e)
             {
-                if ( e.InnerException != null )
+                if (e.InnerException != null)
                 {
                     error = e.InnerException.Message;
                 }
@@ -171,10 +173,11 @@ namespace XTMF
         private static object TryParse(string input, ref string error, MethodInfo errorTryParse)
         {
             object output = null;
-            var parameters = new object[] { input, output };
+            // ReSharper disable once ExpressionIsAlwaysNull
+            var parameters = new[] { input, output };
             try
             {
-                if ( (bool)errorTryParse.Invoke( null, parameters ) == true )
+                if ((bool)errorTryParse.Invoke(null, parameters))
                 {
                     // a fail appears
                     output = parameters[1];
@@ -184,9 +187,9 @@ namespace XTMF
                     error = "The input was in an invalid format.";
                 }
             }
-            catch ( Exception e )
+            catch (Exception e)
             {
-                if ( e.InnerException != null )
+                if (e.InnerException != null)
                 {
                     error = e.InnerException.Message;
                 }

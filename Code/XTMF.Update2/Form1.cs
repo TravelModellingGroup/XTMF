@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+// ReSharper disable LocalizableElement
 
 namespace XTMF.Update
 {
@@ -31,7 +32,7 @@ namespace XTMF.Update
         {
             InitializeComponent();
             Controller = new UpdateController();
-            this.ArchitectureSelect.SelectedIndex = 0;
+            ArchitectureSelect.SelectedIndex = 0;
             if (ParentProcess != null)
             {
                 UpdateButton.Enabled = false;
@@ -59,15 +60,15 @@ namespace XTMF.Update
 
         private void EnableControls(bool setTrue)
         {
-            this.ServerTextBox.Enabled = setTrue;
-            this.UpdateButton.Enabled = setTrue;
-            this.WebserviceCheckBox.Enabled = setTrue;
+            ServerTextBox.Enabled = setTrue;
+            UpdateButton.Enabled = setTrue;
+            WebserviceCheckBox.Enabled = setTrue;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.ServerTextBox.Text = this.Controller.XTMFUpdateServerLocation;
-            this.WebserviceCheckBox.Checked = this.Controller.UseWebservices;
+            ServerTextBox.Text = Controller.XTMFUpdateServerLocation;
+            WebserviceCheckBox.Checked = Controller.UseWebservices;
         }
 
         private void ServerTextBox_TextChanged(object sender, EventArgs e)
@@ -77,43 +78,43 @@ namespace XTMF.Update
 
         private void SetUpdateProgress(float param)
         {
-            this.UpdateProgress.Value = (int)(param * 100);
+            UpdateProgress.Value = (int)(param * 100);
         }
 
         private void SetUpdateStatus(string status)
         {
-            this.StatusLabel.Text = status;
+            StatusLabel.Text = status;
         }
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
-            this.Controller.XTMFUpdateServerLocation = this.ServerTextBox.Text;
-            bool force32 = this.ArchitectureSelect.SelectedIndex % 3 == 2;
-            bool force64 = this.ArchitectureSelect.SelectedIndex % 3 == 1;
-            bool xtmfOnly = this.ArchitectureSelect.SelectedIndex >= 3;
-            this.Controller.UseWebservices = this.WebserviceCheckBox.Checked;
+            Controller.XTMFUpdateServerLocation = ServerTextBox.Text;
+            bool force32 = ArchitectureSelect.SelectedIndex % 3 == 2;
+            bool force64 = ArchitectureSelect.SelectedIndex % 3 == 1;
+            bool xtmfOnly = ArchitectureSelect.SelectedIndex >= 3;
+            Controller.UseWebservices = WebserviceCheckBox.Checked;
             EnableControls(false);
-            var UpdateTask = new Task(new Action(delegate ()
-              {
-                  try
-                  {
-                      this.Controller.UpdateAll(force32, force64, xtmfOnly, (p => this.BeginInvoke(new Action<float>(SetUpdateProgress), new object[] { p })),
-                      (s => this.BeginInvoke(new Action<string>(SetUpdateStatus), new object[] { s })), LaunchPoint);
-                  }
-                  catch (AggregateException error)
-                  {
-                      MessageBox.Show(error.InnerException.Message, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                  }
-                  catch (Exception error)
-                  {
-                      MessageBox.Show(error.Message + "\r\n" + error.StackTrace, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                  }
-                  finally
-                  {
-                      EnableControls(true);
-                  }
-              }));
-            UpdateTask.Start();
+            var updateTask = new Task(delegate
+            {
+                try
+                {
+                    Controller.UpdateAll(force32, force64, xtmfOnly, (p => BeginInvoke(new Action<float>(SetUpdateProgress), p)),
+                        (s => BeginInvoke(new Action<string>(SetUpdateStatus), s)), LaunchPoint);
+                }
+                catch (AggregateException error)
+                {
+                    MessageBox.Show(error.InnerException?.Message, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (Exception error)
+                {
+                    MessageBox.Show(error.Message + "\r\n" + error.StackTrace, "XTMF Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    EnableControls(true);
+                }
+            });
+            updateTask.Start();
         }
     }
 }

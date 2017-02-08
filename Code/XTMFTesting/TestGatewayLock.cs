@@ -36,7 +36,7 @@ namespace XTMF.Testing
             for ( int iteration = 0; iteration < 100; iteration++ )
             {
                 var list = new List<Entry>();
-                Parallel.For( 0, 1000, (int i) =>
+                Parallel.For( 0, 1000, i =>
                     {
                         Random r = new Random();
                         for ( int j = 0; j < 100; j++ )
@@ -87,6 +87,7 @@ namespace XTMF.Testing
             Stopwatch watch = new Stopwatch();
             watch.Start();
             long startLock1 = 0, startLock2 = 0;
+            // ReSharper disable once NotAccessedVariable
             long endLock1 = 0, endLock2 = 0;
             for ( int i = 0; i < 100; i++ )
             {
@@ -143,6 +144,7 @@ namespace XTMF.Testing
                                 {
                                     gate.PassThrough( () =>
                                         {
+                                            // ReSharper disable once AccessToModifiedClosure
                                             if ( !writerDone )
                                             {
                                                 anyFails = true;
@@ -166,7 +168,6 @@ namespace XTMF.Testing
             GatewayLock gate = new GatewayLock();
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            long inPassThrough = 0;
             long finishedPassThrough = 0;
             long inLock = 0;
             Task secondaryTask = null;
@@ -176,7 +177,6 @@ namespace XTMF.Testing
                     gate.PassThrough(
                         () =>
                         {
-                            inPassThrough = watch.ElapsedMilliseconds;
                             secondaryTask = Task.Factory.StartNew(
                                 () =>
                                 {
@@ -200,6 +200,8 @@ namespace XTMF.Testing
         private class Entry
         {
             internal int Number;
+            // Needed for testing concurrency 
+            // ReSharper disable once NotAccessedField.Local
             internal int TimeFound;
         }
     }

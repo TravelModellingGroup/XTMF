@@ -16,11 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using XTMF.Testing.Modules;
 using XTMF.Testing.Modules.Editing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -187,7 +185,6 @@ namespace XTMF.Testing.Editing
                 var linkedParameterList = linkedParameters.GetLinkedParameters();
                 Assert.IsTrue( linkedParameterList[0].AddParameter( inputDirectory, ref error ), error );
                 Assert.IsTrue( linkedParameterList[0].AddParameter( secondaryString, ref error ), error );
-                string oldValue = linkedParameterList[0].GetValue();
                 string newValue = "NewValue";
                 Assert.IsTrue( linkedParameterList[0].SetValue( newValue, ref error ) );
                 // assign to both with through the linked parameter

@@ -27,13 +27,6 @@ namespace XTMF
     public class ModuleInformationAttribute : Attribute
     {
         /// <summary>
-        ///
-        /// </summary>
-        public ModuleInformationAttribute()
-        {
-        }
-
-        /// <summary>
         /// What this model does, or should do
         /// </summary>
         public string Description { get; set; }

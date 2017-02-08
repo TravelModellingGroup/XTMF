@@ -23,7 +23,7 @@ namespace XTMF.RemoteClient
 {
     internal class Program
     {
-        private static PowerModeChangedEventHandler PowerHandeler = new PowerModeChangedEventHandler( SystemEvents_PowerModeChanged );
+        private static PowerModeChangedEventHandler PowerHandeler = SystemEvents_PowerModeChanged;
 
         private static void Main(string[] args)
         {

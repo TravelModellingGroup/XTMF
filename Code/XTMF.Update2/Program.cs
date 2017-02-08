@@ -30,7 +30,7 @@ namespace XTMF.Update
         [STAThread]
         private static void Main(string[] args)
         {
-            int processID = 0;
+            int processID;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             if (args.Length >= 2 && int.TryParse(args[0], out processID))
