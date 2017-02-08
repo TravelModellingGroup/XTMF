@@ -43,6 +43,6 @@ namespace Tasha.Common
         /// <param name="hh"></param>
         /// <returns></returns>
 
-        int numVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh);
+        int NumVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh);
     }
 }

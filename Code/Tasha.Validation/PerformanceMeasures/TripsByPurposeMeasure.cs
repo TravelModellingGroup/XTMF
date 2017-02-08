@@ -146,35 +146,32 @@ namespace Tasha.Validation.PerformanceMeasures
         public void IterationFinished(int iteration)
         {
             var zoneFlatData = Root.ZoneSystem.ZoneArray.GetFlatData();
-            PurposeDictionary.OrderBy(k => k.Key);
-            SummaryTripCount.OrderBy(k => k.Key);
-
             // only run on the last iteration
             if (iteration == Root.TotalIterations - 1)
             {
                 Directory.CreateDirectory(Path.GetFullPath(ResultsFolder));
                 var filePath = Path.Combine(Path.GetFullPath(ResultsFolder), "PurposeByHomeZone.csv");
-                using (StreamWriter Writer = new StreamWriter(filePath))
+                using (StreamWriter writer = new StreamWriter(filePath))
                 {
-                    Writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
+                    writer.WriteLine("Purpose,HomeZone,NumberOfOccurrences");
                     foreach (var pair in PurposeDictionary.OrderBy(k => k.Key))
                     {
-                        var format = pair.Key.ToString() + ",{0},{1}";
+                        var format = pair.Key + ",{0},{1}";
                         for (int i = 0; i < PurposeDictionary[pair.Key].Length; i++)
                         {
-                            Writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[pair.Key][i]);
+                            writer.WriteLine(format, zoneFlatData[i].ZoneNumber, PurposeDictionary[pair.Key][i]);
                         }
                     }
                 }
 
                 var summaryFilePath = Path.Combine(Path.GetFullPath(ResultsFolder), "SummaryFile.csv");
 
-                using (StreamWriter Writer = new StreamWriter(summaryFilePath))
+                using (StreamWriter writer = new StreamWriter(summaryFilePath))
                 {
-                    Writer.WriteLine("Purpose, Number of Occurrences");
+                    writer.WriteLine("Purpose, Number of Occurrences");
                     foreach (var pair in SummaryTripCount.OrderBy(k => k.Key))
                     {
-                        Writer.WriteLine("{0}, {1}", pair.Key.ToString(), pair.Value);
+                        writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
                     }
                 }
             }

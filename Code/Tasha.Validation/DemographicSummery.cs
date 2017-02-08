@@ -53,7 +53,7 @@ namespace Tasha.Validation
         public void Execute(ITashaHousehold household, int iteration)
         {
             // we only want to process this data on our last iteration
-            if ( iteration < this.TotalIterations - 1 )
+            if ( iteration < TotalIterations - 1 )
             {
                 return;
             }
@@ -63,9 +63,9 @@ namespace Tasha.Validation
                 var index = AgeSets.IndexOf( person.Age );
                 if ( index >= 0 )
                 {
-                    lock ( this.AgeSetCount )
+                    lock ( AgeSetCount )
                     {
-                        this.AgeSetCount[index] += expansionFactor;
+                        AgeSetCount[index] += expansionFactor;
                     }
                 }
             }
@@ -74,28 +74,28 @@ namespace Tasha.Validation
         public void IterationFinished(int iteration)
         {
             // if we are on the last iteration then process the data
-            if ( iteration < this.TotalIterations - 1 )
+            if ( iteration < TotalIterations - 1 )
             {
                 return;
             }
-            using ( StreamWriter writer = new StreamWriter( this.OutputFileName.GetFilePath() ) )
+            using ( StreamWriter writer = new StreamWriter( OutputFileName.GetFilePath() ) )
             {
                 writer.WriteLine( "AgeRange,ExpandedPersons" );
-                for ( int i = 0; i < this.AgeSets.Count; i++ )
+                for ( int i = 0; i < AgeSets.Count; i++ )
                 {
-                    writer.Write( this.AgeSets[i].Start );
+                    writer.Write( AgeSets[i].Start );
                     writer.Write( '-' );
-                    writer.Write( this.AgeSets[i].Stop );
+                    writer.Write( AgeSets[i].Stop );
                     writer.Write( ',' );
-                    writer.WriteLine( this.AgeSetCount[i] );
+                    writer.WriteLine( AgeSetCount[i] );
                 }
             }
         }
 
         public void Load(int maxIterations)
         {
-            this.TotalIterations = maxIterations;
-            this.AgeSetCount = new float[AgeSets.Count];
+            TotalIterations = maxIterations;
+            AgeSetCount = new float[AgeSets.Count];
         }
 
         public bool RuntimeValidation(ref string error)

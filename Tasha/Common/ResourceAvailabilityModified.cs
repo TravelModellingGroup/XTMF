@@ -95,22 +95,19 @@ namespace Tasha.Common
                 }
                 return success;
             }
-            else
+            //is a joint trip
+            var jointTripChains = trip.TripChain.JointTripChains;
+            for ( int i = 0; i < jointTripChains.Count; i++ )
             {
-                //is a joint trip
-                var jointTripChains = trip.TripChain.JointTripChains;
-                for ( int i = 0; i < jointTripChains.Count; i++ )
+                for ( int j = 0; j < jointTripChains[i].Trips.Count; j++ )
                 {
-                    for ( int j = 0; j < jointTripChains[i].Trips.Count; j++ )
+                    var t = jointTripChains[i].Trips[j];
+                    if ( t.Mode.NonPersonalVehicle == false )
                     {
-                        var t = jointTripChains[i].Trips[j];
-                        if ( t.Mode.NonPersonalVehicle == false )
-                        {
-                            //this is a possible driver
-                            //save the rideshare data
-                            trip.SharedModeDriver = t.TripChain.Person;
-                            return true;
-                        }
+                        //this is a possible driver
+                        //save the rideshare data
+                        trip.SharedModeDriver = t.TripChain.Person;
+                        return true;
                     }
                 }
             }
@@ -181,7 +178,7 @@ namespace Tasha.Common
         /// <param name="end"></param>
         /// <param name="hh"></param>
         /// <returns></returns>
-        public int numVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh)
+        public int NumVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh)
         {
             return ( hh.NumberOfVehicleAvailable( new TashaTimeSpan( start, end ), veqType, false ) );
         }
@@ -304,7 +301,7 @@ namespace Tasha.Common
                         if ( i == 0 ) // first trip of the day...
                         {
                             //trip uses vehicle needed for specified shared mode
-                            if ( p.TripChains[i].requiresVehicle.Contains( mode.RequiresVehicle ) )
+                            if ( p.TripChains[i].RequiresVehicle.Contains( mode.RequiresVehicle ) )
                             {
                                 originToIntermediatePoint = AuxiliaryTrip.MakeAuxiliaryTrip( h.HomeZone, facilitateTrip.DestinationZone, mode, facilitateTrip.ActivityStartTime );
                                 //travel time from the facilitated trips destination to the trips destination
@@ -380,7 +377,7 @@ namespace Tasha.Common
 
         private bool AssignGoToAndReturnTripChains(ITripChain auxiliaryTripChain, ITashaHousehold household, IVehicleType vehicleType, ITrip trip, ISharedMode mode)
         {
-            if ( numVehiclesAvailable( vehicleType, auxiliaryTripChain.StartTime, auxiliaryTripChain.EndTime, household ) == 0 )
+            if ( NumVehiclesAvailable( vehicleType, auxiliaryTripChain.StartTime, auxiliaryTripChain.EndTime, household ) == 0 )
                 return false;
 
             bool success = false;
@@ -425,7 +422,7 @@ namespace Tasha.Common
                 }
                 foreach ( var tc in p.TripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( mode.RequiresVehicle ) && tc.Trips[tc.Trips.Count - 1].TripStartTime < facilitateTrip.ActivityStartTime )
+                    if ( tc.RequiresVehicle.Contains( mode.RequiresVehicle ) && tc.Trips[tc.Trips.Count - 1].TripStartTime < facilitateTrip.ActivityStartTime )
                     {
                         ITrip lastTrip = tc.Trips[tc.Trips.Count - 1];
                         ITrip originToIntermediatePoint = AuxiliaryTrip.MakeAuxiliaryTrip( lastTrip.OriginalZone,

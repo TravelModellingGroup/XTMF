@@ -91,13 +91,11 @@ namespace TMG.Tasha
         [RunParameter("ZoneCol", 2, "The 0 indexed column that the household's id is located at.")]
         public int ZoneCol;
 
-        private const int Threshhold = 400;
-
         private bool AllDataLoaded = true;
         private IVehicleType AutoType;
         private ITashaHousehold[] Households;
         private CsvReader Reader;
-        private IVehicleType SecondaryType = null;
+        private IVehicleType SecondaryType;
 
         ~HouseholdLoader()
         {
@@ -175,7 +173,7 @@ namespace TMG.Tasha
             throw new NotImplementedException();
         }
 
-        private bool NeedsReset = false;
+        private bool NeedsReset;
 
         [RunParameter("Skip Bad Households", false, "Should we continue to process skipping households with bad data?")]
         public bool SkipBadHouseholds;
@@ -190,7 +188,7 @@ namespace TMG.Tasha
             Exception terminalException = null;
             var parallelLoader = Task.Factory.StartNew(() =>
                 {
-                    ITashaHousehold next = null;
+                    ITashaHousehold next;
                     try
                     {
                         EnsureReader();
@@ -404,10 +402,10 @@ namespace TMG.Tasha
             return item != null;
         }
 
-        private static bool AgeDifferenceLessThan(int span, IList<ITashaPerson> People)
+        private static bool AgeDifferenceLessThan(int span, IList<ITashaPerson> people)
         {
             int age = -1;
-            foreach (ITashaPerson p in People)
+            foreach (ITashaPerson p in people)
             {
                 if (p.Adult)
                 {
@@ -444,29 +442,29 @@ namespace TMG.Tasha
         {
             if (h.NumberOfAdults == 1)
             {
-                h.hhType = HouseholdType.LoneParentFamily;
+                h.HhType = HouseholdType.LoneParentFamily;
             }
             else if (h.NumberOfAdults == 2)
             {
                 if (h.Persons[0].Female == h.Persons[1].Female)
                 {
-                    h.hhType = HouseholdType.OtherFamily;
+                    h.HhType = HouseholdType.OtherFamily;
                 }
                 else
                 {
                     if (AgeDifferenceLessThan(20, h.Persons))
                     {
-                        h.hhType = HouseholdType.CoupleWithChildren;
+                        h.HhType = HouseholdType.CoupleWithChildren;
                     }
                     else
                     {
-                        h.hhType = HouseholdType.OtherFamily;
+                        h.HhType = HouseholdType.OtherFamily;
                     }
                 }
             }
             else
             {
-                h.hhType = HouseholdType.OtherFamily;
+                h.HhType = HouseholdType.OtherFamily;
             }
         }
 
@@ -474,29 +472,29 @@ namespace TMG.Tasha
         {
             if (h.NumberOfAdults == 1)
             {
-                h.hhType = HouseholdType.OnePerson;
+                h.HhType = HouseholdType.OnePerson;
             }
             else if (h.NumberOfAdults == 2)
             {
                 if (h.Persons[0].Female == h.Persons[1].Female)
                 {
-                    h.hhType = HouseholdType.TwoOrMorePerson;
+                    h.HhType = HouseholdType.TwoOrMorePerson;
                 }
                 else
                 {
                     if (AgeDifferenceLessThan(20, h.Persons))
                     {
-                        h.hhType = HouseholdType.CoupleWithoutChildren;
+                        h.HhType = HouseholdType.CoupleWithoutChildren;
                     }
                     else
                     {
-                        h.hhType = HouseholdType.TwoOrMorePerson;
+                        h.HhType = HouseholdType.TwoOrMorePerson;
                     }
                 }
             }
             else
             {
-                h.hhType = HouseholdType.TwoOrMorePerson;
+                h.HhType = HouseholdType.TwoOrMorePerson;
             }
         }
 
@@ -508,7 +506,7 @@ namespace TMG.Tasha
                 {
                     if (Reader == null)
                     {
-                        Reader = new CsvReader(System.IO.Path.Combine(Root.InputBaseDirectory, FileName));
+                        Reader = new CsvReader(Path.Combine(Root.InputBaseDirectory, FileName));
                         if (ContainsHeader)
                         {
                             Reader.LoadLine();
@@ -525,7 +523,7 @@ namespace TMG.Tasha
             {
                 if (Reader == null)
                 {
-                    Reader = new CsvReader(System.IO.Path.Combine(Root.InputBaseDirectory, FileName));
+                    Reader = new CsvReader(Path.Combine(Root.InputBaseDirectory, FileName));
                 }
                 Reset();
                 if (ContainsHeader)
@@ -534,7 +532,9 @@ namespace TMG.Tasha
                 }
                 NeedsReset = true;
                 AllDataLoaded = Reader.EndOfFile;
-                while (LoadNextHousehold(list) && !AllDataLoaded) ;
+                while (LoadNextHousehold(list) && !AllDataLoaded)
+                {
+                }
             }
         }
 
@@ -555,7 +555,7 @@ namespace TMG.Tasha
                     }
                     catch
                     {
-
+                        // ignored
                     }
                 }
             }
@@ -575,8 +575,8 @@ namespace TMG.Tasha
 
         private ITashaHousehold LoadNextHousehold()
         {
-            Household h = null;
-            bool loadnext = false;
+            Household h;
+            bool loadnext;
             do
             {
                 h = Household.MakeHousehold();
@@ -700,14 +700,14 @@ namespace TMG.Tasha
             var writer = TripDump;
             for (int i = 0; i < h.Persons.Length; i++)
             {
-                var person = h.Persons[i] as Person;
+                var person = (Person) h.Persons[i];
                 for (int j = 0; j < person.TripChains.Count; j++)
                 {
-                    var tc = person.TripChains[j] as TripChain;
+                    var tc = (TripChain) person.TripChains[j];
                     for (int k = 0; k < tc.Trips.Count; k++)
                     {
-                        var trip = tc.Trips[k] as Trip;
-                        var obsMode = trip["ObservedMode"] as ITashaMode;
+                        var trip = (Trip) tc.Trips[k];
+                        var obsMode = (ITashaMode) trip["ObservedMode"];
                         writer.Write(h.HouseholdId);
                         writer.Write(',');
                         // person number

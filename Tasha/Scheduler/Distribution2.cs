@@ -20,6 +20,7 @@ using System;
 using Tasha.Common;
 using TMG;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha.Scheduler
 {
@@ -89,7 +90,7 @@ namespace Tasha.Scheduler
                     }
                     else
                     {
-                        startTime = DistributionToDuration( i ); ;
+                        startTime = DistributionToDuration( i );
                     }
                     if ( startTime == Time.Zero )
                     {
@@ -151,7 +152,6 @@ namespace Tasha.Scheduler
         /// from the TashaTime parameter passed.
         /// </summary>
         /// <param name="time">The time to convert</param>
-        /// <param name="interval">Interval of the distribution (in minutes)</param>
         /// <returns></returns>
         public static int TashaTimeToDistribution(Time time)
         {
@@ -169,10 +169,10 @@ namespace Tasha.Scheduler
 
         internal static int GetDistributionID(ITashaHousehold household, Activity activity)
         {
-            int baseOffset = 0;
-            int childOffset = 0;
+            int baseOffset;
+            int childOffset;
             int adultOffset = 0;
-            int statusOffset = 0;
+            int statusOffset;
 
             var projectStatus = SchedulerHousehold.GetWorkSchoolProjectStatus( household );
 
@@ -195,19 +195,18 @@ namespace Tasha.Scheduler
         /// Returns the distribution ID that this person belongs to
         /// </summary>
         /// <param name="person"></param>
+        /// <param name="activity"></param>
         /// <returns></returns>
         internal static int GetDistributionID(ITashaPerson person, Activity activity)
         {
-            int baseOffset = 0;
-            int ageOffset = 0;
-            int occupationOffset = 0;
+            int baseOffset;
+            int ageOffset;
+            int occupationOffset;
             int age = person.Age;
             switch ( activity )
             {
                 case Activity.School:
                     baseOffset = 84;
-                    ageOffset = 0;
-                    occupationOffset = 0;
                     //Now Calculate the occupation offset
                     switch ( person.StudentStatus )
                     {
@@ -242,8 +241,6 @@ namespace Tasha.Scheduler
                 case Activity.WorkBasedBusiness:
                     // We store the values from the person to improve performance
                     baseOffset = 40;
-                    ageOffset = 0;
-                    occupationOffset = 0;
                     Occupation occupation = person.Occupation;
                     if ( person.EmploymentStatus != TTSEmploymentStatus.FullTime
                          && person.EmploymentStatus != TTSEmploymentStatus.PartTime )
@@ -253,7 +250,7 @@ namespace Tasha.Scheduler
                     //Calculate the ageOffset
                     if ( age < 11 )
                         return -1;
-                    else if ( age <= 18 )
+                    if ( age <= 18 )
                         ageOffset = 0;
                     else if ( age <= 25 )
                         ageOffset = 1;
@@ -281,8 +278,6 @@ namespace Tasha.Scheduler
                     // We store the values from the person to improve performance
                     if(person.EmploymentZone == null)
                         return -1;
-                    ageOffset = 0;
-                    occupationOffset = 0;
                     occupation = person.Occupation;
                     if ( person.EmploymentStatus != TTSEmploymentStatus.FullTime
                          && person.EmploymentStatus != TTSEmploymentStatus.PartTime )
@@ -292,7 +287,7 @@ namespace Tasha.Scheduler
                     //Calculate the ageOffset
                     if ( age < 11 )
                         return -1;
-                    else if ( age <= 18 )
+                    if ( age <= 18 )
                         ageOffset = 0;
                     else if ( age <= 25 )
                         ageOffset = 1;
@@ -318,7 +313,6 @@ namespace Tasha.Scheduler
                 case Activity.SecondaryWork:
                     // We store the values from the person to improve performance
                     baseOffset = 32;
-                    occupationOffset = 0;
                     occupation = person.Occupation;
                     if ( person.EmploymentZone == null )
                         return -1;
@@ -352,7 +346,6 @@ namespace Tasha.Scheduler
                 case Activity.WorkAtHomeBusiness:
                     // We store the values from the person to improve performance
                     baseOffset = 72;
-                    ageOffset = 0;
                     occupationOffset = 0;
                     occupation = person.Occupation;
                     age = person.Age;
@@ -364,7 +357,7 @@ namespace Tasha.Scheduler
                     //Calculate the ageOffset
                     if ( age < 19 )
                         return -1;
-                    else if ( age <= 25 )
+                    if ( age <= 25 )
                         ageOffset = 0;
                     else if ( age <= 64 )
                         ageOffset = 1;
@@ -414,8 +407,6 @@ namespace Tasha.Scheduler
 
                 case Activity.IndividualOther:
                     baseOffset = 102;
-                    ageOffset = 0;
-                    occupationOffset = 0;
                     //||[0,6] ||==7
                     PersonWorkSchoolProjectStatus workProjestStatus = SchedulerPerson.GetWorkSchoolProjectStatus( person );
                     age = person.Age;
@@ -423,7 +414,7 @@ namespace Tasha.Scheduler
                     //Calculate the ageOffset
                     if ( age < 11 )
                         return -1;
-                    else if ( age < 16 )
+                    if ( age < 16 )
                         ageOffset = 0;
                     else if ( age < 25 )
                         ageOffset = 1;
@@ -436,8 +427,6 @@ namespace Tasha.Scheduler
                         baseOffset + ( ageOffset * 14 ) + ( person.Female ? 7 : 0 ) + (int)workProjestStatus;
                 case Activity.Market:
                     baseOffset = 182;
-                    ageOffset = 0;
-                    occupationOffset = 0;
                     //||[0,6] ||==7
                     workProjestStatus = SchedulerPerson.GetWorkSchoolProjectStatus( person );
                     age = person.Age;
@@ -445,7 +434,7 @@ namespace Tasha.Scheduler
                     //Calculate the ageOffset
                     if ( age < 11 )
                         return -1;
-                    else if ( age < 16 )
+                    if ( age < 16 )
                         ageOffset = 0;
                     else if ( age < 25 )
                         ageOffset = 1;
@@ -465,7 +454,7 @@ namespace Tasha.Scheduler
 
         internal static int GetRandomNumberAdults(ITashaHousehold household, Activity activity, int min, int max, Random random)
         {
-            int distID = 0;
+            int distID;
             switch ( activity )
             {
                 case Activity.JointOther:
@@ -544,8 +533,8 @@ namespace Tasha.Scheduler
 
         private static int GetRandomAdultFrequency(int distid, int min, int max, Random random)
         {
-            double rand_num = random.NextDouble();
-            float pdf_factor = 0.0f;
+            double randNum = random.NextDouble();
+            float pdfFactor = 0.0f;
             var data = AdultDistributions[distid];
             if ( data == null )
             {
@@ -558,13 +547,13 @@ namespace Tasha.Scheduler
             }
             for ( int i = min; i < max; i++ )
             {
-                pdf_factor += data.Adults[i];
+                pdfFactor += data.Adults[i];
             }
-            float adjusted_cdf = 0.0f;
+            float adjustedCDF = 0.0f;
             for ( int i = min; i < max; i++ )
             {
-                adjusted_cdf += data.Adults[i] / pdf_factor;
-                if ( rand_num < adjusted_cdf )
+                adjustedCDF += data.Adults[i] / pdfFactor;
+                if ( randNum < adjustedCDF )
                 {
                     return i;
                 }

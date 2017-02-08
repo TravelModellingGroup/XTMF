@@ -26,6 +26,7 @@ using TMG;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha.PopulationSynthesis
 {
@@ -139,7 +140,6 @@ namespace Tasha.PopulationSynthesis
                                         }
                                         // if we are here then we can copy the probabilities from j
                                         Array.Copy(category[j], category[zoneIndex], Zones.Length);
-                                        any = true;
                                         break;
                                     }
                                 }

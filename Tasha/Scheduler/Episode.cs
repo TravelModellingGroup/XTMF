@@ -29,14 +29,11 @@ namespace Tasha.Scheduler
     /// </summary>
     public abstract class Episode : IEpisode
     {
-        internal static long GeneratedEpisodes = 0;
-
         /// <summary>
         /// Creates a new Episode
         /// </summary>
-        /// <param name="id">The id for the event</param>
         /// <param name="window">The window in time this episode occurs in</param>
-        internal Episode(TimeWindow window, ITashaPerson owner)
+        internal Episode(TimeWindow window)
         {
             Window = window;
             // originally we have no travel time
@@ -152,19 +149,5 @@ namespace Tasha.Scheduler
         /// </summary>
         /// <param name="person">The person to include</param>
         internal abstract void AddPerson(ITashaPerson person);
-
-        internal bool CheckDuration(Time testDuration)
-        {
-            if ( ( ActivityType == Activity.PrimaryWork ) | ( ActivityType == Activity.WorkBasedBusiness ) )
-            {
-                // Check to see if the test duration is the same as the one we are in
-                return OriginalDuration == testDuration;
-            }
-            else
-            {
-                return Scheduler.PercentOverlapAllowed * Distribution.TashaTimeToDistribution( OriginalDuration )
-                    <= Distribution.TashaTimeToDistribution( testDuration );
-            }
-        }
     }
 }

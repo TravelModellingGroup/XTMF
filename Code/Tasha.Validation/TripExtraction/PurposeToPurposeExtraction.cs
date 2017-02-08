@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Datastructure;
 using Tasha.Common;
 using TMG.Input;
@@ -54,9 +51,9 @@ namespace Tasha.Validation.PerformanceMeasures
         }
 
 
-        public sealed class PurposeTransferGroup : XTMF.IModule
+        public sealed class PurposeTransferGroup : IModule
         {
-            public sealed class TimePeriod : XTMF.IModule
+            public sealed class TimePeriod : IModule
             {
                 [RunParameter("StartTime", "6:00AM", typeof(Time), "The time to start recording.")]
                 public Time StartTime;
@@ -125,7 +122,7 @@ namespace Tasha.Validation.PerformanceMeasures
             [SubModelInformation(Required = true, Description = "The different time periods to work with")]
             public TimePeriod[] TimePeriods;
 
-            public class ActivityModule : XTMF.IModule
+            public class ActivityModule : IModule
             {
 
                 [RunParameter("Activity", "PrimaryWork", typeof(Activity), "The activity to represent.")]
@@ -282,7 +279,6 @@ namespace Tasha.Validation.PerformanceMeasures
         public void Execute(ITashaHousehold household, int iteration)
         {
             // only run on the last iteration
-            var homeZoneIndex = Root.ZoneSystem.ZoneArray.GetFlatIndex(household.HomeZone.ZoneNumber);
             if (iteration == Root.TotalIterations - 1)
             {
                 foreach (var type in PurposeTransfers)

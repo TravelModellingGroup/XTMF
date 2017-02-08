@@ -27,6 +27,8 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.IO;
 using TMG.Functions;
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable InconsistentNaming
 
 namespace Tasha.PopulationSynthesis
 {

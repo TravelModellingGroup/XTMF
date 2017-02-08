@@ -78,7 +78,8 @@ namespace Tasha.XTMFModeChoice
                 for (int j = 0; j < modes.Length; j++)
                 {
                     // go through each non shared mode and if it is feasible get the V for that mode
-                    if (currentTrip.Feasible[j] = modes[j].Feasible(trips[i]))
+                    currentTrip.Feasible[j] = modes[j].Feasible(trips[i]);
+                    if (currentTrip.Feasible[j])
                     {
                         var value = (float)modes[j].CalculateV(trips[i]);
                         if (!(float.IsNaN(value) | float.IsInfinity(value)))

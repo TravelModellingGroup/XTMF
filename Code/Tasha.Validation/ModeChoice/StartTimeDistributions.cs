@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Tasha.Common;
 using TMG.Input;
@@ -34,7 +33,6 @@ namespace Tasha.Validation.ModeChoice
             }
         }
 
-        SpinLock WriteLock = new SpinLock(false);
         Dictionary<Activity, float[][]> TimeBin = new Dictionary<Activity, float[][]>();
 
         [SubModelInformation(Required = true, Description = "The place to save the report.")]

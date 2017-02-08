@@ -118,8 +118,6 @@ namespace Tasha.Scheduler
             SimulateScheduler();
             Distribution.InitializeDistributions();
             var distributionData = Distribution.Distributions.GetFlatData();
-            var adultData = Distribution.AdultDistributions.GetFlatData();
-
             GraphTripPurpose( distributionData );
             Dispose( true );
         }
@@ -129,11 +127,11 @@ namespace Tasha.Scheduler
             return "Analysing Distribution Data";
         }
 
-        private static void LoadDistributioNumbers(TashaPerson person, List<int> primaryWork, Occupation[] Occupations)
+        private static void LoadDistributioNumbers(TashaPerson person, List<int> primaryWork, Occupation[] occupations)
         {
-            foreach ( Occupation Current in Occupations )
+            foreach ( Occupation current in occupations )
             {
-                person.Occupation = Current;
+                person.Occupation = current;
                 for ( person.Age = 11; person.Age < 100; person.Age++ )
                 {
                     if ( person.Age >= 16 && person.Licence == false )
@@ -180,14 +178,6 @@ namespace Tasha.Scheduler
             }
         }
 
-        private int GetBucketIndex(Time time)
-        {
-            // find the time in minutes starting from 4 AM
-            var minutes = (int)time.ToMinutes() - ( 60 * 4 );
-            // 1440 is the number of minutes in 24 hours
-            return minutes / ( 1440 / StartTimeQuantums );
-        }
-
         private string GetFullPath(string localPath)
         {
             if ( !Path.IsPathRooted( localPath ) )
@@ -199,26 +189,25 @@ namespace Tasha.Scheduler
 
         private void GraphTripPurpose(Distribution.DistributionInformation[] distributionData)
         {
-            TashaHousehold Household = new TashaHousehold();
+            TashaHousehold household = new TashaHousehold();
             TashaPerson person = new TashaPerson();
             List<int> primaryWork = new List<int>();
             person.Licence = false;
             person.Male = GenderLocal;
 
-            SchedulerHousehold.CreateHouseholdProjects( Household );
+            SchedulerHousehold.CreateHouseholdProjects( household );
             SchedulerPerson.InitializePersonalProjects( person );
             SchedulerPerson.GenerateWorkSchoolSchedule( person, null );
             SchedulerTripChain.GetTripChain( person );
-            var trip = SchedulerTrip.GetTrip(0);
 
-            Occupation[] Occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
+            Occupation[] occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
 
-            LoadDistributioNumbers( person, primaryWork, Occupations );
+            LoadDistributioNumbers( person, primaryWork, occupations );
 
             float[] data = new float[StartTimeQuantums];
-            foreach ( int ID in primaryWork )
+            foreach ( int id in primaryWork )
             {
-                var table = distributionData[ID].StartTimeFrequency;
+                var table = distributionData[id].StartTimeFrequency;
                 for ( int i = 0; i < StartTimeQuantums; i++ )
                 {
                     for ( int j = 0; j < MaxFrequencyLocal; j++ )
@@ -237,7 +226,7 @@ namespace Tasha.Scheduler
                 Writer.WriteLine( "{0}, {1}", ( Time.FromMinutes( ( 60 * 4 ) + number * ( 1440 / StartTimeQuantums ) ) ), data[number] );
             }
 
-            GenerateChart( String.Format( "OfficeDur.png" ), data, "Time of Day", "Probability" );
+            GenerateChart( "OfficeDur.png", data, "Time of Day", "Probability" );
         }
 
         private void SimulateScheduler()

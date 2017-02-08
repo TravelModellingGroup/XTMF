@@ -23,7 +23,9 @@ using System.Text;
 using Datastructure;
 using Tasha.Common;
 using TMG;
+using TMG.Emme;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha.Validation
 {
@@ -81,7 +83,7 @@ namespace Tasha.Validation
         }
 
         [RunParameter( "Matrix Number", 10, "The EMME Matrix Number" )]
-        public int matrixNumber { get; set; }
+        public int MatrixNumber { get; set; }
 
         [DoNotAutomate]
         public ITashaModeChoice ModeChoice { get; set; }
@@ -177,7 +179,7 @@ namespace Tasha.Validation
         public List<IVehicleType> VehicleTypes { get; set; }
 
         [SubModelInformation( Description = "Zone System", Required = true )]
-        public TMG.IZoneSystem ZoneSystem { get; set; }
+        public IZoneSystem ZoneSystem { get; set; }
 
         public ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime)
         {
@@ -201,95 +203,73 @@ namespace Tasha.Validation
 
         public void Start()
         {
-            this.ZoneSystem.LoadData();
+            ZoneSystem.LoadData();
 
-            this.HouseholdLoader.LoadData();
-            var hhlds = this.HouseholdLoader.ToArray();
+            HouseholdLoader.LoadData();
+            var hhlds = HouseholdLoader.ToArray();
 
             System.Threading.Tasks.Parallel.ForEach( AllModes, delegate(ITashaMode mode)
             {
-                var AM = ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-                var PM = ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-                var FF = ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                var am = ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                var pm = ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+                var ff = ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
 
-                this.Status = "Calculating All Modes";
-                CreateData( hhlds, mode, AM, PM, FF );
+                Status = "Calculating All Modes";
+                CreateData( hhlds, mode, am, pm, ff );
 
-                this.Status = "Writing to Files...";
-                this.Progress = 0;
-                WriteData( AM, matrixNumber, mode.ModeName + "AM.311" );
-                this.Progress = (float)0.33;
-                WriteData( PM, matrixNumber, mode.ModeName + "PM.311" );
-                this.Progress = (float)0.66;
-                WriteData( FF, matrixNumber, mode.ModeName + "FF.311" );
-                this.Progress = (float)1;
+                Status = "Writing to Files...";
+                Progress = 0;
+                WriteData( am, MatrixNumber, mode.ModeName + "AM.311" );
+                Progress = (float)0.33;
+                WriteData( pm, MatrixNumber, mode.ModeName + "PM.311" );
+                Progress = (float)0.66;
+                WriteData( ff, MatrixNumber, mode.ModeName + "FF.311" );
+                Progress = 1;
             } );
 
-            this.ZoneSystem.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         public override string ToString()
         {
-            return this.Status;
+            return Status;
         }
 
-        private void CreateData(ITashaHousehold[] hhlds, ITashaMode mode, SparseTwinIndex<float> AM, SparseTwinIndex<float> PM, SparseTwinIndex<float> FF)
+        private void CreateData(ITashaHousehold[] hhlds, ITashaMode mode, SparseTwinIndex<float> am, SparseTwinIndex<float> pm, SparseTwinIndex<float> ff)
         {
             var length = (float)hhlds.Length;
-            this.Progress = 0;
+            Progress = 0;
             int count = 0;
             foreach ( var household in hhlds )
             {
                 foreach ( var person in household.Persons )
                 {
-                    foreach ( var TripChain in person.TripChains )
+                    foreach ( var tripChain in person.TripChains )
                     {
-                        foreach ( var Trip in TripChain.Trips )
+                        foreach ( var trip in tripChain.Trips )
                         {
-                            if ( Trip[ObservedModeAttachment] as IMode == mode )
+                            if ( trip[ObservedModeAttachment] as IMode == mode )
                             {
-                                var Origin = Trip.OriginalZone.ZoneNumber;
-                                var Destination = Trip.DestinationZone.ZoneNumber;
+                                var origin = trip.OriginalZone.ZoneNumber;
+                                var destination = trip.DestinationZone.ZoneNumber;
 
-                                if ( Trip.TripStartTime < AMRushEnd && Trip.TripStartTime > AMRushStart )
+                                if ( trip.TripStartTime < AMRushEnd && trip.TripStartTime > AMRushStart )
                                 {
-                                    AM[Origin, Destination] += household.ExpansionFactor;
+                                    am[origin, destination] += household.ExpansionFactor;
                                 }
-                                else if ( Trip.TripStartTime < PMRushEnd && Trip.TripStartTime > PMRushStart )
+                                else if ( trip.TripStartTime < PMRushEnd && trip.TripStartTime > PMRushStart )
                                 {
-                                    PM[Origin, Destination] += household.ExpansionFactor;
+                                    pm[origin, destination] += household.ExpansionFactor;
                                 }
                                 else
                                 {
-                                    FF[Origin, Destination] += household.ExpansionFactor;
+                                    ff[origin, destination] += household.ExpansionFactor;
                                 }
                             }
                         }
                     }
                 }
-                this.Progress = count++ / length;
-            }
-        }
-
-        private void ToEmmeFloat(float p, StringBuilder builder)
-        {
-            builder.Clear();
-            builder.Append( (int)p );
-            p = p - (int)p;
-            if ( p > 0 )
-            {
-                var integerSize = builder.Length;
-                builder.Append( '.' );
-                for ( int i = integerSize; i < 4; i++ )
-                {
-                    p = p * 10;
-                    builder.Append( (int)p );
-                    p = p - (int)p;
-                    if ( p == 0 )
-                    {
-                        break;
-                    }
-                }
+                Progress = count++ / length;
             }
         }
 
@@ -311,8 +291,8 @@ namespace Tasha.Validation
                     var convertedO = zoneNumbers[o];
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        this.ToEmmeFloat( flatData[o][d], strBuilder );
-                        build.AppendFormat( "{0,7:G}{1,7:G} {2,9:G}\r\n",
+                        Controller.ToEmmeFloat( flatData[o][d], strBuilder );
+                        build.AppendFormat( "{0,7:G}{1,7:G} {2}\r\n",
                             convertedO, zoneNumbers[d], strBuilder );
                     }
                 } );

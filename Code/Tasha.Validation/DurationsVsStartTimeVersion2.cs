@@ -114,28 +114,31 @@ namespace Tasha.Validation
                 {
                     Directory.CreateDirectory(OutputDirectory);
                 }
-                foreach (var pair in DurationsDict)
+                lock (this)
                 {
-                    string fileName;
-                    var purpose = pair.Key.Key;
-                    var hour = pair.Key.Value;
-                    var averageDur = pair.Value.Average();
-                    var stdDev = GetStdDev(pair.Value, averageDur);
-                    //standard deviation 
-                    if (!writerDict.ContainsKey(purpose))
+                    foreach (var pair in DurationsDict)
                     {
-                        if (RealData)
+                        string fileName;
+                        var purpose = pair.Key.Key;
+                        var hour = pair.Key.Value;
+                        var averageDur = pair.Value.Average();
+                        var stdDev = GetStdDev(pair.Value, averageDur);
+                        //standard deviation 
+                        if (!writerDict.ContainsKey(purpose))
                         {
-                            fileName = Path.Combine(OutputDirectory, purpose.ToString() + "DurationsData.csv");
+                            if (RealData)
+                            {
+                                fileName = Path.Combine(OutputDirectory, purpose + "DurationsData.csv");
+                            }
+                            else
+                            {
+                                fileName = Path.Combine(OutputDirectory, purpose + "DurationsTasha.csv");
+                            }
+                            writerDict[purpose] = new StreamWriter(fileName);
+                            writerDict[purpose].WriteLine("Start Times,AverageDuration(Minutes),StdDev(Minutes)");
                         }
-                        else
-                        {
-                            fileName = Path.Combine(OutputDirectory, purpose.ToString() + "DurationsTasha.csv");
-                        }
-                        writerDict[purpose] = new StreamWriter(fileName);
-                        writerDict[purpose].WriteLine("Start Times,AverageDuration(Minutes),StdDev(Minutes)");
+                        writerDict[purpose].WriteLine("{0},{1},{2}", hour, averageDur, stdDev);
                     }
-                    writerDict[purpose].WriteLine("{0},{1},{2}", hour, averageDur, stdDev);
                 }
             }
             finally

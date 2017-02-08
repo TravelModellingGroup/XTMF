@@ -24,10 +24,9 @@ namespace Tasha.Scheduler
 {
     internal sealed class TravelEpisode : Episode
     {
-        internal TravelEpisode(int id, TimeWindow timeWindow, Episode from, Episode to, ITashaPerson owner)
-            : base( timeWindow, owner )
+        internal TravelEpisode(TimeWindow timeWindow, Episode from, Episode to)
+            : base( timeWindow )
         {
-            //TODO: verify this line:
             ActivityType = to.ActivityType;
             //-----
             From = from;
@@ -79,7 +78,7 @@ namespace Tasha.Scheduler
             {
                 return From.IsOwner( person );
             }
-            else if ( To != null )
+            if ( To != null )
             {
                 return To.IsOwner( person );
             }

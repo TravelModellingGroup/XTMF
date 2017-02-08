@@ -112,10 +112,7 @@ add in the current progress reported by the currently executing module."
                     {
                         return "Exiting after: " + ToRun[i];
                     }
-                    else
-                    {
-                        return ToRun[i].ToString();
-                    }
+                    return ToRun[i].ToString();
                 }
                 return "Done";
             };

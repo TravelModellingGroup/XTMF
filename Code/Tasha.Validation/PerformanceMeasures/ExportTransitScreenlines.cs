@@ -17,11 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 
@@ -50,7 +46,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         public string AlternateCountpostAttributeFlag;
 
         [RunParameter("LineFilterExpression", "", typeof(string), "The line filter in the correct EMME format")]
-        public string lineFilter;
+        public string LineFilter;
 
         [RunParameter("RepresentativeHourFactor", "2.04", typeof(string),"The representative hour factor for the screenlines")]
         public string RepresentativeHourFactor;
@@ -79,7 +75,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
                 AddQuotes(AlternateCountpostAttributeFlag),
                 AddQuotes(ScreenlineDefinitions),
                 AddQuotes(Path.GetFullPath(SaveTo)),
-                AddQuotes(lineFilter),
+                AddQuotes(LineFilter),
                 AddQuotes(RepresentativeHourFactor),
                 ExportPedestrians ? "true" : "false");
         }

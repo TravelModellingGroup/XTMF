@@ -112,10 +112,9 @@ namespace DistroCacheMaker
             return true;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="args"></param>
+        ///  <summary>
+        /// 
+        ///  </summary>
         public void Start()
         {
             CreateFrequencyDistroCache();
@@ -143,10 +142,13 @@ namespace DistroCacheMaker
                         for (int j = 0; j < NumberOfAdultFrequencies; j++)
                         {
                             string line = reader.ReadLine();
-                            //skip the first 3 values (they are implied) based on index
-                            string[] values = line.Split(',');
-                            sb.Append(",");
-                            sb.Append(values[3]);
+                            if (line != null)
+                            {
+                                //skip the first 3 values (they are implied) based on index
+                                string[] values = line.Split(',');
+                                sb.Append(",");
+                                sb.Append(values[3]);
+                            }
                         }
                         writer.WriteLine(sb);
                     }
@@ -159,7 +161,7 @@ namespace DistroCacheMaker
                 {
                     File.Delete(AdultDistributionsZFC);
                 }
-                catch
+                catch (IOException)
                 { }
             }
             SparseZoneCreator zc = new SparseZoneCreator(AdultDistributions, NumberOfAdultFrequencies);
@@ -171,13 +173,6 @@ namespace DistroCacheMaker
         /// <summary>
         ///
         /// </summary>
-        /// <param name="frequency"></param>
-        /// <param name="startTimeFrequency"></param>
-        /// <param name="startTime"></param>
-        /// <param name="outFrequencyLevels"></param>
-        /// <param name="numberOfDistributions"></param>
-        /// <param name="highestFrequency"></param>
-        /// <param name="startTimeQuantums"></param>
         private void CreateFrequencyDistroCache()
         {
             if (!GenerateIfExists && File.Exists(FrequencyLevelsZFC))
@@ -212,18 +207,17 @@ namespace DistroCacheMaker
             }
 
             var numberOfFrequencies = HighFrequency + 1; // it was inclusive
-            var numberOfSTF = numberOfFrequencies * StartTimeQuantums;
             // there are actually StartTimeQuantums + 1 durations
             var numberOfDurations = (StartTimeQuantums) * (StartTimeQuantums + 1);
 
-            int types = numberOfFrequencies + numberOfSTF + numberOfDurations;
+            int types = numberOfFrequencies + numberOfFrequencies * StartTimeQuantums + numberOfDurations;
             if (File.Exists(FrequencyLevelsZFC))
             {
                 try
                 {
                     File.Delete(FrequencyLevelsZFC);
                 }
-                catch
+                catch (IOException)
                 { }
             }
             SparseZoneCreator zc = new SparseZoneCreator(NumberOfDistributions, types);
@@ -256,8 +250,8 @@ namespace DistroCacheMaker
             {
                 for (int duration = 0; duration <= StartTimeQuantums; duration++)
                 {
-                    string[] durationSplit = durationTime.ReadLine().Split(',');
-                    if (durationSplit.Length <= 3)
+                    string[] durationSplit = durationTime.ReadLine()?.Split(',');
+                    if (durationSplit == null || durationSplit.Length <= 3)
                     {
                         throw new XTMFRuntimeException("Invalid duration line!");
                     }
@@ -272,17 +266,18 @@ namespace DistroCacheMaker
             //fre_dist3
             for (int i = 0; i <= HighFrequency; i++)
             {
-                string[] frequencySplit = readFrequency.ReadLine().Split(',');
-                line.Append(frequencySplit[2]);
-                line.Append(',');
+                string[] frequencySplit = readFrequency.ReadLine()?.Split(',');
+                if (frequencySplit != null)
+                {
+                    line.Append(frequencySplit[2]);
+                    line.Append(',');
+                }
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="readFrequency"></param>
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="line"></param>
         /// <param name="readStartTimeFrequency"></param>
         private void WriteStartTimeFrequencies(StringBuilder line, StreamReader readStartTimeFrequency)
         {
@@ -290,12 +285,13 @@ namespace DistroCacheMaker
             {
                 for (int time = 0; time < StartTimeQuantums; time++)
                 {
-                    string[] freqStartSplit = readStartTimeFrequency.ReadLine().Split(',');
-                    line.Append(freqStartSplit[3]);
-                    line.Append(',');
+                    string[] freqStartSplit = readStartTimeFrequency.ReadLine()?.Split(',');
+                    if (freqStartSplit != null)
+                    {
+                        line.Append(freqStartSplit[3]);
+                        line.Append(',');
+                    }
                 }
-                //TODO: verify correctness (Nik is guessing)
-                //readStartTimeFrequency.ReadLine();
             }
         }
     }

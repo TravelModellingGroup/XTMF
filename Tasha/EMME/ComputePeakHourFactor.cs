@@ -201,7 +201,7 @@ namespace Tasha.EMME
                 error = "In '" + Name + "' End time occurs before start time!";
                 return false;
             }
-            else if (minutes < 60)
+            if (minutes < 60)
             {
                 error = "In '" + Name + "' the time slice needs to be over an hour!";
                 return false;

@@ -114,20 +114,20 @@ namespace TMG.GTAModel.NetworkAssignment
             string scenarios = "\"" + string.Join(",", scenarioList) + "\"";
 
             var args = string.Join(" ", scenarios,
-                                     mc.ToEmmeFloat(SubwayBoardingPenalty),
-                                     mc.ToEmmeFloat(GoTrainBoardingPenalty),
-                                     mc.ToEmmeFloat(GoBusBoardingPenalty),
-                                     mc.ToEmmeFloat(StreetcarXROWBoardingPenalty),
-                                     mc.ToEmmeFloat(StreetcarBoardingPenalty),
-                                     mc.ToEmmeFloat(TTCBusBoardingPenalty),
-                                     mc.ToEmmeFloat(YRTBoardingPenalty),
-                                     mc.ToEmmeFloat(VIVABoardingPenalty),
-                                     mc.ToEmmeFloat(BramptonBoardingPenalty),
-                                     mc.ToEmmeFloat(ZUMBoardingPenalty),
-                                     mc.ToEmmeFloat(MiWayBoardingPenalty),
-                                     mc.ToEmmeFloat(DurhamBoardingPenalty),
-                                     mc.ToEmmeFloat(HaltonBoardingPenalty),
-                                     mc.ToEmmeFloat(HSRBoardingPenalty));
+                                     Controller.ToEmmeFloat(SubwayBoardingPenalty),
+                                     Controller.ToEmmeFloat(GoTrainBoardingPenalty),
+                                     Controller.ToEmmeFloat(GoBusBoardingPenalty),
+                                     Controller.ToEmmeFloat(StreetcarXROWBoardingPenalty),
+                                     Controller.ToEmmeFloat(StreetcarBoardingPenalty),
+                                     Controller.ToEmmeFloat(TTCBusBoardingPenalty),
+                                     Controller.ToEmmeFloat(YRTBoardingPenalty),
+                                     Controller.ToEmmeFloat(VIVABoardingPenalty),
+                                     Controller.ToEmmeFloat(BramptonBoardingPenalty),
+                                     Controller.ToEmmeFloat(ZUMBoardingPenalty),
+                                     Controller.ToEmmeFloat(MiWayBoardingPenalty),
+                                     Controller.ToEmmeFloat(DurhamBoardingPenalty),
+                                     Controller.ToEmmeFloat(HaltonBoardingPenalty),
+                                     Controller.ToEmmeFloat(HSRBoardingPenalty));
             string result = "";
             return mc.Run(ToolName, args, (p => Progress = p), ref result);
 

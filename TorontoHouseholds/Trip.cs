@@ -144,7 +144,9 @@ namespace Tasha.Common
             Trip t;
             try
             {
-                while ( Trips.TryDequeue( out t ) ) ;
+                while ( Trips.TryDequeue( out t ) )
+                {
+                }
             }
             catch (ObjectDisposedException)
             {

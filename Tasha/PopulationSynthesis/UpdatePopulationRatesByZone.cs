@@ -239,7 +239,7 @@ namespace Tasha.PopulationSynthesis
                             {
                                 if(float.IsNaN(ExpansionModiferByZone[zone]) | float.IsInfinity(ExpansionModiferByZone[zone]))
                                 {
-                                    throw new XTMFRuntimeException("Zone " + sparseZone.ToString() + " ended up with an invalid (infinite) population in the future year forecast!");
+                                    throw new XTMFRuntimeException("Zone " + sparseZone + " ended up with an invalid (infinite) population in the future year forecast!");
                                 }
                             }
                         }

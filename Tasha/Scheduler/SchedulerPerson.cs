@@ -27,61 +27,61 @@ namespace Tasha.Scheduler
     {
         public static void AddPersonalProjects(this ITashaPerson person, Random random)
         {
-            Schedule pSched = ( (SchedulerPersonData)person["SData"] ).Schedule;
+            Schedule pSched = ((SchedulerPersonData)person["SData"]).Schedule;
             // First is other then is market episodes
-            AddPersonProjects( pSched, person.GetOtherProject(), random );
-            AddPersonProjects( pSched, person.GetMarketProject(), random );
+            AddPersonProjects(pSched, person.GetOtherProject(), random);
+            AddPersonProjects(pSched, person.GetMarketProject(), random);
         }
 
         public static void InitializePersonalProjects(this ITashaPerson person)
         {
             //Work | School | IndividualOther | IndividualMarket
             SchedulerPersonData data;
-            person.Attach( "SData", data = new SchedulerPersonData() );
-            ProjectSchedule workSchedule = new ProjectSchedule( person.Household );
-            ProjectSchedule schoolSchedule = new ProjectSchedule( person.Household );
-            ProjectSchedule otherSchedule = new ProjectSchedule( person.Household );
-            ProjectSchedule marketSchedule = new ProjectSchedule( person.Household );
+            person.Attach("SData", data = new SchedulerPersonData());
+            ProjectSchedule workSchedule = new ProjectSchedule();
+            ProjectSchedule schoolSchedule = new ProjectSchedule();
+            ProjectSchedule otherSchedule = new ProjectSchedule();
+            ProjectSchedule marketSchedule = new ProjectSchedule();
             // We could just call the other methods, but this will run much faster
-            data.WorkSchedule = new PersonalProject( workSchedule, person );
-            data.SchoolSchedule = new PersonalProject( schoolSchedule, person );
-            data.OtherSchedule = new PersonalProject( otherSchedule, person );
-            data.MarketSchedule = new PersonalProject( marketSchedule, person );
-            data.Schedule = new PersonSchedule( person );
+            data.WorkSchedule = new PersonalProject(workSchedule, person);
+            data.SchoolSchedule = new PersonalProject(schoolSchedule, person);
+            data.OtherSchedule = new PersonalProject(otherSchedule, person);
+            data.MarketSchedule = new PersonalProject(marketSchedule, person);
+            data.Schedule = new PersonSchedule(person);
         }
 
         internal static void AddHouseholdProjects(this ITashaHousehold household, SchedHouseholdData hdata, Random random)
         {
-            household.AddHouseholdProjects( hdata.JointOtherProject.Schedule, random );
-            household.AddHouseholdProjects( hdata.JointMarketProject.Schedule, random );
+            household.AddHouseholdProjects(hdata.JointOtherProject.Schedule, random);
+            household.AddHouseholdProjects(hdata.JointMarketProject.Schedule, random);
         }
 
         internal static void AddHouseholdProjects(this ITashaHousehold household, Schedule schedule, Random random)
         {
-            for ( int i = 0; i < schedule.EpisodeCount; i++ )
+            for (int i = 0; i < schedule.EpisodeCount; i++)
             {
                 var episode = (Episode)schedule.Episodes[i];
                 episode.ContainingSchedule = schedule;
                 var people = episode.People;
-                if ( people != null )
+                if (people != null)
                 {
                     bool first = true;
                     IZone zone = null;
-                    foreach ( var person in people )
+                    foreach (var person in people)
                     {
-                        var pData = person["SData"] as SchedulerPersonData;
+                        var pData = (SchedulerPersonData)person["SData"];
                         //var check = pData.Schedule.EpisodeCount > 0;
-                        var ep = new ActivityEpisode( 0, new TimeWindow( episode.StartTime, episode.EndTime ) /*window*/,
-                            schedule.Episodes[i].ActivityType, person );
-                        if ( first )
+                        var ep = new ActivityEpisode(new TimeWindow(episode.StartTime, episode.EndTime) /*window*/,
+                            schedule.Episodes[i].ActivityType, person);
+                        if (first)
                         {
-                            pData.Schedule.Insert( ep, random );
+                            pData.Schedule.Insert(ep, random);
                             zone = ep.Zone;
                             first = false;
                         }
                         else
                         {
-                            pData.Schedule.Insert( ep, zone );
+                            pData.Schedule.Insert(ep, zone);
                             pData.Schedule.CheckEpisodeIntegrity();
                         }
                     }
@@ -91,35 +91,37 @@ namespace Tasha.Scheduler
 
         internal static void AddPersonProjects(Schedule sched, PersonalProject project, Random random)
         {
-            sched.Insert( project.Schedule, random );
+            sched.Insert(project.Schedule, random);
         }
 
         /// <summary>
         /// turn household activities into trip chains
         /// </summary>
         /// <param name="household"></param>
+        /// <param name="householdIterations"></param>
+        /// <param name="minimumAtHomeTime"></param>
         internal static void BuildChains(this ITashaHousehold household, int householdIterations, Time minimumAtHomeTime)
         {
-            foreach ( var person in household.Persons )
+            foreach (var person in household.Persons)
             {
-                BuildPersonChain( person, household.HomeZone, householdIterations, minimumAtHomeTime );
+                BuildPersonChain(person, householdIterations, minimumAtHomeTime);
             }
         }
 
         internal static void CheckAndUpdateLatestWorkingTime(this ITashaPerson person, Time time)
         {
-            if ( ( person["SData"] as SchedulerPersonData ).LatestWorkingTime < time )
+            if (((SchedulerPersonData)person["SData"]).LatestWorkingTime < time)
             {
-                ( person["SData"] as SchedulerPersonData ).LatestWorkingTime = time;
+                ((SchedulerPersonData)person["SData"]).LatestWorkingTime = time;
             }
         }
 
         internal static void CleanupSchedules(this ITashaHousehold household)
         {
-            foreach ( var person in household.Persons )
+            foreach (var person in household.Persons)
             {
-                var pdata = ( person["SData"] as SchedulerPersonData );
-                pdata.Schedule.CleanUp( new Time() { Minutes = 30 } );
+                var pdata = ((SchedulerPersonData) person["SData"]);
+                pdata.Schedule.CleanUp(new Time() { Minutes = 30 });
             }
         }
 
@@ -130,7 +132,7 @@ namespace Tasha.Scheduler
         internal static int CountEpisodes(this ITashaPerson person)
         {
             int count = 0;
-            var data = person["SData"] as SchedulerPersonData;
+            var data = (SchedulerPersonData) person["SData"];
             // We don't include the null episode
             count += data.WorkSchedule.Schedule.NumberOfEpisodes;
             count += data.SchoolSchedule.Schedule.NumberOfEpisodes;
@@ -143,46 +145,47 @@ namespace Tasha.Scheduler
         /// Generate the schedule for the person
         /// </summary>
         /// <param name="person"></param>
+        /// <param name="random"></param>
         internal static void GenerateWorkSchoolSchedule(this ITashaPerson person, Random random)
         {
-            var data = ( person["SData"] as SchedulerPersonData );
+            var data = ((SchedulerPersonData) person["SData"]);
             // Schedule school first if they are a part time student
-            if ( person.StudentStatus == StudentStatus.FullTime
-                && person.EmploymentStatus == TTSEmploymentStatus.PartTime )
+            if (person.StudentStatus == StudentStatus.FullTime
+                && person.EmploymentStatus == TTSEmploymentStatus.PartTime)
             {
-                person.AddSchool( data, random );
-                person.AddWork( data, random );
+                AddSchool(data, random);
+                AddWork(data, random);
             }
             else
             {
-                person.AddWork( data, random );
-                person.AddSchool( data, random );
+                AddWork(data, random);
+                AddSchool(data, random);
             }
         }
 
         internal static PersonalProject GetMarketProject(this ITashaPerson person)
         {
-            return ( person["SData"] as SchedulerPersonData ).MarketSchedule;
+            return ((SchedulerPersonData) person["SData"]).MarketSchedule;
         }
 
         internal static PersonalProject GetOtherProject(this ITashaPerson person)
         {
-            return ( person["SData"] as SchedulerPersonData ).OtherSchedule;
+            return ((SchedulerPersonData) person["SData"]).OtherSchedule;
         }
 
         internal static PersonalProject GetSchoolProject(this ITashaPerson person)
         {
-            return ( person["SData"] as SchedulerPersonData ).SchoolSchedule;
+            return ((SchedulerPersonData) person["SData"]).SchoolSchedule;
         }
 
         internal static PersonalProject GetWorkProject(this ITashaPerson person)
         {
-            return ( person["SData"] as SchedulerPersonData ).WorkSchedule;
+            return ((SchedulerPersonData) person["SData"]).WorkSchedule;
         }
 
         internal static Time GetWorkSchoolEndTime(ITashaPerson person)
         {
-            Time workSchoolEndTime = Time.Zero;
+            Time workSchoolEndTime;
 
             Project workProject = person.GetWorkProject();
             Schedule workSchedule = workProject.Schedule;
@@ -192,17 +195,17 @@ namespace Tasha.Scheduler
             Schedule schoolSchedule = schoolProject.Schedule;
             Time schoolEndTime = schoolSchedule.GetLastEpisodeEndTime();
 
-            if ( workEndTime != Time.Zero && schoolEndTime == Time.Zero )
+            if (workEndTime != Time.Zero && schoolEndTime == Time.Zero)
             {
                 workSchoolEndTime = workEndTime;
             }
-            else if ( workEndTime == Time.Zero && schoolEndTime != Time.Zero )
+            else if (workEndTime == Time.Zero && schoolEndTime != Time.Zero)
             {
                 workSchoolEndTime = schoolEndTime;
             }
-            else if ( workEndTime != Time.Zero && schoolEndTime != Time.Zero )
+            else if (workEndTime != Time.Zero && schoolEndTime != Time.Zero)
             {
-                workSchoolEndTime = schoolEndTime > workEndTime ? schoolEndTime : schoolEndTime;
+                workSchoolEndTime = schoolEndTime;
             }
             else
             {
@@ -220,25 +223,25 @@ namespace Tasha.Scheduler
         internal static PersonWorkSchoolProjectStatus GetWorkSchoolProjectStatus(ITashaPerson person)
         {
             //TashaTime workSchoolStartTime = (person["SData"] as SchedulerPersonData).;
-            Time workSchoolStartTime = GetWorkSchoolStartTime( person );
-            Time workSchoolEndTime = GetWorkSchoolEndTime( person );
+            Time workSchoolStartTime = GetWorkSchoolStartTime(person);
+            Time workSchoolEndTime = GetWorkSchoolEndTime(person);
 
             PersonWorkSchoolProjectStatus workSchoolProjectStatus = PersonWorkSchoolProjectStatus.NoWorkOrSchool;
 
-            if ( workSchoolStartTime <= Time.StartOfDay )
+            if (workSchoolStartTime <= Time.StartOfDay)
             {
                 workSchoolProjectStatus = PersonWorkSchoolProjectStatus.NoWorkOrSchool;
             }
-            else if ( ( workSchoolEndTime - workSchoolStartTime ) >= Scheduler.FullTimeActivity )
+            else if ((workSchoolEndTime - workSchoolStartTime) >= Scheduler.FullTimeActivity)
             {
-                if ( workSchoolEndTime <= new Time() { Hours = 14 } ) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.FullTimeNoEveningWorkOrSchool;
-                else if ( workSchoolStartTime >= new Time() { Hours = 9 } ) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.FullTimeEveningWorkOrSchool;
+                if (workSchoolEndTime <= new Time() { Hours = 14 }) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.FullTimeNoEveningWorkOrSchool;
+                else if (workSchoolStartTime >= new Time() { Hours = 9 }) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.FullTimeEveningWorkOrSchool;
                 else workSchoolProjectStatus = PersonWorkSchoolProjectStatus.FullTimeDayAndEveningWorkOrSchool;
             }
-            else if ( workSchoolEndTime - workSchoolStartTime < Scheduler.FullTimeActivity )
+            else if (workSchoolEndTime - workSchoolStartTime < Scheduler.FullTimeActivity)
             {
-                if ( workSchoolEndTime <= new Time() { Hours = 9 } ) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.PartTimeDay;
-                else if ( workSchoolEndTime <= new Time() { Hours = 14 } ) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.PartTimeEvening;
+                if (workSchoolEndTime <= new Time() { Hours = 9 }) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.PartTimeDay;
+                else if (workSchoolEndTime <= new Time() { Hours = 14 }) workSchoolProjectStatus = PersonWorkSchoolProjectStatus.PartTimeEvening;
                 else workSchoolProjectStatus = PersonWorkSchoolProjectStatus.Other;
             }
 
@@ -247,7 +250,7 @@ namespace Tasha.Scheduler
 
         internal static Time GetWorkSchoolStartTime(ITashaPerson person)
         {
-            Time workSchoolStartTime = Time.Zero;
+            Time workSchoolStartTime;
             Project workProject = person.GetWorkProject();
             Schedule workSchedule = workProject.Schedule;
             Time workStartTime = workSchedule.GetFirstEpisodeStartTime();
@@ -255,15 +258,15 @@ namespace Tasha.Scheduler
             Schedule schoolSchedule = schoolProject.Schedule;
             Time schoolStartTime = schoolSchedule.GetFirstEpisodeStartTime();
 
-            if ( workStartTime != Time.Zero && schoolStartTime == Time.Zero )
+            if (workStartTime != Time.Zero && schoolStartTime == Time.Zero)
             {
                 workSchoolStartTime = workStartTime;
             }
-            else if ( workStartTime == Time.Zero && schoolStartTime != Time.Zero )
+            else if (workStartTime == Time.Zero && schoolStartTime != Time.Zero)
             {
                 workSchoolStartTime = schoolStartTime;
             }
-            else if ( workStartTime != Time.Zero && schoolStartTime != Time.Zero )
+            else if (workStartTime != Time.Zero && schoolStartTime != Time.Zero)
             {
                 workSchoolStartTime = schoolStartTime < workStartTime ? schoolStartTime : workStartTime;
             }
@@ -275,60 +278,24 @@ namespace Tasha.Scheduler
             return workSchoolStartTime;
         }
 
-        internal static void SetMarketProject(this ITashaPerson person, PersonalProject market)
+        private static void AddSchool(SchedulerPersonData data, Random random)
         {
-            ( person["SData"] as SchedulerPersonData ).MarketSchedule = market;
+            data.Schedule.Insert(data.SchoolSchedule.Schedule, random);
         }
 
-        internal static void SetOtherProject(this ITashaPerson person, PersonalProject other)
+        private static void AddWork(SchedulerPersonData data, Random random)
         {
-            ( person["SData"] as SchedulerPersonData ).OtherSchedule = other;
+            data.Schedule.InsertWorkSchedule(data.WorkSchedule.Schedule, random);
         }
 
-        internal static void SetSchoolProject(this ITashaPerson person, PersonalProject school)
+        private static void BuildPersonChain(ITashaPerson person, int householdIterations, Time minimumAtHomeTime)
         {
-            ( person["SData"] as SchedulerPersonData ).SchoolSchedule = school;
-        }
-
-        internal static void SetWorkProject(this ITashaPerson person, PersonalProject work)
-        {
-            ( person["SData"] as SchedulerPersonData ).WorkSchedule = work;
-        }
-
-        private static bool AddHouseholdPass(Episode ep, ref TimeWindow feasible)
-        {
-            // Check to find the time that everyone is available at
-            foreach ( var person in ep.People )
+            if (person.TripChains == null)
             {
-                // if we are make sure we can go to the event
-                var pdata = ( person["SData"] as SchedulerPersonData );
-                if ( !pdata.Schedule.CheckEpisodeInsert( ep, ref feasible ) )
-                {
-                    // if we can not fit it in reject it
-                    return false;
-                }
+                throw new XTMFRuntimeException("A Person's trip chains must be initialized during construction.");
             }
-            return true;
-        }
-
-        private static void AddSchool(this ITashaPerson person, SchedulerPersonData data, Random random)
-        {
-            data.Schedule.Insert( data.SchoolSchedule.Schedule, random );
-        }
-
-        private static void AddWork(this ITashaPerson person, SchedulerPersonData data, Random random)
-        {
-            data.Schedule.InsertWorkSchedule( data.WorkSchedule.Schedule, random );
-        }
-
-        private static void BuildPersonChain(ITashaPerson person, IZone home, int householdIterations, Time minimumAtHomeTime)
-        {
-            if ( person.TripChains == null )
-            {
-                throw new XTMFRuntimeException( "A Person's trip chains must be initialized during construction." );
-            }
-            var pdata = person["SData"] as SchedulerPersonData;
-            pdata.Schedule.GenerateTrips( person.Household, householdIterations, minimumAtHomeTime );
+            var pdata = (SchedulerPersonData) person["SData"];
+            pdata.Schedule.GenerateTrips(person.Household, householdIterations, minimumAtHomeTime);
         }
     }
 
@@ -350,7 +317,7 @@ namespace Tasha.Scheduler
 
         internal SchedulerPersonData()
         {
-            LatestWorkingTime = new Time( 04.00f );
+            LatestWorkingTime = new Time(04.00f);
         }
     }
 }

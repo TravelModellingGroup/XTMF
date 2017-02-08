@@ -25,7 +25,7 @@ namespace Tasha.Common
     /// that should be appear in the associated directory in the configuration
     /// file
     /// </summary>
-    [System.AttributeUsage( System.AttributeTargets.Field )]
+    [AttributeUsage( AttributeTargets.Field )]
     public class ConfigParamAttribute : Attribute
     {
         public ConfigParamAttribute(ParamType type, object defaultVal)
@@ -38,7 +38,7 @@ namespace Tasha.Common
         public ConfigParamAttribute(ParamType type, object defaultVal, string description)
             : this( type, defaultVal )
         {
-            this.Description = description;
+            Description = description;
         }
 
         public object DefaultValue { get; private set; }

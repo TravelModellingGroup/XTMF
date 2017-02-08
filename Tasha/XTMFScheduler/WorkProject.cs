@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Datastructure;
 using Tasha.Common;
 using Tasha.Scheduler;
@@ -61,11 +62,6 @@ namespace Tasha.XTMFScheduler
         /// </summary>
         private SparseArray<SparseTriIndex<float>> GenerationProbability;
 
-        /// <summary>
-        /// PD, [EmploymentStatus,Occupation,Duration / 15 minutes]
-        /// </summary>
-        private SparseArray<SparseTriIndex<float>> StartTimeProbability;
-
         public bool IsHouseholdProject { get { return false; } }
 
         public string Name { get; set; }
@@ -79,10 +75,10 @@ namespace Tasha.XTMFScheduler
             switch ( episode.Purpose )
             {
                 case Activity.PrimaryWork:
-                    return PrimaryWorkStartTime( person, personIndex, schedule, episode, rand );
+                    return PrimaryWorkStartTime(person, personIndex, schedule, episode, rand );
 
                 default:
-                    throw new XTMFRuntimeException( "In '" + Name + "' we received an episode of purpose '" + episode.Purpose.ToString() + "'" );
+                    throw new XTMFRuntimeException( "In '" + Name + "' we received an episode of purpose '" + episode.Purpose + "'" );
             }
         }
 
@@ -101,6 +97,7 @@ namespace Tasha.XTMFScheduler
             if ( pop <= probability )
             {
                 //then generate an activity
+                // ReSharper disable once UnusedVariable
                 var data = DurationProbability.GetFlatData()[flatPd];
             }
         }
@@ -140,7 +137,8 @@ namespace Tasha.XTMFScheduler
             return true;
         }
 
-        private bool GiveStartTimeForPrimaryWork(List<TimeWindow> timeWindows, IActivityEpisode episode)
+        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+        private bool GiveStartTimeForPrimaryWork(ITashaPerson worker, List<TimeWindow> timeWindows, IActivityEpisode episode, Random rand)
         {
             throw new NotImplementedException();
         }
@@ -155,45 +153,42 @@ namespace Tasha.XTMFScheduler
             if ( episodeList.Length == 0 || episodeList[0] == null )
             {
                 timeWindows.Add( new TimeWindow() { StartTime = StartOfDay, EndTime = EndOfDay } );
-                return GiveStartTimeForPrimaryWork( timeWindows, episode );
+                return GiveStartTimeForPrimaryWork( person, timeWindows, episode, rand);
             }
-            else
+            //Check before the first episode
             {
-                //Check before the first episode
+                //Check after the last episode
+                var firstStartTime = episodeList[0].StartTime;
+                if ( firstStartTime - StartOfDay >= episodeDuration )
                 {
-                    //Check after the last episode
-                    var firstStartTime = episodeList[0].StartTime;
-                    if ( firstStartTime - StartOfDay >= episodeDuration )
-                    {
-                        timeWindows.Add( new TimeWindow() { StartTime = StartOfDay, EndTime = firstStartTime} );
-                    }
-                }
-                //Check between each episode
-                for ( int i = 0; i < episodeList.Length - 1; i++ )
-                {
-                    var e = episodeList[i + 1];
-                    if ( e == null )
-                    {
-                        break;
-                    }
-                    var endTime = episodeList[i].EndTime;
-                    var startTime = episodeList[i + 1].StartTime;
-                    if ( endTime - startTime >= episodeDuration )
-                    {
-                        timeWindows.Add( new TimeWindow() { StartTime = startTime, EndTime = endTime } );
-                    }
-                }
-                if ( episodeList.Length > 1 )
-                {
-                    //Check after the last episode
-                    var lastEpisodeEndTime = episodeList[episodeList.Length - 1].EndTime;
-                    if ( EndOfDay - lastEpisodeEndTime >= episodeDuration )
-                    {
-                        timeWindows.Add( new TimeWindow() { StartTime = lastEpisodeEndTime, EndTime = EndOfDay } );
-                    }
+                    timeWindows.Add( new TimeWindow() { StartTime = StartOfDay, EndTime = firstStartTime} );
                 }
             }
-            return GiveStartTimeForPrimaryWork( timeWindows, episode );
+            //Check between each episode
+            for ( int i = 0; i < episodeList.Length - 1; i++ )
+            {
+                var e = episodeList[i + 1];
+                if ( e == null )
+                {
+                    break;
+                }
+                var endTime = episodeList[i].EndTime;
+                var startTime = episodeList[i + 1].StartTime;
+                if ( endTime - startTime >= episodeDuration )
+                {
+                    timeWindows.Add( new TimeWindow() { StartTime = startTime, EndTime = endTime } );
+                }
+            }
+            if ( episodeList.Length > 1 )
+            {
+                //Check after the last episode
+                var lastEpisodeEndTime = episodeList[episodeList.Length - 1].EndTime;
+                if ( EndOfDay - lastEpisodeEndTime >= episodeDuration )
+                {
+                    timeWindows.Add( new TimeWindow() { StartTime = lastEpisodeEndTime, EndTime = EndOfDay } );
+                }
+            }
+            return GiveStartTimeForPrimaryWork(person, timeWindows, episode, rand );
         }
     }
 }

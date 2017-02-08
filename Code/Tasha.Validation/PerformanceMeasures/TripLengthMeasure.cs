@@ -18,18 +18,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using Tasha.Common;
-using TMG;
 using TMG.Input;
 using XTMF;
-using Datastructure;
-using System.Threading;
 
 
 namespace Tasha.Validation.PerformanceMeasures
@@ -71,7 +65,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void Execute(ITashaHousehold household, int iteration)
         {
-            var distances = this.Root.ZoneSystem.Distances;
+            var distances = Root.ZoneSystem.Distances;
             float expFactor;
             if (iteration == Root.TotalIterations - 1)
             {
@@ -143,7 +137,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 writer.WriteLine();
                 foreach (var pair in ResultsDictionary.OrderBy(k=>k.Key))
                 {
-                    writer.Write("{0}, ", pair.Key.ToString());
+                    writer.Write("{0}, ", pair.Key);
                     for (int j = 0; j < ResultsDictionary[pair.Key].Length; j++)
                     {
                         writer.Write("{0}, ", ResultsDictionary[pair.Key][j]);

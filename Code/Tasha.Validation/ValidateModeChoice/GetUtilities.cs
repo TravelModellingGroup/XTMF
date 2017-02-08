@@ -105,9 +105,9 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
-            var houseData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
-            var resource = household["ResourceAllocator"] as HouseholdResourceAllocator;
-            var modes = this.Root.AllModes;
+            var houseData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
+            var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
+            var modes = Root.AllModes;
 
             float firstPassHouseholdU = 0;
             float secondHouseholdU = 0;
@@ -138,9 +138,9 @@ namespace Tasha.Validation.ValidateModeChoice
                     {
                         var tripData = tripChainData.TripData[k];
                         int modeIndex = bestAssignments[chosenVehicleType].PickedModes[k];
-                        if ( household.Persons[i].TripChains[j].Trips[k].Mode == modes[this.PassengerIndex] )
+                        if ( household.Persons[i].TripChains[j].Trips[k].Mode == modes[PassengerIndex] )
                         {
-                            passengerU += tripData.V[this.PassengerIndex];
+                            passengerU += tripData.V[PassengerIndex];
                         }
                         else
                         {
@@ -170,7 +170,7 @@ namespace Tasha.Validation.ValidateModeChoice
             }
         }
 
-        public void HouseholdStart(ITashaHousehold household, int TotalIterations)
+        public void HouseholdStart(ITashaHousehold household, int totalIterations)
         {
         }
 
@@ -186,20 +186,20 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public bool RuntimeValidation(ref string error)
         {
-            this.PassengerIndex = -1;
-            if ( !String.IsNullOrWhiteSpace( this.PassengerModeName ) )
+            PassengerIndex = -1;
+            if ( !String.IsNullOrWhiteSpace( PassengerModeName ) )
             {
-                for ( int i = 0; i < this.Root.AllModes.Count; i++ )
+                for ( int i = 0; i < Root.AllModes.Count; i++ )
                 {
-                    if ( this.Root.AllModes[i].ModeName == this.PassengerModeName )
+                    if ( Root.AllModes[i].ModeName == PassengerModeName )
                     {
-                        this.PassengerIndex = i;
+                        PassengerIndex = i;
                         break;
                     }
                 }
-                if ( this.PassengerIndex <= 0 )
+                if ( PassengerIndex <= 0 )
                 {
-                    error = "In '" + this.Name + "' we were unable to find any passenger mode with the name '" + this.PassengerModeName + "'.";
+                    error = "In '" + Name + "' we were unable to find any passenger mode with the name '" + PassengerModeName + "'.";
                     return false;
                 }
             }

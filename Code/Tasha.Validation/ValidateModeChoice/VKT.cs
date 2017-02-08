@@ -22,6 +22,7 @@ using System.IO;
 using Tasha.Common;
 using Tasha.XTMFModeChoice;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha.Validation.ValidateModeChoice
 {
@@ -97,10 +98,8 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
-            var houseData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
-            var resource = household["ResourceAllocator"] as HouseholdResourceAllocator;
-            var modes = this.Root.AllModes;
-
+            var houseData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
+            var modes = Root.AllModes;
             float totalVKT = 0;
             if ( household.Vehicles.Length > 0 )
             {
@@ -126,15 +125,15 @@ namespace Tasha.Validation.ValidateModeChoice
                                 {
                                     float firstLeg;
                                     float secondLeg;
-                                    var originalTrip = currentTrip["Driver"] as ITrip;
-                                    var passengerDistance = this.Root.ZoneSystem.Distances[currentTrip.OriginalZone.ZoneNumber, currentTrip.DestinationZone.ZoneNumber];
+                                    var originalTrip = (ITrip) currentTrip["Driver"];
+                                    var passengerDistance = Root.ZoneSystem.Distances[currentTrip.OriginalZone.ZoneNumber, currentTrip.DestinationZone.ZoneNumber];
                                     if ( originalTrip.OriginalZone == currentTrip.OriginalZone )
                                     {
                                         firstLeg = 0;
                                     }
                                     else
                                     {
-                                        firstLeg = this.Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, currentTrip.OriginalZone.ZoneNumber];
+                                        firstLeg = Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, currentTrip.OriginalZone.ZoneNumber];
                                     }
 
                                     if ( originalTrip.DestinationZone == currentTrip.DestinationZone )
@@ -143,22 +142,22 @@ namespace Tasha.Validation.ValidateModeChoice
                                     }
                                     else
                                     {
-                                        secondLeg = this.Root.ZoneSystem.Distances[currentTrip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
+                                        secondLeg = Root.ZoneSystem.Distances[currentTrip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
                                     }
                                     // Subtract out the driver's VKT only if the purpose of this trip is not to facilitate passenger
                                     if ( originalTrip.TripChain.Trips.Count > 1 )
                                     {
-                                        totalVKT -= this.Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
+                                        totalVKT -= Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
                                     }
                                     totalVKT += ( passengerDistance + firstLeg + secondLeg );
                                 }
-                                else if ( currentTrip.Mode == modes[this.RideShareIndex] )
+                                else if ( currentTrip.Mode == modes[RideShareIndex] )
                                 {
-                                    totalVKT += this.Root.ZoneSystem.Distances[currentTrip.OriginalZone.ZoneNumber, currentTrip.DestinationZone.ZoneNumber] / 2;
+                                    totalVKT += Root.ZoneSystem.Distances[currentTrip.OriginalZone.ZoneNumber, currentTrip.DestinationZone.ZoneNumber] / 2;
                                 }
                                 else
                                 {
-                                    totalVKT += this.Root.ZoneSystem.Distances[currentTrip.OriginalZone.ZoneNumber, currentTrip.DestinationZone.ZoneNumber];
+                                    totalVKT += Root.ZoneSystem.Distances[currentTrip.OriginalZone.ZoneNumber, currentTrip.DestinationZone.ZoneNumber];
                                 }
                             }
                         }
@@ -185,29 +184,29 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public bool RuntimeValidation(ref string error)
         {
-            this.PassengerIndex = -1;
-            this.RideShareIndex = -1;
-            if ( !String.IsNullOrWhiteSpace( this.PassengerModeName ) )
+            PassengerIndex = -1;
+            RideShareIndex = -1;
+            if ( !String.IsNullOrWhiteSpace( PassengerModeName ) )
             {
-                for ( int i = 0; i < this.Root.AllModes.Count; i++ )
+                for ( int i = 0; i < Root.AllModes.Count; i++ )
                 {
-                    if ( this.Root.AllModes[i].ModeName == this.PassengerModeName )
+                    if ( Root.AllModes[i].ModeName == PassengerModeName )
                     {
-                        this.PassengerIndex = i;
+                        PassengerIndex = i;
                     }
-                    if ( this.Root.AllModes[i].ModeName == this.RideshareModeName )
+                    if ( Root.AllModes[i].ModeName == RideshareModeName )
                     {
-                        this.RideShareIndex = i;
+                        RideShareIndex = i;
                     }
                 }
-                if ( this.PassengerIndex <= 0 )
+                if ( PassengerIndex <= 0 )
                 {
-                    error = "In '" + this.Name + "' we were unable to find any passenger mode with the name '" + this.PassengerModeName + "'.";
+                    error = "In '" + Name + "' we were unable to find any passenger mode with the name '" + PassengerModeName + "'.";
                     return false;
                 }
-                if ( this.RideShareIndex <= 0 )
+                if ( RideShareIndex <= 0 )
                 {
-                    error = "In '" + this.Name + "' we were unable to find any RideShare mode with the name '" + this.RideShareIndex + "'.";
+                    error = "In '" + Name + "' we were unable to find any RideShare mode with the name '" + RideShareIndex + "'.";
                     return false;
                 }
             }

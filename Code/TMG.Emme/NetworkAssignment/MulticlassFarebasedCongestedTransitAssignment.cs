@@ -106,7 +106,7 @@ namespace TMG.Emme.NetworkAssignment
             // join all walk perceptions into one string
             foreach (var c in Classes)
             {
-                walkPerception = string.Join(";", walkPerception, string.Join("::", c.WalkPerceptions.Select(walk => mc.ToEmmeFloat(walk.WalkValue) + ":" + walk.LineFilter)));
+                walkPerception = string.Join(";", walkPerception, string.Join("::", c.WalkPerceptions.Select(walk => Controller.ToEmmeFloat(walk.WalkValue) + ":" + walk.LineFilter)));
 
             }
             walkPerception = '\"' + walkPerception.Substring(1, walkPerception.Length - 1) + '\"';
@@ -134,16 +134,16 @@ namespace TMG.Emme.NetworkAssignment
                                         ProduceMatrixString(c => c.DemandMatrixNumber),
                                         "\"" + (string.Join(",", from c in Classes
                                                                  select c.Name)).Replace('"', '\'') + "\"",
-                                        mc.ToEmmeFloat(WalkSpeed),
+                                        Controller.ToEmmeFloat(WalkSpeed),
                                         walkPerception,
                                         "\"" + (string.Join(",", from c in Classes
                                                                  select c.WalkPerceptionAttribute)).Replace('"', '\'') + "\"",
                                         "\"" + string.Join(",", from c in Classes
-                                                                select mc.ToEmmeFloat(c.WaitTimePerception)) + "\"",
+                                                                select Controller.ToEmmeFloat(c.WaitTimePerception)) + "\"",
                                         "\"" + string.Join(",", from c in Classes
-                                                                select mc.ToEmmeFloat(c.BoardingPerception)) + "\"",
+                                                                select Controller.ToEmmeFloat(c.BoardingPerception)) + "\"",
                                         "\"" + string.Join(",", from c in Classes
-                                                                select mc.ToEmmeFloat(c.FarePerception)) + "\"",
+                                                                select Controller.ToEmmeFloat(c.FarePerception)) + "\"",
                                         "\"" + string.Join(",", from c in Classes
                                                                 select c.ModeList) + "\"",
                                         HeadwayFractionAttribute,
@@ -152,11 +152,11 @@ namespace TMG.Emme.NetworkAssignment
                                         "\"" + (string.Join(",", from c in Classes
                                                                  select c.SegmentFareAttribute)).Replace('"', '\'') + "\"",
                                         EffectiveHeadwayAttributeId,
-                                        mc.ToEmmeFloat(EffectiveHeadwaySlope),
-                                        mc.ToEmmeFloat(RepresentativeHourFactor),
+                                        Controller.ToEmmeFloat(EffectiveHeadwaySlope),
+                                        Controller.ToEmmeFloat(RepresentativeHourFactor),
                                         MaxIterations,
-                                        mc.ToEmmeFloat(NormalizedGap),
-                                        mc.ToEmmeFloat(RelativeGap),
+                                        Controller.ToEmmeFloat(NormalizedGap),
+                                        Controller.ToEmmeFloat(RelativeGap),
                                         ProduceMatrixString(c => c.InVehicleMatrixNumber),
                                         ProduceMatrixString(c => c.WaitMatrixNumber),
                                         ProduceMatrixString(c => c.WalkMatrixNumber),
@@ -164,12 +164,12 @@ namespace TMG.Emme.NetworkAssignment
                                         ProduceMatrixString(c => c.CongestionMatrixNumber),
                                         ProduceMatrixString(c => c.BoardingPenaltyMatrixNumber),
                                         ProduceMatrixString(c => c.PerceivedTravelTimeMatrixNumber),
-                                        mc.ToEmmeFloat(ConnectorLogitScale),
+                                        Controller.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
                                         string.Join(",", from ttf in TTF
                                                          select ttf.TTFNumber.ToString() + ":"
-                                                         + mc.ToEmmeFloat(ttf.CongestionPerception) + ":"
-                                                         + mc.ToEmmeFloat(ttf.CongestionExponent)),
+                                                         + Controller.ToEmmeFloat(ttf.CongestionPerception) + ":"
+                                                         + Controller.ToEmmeFloat(ttf.CongestionExponent)),
                                         ApplyCongestion
                                        );
 

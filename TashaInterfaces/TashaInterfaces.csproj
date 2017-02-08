@@ -166,12 +166,9 @@
     <Compile Include="Common\TransitPass.cs" />
     <Compile Include="Common\TripPurpose.cs" />
     <Compile Include="Data\IAutoData.cs" />
-    <Compile Include="Data\ICachedData.cs" />
     <Compile Include="Data\ITravelData.cs" />
-    <Compile Include="Data\ITransitAccessData.cs" />
     <Compile Include="Data\ITransitData.cs" />
     <Compile Include="Data\IGoData.cs" />
-    <Compile Include="ILoadHousehold.cs" />
     <Compile Include="IPostHousehold.cs" />
     <Compile Include="IPostIteration.cs" />
     <Compile Include="IPostRun.cs" />

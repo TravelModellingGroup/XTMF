@@ -98,7 +98,7 @@ namespace Tasha.Scheduler
             internal set;
         }
 
-        public List<ITashaPerson> passengers
+        public List<ITashaPerson> Passengers
         {
             get { return null; }
         }
@@ -112,7 +112,7 @@ namespace Tasha.Scheduler
             set;
         }
 
-        public List<IVehicleType> requiresVehicle
+        public List<IVehicleType> RequiresVehicle
         {
             get
             {

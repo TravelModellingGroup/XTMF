@@ -85,7 +85,7 @@ namespace Tasha.ModeChoice
                 //finding potential driver who already has the car
                 foreach ( var tripChain in tripChains )
                 {
-                    if ( tripChain.requiresVehicle.Contains( rideShare.RequiresVehicle ) )
+                    if ( tripChain.RequiresVehicle.Contains( rideShare.RequiresVehicle ) )
                     {
                         potentialDriver = tripChain.Person;
                         break;

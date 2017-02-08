@@ -63,7 +63,7 @@ namespace Tasha.Validation
         {
             lock ( this )
             {
-                var householdData = household["SData"] as Tasha.Scheduler.SchedHouseholdData;
+                var householdData = (Tasha.Scheduler.SchedHouseholdData) household["SData"];
 
                 ResultDict["JointMarket"] += household.ExpansionFactor * householdData.JointMarketProject.Schedule.EpisodeCount;
                 NumberDict["JointMarket"] += householdData.JointMarketProject.Schedule.EpisodeCount;
@@ -73,8 +73,7 @@ namespace Tasha.Validation
 
                 foreach ( var person in household.Persons )
                 {
-                    var schedData = person["SData"];
-                    var personData = person["SData"] as Tasha.Scheduler.SchedulerPersonData;
+                    var personData = (Tasha.Scheduler.SchedulerPersonData) person["SData"];
                     var workSched = personData.WorkSchedule.Schedule;
                     var schoolSched = personData.SchoolSchedule.Schedule;
                     var marketSched = personData.MarketSchedule.Schedule;
@@ -110,7 +109,7 @@ namespace Tasha.Validation
                 {
                     Writer.WriteLine( "{0},{1}", key1, NumberDict[key1] );
                 }
-                this.Dispose( true );
+                Dispose( true );
             }
         }
 
@@ -127,9 +126,9 @@ namespace Tasha.Validation
         {
             lock ( this )
             {
-                this.ResultDict.Clear();
-                this.NumberDict.Clear();
-                this.Writer = new StreamWriter( this.ResultsFileName, true );
+                ResultDict.Clear();
+                NumberDict.Clear();
+                Writer = new StreamWriter( ResultsFileName, true );
                 //Writer.WriteLine( "HouseholdNum, PersonNum, Activity Type, Original Duration, Duration, Expansion Factor" );
                 ResultDict.Add( "Work", 0 );
                 ResultDict.Add( "School", 0 );
@@ -146,16 +145,16 @@ namespace Tasha.Validation
 
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
             GC.SuppressFinalize( this );
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Writer != null )
+            if ( Writer != null )
             {
-                this.Writer.Dispose();
-                this.Writer = null;
+                Writer.Dispose();
+                Writer = null;
             }
         }
     }

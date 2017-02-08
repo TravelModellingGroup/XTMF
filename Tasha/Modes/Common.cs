@@ -18,7 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Tasha.Common;
 using TMG;
 using XTMF;
@@ -27,11 +26,11 @@ namespace Tasha.Modes
 {
     internal static class Common
     {
-        private static Time nine = new Time( "9:00 AM" );
+        private static Time Nine = new Time( "9:00 AM" );
 
-        private static Time six = new Time( "6:00 AM" );
-        private static Time sixThirty = new Time( "6:30 PM" );
-        private static Time threeThirty = new Time( "3:30 PM" );
+        private static Time Six = new Time( "6:00 AM" );
+        private static Time SixThirty = new Time( "6:30 PM" );
+        private static Time ThreeThirty = new Time( "3:30 PM" );
 
         public static float ConvertToHours(float minutes)
         {
@@ -76,36 +75,6 @@ namespace Tasha.Modes
             return Math.Abs( origin.X - destination.X ) + Math.Abs( origin.Y - destination.Y );
         }
 
-        public static T GetData<T>(IList<ITravelData> data)
-        {
-            Type type = data.GetType();
-            T toReturn = default( T );
-            foreach ( var d in data )
-            {
-                try
-                {
-                    toReturn = (T)d;
-                }
-                catch ( Exception )
-                {
-                }
-            }
-            return toReturn;
-        }
-
-        public static ITashaMode GetMode(IList<ITashaMode> modes, string name)
-        {
-            foreach ( var mode in modes )
-            {
-                if ( mode.Name == name )
-                {
-                    return mode;
-                }
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Gets the time period for travel time
         /// </summary>
@@ -113,49 +82,15 @@ namespace Tasha.Modes
         /// <returns>The time period</returns>
         public static TravelTimePeriod GetTimePeriod(Time time)
         {
-            if ( time >= six & time < nine )
+            if ( time >= Six & time < Nine )
             {
                 return TravelTimePeriod.Morning;
             }
-            else if ( time >= threeThirty & time < sixThirty )
+            if ( time >= ThreeThirty & time < SixThirty )
             {
                 return TravelTimePeriod.Afternoon;
             }
             return TravelTimePeriod.Offpeak;
-        }
-
-        /// <summary>
-        /// Takes a list of V values and 'randomly' selects a value from list
-        /// </summary>
-        /// <param name="values">a list of values</param>
-        /// <returns>an index of the list or -1 if it was not successful</returns>
-        public static int RandChoiceCDF(double[] values, int seed, Random random)
-        {
-            double RandomNum = random.NextDouble();
-
-            double FDenom = 0.0;
-
-            //if the values in the array add up to 0 its no good
-            if ( ( FDenom = values.Sum() ) == 0.0 )
-            {
-                return random.Next( values.Count() );
-            }
-
-            double FCDFsum = 0.0;
-
-            FDenom = 1.0 / FDenom;   // Saves doing floating-point divisions
-
-            for ( int i = 0; i < values.Count(); i++ )
-            {
-                if ( values[i] != 0.0 )
-                {
-                    FCDFsum += values[i] * FDenom;
-                    if ( RandomNum < FCDFsum )
-                        return i;
-                }
-            }
-
-            return -1;
         }
     }
 }

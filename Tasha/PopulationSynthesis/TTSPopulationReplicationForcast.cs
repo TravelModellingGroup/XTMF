@@ -63,7 +63,7 @@ namespace Tasha.PopulationSynthesis
                 OriginalExpansionFactor = ExpansionFactor = household.ExpansionFactor;
                 // Normalize person expansion factors
                 var inv = 1.0f / ExpansionFactor;
-                foreach(var person in household.Persons)
+                foreach (var person in household.Persons)
                 {
                     person.ExpansionFactor *= inv;
                 }
@@ -100,7 +100,7 @@ namespace Tasha.PopulationSynthesis
                 Lock.Enter(ref taken);
                 TotalExpansionFactor += expansionFactor;
                 Households.Add(new ExpandedHousehold(household));
-                if(taken) Lock.Exit(true);
+                if (taken) Lock.Exit(true);
             }
 
             internal List<KeyValuePair<int, int>> ProcessPD(int randomSeed, IZone[] zones, float householdExpansion, int[] zoneIndexes)
@@ -112,45 +112,45 @@ namespace Tasha.PopulationSynthesis
                 var remaining = zoneIndexes.Select((z) => (int)Math.Round(zones[z].Population * householdExpansion)).ToArray();
                 TotalExpansionFactor = Households.Sum(h => h.ExpansionFactor);
                 var populationScaleRatio = remaining.Sum() / TotalExpansionFactor;
-                foreach(var hhld in Households)
+                foreach (var hhld in Households)
                 {
                     hhld.ReAdjustOriginalExpansion(populationScaleRatio);
                 }
                 do
                 {
                     any = false;
-                    for(int zone = 0; zone < zoneIndexes.Length; zone++)
+                    for (int zone = 0; zone < zoneIndexes.Length; zone++)
                     {
-                        if(remaining[zone] > 0)
+                        if (remaining[zone] > 0)
                         {
                             any = true;
                             ret.Add(Pick(rPerZone[zone], zoneIndexes[zone], ref remaining[zone]));
                         }
                     }
-                } while(any);
+                } while (any);
                 return ret;
             }
 
             private KeyValuePair<int, int> Pick(Random random, int zone, ref int remaining)
             {
-                for(int unused = 0; unused < 2; unused++)
+                for (int unused = 0; unused < 2; unused++)
                 {
                     var place = (float)random.NextDouble() * TotalExpansionFactor;
                     float current = 0.0f;
-                    for(int i = 0; i < Households.Count; i++)
+                    for (int i = 0; i < Households.Count; i++)
                     {
                         current += Households[i].ExpansionFactor;
-                        if(current > place)
+                        if (current > place)
                         {
                             var numberOfPersons = Households[i].Household.Persons.Length;
                             // skip adding this particular household if it has too many persons
-                            if(remaining < numberOfPersons)
+                            if (remaining < numberOfPersons)
                             {
                                 continue;
                             }
                             Households[i].ExpansionFactor -= 1;
                             var remainder = 0.0f;
-                            if(Households[i].ExpansionFactor <= 0)
+                            if (Households[i].ExpansionFactor <= 0)
                             {
                                 remainder = -Households[i].ExpansionFactor;
                                 Households[i].ExpansionFactor = 0;
@@ -167,7 +167,7 @@ namespace Tasha.PopulationSynthesis
                         return h.ExpansionFactor;
                     });
                 }
-                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in PD'" + PD.ToString() + "'!");
+                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone + "' in PD'" + PD + "'!");
             }
         }
 
@@ -178,7 +178,7 @@ namespace Tasha.PopulationSynthesis
             // initialize data structures
             HouseholdsByPD = ZoneSystemHelper.CreatePdArray<PDData>(Root.ZoneSystem.ZoneArray);
             var flat = HouseholdsByPD.GetFlatData();
-            for(int i = 0; i < flat.Length; i++)
+            for (int i = 0; i < flat.Length; i++)
             {
                 flat[i] = new PDData(HouseholdsByPD.GetSparseIndex(i));
             }
@@ -187,13 +187,13 @@ namespace Tasha.PopulationSynthesis
         public void Execute(ITashaHousehold household, int iteration)
         {
             var zone = household.HomeZone;
-            if(zone != null)
+            if (zone != null)
             {
                 var pd = zone.PlanningDistrict;
                 var record = HouseholdsByPD[pd];
-                if(record == null)
+                if (record == null)
                 {
-                    throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a HouseholdByPD for PD#" + pd.ToString());
+                    throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a HouseholdByPD for PD#" + pd);
                 }
                 record.Add(household);
             }
@@ -236,8 +236,8 @@ namespace Tasha.PopulationSynthesis
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => z.ZoneNumber).ToArray();
             int totalPerson = 0;
-            var householdID = SaveHouseholds(results, pds, zones);
-            householdID = SavePersons(results, pds, ref totalPerson);
+            SaveHouseholds(results, pds, zones);
+            var householdID = SavePersons(results, pds, ref totalPerson);
             SaveSummeryFile(totalPerson, householdID);
         }
 
@@ -245,12 +245,12 @@ namespace Tasha.PopulationSynthesis
         {
             var dirPath = fileLocation.GetFilePath();
             var info = new DirectoryInfo(dirPath);
-            if(!info.Exists)
+            if (!info.Exists)
             {
                 info.Create();
             }
             StringBuilder buildFileName = new StringBuilder();
-            switch(occ)
+            switch (occ)
             {
                 case Occupation.Professional:
                     buildFileName.Append("P");
@@ -265,7 +265,7 @@ namespace Tasha.PopulationSynthesis
                     buildFileName.Append("M");
                     break;
             }
-            switch(empStat)
+            switch (empStat)
             {
                 case TTSEmploymentStatus.FullTime:
                     buildFileName.Append("F.csv");
@@ -282,9 +282,9 @@ namespace Tasha.PopulationSynthesis
             using (StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerForceDirectory)))
             {
                 writer.WriteLine("Zone,Persons");
-                for(int i = 0; i < workers.Length; i++)
+                for (int i = 0; i < workers.Length; i++)
                 {
-                    if(workers[i] > 0)
+                    if (workers[i] > 0)
                     {
                         writer.Write(zones[i].ZoneNumber);
                         writer.Write(',');
@@ -299,20 +299,20 @@ namespace Tasha.PopulationSynthesis
             using (StreamWriter writer = new StreamWriter(BuildFileName(occupation, empStat, WorkerCategoryDirectory)))
             {
                 writer.WriteLine("Zone,WorkerCategory,Persons");
-                for(int i = 0; i < workers.Length; i++)
+                for (int i = 0; i < workers.Length; i++)
                 {
                     var factor = 1.0f / workers[i].Sum();
-                    if(float.IsNaN(factor))
+                    if (float.IsNaN(factor))
                     {
                         continue;
                     }
-                    for(int cat = 0; cat < workers[i].Length; cat++)
+                    for (int cat = 0; cat < workers[i].Length; cat++)
                     {
                         workers[i][cat] *= factor;
                     }
-                    for(int cat = 0; cat < workers[i].Length; cat++)
+                    for (int cat = 0; cat < workers[i].Length; cat++)
                     {
-                        if(workers[i][cat] > 0)
+                        if (workers[i][cat] > 0)
                         {
                             writer.Write(zones[i].ZoneNumber);
                             writer.Write(',');
@@ -327,7 +327,7 @@ namespace Tasha.PopulationSynthesis
 
         private void SaveSummeryFile(int totalPerson, int householdID)
         {
-            if(SummeryFile != null)
+            if (SummeryFile != null)
             {
                 using (var writer = new StreamWriter(SummeryFile))
                 {
@@ -344,19 +344,19 @@ namespace Tasha.PopulationSynthesis
         {
             var lics = 0;
             var numberOfVehicles = household.Vehicles.Length;
-            if(numberOfVehicles == 0)
+            if (numberOfVehicles == 0)
             {
                 return 0;
             }
             var persons = household.Persons;
-            for(int i = 0; i < persons.Length; i++)
+            for (int i = 0; i < persons.Length; i++)
             {
-                if(persons[i].Licence)
+                if (persons[i].Licence)
                 {
                     lics++;
                 }
             }
-            if(lics == 0) return 0;
+            if (lics == 0) return 0;
             return numberOfVehicles < lics ? 1 : 2;
         }
 
@@ -382,7 +382,7 @@ namespace Tasha.PopulationSynthesis
             var workersCatGP = new float[zones.Length][];
             var workersCatSP = new float[zones.Length][];
             var workersCatMP = new float[zones.Length][];
-            for(int i = 0; i < zones.Length; i++)
+            for (int i = 0; i < zones.Length; i++)
             {
                 workersCatPF[i] = new float[3];
                 workersCatGF[i] = new float[3];
@@ -397,15 +397,15 @@ namespace Tasha.PopulationSynthesis
             {
                 householdID = 1;
                 writer.WriteLine("HouseholdID,PersonNumber,Age,Sex,License,TransitPass,EmploymentStatus,Occupation,FreeParking,StudentStatus,EmploymentZone,SchoolZone,ExpansionFactor");
-                for(int i = 0; i < results.Length; i++)
+                for (int i = 0; i < results.Length; i++)
                 {
                     var households = pds[i].Households;
-                    foreach(var record in results[i])
+                    foreach (var record in results[i])
                     {
                         var zone = record.Key;
                         var persons = households[record.Value].Household.Persons;
                         var workerCategory = ClassifyHousehold(households[record.Value].Household);
-                        for(int j = 0; j < persons.Length; j++)
+                        for (int j = 0; j < persons.Length; j++)
                         {
                             totalPerson++;
                             writer.Write(householdID);
@@ -416,7 +416,7 @@ namespace Tasha.PopulationSynthesis
                             writer.Write(',');
                             writer.Write(persons[j].Female ? "F," : "M,");
                             writer.Write(persons[j].Licence ? "Y," : "N,");
-                            switch(persons[j].TransitPass)
+                            switch (persons[j].TransitPass)
                             {
                                 case TransitPass.Metro:
                                     writer.Write("M,");
@@ -431,7 +431,7 @@ namespace Tasha.PopulationSynthesis
                                     writer.Write("N,");
                                     break;
                             }
-                            switch(persons[j].EmploymentStatus)
+                            switch (persons[j].EmploymentStatus)
                             {
                                 case TTSEmploymentStatus.FullTime:
                                     writer.Write("F,");
@@ -443,7 +443,7 @@ namespace Tasha.PopulationSynthesis
                                     writer.Write("O,");
                                     break;
                             }
-                            switch(persons[j].Occupation)
+                            switch (persons[j].Occupation)
                             {
                                 case Occupation.Professional:
                                     writer.Write("P,");
@@ -466,10 +466,10 @@ namespace Tasha.PopulationSynthesis
                             var personExpanded = persons[j].ExpansionFactor * InvHouseholdExpansion;
                             if (!IsExternal(workZone))
                             {
-                                switch(persons[j].EmploymentStatus)
+                                switch (persons[j].EmploymentStatus)
                                 {
                                     case TTSEmploymentStatus.FullTime:
-                                        switch(persons[j].Occupation)
+                                        switch (persons[j].Occupation)
                                         {
                                             case Occupation.Professional:
                                                 workersPF[zone] += personExpanded;
@@ -490,7 +490,7 @@ namespace Tasha.PopulationSynthesis
                                         }
                                         break;
                                     case TTSEmploymentStatus.PartTime:
-                                        switch(persons[j].Occupation)
+                                        switch (persons[j].Occupation)
                                         {
                                             case Occupation.Professional:
                                                 workersPP[zone] += personExpanded;
@@ -513,7 +513,7 @@ namespace Tasha.PopulationSynthesis
                                 }
                             }
                             writer.Write(persons[j].FreeParking ? "Y," : "N,");
-                            switch(persons[j].StudentStatus)
+                            switch (persons[j].StudentStatus)
                             {
                                 case StudentStatus.FullTime:
                                     writer.Write("F,");
@@ -527,7 +527,7 @@ namespace Tasha.PopulationSynthesis
                             }
 
                             // we don't save employment or school zone
-                            if(IsExternal(workZone))
+                            if (IsExternal(workZone))
                             {
                                 writer.Write(workZone.ZoneNumber);
                             }
@@ -536,7 +536,7 @@ namespace Tasha.PopulationSynthesis
                                 writer.Write('0');
                             }
                             writer.Write(',');
-                            if(IsExternal(schoolZone))
+                            if (IsExternal(schoolZone))
                             {
                                 writer.Write(schoolZone.ZoneNumber);
                             }
@@ -581,16 +581,16 @@ namespace Tasha.PopulationSynthesis
             return employmentZone != null && ExternalZones.Contains(employmentZone.ZoneNumber);
         }
 
-        private int SaveHouseholds(List<KeyValuePair<int, int>>[] results, PDData[] pds, int[] zones)
+        private void SaveHouseholds(List<KeyValuePair<int, int>>[] results, PDData[] pds, int[] zones)
         {
             int householdID = 1;
             using (var writer = new StreamWriter(HouseholdFile))
             {
                 writer.WriteLine("HouseholdID,Zone,ExpansionFactor,DwellingType,NumberOfPersons,NumberOfVehicles");
-                for(int i = 0; i < results.Length; i++)
+                for (int i = 0; i < results.Length; i++)
                 {
                     var households = pds[i].Households;
-                    foreach(var record in results[i])
+                    foreach (var record in results[i])
                     {
                         var zone = record.Key;
                         var household = households[record.Value].Household;
@@ -609,8 +609,6 @@ namespace Tasha.PopulationSynthesis
                     }
                 }
             }
-
-            return householdID;
         }
 
         public void Load(int maxIterations)

@@ -202,7 +202,6 @@ where you still want the same demographics."
                 }
                 var regionNumber = HouseholdsByRegion.GetSparseIndex(flatRegionIndex);
                 var zonesToProcess = zones.Where(z => z.RegionNumber == regionNumber).ToArray();
-                var regionLookup = HouseholdsByRegion.GetFlatData()[flatRegionIndex];
                 var remaining = remainingHouseholds[flatRegionIndex];
                 var resultsForRegion = results[flatRegionIndex];
                 for (int z = 0; z < zonesToProcess.Length; z++)
@@ -318,8 +317,8 @@ where you still want the same demographics."
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => z.ZoneNumber).ToArray();
             int totalPerson = 0;
-            var householdID = SaveHouseholds(results, pds, zones);
-            householdID = SavePersons(results, pds, ref totalPerson);
+            SaveHouseholds(results, pds, zones);
+            var householdID = SavePersons(results, pds, ref totalPerson);
             SaveSummeryFile(totalPerson, householdID);
         }
 
@@ -664,7 +663,7 @@ where you still want the same demographics."
             return employmentZone != null && ExternalZones.Contains(employmentZone.ZoneNumber);
         }
 
-        private int SaveHouseholds(List<KeyValuePair<int, int>>[] results, List<ITashaHousehold>[] householdsByRegion, int[] zones)
+        private void SaveHouseholds(List<KeyValuePair<int, int>>[] results, List<ITashaHousehold>[] householdsByRegion, int[] zones)
         {
             int householdID = 1;
             using (var writer = new StreamWriter(HouseholdFile))
@@ -691,8 +690,6 @@ where you still want the same demographics."
                     }
                 }
             }
-
-            return householdID;
         }
 
         public void Load(int maxIterations)

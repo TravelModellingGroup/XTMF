@@ -79,8 +79,8 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
                     + (!String.IsNullOrWhiteSpace(LineFilter) ? "line=" + LineFilter.Replace('"', '\'') : "")
                     + (!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter) ? " and " : "")
                     + (!String.IsNullOrWhiteSpace(ModeFilter) ? "mode=" + (ModeFilter == "\"" ? "'" : ModeFilter) : "")
-                    + ": " + controller.ToEmmeFloat(Penalty)
-                    + ": " + controller.ToEmmeFloat(IVTTPerception);
+                    + ": " + Controller.ToEmmeFloat(Penalty)
+                    + ": " + Controller.ToEmmeFloat(IVTTPerception);
             }
 
             public bool RuntimeValidation(ref string error)

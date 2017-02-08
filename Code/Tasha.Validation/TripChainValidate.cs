@@ -66,18 +66,18 @@ namespace Tasha.Validation
                 {
                     foreach ( var tripChain in person.TripChains )
                     {
-                        int CurrentNumberOfTrips = tripChain.Trips.Count;
+                        int currentNumberOfTrips = tripChain.Trips.Count;
 
-                        if ( NumberOfTrips.ContainsKey( CurrentNumberOfTrips ) ) // Has this scenario occured previously?
+                        if ( NumberOfTrips.ContainsKey( currentNumberOfTrips ) ) // Has this scenario occured previously?
                         {
-                            NumberOfTrips[CurrentNumberOfTrips] += 1; // If it has, add one more occurence to it.
+                            NumberOfTrips[currentNumberOfTrips] += 1; // If it has, add one more occurence to it.
                         }
                         else
                         {
-                            NumberOfTrips.Add( CurrentNumberOfTrips, 1 ); // If it hasn't, create the scenario and give it a value of one occurence at this point.
+                            NumberOfTrips.Add( currentNumberOfTrips, 1 ); // If it hasn't, create the scenario and give it a value of one occurence at this point.
                         }
 
-                        if ( CurrentNumberOfTrips == 1 )
+                        if ( currentNumberOfTrips == 1 )
                         {
                             throw new XTMFRuntimeException( "Household " + household.HouseholdId + " has a trip chain with only one trip. The trip chain belongs to person number " + person.Id );
                         }
@@ -88,13 +88,17 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iteration)
         {
-            using ( StreamWriter Writer = new StreamWriter( OutputFile ) )
+            lock (this)
             {
-                Writer.WriteLine( "Trips/TripChain, Total, Percentage of all Trips" );
-                var sum = NumberOfTrips.Sum( v => v.Value );
-                foreach ( var pair in NumberOfTrips )
+                using (StreamWriter writer = new StreamWriter(OutputFile))
                 {
-                    Writer.WriteLine( "{0}, {1}, {2}", pair.Key, pair.Value, pair.Value / sum * 100 );
+                    writer.WriteLine("Trips/TripChain, Total, Percentage of all Trips");
+
+                    var sum = NumberOfTrips.Sum(v => v.Value);
+                    foreach (var pair in NumberOfTrips)
+                    {
+                        writer.WriteLine("{0}, {1}, {2}", pair.Key, pair.Value, pair.Value / sum * 100);
+                    }
                 }
             }
         }

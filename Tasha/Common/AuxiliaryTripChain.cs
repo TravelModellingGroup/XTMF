@@ -119,7 +119,7 @@ namespace Tasha.Common
 
         #region ITripChain Members
 
-        public List<ITashaPerson> passengers
+        public List<ITashaPerson> Passengers
         {
             get
             {
@@ -146,7 +146,7 @@ namespace Tasha.Common
 
         #region ITripChain Members
 
-        public List<IVehicleType> requiresVehicle
+        public List<IVehicleType> RequiresVehicle
         {
             get
             {

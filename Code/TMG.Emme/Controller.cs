@@ -150,7 +150,7 @@ namespace TMG.Emme
         /// </summary>
         /// <param name="number">The float you want to send</param>
         /// <returns>A limited precision non scientific number in a string</returns>
-        public string ToEmmeFloat(float number)
+        public static string ToEmmeFloat(float number)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append((int)number);
@@ -181,7 +181,7 @@ namespace TMG.Emme
         /// <param name="number">The float you want to send</param>
         /// <param name="builder">A string build to use to make the string</param>
         /// <returns>A limited precision non scientific number in a string</returns>
-        public void ToEmmeFloat(float number, StringBuilder builder)
+        public static void ToEmmeFloat(float number, StringBuilder builder)
         {
             builder.Clear();
             builder.Append((int)number);

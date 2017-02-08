@@ -203,10 +203,11 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
-        [DoNotAutomate]
+
         /// <summary>
         /// Does this require a vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return TashaRuntime.AutoType; }
@@ -229,9 +230,9 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         private bool FastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
-            float dToPTime;
-            float tToPD;
-            float tToDD;
+            float toPassengerOrigin;
+            float toPassengerDestination;
+            float toDriverDestination;
             var numberOfZones = ZoneSystem.Count;
             IZone driverDestinationZone = driverOriginalTrip.DestinationZone;
             int passengerOrigin = ZoneSystem.GetFlatIndex(passengerTrip.OriginalZone.ZoneNumber);
@@ -243,7 +244,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             if(autoData == null ||
                 !IsThereEnoughTimeFast(autoData, driverOriginalTrip, passengerTrip,
                 driverOrigin, passengerOrigin, passengerDestination, driverDestination,
-                out dToPTime, out tToPD, out tToDD))
+                out toPassengerOrigin, out toPassengerDestination, out toDriverDestination))
             {
                 return false;
             }
@@ -255,19 +256,19 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             // we are going to add in the time of the to passenger destination twice
             int same = 0;
             // from driver's origin to passenger's origin
-            if(dToPTime <= 0.0f)
+            if(toPassengerOrigin <= 0.0f)
             {
                 v += ZoneDistances[driverOrigin][passengerOrigin] * 0.001f * IntrazonalDriverTripDistanceFactor;
                 same++;
             }
             //from passenger origin to passenger destination
-            if(tToPD <= 0.0f)
+            if(toPassengerDestination <= 0.0f)
             {
                 v += ZoneDistances[passengerOrigin][passengerDestination] * 0.001f * IntrazonalPassengerTripDistanceFactor;
                 same++;
             }
             // time to driver destination
-            if(tToDD <= 0.0f)
+            if(toDriverDestination <= 0.0f)
             {
                 v += ZoneDistances[passengerDestination][driverDestination] * 0.001f * IntrazonalDriverTripDistanceFactor;
                 same++;
@@ -281,14 +282,13 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 v += IntrazonalConstant;
             }
             // apply the travel times (don't worry if we have intrazonals because they will be 0's).
-            v += (dToPTime + tToPD + tToDD + tToPD) * timeFactor;
-            Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
+            v += (toPassengerOrigin + toPassengerDestination + toDriverDestination + toPassengerDestination) * timeFactor;
             // Add in the travel cost
             v += (
                  (autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones) + 1]
                 + autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones) + 1]
                 + autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones) + 1])
-                + driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip, driverOriginalTrip.TripChain))
+                + driverDestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip))
                 ) * costFactor;
             switch(passengerTrip.Purpose)
             {
@@ -326,11 +326,11 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
 
         private bool NonFastCalcV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
-            Time dToPTime;
-            Time tToPD;
-            Time tToDD;
+            Time toPassengerOrigin;
+            Time toPassengerDestination;
+            Time toDriverDestination;
             v = float.NegativeInfinity;
-            if(!IsThereEnoughTime(driverOriginalTrip, passengerTrip, out dToPTime, out tToPD, out tToDD))
+            if(!IsThereEnoughTime(driverOriginalTrip, passengerTrip, out toPassengerOrigin, out toPassengerDestination, out toDriverDestination))
             {
                 return false;
             }
@@ -347,21 +347,21 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var zeroTime = Time.Zero;
             int same = 0;
             // from driver's origin to passenger's origin
-            if(dToPTime == zeroTime)
+            if(toPassengerOrigin == zeroTime)
             {
                 v += zoneDistances[driverOrigin.ZoneNumber,
                     passengerOrigin.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
                 same++;
             }
             //from passenger origin to passenger destination
-            if(tToPD == zeroTime)
+            if(toPassengerDestination == zeroTime)
             {
                 v += zoneDistances[passengerOrigin.ZoneNumber,
                     passengerDestination.ZoneNumber] * 0.001f * IntrazonalPassengerTripDistanceFactor;
                 same++;
             }
             // time to driver destination
-            if(tToDD == zeroTime)
+            if(toDriverDestination == zeroTime)
             {
                 v += zoneDistances[passengerDestination.ZoneNumber,
                     driverOriginalTrip.DestinationZone.ZoneNumber] * 0.001f * IntrazonalDriverTripDistanceFactor;
@@ -376,13 +376,13 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 v += IntrazonalConstant;
             }
             // apply the travel times (don't worry if we have intrazonals because they will be 0's).
-            v += ((dToPTime + tToPD + tToDD) + tToPD).ToMinutes() * timeFactor;
+            v += ((toPassengerOrigin + toPassengerDestination + toDriverDestination) + toPassengerDestination).ToMinutes() * timeFactor;
             // Add in the travel cost
             v += (
                 (AutoData.TravelCost(driverOrigin, passengerOrigin, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerOrigin, passengerDestination, passengerTrip.ActivityStartTime)
                 + AutoData.TravelCost(passengerDestination, driverOriginalTrip.DestinationZone, passengerTrip.ActivityStartTime))
-                + driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip, driverOriginalTrip.TripChain))
+                + driverOriginalTrip.DestinationZone.ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(driverOriginalTrip))
                 ) * costFactor;
             switch(passengerTrip.Purpose)
             {
@@ -418,7 +418,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             return true;
         }
 
-        private float TimeToNextTrip(ITrip trip, ITripChain chain)
+        private float TimeToNextTrip(ITrip trip)
         {
             var tchain = trip.TripChain.Trips;
             for(int i = 0; i < tchain.Count - 1; i++)
@@ -521,6 +521,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         /// </summary>return trip.TripChain.Person.Licence
         /// <param name="origin"></param>
         /// <param name="destination"></param>
+        /// <param name="time"></param>
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
@@ -613,7 +614,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         }
 
         private bool IsThereEnoughTimeFast(float[] autoData, ITrip driverOriginalTrip, ITrip passengerTrip,
-            int driverOrigin, int passengerOrigin, int passengerDestination, int driverDestination, out float dToPTime, out float tToPD, out float tToDD)
+            int driverOrigin, int passengerOrigin, int passengerDestination, int driverDestination, out float toPassengerOrigin, out float toPassengerDestination, out float toDriverDestination)
         {
             var numberOfZones = ZoneSystem.Count;
             // Check to see if the driver is able to get there
@@ -622,71 +623,68 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             Time passengerActivityStartTime = passengerTrip.ActivityStartTime;
             Time earliestPassenger = passengerActivityStartTime - MaxPassengerTimeThreshold;
             Time latestPassenger = passengerActivityStartTime + MaxPassengerTimeThreshold;
-
-            Time originalDriverTime = driverActivityStartTime - driverTripStartTime;
             // check to see if the driver is able to get to their destination
-            var timeToPassenger = Time.FromMinutes(dToPTime = autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones)]);
+            var timeToPassenger = Time.FromMinutes(toPassengerOrigin = autoData[CalculateBaseIndex(driverOrigin, passengerOrigin, numberOfZones)]);
             var driverArrivesAt = driverTripStartTime + timeToPassenger;
             var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
             var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
             Time overlapStart, overlapEnd;
             if(!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd))
             {
-                tToPD = 0.0f;
-                tToDD = 0.0f;
+                toPassengerDestination = 0.0f;
+                toDriverDestination = 0.0f;
                 return false;
             }
 
-            var midLegTravelTime = Time.FromMinutes(tToPD = autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones)]);
+            var midLegTravelTime = Time.FromMinutes(toPassengerDestination = autoData[CalculateBaseIndex(passengerOrigin, passengerDestination, numberOfZones)]);
             if(passengerDestination != driverDestination)
             {
-                tToDD = autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones)];
+                toDriverDestination = autoData[CalculateBaseIndex(passengerDestination, driverDestination, numberOfZones)];
             }
             else
             {
-                tToDD = 0.0f;
+                toDriverDestination = 0.0f;
             }
-            if(overlapStart + timeToPassenger + midLegTravelTime + Time.FromMinutes(tToDD) > driverActivityStartTime + MaxDriverTimeThreshold)
+            if(overlapStart + timeToPassenger + midLegTravelTime + Time.FromMinutes(toDriverDestination) > driverActivityStartTime + MaxDriverTimeThreshold)
             {
                 return false;
             }
             return true;
         }
 
-        private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time dToPTime, out Time tToPD, out Time tToDD)
+        private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time toPassengerOrigin, out Time toPassengerDestination, out Time toDriverDestination)
         {
             // Check to see if the driver is able to get there
             var driverTripStartTime = driverOriginalTrip.TripStartTime;
             Time earliestPassenger = passengerTrip.ActivityStartTime - MaxPassengerTimeThreshold;
             Time latestPassenger = passengerTrip.ActivityStartTime + MaxPassengerTimeThreshold;
-            Time originalDriverTime = driverOriginalTrip.ActivityStartTime - driverTripStartTime;
             IZone passengerOrigin = passengerTrip.OriginalZone;
             IZone driverOrigin = driverOriginalTrip.OriginalZone;
             // check to see if the driver is able to get to their destination
-            var timeToPassenger = dToPTime = TravelTime(driverOrigin, passengerOrigin, driverTripStartTime);
+            var timeToPassenger = toPassengerOrigin = TravelTime(driverOrigin, passengerOrigin, driverTripStartTime);
             var driverArrivesAt = driverTripStartTime + timeToPassenger;
             var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
             var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
             Time overlapStart, overlapEnd;
             if(!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd))
             {
-                tToPD = Time.Zero;
-                tToDD = Time.Zero;
+                toPassengerDestination = Time.Zero;
+                toDriverDestination = Time.Zero;
                 return false;
             }
 
             IZone passengerDestination = passengerTrip.DestinationZone;
-            var midLegTravelTime = tToPD = TravelTime(passengerOrigin, passengerDestination, latestDriver);
+            var midLegTravelTime = toPassengerDestination = TravelTime(passengerOrigin, passengerDestination, latestDriver);
             IZone driverDestination = driverOriginalTrip.DestinationZone;
             if(passengerDestination != driverDestination)
             {
-                tToDD = TravelTime(passengerDestination, driverDestination, latestDriver + midLegTravelTime);
+                toDriverDestination = TravelTime(passengerDestination, driverDestination, latestDriver + midLegTravelTime);
             }
             else
             {
-                tToDD = Time.Zero;
+                toDriverDestination = Time.Zero;
             }
-            if(overlapStart + timeToPassenger + midLegTravelTime + tToDD > driverOriginalTrip.ActivityStartTime + MaxDriverTimeThreshold)
+            if(overlapStart + timeToPassenger + midLegTravelTime + toDriverDestination > driverOriginalTrip.ActivityStartTime + MaxDriverTimeThreshold)
             {
                 return false;
             }
@@ -722,7 +720,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var ret = costFactor * timeFactor;
             if (ret > 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret.ToString() + "'");
+                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
             }
             return ret;
         }

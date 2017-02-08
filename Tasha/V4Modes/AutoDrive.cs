@@ -171,7 +171,7 @@ namespace Tasha.V4Modes
             {
                 // if not intrazonal
                 float ivtt, cost;
-                var parkingCosts = zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(trip, chain));
+                var parkingCosts = zoneArray.GetFlatData()[d].ParkingCost * Math.Min(MaximumHoursForParking, TimeToNextTrip(trip));
                 Network.GetAllData(o, d, trip.TripStartTime, out ivtt, out cost);
                 v += timeFactor * ivtt + costParameter * (cost + parkingCosts);
             }
@@ -206,7 +206,7 @@ namespace Tasha.V4Modes
             return v;
         }
 
-        private float TimeToNextTrip(ITrip trip, ITripChain chain)
+        private float TimeToNextTrip(ITrip trip)
         {
             var tchain = trip.TripChain.Trips;
             for(int i = 0; i < tchain.Count - 1; i++)
@@ -444,7 +444,7 @@ namespace Tasha.V4Modes
             var ret = costFactor * timeFactor;
             if (ret > 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret.ToString() + "'");
+                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
             }
             return ret;
         }

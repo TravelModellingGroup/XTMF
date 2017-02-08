@@ -35,9 +35,9 @@ namespace XTMF
         /// <param name="name">The name of the parameter</param>
         public ParameterAttribute(string name, object defaultValue, string description)
         {
-            this.Name = name;
-            this.Description = description;
-            this.DefaultValue = defaultValue;
+            Name = name;
+            Description = description;
+            DefaultValue = defaultValue;
         }
 
         /// <summary>
@@ -49,10 +49,10 @@ namespace XTMF
         /// <param name="name">The name of the parameter</param>
         public ParameterAttribute(string name, string defaultValue, Type type, string description)
         {
-            this.Name = name;
-            this.Description = description;
+            Name = name;
+            Description = description;
             string error = null;
-            this.DefaultValue = ArbitraryParameterParser.ArbitraryParameterParse( type, defaultValue, ref error );
+            DefaultValue = ArbitraryParameterParser.ArbitraryParameterParse( type, defaultValue, ref error );
         }
 
         public bool AttachedToField { get; set; }
@@ -80,7 +80,7 @@ namespace XTMF
         /// <returns>A quick description of what type of parameter it is, and what it describes</returns>
         public override string ToString()
         {
-            return String.Format( "{0}-> Default:{1}, {2}", this.GetType().Name, this.DefaultValue, this.Description );
+            return String.Format( "{0}-> Default:{1}, {2}", GetType().Name, DefaultValue, Description );
         }
     }
 }

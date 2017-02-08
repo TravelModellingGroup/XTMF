@@ -101,7 +101,7 @@ namespace Tasha.PopulationSynthesis
 
             internal void Add(int[] ageCategoryCount, int planningDistrict, int numberOfCars, float expansionFactor)
             {
-                int lastIndex = -1;
+                int lastIndex;
                 bool success = false;
                 EntryLock.PassThrough( () =>
                     {

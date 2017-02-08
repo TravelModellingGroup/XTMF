@@ -305,10 +305,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
             {
                 return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => x).ToArray();
             }
-            else
-            {
-                return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => (float)Math.Log(x + 1)).ToArray();
-            }
+            return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => (float)Math.Log(x + 1)).ToArray();
         }
 
         public void Load(int totalIterations)

@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Tasha.Common;
 using TMG.Input;
 using XTMF;
@@ -85,7 +84,7 @@ namespace Tasha.Validation
                         {
                             foreach ( var trip in tripChain.Trips )
                             {
-                                float CurrentDistance = 0;
+                                float currentDistance = 0;
                                 if ( trip.Mode == null )
                                 {
                                     continue;
@@ -93,22 +92,22 @@ namespace Tasha.Validation
 
                                 if ( trip.OriginalZone == trip.DestinationZone )
                                 {
-                                    CurrentDistance += trip.OriginalZone.InternalDistance;
+                                    currentDistance += trip.OriginalZone.InternalDistance;
                                 }
                                 else
                                 {
-                                    CurrentDistance += ( Math.Abs( trip.OriginalZone.X - trip.DestinationZone.X ) + Math.Abs( trip.OriginalZone.Y - trip.DestinationZone.Y ) );
+                                    currentDistance += ( Math.Abs( trip.OriginalZone.X - trip.DestinationZone.X ) + Math.Abs( trip.OriginalZone.Y - trip.DestinationZone.Y ) );
                                 }
 
                                 if ( DistancesDictionary.ContainsKey( trip.Purpose ) )
                                 {
                                     var record = DistancesDictionary[trip.Purpose];
-                                    record.TotalDistance += CurrentDistance * 0.001f;
+                                    record.TotalDistance += currentDistance * 0.001f;
                                     record.Records++;
                                 }
                                 else
                                 {
-                                    DistancesDictionary.Add( trip.Purpose, new DistanceCount( CurrentDistance * 0.001f, 1 ) );
+                                    DistancesDictionary.Add( trip.Purpose, new DistanceCount( currentDistance * 0.001f, 1 ) );
                                 }
                             }
                         }
@@ -124,10 +123,13 @@ namespace Tasha.Validation
                 using (StreamWriter writer = new StreamWriter( OutputFile, true ))
                 {
                     writer.WriteLine( "Iteration,Activity,AverageDistance" );
-                    foreach ( var pair in DistancesDictionary )
+                    lock (this)
                     {
-                        float averageDistance = pair.Value.TotalDistance / pair.Value.Records;
-                        writer.WriteLine( "{2}, {0}, {1}", pair.Key, averageDistance, iteration );
+                        foreach ( var pair in DistancesDictionary )
+                        {
+                            float averageDistance = pair.Value.TotalDistance / pair.Value.Records;
+                            writer.WriteLine( "{2}, {0}, {1}", pair.Key, averageDistance, iteration );
+                        }
                     }
                 }
             }

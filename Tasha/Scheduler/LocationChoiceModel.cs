@@ -17,7 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Linq;
 using Datastructure;
 using Tasha.Common;
 using TMG;
@@ -40,8 +39,6 @@ namespace Tasha.Scheduler
 
         internal static ZoneCache<LocationChoiceInformation> LocationChoiceHomeData;
 
-        private static int highestZone;
-
         public string Name
         {
             get;
@@ -58,22 +55,22 @@ namespace Tasha.Scheduler
             get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="e">The episode to find a zone for</param>
-        /// <param name="person">The person to look at (their household)</param>
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="e">The episode to find a zone for</param>
+        ///  <param name="person">The person to look at (their household)</param>
+        /// <param name="random"></param>
         /// <returns></returns>
         public IZone GetLocationHomeBased(IEpisode e, ITashaPerson person, Random random)
         {
             return GetLocationHomeBased( e.ActivityType, person.Household.HomeZone, random );
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="a">The type of activity to find a zone for</param>
-        /// <param name="zone">The "source" zone to base distances etc. off of</param>
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="a">The type of activity to find a zone for</param>
+        ///  <param name="zone">The "source" zone to base distances etc. off of</param>
+        /// <param name="random"></param>
         /// <returns></returns>
         public IZone GetLocationHomeBased(Activity a, IZone zone, Random random)
         {
@@ -104,12 +101,12 @@ namespace Tasha.Scheduler
                 throw new XTMFRuntimeException( "Zone is NULL!" );
             }
             //obtain a value between 0 and 1
-            double rand_num = random.NextDouble();
+            double randNum = random.NextDouble();
             var lcd = LocationChoiceHomeData[zone.ZoneNumber];
             var zones = TashaRuntime.ZoneSystem.ZoneArray.GetFlatData();
             for ( int i = 0; i < zones.Length; i++ )
             {
-                if ( lcd.Data[i][offset] >= rand_num )
+                if ( lcd.Data[i][offset] >= randNum )
                 {
                     return zones[i];
                 }
@@ -141,12 +138,12 @@ namespace Tasha.Scheduler
             }
 
             //obtain a value between 0 and 1
-            double rand_num = random.NextDouble();
+            double randNum = random.NextDouble();
             var lcd = LocationChoiceData[zone.ZoneNumber];
             var zones = TashaRuntime.ZoneSystem.ZoneArray.GetFlatData();
             for ( int i = 0; i < zones.Length; i++ )
             {
-                if ( lcd.Data[i][occupationIndex] >= rand_num )
+                if ( lcd.Data[i][occupationIndex] >= randNum )
                 {
                     return zones[i];
                 }
@@ -156,8 +153,6 @@ namespace Tasha.Scheduler
 
         public void LoadLocationChoiceCache()
         {
-            highestZone = TashaRuntime.ZoneSystem.ZoneArray.GetFlatData().Last().ZoneNumber;
-
             if ( LocationChoiceData == null )
             {
                 LocationChoiceData =
@@ -227,10 +222,7 @@ namespace Tasha.Scheduler
                         {
                             return GetLocationHomeBased( Activity.WorkBasedBusiness, ep.Owner.Household.HomeZone, random );
                         }
-                        else
-                        {
-                            return GetLocationWorkBased( empZone, ep.Owner, random );
-                        }
+                        return GetLocationWorkBased( empZone, ep.Owner, random );
                     }
                 case Activity.PrimaryWork:
                 case Activity.SecondaryWork:

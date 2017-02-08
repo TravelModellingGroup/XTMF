@@ -180,7 +180,7 @@ namespace Tasha.V4Modes
         public SpatialConstant[] SpatialConstants;
 
         private SparseTwinIndex<float> RegionConstants;
-
+         
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
             //build the region constants
@@ -205,7 +205,7 @@ namespace Tasha.V4Modes
         {
             for(int i = 0; i < SpatialConstants.Length; i++)
             {
-                if(SpatialConstants[i].Origins.Contains(originRegion) && SpatialConstants[i].Destinations.Contains(originRegion))
+                if(SpatialConstants[i].Origins.Contains(originRegion) && SpatialConstants[i].Destinations.Contains(destinationRegion))
                 {
                     return SpatialConstants[i].Constant;
                 }

@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Tasha.Common;
 using XTMF;
 using TMG;
@@ -61,9 +58,9 @@ The matrix will be saved in the OD square csv format."
 
             internal Assignment(int householdZone, int schoolZone, float expanded)
             {
-                this.HouseholdZone = householdZone;
-                this.SchoolZone = schoolZone;
-                this.Expanded = expanded;
+                HouseholdZone = householdZone;
+                SchoolZone = schoolZone;
+                Expanded = expanded;
             }
         }
 
@@ -76,9 +73,9 @@ The matrix will be saved in the OD square csv format."
                 for ( int i = 0; i < persons.Length; i++ )
                 {
                     var schoolZone = persons[i].SchoolZone;
-                    if ( schoolZone != null && this.Ages.Contains( persons[i].Age ) )
+                    if ( schoolZone != null && Ages.Contains( persons[i].Age ) )
                     {
-                        this.ToSave.Add( new Assignment( householdZone, schoolZone.ZoneNumber, persons[i].ExpansionFactor ) );
+                        ToSave.Add( new Assignment( householdZone, schoolZone.ZoneNumber, persons[i].ExpansionFactor ) );
                     }
                 }
             }
@@ -86,9 +83,9 @@ The matrix will be saved in the OD square csv format."
 
         public void IterationFinished(int iteration)
         {
-            this.ToSave.CompleteAdding();
-            this.SaveTask.Wait();
-            TMG.Functions.SaveData.SaveMatrix( this.ExpandedStudents, Output );
+            ToSave.CompleteAdding();
+            SaveTask.Wait();
+            SaveData.SaveMatrix( ExpandedStudents, Output );
         }
 
         public void Load(int maxIterations)
@@ -98,17 +95,17 @@ The matrix will be saved in the OD square csv format."
 
         ~ProduceStudentMatrix()
         {
-            this.Dispose();
+            Dispose();
         }
 
         public void IterationStarting(int iteration)
         {
-            this.ExpandedStudents = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            this.ToSave = new BlockingCollection<Assignment>();
-            this.SaveTask = Task.Factory.StartNew( () =>
+            ExpandedStudents = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            ToSave = new BlockingCollection<Assignment>();
+            SaveTask = Task.Factory.StartNew( () =>
                 {
-                    var students = this.ExpandedStudents;
-                    foreach ( var assignment in this.ToSave.GetConsumingEnumerable() )
+                    var students = ExpandedStudents;
+                    foreach ( var assignment in ToSave.GetConsumingEnumerable() )
                     {
                         students[assignment.HouseholdZone, assignment.SchoolZone] += assignment.Expanded;
                     }
@@ -117,12 +114,12 @@ The matrix will be saved in the OD square csv format."
 
         public void Dispose()
         {
-            if ( this.ToSave != null )
+            if ( ToSave != null )
             {
-                this.ToSave.CompleteAdding();
-                this.ToSave = null;
+                ToSave.CompleteAdding();
+                ToSave = null;
             }
-            this.SaveTask = null;
+            SaveTask = null;
         }
 
 

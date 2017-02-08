@@ -61,7 +61,7 @@ namespace Tasha.External
             public float ExpansionFactor { get; set; }
 
 
-            public HouseholdType hhType => default(HouseholdType);
+            public HouseholdType HhType => default(HouseholdType);
 
 
             public IZone HomeZone { get; set; }
@@ -163,12 +163,12 @@ namespace Tasha.External
 
             public bool JointTripRep => false;
 
-            public List<ITashaPerson> passengers => null;
+            public List<ITashaPerson> Passengers => null;
 
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public ITashaPerson Person { get; set; }
 
-            public List<IVehicleType> requiresVehicle => null;
+            public List<IVehicleType> RequiresVehicle => null;
 
             public Time StartTime
             {

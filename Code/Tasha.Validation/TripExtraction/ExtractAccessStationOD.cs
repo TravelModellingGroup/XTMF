@@ -19,9 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tasha.ModeChoice;
 using Tasha.Common;
 using XTMF;
 using TMG.Input;
@@ -131,11 +128,11 @@ namespace Tasha.Validation.TripExtraction
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddToMatrix(Time startTime, float expFactor, int originIndex, int destinationIndex, int StationZoneNumber)
+        private void AddToMatrix(Time startTime, float expFactor, int originIndex, int destinationIndex, int stationZoneNumber)
         {
             if (startTime >= StartTime & startTime < EndTime)
             {
-                var index = Array.IndexOf(StationIndex, StationZoneNumber);
+                var index = Array.IndexOf(StationIndex, stationZoneNumber);
                 var result = Results[index];
                 lock (result)
                 {

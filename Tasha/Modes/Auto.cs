@@ -33,10 +33,10 @@ namespace Tasha.Modes
         public float Constant;
 
         [RunParameter("dpurp_oth_drive", 0f, "The weight for the cost of doing an other drive (ITashaRuntime only)")]
-        public float dpurp_oth_drive;
+        public float DpurpOthDrive;
 
         [RunParameter("dpurp_shop_drive", 0f, "The weight for the cost of doing a shopping drive (ITashaRuntime only)")]
-        public float dpurp_shop_drive;
+        public float DpurpShopDrive;
 
         [RunParameter("Intrazonal Constant", 0f, "The constant to use for intrazonal trips.")]
         public float IntrazonalConstantWeight;
@@ -45,16 +45,16 @@ namespace Tasha.Modes
         public float IntrazonalDistanceWeight;
 
         [RunParameter("pkcost", 0f, "The weight for cost of parking")]
-        public float parking;
+        public float Parking;
 
         [RootModule]
         public ITravelDemandModel Root;
 
         [RunParameter("travelcost", 0f, "The weight for cost of travel")]
-        public float travelCost;
+        public float TravelCostBeta;
 
         [RunParameter("atime", 0f, "The weight cost of time")]
-        public float travelTime;
+        public float TravelTimeBeta;
 
         [RunParameter("Use Intrazonal Regression", false, "Should we use a regression for intrazonal trips based on the interzonal distance?")]
         public bool UseIntrazonalRegression;
@@ -101,16 +101,6 @@ namespace Tasha.Modes
             get { return false; }
         }
 
-        /// <summary>
-        /// The character that is to be written to the output file for the chosen mode
-        /// </summary>
-        [RunParameter("Output Signature", 'A', "The output signature for saving trips.")]
-        public char OutputSignature
-        {
-            get;
-            set;
-        }
-
         public float Progress
         {
             get { return 0; }
@@ -121,16 +111,17 @@ namespace Tasha.Modes
             get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
-        [DoNotAutomate]
+
         /// <summary>
         /// Does this require a vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return AutoType; }
         }
 
-        [RunParameter("Variance Scale", 1.0f, "The scale for varriance used for variance testing.")]
+        [RunParameter("Variance Scale", 1.0f, "The scale for variance used for variance testing.")]
         public double VarianceScale
         {
             get;
@@ -138,34 +129,34 @@ namespace Tasha.Modes
         }
 
         /// <summary>
-        /// Calcualtes the V value for the given trip
+        /// Calculates the V value for the given trip
         /// </summary>
-        /// <param name="trip">The trip to calcualte for</param>
+        /// <param name="trip">The trip to calculate for</param>
         /// <returns>The V for the trip</returns>
         public double CalculateV(ITrip trip)
         {
-            double V = 0;
+            double v = 0;
             IZone o = trip.OriginalZone, d = trip.DestinationZone;
             if((o == d) & UseIntrazonalRegression)
             {
-                V += IntrazonalConstantWeight + o.InternalDistance * IntrazonalDistanceWeight;
+                v += IntrazonalConstantWeight + o.InternalDistance * IntrazonalDistanceWeight;
             }
             else
             {
-                V += Constant;
-                V += AutoData.TravelTime(o, d, trip.ActivityStartTime).ToMinutes() * travelTime;
-                V += AutoData.TravelCost(o, d, trip.ActivityStartTime) * travelCost;
+                v += Constant;
+                v += AutoData.TravelTime(o, d, trip.ActivityStartTime).ToMinutes() * TravelTimeBeta;
+                v += AutoData.TravelCost(o, d, trip.ActivityStartTime) * TravelCostBeta;
             }
-            V += d.ParkingCost * parking;
+            v += d.ParkingCost * Parking;
             if(trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket)
             {
-                V += dpurp_shop_drive;
+                v += DpurpShopDrive;
             }
             else if(trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther)
             {
-                V += dpurp_oth_drive;
+                v += DpurpOthDrive;
             }
-            return V;
+            return v;
         }
 
         /// <summary>
@@ -177,11 +168,11 @@ namespace Tasha.Modes
         /// <returns>The V of the utility function</returns>
         public float CalculateV(IZone o, IZone d, Time time)
         {
-            float V = 0;
-            V += TravelTime(o, d, time).ToMinutes() * travelTime;
-            V += AutoData.TravelCost(o, d, time) * travelCost;
-            V += d.ParkingCost * parking;
-            return V;
+            float v = 0;
+            v += TravelTime(o, d, time).ToMinutes() * TravelTimeBeta;
+            v += AutoData.TravelCost(o, d, time) * TravelCostBeta;
+            v += d.ParkingCost * Parking;
+            return v;
         }
 
         public float Cost(IZone origin, IZone destination, Time time)
@@ -285,7 +276,7 @@ namespace Tasha.Modes
             if(TashaRuntime == null)
             {
                 // check for a 4Step model system template
-                var tdm = Root as ITravelDemandModel;
+                var tdm = Root;
                 // if it isn't report the error
                 if(tdm == null)
                 {

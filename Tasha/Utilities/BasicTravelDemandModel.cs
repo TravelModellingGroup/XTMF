@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using XTMF;
 using TMG;
+// ReSharper disable AccessToModifiedClosure
 namespace Tasha.Utilities
 {
 
@@ -57,7 +58,7 @@ namespace Tasha.Utilities
             return true;
         }
 
-        private Func<string> status;
+        private Func<string> _Status;
 
         public void Start()
         {
@@ -74,7 +75,7 @@ namespace Tasha.Utilities
                 }
                 return 1.0f;
             };
-            status = () =>
+            _Status = () =>
             {
                 return ToExecute[i].ToString();
             };
@@ -90,11 +91,11 @@ namespace Tasha.Utilities
 
         public override string ToString()
         {
-            if(status == null)
+            if(_Status == null)
             {
                 return "Initializing";
             }
-            return status();
+            return _Status();
         }
     }
 

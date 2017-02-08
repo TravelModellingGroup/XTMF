@@ -31,30 +31,10 @@ namespace Tasha.Scheduler
 
         #region ITrip Members
 
-        internal IMode ObservedMode;
-
         private SchedulerHomeTrip(int householdIterations)
         {
             Mode = null;
             ModesChosen = new ITashaMode[householdIterations];
-        }
-
-        private SchedulerHomeTrip(TravelEpisode episode)
-        {
-            TripStartTime = episode.EndTime;
-            DestinationZone = episode.Destination;
-            IntermediateZone = null;
-            Mode = null;
-            OriginalZone = episode.Origin;
-            if ( episode.People == null )
-            {
-                Passengers = null;
-            }
-            else
-            {
-                Passengers = new List<ITashaPerson>( episode.People );
-            }
-            Purpose = episode.ActivityType;
         }
 
         /// <summary>
@@ -70,13 +50,13 @@ namespace Tasha.Scheduler
         {
             get
             {
-                if ( Mode == null )
+                if (Mode == null)
                 {
                     return TripStartTime;
                 }
-                if(RecalculateActivityStartTime)
+                if (RecalculateActivityStartTime)
                 {
-                    _ActivityStartTime = TripStartTime + Mode.TravelTime(OriginalZone, DestinationZone, TripStartTime); ;
+                    _ActivityStartTime = TripStartTime + Mode.TravelTime(OriginalZone, DestinationZone, TripStartTime);
                     RecalculateActivityStartTime = false;
                 }
                 return _ActivityStartTime;
@@ -183,7 +163,7 @@ namespace Tasha.Scheduler
             DestinationZone = null;
             TripStartTime = Time.Zero;
             TripNumber = -1;
-            Array.Clear( ModesChosen, 0, ModesChosen.Length );
+            Array.Clear(ModesChosen, 0, ModesChosen.Length);
             RecalculateActivityStartTime = true;
             if (Trips.Count < 100)
             {
@@ -194,9 +174,9 @@ namespace Tasha.Scheduler
         internal static SchedulerHomeTrip GetTrip(int householdIterations)
         {
             SchedulerHomeTrip ret;
-            if ( !Trips.TryTake( out ret ) )
+            if (!Trips.TryTake(out ret))
             {
-                return new SchedulerHomeTrip( householdIterations );
+                return new SchedulerHomeTrip(householdIterations);
             }
             return ret;
         }

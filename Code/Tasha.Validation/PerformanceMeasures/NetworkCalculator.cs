@@ -18,18 +18,10 @@
 */
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using TMG.Input;
-using Datastructure;
-using TMG;
-using TMG.DataUtility;
-using Tasha.Common;
 using XTMF;
 using TMG.Emme;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable InconsistentNaming
 
 namespace Tasha.Validation.PerformanceMeasures
 {
@@ -45,7 +37,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
         }
 
-        private const string _ToolName = "tmg.XTMF_internal.xtmf_network_calculator";
+        private const string ToolName = "tmg.XTMF_internal.xtmf_network_calculator";
 
         [RunParameter("Scenario Number", "1", "What scenario would you like to run this for?")]
         public int ScenarioNumber;
@@ -80,7 +72,7 @@ namespace Tasha.Validation.PerformanceMeasures
             }
             float value;
             string result = null;
-            if(modeller.Run(_ToolName, GetParameters(), ref result))
+            if(modeller.Run(ToolName, GetParameters(), ref result))
             {
                 if (SumOfReport != null)
                 {
@@ -122,10 +114,7 @@ namespace Tasha.Validation.PerformanceMeasures
             set;
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(120, 25, 100);
 
         public bool RuntimeValidation(ref string error)
         {

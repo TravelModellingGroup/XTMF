@@ -36,7 +36,7 @@ namespace Tasha.Internal
             set;
         }
 
-        public HouseholdType hhType
+        public HouseholdType HhType
         {
             get;
             internal set;

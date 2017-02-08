@@ -16,11 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using Datastructure;
 using XTMF;
 
 namespace Tasha.Common
@@ -206,8 +205,7 @@ namespace Tasha.Common
                         int personNum = 1;
                         foreach (var p in household.Persons)
                         {
-                            ITripChain temp;
-                            if ((temp = p.TripChains.FindLast((chain) => (chain.JointTripID == trip.TripChain.JointTripID && chain.JointTripRep)) ) != null )
+                            if ((p.TripChains.FindLast((chain) => (chain.JointTripID == trip.TripChain.JointTripID && chain.JointTripRep)) ) != null )
                             {
                                 jointTourLeader = personNum;
                                 break;
@@ -258,9 +256,9 @@ namespace Tasha.Common
                 trips[i].Recycle();
             }
             Trips.Clear();
-            if (passengers != null )
+            if (Passengers != null )
             {
-                passengers.Clear();
+                Passengers.Clear();
             }
             GetRepTripChain = null;
             TripChains.Enqueue(this );
@@ -269,115 +267,14 @@ namespace Tasha.Common
         internal static void ReleaseChainPool()
         {
             TripChain c;
-            while (TripChains.TryDequeue(out c)) ;
-        }
-
-        private static void RemoveFaciliateTrips(Household household)
-        {
-            List<ITripChain> tripChains = new List<ITripChain>();
-
-            foreach (var p in household.Persons)
+            while (TripChains.TryDequeue(out c))
             {
-                p.Attach("ObservedTripChains", new List<ITripChain>());
-
-                foreach (var tc in p.TripChains)
-                {
-                    tripChains.Add(tc);
-                    ((List<ITripChain>)p["ObservedTripChains"]).Add((((TripChain)tc).DeepClone()) );
-                }
-            }
-
-            //removing facilitate trips
-            foreach (var tc in tripChains)
-            {
-                ITrip StartFTrip = null;
-                bool removeChain = false;
-                List<ITrip> toRemove = new List<ITrip>();
-                foreach (var t in tc.Trips)
-                {
-                    if (t.Purpose == Activity.FacilitatePassenger)
-                    {
-                        if (StartFTrip == null)
-                            StartFTrip = t;
-                        else
-                            toRemove.Add(t);
-
-                        if (tc.Trips[tc.Trips.Count - 1] == t)
-                        {
-                            removeChain = true;
-                        }
-                    }
-                    else if (StartFTrip != null )
-                    {
-                        if (t.Purpose == Activity.Home && tc.Trips[0] == StartFTrip)
-                        {
-                            removeChain = true;
-                        }
-                        else
-                        {
-                            ((Trip)StartFTrip).DestinationZone = t.DestinationZone;
-                            StartFTrip.Purpose = t.Purpose;
-                            ((Trip)StartFTrip).TripStartTime = t.TripStartTime;
-                            StartFTrip = null;
-                            toRemove.Add(t);
-                        }
-                    }
-                }
-                if (removeChain)
-                {
-                    tc.Person.TripChains.Remove(tc);
-                }
-                else
-                {
-                    foreach (var t in toRemove)
-                    {
-                        tc.Trips.Remove(t);
-                    }
-                }
-            }
-        }
-
-        private static void VerifyHousehold(Household household)
-        {
-            List<ITripChain> tripChains = new List<ITripChain>();
-
-            foreach (var p in household.Persons)
-            {
-                foreach (var tc in p.TripChains)
-                {
-                    tripChains.Add(tc);
-                }
-            }
-            foreach (var tc in tripChains)
-            {
-                foreach (var t in tc.Trips)
-                {
-                    if (t.OriginalZone.InternalDistance == 0 || t.DestinationZone.InternalDistance == 0 )
-                    {
-                        t.TripChain.Person.TripChains.Remove(tc);
-                    }
-                }
-                /*
-                bool intraZonal = true;
-                foreach (var t in tc.Trips)
-                {
-                    if (t.DestinationZone != household.HomeZone)
-                    {
-                        intraZonal = false;
-                    }
-                }
-
-                if (intraZonal)
-                {
-                    tc.Person.TripChains.Remove(tc);
-                }
-                 */
             }
         }
 
         #region ITripChain Members
 
-        public List<ITashaPerson> passengers
+        public List<ITashaPerson> Passengers
         {
             get { return null; }
         }
@@ -386,7 +283,7 @@ namespace Tasha.Common
 
         #region ITripChain Members
 
-        public List<IVehicleType> requiresVehicle
+        public List<IVehicleType> RequiresVehicle
         {
             get
             {

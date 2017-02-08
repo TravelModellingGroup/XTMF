@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using TMG.Input;
 using TMG.Emme;
 using TMG.DataUtility;
-using Tasha.Common;
 using XTMF;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
     public class RevenueCalculations : IEmmeTool
     {
-        private const string _ToolName = "tmg.analysis.transit.strategy_analysis.revenue_calculation";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.revenue_calculation";
 
         [RunParameter("Scenario Numbers", "1", typeof(NumberList), "A comma separated list of scenario numbers to execute this against.")]
         public NumberList ScenarioNumbers;
@@ -24,7 +21,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = false, Description = "The different links to consider")]
         public LinesToConsider[] TransitLinesConsidered;
 
-        public sealed class LinesToConsider : XTMF.IModule
+        public sealed class LinesToConsider : IModule
         {
             [RunParameter("Label", "GoNetwork", "The appropriate label for this Transit Lines")]
             public string Label;
@@ -90,7 +87,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 throw new XTMFRuntimeException("In '" + Name + "' we were not given a modeller controller!");
             }
 
-            return modeller.Run(_ToolName, GenerageArgumentString(modeller));
+            return modeller.Run(ToolName, GenerageArgumentString(modeller));
         }
 
         public string Name

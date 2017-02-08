@@ -79,7 +79,7 @@ namespace Tasha.Common
             {
                 foreach ( var tc in p.TripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( vehicle ) )
+                    if ( tc.RequiresVehicle.Contains( vehicle ) )
                     {
                         trips.Add( tc );
                     }
@@ -104,14 +104,14 @@ namespace Tasha.Common
             {
                 foreach ( var tc in p.TripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( vehicle ) )
+                    if ( tc.RequiresVehicle.Contains( vehicle ) )
                     {
                         trips.Add( tc );
                     }
                 }
                 foreach ( var tc in p.AuxTripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( vehicle ) )
+                    if ( tc.RequiresVehicle.Contains( vehicle ) )
                     {
                         trips.Add( tc );
                     }

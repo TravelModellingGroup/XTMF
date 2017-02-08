@@ -33,7 +33,7 @@ namespace Tasha.Scheduler
 
         public Schedule()
         {
-            Episodes = new Episode[20];
+            Episodes = new IEpisode[20];
             EpisodeCount = 0;
         }
 
@@ -102,6 +102,7 @@ namespace Tasha.Scheduler
         /// Add a whole Schedule to this schedule
         /// </summary>
         /// <param name="schedule">The schedule you wish to add</param>
+        /// <param name="random"></param>
         public void Insert(Schedule schedule, Random random)
         {
             for ( int i = 0; i < schedule.EpisodeCount; i++ )
@@ -205,34 +206,31 @@ namespace Tasha.Scheduler
                 {
                     throw new XTMFRuntimeException( Dump( this ) );
                 }
-                else if ( Episodes[i].StartTime > mustEndBefore | Episodes[i].EndTime > mustEndBefore )
+                if ( Episodes[i].StartTime > mustEndBefore | Episodes[i].EndTime > mustEndBefore )
                 {
                     throw new XTMFRuntimeException( Dump( this ) );
                 }
-                else if ( Episodes[i].EndTime < Episodes[i].StartTime )
+                if ( Episodes[i].EndTime < Episodes[i].StartTime )
                 {
                     if ( Episodes[i].Owner != null )
                     {
                         throw new XTMFRuntimeException( "There is an episode that ends before it starts in household #" + Episodes[i].Owner.Household.HouseholdId );
                     }
-                    else
-                    {
-                        throw new XTMFRuntimeException( "There is an episode that ends before it starts and has no owner!"
-                            + "\r\nActivity Type    :" + Episodes[i].ActivityType.ToString()
-                            + "\r\nStart Time       :" + Episodes[i].StartTime
-                            + "\r\nDuration         :" + Episodes[i].Duration
-                            + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
-                            + "\r\nEnd Time         :" + Episodes[i].EndTime );
-                    }
+                    throw new XTMFRuntimeException( "There is an episode that ends before it starts and has no owner!"
+                                                    + "\r\nActivity Type    :" + Episodes[i].ActivityType
+                                                    + "\r\nStart Time       :" + Episodes[i].StartTime
+                                                    + "\r\nDuration         :" + Episodes[i].Duration
+                                                    + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
+                                                    + "\r\nEnd Time         :" + Episodes[i].EndTime );
                 }
-                else if ( Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * Episodes[i].Duration )
+                if ( Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * Episodes[i].Duration )
                 {
                     throw new XTMFRuntimeException( "Episode is smaller than the allowed overlap!"
-                        + "\r\nActivity Type    :" + Episodes[i].ActivityType.ToString()
-                            + "\r\nStart Time       :" + Episodes[i].StartTime
-                            + "\r\nDuration         :" + Episodes[i].Duration
-                            + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
-                            + "\r\nEnd Time         :" + Episodes[i].EndTime);
+                                                    + "\r\nActivity Type    :" + Episodes[i].ActivityType
+                                                    + "\r\nStart Time       :" + Episodes[i].StartTime
+                                                    + "\r\nDuration         :" + Episodes[i].Duration
+                                                    + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
+                                                    + "\r\nEnd Time         :" + Episodes[i].EndTime);
                 }
                 lastEnd = Episodes[i].EndTime;
             }
@@ -258,19 +256,19 @@ namespace Tasha.Scheduler
         private static void StoreEpisode(Episode e, StringBuilder builder)
         {
             builder.Append( "Activity -> " );
-            builder.Append( e.ActivityType.ToString() );
+            builder.Append( e.ActivityType );
             builder.Append( ", Start -> " );
-            builder.Append( e.StartTime.ToString() );
+            builder.Append( e.StartTime );
             builder.Append( ", End -> " );
-            builder.Append( e.EndTime.ToString() );
+            builder.Append( e.EndTime );
             builder.Append( ", TT -> " );
-            builder.Append( e.TravelTime.ToString() );
+            builder.Append( e.TravelTime );
         }
 
         private void IncreaseArraySize()
         {
             // if we don't have room create a new array of 2x the size
-            var temp = new Episode[EpisodeCount * 2];
+            IEpisode[] temp = new IEpisode[EpisodeCount * 2];
             // copy all of the old data
             Array.Copy( Episodes, temp, EpisodeCount );
             // and now use that larger array

@@ -24,22 +24,6 @@ namespace Tasha.Scheduler
 {
     internal sealed class ProjectSchedule : Schedule
     {
-        /// <summary>
-        /// The household this project schedule is for
-        /// </summary>
-        private ITashaHousehold Household;
-
-        public ProjectSchedule(ITashaHousehold household)
-        {
-            Household = household;
-        }
-
-        internal Project Project
-        {
-            get;
-            set;
-        }
-
         public override bool CheckEpisodeInsert(IEpisode episode, ref TimeWindow feasibleWindow)
         {
             throw new NotImplementedException();
@@ -114,7 +98,7 @@ namespace Tasha.Scheduler
                         if((ep.ActivityType != Activity.WorkBasedBusiness) & (ep.ActivityType != Activity.ReturnFromWork)) return false;
                         if(Episodes[conflict.Position].ActivityType != Activity.PrimaryWork) return false;
                         // Since it is a primary work episode we need to split it
-                        var postEp = new ActivityEpisode(0, new TimeWindow(ep.EndTime, Episodes[conflict.Position].EndTime), Activity.PrimaryWork,
+                        var postEp = new ActivityEpisode(new TimeWindow(ep.EndTime, Episodes[conflict.Position].EndTime), Activity.PrimaryWork,
                              Episodes[conflict.Position].Owner);
                         postEp.Zone = Episodes[conflict.Position].Zone;
                         ((Episode)Episodes[conflict.Position]).EndTime = ep.StartTime;
@@ -198,13 +182,10 @@ namespace Tasha.Scheduler
                     Relocate(middle, (middle.StartTime - postOverlap));
                     return true;
                 }
-                else
-                {
-                    // prior overlap < 0, so just add it
-                    Relocate(middle, (middle.StartTime + priorOverlap));
-                    // subtract out the reduced time
-                    postOverlap += priorOverlap;
-                }
+                // prior overlap < 0, so just add it
+                Relocate(middle, (middle.StartTime + priorOverlap));
+                // subtract out the reduced time
+                postOverlap += priorOverlap;
             }
             if(postOverlap <= Time.Zero)
             {
@@ -214,13 +195,10 @@ namespace Tasha.Scheduler
                     Relocate(middle, (middle.StartTime + priorOverlap));
                     return true;
                 }
-                else
-                {
-                    // prior overlap < 0, so subtract it
-                    Relocate(middle, (middle.StartTime - postOverlap));
-                    // subtract out the reduced time
-                    priorOverlap += postOverlap;
-                }
+                // prior overlap < 0, so subtract it
+                Relocate(middle, (middle.StartTime - postOverlap));
+                // subtract out the reduced time
+                priorOverlap += postOverlap;
             }
             return false;
         }
@@ -235,8 +213,8 @@ namespace Tasha.Scheduler
             Time minMid = Tasha.Scheduler.Scheduler.PercentOverlapAllowed * middle.OriginalDuration;
             Time minPost = (post != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * post.OriginalDuration : Time.Zero);
             Time remainder = (lateTimeBound - earlyTimeBound) - (minPrior + minMid + minPost);
-            float ratioPrior = 0;
-            float ratioMiddle = 0;
+            float ratioPrior;
+            float ratioMiddle;
             if(prior != null)
             {
                 prior.StartTime = earlyTimeBound;
@@ -259,7 +237,7 @@ namespace Tasha.Scheduler
             }
         }
 
-        private static bool MiddlePostInsert(ref Time earlyTimeBound, Episode middle, Episode post, ref Time lateTimeBound)
+        private static bool MiddlePostInsert(ref Time earlyTimeBound, Episode middle, Episode post)
         {
             Time overlap = (middle.EndTime) - post.StartTime;
             if(overlap <= Time.Zero)
@@ -279,7 +257,7 @@ namespace Tasha.Scheduler
             return true;
         }
 
-        private static bool PriorMiddleInsert(ref Time earlyTimeBound, Episode prior, Episode middle, ref Time lateTimeBound)
+        private static bool PriorMiddleInsert(Episode prior, Episode middle, ref Time lateTimeBound)
         {
             Time overlap = (prior.EndTime) - middle.StartTime;
             if(overlap <= Time.Zero)
@@ -310,8 +288,6 @@ namespace Tasha.Scheduler
         {
             Time priorOverlap = (prior.EndTime) - middle.StartTime;
             Time postOverlap = (middle.EndTime) - post.StartTime;
-            Time frontGap = prior.StartTime - earlyTimeBound;
-            Time backGap = lateTimeBound - (post.EndTime);
             // see if we can just fill in the gaps
             if(FillInGaps(middle, ref priorOverlap, ref postOverlap))
             {
@@ -357,10 +333,10 @@ namespace Tasha.Scheduler
                 throw new XTMFRuntimeException("We ended too late when inserting with 3 into a person schedule!\r\n"
                     + Dump(this));
             }
-            else if(prior.StartTime < earlyTimeBound)
+            if(prior.StartTime < earlyTimeBound)
             {
                 throw new XTMFRuntimeException("We started too early when inserting with 3 into a person schedule!\r\n"
-                    + Dump(this));
+                                               + Dump(this));
             }
             return true;
         }
@@ -405,13 +381,13 @@ namespace Tasha.Scheduler
             {
                 return AllThreeInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound);
             }
-            else if(prior != null)
+            if(prior != null)
             {
-                return PriorMiddleInsert(ref earlyTimeBound, prior, middle, ref lateTimeBound);
+                return PriorMiddleInsert(prior, middle, ref lateTimeBound);
             }
-            else if(post != null)
+            if(post != null)
             {
-                return MiddlePostInsert(ref earlyTimeBound, middle, post, ref lateTimeBound);
+                return MiddlePostInsert(ref earlyTimeBound, middle, post);
             }
             throw new XTMFRuntimeException("Unexpected shift to insert case!");
         }

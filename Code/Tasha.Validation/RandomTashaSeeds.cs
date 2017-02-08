@@ -57,7 +57,7 @@ namespace Tasha.Validation
         {
             get
             {
-                return ( this.CurrentIteration / (float)this.Iterations ) + ( 1 / (float)this.Iterations ) * this.Tasha.Progress;
+                return ( CurrentIteration / (float)Iterations ) + ( 1 / (float)Iterations ) * Tasha.Progress;
             }
         }
 
@@ -78,18 +78,18 @@ namespace Tasha.Validation
 
         public void Start()
         {
-            Random r = new Random( this.RandomSeed );
+            Random r = new Random( RandomSeed );
             for ( int i = 0; i < Iterations; i++ )
             {
-                this.CurrentIteration = i;
-                this.Tasha.RandomSeed = r.Next();
-                this.Tasha.Start();
+                CurrentIteration = i;
+                Tasha.RandomSeed = r.Next();
+                Tasha.Start();
             }
         }
 
         public override string ToString()
         {
-            return this.Tasha.ToString();
+            return Tasha.ToString();
         }
     }
 }

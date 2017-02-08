@@ -64,7 +64,7 @@ namespace Tasha.XTMFScheduler
             List<IActivityEpisode>[] episodes = InitializeEpisodes( persons );
             GenerateEpisodes( household, householdRandom, persons, episodes );
             OrderPriorities( episodes );
-            ScheduleEpisodes( household, householdRandom, persons, episodes );
+            ScheduleEpisodes(householdRandom, episodes );
         }
 
         public bool RuntimeValidation(ref string error)
@@ -132,7 +132,7 @@ namespace Tasha.XTMFScheduler
             }
         }
 
-        private void ScheduleEpisodes(ITashaHousehold household, Random householdRandom, ITashaPerson[] persons, List<IActivityEpisode>[] episodes)
+        private void ScheduleEpisodes(Random householdRandom, List<IActivityEpisode>[] episodes)
         {
             int totalEpisodes = CountEpisodes( episodes );
             int[] index = new int[episodes.Length];

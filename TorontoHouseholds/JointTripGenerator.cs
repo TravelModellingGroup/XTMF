@@ -29,7 +29,7 @@ namespace TMG.Tasha
 
         internal static void Convert(ITashaHousehold house)
         {
-            int JointTourNumber = 1;
+            int jointTourNumber = 1;
             // we don't need to look at the last person
             for ( int person = 0; person < house.Persons.Length - 1; person++ )
             {
@@ -49,14 +49,14 @@ namespace TMG.Tasha
                             }
                             if ( AreTogether( chain, otherChain ) )
                             {
-                                int tourNum = JointTourNumber;
+                                int tourNum = jointTourNumber;
                                 if ( !chain.JointTrip )
                                 {
                                     ReAssignPurpose( chain );
                                     ( (TripChain)chain ).JointTripID = ( (TripChain)otherChain ).JointTripID = tourNum;
                                     ( (TripChain)chain ).JointTripRep = true;
                                     ReassignObservedModes( chain );
-                                    JointTourNumber++;
+                                    jointTourNumber++;
                                 }
                                 ( (TripChain)otherChain ).JointTripID = chain.JointTripID;
                                 ( (TripChain)otherChain ).GetRepTripChain = chain;

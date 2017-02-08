@@ -35,7 +35,6 @@ namespace Tasha.Common
         /// <summary>
         /// Loads the module, letting it know how many iterations there will be
         /// </summary>
-        /// <param name="config"></param>
         /// <param name="totalIterations">The total number of iterations</param>
         void Load(int totalIterations);
     }

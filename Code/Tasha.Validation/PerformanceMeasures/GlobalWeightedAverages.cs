@@ -17,18 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using TMG.Input;
-using Datastructure;
-using TMG;
-using TMG.DataUtility;
-using Tasha.Common;
 using XTMF;
-using Tasha.XTMFModeChoice;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
@@ -40,7 +31,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = false, Description = "The different Matrix results to write out")]
         public MatrixResultOutputs[] MatrixCalcOutputs;
 
-        public sealed class MatrixResultOutputs : XTMF.IModule
+        public sealed class MatrixResultOutputs : IModule
         {
             [RunParameter("Label", "WeightedAverageTotalTransitTime", "The appropriate label for global average")]
             public string Label;  

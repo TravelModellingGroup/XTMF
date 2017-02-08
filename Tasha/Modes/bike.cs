@@ -32,10 +32,10 @@ namespace Tasha.Modes
         public float CBike;
 
         [RunParameter( "dpurp_oth_drive", 0f, "The weight for the cost of doing an other drive (ITashaRuntime only)" )]
-        public float dpurp_oth_drive;
+        public float DpurpOthDrive;
 
         [RunParameter( "dpurp_shop_drive", 0f, "The weight for the cost of doing a shopping drive (ITashaRuntime only)" )]
-        public float dpurp_shop_drive;
+        public float DpurpShopDrive;
 
         [RunParameter( "Intrazonal", 0f, "The factor applied for being an intrazonal trip" )]
         public float Intrazonal;
@@ -46,8 +46,8 @@ namespace Tasha.Modes
         [RunParameter( "Max Travel Distance", 12000, "The largest distance a person is allowed to bike (meters)" )]
         public int MaxTravelDistance;
 
-        [RunParameter( "travelTime", 0f, "The factor applied for the travel time" )]
-        public float travelTime;
+        [RunParameter( "TravelTimeBeta", 0f, "The factor applied for the travel time" )]
+        public float TravelTimeBeta;
 
         [DoNotAutomate]
         public IVehicleType VehicleType = null;
@@ -133,9 +133,6 @@ namespace Tasha.Modes
         }
 
         [DoNotAutomate]
-        /// <summary>
-        ///
-        /// </summary>
         public IVehicleType RequiresVehicle
         {
             get { return VehicleType; }
@@ -155,22 +152,22 @@ namespace Tasha.Modes
         /// <returns>The V for this trip</returns>
         public double CalculateV(ITrip trip)
         {
-            double V = 0;
-            V += CBike;
-            V += travelTime * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes();
+            double v = 0;
+            v += CBike;
+            v += TravelTimeBeta * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes();
             if ( trip.TripChain.Person.Youth )
             {
-                V += Youth;
+                v += Youth;
             }
             if ( trip.TripChain.Person.YoungAdult )
             {
-                V += YoungAdult;
+                v += YoungAdult;
             }
             if ( trip.OriginalZone == trip.DestinationZone )
             {
-                V += Intrazonal;
+                v += Intrazonal;
             }
-            return V;
+            return v;
         }
 
         /// <summary>
@@ -183,14 +180,14 @@ namespace Tasha.Modes
         /// <returns>The number of minutes it takes</returns>
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            float V = 0;
-            V += CBike;
-            V += travelTime * TravelTime( origin, destination, time ).ToMinutes();
+            float v = 0;
+            v += CBike;
+            v += TravelTimeBeta * TravelTime( origin, destination, time ).ToMinutes();
             if ( origin.ZoneNumber == destination.ZoneNumber )
             {
-                V += Intrazonal;
+                v += Intrazonal;
             }
-            return V;
+            return v;
         }
 
         /// <summary>
@@ -198,6 +195,7 @@ namespace Tasha.Modes
         /// </summary>
         /// <param name="origin">The origin zone</param>
         /// <param name="destination">The destination zone</param>
+        /// <param name="time"></param>
         /// <returns>the cost</returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {

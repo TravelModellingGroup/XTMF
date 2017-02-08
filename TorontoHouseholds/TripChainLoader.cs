@@ -83,8 +83,7 @@ namespace TMG.Tasha
 
         private Dictionary<char, string> CharacterToModeNameConversion = new Dictionary<char, string>();
         private CsvReader Reader;
-        private long ReadingPosition;
-        private bool SkipReading = false;
+        private bool SkipReading;
 
         ~TripChainLoader()
         {
@@ -112,7 +111,6 @@ namespace TMG.Tasha
 
         public bool Load(ITashaPerson person)
         {
-            int length = 0;
             int tempInt;
             float tempFloat;
             char tempChar1, tempChar2;
@@ -123,7 +121,7 @@ namespace TMG.Tasha
                 Reader = new CsvReader( System.IO.Path.Combine( TashaRuntime.InputBaseDirectory, FileName ) );
                 if ( Header )
                 {
-                    if ( ( length = Reader.LoadLine() ) == 0 )
+                    if ( ( Reader.LoadLine() ) == 0 )
                     {
                         return false;
                     }
@@ -134,7 +132,7 @@ namespace TMG.Tasha
             {
                 if ( !SkipReading )
                 {
-                    if ( ( length = Reader.LoadLine() ) == 0 )
+                    if ( ( Reader.LoadLine() ) == 0 )
                     {
                         return true;
                     }
@@ -238,8 +236,6 @@ namespace TMG.Tasha
                     t.Purpose = Activity.WorkBasedBusiness;
                 }
                 t.TripChain.Trips.Add( t );
-
-                ReadingPosition += length + 2;
             }
         }
 
@@ -276,11 +272,7 @@ namespace TMG.Tasha
                 {
                     case 0:
                         {
-                            if ( ( char.IsWhiteSpace( c ) ) | c == ',' )
-                            {
-                                continue;
-                            }
-                            else
+                            if (!((char.IsWhiteSpace(c)) | c == ','))
                             {
                                 currentLetter = c;
                                 state = 1;

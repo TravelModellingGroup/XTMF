@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -40,68 +40,13 @@ namespace Tasha.Scheduler
 
         public static SparseArray<DistributionInformation> Distributions;
 
-        public static int NumAdultDistributions;
-
         public static int NumAdultFrequencies;
 
         public static int NumberOfFrequencies;
 
-        internal static ITashaRuntime TashaRuntime;
-
-        internal static bool GenerateIndividualMarketActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
-        {
-            return GetRandomFrequencyValue(0, 1, random,
-                GetDistributionID(person, Activity.Market), householdPD, workPD, generationAdjustments) > 0;
-        }
-
-        internal static bool GenerateIndividualOtherActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
-        {
-            return GetRandomFrequencyValue(0, 1, random,
-              GetDistributionID(person, Activity.IndividualOther), householdPD, workPD, generationAdjustments) > 0;
-        }
-
-        internal static bool GeneratePrimaryWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
-        {
-            return GetRandomFrequencyValue(0, 1, random,
-                GetDistributionID(person, Activity.PrimaryWork), householdPD, workPD, generationAdjustments)
-                == 1;
-        }
-
-        /// <summary>
-        /// AKA Lunch @ home
-        /// </summary>
-        /// <param name="person"></param>
-        /// <returns></returns>
-        internal static bool GenerateReturnFromWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
-        {
-            return GetRandomFrequencyValue(0, 1, random,
-               GetDistributionID(person, Activity.ReturnFromWork), householdPD, workPD, generationAdjustments)
-                > 0;
-        }
-
-        internal static bool GenerateSchoolActivity(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
-        {
-            return GetRandomFrequencyValue(0, 1, random,
-                GetDistributionID(person, Activity.School), householdPD, workPD, generationAdjustments) > 0;
-        }
-
-        internal static bool GenerateSecondaryWorkTrip(ITashaPerson person, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
-        {
-            return GetRandomFrequencyValue(0, 1, random,
-                GetDistributionID(person, Activity.SecondaryWork), householdPD, workPD, generationAdjustments)
-                > 0;
-        }
-
-        internal static bool GenerateWorkAtHomesActivity(ITashaPerson person, Random random, int householdPD, GenerationAdjustment[] generationAdjustments)
-        {
-            return GetRandomFrequencyValue(0, 1, random,
-            GetDistributionID(person, Activity.WorkAtHomeBusiness), householdPD, householdPD, generationAdjustments)
-                > 0;
-        }
-
         internal static int GetNumAdultsJointEpisode(ITashaHousehold household, Random random, Activity activity)
         {
-            int numEpisodeAdults = 0;
+            int numEpisodeAdults;
             if (household.NumberOfAdults == 1)
             {
                 numEpisodeAdults = 1;
@@ -120,8 +65,12 @@ namespace Tasha.Scheduler
         /// Do a frequency random assignment
         /// </summary>
         /// <param name="min">The smallest possible value (>= 0)</param>
-        /// <param name="max">The largest possible value (<= 10)</param>
+        /// <param name="max">The largest possible value (less than or equal to 10)</param>
+        /// <param name="random"></param>
         /// <param name="distributionID">Which distro to look for</param>
+        /// <param name="workPD"></param>
+        /// <param name="generationAdjustments"></param>
+        /// <param name="householdPD"></param>
         /// <returns>[min,max] the value selected</returns>
         internal static int GetRandomFrequencyValue(int min, int max, Random random, int distributionID, int householdPD, int workPD,
             GenerationAdjustment[] generationAdjustments)
@@ -177,11 +126,9 @@ namespace Tasha.Scheduler
         /// </summary>
         internal static void InitializeDistributions()
         {
-            int numberOfDistributions = Scheduler.NumberOfDistributions;
             NumberOfFrequencies = Scheduler.MaxFrequency + 1;
             int startTimeQuantums = Scheduler.StartTimeQuanta;
 
-            NumAdultDistributions = Scheduler.NumberOfAdultDistributions;
             NumAdultFrequencies = Scheduler.NumberOfAdultFrequencies;
 
             AdultDistributions = new ZoneCache<AdultDistributionInformation>(Scheduler.AdultDistributionsFile,

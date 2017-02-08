@@ -80,7 +80,7 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
-            var resource = household["ResourceAllocator"] as HouseholdResourceAllocator;
+            var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
             if ( resource.Conflicts != null )
             {
                 var iterationConflicts = resource.Conflicts.Count;

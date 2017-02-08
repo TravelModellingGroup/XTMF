@@ -83,8 +83,8 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
-            var houseData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
-            var resource = household["ResourceAllocator"] as HouseholdResourceAllocator;
+            var houseData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
+            var resource = (HouseholdResourceAllocator) household["ResourceAllocator"];
 
             float householdU = 0;
 
@@ -109,14 +109,17 @@ namespace Tasha.Validation.ValidateModeChoice
                 }
             }
 
-            if ( Utilities.ContainsKey( household.HouseholdId ) )
+            lock (this)
             {
-                Utilities[household.HouseholdId][hhldIteration] = householdU;
-            }
-            else
-            {
-                Utilities.Add( household.HouseholdId, new float[totalHouseholdIterations] );
-                Utilities[household.HouseholdId][hhldIteration] = householdU;
+                if ( Utilities.ContainsKey( household.HouseholdId ) )
+                {
+                    Utilities[household.HouseholdId][hhldIteration] = householdU;
+                }
+                else
+                {
+                    Utilities.Add( household.HouseholdId, new float[totalHouseholdIterations] );
+                    Utilities[household.HouseholdId][hhldIteration] = householdU;
+                }
             }
         }
 

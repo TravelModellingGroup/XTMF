@@ -75,25 +75,25 @@ namespace Tasha.Modes
         [RunParameter( "YouthWalk", 0f, "The constant factor applied for a youth walking" )]
         public float YouthWalk;
 
-        private string _availableZones;
+        private string AvailableZonesStr;
 
-        private List<int> AvailableZones;
+        private List<int> _AvailableZones;
 
         [DoNotAutomate]
-        private INetworkData data;
+        private INetworkData Data;
 
         [RunParameter( "AvailableZones", "0-2200", "Example \"0-2200,3000-3500\" is all of the zones between 0 and 2200 and all of the zones between 3000 and 3500." )]
-        public string availableZones
+        public string AvailableZones
         {
             get
             {
-                return _availableZones;
+                return AvailableZonesStr;
             }
 
             set
             {
-                _availableZones = value;
-                AvailableZones = Common.ConvertToIntList( value );
+                AvailableZonesStr = value;
+                _AvailableZones = Common.ConvertToIntList( value );
             }
         }
 
@@ -153,10 +153,11 @@ namespace Tasha.Modes
             get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
         }
 
-        [DoNotAutomate]
+
         /// <summary>
         /// This does not require a personal vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return null; }
@@ -174,43 +175,43 @@ namespace Tasha.Modes
         /// </summary>
         public double CalculateV(ITrip trip)
         {
-            double V = 0;
+            double v = 0;
 
-            V += CSchoolBus;
+            v += CSchoolBus;
 
             if ( trip.TripChain.Person.Licence )
-                V += DriversLicence;
+                v += DriversLicence;
 
             if ( trip.TripChain.Person.Youth )
             {
-                V += YouthPassenger;
-                V += YouthWalk;
+                v += YouthPassenger;
+                v += YouthWalk;
             }
             if ( trip.TripChain.Person.YoungAdult )
             {
-                V += YoungAdultPassenger;
-                V += YoungAdultWalk;
+                v += YoungAdultPassenger;
+                v += YoungAdultWalk;
             }
 
             if ( trip.Purpose == Activity.School )
             {
-                V += SchoolPurpose;
+                v += SchoolPurpose;
             }
             else if ( trip.TripNumber > 1 && trip.TripChain.Trips[trip.TripChain.Trips.IndexOf( trip ) - 1].Purpose == Activity.School )
             {
-                V += SchoolPurpose;
+                v += SchoolPurpose;
             }
-            V += data.TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * Distance;
-            V += trip.TripChain.Person.Age * Age;
-            return V;
+            v += Data.TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * Distance;
+            v += trip.TripChain.Person.Age * Age;
+            return v;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            float V = 0;
-            V += CSchoolBus;
-            V += data.TravelTime( origin, destination, time ).ToMinutes() * Distance;
-            return V;
+            float v = 0;
+            v += CSchoolBus;
+            v += Data.TravelTime( origin, destination, time ).ToMinutes() * Distance;
+            return v;
         }
 
         /// <summary>
@@ -218,6 +219,7 @@ namespace Tasha.Modes
         /// </summary>
         /// <param name="origin"></param>
         /// <param name="destination"></param>
+        /// <param name="time"></param>
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
@@ -238,8 +240,8 @@ namespace Tasha.Modes
         {
             int indexOfthisTrip = trip.TripChain.Trips.IndexOf( trip );
 
-            return ( AvailableZones.Contains( trip.OriginalZone.ZoneNumber )
-                && AvailableZones.Contains( trip.DestinationZone.ZoneNumber )
+            return ( _AvailableZones.Contains( trip.OriginalZone.ZoneNumber )
+                && _AvailableZones.Contains( trip.DestinationZone.ZoneNumber )
                 && trip.TripChain.Person.StudentStatus != StudentStatus.NotStudent
                 && DistanceRequirement( trip.OriginalZone, trip.DestinationZone, trip.TripChain.Person )
                 && ( ( trip.Purpose == Activity.Home && trip.TripChain.Trips[indexOfthisTrip - 1].Purpose == Activity.School ) || trip.Purpose == Activity.School )
@@ -295,7 +297,7 @@ namespace Tasha.Modes
                 if ( data.NetworkType == AutoNetworkName )
                 {
                     found = true;
-                    this.data = data;
+                    Data = data;
                     break;
                 }
             }
@@ -312,31 +314,27 @@ namespace Tasha.Modes
         /// </summary>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return data.TravelTime( origin, destination, time );
+            return Data.TravelTime( origin, destination, time );
         }
 
-        private bool DistanceRequirement(IZone iZone, IZone iZone_2, ITashaPerson iPerson)
+        private bool DistanceRequirement(IZone origin, IZone destination, ITashaPerson iPerson)
         {
             int grade = GetGrade( iPerson );
-
-            double distance = iZone.Distance( iZone_2 );
-
+            double distance = origin.Distance( destination );
             if ( ( grade > 0 ) & ( grade < 6 ) )
                 return distance > 1600;
-            else if ( grade < 9 )
+            if ( grade < 9 )
                 return distance > 3200;
-            else if ( grade < 13 )
+            if ( grade < 13 )
                 return distance > 4800;
-            else
-                return false;
+            return false;
         }
 
         private int GetGrade(ITashaPerson iPerson)
         {
-            // ignore the problem of staritng in september since people on the other end should balance this out
+            // ignore the problem of starting in September since people on the other end should balance this out
             int baseYear = 5;
-            int grade = iPerson.Age - baseYear;
-            return grade;
+            return iPerson.Age - baseYear;
         }
     }
 }

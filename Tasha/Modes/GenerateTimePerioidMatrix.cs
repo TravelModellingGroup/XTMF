@@ -51,9 +51,7 @@ namespace Tasha.Modes
         public ITashaRuntime Root;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private Dictionary<Activity, string> classifier;
-        private Dictionary<string, float[,]> schoolMatrices;
-        private Dictionary<string, float[,]> workMatrices;
+        private Dictionary<string, float[,]> WorkMatrices;
 
         public string Name
         {
@@ -81,7 +79,7 @@ namespace Tasha.Modes
                     if ( p.TripChains.Count < 1 )
                         continue; //Skip people with no trips
 
-                    string key = p.Occupation.ToString() + "," + p.EmploymentStatus.ToString() + "," + p.StudentStatus.ToString(); //The key to determine which table the person's trips belong to.
+                    string key = p.Occupation + "," + p.EmploymentStatus + "," + p.StudentStatus; //The key to determine which table the person's trips belong to.
 
                     string prevAct;
                     if ( string.IsNullOrEmpty( HomeAnchorOverrideName ) )
@@ -127,19 +125,21 @@ namespace Tasha.Modes
                             //Save tour in matrix
                             if ( ( workActCounter <= ( 1 + Degrees ) ) && ( schoolActCounter <= ( Degrees + 1 ) ) ) //Only if there were fewer deviations than allowed.
                             {
-                                float[,] matrix = null;
-                                if ( !workMatrices.ContainsKey( key ) ) //Check if this specific key has already been mapped.
+                                float[,] matrix;
+                                if ( !WorkMatrices.ContainsKey( key ) ) //Check if this specific key has already been mapped.
                                 {
                                     matrix = new float[4, 4];
-                                    matrix[_getTimePeriod( outgoingTripTime ), _getTimePeriod( incomingTripTime )] = household.ExpansionFactor;
-                                    workMatrices.Add( key, matrix );
+                                    matrix[GetTimePeriod( outgoingTripTime ), GetTimePeriod( incomingTripTime )] = household.ExpansionFactor;
+                                    WorkMatrices.Add( key, matrix );
                                 }
                                 else
                                 {
-                                    workMatrices.TryGetValue( key, out matrix );
-                                    matrix[_getTimePeriod( outgoingTripTime ), _getTimePeriod( incomingTripTime )] += household.ExpansionFactor;
+                                    if (WorkMatrices.TryGetValue(key, out matrix))
+                                    {
+                                        matrix[GetTimePeriod(outgoingTripTime), GetTimePeriod(incomingTripTime)] +=
+                                            household.ExpansionFactor;
+                                    }
                                 }
-                                //matrix[_getTimePeriod(outgoingTripTime), _getTimePeriod(incomingTripTime)] += household.ExpansionFactor;
                             }
 
                             //Reset counters
@@ -166,14 +166,14 @@ namespace Tasha.Modes
             {
                 sw.WriteLine( "Time Period Matrices" );
                 sw.WriteLine();
-                sw.WriteLine( "Morning Period [0]: " + MorningTimePeriod.ToString() );
-                sw.WriteLine( "Midday Period [1]: " + MiddayTimePeriod.ToString() );
-                sw.WriteLine( "Afternoon Period [2]: " + AfternoonTimePeriod.ToString() );
+                sw.WriteLine( "Morning Period [0]: " + MorningTimePeriod );
+                sw.WriteLine( "Midday Period [1]: " + MiddayTimePeriod );
+                sw.WriteLine( "Afternoon Period [2]: " + AfternoonTimePeriod );
                 sw.WriteLine( "Offpeak [3]" );
                 sw.WriteLine();
                 sw.WriteLine( "Table Names = [Occupation], [Employment Status], [Student Status]" );
 
-                foreach ( var e in workMatrices )
+                foreach ( var e in WorkMatrices )
                 {
                     sw.WriteLine();
                     var table = e.Value;
@@ -193,8 +193,7 @@ namespace Tasha.Modes
 
         public void Load(int maxIterations)
         {
-            workMatrices = new Dictionary<string, float[,]>();
-            schoolMatrices = new Dictionary<string, float[,]>();
+            WorkMatrices = new Dictionary<string, float[,]>();
         }
 
         public bool RuntimeValidation(ref string error)
@@ -204,12 +203,12 @@ namespace Tasha.Modes
                 error = "Morning period overlaps midday period!";
                 return false;
             }
-            else if ( MorningTimePeriod.Overlaps( AfternoonTimePeriod ) )
+            if ( MorningTimePeriod.Overlaps( AfternoonTimePeriod ) )
             {
                 error = "Morning period overlaps afternoon period!";
                 return false;
             }
-            else if ( MiddayTimePeriod.Overlaps( AfternoonTimePeriod ) )
+            if ( MiddayTimePeriod.Overlaps( AfternoonTimePeriod ) )
             {
                 error = "Midday period overlaps afteroon period!";
                 return false;
@@ -223,66 +222,7 @@ namespace Tasha.Modes
             //throw new NotImplementedException();
         }
 
-        private int _classifyTripChain(ITripChain chain)
-        {
-            // Returns 1 if H-W-H or W-H-W trip, 2 if H-S-H or S-H-S, 0 otherwise.
-
-            string prevAct = "";
-            if ( !string.IsNullOrEmpty( HomeAnchorOverrideName ) )
-            {
-                var x = chain.GetVariable( HomeAnchorOverrideName );
-                if ( x != null )
-                {
-                    var q = (Activity)x;
-                    prevAct = classifier[q];
-                }
-            }
-            if ( prevAct == "" )
-                prevAct = "H";
-
-            int homeWorkCount = 0;
-            int homeSchoolCount = 0;
-
-            foreach ( var trip in chain.Trips )
-            {
-                string nextAct = classifier[trip.Purpose];
-
-                if ( homeWorkCount > 0 )
-                {
-                    if ( prevAct == "W" && nextAct == "H" )
-                    {
-                        if ( homeWorkCount <= ( Degrees + 1 ) )
-                            return 1;
-                        homeWorkCount = 0;
-                    }
-                    else
-                    {
-                        homeWorkCount++;
-                    }
-                }
-
-                if ( homeSchoolCount > 0 )
-                {
-                    if ( prevAct == "S" && nextAct == "H" )
-                    {
-                        if ( homeSchoolCount <= ( Degrees + 1 ) )
-                            return 2;
-                        homeSchoolCount = 0;
-                    }
-                    else
-                    {
-                        homeSchoolCount++;
-                    }
-                }
-
-                if ( prevAct == "H" && nextAct == "W" )
-                    homeWorkCount = 1;
-            }
-
-            return 0;
-        }
-
-        private int _getTimePeriod(Time tTime)
+        private int GetTimePeriod(Time tTime)
         {
             int iTime = tTime.Hours * 100 + tTime.Minutes;
 
@@ -291,41 +231,11 @@ namespace Tasha.Modes
 
             if ( MorningTimePeriod.Contains( iTime ) )
                 return 0;
-            else if ( MiddayTimePeriod.Contains( iTime ) )
+            if ( MiddayTimePeriod.Contains( iTime ) )
                 return 1;
-            else if ( AfternoonTimePeriod.Contains( iTime ) )
+            if ( AfternoonTimePeriod.Contains( iTime ) )
                 return 2;
-
             return 3;
-        }
-
-        private void _loadClassifier()
-        {
-            classifier = new Dictionary<Activity, string>();
-            classifier[Activity.Daycare] = "O";
-            classifier[Activity.Dropoff] = "F";
-            classifier[Activity.DropoffAndReturn] = "F";
-            classifier[Activity.FacilitatePassenger] = "F";
-            classifier[Activity.Home] = "H";
-            classifier[Activity.IndividualOther] = "O";
-            classifier[Activity.Intermediate] = "0";
-            classifier[Activity.JointOther] = "J";
-            classifier[Activity.Market] = "M";
-            classifier[Activity.JointMarket] = "JM";
-            classifier[Activity.NullActivity] = "0";
-            classifier[Activity.Pickup] = "F";
-            classifier[Activity.PickupAndReturn] = "F";
-            classifier[Activity.PrimaryWork] = "W";
-            classifier[Activity.ReturnFromSchool] = "S";
-            classifier[Activity.ReturnFromWork] = "W";
-            classifier[Activity.School] = "S";
-            classifier[Activity.SecondaryWork] = "W";
-            classifier[Activity.ServeDespendents] = "F";
-            classifier[Activity.StayAtHome] = "H";
-            classifier[Activity.Travel] = "O";
-            classifier[Activity.Unknown] = "O";
-            classifier[Activity.WorkAtHomeBusiness] = "HW"; //Given its own classification so as not to be confused with Work or Home.
-            classifier[Activity.WorkBasedBusiness] = "W";
         }
     }
 }

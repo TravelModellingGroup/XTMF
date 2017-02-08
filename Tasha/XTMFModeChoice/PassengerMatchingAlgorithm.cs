@@ -117,7 +117,7 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        private void AssignPassengerTrips(PotentialPassengerTrip[][] feasible, List<ITrip> uniquePassenger, int[] bestAssignment)
+        private void AssignPassengerTrips(PotentialPassengerTrip[][] feasible, int[] bestAssignment)
         {
             for(int i = 0; i < feasible.Length; i++)
             {
@@ -134,8 +134,8 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        private void CheckForCarAtHome(Time StartTime, Time EndTime, HouseholdResourceAllocator resourceAllocator,
-            ModeChoiceTripChainData PassengerTripChainData, int driverIndex, int passengerIndex, int passengerTripChainIndex, Random random,
+        private void CheckForCarAtHome(Time startTime, Time endTime, HouseholdResourceAllocator resourceAllocator,
+            ModeChoiceTripChainData passengerTripChainData, int driverIndex, int passengerIndex, int passengerTripChainIndex, Random random,
             ITashaPerson driver)
         {
             int totalVehicles = Household.Vehicles.Length;
@@ -144,7 +144,7 @@ namespace Tasha.XTMFModeChoice
                 return;
             }
             int allDrivers = 0;
-            PurePassengerTripChain DriverTripChain;
+            PurePassengerTripChain driverTripChain;
             for(int i = 0; i < Household.Persons.Length; i++)
             {
                 if(Household.Persons[i].Licence)
@@ -156,21 +156,21 @@ namespace Tasha.XTMFModeChoice
             if(totalVehicles >= allDrivers)
             {
                 //then there is always a car at home (when a driver is home), so we can add a trip chain to the driver's trip.
-                DriverTripChain = CreateDriverTripChain(StartTime, EndTime, Household.HomeZone, driver);
-                CheckForPurePassengerTrips(DriverTripChain, PassengerTripChainData, driverIndex, passengerIndex, passengerTripChainIndex, random);
+                driverTripChain = CreateDriverTripChain(startTime, endTime, Household.HomeZone, driver);
+                CheckForPurePassengerTrips(driverTripChain, passengerTripChainData, driverIndex, passengerIndex, passengerTripChainIndex, random);
             }
             else
             {
-                var TimeSlots = resourceAllocator.VehicleAvailability;
-                for(int i = 0; i < TimeSlots.Count; i++)
+                var timeSlots = resourceAllocator.VehicleAvailability;
+                for(int i = 0; i < timeSlots.Count; i++)
                 {
-                    if(TimeSlots[i].AvailableCars > 0)
+                    if(timeSlots[i].AvailableCars > 0)
                     {
                         Time intersectionStart, intersectionEnd;
-                        if(Time.Intersection(StartTime, EndTime, TimeSlots[i].TimeSpan.Start, TimeSlots[i].TimeSpan.End, out intersectionStart, out intersectionEnd))
+                        if(Time.Intersection(startTime, endTime, timeSlots[i].TimeSpan.Start, timeSlots[i].TimeSpan.End, out intersectionStart, out intersectionEnd))
                         {
-                            DriverTripChain = CreateDriverTripChain(intersectionStart, intersectionEnd, Household.HomeZone, driver);
-                            CheckForPurePassengerTrips(DriverTripChain, PassengerTripChainData, driverIndex, passengerIndex, passengerTripChainIndex, random);
+                            driverTripChain = CreateDriverTripChain(intersectionStart, intersectionEnd, Household.HomeZone, driver);
+                            CheckForPurePassengerTrips(driverTripChain, passengerTripChainData, driverIndex, passengerIndex, passengerTripChainIndex, random);
                         }
                     }
                 }
@@ -209,27 +209,27 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        private void CheckForPurePassengerTrips(PurePassengerTripChain DriverTripChain, ModeChoiceTripChainData PassengerTripChainData, int driverIndex, int passengerIndex, int passengerTripChainIndex, Random random)
+        private void CheckForPurePassengerTrips(PurePassengerTripChain driverTripChain, ModeChoiceTripChainData passengerTripChainData, int driverIndex, int passengerIndex, int passengerTripChainIndex, Random random)
         {
-            for(int j = 0; j < PassengerTripChainData.TripData.Length; j++)
+            for(int j = 0; j < passengerTripChainData.TripData.Length; j++)
             {
                 float passengerEpsilon = float.NegativeInfinity;
                 float v;
-                if(PassengerTripChainData.TripChain.Trips[j].Mode.RequiresVehicle != null)
+                if(passengerTripChainData.TripChain.Trips[j].Mode.RequiresVehicle != null)
                 {
                     continue;
                 }
-                if(PassengerMode.CalculateV(DriverTripChain.Trips[0], PassengerTripChainData.TripChain.Trips[j], out v))
+                if(PassengerMode.CalculateV(driverTripChain.Trips[0], passengerTripChainData.TripChain.Trips[j], out v))
                 {
                     if(passengerEpsilon <= float.NegativeInfinity)
                     {
                         passengerEpsilon = GenerateEpsilon(random);
                     }
-                    var deltaU = v + passengerEpsilon + GenerateEpsilon(random) - GetUtilityOfTrips(PassengerTripChainData, j);
+                    var deltaU = v + passengerEpsilon + GenerateEpsilon(random) - GetUtilityOfTrips(passengerTripChainData, j);
                     if(deltaU > 0)
                     {
-                        PotentialTrips.Add(new PotentialPassengerTrip(DriverTripChain.Trips[0],
-                            PassengerTripChainData.TripChain.Trips[j], deltaU, driverIndex, passengerIndex, passengerTripChainIndex, j));
+                        PotentialTrips.Add(new PotentialPassengerTrip(driverTripChain.Trips[0],
+                            passengerTripChainData.TripChain.Trips[j], deltaU, driverIndex, passengerIndex, passengerTripChainIndex, j));
                     }
                 }
             }
@@ -280,10 +280,10 @@ namespace Tasha.XTMFModeChoice
             return ret;
         }
 
-        private PurePassengerTripChain CreateDriverTripChain(Time Start, Time End, IZone HomeZone, ITashaPerson driver)
+        private PurePassengerTripChain CreateDriverTripChain(Time start, Time end, IZone homeZone, ITashaPerson driver)
         {
             var mode = PassengerMode.AssociatedMode;
-            var driverTrip = PurePassengerTrip.MakeDriverTrip(HomeZone, mode, Start, End);
+            var driverTrip = PurePassengerTrip.MakeDriverTrip(homeZone, mode, start, end);
             var driverTripChain = new PurePassengerTripChain();
             driverTrip.TripChain = driverTripChain;
             driverTripChain.Trips.Add(driverTrip);
@@ -313,7 +313,7 @@ namespace Tasha.XTMFModeChoice
             return true;
         }
 
-        private void FindPotentialAtHomeDriverForPassengerTrips(ModeChoiceTripChainData PassengerTripChainData, int passengerNumber, 
+        private void FindPotentialAtHomeDriverForPassengerTrips(ModeChoiceTripChainData passengerTripChainData, int passengerNumber, 
             int passengerTripChainIndex, HouseholdResourceAllocator resourceAllocator, Random random)
         {
             Time startTime;
@@ -337,7 +337,7 @@ namespace Tasha.XTMFModeChoice
                 if(numberOfTripChains == 0)
                 {
                     //check car availability and then assign trip chain
-                    CheckForCarAtHome(Time.StartOfDay, Time.EndOfDay, resourceAllocator, PassengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
+                    CheckForCarAtHome(Time.StartOfDay, Time.EndOfDay, resourceAllocator, passengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
                 }
                 else
                 {
@@ -355,27 +355,27 @@ namespace Tasha.XTMFModeChoice
                         {
                             // check car availability and then assign
                             startTime = driverTripChainData.TripChain.Trips[driverTripChainData.TripChain.Trips.Count - 1].ActivityStartTime;
-                            CheckForCarAtHome(startTime, Time.EndOfDay, resourceAllocator, PassengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
+                            CheckForCarAtHome(startTime, Time.EndOfDay, resourceAllocator, passengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
                         }
                         else
                         {
-                            var CurrentTripChainTrips = personData.TripChainData[j].TripChain.Trips;
-                            var NextTripChainTrips = personData.TripChainData[j + 1].TripChain.Trips;
+                            var currentTripChainTrips = personData.TripChainData[j].TripChain.Trips;
+                            var nextTripChainTrips = personData.TripChainData[j + 1].TripChain.Trips;
 
                             //First trip chain of the day
                             if(j == 0)
                             {
                                 // that means that you can have them transport a passenger before they leave home.
-                                endTime = CurrentTripChainTrips[0].TripStartTime;
-                                CheckForCarAtHome(Time.StartOfDay, endTime, resourceAllocator, PassengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
+                                endTime = currentTripChainTrips[0].TripStartTime;
+                                CheckForCarAtHome(Time.StartOfDay, endTime, resourceAllocator, passengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
                             }
 
-                            if(CurrentTripChainTrips[CurrentTripChainTrips.Count - 1].ActivityStartTime < NextTripChainTrips[0].TripStartTime)
+                            if(currentTripChainTrips[currentTripChainTrips.Count - 1].ActivityStartTime < nextTripChainTrips[0].TripStartTime)
                             {
                                 //check car availability and then assign trip chain
-                                startTime = CurrentTripChainTrips[CurrentTripChainTrips.Count - 1].ActivityStartTime;
-                                endTime = NextTripChainTrips[0].TripStartTime;
-                                CheckForCarAtHome(startTime, endTime, resourceAllocator, PassengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
+                                startTime = currentTripChainTrips[currentTripChainTrips.Count - 1].ActivityStartTime;
+                                endTime = nextTripChainTrips[0].TripStartTime;
+                                CheckForCarAtHome(startTime, endTime, resourceAllocator, passengerTripChainData, i, passengerNumber, passengerTripChainIndex, random, Household.Persons[i]);
                             }
                         }
                     }
@@ -440,7 +440,7 @@ namespace Tasha.XTMFModeChoice
         private float GetUtilityOfTrips(ModeChoiceTripChainData passengerTripChainData, int passengerTrip, ModeChoiceTripChainData driverTripChainData = default(ModeChoiceTripChainData), int driverTrip = -1)
         {
             float total = 0;
-            if(driverTrip != -1)
+            if(driverTrip != -1 && driverTripChainData != null)
             {
                 var indexOfDriverMode = IndexOf(driverTripChainData.TripChain.Trips[driverTrip].Mode, Modes);
                 // add in the utility of the driver's trip
@@ -467,19 +467,7 @@ namespace Tasha.XTMFModeChoice
                 bestAssignment[i] = -1;
             }
             Solve(feasible, bestAssignment, HouseholdData.PersonData.Length);
-            AssignPassengerTrips(feasible, uniquePassenger, bestAssignment);
-        }
-
-        private static int IndexOf<T>(T iVehicleType, List<T> vehicleTypes) where T : class
-        {
-            for(int i = 0; i < vehicleTypes.Count; i++)
-            {
-                if(iVehicleType == vehicleTypes[i])
-                {
-                    return i;
-                }
-            }
-            return -1;
+            AssignPassengerTrips(feasible, bestAssignment);
         }
 
         private static int IndexOf<T>(T elementToMatch, T[] arrayData) where T : class

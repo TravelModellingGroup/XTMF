@@ -188,7 +188,7 @@ namespace TMG.GTAModel.NetworkAssignment
                     var convertedO = flatZones[o].ZoneNumber;
                     for(int d = 0; d < numberOfZones; d++)
                     {
-                        mc.ToEmmeFloat(tally[o][d], strBuilder);
+                        Controller.ToEmmeFloat(tally[o][d], strBuilder);
                         build.AppendFormat("{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder);
                     }

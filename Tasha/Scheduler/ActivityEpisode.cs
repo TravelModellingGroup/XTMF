@@ -31,8 +31,8 @@ namespace Tasha.Scheduler
         /// </summary>
         internal TravelEpisode TravelToNext;
 
-        internal ActivityEpisode(long id, TimeWindow window, Activity type, ITashaPerson owner)
-            : base( window, owner )
+        internal ActivityEpisode(TimeWindow window, Activity type, ITashaPerson owner)
+            : base( window )
         {
             People = null;
             ActivityType = type;

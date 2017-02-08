@@ -200,7 +200,7 @@ namespace Tasha.Estimation.AccessStation
             var ret = zones[zone];
             if(ret == null)
             {
-                throw new XTMFRuntimeException("An unknown zone was loaded '" + zone.ToString() + "'.");
+                throw new XTMFRuntimeException("An unknown zone was loaded '" + zone + "'.");
             }
             return ret;
         }

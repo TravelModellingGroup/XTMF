@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 namespace Tasha.PopulationSynthesis
 {
     [ModuleInformation(Description = "This module is designed to initialize the resources containing the place of residence place of work aggregate model.")]
+    // ReSharper disable once InconsistentNaming
     public class StartPoRPoW : IPreIteration
     {
         public string Name { get; set; }

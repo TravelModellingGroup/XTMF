@@ -280,24 +280,12 @@ namespace Tasha.Scheduler
             NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
 
             MaxFrequency = MaxFrequencyLocal;
-            Distribution.TashaRuntime = TashaRuntime;
             Distribution.InitializeDistributions();
 
             HouseholdExtender.TashaRuntime = TashaRuntime;
             // references in scheduler
             SchedulerHousehold.TashaRuntime = TashaRuntime;
             Schedule.Scheduler = this;
-        }
-
-        /// <summary>
-        /// Load the data we need to get every iteration
-        /// </summary>
-        public void LoadPerIterationData()
-        {
-            // The distributions will ignore multiple calls if it is already setup on the thread            if (this.AlternativeTravelModeName != null)
-            LoadLocationChoiceModel();
-            LoadDistributions();
-            TimePeriod.LoadTimePeriodData();
         }
 
         [RunParameter("Random Seed", 1234123, "A random seed to base the randomness of the scheduler.")]
@@ -342,6 +330,7 @@ namespace Tasha.Scheduler
         /// <summary>
         /// Get how long it takes to go somewhere
         /// </summary>
+        /// <param name="person"></param>
         /// <param name="origin"></param>
         /// <param name="destination"></param>
         /// <param name="tashaTime"></param>
@@ -352,15 +341,12 @@ namespace Tasha.Scheduler
             {
                 return TashaRuntime.AutoMode.TravelTime(origin, destination, tashaTime);
             }
-            else
-            {
-                return AlternativeTravelMode.TravelTime(origin, destination, tashaTime);
-            }
+            return AlternativeTravelMode.TravelTime(origin, destination, tashaTime);
         }
 
         internal static void JoinTripChains(ITashaHousehold house)
         {
-            int JointTourNumber = 1;
+            int jointTourNumber = 1;
             // we don't need to look at the last person
             for (int person = 0; person < house.Persons.Length - 1; person++)
             {
@@ -380,12 +366,12 @@ namespace Tasha.Scheduler
                             }
                             if (AreTogether(chain, otherChain))
                             {
-                                int tourNum = JointTourNumber;
+                                int tourNum = jointTourNumber;
                                 if (!chain.JointTrip)
                                 {
                                     ((SchedulerTripChain)chain).JointTripID = ((SchedulerTripChain)otherChain).JointTripID = tourNum;
                                     ((SchedulerTripChain)chain).JointTripRep = true;
-                                    JointTourNumber++;
+                                    jointTourNumber++;
                                 }
                                 ((SchedulerTripChain)otherChain).JointTripID = chain.JointTripID;
                                 ((SchedulerTripChain)otherChain).GetRepTripChain = chain;
@@ -438,21 +424,6 @@ namespace Tasha.Scheduler
                 return System.IO.Path.Combine(TashaRuntime.InputBaseDirectory, localPath);
             }
             return localPath;
-        }
-
-        /// <summary>
-        /// Loads all of the scheduler distributions
-        /// </summary>
-        private void LoadDistributions()
-        {
-            ActivityDistribution.LoadDistributions(ActivityLevelsLocal, TashaRuntime.ZoneSystem.ZoneArray);
-            Distribution.InitializeDistributions();
-        }
-
-        private void LoadLocationChoiceModel()
-        {
-            // will ignore multiple calls if it is already setup on the thread
-            LocationChoiceModel.LoadLocationChoiceCache();
         }
     }
 }

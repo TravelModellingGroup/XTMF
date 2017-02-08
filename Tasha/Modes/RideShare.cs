@@ -32,27 +32,25 @@ namespace Tasha.Modes
         public bool AllowNonMemberDriver;
 
         [RunParameter( "cridesh", 0f, "The constant factor for the Ride Share mode" )]
-        public float cridesh;
+        public float Cridesh;
 
         [RunParameter( "dpurp_oth_drive", 0f, "The constant factory applied if the purpose of the trip is 'Other'" )]
-        public float dpurp_oth_drive;
+        public float DpurpOthDrive;
 
         [RunParameter( "dpurp_shop_drive", 0f, "The constant factory applied if the purpose of the trip is 'Shopping'" )]
-        public float dpurp_shop_drive;
+        public float DpurpShopDrive;
 
         [RunParameter( "parking", 0f, "The factor applied to the cost of parking" )]
-        public float parking;
+        public float Parking;
 
         [RootModule]
         public ITashaRuntime TashaRuntime;
 
         [RunParameter( "travelCost", 0f, "The factor applied to the travel cost" )]
-        public float travelCost;
+        public float TravelCost;
 
-        [RunParameter( "travelTime", 0f, "The factor applied the the travel time" )]
-        public float travelTime;
-
-        private byte modeChoiceArrIndex;
+        [RunParameter( "TravelTimeBeta", 0f, "The factor applied the the travel time" )]
+        public float TravelTimeBeta;
 
         [DoNotAutomate]
         public ITashaMode AssociatedMode
@@ -66,18 +64,7 @@ namespace Tasha.Modes
         /// <summary>
         /// Index in the Mode Array (in the List of possible Modes)
         /// </summary>
-        public byte ModeChoiceArrIndex
-        {
-            get
-            {
-                return modeChoiceArrIndex;
-            }
-
-            set
-            {
-                modeChoiceArrIndex = value;
-            }
-        }
+        public byte ModeChoiceArrIndex { get; set; }
 
         [RunParameter( "Name", "RideShare", "The name of the mode" )]
         public string ModeName { get; set; }
@@ -132,10 +119,11 @@ namespace Tasha.Modes
             get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
         }
 
-        [DoNotAutomate]
+
         /// <summary>
         /// This does not require a personal vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return TashaRuntime.AutoType; }
@@ -158,20 +146,20 @@ namespace Tasha.Modes
         /// <returns></returns>
         public double CalculateV(ITrip trip)
         {
-            double V = 0;
+            double v = 0;
 
-            V += cridesh;
+            v += Cridesh;
 
             //calculate the transit time
             IZone o = trip.OriginalZone, d = trip.DestinationZone;
-            V += TravelTime( o, d, trip.ActivityStartTime ).ToFloat() * travelTime;
-            V += Cost( o, d, trip.TripStartTime ) * travelCost;
-            V += d.ParkingCost * parking;
+            v += TravelTime( o, d, trip.ActivityStartTime ).ToFloat() * TravelTimeBeta;
+            v += Cost( o, d, trip.TripStartTime ) * TravelCost;
+            v += d.ParkingCost * Parking;
 
-            if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket ) V += dpurp_shop_drive;
-            if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther ) V += dpurp_oth_drive;
+            if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket ) v += DpurpShopDrive;
+            if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther ) v += DpurpOthDrive;
 
-            return V;
+            return v;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
@@ -184,6 +172,7 @@ namespace Tasha.Modes
         /// </summary>
         /// <param name="origin"></param>
         /// <param name="destination"></param>
+        /// <param name="time"></param>
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {

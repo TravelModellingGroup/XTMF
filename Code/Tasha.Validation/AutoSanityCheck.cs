@@ -27,7 +27,7 @@ namespace Tasha.Validation
     {
         public int Count;
 
-        [RunParameter( "Results File", "AutoSanityResults.csv", "Where do you want us to store the results" )]
+        [RunParameter("Results File", "AutoSanityResults.csv", "Where do you want us to store the results")]
         public string FileName;
 
         [RootModule]
@@ -49,35 +49,35 @@ namespace Tasha.Validation
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 120, 25, 100 ); }
+            get { return new Tuple<byte, byte, byte>(120, 25, 100); }
         }
 
         public void Execute(ITashaHousehold household, int iteration)
         {
-            lock ( this )
+            lock (this)
             {
-                foreach ( var person in household.Persons )
+                foreach (var person in household.Persons)
                 {
-                    foreach ( var tripChain in person.TripChains )
+                    foreach (var tripChain in person.TripChains)
                     {
-                        foreach ( var trip in tripChain.Trips )
+                        foreach (var trip in tripChain.Trips)
                         {
                             var householdIterations = trip.ModesChosen == null ? 1 : trip.ModesChosen.Length;
-                            for ( int i = 0; i < householdIterations; i++ )
+                            for (int i = 0; i < householdIterations; i++)
                             {
-                                if ( trip.ModesChosen[i] == null )
+                                if (trip.ModesChosen?[i] == null)
                                 {
-                                    Validate1.Write( "UnsolvedModeChoice,Household#=" );
-                                    Validate1.WriteLine( household.HouseholdId );
+                                    Validate1.Write("UnsolvedModeChoice,Household#=");
+                                    Validate1.WriteLine(household.HouseholdId);
                                 }
                                 else
                                 {
-                                    if ( trip.ModesChosen[i].ModeName == "Auto" && !person.Licence )
+                                    if (trip.ModesChosen[i].ModeName == "Auto" && !person.Licence)
                                     {
                                         Validate1.Write("NoLicenseAutoSelected,Household#=");
                                         Validate1.Write(household.HouseholdId);
                                         Validate1.Write("Person#=");
-                                        Validate1.WriteLine(Array.IndexOf(household.Persons,person));
+                                        Validate1.WriteLine(Array.IndexOf(household.Persons, person));
                                     }
                                 }
                             }
@@ -89,7 +89,7 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iteration)
         {
-            this.Dispose( true );
+            Dispose(true);
         }
 
         public void Load(int maxIterations)
@@ -103,25 +103,25 @@ namespace Tasha.Validation
 
         public void IterationStarting(int iteration)
         {
-            var exist = File.Exists( FileName );
-            if ( Validate1 == null || !exist )
+            var exist = File.Exists(FileName);
+            if (Validate1 == null || !exist)
             {
-                this.Validate1 = new StreamWriter( FileName );
+                Validate1 = new StreamWriter(FileName);
             }
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( true );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Validate1 != null )
+            if (Validate1 != null)
             {
-                this.Validate1.Dispose();
-                this.Validate1 = null;
+                Validate1.Dispose();
+                Validate1 = null;
             }
         }
     }

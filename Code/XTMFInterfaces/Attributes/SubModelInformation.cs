@@ -28,7 +28,7 @@ namespace XTMF
         /// </summary>
         public SubModelInformation()
         {
-            this.Description = String.Empty;
+            Description = String.Empty;
         }
 
         /// <summary>

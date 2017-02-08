@@ -28,7 +28,6 @@ namespace Tasha.Common
     /// </summary>
     public sealed class Person : Attachable, ITashaPerson
     {
-        public static int PersonsMade;
         private static ConcurrentBag<Person> People = new ConcurrentBag<Person>();
 
         /// <summary>
@@ -37,10 +36,11 @@ namespace Tasha.Common
         /// <param name="household">The household that this person belongs to, may not be null!</param>
         /// <param name="id">The identifier for this person</param>
         /// <param name="age">The age of this person</param>
+        /// <param name="occupation"></param>
         /// <param name="employmentStatus">How this person is employed, if at all</param>
         /// <param name="studentStatus">If this person is a student, and if so what type of student</param>
+        /// <param name="license"></param>
         /// <param name="female">Is this person female</param>
-        /// <param name="licence">Does this person have a driver's license</param>
         public Person(ITashaHousehold household, int id, int age, Occupation occupation, TTSEmploymentStatus employmentStatus, StudentStatus studentStatus, bool license, bool female)
             : this()
         {
@@ -232,7 +232,6 @@ namespace Tasha.Common
             {
                 return p;
             }
-            PersonsMade++;
             return new Person();
         }
 
@@ -241,7 +240,9 @@ namespace Tasha.Common
             Person p;
             try
             {
-                while (People.TryTake(out p)) ;
+                while (People.TryTake(out p))
+                {
+                }
             }
             catch (ObjectDisposedException)
             {

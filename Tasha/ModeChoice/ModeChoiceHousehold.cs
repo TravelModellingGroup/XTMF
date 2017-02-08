@@ -104,7 +104,7 @@ namespace Tasha.ModeChoice
                 //finding potential driver who already has the car
                 foreach ( var tripChain in tripChains )
                 {
-                    if ( tripChain.requiresVehicle.Contains( rideShare.RequiresVehicle ) )
+                    if ( tripChain.RequiresVehicle.Contains( rideShare.RequiresVehicle ) )
                     {
                         potentialDriver = tripChain.Person;
                         break;
@@ -320,21 +320,18 @@ namespace Tasha.ModeChoice
                 //DoAssignment(household);
                 return ModeAssignmentHouseHold.SIMPLE_CASE;
             }
-            else if ( TestForAdvancedCase( household ) ) //more vehicles than overlaps
+            if ( TestForAdvancedCase( household ) ) //more vehicles than overlaps
             {
                 //DoAssignment(household);
                 return ModeAssignmentHouseHold.SIMPLE_CASE;
             }
-            else //less vehicles than overlaps
+            // resort to the complex case
+            IVehicleType[] bestAssignment = FindBestPossibleAssignment( household.AllTripChains(), new List<IVehicle>( household.Vehicles ) );
+            if ( bestAssignment == null )
             {
-                // resort to the complex case
-                IVehicleType[] bestAssignment = FindBestPossibleAssignment( household.AllTripChains(), new List<IVehicle>( household.Vehicles ) );
-                if ( bestAssignment == null )
-                {
-                    return ModeAssignmentHouseHold.NULL_SET;
-                }
-                return ModeAssignmentHouseHold.ADVANCED_CASE;
+                return ModeAssignmentHouseHold.NULL_SET;
             }
+            return ModeAssignmentHouseHold.ADVANCED_CASE;
         }
 
         /// <summary>

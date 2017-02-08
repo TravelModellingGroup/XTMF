@@ -112,10 +112,7 @@ namespace Tasha.ModeChoice
                 newModeSet.Chain = chain;
                 return newModeSet;
             }
-            else
-            {
-                return new ModeSet(chain);
-            }
+            return new ModeSet(chain);
         }
 
         internal static ModeSet Make(ModeSet set, double newU)
@@ -138,10 +135,7 @@ namespace Tasha.ModeChoice
                 newModeSet.Chain = set.Chain;
                 return newModeSet;
             }
-            else
-            {
-                return new ModeSet(set, newU) { Chain = set.Chain };
-            }
+            return new ModeSet(set, newU) { Chain = set.Chain };
         }
 
         internal static void ReleaseModeSets(ITripChain tripChain)

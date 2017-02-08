@@ -95,10 +95,10 @@ namespace Tasha.V4Modes
             get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
         }
 
-        [DoNotAutomate]
         /// <summary>
         /// This does not require a personal vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return Root.AutoType; }
@@ -133,6 +133,7 @@ namespace Tasha.V4Modes
         /// </summary>
         /// <param name="origin"></param>
         /// <param name="destination"></param>
+        /// <param name="time"></param>
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {

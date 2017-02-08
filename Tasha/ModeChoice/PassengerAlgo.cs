@@ -61,7 +61,7 @@ namespace Tasha.ModeChoice
             {
                 throw new XTMFRuntimeException("There was no facilitated Trip Data!");
             }
-            else if (TashaRuntime == null)
+            if (TashaRuntime == null)
             {
                 throw new XTMFRuntimeException("Tasha runtime was null!");
             }
@@ -92,7 +92,7 @@ namespace Tasha.ModeChoice
                 var length = optimalSet.Count;
                 for (int i = 0; i < length; i++)
                 {
-                    var vehicles = optimalSet[i].requiresVehicle;
+                    var vehicles = optimalSet[i].RequiresVehicle;
                     var vehiclesLength = vehicles.Count;
                     for (int j = 0; j < vehiclesLength; j++)
                     {
@@ -315,21 +315,18 @@ namespace Tasha.ModeChoice
             {
                 return auxTripChain.StartTime;
             }
+            ITrip connectingChain1 = (ITrip)auxTripChain["ConnectingChain"];
+            Activity purpose = (Activity)auxTripChain["Purpose"];
+            Time startTime;
+            if (purpose != Activity.Dropoff)
+            {
+                startTime = connectingChain1.TripChain.StartTime;
+            }
             else
             {
-                ITrip connectingChain1 = (ITrip)auxTripChain["ConnectingChain"];
-                Activity purpose = (Activity)auxTripChain["Purpose"];
-                Time startTime;
-                if (purpose != Activity.Dropoff)
-                {
-                    startTime = connectingChain1.TripChain.StartTime;
-                }
-                else
-                {
-                    startTime = auxTripChain.StartTime;
-                }
-                return startTime;
+                startTime = auxTripChain.StartTime;
             }
+            return startTime;
         }
 
         /// <summary>

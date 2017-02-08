@@ -38,10 +38,10 @@ namespace Tasha.Modes
         public ITripComponentData Data;
 
         [RunParameter( "dpurp_oth_drive", 0f, "The weight for the cost of doing an other drive (ITashaRuntime only)" )]
-        public float dpurp_oth_drive;
+        public float DpurpOthDrive;
 
         [RunParameter( "dpurp_shop_drive", 0f, "The weight for the cost of doing a shopping drive (ITashaRuntime only)" )]
-        public float dpurp_shop_drive;
+        public float DpurpShopDrive;
 
         [RunParameter( "Fare", 0.0f, "The factor for transit fare" )]
         public float Fare;
@@ -64,17 +64,17 @@ namespace Tasha.Modes
         [RootModule]
         public ITravelDemandModel TashaRuntime;
 
-        [RunParameter( "travelTime", 0.0f, "The factor for travel time" )]
-        public float travelTime;
+        [RunParameter( "TravelTimeBeta", 0.0f, "The factor for travel time" )]
+        public float TravelTimeBeta;
 
         [RunParameter( "Use Intrazonal Regression", false, "Should we use a regression for intrazonal trips based on the interzonal distance?" )]
         public bool UseIntrazonalRegression;
 
         [RunParameter( "waitTime", 0.0f, "The factor for wait time" )]
-        public float waitTime;
+        public float WaitTime;
 
         [RunParameter( "walkTime", 0.0f, "The factor for walk time" )]
-        public float walkTime;
+        public float WalkTime;
 
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
@@ -133,10 +133,10 @@ namespace Tasha.Modes
             get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
         }
 
-        [DoNotAutomate]
         /// <summary>
         /// Does not require any vehicle type
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return null; }
@@ -154,64 +154,64 @@ namespace Tasha.Modes
         /// </summary>
         public double CalculateV(ITrip trip)
         {
-            double V = 0;
+            double v = 0;
             var person = trip.TripChain.Person;
             if ( trip.OriginalZone == trip.DestinationZone && UseIntrazonalRegression )
             {
-                V += IntrazonalConstantWeight + trip.OriginalZone.InternalDistance * IntrazonalDistanceWeight;
+                v += IntrazonalConstantWeight + trip.OriginalZone.InternalDistance * IntrazonalDistanceWeight;
             }
             else
             {
                 //transit constant
-                V += CTransit;
+                v += CTransit;
                 //In vehicle Travel Time
-                V += Data.InVehicleTravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * travelTime;
+                v += Data.InVehicleTravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * TravelTimeBeta;
                 //Wait time
-                V += Data.WaitTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * waitTime;
+                v += Data.WaitTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * WaitTime;
                 //walk time
-                V += Data.WalkTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * walkTime;
+                v += Data.WalkTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes() * WalkTime;
                 //cost
                 if ( person.TransitPass != TransitPass.Metro | person.TransitPass != TransitPass.Combination )
                 {
-                    V += Data.TravelCost( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ) * Fare;
+                    v += Data.TravelCost( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ) * Fare;
                 }
             }
             if ( person.Occupation == Occupation.Retail )
             {
-                V += OccSalesTransit;
+                v += OccSalesTransit;
             }
             if ( person.Child )
             {
-                V += ChildBus;
+                v += ChildBus;
             }
             if ( person.Occupation == Occupation.Office )
             {
-                V += OccGeneralTransit;
+                v += OccGeneralTransit;
             }
             if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket )
             {
-                V += dpurp_shop_drive;
+                v += DpurpShopDrive;
             }
             else if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther )
             {
-                V += dpurp_oth_drive;
+                v += DpurpOthDrive;
             }
-            return V;
+            return v;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             //transit constant
-            float V = CTransit;
+            float v = CTransit;
             //In vehicle Travel Time
-            V += Data.InVehicleTravelTime( origin, destination, time ).ToMinutes() * travelTime;
+            v += Data.InVehicleTravelTime( origin, destination, time ).ToMinutes() * TravelTimeBeta;
             //Wait time
-            V += Data.WaitTime( origin, destination, time ).ToMinutes() * waitTime;
+            v += Data.WaitTime( origin, destination, time ).ToMinutes() * WaitTime;
             //walk time
-            V += Data.WalkTime( origin, destination, time ).ToMinutes() * walkTime;
+            v += Data.WalkTime( origin, destination, time ).ToMinutes() * WalkTime;
             //cost
-            V += Data.TravelCost( origin, destination, time ) * Fare;
-            return V;
+            v += Data.TravelCost( origin, destination, time ) * Fare;
+            return v;
         }
 
         public float Cost(IZone origin, IZone destination, Time time)

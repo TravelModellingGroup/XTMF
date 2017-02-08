@@ -29,11 +29,10 @@ namespace Tasha.Common
         /// Creates a person's iteration data for the specified household iteration
         /// </summary>
         /// <param name="person">the person</param>
-        /// <param name="hIteration">the household iteration</param>
         private PersonIterationData(ITashaPerson person)
             : this()
         {
-            this.TripChains = new List<ITripChain>();
+            TripChains = new List<ITripChain>();
             PopulateData( person );
         }
 
@@ -63,7 +62,7 @@ namespace Tasha.Common
         public ITashaMode ModeChosen(ITrip trip)
         {
             ITashaMode mode;
-            if ( this.TripModes.TryGetValue( trip, out mode ) )
+            if ( TripModes.TryGetValue( trip, out mode ) )
             {
                 return mode;
             }
@@ -72,12 +71,12 @@ namespace Tasha.Common
 
         public void PopulateData(ITashaPerson person)
         {
-            this.IterationSuccessful = true;
-            this.TripChains.AddRange( person.TripChains );
-            this.TripChains.AddRange( person.AuxTripChains );
+            IterationSuccessful = true;
+            TripChains.AddRange( person.TripChains );
+            TripChains.AddRange( person.AuxTripChains );
             //setting this persons trip chains for this iteration
 
-            foreach ( var tc in this.TripChains )
+            foreach ( var tc in TripChains )
             {
                 foreach ( var t in tc.Trips )
                 {
@@ -90,9 +89,9 @@ namespace Tasha.Common
 
         public PersonIterationData()
         {
-            this.TripModes = new Dictionary<ITrip, ITashaMode>();
-            this.TripChains = new List<ITripChain>();
-            this.IterationSuccessful = false;
+            TripModes = new Dictionary<ITrip, ITashaMode>();
+            TripChains = new List<ITripChain>();
+            IterationSuccessful = false;
         }
 
         public List<ITripChain> TripChains
@@ -105,9 +104,9 @@ namespace Tasha.Common
 
         public void Recycle()
         {
-            this.TripChains.Clear();
-            this.TripModes.Clear();
-            this.IterationSuccessful = false;
+            TripChains.Clear();
+            TripModes.Clear();
+            IterationSuccessful = false;
             Items.Add( this );
         }
     }

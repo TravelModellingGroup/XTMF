@@ -26,7 +26,7 @@ namespace Tasha.Scheduler
 {
     public sealed class PersonSchedule : Schedule
     {
-        private Time FirstTripTime = Time.Zero;
+        private Time FirstTripTime;
 
         public PersonSchedule(ITashaPerson owner)
         {
@@ -112,7 +112,7 @@ namespace Tasha.Scheduler
                         toHomeTrip.TripStartTime = Episodes[i - 1].EndTime;
                         toHomeTrip.OriginalZone = Episodes[i - 1].Zone;
                         toHomeTrip.DestinationZone = homeZone;
-                        toHomeTrip.Purpose = GetGoingHomePurpose(Episodes[i - 1].ActivityType);
+                        toHomeTrip.Purpose = GetGoingHomePurpose();
                         toHomeTrip.TripChain = currentChain;
                         toHomeTrip.TripNumber = tripNumber;
                         currentChain.Trips.Add(toHomeTrip);
@@ -149,12 +149,12 @@ namespace Tasha.Scheduler
                         (
                         "We are trying to make a trip from the roaming zone to home!" +
                         "\r\nHHLD:" + household.HouseholdId +
-                        "\r\nPrevious Purpose" + Episodes[EpisodeCount - 1].ActivityType.ToString()
+                        "\r\nPrevious Purpose" + Episodes[EpisodeCount - 1].ActivityType
                         );
                 }
 
                 toHome.DestinationZone = homeZone;
-                toHome.Purpose = GetGoingHomePurpose(Episodes[EpisodeCount - 1].ActivityType);
+                toHome.Purpose = GetGoingHomePurpose();
                 toHome.TripChain = currentChain;
                 toHome.TripStartTime = Episodes[EpisodeCount - 1].EndTime;
                 // this will have already been increased in the while loop
@@ -205,7 +205,7 @@ namespace Tasha.Scheduler
                             earlyTimeBound = Episodes[conflict.Position - 1].EndTime + Scheduler.TravelTime(Owner, Episodes[conflict.Position - 1].Zone,
                                 prior.Zone, prior.StartTime);
                         }
-                        if(EpisodeCount - conflict.Position > 2)
+                        if(EpisodeCount - conflict.Position > 2 && post != null)
                         {
                             lateTimeBound = Episodes[conflict.Position + 2].StartTime - Scheduler.TravelTime(Owner, post.Zone, Episodes[conflict.Position + 2].Zone, post.EndTime);
                         }
@@ -226,7 +226,7 @@ namespace Tasha.Scheduler
                         Episode post = (Episode)Episodes[conflict.Position];
 
                         // Make sure to bound the times with the padding of the travel times required
-                        if(conflict.Position >= 2)
+                        if(conflict.Position >= 2 && prior != null)
                         {
                             earlyTimeBound = Episodes[conflict.Position - 2].EndTime + Scheduler.TravelTime(Owner, Episodes[conflict.Position - 2].Zone,
                                 prior.Zone, prior.StartTime);
@@ -276,11 +276,7 @@ namespace Tasha.Scheduler
         private static SpinLock SkippedWorkLock = new SpinLock(false);
 
         internal void InsertWorkSchedule(Schedule schedule, Random random)
-        {
-            
-            bool taken = false;
-
-
+        {            
             //Second pass is to add primary work trips
             for(int i = 0; i < schedule.EpisodeCount; i++)
             {
@@ -289,7 +285,7 @@ namespace Tasha.Scheduler
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
                         var expFactor = Owner.ExpansionFactor;
-                        taken = false;
+                        var taken = false;
                         SkippedWorkLock.Enter(ref taken);
                         SkippedWorkEpisodes += expFactor;
                         if(taken) SkippedWorkLock.Exit(true);
@@ -306,7 +302,7 @@ namespace Tasha.Scheduler
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
                         var expFactor = Owner.ExpansionFactor;
-                        taken = false;
+                        var taken = false;
                         SkippedWorkLock.Enter(ref taken);
                         SkippedWorkEpisodes += expFactor;
                         if(taken) SkippedWorkLock.Exit(true);
@@ -322,7 +318,7 @@ namespace Tasha.Scheduler
                     if(!Insert((Episode)schedule.Episodes[i], random))
                     {
                         var expFactor = Owner.ExpansionFactor;
-                        taken = false;
+                        var taken = false;
                         SkippedWorkLock.Enter(ref taken);
                         SkippedWorkEpisodes += expFactor;
                         if(taken) SkippedWorkLock.Exit(true);
@@ -342,13 +338,10 @@ namespace Tasha.Scheduler
                     Relocate(middle, (middle.StartTime - postOverlap));
                     return true;
                 }
-                else
-                {
-                    // prior overlap < 0, so just add it
-                    Relocate(middle, (middle.StartTime + priorOverlap));
-                    // subtract out the reduced time
-                    postOverlap += priorOverlap;
-                }
+                // prior overlap < 0, so just add it
+                Relocate(middle, (middle.StartTime + priorOverlap));
+                // subtract out the reduced time
+                postOverlap += priorOverlap;
             }
             if(postOverlap <= Time.Zero)
             {
@@ -358,18 +351,15 @@ namespace Tasha.Scheduler
                     Relocate(middle, (middle.StartTime + priorOverlap));
                     return true;
                 }
-                else
-                {
-                    // prior overlap < 0, so subtract it
-                    Relocate(middle, (middle.StartTime - postOverlap));
-                    // subtract out the reduced time
-                    priorOverlap += postOverlap;
-                }
+                // prior overlap < 0, so subtract it
+                Relocate(middle, (middle.StartTime - postOverlap));
+                // subtract out the reduced time
+                priorOverlap += postOverlap;
             }
             return false;
         }
 
-        private static bool MiddlePostInsert(ref Time earlyTimeBound, Episode middle, Episode post, ref Time lateTimeBound, ref Time firstTime, ref Time secondTime)
+        private static bool MiddlePostInsert(ref Time earlyTimeBound, Episode middle, Episode post, ref Time firstTime, ref Time secondTime)
         {
             Time overlap = (middle.EndTime + secondTime) - post.StartTime;
             if(overlap <= Time.Zero)
@@ -389,7 +379,7 @@ namespace Tasha.Scheduler
             return true;
         }
 
-        private static bool PriorMiddleInsert(ref Time earlyTimeBound, Episode prior, Episode middle, ref Time lateTimeBound, ref Time firstTime, ref Time secondTime)
+        private static bool PriorMiddleInsert(Episode prior, Episode middle, ref Time lateTimeBound, ref Time firstTime, ref Time secondTime)
         {
             Time overlap = (prior.EndTime + firstTime) - middle.StartTime;
             if(overlap <= Time.Zero)
@@ -420,8 +410,6 @@ namespace Tasha.Scheduler
         {
             Time priorOverlap = (prior.EndTime + firstTime) - middle.StartTime;
             Time postOverlap = (middle.EndTime + secondTime) - post.StartTime;
-            Time frontGap = prior.StartTime - earlyTimeBound;
-            Time backGap = lateTimeBound - (post.EndTime + secondTime);
             // see if we can just fill in the gaps
             if(FillInGaps(middle, ref priorOverlap, ref postOverlap))
             {
@@ -467,12 +455,12 @@ namespace Tasha.Scheduler
                 throw new XTMFRuntimeException("We ended too late when inserting with 3 into a person schedule!\r\n"
                     + Dump(this));
             }
-            else if(prior.StartTime < earlyTimeBound)
+            if(prior.StartTime < earlyTimeBound)
             {
                 throw new XTMFRuntimeException("We started too early when inserting with 3 into a person schedule!\r\n"
-                    + Dump(this)
-                    + "\r\nFirst Time = " + firstTime.ToString()
-                    + "\r\nSecond Time = " + secondTime.ToString());
+                                               + Dump(this)
+                                               + "\r\nFirst Time = " + firstTime
+                                               + "\r\nSecond Time = " + secondTime);
             }
             return true;
         }
@@ -485,32 +473,18 @@ namespace Tasha.Scheduler
                     | activity == Activity.WorkAtHomeBusiness;
         }
 
-        private bool CheckDurations(Time priorDuration, Episode prior)
-        {
-            if(prior != null)
-            {
-                return priorDuration >= prior.Duration;
-            }
-            return true;
-        }
-
         private void FixDurationToInsert(ref Time earlyTimeBound, Episode prior, Episode middle, Episode post, ref Time lateTimeBound, ref Time firstTime, ref Time secondTime)
         {
-            var priorDuration = Time.Zero;
-            var middleDuration = middle.Duration;
-            var postDuration = Time.Zero;
             // If we get here then we need to calculate the ratios and then assign the start times accordingly
             if(prior != null)
             {
                 var duration = prior.Duration;
-                priorDuration = prior.Duration;
                 prior.StartTime = earlyTimeBound;
                 prior.EndTime = earlyTimeBound + duration;
             }
             if(post != null)
             {
                 var duration = post.Duration;
-                postDuration = post.Duration;
                 post.EndTime = lateTimeBound;
                 post.StartTime = lateTimeBound - duration;
             }
@@ -521,8 +495,8 @@ namespace Tasha.Scheduler
             Time minMid = Tasha.Scheduler.Scheduler.PercentOverlapAllowed * middle.OriginalDuration;
             Time minPost = (post != null ? Tasha.Scheduler.Scheduler.PercentOverlapAllowed * post.OriginalDuration : Time.Zero);
             Time remainder = (lateTimeBound - earlyTimeBound) - (minPrior + minMid + minPost + firstTime + secondTime);
-            float ratioPrior = 0;
-            float ratioMiddle = 0;
+            float ratioPrior;
+            float ratioMiddle;
             if(prior != null)
             {
                 ratioPrior = prior.OriginalDuration / totalOriginalDuration;
@@ -540,13 +514,12 @@ namespace Tasha.Scheduler
             {
                 // we do not need to include the ratio calculation for post since we know it needs to end at the end of the allowed time
                 // and that it needs to start right after the middle
-                var ratioPost = post.OriginalDuration / totalOriginalDuration;
                 post.StartTime = middle.EndTime + secondTime;
                 post.EndTime = lateTimeBound;
             }
         }
 
-        private Activity GetGoingHomePurpose(Activity previousActivity)
+        private Activity GetGoingHomePurpose()
         {
             return Activity.Home;
         }
@@ -559,10 +532,12 @@ namespace Tasha.Scheduler
         /// <param name="middle">the second episode in the batch</param>
         /// <param name="post">the last episode in the batch (possibly null if there is no episode post)</param>
         /// <param name="lateTimeBound">the latest point</param>
+        /// <param name="travelFirst"></param>
+        /// <param name="travelSecond"></param>
         /// <returns>If we can fit them all in properly</returns>
         private bool InitialInsertCheckPossible(Time earlyTimeBound, Episode prior, Episode middle, Episode post, Time lateTimeBound,
-            ref Time travelFirst,
-            ref Time travelSecond
+            out Time travelFirst,
+            out Time travelSecond
             )
         {
             Time minPrior = Time.Zero;
@@ -600,24 +575,21 @@ namespace Tasha.Scheduler
             {
                 throw new XTMFRuntimeException("An episode had a late time before after the end of the day!");
             }
-            Time firstTime = Time.Zero;
-            Time secondTime = Time.Zero;
-            var priorDuration = Time.Zero;
-            var middleDuration = middle.OriginalDuration;
-            var postDuration = Time.Zero;
+            Time firstTime;
+            Time secondTime;
             // Do a quick check to see if it is even possible to fit everything in together
-            if(!InitialInsertCheckPossible(earlyTimeBound, prior, middle, post, lateTimeBound, ref firstTime, ref secondTime))
+            if(!InitialInsertCheckPossible(earlyTimeBound, prior, middle, post, lateTimeBound, out firstTime, out secondTime))
             {
                 return false;
             }
             if(firstTime < Time.Zero)
             {
-                throw new XTMFRuntimeException("The First time in an insert is negative! " + firstTime.ToString() + ".  Going from " + prior.Zone.ZoneNumber.ToString() + " to " + middle.Zone.ZoneNumber.ToString() + " at " + middle.StartTime.ToString() + "!");
+                throw new XTMFRuntimeException("The First time in an insert is negative! " + firstTime + ".  Going from " + prior.Zone.ZoneNumber + " to " + middle.Zone.ZoneNumber + " at " + middle.StartTime + "!");
             }
             if(secondTime < Time.Zero)
             {
-                throw new XTMFRuntimeException("The Second time in an insert is negative! " + secondTime.ToString() + ".  Going from " + middle.Zone.ZoneNumber.ToString() + " to "
-                    + (post == null ? Owner.Household.HomeZone.ZoneNumber : post.Zone.ZoneNumber).ToString() + " at " + (post == null ? middle.EndTime : post.StartTime).ToString() + "!");
+                throw new XTMFRuntimeException("The Second time in an insert is negative! " + secondTime + ".  Going from " + middle.Zone.ZoneNumber + " to "
+                    + (post == null ? Owner.Household.HomeZone.ZoneNumber : post.Zone.ZoneNumber) + " at " + (post == null ? middle.EndTime : post.StartTime) + "!");
             }
             // Assign the travel times to the episodes
             if(prior == null)
@@ -627,11 +599,9 @@ namespace Tasha.Scheduler
             else
             {
                 prior.TravelTime = firstTime;
-                priorDuration = prior.OriginalDuration;
             }
             if(post != null)
             {
-                postDuration = post.OriginalDuration;
             }
             middle.TravelTime = secondTime;
             // if we get here we know that there is a way to insert the episodes successfully
@@ -685,13 +655,13 @@ namespace Tasha.Scheduler
             {
                 return AllThreeInsert(ref earlyTimeBound, prior, middle, post, ref lateTimeBound, ref firstTime, ref secondTime);
             }
-            else if(prior != null)
+            if(prior != null)
             {
-                return PriorMiddleInsert(ref earlyTimeBound, prior, middle, ref lateTimeBound, ref firstTime, ref secondTime);
+                return PriorMiddleInsert(prior, middle, ref lateTimeBound, ref firstTime, ref secondTime);
             }
-            else if(post != null)
+            if(post != null)
             {
-                return MiddlePostInsert(ref earlyTimeBound, middle, post, ref lateTimeBound, ref firstTime, ref secondTime);
+                return MiddlePostInsert(ref earlyTimeBound, middle, post, ref firstTime, ref secondTime);
             }
             throw new XTMFRuntimeException("Unexpected shift to insert case!");
         }

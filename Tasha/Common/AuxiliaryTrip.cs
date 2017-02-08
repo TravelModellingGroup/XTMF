@@ -173,10 +173,7 @@ namespace Tasha.Common
                 {
                     return ActivityStartTime - Mode.TravelTime( OriginalZone, DestinationZone, ActivityStartTime );
                 }
-                else
-                {
-                    return ActivityStartTime;
-                }
+                return ActivityStartTime;
             }
         }
 

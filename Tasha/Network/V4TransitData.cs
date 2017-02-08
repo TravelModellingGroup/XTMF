@@ -37,9 +37,6 @@ namespace Tasha.Network
         [RootModule]
         public ITravelDemandModel Root;
 
-        [DoNotAutomate]
-        private IIterativeModel IterativeRoot;
-
         private SparseArray<IZone> ZoneArray;
 
         [ModuleInformation(Description =
@@ -121,7 +118,6 @@ namespace Tasha.Network
                 }
                 else
                 {
-                    var iteration = timesLoaded + 1;
                     var previousFraction = 1.0f / 2.0f;
                     var currentFraction = 1.0f / 2.0f;
                     foreach (var point in readODData.Read())
@@ -384,7 +380,6 @@ namespace Tasha.Network
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            IterativeRoot = Root as IIterativeModel;
             return true;
         }
 

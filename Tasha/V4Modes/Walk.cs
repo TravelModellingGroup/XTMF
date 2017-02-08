@@ -126,10 +126,10 @@ namespace Tasha.V4Modes
             set;
         }
 
-        [DoNotAutomate]
         /// <summary>
         /// Does not require any kind of vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return null; }
@@ -143,13 +143,13 @@ namespace Tasha.V4Modes
         public double CalculateV(ITrip trip)
         {
             double v = 0;
-            ITashaPerson Person = trip.TripChain.Person;
+            ITashaPerson person = trip.TripChain.Person;
             float constant, walkBeta;
-            GetPersonVariables(Person, out constant, out walkBeta);
+            GetPersonVariables(person, out constant, out walkBeta);
             v += constant;
 
             //if person has a license
-            if ( Person.Licence )
+            if ( person.Licence )
             {
                 v += DriversLicenseFlag;
             }
@@ -161,15 +161,15 @@ namespace Tasha.V4Modes
 
 
             //checking if child
-            if ( Person.Youth )
+            if ( person.Youth )
             {
                 v += YouthFlag;
             }
-            else if ( Person.YoungAdult )
+            else if ( person.YoungAdult )
             {
                 v += YoungAdultFlag;
             }
-            else if ( Person.Child )
+            else if ( person.Child )
             {
                 v += ChildFlag;
             }
@@ -181,7 +181,7 @@ namespace Tasha.V4Modes
             }
 
             //if no vehicles
-            if ( Person.Household.Vehicles.Length == 0 )
+            if ( person.Household.Vehicles.Length == 0 )
             {
                 v += NoVehicleFlag;
             }

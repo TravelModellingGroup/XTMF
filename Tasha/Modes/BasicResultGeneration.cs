@@ -74,12 +74,12 @@ namespace Tasha.Modes
                         var nextTrip = j < tripChain.Trips.Count - 1 ? tripChain.Trips[j + 1] : null;
                         if(trip.ActivityStartTime > Time.EndOfDay && trip.Purpose != Activity.Home)
                         {
-                            throw new XTMFRuntimeException("PAST END OF DAY! " + trip.ActivityStartTime.ToString() + "\r\n " + trip.Purpose.ToString() + "\r\n " + "household ID is " + household.HouseholdId + " person ID is " + person.Id);
+                            throw new XTMFRuntimeException("PAST END OF DAY! " + trip.ActivityStartTime + "\r\n " + trip.Purpose + "\r\n " + "household ID is " + household.HouseholdId + " person ID is " + person.Id);
                         }
                         var householdIterations = (trip.ModesChosen == null || trip.ModesChosen.Length == 0) ? 1 : trip.ModesChosen.Length;
                         for(int i = 0; i < householdIterations; i++)
                         {
-                            ITashaMode mode = trip[ObservedMode] as ITashaMode;
+                            ITashaMode mode = (ITashaMode)trip[ObservedMode];
                             builder.Append(trip.TripChain.Person.Household.HouseholdId);
                             builder.Append(',');
                             builder.Append(trip.TripChain.Person.Id);
@@ -120,9 +120,12 @@ namespace Tasha.Modes
             {
                 var builderData = builder.ToString();
                 bool taken = false;
-                WriteLock.Enter(ref taken);
-                ModesChosen.Write(builderData);
-                if(taken) WriteLock.Exit(false);
+                lock (ModesChosen)
+                {
+                    WriteLock.Enter(ref taken);
+                    ModesChosen.Write(builderData);
+                    if (taken) WriteLock.Exit(false);
+                }
                 builder.Clear();
             }
         }

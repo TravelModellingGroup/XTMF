@@ -24,10 +24,5 @@ namespace Tasha.Common
         /// Gets the name of the object
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// Gets the objects associated id
-        /// </summary>
-        //string ID { get; }
     }
 }

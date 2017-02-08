@@ -31,46 +31,49 @@ namespace Tasha.Modes
         [DoNotAutomate]
         public INetworkData AutoData;
 
-        [RunParameter( "cconnecting_facil", 0f, "The constant factor applied if there is a connecting chain" )]
-        public float cconnecting_facil;
+        [RunParameter("ConnectingFacil", 0f, "The constant factor applied if there is a connecting chain")]
+        public float ConnectingFacil;
 
-        [RunParameter( "cpass", 0f, "The constant factor applied to the passenger mode" )]
-        public float cpass;
+        [RunParameter("cpass", 0f, "The constant factor applied to the passenger mode")]
+        public float Cpass;
 
-        [RunParameter( "croundtrip_facil", 0f, "The constant factor applied if the trip is passenger all the way around" )]
-        public float croundtrip_facil;
+        [RunParameter("croundtrip_facil", 0f, "The constant factor applied if the trip is passenger all the way around")]
+        public float CroundtripFacil;
 
-        [RunParameter( "dpurp_oth_drive", 0f, "The constant factor applied if the purpse of the trip is 'Other'" )]
-        public float dpurp_oth_drive;
+        [RunParameter("dpurp_oth_drive", 0f, "The constant factor applied if the purpse of the trip is 'Other'")]
+        public float DpurpOthDrive;
 
-        [RunParameter( "dpurp_sch_passenger", 0f, "The constant factor applied if the purpose is to facilitate the passenger" )]
-        public float dpurp_sch_passenger;
+        [RunParameter("dpurp_sch_passenger", 0f, "The constant factor applied if the purpose is to facilitate the passenger")]
+        public float DpurpSchPassenger;
 
-        [RunParameter( "dpurp_shop_drive", 0f, "The constant factor applied if the purpose of the trip is shopping" )]
-        public float dpurp_shop_drive;
+        [RunParameter("dpurp_shop_drive", 0f, "The constant factor applied if the purpose of the trip is shopping")]
+        public float DpurpShopDrive;
 
-        [RunParameter( "Max Driver Time", "15 minutes", typeof( Time ), "The maximum ammount of duration that an activity for the driver can change." )]
+        [RunParameter("Max Driver Time", "15 minutes", typeof(Time), "The maximum ammount of duration that an activity for the driver can change.")]
         public Time MaxDriverTimeThreshold;
 
-        [RunParameter( "Max Passenger Time", "30 minutes", typeof( Time ), "The maximum ammount of duration that an activity for the passenger can change." )]
+        [RunParameter("Max Passenger Time", "30 minutes", typeof(Time), "The maximum ammount of duration that an activity for the passenger can change.")]
         public Time MaxPassengerTimeThreshold;
 
-        [RunParameter( "pass_w_license", 0f, "The constant factor applied if the person has a license" )]
-        public float pass_w_license;
+        [RunParameter("pass_w_license", 0f, "The constant factor applied if the person has a license")]
+        public float PassWLicense;
 
-        [RunParameter( "sex_f_passenger", 0f, "The constant factor applied if the passenger is female" )]
-        public float sex_f_passenger;
+        [RunParameter("sex_f_passenger", 0f, "The constant factor applied if the passenger is female")]
+        public float SexFPassenger;
 
         [RootModule]
         public ITashaRuntime TashaRuntime;
 
-        [RunParameter( "travelCost", 0f, "The factor applied to the travel cost" )]
-        public float travelCost;
+        [RunParameter("travelCost", 0f, "The factor applied to the travel cost")]
+        public float TravelCost;
 
-        [RunParameter( "travelTime", 0f, "The factor applied to the travel time" )]
-        public float travelTime;
+        [RunParameter("TravelTimeBeta", 0f, "The factor applied to the travel time")]
+        public float TravelTimeBeta;
 
-        private byte modeChoiceArrIndex;
+        public Passenger(float dpurpOthDrive)
+        {
+            DpurpOthDrive = dpurpOthDrive;
+        }
 
         [DoNotAutomate]
         public ITashaMode AssociatedMode
@@ -78,26 +81,15 @@ namespace Tasha.Modes
             get { return TashaRuntime.AutoMode; }
         }
 
-        [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
+        [Parameter("Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?")]
         public float CurrentlyFeasible { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        public byte ModeChoiceArrIndex
-        {
-            get
-            {
-                return modeChoiceArrIndex;
-            }
+        public byte ModeChoiceArrIndex { get; set; }
 
-            set
-            {
-                modeChoiceArrIndex = value;
-            }
-        }
-
-        [RunParameter( "Name", "Passenger", "The name of the mode" )]
+        [RunParameter("Name", "Passenger", "The name of the mode")]
         public string ModeName { get; set; }
 
         /// <summary>
@@ -109,7 +101,7 @@ namespace Tasha.Modes
             set;
         }
 
-        [RunParameter( "Network Type", "Auto", "The name of the network data to use." )]
+        [RunParameter("Network Type", "Auto", "The name of the network data to use.")]
         public string NetworkType
         {
             get;
@@ -124,7 +116,7 @@ namespace Tasha.Modes
             get { return true; }
         }
 
-        [RunParameter( "Observed Mode Character Code", 'A', "The character code used for model estimation." )]
+        [RunParameter("Observed Mode Character Code", 'A', "The character code used for model estimation.")]
         public char ObservedMode
         {
             get;
@@ -134,7 +126,7 @@ namespace Tasha.Modes
         /// <summary>
         /// Output signature for Passenger Type
         /// </summary>
-        [RunParameter( "Observed Signature Code", 'A', "The character code used for model output." )]
+        [RunParameter("Observed Signature Code", 'A', "The character code used for model output.")]
         public char OutputSignature
         {
             get;
@@ -148,19 +140,19 @@ namespace Tasha.Modes
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
-        [DoNotAutomate]
         /// <summary>
         /// Does this require a vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return TashaRuntime.AutoType; }
         }
 
-        [RunParameter( "Variance Scale", 1.0f, "The scale for varriance used for variance testing." )]
+        [RunParameter("Variance Scale", 1.0f, "The scale for varriance used for variance testing.")]
         public double VarianceScale
         {
             get;
@@ -169,33 +161,33 @@ namespace Tasha.Modes
 
         public bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v)
         {
-            Time dToPTime;
-            Time tToPD;
-            Time tToDD;
+            Time toPassengerOrigin;
+            Time toPassengerDestination;
+            Time toDriverDestination;
             v = float.NegativeInfinity;
-            if ( !IsThereEnoughTime( driverOriginalTrip, passengerTrip, out dToPTime, out tToPD, out tToDD ) )
+            if (!IsThereEnoughTime(driverOriginalTrip, passengerTrip, out toPassengerOrigin, out toPassengerDestination, out toDriverDestination))
             {
                 return false;
             }
             // Since this is going to be valid, start building a real utility!
-            v = cpass;
+            v = Cpass;
             // we are going to add in the time of the to passenger destination twice
-            v += ( ( dToPTime + tToPD + tToDD ).ToMinutes() + tToPD.ToMinutes() ) * travelTime;
+            v += ((toPassengerOrigin + toPassengerDestination + toDriverDestination).ToMinutes() + toPassengerDestination.ToMinutes()) * TravelTimeBeta;
             // Add in the travel cost
-            v += Cost( passengerTrip.OriginalZone, passengerTrip.DestinationZone, passengerTrip.ActivityStartTime ) * travelCost;
-            if ( passengerTrip.Purpose == Activity.Market | passengerTrip.Purpose == Activity.JointMarket ) v += dpurp_shop_drive;
-            if ( passengerTrip.Purpose == Activity.IndividualOther | passengerTrip.Purpose == Activity.JointOther ) v += dpurp_oth_drive;
-            if ( passengerTrip.Purpose == Activity.School ) v += dpurp_sch_passenger;
-            if ( passengerTrip.TripChain.Person.Female ) v += sex_f_passenger;
-            if ( passengerTrip.TripChain.Person.Licence ) v += pass_w_license;
-            if ( passengerTrip.OriginalZone == driverOriginalTrip.OriginalZone && passengerTrip.DestinationZone == driverOriginalTrip.DestinationZone )
+            v += Cost(passengerTrip.OriginalZone, passengerTrip.DestinationZone, passengerTrip.ActivityStartTime) * TravelCost;
+            if (passengerTrip.Purpose == Activity.Market | passengerTrip.Purpose == Activity.JointMarket) v += DpurpShopDrive;
+            if (passengerTrip.Purpose == Activity.IndividualOther | passengerTrip.Purpose == Activity.JointOther) v += DpurpOthDrive;
+            if (passengerTrip.Purpose == Activity.School) v += DpurpSchPassenger;
+            if (passengerTrip.TripChain.Person.Female) v += SexFPassenger;
+            if (passengerTrip.TripChain.Person.Licence) v += PassWLicense;
+            if (passengerTrip.OriginalZone == driverOriginalTrip.OriginalZone && passengerTrip.DestinationZone == driverOriginalTrip.DestinationZone)
             {
-                v += croundtrip_facil;
+                v += CroundtripFacil;
             }
             else
             {
-                if ( passengerTrip.OriginalZone == driverOriginalTrip.OriginalZone ) v += cconnecting_facil;
-                if ( passengerTrip.DestinationZone == driverOriginalTrip.DestinationZone ) v += cconnecting_facil;
+                if (passengerTrip.OriginalZone == driverOriginalTrip.OriginalZone) v += ConnectingFacil;
+                if (passengerTrip.DestinationZone == driverOriginalTrip.DestinationZone) v += ConnectingFacil;
             }
             return true;
         }
@@ -221,10 +213,11 @@ namespace Tasha.Modes
         /// </summary>return trip.TripChain.Person.Licence
         /// <param name="origin"></param>
         /// <param name="destination"></param>
+        /// <param name="time"></param>
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return AutoData.TravelCost( origin, destination, time );
+            return AutoData.TravelCost(origin, destination, time);
         }
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
@@ -258,7 +251,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == ObservedMode );
+            return (observedMode == ObservedMode);
         }
 
         /// <summary>
@@ -270,22 +263,22 @@ namespace Tasha.Modes
         public bool RuntimeValidation(ref string error)
         {
             var networks = TashaRuntime.NetworkData;
-            if ( networks == null )
+            if (networks == null)
             {
                 error = "There was no Auto Network loaded for the Passenger Mode!";
                 return false;
             }
             bool found = false;
-            foreach ( var network in networks )
+            foreach (var network in networks)
             {
-                if ( network.NetworkType == NetworkType )
+                if (network.NetworkType == NetworkType)
                 {
                     AutoData = network;
                     found = true;
                     break;
                 }
             }
-            if ( !found )
+            if (!found)
             {
                 error = "We were unable to find the network data with the name \"Auto\" in this Model System!";
                 return false;
@@ -302,35 +295,34 @@ namespace Tasha.Modes
         /// <returns>The amount of time it will take</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return AutoData.TravelTime( origin, destination, time );
+            return AutoData.TravelTime(origin, destination, time);
         }
 
-        private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time dToPTime, out Time tToPD, out Time tToDD)
+        private bool IsThereEnoughTime(ITrip driverOriginalTrip, ITrip passengerTrip, out Time toPassengerOrigin, out Time toPassengerDestination, out Time toDriverDestination)
         {
             // Check to see if the driver is able to get there
             Time earliestPassenger = passengerTrip.ActivityStartTime - MaxPassengerTimeThreshold;
             Time latestPassenger = passengerTrip.ActivityStartTime + MaxPassengerTimeThreshold;
-            Time originalDriverTime = driverOriginalTrip.ActivityStartTime - driverOriginalTrip.TripStartTime;
             // check to see if the driver is able to get to their destination
-            var timeToPassenger = dToPTime = TravelTime( driverOriginalTrip.OriginalZone, passengerTrip.OriginalZone, driverOriginalTrip.TripStartTime );
+            var timeToPassenger = toPassengerOrigin = TravelTime(driverOriginalTrip.OriginalZone, passengerTrip.OriginalZone, driverOriginalTrip.TripStartTime);
             var driverArrivesAt = driverOriginalTrip.TripStartTime + timeToPassenger;
             var earliestDriver = driverArrivesAt - MaxDriverTimeThreshold;
             var latestDriver = driverArrivesAt + MaxDriverTimeThreshold;
             Time overlapStart, overlapEnd;
-            if ( !Time.Intersection( earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd ) )
+            if (!Time.Intersection(earliestPassenger, latestPassenger, earliestDriver, latestDriver, out overlapStart, out overlapEnd))
             {
-                tToPD = Time.Zero;
-                tToDD = Time.Zero;
+                toPassengerDestination = Time.Zero;
+                toDriverDestination = Time.Zero;
                 return false;
             }
-            var midLegTravelTime = tToPD = TravelTime( passengerTrip.OriginalZone, passengerTrip.DestinationZone, latestDriver );
-            Time finalLegTravelTime = tToDD = Time.Zero;
-            if ( passengerTrip.DestinationZone != driverOriginalTrip.DestinationZone )
+            var midLegTravelTime = toPassengerDestination = TravelTime(passengerTrip.OriginalZone, passengerTrip.DestinationZone, latestDriver);
+            Time finalLegTravelTime = toDriverDestination = Time.Zero;
+            if (passengerTrip.DestinationZone != driverOriginalTrip.DestinationZone)
             {
-                finalLegTravelTime = TravelTime( passengerTrip.DestinationZone, driverOriginalTrip.DestinationZone, latestDriver + midLegTravelTime );
+                finalLegTravelTime = TravelTime(passengerTrip.DestinationZone, driverOriginalTrip.DestinationZone, latestDriver + midLegTravelTime);
             }
             var totalDriverTime = timeToPassenger + midLegTravelTime + finalLegTravelTime;
-            if ( overlapStart + totalDriverTime > driverOriginalTrip.ActivityStartTime + MaxDriverTimeThreshold )
+            if (overlapStart + totalDriverTime > driverOriginalTrip.ActivityStartTime + MaxDriverTimeThreshold)
             {
                 return false;
             }

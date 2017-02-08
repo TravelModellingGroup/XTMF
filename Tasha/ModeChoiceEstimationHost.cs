@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -28,6 +29,7 @@ using TMG;
 using TMG.Input;
 using XTMF;
 using XTMF.Networking;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha
 {
@@ -206,7 +208,7 @@ namespace Tasha
                 error = "Mode Choice Estimation requires the modes in order to function properly!";
                 return false;
             }
-            else if ( Host == null )
+            if ( Host == null )
             {
                 error = "We require an XTMF Networking host to operate, please use a newer version of XTMF.";
                 return false;
@@ -731,7 +733,7 @@ namespace Tasha
                     Population[currentPosition] = ( new ParameterSet() { Value = 0 } );
                     if ( Population[currentPosition].Parameters == null )
                     {
-                        Population[currentPosition].Parameters = Parameters.Clone() as ParameterSetting[];
+                        Population[currentPosition].Parameters = (ParameterSetting[])Parameters.Clone();
                     }
                     reader.Get( out Population[currentPosition].Value, 1 );
                     Population[currentPosition].Processed = true;
@@ -760,39 +762,53 @@ namespace Tasha
             XmlDocument doc = new XmlDocument();
             doc.Load( GetFileLocation( ParameterInstructions ) );
             List<ParameterSetting> parameters = new List<ParameterSetting>();
-            foreach ( XmlNode child in doc["Root"].ChildNodes )
+            var childNodes = doc["Root"]?.ChildNodes;
+            if (childNodes == null)
+            {
+                return;
+            }
+            foreach ( XmlNode child in childNodes)
             {
                 if ( child.Name == "Parameter" )
                 {
                     ParameterSetting current = new ParameterSetting();
-                    current.Start = float.Parse( child.Attributes["Start"].InnerText );
-                    current.Stop = float.Parse( child.Attributes["Stop"].InnerText );
-                    current.Current = current.Start;
-                    if ( child.HasChildNodes )
+                    var childAttributes = child.Attributes;
+                    if (childAttributes != null)
                     {
-                        var nodes = child.ChildNodes;
-                        current.Names = new string[nodes.Count];
-                        for ( int i = 0; i < nodes.Count; i++ )
+                        current.Start = float.Parse(childAttributes["Start"].InnerText);
+                        current.Stop = float.Parse(childAttributes["Stop"].InnerText);
+                        current.Current = current.Start;
+                        if (child.HasChildNodes)
                         {
-                            XmlNode name = nodes[i];
-                            var modeName = name.Attributes["Mode"].InnerText;
-                            var parameterName = name.Attributes["Name"].InnerText;
-                            current.Names[i] = String.Concat( modeName, '.', parameterName );
+                            var nodes = child.ChildNodes;
+                            current.Names = new string[nodes.Count];
+                            for (int i = 0; i < nodes.Count; i++)
+                            {
+                                var grandChildAttributes = nodes[i].Attributes;
+                                if (grandChildAttributes != null)
+                                {
+                                    var modeName = grandChildAttributes["Mode"].InnerText;
+                                    var parameterName = grandChildAttributes["Name"].InnerText;
+                                    current.Names[i] = String.Concat(modeName, '.', parameterName);
+                                }
+                            }
                         }
-                    }
-                    else
-                    {
-                        var modeName = child.Attributes["Mode"].InnerText;
-                        var parameterName = String.Concat( modeName, '.', child.Attributes["Name"].InnerText );
-                        current.Names = new string[] { parameterName };
-                    }
-                    if ( !ValidateParameterNames || ValidateParameterName( current ) )
-                    {
-                        parameters.Add( current );
-                    }
-                    else
-                    {
-                        throw new XTMFRuntimeException( "This parameter is invalid.  Please make sure the mode exists and that it has a parameter with the given name!\r\n" + child.OuterXml );
+                        else
+                        {
+                            var modeName = childAttributes["Mode"].InnerText;
+                            var parameterName = String.Concat(modeName, '.', childAttributes["Name"].InnerText);
+                            current.Names = new[] {parameterName};
+                        }
+                        if (!ValidateParameterNames || ValidateParameterName(current))
+                        {
+                            parameters.Add(current);
+                        }
+                        else
+                        {
+                            throw new XTMFRuntimeException(
+                                "This parameter is invalid.  Please make sure the mode exists and that it has a parameter with the given name!\r\n" +
+                                child.OuterXml);
+                        }
                     }
                 }
             }
@@ -805,8 +821,7 @@ namespace Tasha
             lock ( this )
             {
                 obj.SendModelSystem( ModelSystemToExecute );
-                Configuration.CreateProgressReport( obj.UniqueID == null ? "Remote Host" : obj.UniqueID, delegate()
-                {
+                Configuration.CreateProgressReport( obj.UniqueID == null ? "Remote Host" : obj.UniqueID, delegate {
                     return obj.Progress;
                 }, new Tuple<byte, byte, byte>( 50, 50, 150 ) );
             }
@@ -825,6 +840,7 @@ namespace Tasha
         /// Process the custom message
         /// </summary>
         /// <param name="memory"></param>
+        /// <param name="r"></param>
         /// <returns></returns>
         private object ReadEvaluation(Stream memory, IRemoteXTMF r)
         {
@@ -834,12 +850,10 @@ namespace Tasha
             ret.ProcessedIndex = reader.ReadInt32();
             if ( ret.ProcessedIndex == -1 )
             {
-                reader = null;
                 SendNextParameter( r );
                 return null;
             }
             ret.ProcessedValue = reader.ReadSingle();
-            reader = null;
             SendNextParameter( r );
             return CurrentIteration == generation ? ret : null;
         }
@@ -901,9 +915,8 @@ namespace Tasha
 
         private void SendAttached(BinaryWriter writer, IAttachable att)
         {
-            var keys = att.Keys;
-            int keysLength = keys.Count();
-            writer.Write( keysLength );
+            var keys = att.Keys.ToList();
+            writer.Write(keys.Count);
             foreach ( var key in keys )
             {
                 writer.Write( key );
@@ -951,16 +964,16 @@ namespace Tasha
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="o"></param>
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="o"></param>
+        /// <param name="r"></param>
         /// <param name="s"></param>
         private void SendParametersToEvaluate(object o, IRemoteXTMF r, Stream s)
         {
             lock ( this )
             {
-                var message = o as ResultMessage;
+                var message = (ResultMessage)o;
                 var index = message.ProcessedIndex;
                 var toProcess = Population[index];
                 var parameters = toProcess.Parameters;
@@ -982,7 +995,6 @@ namespace Tasha
                     }
                 }
                 writer.Flush();
-                writer = null;
             }
         }
 
@@ -1013,7 +1025,7 @@ namespace Tasha
 
             public override string ToString()
             {
-                return Value.ToString();
+                return Value.ToString(CultureInfo.InvariantCulture);
             }
         }
 

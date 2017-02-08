@@ -122,7 +122,7 @@ namespace Tasha.Data
                 error = "In '" + Name + "', if you save rates by PD the input rates must be read in by PD.  The first rate is being read in by zone!";
                 return false;
             }
-            else if(SaveRatesBasedOnPD & !SecondRateBasedOnPD)
+            if(SaveRatesBasedOnPD & !SecondRateBasedOnPD)
             {
                 error = "In '" + Name + "', if you save rates by PD the input rates must be read in by PD.  The second rate is being read in by zone";
                 return false;

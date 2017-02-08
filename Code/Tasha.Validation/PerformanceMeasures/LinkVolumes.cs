@@ -18,21 +18,18 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using TMG.Input;
 using TMG.Emme;
 using TMG.DataUtility;
-using Tasha.Common;
 using XTMF;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
     public class LinkVolumes : IEmmeTool
     {
-        private const string _ToolName = "tmg.analysis.link_specific_volumes";
+        private const string ToolName = "tmg.analysis.link_specific_volumes";
 
         [SubModelInformation(Required = true, Description = "Volume results .CSV file")]
         public FileLocation LinkVolumeResults;
@@ -46,7 +43,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = false, Description = "The different links to consider")]
         public LinksToConsider[] LinksConsidered;
    
-        public sealed class LinksToConsider : XTMF.IModule
+        public sealed class LinksToConsider : IModule
         {
             public string Name { get; set; }
 
@@ -58,11 +55,11 @@ namespace Tasha.Validation.PerformanceMeasures
             public string Label;                
 
             [RunParameter("i,j of link", "123,123", "The i,j tuple of the line separated by a comma")]
-            public string ijLink;            
+            public string LinkID;
 
-            internal string ReturnFilter(ModellerController controller)
+            internal string ReturnFilter()
             {   
-                string filter = Label.Replace('"', '\'') + ":" + "link=" + ijLink.Replace('"', '\'');
+                string filter = Label.Replace('"', '\'') + ":" + "link=" + LinkID.Replace('"', '\'');
                 return filter;
             }
 
@@ -73,7 +70,7 @@ namespace Tasha.Validation.PerformanceMeasures
                     error = "In " + Name + " the label parameter was left blank.";
                     return false;
                 }
-                else if (String.IsNullOrWhiteSpace(ijLink))
+                else if (String.IsNullOrWhiteSpace(LinkID))
                 {
                     error = "in " + Name + " the ij link parameter was left blank";
                     return false;
@@ -83,11 +80,11 @@ namespace Tasha.Validation.PerformanceMeasures
             }
         }
 
-        private string GenerageArgumentString(ModellerController controller)
+        private string GenerageArgumentString()
         {
             var scenarioString = string.Join(",", ScenarioNumbers.Select(v => v.ToString()));
-            var linkString = "\"" + string.Join(";", LinksConsidered.Select(b => b.ReturnFilter(controller))) + "\"";
-            return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" " + TransitFlag.ToString();
+            var linkString = "\"" + string.Join(";", LinksConsidered.Select(b => b.ReturnFilter())) + "\"";
+            return "\"" + scenarioString + "\" " + linkString + "\"" + Path.GetFullPath(LinkVolumeResults) + "\" " + TransitFlag;
         }
 
         public bool Execute(Controller controller)
@@ -98,7 +95,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 throw new XTMFRuntimeException("In '" + Name + "' we were not given a modeller controller!");
             }
 
-            return modeller.Run(_ToolName, GenerageArgumentString(modeller));
+            return modeller.Run(ToolName, GenerageArgumentString());
         }
 
         public string Name

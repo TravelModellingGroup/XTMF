@@ -34,16 +34,16 @@ namespace Tasha.Validation
         )]
     public class TripDistanceVsTripTime : IPostHousehold
     {
-        [RunParameter( "Output File Name", "TripDistanceVsTripStart", "The file that will contain the results (No Extension)" )]
+        [RunParameter("Output File Name", "TripDistanceVsTripStart", "The file that will contain the results (No Extension)")]
         public string OutputFile;
 
-        [RunParameter( "Real Data?", false, "Are you looking at real data?" )]
+        [RunParameter("Real Data?", false, "Are you looking at real data?")]
         public bool RealData;
 
         [RootModule]
         public ITashaRuntime Root;
 
-        [RunParameter( "Trip Start Time", false, "Should we be using the trip start time or the activity start times?" )]
+        [RunParameter("Trip Start Time", false, "Should we be using the trip start time or the activity start times?")]
         public bool TripStartTime;
 
         private Dictionary<int, List<float>> Results = new Dictionary<int, List<float>>();
@@ -62,40 +62,39 @@ namespace Tasha.Validation
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return new Tuple<byte, byte, byte>( 100, 100, 100 ); }
+            get { return new Tuple<byte, byte, byte>(100, 100, 100); }
         }
 
         public void Execute(ITashaHousehold household, int iteration)
         {
-            lock ( this )
+            lock (this)
             {
-                float ExpansionFactor = household.ExpansionFactor;
-                foreach ( var person in household.Persons )
+                foreach (var person in household.Persons)
                 {
-                    foreach ( var tripChain in person.TripChains )
+                    foreach (var tripChain in person.TripChains)
                     {
-                        foreach ( var trip in tripChain.Trips )
+                        foreach (var trip in tripChain.Trips)
                         {
-                            float OverallDistance;
+                            float overallDistance;
 
-                            if ( trip.OriginalZone == trip.DestinationZone )
+                            if (trip.OriginalZone == trip.DestinationZone)
                             {
-                                OverallDistance = trip.OriginalZone.InternalDistance;
+                                overallDistance = trip.OriginalZone.InternalDistance;
                             }
                             else
                             {
-                                OverallDistance = ( Math.Abs( trip.OriginalZone.X - trip.DestinationZone.X ) + Math.Abs( trip.OriginalZone.Y - trip.DestinationZone.Y ) );
+                                overallDistance = (Math.Abs(trip.OriginalZone.X - trip.DestinationZone.X) + Math.Abs(trip.OriginalZone.Y - trip.DestinationZone.Y));
                             }
 
-                            if ( Results.ContainsKey( ( TripStartTime ? trip.TripStartTime : trip.ActivityStartTime ).Hours ) )
+                            if (Results.ContainsKey((TripStartTime ? trip.TripStartTime : trip.ActivityStartTime).Hours))
                             {
-                                Results[( TripStartTime ? trip.TripStartTime : trip.ActivityStartTime ).Hours].Add( OverallDistance );
+                                Results[(TripStartTime ? trip.TripStartTime : trip.ActivityStartTime).Hours].Add(overallDistance);
                             }
                             else
                             {
-                                List<float> Distance = new List<float>();
-                                Distance.Add( OverallDistance );
-                                Results.Add( ( TripStartTime ? trip.TripStartTime : trip.ActivityStartTime ).Hours, Distance );
+                                List<float> distance = new List<float>();
+                                distance.Add(overallDistance);
+                                Results.Add((TripStartTime ? trip.TripStartTime : trip.ActivityStartTime).Hours, distance);
                             }
                         }
                     }
@@ -105,24 +104,26 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iteration)
         {
-            string fileName;
-            if ( RealData )
+            lock (this)
             {
-                fileName = OutputFile + "Data.csv";
-            }
-            else
-            {
-                fileName = OutputFile + "Tasha.csv";
-            }
-
-            using ( StreamWriter Writer = new StreamWriter( fileName ) )
-            {
-                Writer.WriteLine( "Start Time Hour, Average Distance, Number of Occurances" );
-
-                foreach ( var pair in Results )
+                string fileName;
+                if (RealData)
                 {
-                    var AverageDistance = pair.Value.Average();
-                    Writer.WriteLine( "{0}, {1}, {2}", pair.Key, AverageDistance, pair.Value.Count );
+                    fileName = OutputFile + "Data.csv";
+                }
+                else
+                {
+                    fileName = OutputFile + "Tasha.csv";
+                }
+                using (StreamWriter writer = new StreamWriter(fileName))
+                {
+                    writer.WriteLine("Start Time Hour, Average Distance, Number of Occurances");
+
+                    foreach (var pair in Results)
+                    {
+                        var averageDistance = pair.Value.Average();
+                        writer.WriteLine("{0}, {1}, {2}", pair.Key, averageDistance, pair.Value.Count);
+                    }
                 }
             }
         }

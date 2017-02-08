@@ -163,10 +163,11 @@ namespace Tasha.V4Modes
             get { return new Tuple<byte, byte, byte>(100, 200, 100); }
         }
 
-        [DoNotAutomate]
+
         /// <summary>
         ///
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return VehicleType; }
@@ -187,20 +188,20 @@ namespace Tasha.V4Modes
         public double CalculateV(ITrip trip)
         {
             float v = 0;
-            ITashaPerson Person = trip.TripChain.Person;
+            ITashaPerson person = trip.TripChain.Person;
             float timeFactor, constant;
-            GetPersonVariables(Person, out timeFactor, out constant);
+            GetPersonVariables(person, out timeFactor, out constant);
             v += constant;
             if(trip.OriginalZone == trip.DestinationZone)
             {
                 v += IntrazonalConstant;
             }
             v += timeFactor * TravelTime(trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime).ToMinutes();
-            if(Person.Youth)
+            if(person.Youth)
             {
                 v += YouthFlag;
             }
-            if(Person.YoungAdult)
+            if(person.YoungAdult)
             {
                 v += YoungAdultFlag;
             }
@@ -289,6 +290,7 @@ namespace Tasha.V4Modes
         /// </summary>
         /// <param name="origin">The origin zone</param>
         /// <param name="destination">The destination zone</param>
+        /// <param name="time"></param>
         /// <returns>the cost</returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {

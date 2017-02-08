@@ -82,7 +82,7 @@ namespace Tasha.XTMFModeChoice
         {
             var numberOfModes = Modes.Count;
             var numberOfSharedModes = TashaRuntime.SharedModes.Count;
-            var householdData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
+            var householdData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
             double householdFitness = 0.0;
             double zeroFitness = 0.0;
             for(int personIndex = 0; personIndex < householdData.PersonData.Length; personIndex++)
@@ -358,7 +358,9 @@ namespace Tasha.XTMFModeChoice
         private void ClearTrips()
         {
             BadTripEntry t;
-            while(BadTripsQueue.TryDequeue(out t)) ;
+            while(BadTripsQueue.TryDequeue(out t))
+            {
+            }
         }
 
         private struct BadTripEntry

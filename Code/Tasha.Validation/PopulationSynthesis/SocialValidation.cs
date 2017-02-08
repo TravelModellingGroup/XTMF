@@ -17,9 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
 using Tasha.Common;
@@ -78,13 +76,9 @@ namespace Tasha.Validation.PopulationSynthesis
         {
             lock (this)
             {
-                var homeZone = ZoneSystem.GetFlatIndex(household.HomeZone.ZoneNumber);
                 foreach (var person in household.Persons)
                 {                    
                     float expansionFactor = person.ExpansionFactor;
-                    int number = (int)person.Occupation;
-
-                    AgeByZone.ElementAtOrDefault(person.Age)[homeZone] += expansionFactor;
                     EmpOccResults[person.Age][Array.IndexOf(EmploymentCategories, person.EmploymentStatus)]
                         [Array.IndexOf(OccupationCategories, person.Occupation)] += expansionFactor;
 
@@ -111,71 +105,71 @@ namespace Tasha.Validation.PopulationSynthesis
 
         public void IterationFinished(int iteration)
         {
-            using (StreamWriter Writer = new StreamWriter(AgeResults))
+            using (StreamWriter writer = new StreamWriter(AgeResults))
             {
-                Writer.Write("Age, ");
+                writer.Write("Age, ");
                 for (int i = 0; i < ZoneSystem.GetFlatData().Length; i++)
                 {
-                    Writer.Write("{0}, ", ZoneSystem.GetFlatData()[i]);
+                    writer.Write("{0}, ", ZoneSystem.GetFlatData()[i]);
                 }
-                Writer.WriteLine();
+                writer.WriteLine();
 
                 for (int j = 0; j < AgeByZone.Length; j++)
                 {
-                    Writer.Write("{0},", j);                    
+                    writer.Write("{0},", j);                    
                     for (int k = 0; k < ZoneSystem.GetFlatData().Length; k++)
                     {                       
                         {
-                            Writer.Write("{0},", AgeByZone[j][k]);
+                            writer.Write("{0},", AgeByZone[j][k]);
                         }                                      
                     }
-                    Writer.WriteLine();
+                    writer.WriteLine();
                 }
             }
 
-            using (StreamWriter Writer = new StreamWriter(OccEmpResults))
+            using (StreamWriter writer = new StreamWriter(OccEmpResults))
             {
-                Writer.Write("Age, Employment, ");
+                writer.Write("Age, Employment, ");
 
                 for (int i = 0; i < OccupationCategories.Length; i++)
                 {
-                    Writer.Write("{0},", OccupationCategories[i].ToString());
+                    writer.Write("{0},", OccupationCategories[i]);
                 }
-                Writer.WriteLine();
+                writer.WriteLine();
 
                 for (int i = 0; i < EmpOccResults.Length; i++)
                 {
                     for (int j = 0; j < EmploymentCategories.Length; j++)
                     {
-                        Writer.Write("{0},{1},", i, EmploymentCategories[j].ToString());
+                        writer.Write("{0},{1},", i, EmploymentCategories[j]);
 
                         for (int k = 0; k < OccupationCategories.Length; k++)
                         {
-                            Writer.Write("{0},", EmpOccResults[i][j][k]);                           
+                            writer.Write("{0},", EmpOccResults[i][j][k]);                           
                         }
-                        Writer.WriteLine();
+                        writer.WriteLine();
                     }
                 }                
             }
 
-            using (StreamWriter Writer = new StreamWriter(MiscResults))
+            using (StreamWriter writer = new StreamWriter(MiscResults))
             {
-                Writer.WriteLine("Gender, Number of People");
-                Writer.WriteLine("Male, {0}", GenderCounts[0]);
-                Writer.WriteLine("Female, {0}", GenderCounts[1]);
+                writer.WriteLine("Gender, Number of People");
+                writer.WriteLine("Male, {0}", GenderCounts[0]);
+                writer.WriteLine("Female, {0}", GenderCounts[1]);
 
-                Writer.WriteLine();
+                writer.WriteLine();
 
-                Writer.WriteLine("Licence, Number of People");
-                Writer.WriteLine("Yes, {0}", LicenceCounts[0]);
-                Writer.WriteLine("No, {0}", LicenceCounts[1]);
+                writer.WriteLine("Licence, Number of People");
+                writer.WriteLine("Yes, {0}", LicenceCounts[0]);
+                writer.WriteLine("No, {0}", LicenceCounts[1]);
 
-                Writer.WriteLine();
+                writer.WriteLine();
 
-                Writer.WriteLine("Number of Cars, Number of Households");
+                writer.WriteLine("Number of Cars, Number of Households");
                 for (int i = 0; i < CarCounts.Length; i++)
                 {
-                    Writer.WriteLine("{0}, {1}", i, CarCounts[i]);
+                    writer.WriteLine("{0}, {1}", i, CarCounts[i]);
                 }
             }
                                        

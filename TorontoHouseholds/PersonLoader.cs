@@ -17,9 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 using Datastructure;
 using Tasha.Common;
 using XTMF;
@@ -89,15 +87,9 @@ namespace TMG.Tasha
         [RunParameter("Unknown Zone#", 9999, "The zone number representing a zone that we don't know about")]
         public int UnknownZoneNumber;
 
-        private ConcurrentBag<ITashaPerson> AvailablePeople = new ConcurrentBag<ITashaPerson>();
-        private bool ContainsData = false;
-        private ConcurrentQueue<ITashaPerson> LoadedItems = new ConcurrentQueue<ITashaPerson>();
+        private bool ContainsData;
 
         private CsvReader Reader;
-
-        public PersonLoader()
-        {
-        }
 
         ~PersonLoader()
         {
@@ -177,7 +169,7 @@ namespace TMG.Tasha
             {
                 for(int i = 0; i < personArray.Length; i++)
                 {
-                    var p = personArray[i] as Person;
+                    var p = (Person) personArray[i];
                     if(p.StudentStatus == StudentStatus.FullTime | p.StudentStatus == StudentStatus.PartTime)
                     {
                         p.SchoolZone = PlaceOfResidencePlaceOfSchool.ProduceResult(p);
@@ -189,7 +181,7 @@ namespace TMG.Tasha
             {
                 for(int i = 0; i < personArray.Length; i++)
                 {
-                    var p = personArray[i] as Person;
+                    var p = (Person) personArray[i];
 
                     if((p.EmploymentStatus == TTSEmploymentStatus.FullTime | p.EmploymentStatus == TTSEmploymentStatus.PartTime))
                     {
@@ -224,10 +216,8 @@ namespace TMG.Tasha
                     return false;
                 }
             }
-            int hhldid = household.HouseholdId;
-            int tempInt = 0;
+            int tempInt;
             char tempChar;
-            var householdZone = household.HomeZone;
             List<ITashaPerson> persons = new List<ITashaPerson>();
             while(true)
             {
@@ -273,7 +263,7 @@ namespace TMG.Tasha
                     p.EmploymentStatus = GetEmploymentStatus(tempChar);
                 }
                 Reader.Get(out tempChar, PersonFreeParkingCol);
-                p.FreeParking = tempChar == 'Y' ? true : false;
+                p.FreeParking = tempChar == 'Y';
                 Reader.Get(out tempChar, PersonStudentCol);
                 p.StudentStatus = GetStudentStatus(tempChar);
                 // check to see if we should load in the school zone directly or just call our PoRPoS model to give us a zone for this student

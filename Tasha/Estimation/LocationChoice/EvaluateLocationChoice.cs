@@ -202,7 +202,7 @@ namespace Tasha.Estimation.LocationChoice
 
         private Episode CreateEpisode(ITrip trip, ITrip nextTrip, ITashaPerson owner)
         {
-            return new ActivityEpisode(0, new TimeWindow(trip.ActivityStartTime, nextTrip.ActivityStartTime), trip.Purpose, owner);
+            return new ActivityEpisode(new TimeWindow(trip.ActivityStartTime, nextTrip.ActivityStartTime), trip.Purpose, owner);
         }
 
         public void IterationFinished(int iteration)

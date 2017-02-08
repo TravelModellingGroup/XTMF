@@ -25,11 +25,9 @@ namespace Tasha.XTMFModeChoice
 {
     internal class PurePassengerTripChain : Attachable, ITripChain
     {
-        private List<ITrip> trips;
-
         public PurePassengerTripChain()
         {
-            trips = new List<ITrip>( 1 );
+            Trips = new List<ITrip>( 1 );
         }
 
         public Time EndTime
@@ -65,7 +63,7 @@ namespace Tasha.XTMFModeChoice
             get { return false; }
         }
 
-        public List<ITashaPerson> passengers
+        public List<ITashaPerson> Passengers
         {
             get { return null; }
         }
@@ -76,7 +74,7 @@ namespace Tasha.XTMFModeChoice
             set;
         }
 
-        public List<IVehicleType> requiresVehicle
+        public List<IVehicleType> RequiresVehicle
         {
             get { return null; }
         }
@@ -94,18 +92,7 @@ namespace Tasha.XTMFModeChoice
             get { return false; }
         }
 
-        public List<ITrip> Trips
-        {
-            get
-            {
-                return trips;
-            }
-
-            set
-            {
-                trips = value;
-            }
-        }
+        public List<ITrip> Trips { get; set; }
 
         public ITripChain Clone()
         {

@@ -310,7 +310,9 @@ namespace Tasha.Modes
         private void ClearTrips()
         {
             BadTripEntry t;
-            while ( BadTripsQueue.TryDequeue( out t ) ) ;
+            while ( BadTripsQueue.TryDequeue( out t ) )
+            {
+            }
         }
 
         private struct BadTripEntry

@@ -24,7 +24,7 @@ namespace Tasha.Common
     /// This attribute should be used to identify which directory corresponds
     /// to this class
     /// </summary>
-    [System.AttributeUsage( System.AttributeTargets.Class )]
+    [AttributeUsage( AttributeTargets.Class )]
     public class ConfigDirectoryAttribute : Attribute
     {
         public ConfigDirectoryAttribute(string directoryName)

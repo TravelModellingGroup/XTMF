@@ -107,22 +107,25 @@ namespace Tasha.Validation
             Dictionary<Activity, StreamWriter> writerDict = new Dictionary<Activity, StreamWriter>();
             try
             {
-                foreach ( var pair in DurationsDict )
+                lock (this)
                 {
-                    string fileName;
-                    var purpose = pair.Key.Key;
-                    var hour = pair.Key.Value;
-                    var averageDur = pair.Value.Average();
-                    if ( !writerDict.ContainsKey( purpose ) )
+                    foreach ( var pair in DurationsDict )
                     {
-                        fileName = RealData ? purpose + "DurationsData.csv" : purpose + "DurationsTasha.csv";
-                        writerDict[purpose] = new StreamWriter( fileName );
-                        writerDict[purpose].WriteLine( "Start Times, Durations" );
+                        string fileName;
+                        var purpose = pair.Key.Key;
+                        var hour = pair.Key.Value;
+                        var averageDur = pair.Value.Average();
+                        if ( !writerDict.ContainsKey( purpose ) )
+                        {
+                            fileName = RealData ? purpose + "DurationsData.csv" : purpose + "DurationsTasha.csv";
+                            writerDict[purpose] = new StreamWriter( fileName );
+                            writerDict[purpose].WriteLine( "Start Times, Durations" );
+                        }
+                        writerDict[purpose].WriteLine( "{0}, {1}", hour, averageDur );
                     }
-                    writerDict[purpose].WriteLine( "{0}, {1}", hour, averageDur );
                 }
             }
-            catch
+            catch(IOException)
             {
             }
             finally

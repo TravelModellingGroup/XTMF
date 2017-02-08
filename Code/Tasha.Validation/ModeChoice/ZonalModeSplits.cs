@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using Datastructure;
 using Tasha.Common;
@@ -108,7 +105,7 @@ namespace Tasha.Validation.ModeChoice
                     return i;
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '" + mode == null ? "a null mode" : mode.ModeName + "'");
+            throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '" + mode.ModeName + "'");
         }
 
         public void HouseholdStart(ITashaHousehold household, int householdIterations)

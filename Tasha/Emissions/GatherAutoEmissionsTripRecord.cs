@@ -243,12 +243,9 @@ namespace Tasha.Emissions
                     destination = chain[AccessZoneTagName] as IZone;
                     return destination != null;
                 }
-                else
-                {
-                    origin = chain[AccessZoneTagName] as IZone;
-                    destination = trip.DestinationZone;
-                    return origin != null;
-                }
+                origin = chain[AccessZoneTagName] as IZone;
+                destination = trip.DestinationZone;
+                return origin != null;
             }
 
             public bool RuntimeValidation(ref string error)

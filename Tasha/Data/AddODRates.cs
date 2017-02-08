@@ -119,7 +119,7 @@ namespace Tasha.Data
             {
                 if (!AdditionalRates[i].CheckResourceType<SparseTwinIndex<float>>())
                 {
-                    error = "In '" + Name + "' the additional rate resource named '" + AdditionalRates[i].Name + "' at position '" + i.ToString() + "' is not of type SparseTwinIndex<float>!";
+                    error = "In '" + Name + "' the additional rate resource named '" + AdditionalRates[i].Name + "' at position '" + i + "' is not of type SparseTwinIndex<float>!";
                     return false;
                 }
             }

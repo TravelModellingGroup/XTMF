@@ -32,7 +32,7 @@ namespace Tasha.Common
 
         private Vehicle(IVehicleType type)
         {
-            this.VehicleType = type;
+            VehicleType = type;
         }
 
         /// <summary>
@@ -43,10 +43,6 @@ namespace Tasha.Common
             get
             {
                 return null;
-            }
-
-            set
-            {
             }
         }
 
@@ -66,7 +62,7 @@ namespace Tasha.Common
         public static Vehicle MakeVehicle(IVehicleType type)
         {
             Vehicle v;
-            if ( Vehicle.Vehicles.TryTake( out v ) )
+            if ( Vehicles.TryTake( out v ) )
             {
                 v.VehicleType = type;
                 return v;
@@ -76,11 +72,11 @@ namespace Tasha.Common
 
         public void Recycle()
         {
-            this.VehicleType = null;
-            this.Release();
+            VehicleType = null;
+            Release();
             if(Vehicles.Count < 100)
             {
-                Vehicle.Vehicles.Add(this);
+                Vehicles.Add(this);
             }
         }
     }
