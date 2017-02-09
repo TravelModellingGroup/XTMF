@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -32,7 +34,7 @@ namespace XTMF.Gui
         public SearchBox()
         {
             InitializeComponent();
-            Search.PreviewKeyDown += new KeyEventHandler(Search_KeyDown);
+            Search.PreviewKeyDown += Search_KeyDown;
         }
 
         public event Action<string> TextChanged;
@@ -95,7 +97,7 @@ namespace XTMF.Gui
             }
         }
 
-        private void ClearFilter_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void ClearFilter_Click(object sender, RoutedEventArgs e)
         {
             ClearFilter();
         }

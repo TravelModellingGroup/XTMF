@@ -312,20 +312,21 @@ namespace XTMF.Gui.UserControls
             var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
 
 
-            if (selectedLinkedParameter != null)
+            if (selectedLinkedParameter == null)
             {
-                string error = null;
-                var index = LinkedParameters.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
-                if (!LinkedParameters.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
-                {
-                    MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                    return;
-                }
-                var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
-                items.Remove(selectedLinkedParameter);
-                ChangesMade = true;
+                return;
             }
+            string error = null;
+            var index = LinkedParameters.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
+            if (!LinkedParameters.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
+            {
+                MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+            var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
+            items?.Remove(selectedLinkedParameter);
+            ChangesMade = true;
         }
 
         private void RemoveLinkedParameter_Click(object sender, RoutedEventArgs e)
@@ -445,7 +446,7 @@ namespace XTMF.Gui.UserControls
         {
             if (e.Key == Key.Escape && !e.Handled)
             {
-                this.Close();
+                Close();
             }
         }
 
@@ -461,7 +462,7 @@ namespace XTMF.Gui.UserControls
 
 
                     e.Handled = true;
-                    this.DragMove();
+                    DragMove();
 
                 }
 
@@ -480,7 +481,7 @@ namespace XTMF.Gui.UserControls
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
     }
 

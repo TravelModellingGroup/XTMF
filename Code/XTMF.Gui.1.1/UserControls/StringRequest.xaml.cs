@@ -16,18 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace XTMF.Gui.UserControls
 {
@@ -88,7 +81,7 @@ namespace XTMF.Gui.UserControls
                 if (e.Key == Key.Escape)
                 {
                     e.Handled = true;
-                    this.Visibility = Visibility.Hidden;
+                    Visibility = Visibility.Hidden;
 
                     Close();
                 }

@@ -37,44 +37,44 @@ namespace XTMF.Gui.UserControls
         {
             var contextMenu = new ContextMenu();
             // copy
-            contextMenu.Items.Add(new MenuItem()
+            contextMenu.Items.Add(new MenuItem
             {
                 Header = "Copy",
                 Command = ApplicationCommands.Copy,
-                Icon = new Image()
+                Icon = new Image
                 {
                     Source = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png")),
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch,
                     Width = 20,
                     Height = 20
                 }
             });
             // cut
-            contextMenu.Items.Add(new MenuItem()
+            contextMenu.Items.Add(new MenuItem
             {
                 Header = "Cut",
                 Command = ApplicationCommands.Cut,
-                Icon = new Image()
+                Icon = new Image
                 {
                     Source = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Images/CutHS.png"))
                     ,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch,
                     Width = 20,
                     Height = 20
                 }
             });
             // paste
-            contextMenu.Items.Add(new MenuItem()
+            contextMenu.Items.Add(new MenuItem
             {
                 Header = "Paste",
                 Command = ApplicationCommands.Paste,
-                Icon = new Image()
+                Icon = new Image
                 {
                     Source = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Images/PasteHS.png")),
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch,
                     Width = 20,
                     Height = 20
                 }
@@ -84,15 +84,15 @@ namespace XTMF.Gui.UserControls
 
         public HintedTextBox()
         {
-            this.ClipToBounds = true;
-            this.ContextMenu = _LocalContextMenu;
+            ClipToBounds = true;
+            ContextMenu = _LocalContextMenu;
         }
 
         public string HintText
         {
             get
             {
-                return this.hintText;
+                return hintText;
             }
 
             set
@@ -100,7 +100,7 @@ namespace XTMF.Gui.UserControls
                 hintText = value;
                 if (!String.IsNullOrEmpty(hintText))
                 {
-                    this.Background = Brushes.Transparent;
+                    Background = Brushes.Transparent;
                 }
                 RebuildFont();
             }
@@ -108,17 +108,17 @@ namespace XTMF.Gui.UserControls
 
         protected override void OnRender(DrawingContext dc)
         {
-            if (this.ClipToBounds)
+            if (ClipToBounds)
             {
-                dc.PushClip(new RectangleGeometry(new Rect(0, 0, this.ActualWidth, this.ActualHeight)));
+                dc.PushClip(new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight)));
             }
-            dc.DrawRectangle(Brushes.White, new Pen(), new Rect(0, 0, this.ActualWidth, this.ActualHeight));
+            dc.DrawRectangle(Brushes.White, new Pen(), new Rect(0, 0, ActualWidth, ActualHeight));
             base.OnRender(dc);
-            if (this.Text == String.Empty && this.HintTextImage != null)
+            if (Text == String.Empty && HintTextImage != null)
             {
-                dc.DrawText(this.HintTextImage, new Point(4, (this.ActualHeight - this.HintTextImage.Height) / 2));
+                dc.DrawText(HintTextImage, new Point(4, (ActualHeight - HintTextImage.Height) / 2));
             }
-            if (this.ClipToBounds)
+            if (ClipToBounds)
             {
                 // pop the clip that we added
                 dc.Pop();
@@ -128,29 +128,29 @@ namespace XTMF.Gui.UserControls
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             base.OnTextChanged(e);
-            this.InvalidateVisual();
+            InvalidateVisual();
         }
 
         private void RebuildFont()
         {
-            if (this.hintText == null)
+            if (hintText == null)
             {
-                this.HintTextImage = null;
+                HintTextImage = null;
             }
             else
             {
-                this.HintTextImage = new FormattedText(this.hintText, CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight,
-                    new Typeface(this.FontFamily, this.FontStyle, this.FontWeight, this.FontStretch), this.FontSize, Brushes.Gray);
+                HintTextImage = new FormattedText(hintText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                    new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Brushes.Gray);
                 int constantBorder = 8;
-                if (this.ActualWidth > 0)
+                if (ActualWidth > 0)
                 {
-                    if (this.HintTextImage.Width + constantBorder > this.ActualWidth)
+                    if (HintTextImage.Width + constantBorder > ActualWidth)
                     {
-                        this.Width = this.HintTextImage.Width + constantBorder;
+                        Width = HintTextImage.Width + constantBorder;
                     }
                 }
             }
-            this.InvalidateVisual();
+            InvalidateVisual();
         }
     }
 }

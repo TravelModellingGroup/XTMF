@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -62,14 +63,14 @@ namespace XTMF.Gui
 
         private bool _isConstructing = true;
 
-        private bool _mouseDownInside = false;
+        private bool _mouseDownInside;
 
         private Point _mouseDownPoint;
 
         static BorderIconButton()
         {
-            UserControl.BorderBrushProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(Brushes.White, BorderBrushChanged));
-            UserControl.BorderThicknessProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(new Thickness(1), BorderThicknessChanged));
+            BorderBrushProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(Brushes.White, BorderBrushChanged));
+            BorderThicknessProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(new Thickness(1), BorderThicknessChanged));
             try
             {
                 DefaultSelectionBlue = (Color)Application.Current.TryFindResource("SelectionBlue");
@@ -100,7 +101,7 @@ namespace XTMF.Gui
             HighlightColour = DefaultSelectionBlue;
             FocusColour = DefaultFocusColour;
             InitializeComponent();
-            IsEnabledChanged += new DependencyPropertyChangedEventHandler(BorderIconButton_IsEnabledChanged);
+            IsEnabledChanged += BorderIconButton_IsEnabledChanged;
             _baseWidth = 200;
             _isConstructing = false;
             Loaded += BorderIconButton_Loaded;
@@ -491,7 +492,7 @@ namespace XTMF.Gui
         {
             if ((bool)e.NewValue != (bool)e.OldValue)
             {
-                if ((bool)e.NewValue == true)
+                if ((bool)e.NewValue)
                 {
                     FadeInContent();
                 }

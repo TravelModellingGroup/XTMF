@@ -16,23 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel;
-using System.Threading;
-using System.Text.RegularExpressions;
 
 namespace XTMF.Gui.UserControls.Help
 {
@@ -167,13 +160,13 @@ namespace XTMF.Gui.UserControls.Help
                       }));
                    });
                    OperationProgressing progressing = null;
-                   Dispatcher.Invoke(new Action(() =>
+                   Dispatcher.Invoke(() =>
                    {
-                       progressing = new OperationProgressing()
+                       progressing = new OperationProgressing
                        {
                            Owner = MainWindow.Us
                        };
-                   }));
+                   });
                    Dispatcher.BeginInvoke(new Action(() =>
                    {
                        progressing.ShowDialog();

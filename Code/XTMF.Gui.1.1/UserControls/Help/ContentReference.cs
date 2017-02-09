@@ -16,14 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace XTMF.Gui.UserControls.Help
 {
@@ -67,7 +62,7 @@ namespace XTMF.Gui.UserControls.Help
 
         private UIElement GenerateContent()
         {
-            return new DocumentationControl() { Type = Module, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
+            return new DocumentationControl { Type = Module, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
         }
 
         public override string ToString()

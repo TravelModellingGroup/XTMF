@@ -16,29 +16,28 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Media;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
+using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
@@ -177,7 +176,7 @@ namespace XTMF.Gui.UserControls
             return null;
         }
 
-        static int FilterNumber = 0;
+        static int FilterNumber;
 
         public ModelSystemDisplay()
         {
@@ -479,7 +478,7 @@ namespace XTMF.Gui.UserControls
 
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
         {
-            var ret = new ObservableCollection<ModelSystemStructureDisplayModel>()
+            var ret = new ObservableCollection<ModelSystemStructureDisplayModel>
             {
                 (DisplayRoot = new ModelSystemStructureDisplayModel(root))
             };
@@ -494,14 +493,14 @@ namespace XTMF.Gui.UserControls
                 switch (e.Key)
                 {
                     case Key.Down:
-                        if (Controllers.EditorController.IsShiftDown() && Controllers.EditorController.IsControlDown())
+                        if (EditorController.IsShiftDown() && EditorController.IsControlDown())
                         {
                             MoveCurrentModule(1);
                             e.Handled = true;
                         }
                         break;
                     case Key.Up:
-                        if (Controllers.EditorController.IsShiftDown() && Controllers.EditorController.IsControlDown())
+                        if (EditorController.IsShiftDown() && EditorController.IsControlDown())
                         {
                             MoveCurrentModule(-1);
                             e.Handled = true;
@@ -516,16 +515,16 @@ namespace XTMF.Gui.UserControls
             base.OnKeyDown(e);
             if (e.Handled == false)
             {
-                if (Controllers.EditorController.IsControlDown())
+                if (EditorController.IsControlDown())
                 {
                     switch (e.Key)
                     {
                         case Key.M:
-                            if (Controllers.EditorController.IsAltDown())
+                            if (EditorController.IsAltDown())
                             {
                                 SetMetaModuleStateForSelected(false);
                             }
-                            else if (Controllers.EditorController.IsShiftDown())
+                            else if (EditorController.IsShiftDown())
                             {
                                 SetMetaModuleStateForSelected(true);
                             }
@@ -607,7 +606,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.F2:
-                            if (Controllers.EditorController.IsShiftDown())
+                            if (EditorController.IsShiftDown())
                             {
                                 RenameDescription();
                             }
@@ -674,12 +673,12 @@ namespace XTMF.Gui.UserControls
         internal bool CloseRequested()
         {
             SaveCurrentlySelectedParameters();
-            this.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 MainWindow.ShowPageContaining(this);
             });
             var result = false;
-            this.Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 if (!Session.CloseWillTerminate || !Session.HasChanged
                     || MessageBox.Show("The model system has not been saved, closing this window will discard the changes!",
@@ -986,7 +985,7 @@ namespace XTMF.Gui.UserControls
             SaveCurrentlySelectedParameters();
             if (saveAs)
             {
-                StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
+                StringRequest sr = new StringRequest("Save Model System As?", newName =>
                 {
                     return Project.ValidateProjectName(newName);
                 });
@@ -1068,10 +1067,7 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(MainWindow.Us, "Failed to Paste.\r\n" + error, "Unable to Paste", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    else
-                    {
-                        any = true;
-                    }
+                    any = true;
                 }
             }
             if (any)
@@ -1084,7 +1080,7 @@ namespace XTMF.Gui.UserControls
         public void ExternalUpdateParameters()
         {
 
-            this.UpdateParameters();
+            UpdateParameters();
 
         }
 
@@ -1112,7 +1108,7 @@ namespace XTMF.Gui.UserControls
                             if (CurrentlySelected[0].BaseModel.IsMetaModule)
                             {
 
-                                foreach (var s in source.Where(p => p.RealParameter.IsHidden == true).ToList())
+                                foreach (var s in source.Where(p => p.RealParameter.IsHidden).ToList())
                                 {
 
                                     source.Remove(s);
@@ -1228,7 +1224,7 @@ namespace XTMF.Gui.UserControls
             if (selectedModuleControl != null)
             {
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                var adorn = new TextboxAdorner("Rename", (result) =>
+                var adorn = new TextboxAdorner("Rename", result =>
                 {
                     string error = null;
                     Session.ExecuteCombinedCommands(
@@ -1259,7 +1255,7 @@ namespace XTMF.Gui.UserControls
             if (selectedModuleControl != null)
             {
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                var adorn = new TextboxAdorner("Rename Description", (result) =>
+                var adorn = new TextboxAdorner("Rename Description", result =>
                 {
                     string error = null;
                     Session.ExecuteCombinedCommands(
@@ -1293,7 +1289,7 @@ namespace XTMF.Gui.UserControls
                 if (CurrentlySelected.Any(m => Session.GetParent(m.BaseModel) != parent))
                 {
                     // if not ding and exit
-                    System.Media.SystemSounds.Asterisk.Play();
+                    SystemSounds.Asterisk.Play();
                     return;
                 }
                 var mul = deltaPosition < 0 ? 1 : -1;
@@ -1310,7 +1306,7 @@ namespace XTMF.Gui.UserControls
                        if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
                        {
                            //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
-                           System.Media.SystemSounds.Asterisk.Play();
+                           SystemSounds.Asterisk.Play();
                            break;
                        }
                    }
@@ -1396,7 +1392,7 @@ namespace XTMF.Gui.UserControls
                    string error = null;
                    if (!ModelSystem.Remove(selected.BaseModel, ref error))
                    {
-                       System.Media.SystemSounds.Asterisk.Play();
+                       SystemSounds.Asterisk.Play();
                    }
                }
            });
@@ -1471,7 +1467,7 @@ namespace XTMF.Gui.UserControls
                 if (selectedContainer != null)
                 {
                     var layer = AdornerLayer.GetAdornerLayer(selectedContainer);
-                    var adorn = new TextboxAdorner("Rename", (result) =>
+                    var adorn = new TextboxAdorner("Rename", result =>
                     {
                         string error = null;
                         if (!currentParameter.SetName(result, ref error))
@@ -1539,7 +1535,7 @@ namespace XTMF.Gui.UserControls
                     var pathToFile = GetRelativePath(inputDirectory, currentParameter.Value, isInputParameter);
                     if (openDirectory)
                     {
-                        pathToFile = System.IO.Path.GetDirectoryName(pathToFile);
+                        pathToFile = Path.GetDirectoryName(pathToFile);
                     }
                     try
                     {
@@ -1592,7 +1588,7 @@ namespace XTMF.Gui.UserControls
                 ParameterModel _ = GetInputParameter(Session.GetModelSystemStructureModel(currentParameter.BelongsTo as ModelSystemStructure), out inputDirectory);
                 if (inputDirectory != null)
                 {
-                    string fileName = MainWindow.OpenFile("Select File", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("All Files", "*") }, true);
+                    string fileName = MainWindow.OpenFile("Select File", new[] { new KeyValuePair<string, string>("All Files", "*") }, true);
                     if (fileName == null)
                     {
                         return;
@@ -1606,9 +1602,9 @@ namespace XTMF.Gui.UserControls
         private void TransformToRelativePath(string inputDirectory, ref string fileName)
         {
             var runtimeInputDirectory =
-                System.IO.Path.GetFullPath(
-                System.IO.Path.Combine(Session.Configuration.ProjectDirectory, "AProject", "RunDirectory", inputDirectory)
-                ) + System.IO.Path.DirectorySeparatorChar;
+                Path.GetFullPath(
+                Path.Combine(Session.Configuration.ProjectDirectory, "AProject", "RunDirectory", inputDirectory)
+                ) + Path.DirectorySeparatorChar;
             if (fileName.StartsWith(runtimeInputDirectory))
             {
                 fileName = fileName.Substring(runtimeInputDirectory.Length);
@@ -1628,7 +1624,7 @@ namespace XTMF.Gui.UserControls
                     if (parameters[i].Name == parameterName)
                     {
                         parameter = parameters[i];
-                        return parameters[i].Value.ToString();
+                        return parameters[i].Value;
                     }
                 }
             }
@@ -1638,17 +1634,17 @@ namespace XTMF.Gui.UserControls
 
         private string GetRelativePath(string inputDirectory, string parameterValue, bool isInputParameter)
         {
-            var parameterRooted = System.IO.Path.IsPathRooted(parameterValue);
-            var inputDirectoryRooted = System.IO.Path.IsPathRooted(inputDirectory);
+            var parameterRooted = Path.IsPathRooted(parameterValue);
+            var inputDirectoryRooted = Path.IsPathRooted(inputDirectory);
             if (parameterRooted)
             {
                 return RemoveRelativeDirectories(parameterValue);
             }
-            else if (inputDirectoryRooted)
+            if (inputDirectoryRooted)
             {
-                return RemoveRelativeDirectories(System.IO.Path.Combine(inputDirectory, parameterValue));
+                return RemoveRelativeDirectories(Path.Combine(inputDirectory, parameterValue));
             }
-            return RemoveRelativeDirectories(System.IO.Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Name,
+            return RemoveRelativeDirectories(Path.Combine(Session.Configuration.ProjectDirectory, Session.ProjectEditingSession.Name,
             "RunDirectory", inputDirectory, isInputParameter ? "" : parameterValue));
         }
 
@@ -1678,7 +1674,7 @@ namespace XTMF.Gui.UserControls
                 else
                 {
                     finalPath.Append(parts[i]);
-                    finalPath.Append(System.IO.Path.DirectorySeparatorChar);
+                    finalPath.Append(Path.DirectorySeparatorChar);
                     currentlyOn.Push(parts[i]);
                 }
             }
@@ -1823,7 +1819,7 @@ namespace XTMF.Gui.UserControls
                     );
                     return;
                 }
-                var treeViewItem = VisualUpwardSearch(module as DependencyObject) as TreeViewItem;
+                var treeViewItem = VisualUpwardSearch(module);
                 if (treeViewItem == null) return;
 
                 var currentItem = treeView.SelectedItem as ModelSystemStructureDisplayModel;

@@ -31,7 +31,7 @@
 
         MouseDown="Window_MouseDown" MouseDoubleClick="MainWindow_OnMouseDoubleClick"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
-        AllowsTransparency="True"
+        AllowsTransparency="True" StateChanged="Window_StateChanged"
         >
     <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
         <Grid.RowDefinitions>
@@ -39,7 +39,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"
+        <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush1}"
                 MouseDown="Window_MouseDown">
             <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,5,0">
                 <Border DockPanel.Dock="Left">
@@ -193,7 +193,7 @@
                 </StackPanel>
             </DockPanel>
         </Border>
-        <Grid Grid.Row="1" Background="{DynamicResource DarkGrayBackgroundBrush}">
+        <Grid Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush1}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="179*" />
@@ -317,7 +317,7 @@
                                  ScrollViewer.PanningMode="HorizontalOnly"
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
                                  Margin="0,7,0,0" Grid.ColumnSpan="2"
-                                 Background="{DynamicResource DarkGrayBackgroundBrush}">
+                                 Background="{DynamicResource WindowBackgroundBrush1}">
                 <xcad:DockingManager.DocumentTitleTemplate>
                     <DataTemplate>
                         <Grid HorizontalAlignment="Stretch">
@@ -380,7 +380,7 @@
                     </xcad:LayoutPanel>
                 </xcad:LayoutRoot>
             </xcad:DockingManager>
-            <StatusBar Background="{DynamicResource DarkGrayBackgroundBrush}" HorizontalAlignment="Stretch"
+            <StatusBar Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch"
                        Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
                 <StatusBarItem HorizontalAlignment="Left">
                     <TextBlock x:Name="StatusDisplay" Foreground="White" />

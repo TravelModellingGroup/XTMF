@@ -1,18 +1,19 @@
 ﻿/*
  Taken from https://virtualwrappanel.codeplex.com/SourceControl/changeset/b63959517843 and modified for XTMF use.
 */
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows;
-using System.Windows.Media;
-using System.Diagnostics;
-using System.ComponentModel;
 using System.Windows.Input;
-using System.Collections.ObjectModel;
+using System.Windows.Media;
 
 namespace XTMF.Gui
 {
@@ -27,7 +28,7 @@ namespace XTMF.Gui
         private Point _offset = new Point(0, 0);
         private Size _extent = new Size(0, 0);
         private Size _viewport = new Size(0, 0);
-        private int firstIndex = 0;
+        private int firstIndex;
         private Size childSize;
         private Size _pixelMeasuredViewport = new Size(0, 0);
         Dictionary<UIElement, Rect> _realizedChildLayout = new Dictionary<UIElement, Rect>();
@@ -55,11 +56,11 @@ namespace XTMF.Gui
         {
             get
             {
-                return (double)base.GetValue(ItemHeightProperty);
+                return (double)GetValue(ItemHeightProperty);
             }
             set
             {
-                base.SetValue(ItemHeightProperty, value);
+                SetValue(ItemHeightProperty, value);
             }
         }
 
@@ -68,11 +69,11 @@ namespace XTMF.Gui
         {
             get
             {
-                return (double)base.GetValue(ItemWidthProperty);
+                return (double)GetValue(ItemWidthProperty);
             }
             set
             {
-                base.SetValue(ItemWidthProperty, value);
+                SetValue(ItemWidthProperty, value);
             }
         }
 
@@ -200,8 +201,7 @@ namespace XTMF.Gui
                     First();
                 return ret._index;
             }
-            else
-                return itemIndex;
+            return itemIndex;
         }
 
         private int GetLastSectionClosestIndex(int itemIndex)
@@ -215,8 +215,7 @@ namespace XTMF.Gui
                     First();
                 return ret._index;
             }
-            else
-                return itemIndex;
+            return itemIndex;
         }
 
         private void NavigateDown()
@@ -441,7 +440,7 @@ namespace XTMF.Gui
             _itemsControl = ItemsControl.GetItemsOwner(this);
             _children = InternalChildren;
             _generator = ItemContainerGenerator;
-            this.SizeChanged += new SizeChangedEventHandler(this.Resizing);
+            SizeChanged += Resizing;
         }
 
         protected override Size MeasureOverride(Size availableSize)
@@ -491,11 +490,11 @@ namespace XTMF.Gui
                         // Figure out if we need to insert the child at the end or somewhere in the middle
                         if (childIndex >= _children.Count)
                         {
-                            base.AddInternalChild(child);
+                            AddInternalChild(child);
                         }
                         else
                         {
-                            base.InsertInternalChild(childIndex, child);
+                            InsertInternalChild(childIndex, child);
                         }
                         _generator.PrepareItemContainer(child);
                         child.Measure(ChildSlotSize);
@@ -574,14 +573,14 @@ namespace XTMF.Gui
 
         #region IScrollInfo Members
 
-        private bool _canHScroll = false;
+        private bool _canHScroll;
         public bool CanHorizontallyScroll
         {
             get { return _canHScroll; }
             set { _canHScroll = value; }
         }
 
-        private bool _canVScroll = false;
+        private bool _canVScroll;
         public bool CanVerticallyScroll
         {
             get { return _canVScroll; }
@@ -643,7 +642,7 @@ namespace XTMF.Gui
 
         public Rect MakeVisible(Visual visual, Rect rectangle)
         {
-            var gen = (ItemContainerGenerator)_generator.GetItemContainerGeneratorForPanel(this);
+            var gen = _generator.GetItemContainerGeneratorForPanel(this);
             var element = (UIElement)visual;
             int itemIndex = gen.IndexFromContainer(element);
             while (itemIndex == -1)
@@ -851,7 +850,7 @@ namespace XTMF.Gui
             public int _averageItemsPerSection;
             private int _currentSetSection = -1;
             private int _currentSetItemIndex = -1;
-            private int _itemsInCurrentSecction = 0;
+            private int _itemsInCurrentSecction;
             private object _syncRoot = new object();
 
             public int SectionCount
@@ -910,7 +909,7 @@ namespace XTMF.Gui
 
             #region IEnumerable Members
 
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            IEnumerator IEnumerable.GetEnumerator()
             {
                 return GetEnumerator();
             }

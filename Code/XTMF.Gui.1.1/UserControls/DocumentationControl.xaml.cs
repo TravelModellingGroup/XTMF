@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,13 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace XTMF.Gui.UserControls
 {
@@ -191,7 +186,7 @@ namespace XTMF.Gui.UserControls
             Parameter[] ret = new Parameter[length];
             for(int i = 0; i < length; i++)
             {
-                ret[i] = new Parameter()
+                ret[i] = new Parameter
                 {
                     Type = list.Parameters[i].Type == null ? "No Type" : ConvertTypeName(list.Parameters[i].Type),
                     Name = list.Parameters[i].Name,
@@ -208,7 +203,7 @@ namespace XTMF.Gui.UserControls
             foreach(var f in fields)
             {
                 var attributes = f.GetCustomAttributes(true);
-                submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule()
+                submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
                 {
                     Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.FieldType)
                 }));
@@ -219,7 +214,7 @@ namespace XTMF.Gui.UserControls
                 var attributes = f.GetCustomAttributes(true);
                 if(attributes != null)
                 {
-                    submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule()
+                    submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
                     {
                         Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.PropertyType)
                     }));
@@ -234,25 +229,22 @@ namespace XTMF.Gui.UserControls
             {
                 return type.Name;
             }
-            else
+            StringBuilder builder = new StringBuilder();
+            builder.Append(type.Name, 0, type.Name.IndexOf('`'));
+            builder.Append('<');
+            var inside = type.GetGenericArguments();
+            var first = true;
+            foreach(var t in inside)
             {
-                StringBuilder builder = new StringBuilder();
-                builder.Append(type.Name, 0, type.Name.IndexOf('`'));
-                builder.Append('<');
-                var inside = type.GetGenericArguments();
-                var first = true;
-                foreach(var t in inside)
+                if(!first)
                 {
-                    if(!first)
-                    {
-                        builder.Append(',');
-                    }
-                    first = false;
-                    builder.Append(t.Name);
+                    builder.Append(',');
                 }
-                builder.Append('>');
-                return builder.ToString();
+                first = false;
+                builder.Append(t.Name);
             }
+            builder.Append('>');
+            return builder.ToString();
         }
 
 
@@ -267,7 +259,7 @@ namespace XTMF.Gui.UserControls
             SubModule[] ret = new SubModule[length];
             for(int i = 0; i < length; i++)
             {
-                ret[i] = new SubModule()
+                ret[i] = new SubModule
                 {
                     Type = list[i].ParentFieldType == null ? "Unknown" : ConvertTypeName(list[i].ParentFieldType),
                     Name = list[i].ParentFieldName,

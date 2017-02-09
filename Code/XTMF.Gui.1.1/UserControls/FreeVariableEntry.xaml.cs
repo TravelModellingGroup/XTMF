@@ -2,19 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace XTMF.Gui.UserControls
 {
@@ -155,7 +146,6 @@ namespace XTMF.Gui.UserControls
                 SelectedType = model.type;
                 if (SelectedType == null)
                 {
-                    return;
                 }
                 else
                 {
@@ -202,7 +192,7 @@ namespace XTMF.Gui.UserControls
             return selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
         }
 
-        int TimesLoaded = 0;
+        int TimesLoaded;
 
         private void BorderIconButton_Loaded(object sender, RoutedEventArgs e)
         {

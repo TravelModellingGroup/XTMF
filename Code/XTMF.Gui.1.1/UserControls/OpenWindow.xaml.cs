@@ -16,21 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace XTMF.Gui.UserControls
 {
@@ -95,7 +87,7 @@ namespace XTMF.Gui.UserControls
 
                 public event PropertyChangedEventHandler PropertyChanged;
 
-                private bool _IsSelected = false;
+                private bool _IsSelected;
                 public bool IsSelected
                 {
                     get
@@ -256,24 +248,24 @@ namespace XTMF.Gui.UserControls
             string error = null;
             if (result is Project)
             {
-                if (MessageBox.Show(Window.GetWindow(this),
+                if (MessageBox.Show(GetWindow(this),
                 "Are you sure you want to delete the project '" + (result as Project).Name + "' ?", "Delete Project", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     if (!Runtime.ProjectController.DeleteProject(result as Project, ref error))
                     {
-                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(this), error, "Unable to Delete Project", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                 }
                 Close();
             }
             else
             {
-                if (MessageBox.Show(Window.GetWindow(this),
+                if (MessageBox.Show(GetWindow(this),
                 "Are you sure you want to delete the model system '" + (result as ModelSystem).Name + "'?", "Delete Model System", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     if (!Runtime.ModelSystemController.Delete(result as ModelSystem, ref error))
                     {
-                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(this), error, "Unable to Delete Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                 }
                 Close();
@@ -340,14 +332,14 @@ namespace XTMF.Gui.UserControls
             var item = (Display.SelectedItem as Model.ModelElement);
             if (item != null)
             {
-                string fileName = MainWindow.OpenFile(item.Name, new KeyValuePair<string, string>[]{ new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                string fileName = MainWindow.OpenFile(item.Name, new[]{ new KeyValuePair<string, string>("Model System File", "xml") }, false);
                 if (!String.IsNullOrWhiteSpace(fileName))
                 {
                     string error = null;
                     var modelSystem = item.Data as IModelSystem;
                     if (!Runtime.ModelSystemController.ExportModelSystem(modelSystem, fileName, ref error))
                     {
-                        MessageBox.Show(Window.GetWindow(this), error, "Unable to Export Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        MessageBox.Show(GetWindow(this), error, "Unable to Export Model System", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                 }
             }

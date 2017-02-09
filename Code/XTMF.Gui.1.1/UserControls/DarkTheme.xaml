@@ -16,6 +16,14 @@
 
     <SolidColorBrush x:Key="MediumGrayBackgroundBrush" Color="#FF252526"></SolidColorBrush>
     <SolidColorBrush x:Key="DarkGrayBackgroundBrush" Color="#FF1F1F1F"></SolidColorBrush>
+
+
+    <SolidColorBrush x:Key="WindowBackgroundBrush1" Color="#FF1F1F1F"></SolidColorBrush>
+    <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="#FF252526"></SolidColorBrush>
+
+    <SolidColorBrush x:Key="HighlightBrush1" Color="#FF333333"></SolidColorBrush>
+    <SolidColorBrush x:Key="HighlightBrush2" Color="#FF444444"></SolidColorBrush>
+    
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
     <SolidColorBrush x:Key="AddingYellowBrush" Color="{StaticResource ResourceKey=AddingYellow}" />

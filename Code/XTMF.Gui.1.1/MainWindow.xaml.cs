@@ -1229,24 +1229,25 @@ namespace XTMF.Gui
         {
             if (this.WindowState == WindowState.Maximized)
             {
-                ExternalGrid.Margin = new Thickness()
+                /*ExternalGrid.Margin = new Thickness()
                 {
                     Left = 0,
                     Top = 0,
                     Right = 0,
                     Bottom = 0
-                };
+                };*/
                 SystemCommands.RestoreWindow(this);
             }
             else if (this.WindowState == WindowState.Normal)
             {
+                /*
                 ExternalGrid.Margin = new Thickness()
                 {
                     Left = 0,
                     Top = 0,
                     Right = 0,
                     Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
-                  };
+                  };*/
                 SystemCommands.MaximizeWindow(this);
 
 
@@ -1285,6 +1286,34 @@ namespace XTMF.Gui
                     e.Handled = true;
                     this.MaxNorm_OnClick(null,null);
                 }
+
+            }
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Normal)
+            {
+                ExternalGrid.Margin = new Thickness()
+                {
+                    Left = 0,
+                    Top = 0,
+                    Right = 0,
+                    Bottom = 0
+                };
+               
+            }
+            else if (this.WindowState == WindowState.Maximized)
+            {
+                ExternalGrid.Margin = new Thickness()
+                {
+                    Left = 0,
+                    Top = 0,
+                    Right = 0,
+                    Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
+                };
+              
+
 
             }
         }

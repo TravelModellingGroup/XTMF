@@ -16,22 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using XTMF;
+
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
@@ -270,7 +262,7 @@ namespace XTMF.Gui.UserControls
             if (result == MessageBoxResult.OK)
             {
                 MainWindow.Us.IsLocalConfig = true;
-                MainWindow.Us.ReloadWithConfiguration(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
+                MainWindow.Us.ReloadWithConfiguration(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
             }
 
            
@@ -287,7 +279,7 @@ namespace XTMF.Gui.UserControls
 
             if (result == MessageBoxResult.Yes)
             {
-                System.IO.File.Delete(MainWindow.Us.ConfigurationFilePath);
+                File.Delete(MainWindow.Us.ConfigurationFilePath);
 
                 MainWindow.Us.ReloadWithDefaultConfiguration();
             }

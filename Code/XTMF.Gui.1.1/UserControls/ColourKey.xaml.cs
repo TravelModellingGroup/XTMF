@@ -16,6 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.Windows;
 using System.Windows.Controls;
 
 namespace XTMF.Gui
@@ -34,20 +36,20 @@ namespace XTMF.Gui
         {
             get
             {
-                return this.OptionalColour.Visibility == System.Windows.Visibility.Visible;
+                return OptionalColour.Visibility == Visibility.Visible;
             }
 
             set
             {
                 if ( value )
                 {
-                    this.OptionalColour.Visibility = System.Windows.Visibility.Visible;
-                    this.OptionalText.Visibility = System.Windows.Visibility.Visible;
+                    OptionalColour.Visibility = Visibility.Visible;
+                    OptionalText.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    this.OptionalColour.Visibility = System.Windows.Visibility.Collapsed;
-                    this.OptionalText.Visibility = System.Windows.Visibility.Collapsed;
+                    OptionalColour.Visibility = Visibility.Collapsed;
+                    OptionalText.Visibility = Visibility.Collapsed;
                 }
             }
         }

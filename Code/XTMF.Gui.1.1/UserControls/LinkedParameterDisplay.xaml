@@ -28,7 +28,7 @@
                 Title="Linked Parameter Editor" Height="480" Width="750" KeyDown="Window_KeyDown">
 
 
-    <Border Margin="11,11,11,11" Background="{DynamicResource DarkGrayBackgroundBrush}">
+    <Border Margin="11,11,11,11" Background="{DynamicResource WindowBackgroundBrush1}">
         <Border.Effect>
             <DropShadowEffect ShadowDepth="2" BlurRadius="10" Opacity="0.7" Color="Black"></DropShadowEffect>
         </Border.Effect>
@@ -41,7 +41,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource DarkGrayBackgroundBrush}"
+        <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush1}"
                 MouseDown="Window_MouseDown">
             <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,5,0">
                 <Border DockPanel.Dock="Left">
@@ -131,7 +131,7 @@
                 </StackPanel>
             </DockPanel>
         </Border>
-        <Grid Grid.Row="2" Margin="0" Background="{DynamicResource DarkGrayBackgroundBrush}">
+        <Grid Grid.Row="2" Margin="0" Background="{DynamicResource WindowBackgroundBrush1}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -194,7 +194,7 @@
                     </ListView.ContextMenu>
                 </ListView>
             </Grid>
-            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource DarkGrayBackgroundBrush}" ShowsPreview="True" />
+            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
             <Grid Grid.Column="2" Background="{DynamicResource MediumGrayBackgroundBrush}">
                 <Grid.RowDefinitions>
 
@@ -204,10 +204,10 @@
                 </Grid.RowDefinitions>
                 <!-- <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" /> -->
 
-                <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource DarkGrayBackgroundBrush}">
+                <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
                     <StackPanel >
 
-                        <Label Content="Parameter Properties" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource DarkGrayBackgroundBrush}"/>
+                        <Label Content="Parameter Properties" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
 
                         <DockPanel FlowDirection="LeftToRight" >
                             <Label Content="Name" Width="50" Foreground="White" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
@@ -224,12 +224,12 @@
                 </Border>
 
 
-                <Border Grid.Row="1" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource DarkGrayBackgroundBrush}">
+                <Border Grid.Row="1" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
                     <StackPanel Background="{DynamicResource MediumGrayBackgroundBrush}" >
 
-                        <Label Content="Linked Parameters" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource DarkGrayBackgroundBrush}"/>
+                        <Label Content="Linked Parameters" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
                         <ListView KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                               x:Name="ContainedParameterDisplay" Focusable="False"  Background="{StaticResource DarkGrayBackgroundBrush}"
+                               x:Name="ContainedParameterDisplay" Focusable="False"  Background="{StaticResource WindowBackgroundBrush1}"
                      HorizontalContentAlignment="Stretch">
                             <ListView.Resources>
                                 <Style TargetType="{x:Type ListViewItem}">

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,16 +41,16 @@ namespace XTMF.Gui
             var cs = ColourSelected;
             if ( cs != null )
             {
-                cs( Color.FromRgb( (byte)this.redSlider.Value, (byte)this.greenSlider.Value, (byte)this.blueSlider.Value ) );
+                cs( Color.FromRgb( (byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value ) );
             }
             ResetStops();
         }
 
         private void ResetStops()
         {
-            var r = (byte)this.redSlider.Value;
-            var g = (byte)this.greenSlider.Value;
-            var b = (byte)this.blueSlider.Value;
+            var r = (byte)redSlider.Value;
+            var g = (byte)greenSlider.Value;
+            var b = (byte)blueSlider.Value;
             RedStart.Color = Color.FromRgb( 0, g, b );
             GreenStart.Color = Color.FromRgb( r, 0, b );
             BlueStart.Color = Color.FromRgb( r, g, 0 );

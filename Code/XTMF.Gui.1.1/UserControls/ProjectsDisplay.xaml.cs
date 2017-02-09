@@ -16,23 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Xceed.Wpf.AvalonDock.Controls;
-using Xceed.Wpf.AvalonDock.Layout;
+using XTMF.Gui.Collections;
 
 namespace XTMF.Gui.UserControls
 {
@@ -49,7 +40,7 @@ namespace XTMF.Gui.UserControls
             Runtime = runtime;
             var projectRepository = ((ProjectRepository)runtime.Configuration.ProjectRepository);
             Loaded += ProjectsDisplay_Loaded;
-            Display.ItemsSource = new XTMF.Gui.Collections.ProxyList<IProject>(projectRepository.Projects);
+            Display.ItemsSource = new ProxyList<IProject>(projectRepository.Projects);
             projectRepository.ProjectAdded += ProjectRepository_ProjectAdded;
             projectRepository.ProjectRemoved += ProjectRepository_ProjectRemoved;
             FilterBox.Display = Display;
@@ -217,7 +208,7 @@ namespace XTMF.Gui.UserControls
                         break;
                 }
             }
-            base.OnKeyUp(e);
+            OnKeyUp(e);
         }
 
         private UIElement GetCurrentlySelectedControl()
@@ -231,7 +222,7 @@ namespace XTMF.Gui.UserControls
             RefreshProjects();
         }
 
-        bool Renaming = false;
+        bool Renaming;
 
         private void RenameCurrentProject()
         {
@@ -242,7 +233,7 @@ namespace XTMF.Gui.UserControls
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
                 Renaming = true;
-                var adorn = new TextboxAdorner("Rename", (result) =>
+                var adorn = new TextboxAdorner("Rename", result =>
                 {
                     string error = null;
                     if (!Runtime.ProjectController.RenameProject(project, result, ref error))
@@ -270,7 +261,7 @@ namespace XTMF.Gui.UserControls
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
                 Renaming = true;
-                var adorn = new TextboxAdorner("Change Description", (result) =>
+                var adorn = new TextboxAdorner("Change Description", result =>
                 {
                     string error = null;
                     if (!Runtime.ProjectController.SetDescription(project, result, ref error))
@@ -295,7 +286,7 @@ namespace XTMF.Gui.UserControls
             FilterBox.RefreshFilter();
             Display.SelectedItem = selected;
 
-            MainWindow window = this.GetWindow() as MainWindow;
+            MainWindow window = GetWindow() as MainWindow;
             window.UpdateRecentProjectsMenu();
         }
 
@@ -310,7 +301,7 @@ namespace XTMF.Gui.UserControls
             if (project != null)
             {
                 string error = null;
-                StringRequest sr = new StringRequest("Clone Project As?", (newName) =>
+                StringRequest sr = new StringRequest("Clone Project As?", newName =>
                 {
                     return Runtime.ProjectController.ValidateProjectName(newName);
                 });

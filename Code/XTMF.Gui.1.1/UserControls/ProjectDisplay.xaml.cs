@@ -16,25 +16,20 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using XTMF;
-
-using Path = System.IO.Path;
+using XTMF.Gui.Controllers;
 
 namespace XTMF.Gui.UserControls
 {
@@ -67,7 +62,7 @@ namespace XTMF.Gui.UserControls
 
                 public int RealIndex { get; private set; }
 
-                private bool _IsSelected = false;
+                private bool _IsSelected;
                 public bool IsSelected
                 {
                     get
@@ -167,7 +162,7 @@ namespace XTMF.Gui.UserControls
                     foreach (var pastRun in session.GetPreviousRuns())
                     {
                         DirectoryInfo info = new DirectoryInfo(pastRun);
-                        list.Add(new PreviousRun()
+                        list.Add(new PreviousRun
                         {
                             Name = info.Name,
                             Path = pastRun,
@@ -293,13 +288,13 @@ namespace XTMF.Gui.UserControls
 
         private bool FilterMS(object e, string text)
         {
-            var element = e as ProjectDisplay.ProjectModel.ContainedModelSystemModel;
+            var element = e as ProjectModel.ContainedModelSystemModel;
             return CheckString(element.Name, text) | CheckString(element.Description, text);
         }
 
         private bool FilterRuns(object e, string text)
         {
-            var element = e as ProjectDisplay.ProjectModel.PreviousRun;
+            var element = e as ProjectModel.PreviousRun;
             return CheckString(element.Name, text) | CheckString(element.TimeStamp, text);
         }
 
@@ -353,7 +348,7 @@ namespace XTMF.Gui.UserControls
                 switch (e.Key)
                 {
                     case Key.W:
-                        if (Controllers.EditorController.IsControlDown())
+                        if (EditorController.IsControlDown())
                         {
                             Close();
                             e.Handled = true;
@@ -367,7 +362,7 @@ namespace XTMF.Gui.UserControls
                         }
                         break;
                     case Key.O:
-                        if(Controllers.EditorController.IsControlDown())
+                        if(EditorController.IsControlDown())
                         {
                             OpenProjectFolder();
                             e.Handled = true;
@@ -486,12 +481,12 @@ namespace XTMF.Gui.UserControls
 
         private void OpenProjectFolder()
         {
-            var directoryName = System.IO.Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
+            var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
             try
             {
-                if (Project != null && System.IO.Directory.Exists(directoryName))
+                if (Project != null && Directory.Exists(directoryName))
                 {
-                    System.Diagnostics.Process.Start(directoryName);
+                    Process.Start(directoryName);
                 }
             }
             catch
@@ -528,7 +523,7 @@ namespace XTMF.Gui.UserControls
                             return;
                         }
                         string error = null;
-                        StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
+                        StringRequest sr = new StringRequest("Save Model System As?", newName =>
                         {
                             return Session.ValidateModelSystemName(newName);
                         });
@@ -581,7 +576,7 @@ namespace XTMF.Gui.UserControls
             {
                 var container = ModelSystemDisplay.ItemContainerGenerator.ContainerFromItem(selected) as ListBoxItem;
                 var layer = AdornerLayer.GetAdornerLayer(container);
-                var adorn = new TextboxAdorner("Rename", (result) =>
+                var adorn = new TextboxAdorner("Rename", result =>
                 {
                     string error = null;
                     if (!selected.SetName(Session, result, ref error))
@@ -617,7 +612,7 @@ namespace XTMF.Gui.UserControls
                 if (exportToFile)
                 {
                     // save as a model system in an external file
-                    string fileName = MainWindow.OpenFile(selected.Name, new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                    string fileName = MainWindow.OpenFile(selected.Name, new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
                     if (!String.IsNullOrWhiteSpace(fileName))
                     {
                         string error = null;
@@ -630,7 +625,7 @@ namespace XTMF.Gui.UserControls
                 else
                 {
                     // save as a model system within XTMF
-                    StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
+                    StringRequest sr = new StringRequest("Save Model System As?", newName =>
                     {
                         return Session.ValidateModelSystemName(newName);
                     });
@@ -658,7 +653,7 @@ namespace XTMF.Gui.UserControls
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
             {
-                StringRequest sr = new StringRequest("Cloned Model System's Name?", (newName) =>
+                StringRequest sr = new StringRequest("Cloned Model System's Name?", newName =>
                 {
                     return Session.ValidateModelSystemName(newName);
                 });
@@ -690,7 +685,7 @@ namespace XTMF.Gui.UserControls
 
         private void CreateNewModelSystem()
         {
-            StringRequest sr = new StringRequest("New Model System's Name?", (newName) =>
+            StringRequest sr = new StringRequest("New Model System's Name?", newName =>
             {
                 return Session.ValidateModelSystemName(newName);
             });

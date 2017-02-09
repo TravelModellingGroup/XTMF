@@ -16,21 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace XTMF.Gui
@@ -85,7 +77,7 @@ namespace XTMF.Gui
                         {
                             throw new NotSupportedException("The FilterBox is unable to filter data  of type " + _itemsSource.SourceCollection.GetType().FullName);
                         }
-                        _itemsSource.Filter = new Predicate<object>((o) => _filter(o, _currentBoxText));
+                        _itemsSource.Filter = o => _filter(o, _currentBoxText);
                     }
                 }
             }
@@ -144,7 +136,7 @@ namespace XTMF.Gui
                 }
 
             }
-            base.OnKeyDown(e);
+            OnKeyDown(e);
         }
 
         private bool HandleEnterPress()
@@ -168,7 +160,7 @@ namespace XTMF.Gui
             return false;
         }
 
-        private void ClearFilter_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void ClearFilter_Click(object sender, RoutedEventArgs e)
         {
             ClearFilter();
         }
