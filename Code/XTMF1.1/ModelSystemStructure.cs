@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,7 +27,7 @@ using System.Xml;
 
 namespace XTMF
 {
-    public class ModelSystemStructure : IModelSystemStructure
+    public class ModelSystemStructure : IModelSystemStructure2
     {
         private Type _Type;
 
@@ -57,6 +57,8 @@ namespace XTMF
             get;
             set;
         }
+
+        public bool IsDisabled { get; set; }
 
         public IConfiguration Configuration { get; set; }
 
@@ -367,6 +369,7 @@ namespace XTMF
             cloneUs.ParentFieldType = ParentFieldType;
             cloneUs._Type = _Type;
             cloneUs.IsCollection = IsCollection;
+            cloneUs.IsDisabled = IsDisabled;
             if (Children != null)
             {
                 foreach (var child in Children)
@@ -507,7 +510,6 @@ namespace XTMF
             var typesUsed = GatherAllTypes(this);
             var lookUp = CreateInverseLookupTable(typesUsed);
             SaveTypes(writer, typesUsed);
-            typesUsed = null;
             Save(writer, this, this, lookUp);
             writer.Flush();
         }
@@ -874,15 +876,30 @@ namespace XTMF
 
         private static void Load(IModelSystemStructure projectStructure, IModelSystemStructure parent, XmlNode currentNode, IConfiguration config, Dictionary<int, Type> lookup)
         {
-
-            var nameAttribute = currentNode.Attributes["Name"];
-            var descriptionAttribute = currentNode.Attributes["Description"];
-            var typeAttribute = currentNode.Attributes["Type"];
-            var tIndexAttribute = currentNode.Attributes["TIndex"];
-            var parentFieldNameAttribute = currentNode.Attributes["ParentFieldName"];
-            var parentFieldTypeAttribute = currentNode.Attributes["ParentFieldType"];
-            var parentTIndexAttribute = currentNode.Attributes["ParentTIndex"];
-            var isMetaAttribute = currentNode.Attributes["IsMeta"];
+            var mod = projectStructure as ModelSystemStructure;
+            var attributes = currentNode.Attributes;
+            if (attributes == null)
+            {
+                throw new Exception("When loading a module we were unable to get the XML attributes for a module!");
+            }
+            var nameAttribute = attributes["Name"];
+            var descriptionAttribute = attributes["Description"];
+            var typeAttribute = attributes["Type"];
+            var tIndexAttribute = attributes["TIndex"];
+            var parentFieldNameAttribute = attributes["ParentFieldName"];
+            var parentFieldTypeAttribute = attributes["ParentFieldType"];
+            var parentTIndexAttribute = attributes["ParentTIndex"];
+            var isMetaAttribute = attributes["IsMeta"];
+            if (mod != null)
+            {
+                var isDisabled = attributes["IsDisabled"];
+                var disabled = false;
+                if (isDisabled != null)
+                {
+                    bool.TryParse(isDisabled.InnerText, out disabled);
+                }
+                mod.IsDisabled = disabled;
+            }
             if (nameAttribute != null)
             {
                 projectStructure.Name = nameAttribute.InnerText;
@@ -1111,11 +1128,17 @@ namespace XTMF
 
         private static void LoadCollection(IModelSystemStructure parent, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
-            var paramNameAttribute = child.Attributes["ParentFieldName"];
-            var paramTIndexAttribute = child.Attributes["ParentTIndex"];
-            var paramTypeAttribute = child.Attributes["ParentFieldType"];
-            var NameAttribute = child.Attributes["Name"];
             IModelSystemStructure us = null;
+            
+            var attributes = child.Attributes;
+            if (attributes == null)
+            {
+                throw new Exception("When loading a module we were unable to get the XML attributes for a collection!");
+            }
+            var paramNameAttribute = attributes["ParentFieldName"];
+            var paramTIndexAttribute = attributes["ParentTIndex"];
+            var paramTypeAttribute = attributes["ParentFieldType"];
+            var nameAttribute = attributes["Name"];
             if (paramNameAttribute != null && (paramTIndexAttribute != null || paramTypeAttribute != null))
             {
                 if (parent.Children == null)
@@ -1132,10 +1155,21 @@ namespace XTMF
                 }
                 if (us != null)
                 {
-                    us.ParentFieldType = AquireTypeFromField(parent, us.ParentFieldName);
-                    if (NameAttribute != null)
+                    var mod = us as ModelSystemStructure;
+                    if (mod != null)
                     {
-                        us.Name = NameAttribute.InnerText;
+                        var isDisabled = attributes["IsDisabled"];
+                        var disabled = false;
+                        if (isDisabled != null)
+                        {
+                            bool.TryParse(isDisabled.InnerText, out disabled);
+                        }
+                        mod.IsDisabled = disabled;
+                    }
+                    us.ParentFieldType = AquireTypeFromField(parent, us.ParentFieldName);
+                    if (nameAttribute != null)
+                    {
+                        us.Name = nameAttribute.InnerText;
                     }
                     us.ParentFieldName = paramNameAttribute.InnerText;
                     // now load the children
@@ -1472,6 +1506,7 @@ namespace XTMF
 
         private void SaveCollection(XmlWriter writer, IModelSystemStructure s, IModelSystemStructure parent, Dictionary<Type, int> lookup)
         {
+            var mod = s as ModelSystemStructure;
             writer.WriteStartElement("Collection");
             if (s.ParentFieldType == null)
             {
@@ -1480,6 +1515,10 @@ namespace XTMF
             writer.WriteAttributeString("ParentTIndex", lookup[s.ParentFieldType].ToString());
             writer.WriteAttributeString("ParentFieldName", s.ParentFieldName);
             writer.WriteAttributeString("Name", s.Name);
+            if (mod != null && mod.IsDisabled)
+            {
+                writer.WriteAttributeString("Disabled", "true");
+            }
             if (s.Children != null)
             {
                 foreach (var model in s.Children)
@@ -1492,6 +1531,7 @@ namespace XTMF
 
         private void SaveModel(XmlWriter writer, IModelSystemStructure s, IModelSystemStructure parent, Dictionary<Type, int> lookup)
         {
+            var mod = s as ModelSystemStructure;
             writer.WriteStartElement("Module");
             writer.WriteAttributeString("Name", s.Name);
             if (GetDefaultDescription(s, parent) != s.Description)
@@ -1518,6 +1558,10 @@ namespace XTMF
             if (s.IsMetaModule)
             {
                 writer.WriteAttributeString("IsMeta", "true");
+            }
+            if (mod != null && mod.IsDisabled)
+            {
+                writer.WriteAttributeString("Disabled", "true");
             }
             SaveParameters(writer, s, lookup);
             if (s.Children != null)
@@ -1560,5 +1604,7 @@ namespace XTMF
             }
             writer.WriteEndElement();
         }
+
+        public List<IModuleMetaProperty> ModuleMetaProperties { get; } = new List<IModuleMetaProperty>();
     }
 }

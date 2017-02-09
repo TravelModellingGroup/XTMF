@@ -57,6 +57,40 @@ namespace XTMF
             get { return RealModelSystemStructure.ParentFieldName; }
         }
 
+        public bool IsDisabled => RealModelSystemStructure.IsDisabled;
+
+        public bool CanDisable => !RealModelSystemStructure.Required;
+
+        public bool SetDisabled(bool disabled, ref string error)
+        {
+            var oldValue = RealModelSystemStructure.IsDisabled;
+            if (oldValue != disabled)
+            {
+                return Session.RunCommand(XTMFCommand.CreateCommand(
+                    disabled ? "Disable Module" : "Enable Module",
+                    (ref string e) =>
+                    {
+                        if (RealModelSystemStructure.Required)
+                        {
+                            e = "You can not disable a module that is required!";
+                            return false;
+                        }
+                        RealModelSystemStructure.IsDisabled = disabled;
+                        return true;
+                    }, (ref string e) =>
+                    {
+                        RealModelSystemStructure.IsDisabled = oldValue;
+                        return true;
+                    }, (ref string e) =>
+                    {
+                        RealModelSystemStructure.IsDisabled = disabled;
+                        return true;
+                    }
+                    ), ref error);
+            }
+            return true;
+        }
+
         public bool IsMetaModule { get { return RealModelSystemStructure.IsMetaModule; } }
 
         public Type Type
@@ -1155,7 +1189,7 @@ namespace XTMF
                 isMetaModule ? "Compose Meta-Module" : "Decompose Meta-Module",
                 (ref string e) =>
             {
-                if(isMetaModule && RealModelSystemStructure.IsCollection)
+                if (isMetaModule && RealModelSystemStructure.IsCollection)
                 {
                     e = "You can not create a meta-module from a collection!";
                     return false;
