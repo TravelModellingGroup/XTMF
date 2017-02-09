@@ -538,7 +538,7 @@ namespace XTMF
             {
                 if (IsCollection)
                 {
-                    if (Children == null || Children.Count == 0)
+                    if (Children == null || !Children.Any(c => !(c is ModelSystemStructure) || !((ModelSystemStructure)c).IsDisabled))
                     {
                         error = "The collection '" + Name + "' in module '" + parent.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.";
                         return false;
@@ -549,6 +549,11 @@ namespace XTMF
                     if (Type == null)
                     {
                         error = "In '" + Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.";
+                        return false;
+                    }
+                    if (IsDisabled)
+                    {
+                        error = "In '" + Name + "' a type for a required field is disabled!\r\nPlease remove this model system from your project and edit the model system.";
                         return false;
                     }
                 }

@@ -251,11 +251,7 @@ namespace XTMF
 
         private void AlertValidationStarting()
         {
-            var alert = ValidationStarting;
-            if (alert != null)
-            {
-                alert();
-            }
+            ValidationStarting?.Invoke();
         }
 
         /// <summary>
@@ -291,18 +287,18 @@ namespace XTMF
         {
             string cwd = null;
             string error = null;
-            IModelSystemStructure MSTStructure;
+            IModelSystemStructure mstStructure;
             try
             {
                 if (ModelSystemStructureModelRoot == null)
                 {
                     MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
-                    MSTStructure = Project.ModelSystemStructure[ModelSystemIndex];
+                    mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
                 }
                 else
                 {
                     MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
-                    MSTStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
+                    mstStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
                 }
             }
             catch (Exception e)
@@ -327,8 +323,8 @@ namespace XTMF
                     info.Create();
                 }
                 Directory.SetCurrentDirectory(RunDirectory);
-                MSTStructure.Save(Path.GetFullPath("RunParameters.xml"));
-                if (!RunTimeValidation("", ref error, MSTStructure))
+                mstStructure.Save(Path.GetFullPath("RunParameters.xml"));
+                if (!RunTimeValidation("", ref error, mstStructure))
                 {
                     SendRuntimeValidationError(error);
                 }
@@ -348,8 +344,8 @@ namespace XTMF
             finally
             {
                 Thread.MemoryBarrier();
-                CleanUpModelSystem(MSTStructure);
-                MSTStructure = null;
+                CleanUpModelSystem(mstStructure);
+                mstStructure = null;
                 MST = null;
                 if (Configuration is Configuration)
                 {

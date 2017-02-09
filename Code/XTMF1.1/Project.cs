@@ -602,6 +602,12 @@ namespace XTMF
                     return false;
                 }
             }
+            // check to see if the collection is disabled, if it is we are done as we don't want to add any children.
+            var mod = child as ModelSystemStructure;
+            if (mod != null && mod.IsDisabled)
+            {
+                return true;
+            }
             // If we get to this point, we know that there is in fact an extension of ICollection @ this field
             if (child.Children != null)
             {
@@ -812,6 +818,8 @@ namespace XTMF
                 {
                     foreach (var child in ps.Children)
                     {
+                        var mod = child as ModelSystemStructure;
+                        // check to see if we should just skip loading the child
                         if (child.IsCollection)
                         {
                             bool array = child.ParentFieldType.IsArray;
@@ -850,6 +858,11 @@ namespace XTMF
                         }
                         else if (child.Type != null)
                         {
+                            // if this module is disabled, do not create it!
+                            if (mod != null && mod.IsDisabled)
+                            {
+                                continue;
+                            }
                             if (!CreateModule(config, rootMS, child, ref error))
                             {
                                 return false;
