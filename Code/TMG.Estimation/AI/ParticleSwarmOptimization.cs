@@ -152,11 +152,13 @@ namespace TMG.Estimation.AI
             internal Job UpdatePosition(ParticleSwarmOptimization us)
             {
                 var temp = Job.Parameters;
-                Job job = new Job();
-                job.Processed = false;
-                job.ProcessedBy = null;
-                job.Processing = false;
-                job.Value = float.NaN;
+                var job = new Job
+                {
+                    Processed = false,
+                    ProcessedBy = null,
+                    Processing = false,
+                    Value = float.NaN
+                };
                 var parameters = job.Parameters = new ParameterSetting[temp.Length];
                 for(int i = 0; i < temp.Length; i++)
                 {

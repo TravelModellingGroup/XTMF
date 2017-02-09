@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -65,7 +65,7 @@ namespace TMG.Estimation
         [RunParameter("Send Parameter Definitions", -1, "The channel to use for requesting the definitions for parameters.")]
         public int SendParameterDefinitions;
 
-        private List<IRemoteXTMF> AvailableClients = new List<IRemoteXTMF>();
+        private readonly List<IRemoteXTMF> AvailableClients = new List<IRemoteXTMF>();
         private IModelSystemStructure ClientStructure;
         private bool FirstLineToWrite = true;
 
@@ -166,31 +166,30 @@ namespace TMG.Estimation
             {
                 //execute the host model system
                 Status = () => "Running Host Model System";
-                if ( HostModelSystem != null )
-                {
-                    HostModelSystem.Start();
-                }
+                HostModelSystem?.Start();
                 Status = () => "Distributing Tasks: Generation " + ( CurrentIteration + 1 ) + " / " + TotalIterations;
-                var currentGeneration = generation;
-                Task processResults = Task.Factory.StartNew( () =>
+                    Task processResults = Task.Factory.StartNew( () =>
                     {
-                        foreach ( var result in PendingResults.GetConsumingEnumerable() )
+                        foreach (var result in PendingResults.GetConsumingEnumerable())
                         {
                             // only process things from the current generation
-                            if ( currentGeneration != result.Generation ) continue;
-                            lock (CurrentJobs)
+                            // ReSharper disable once AccessToModifiedClosure
+                            if (generation == result.Generation)
                             {
-                                var currentJob = CurrentJobs[result.ProcessedIndex];
-                                currentJob.Value = result.ProcessedValue;
-                                currentJob.Processed = true;
-                                // store the result before starting the next generation
-                                // so the AI can play with the values after we write
-                                StoreResult( currentJob );
+                                lock (CurrentJobs)
+                                {
+                                    var currentJob = CurrentJobs[result.ProcessedIndex];
+                                    currentJob.Value = result.ProcessedValue;
+                                    currentJob.Processed = true;
+                                    // store the result before starting the next generation
+                                    // so the AI can play with the values after we write
+                                    StoreResult(currentJob);
+                                }
+                                Progress += 1.0f / (TotalIterations * CurrentJobs.Count);
+                                //scan the rest of the jobs to see if they have been processed
+                                // ReSharper disable once AccessToDisposedClosure (Task Finishes before closer ends)
+                                finishedGeneration.Add(CheckForAllDone());
                             }
-                            Progress += 1.0f / ( TotalIterations * CurrentJobs.Count );
-                            //scan the rest of the jobs to see if they have been processed
-                            // ReSharper disable once AccessToDisposedClosure (Task Finishes before clouser ends)
-                            finishedGeneration.Add( CheckForAllDone() );
                         }
                     } );
 
@@ -198,6 +197,7 @@ namespace TMG.Estimation
                 {
                     CurrentIteration = generation;
                     CurrentJobs = AI.CreateJobsForIteration();
+                    System.Threading.Thread.MemoryBarrier();
                     StartGeneration();
                     bool? done;
                     while ( Exit == false && ( done = finishedGeneration.GetMessageOrTimeout( 100 ) ) != true )
