@@ -1307,9 +1307,9 @@ namespace XTMF.Gui
             {
                 ExternalGrid.Margin = new Thickness()
                 {
-                    Left = 0,
-                    Top = 0,
-                    Right = 0,
+                    Left = 7,
+                    Top = 2,
+                    Right = 7,
                     Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
                 };
               
