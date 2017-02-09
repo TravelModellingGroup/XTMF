@@ -198,7 +198,7 @@ namespace Datastructure
             }
             else if (phase == 0 && tallyingInZero)
             {
-                tempRange.Add(new Range(start, end));
+                tempRange.Add(new Range(index, index));
             }
             else if (!lastPlus)
             {
