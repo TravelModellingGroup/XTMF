@@ -12,7 +12,12 @@
             <SolidColorBrush Color="#FF252526"/>
         </Grid.Background>
         <StackPanel  Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center" Background="#FF1F1F1F">
-            <Grid  Margin="0.25cm,20,0.25cm,2" >
+            <Label Margin="0.25cm,20,0.25cm,0" Content="Theme" Foreground="White" FontSize="12" />
+            <ComboBox Margin="0.25cm,0,0.25cm,2" >
+                <ComboBoxItem IsSelected="True" Content="Dark Theme"></ComboBoxItem>
+                <ComboBoxItem Content="Light Theme"></ComboBoxItem>
+            </ComboBox>
+            <Grid  Margin="0.25cm,0,0.25cm,2" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
@@ -23,7 +28,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Project Directory" FontSize="12" />
-                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" HintText="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" HintText="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
                 <Button Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ProjectDirectory">
                     <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="16" Height="16" />
                 </Button>
@@ -38,9 +43,10 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+                
                 <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Model System Directory" FontSize="12" />
-                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding ModelSystemDirectory}" HintText="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-                <Button Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ModelSystemDirectory">
+                <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding ModelSystemDirectory}" HintText="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
+                <Button Grid.Row="1" Grid.Column="2" Width="20" Height="20" Click="Select_ModelSystemDirectory">
                     <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="16" Height="16" />
                 </Button>
             </Grid>
@@ -55,7 +61,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Foreground="White" Content="Host Networking Port" FontSize="12" />
-                <my:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
+                <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding HostPort}" HintText="Host Networking Port" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" Margin="0,0,0,5" />
             </Grid>
 
             <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" Foreground="White" FontSize="12" Margin="9.4,0"/>

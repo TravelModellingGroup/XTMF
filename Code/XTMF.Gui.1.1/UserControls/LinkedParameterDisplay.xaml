@@ -212,13 +212,13 @@
                         <DockPanel FlowDirection="LeftToRight" >
                             <Label Content="Name" Width="50" Foreground="White" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
 
-                            <my:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"/>
+                            <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"/>
                         </DockPanel>
 
                         <DockPanel FlowDirection="LeftToRight" >
                             <Label Content="Value" Width="50"  Foreground="White" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
 
-                            <my:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"/>
+                            <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"/>
                         </DockPanel>
                     </StackPanel>
                 </Border>

@@ -22,6 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Background="{StaticResource WindowBackgroundBrush}">
@@ -35,7 +36,7 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <my:HintedTextBox x:Name="SearchBox" Grid.Row="0" Height="20" HintText="Search..."/>
+            <userControls:HintedTextBox x:Name="SearchBox" Grid.Row="0" Height="20" HintText="Search..."/>
             <ListBox Grid.Row="1" x:Name="ResultBox" Background="{StaticResource ControlBackgroundBrush}"
                              Foreground="White" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" />
         </Grid>

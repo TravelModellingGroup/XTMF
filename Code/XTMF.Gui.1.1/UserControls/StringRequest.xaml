@@ -20,6 +20,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:XTMF.Gui"
+        xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
         WindowStyle="None" AllowsTransparency="True"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" SizeToContent="WidthAndHeight"
@@ -52,7 +53,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="AUTO"/>
             </Grid.ColumnDefinitions>
-            <my:HintedTextBox Grid.Column="0" x:Name="AnswerBox" HintText="" TextChanged="AnswerBox_TextChanged" />
+            <userControls:HintedTextBox Grid.Column="0" x:Name="AnswerBox" HintText="" TextChanged="AnswerBox_TextChanged" />
             <Button Grid.Column="1" x:Name="EnterButton" Click="EnterButton_Click">
                 <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" />
             </Button>

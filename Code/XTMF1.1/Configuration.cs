@@ -702,7 +702,7 @@ namespace XTMF
                 doc.Load(configFileName);
                
             }
-            catch(XmlException exception)
+            catch(XmlException)
             {
                 SaveConfiguration(configFileName);
                 return;

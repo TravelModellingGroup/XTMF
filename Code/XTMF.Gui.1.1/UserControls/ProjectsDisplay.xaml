@@ -100,7 +100,6 @@
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="New Project" Width="170" Text="Create a new Project." Icon="/XTMF.Gui;component/Resources/Plus.png" Clicked="NewProject_Clicked"/>
                 <my:BorderIconButton x:Name="RenameProject" BorderThickness="0" Margin="5,12,5,12" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/base_cog_32.png" Clicked="RenameProject_Clicked"/>
                 <my:BorderIconButton x:Name="CloneProject"  BorderThickness="0" Margin="5,12,5,12" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png" Clicked="CloneProject_Clicked"/>
-
                 <my:BorderIconButton x:Name="DeleteProject" BorderThickness="0" Margin="5,12,5,12" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Images/Delete.png"
                                      HighlightColour="{StaticResource WarningRed}" Clicked="DeleteProject_Clicked"/>
             </WrapPanel>

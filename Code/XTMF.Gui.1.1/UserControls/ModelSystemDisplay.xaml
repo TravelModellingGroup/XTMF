@@ -33,14 +33,14 @@
     <UserControl.Resources>
 
         <DataTemplate x:Key="StandardParameterTemplate">
-            <Border BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch"
+            <Border Name="b"  BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter" Background="{DynamicResource MediumGrayBackgroundBrush}">
-                    <Expander Margin="0.2cm,5,0.2cm,5" Foreground="White" FontSize="14"
+                    <Expander Margin="0,0,0.2cm,0" Foreground="White" FontSize="14"
                                   HorizontalAlignment="Stretch"  Style="{StaticResource ParameterNameStyle}">
                         <Expander.Header>
-                            <Grid>
+                            <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="AUTO"/>
                                     <ColumnDefinition Width="AUTO"/>
@@ -59,9 +59,9 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{Binding FontColour}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <TextBox  Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
+                    <TextBox MaxWidth="{Binding ElementName=b,Path=ActualWidth}"  Margin="0,5,0,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
                                              PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="Black" FontSize="14"
-                                         SelectionBrush="#0F6FC6" SelectionOpacity="0.4" BorderThickness="0" Height="20" Padding="10">
+                                         SelectionOpacity="0.4" BorderThickness="0" Height="20" Padding="10">
                         <TextBox.Background>
                             <SolidColorBrush Color="#EEEEEE" />
                         </TextBox.Background>
@@ -267,7 +267,7 @@
                         </Grid>
                     </Border>
                     <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
-                    <ListView Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    <ListView  Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       Margin="0" Background="{DynamicResource MediumGrayBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
                         <ListView.ItemContainerStyle>

@@ -186,7 +186,7 @@ namespace XTMF.Gui
 
                         this.IsNonDefaultConfig = true;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Console.WriteLine("Invalid path passed with configuration argument.");
                     }

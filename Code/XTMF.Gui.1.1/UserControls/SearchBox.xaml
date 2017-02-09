@@ -22,6 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d"
              d:DesignHeight="25" d:DesignWidth="200"
              Focusable="True">
@@ -30,7 +31,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="AUTO" />
         </Grid.ColumnDefinitions>
-        <my:HintedTextBox Grid.Column="0" x:Name="Search" HintText="Search..." TextChanged="Search_TextChanged" />
+        <userControls:HintedTextBox Grid.Column="0" x:Name="Search" HintText="Search..." TextChanged="Search_TextChanged" />
         <Button Grid.Column="1" x:Name="ClearFilterButton" IsEnabled="False" Click="ClearFilter_Click" Background="White" BorderThickness="0">
             <Image Source="/XTMF.Gui;component/Images/delete.png" />
         </Button>

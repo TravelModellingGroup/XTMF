@@ -42,6 +42,8 @@ namespace XTMF.Gui.Models
             MultipleSelected = multipleSelected;
             realParameter.PropertyChanged += RealParameter_PropertyChanged;
             FontColour = RealParameter.IsHidden ? Brushes.DarkGray : Brushes.White;
+
+         
         }
 
         private void RealParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)

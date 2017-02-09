@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Globalization;
 using System.Windows;
@@ -24,7 +25,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace XTMF.Gui
+namespace XTMF.Gui.UserControls
 {
     public class HintedTextBox : TextBox
     {
