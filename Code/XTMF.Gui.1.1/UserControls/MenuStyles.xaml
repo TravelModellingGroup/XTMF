@@ -246,7 +246,7 @@
                                EndPoint="0,1">
                             <LinearGradientBrush.GradientStops>
                                 <GradientStopCollection>
-                                    <GradientStop Color="{}"
+                                    <GradientStop Color="#333333"
                               Offset="0.0" />
                                     <GradientStop Color="#444444"
                               Offset="1.0" />
