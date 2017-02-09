@@ -124,15 +124,14 @@ namespace XTMF
             try
             {
                 if ((bool)errorTryParse.Invoke(null, parameters))
-                    if ((bool)errorTryParse.Invoke(null, parameters))
-                    {
-                        // a fail appears
-                        output = parameters[2];
-                    }
-                    else
-                    {
-                        error = parameters[0] as string;
-                    }
+                {
+                    // a fail appears
+                    output = parameters[2];
+                }
+                else
+                {
+                    error = parameters[0] as string;
+                }
             }
             catch (Exception e)
             {
