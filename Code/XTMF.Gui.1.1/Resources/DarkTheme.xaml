@@ -16,7 +16,8 @@
     <Color x:Key="FocusColour" A="255" R="150" G="165" B="190" />
     <Color x:Key="MultiLayedLayerColour" A="200" R="0x50" G="0x50" B="0x60" />
     <Color x:Key="WindowBackgroundColour"  A="255" R="0x09" G="0x18" B="0x32" />
-
+    <Color x:Key="HighlightBackground1">#FF333333</Color>
+    <Color x:Key="HighlightBackground2">#FF444444</Color>
 
     <SolidColorBrush x:Key="MediumGrayBackgroundBrush" Color="#FF252526"></SolidColorBrush>
     <SolidColorBrush x:Key="DarkGrayBackgroundBrush" Color="#FF1F1F1F"></SolidColorBrush>
@@ -27,8 +28,8 @@
 
     <SolidColorBrush x:Key="ControlMediumColor" Color="#FF444466"></SolidColorBrush>
 
-    <SolidColorBrush x:Key="HighlightBrush1" Color="#FF333333"></SolidColorBrush>
-    <SolidColorBrush x:Key="HighlightBrush2" Color="#444444"></SolidColorBrush>
+    <SolidColorBrush x:Key="HighlightBrush1" Color="{DynamicResource HighlightBackground1}"></SolidColorBrush>
+    <SolidColorBrush x:Key="HighlightBrush2" Color="{DynamicResource HighlightBackground2}"></SolidColorBrush>
     <Color x:Key="ThemeTextColor">#FFFFFF</Color>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />

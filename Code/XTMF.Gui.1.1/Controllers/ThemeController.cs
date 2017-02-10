@@ -129,14 +129,23 @@ namespace XTMF.Gui.Controllers
 
             foreach (var file in Directory.EnumerateFiles(_configuration))
             {
-                Console.WriteLine(file);
+        
                 if (file.EndsWith(".thm"))
                 {
-              
-                    var themeDictionary = XamlReader.Load(new FileStream(file, FileMode.Open)) as ResourceDictionary;
-                    //ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(themeUri);
-                    Theme theme = new Theme(themeDictionary["ThemeName"].ToString(),file, themeDictionary);
-                    _themes.Add(theme);
+
+                    try
+                    {
+                        var themeDictionary = XamlReader.Load(new FileStream(file, FileMode.Open)) as ResourceDictionary;
+                        //ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(themeUri);
+                        Theme theme = new Theme(themeDictionary["ThemeName"].ToString(), file, themeDictionary);
+                        _themes.Add(theme);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                    
 
                 }
             }
