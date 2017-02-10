@@ -28,8 +28,8 @@
     <SolidColorBrush x:Key="ControlMediumColor" Color="#FF444466"></SolidColorBrush>
 
     <SolidColorBrush x:Key="HighlightBrush1" Color="#FF333333"></SolidColorBrush>
-    <SolidColorBrush x:Key="HighlightBrush2" Color="#FF444444"></SolidColorBrush>
-    <SolidColorBrush x:Key="TextColor" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="HighlightBrush2" Color="#444444"></SolidColorBrush>
+    <Color x:Key="ThemeTextColor">#FFFFFF</Color>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
     <SolidColorBrush x:Key="FocusBrushHover" Color="#FF5684C7" />

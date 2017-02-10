@@ -65,7 +65,7 @@
 
         <Setter Property="Foreground">
             <Setter.Value>
-                <SolidColorBrush Color="#FFFFFFFF" />
+                <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
             </Setter.Value>
         </Setter>
     </Style>
@@ -513,7 +513,7 @@
         <Setter Property="HasDropShadow"
           Value="True" />
 
-        <Setter Property="Foreground" Value="White"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColor}"></Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">

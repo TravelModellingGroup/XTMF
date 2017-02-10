@@ -74,19 +74,19 @@
                         <ColumnDefinition Width="200"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
-                        <Label Content="Projects" FontSize="18" Foreground="White" />
+                        <Label Content="Projects" FontSize="18" Foreground="{DynamicResource TextColor}" />
                         <Label Style="{DynamicResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
                         <Label Style="{DynamicResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left">
-                        <Label Content="Recent" FontSize="18" Foreground="White" Margin="1,15,0,0" />
+                        <Label Content="Recent" FontSize="18" Foreground="{DynamicResource TextColor}" Margin="1,15,0,0" />
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Name="RecentProjectsStackPanel">
                         </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left">
-                        <Label Content="Model Systems" FontSize="18" Foreground="White" />
+                        <Label Content="Model Systems" FontSize="18" Foreground="{DynamicResource TextColor}" />
                         <Label Style="{DynamicResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
                         <Label Style="{DynamicResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
                     </StackPanel>
