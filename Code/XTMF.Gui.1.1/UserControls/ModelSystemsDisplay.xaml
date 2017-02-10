@@ -26,7 +26,7 @@
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
@@ -109,7 +109,7 @@
                 <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Clone" Width="170" Text="Create a copy of the model system." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png" 
                                      Clicked="CloneModelSystem_Clicked"/>
                 <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Delete" Width="170" Text="Delete model system" Icon="/XTMF.Gui;component/Images/Delete.png"
-                                     HighlightColour="{StaticResource WarningRed}" Clicked="DeleteModelSystem_Clicked"/>
+                                     HighlightColour="{DynamicResource WarningRed}" Clicked="DeleteModelSystem_Clicked"/>
                 <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Export" Width="170" Text="Export model system" Icon="/XTMF.Gui;component/Resources/FloppyDisk.png"
                                      Clicked="Export_Clicked"/>
             </WrapPanel>

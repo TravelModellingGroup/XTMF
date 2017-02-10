@@ -23,6 +23,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using XTMF.Gui.Controllers;
 
 namespace XTMF.Gui.UserControls
 {
@@ -60,6 +61,33 @@ namespace XTMF.Gui.UserControls
 
 
                 DeleteConfigLabel.Visibility = Visibility.Collapsed;
+            }
+
+            foreach(var theme in MainWindow.Us.ThemeController.Themes)
+            {
+                ComboBoxItem comboBoxItem = new ComboBoxItem
+                {
+                    Content = theme.Name,
+                    Tag = theme
+                };
+
+                ThemeComboBox.Items.Add(comboBoxItem);
+            }
+
+            if (((Configuration) _configuration).Theme != null)
+            {
+                foreach (ComboBoxItem item in ThemeComboBox.Items)
+                {
+                    if ((string)item.Content == ((Configuration) _configuration).Theme)
+                    {
+                        item.IsSelected = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                ThemeComboBox.SelectedIndex = 0;
             }
         }
 
@@ -282,6 +310,17 @@ namespace XTMF.Gui.UserControls
                 File.Delete(MainWindow.Us.ConfigurationFilePath);
 
                 MainWindow.Us.ReloadWithDefaultConfiguration();
+            }
+        }
+
+        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var configuration = _configuration as Configuration;
+            if (configuration != null)
+            {
+                configuration.Theme = ((ThemeController.Theme) ((ComboBoxItem)ThemeComboBox.SelectedItem).Tag).Name;
+                MainWindow.Us.ApplyTheme(((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag));
+                _configuration.Save();
             }
         }
     }

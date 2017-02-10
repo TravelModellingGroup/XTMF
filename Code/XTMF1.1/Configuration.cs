@@ -39,6 +39,7 @@ namespace XTMF
 
         // The configuration file name will be saved when initializing the object
         private string ConfigurationFileName;
+        private string _theme;
         private IClient CurrentClient = null;
         private IHost CurrentHost = null;
         private string ModuleDirectory = "Modules";
@@ -48,6 +49,16 @@ namespace XTMF
             : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XTMF", "Configuration.xml"))
         {
 
+        }
+
+        public string Theme
+        {
+            get
+            {
+                return _theme;
+            }
+
+            set { _theme = value; }
         }
 
         public Configuration(string configurationFileName, Assembly baseAssembly = null)
@@ -792,6 +803,16 @@ namespace XTMF
                             }
                         }
                         break;
+                    case "Theme":
+                    {
+                        var attribute = child.Attributes["Value"];
+                        if (attribute != null)
+                        {
+                            _theme = attribute.InnerText;
+                        }
+                     
+                    }
+                        break;
                     default:
                         {
                             var attribute = child.Attributes["Value"];
@@ -962,6 +983,12 @@ namespace XTMF
 
 
                 writer.WriteEndElement();
+
+
+                writer.WriteStartElement("Theme");
+                writer.WriteAttributeString("Value",_theme);
+                writer.WriteEndElement();
+
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();
                 writer.WriteEndDocument();

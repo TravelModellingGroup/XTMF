@@ -13,9 +13,8 @@
         </Grid.Background>
         <StackPanel  Margin="0.25cm" MaxWidth="500" VerticalAlignment="Center" Background="#FF1F1F1F">
             <Label Margin="0.25cm,20,0.25cm,0" Content="Theme" Foreground="White" FontSize="12" />
-            <ComboBox Margin="0.25cm,0,0.25cm,2" >
-                <ComboBoxItem IsSelected="True" Content="Dark Theme"></ComboBoxItem>
-                <ComboBoxItem Content="Light Theme"></ComboBoxItem>
+            <ComboBox Margin="0.25cm,0,0.25cm,2" Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
+            
             </ComboBox>
             <Grid  Margin="0.25cm,0,0.25cm,2" >
                 <Grid.ColumnDefinitions>

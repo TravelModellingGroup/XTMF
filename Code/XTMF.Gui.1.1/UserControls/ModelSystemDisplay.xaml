@@ -38,7 +38,7 @@
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter" Background="{DynamicResource MediumGrayBackgroundBrush}">
                     <Expander Margin="0,0,0.2cm,0" Foreground="White" FontSize="14"
-                                  HorizontalAlignment="Stretch"  Style="{StaticResource ParameterNameStyle}">
+                                  HorizontalAlignment="Stretch"  Style="{DynamicResource ParameterNameStyle}">
                         <Expander.Header>
                             <Grid HorizontalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
@@ -79,10 +79,10 @@
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter">
                     <StackPanel.Background>
-                        <SolidColorBrush Color="{StaticResource ResourceKey=ControlBackgroundColour}" />
+                        <SolidColorBrush Color="{DynamicResource ResourceKey=ControlBackgroundColour}" />
                     </StackPanel.Background>
                     <Expander Margin="0.2cm,5,0.2cm,5" Foreground="White" FontSize="14"
-                                  HorizontalAlignment="Stretch" Style="{StaticResource ParameterNameStyle}">
+                                  HorizontalAlignment="Stretch" Style="{DynamicResource ParameterNameStyle}">
                         <Expander.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -248,8 +248,8 @@
             </TreeView>
         </Grid>
         <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-        <TabControl x:Name="ParameterTabControl" Grid.Column="2" Background="{StaticResource ControlBackgroundBrush}" Style="{StaticResource XTMFTabControl}" SelectionChanged="TabControl_SelectionChanged">
-            <TabItem Header="Module Parameters (Ctrl+P)" x:Name="ModuleParameterTab" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
+        <TabControl x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource ControlBackgroundBrush}" Style="{DynamicResource XTMFTabControl}" SelectionChanged="TabControl_SelectionChanged">
+            <TabItem Header="Module Parameters (Ctrl+P)" x:Name="ModuleParameterTab" FontSize="14" Style="{DynamicResource XTMFTabItem}" Foreground="White">
                 <Grid HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
@@ -286,7 +286,7 @@
                                     </Trigger>
 
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource ControlMediumColor}"></Setter>
+                                        <Setter Property="Background" Value="{DynamicResource ControlMediumColor}"></Setter>
                                     </Trigger>
                                 </Style.Triggers>
 
@@ -386,7 +386,7 @@
                     </ListView>
                 </Grid>
             </TabItem>
-            <TabItem Header="Quick Parameters (Ctrl+Q)" x:Name="QuickParameterTab" FontSize="14" Style="{StaticResource XTMFTabItem}" Foreground="White">
+            <TabItem Header="Quick Parameters (Ctrl+Q)" x:Name="QuickParameterTab" FontSize="14" Style="{DynamicResource XTMFTabItem}" Foreground="White">
                 <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MediumGrayBackgroundBrush}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
