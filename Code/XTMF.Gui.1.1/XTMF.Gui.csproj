@@ -161,6 +161,7 @@
     <Compile Include="Controllers\EditorController.cs" />
     <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />
+    <Compile Include="Controllers\ThemeController.cs" />
     <Compile Include="Models\ActiveEditingSessionDisplayModel.cs" />
     <Compile Include="Models\CommandDisplayModel.cs" />
     <Compile Include="Models\LinkedParameterDisplayModel.cs" />
@@ -267,7 +268,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resources\ThemeLight.xaml">
+    <Page Include="Resources\LightTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -295,10 +296,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControls\DarkTheme.xaml">
+    <Resource Include="Resources\DarkTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
+    </Resource>
     <Page Include="UserControls\DocumentationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

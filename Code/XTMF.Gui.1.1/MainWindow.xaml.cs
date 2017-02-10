@@ -79,6 +79,14 @@ namespace XTMF.Gui
 
         public event EventHandler RecentProjectsUpdated;
 
+        private ThemeController _themeController;
+
+        public ThemeController ThemeController
+        {
+            get { return _themeController; }
+        }
+      
+
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
             get { return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty); }
@@ -102,6 +110,18 @@ namespace XTMF.Gui
             {
                 CheckHasLocalConfiguration();
             }
+
+
+
+            _themeController = new ThemeController(_configurationFilePath == null
+                ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "XTMF", "Configuration.xml")
+                : System.IO.Path.GetDirectoryName(_configurationFilePath));
+
+
+
+            Visibility = Visibility.Collapsed;
+            _themeController.SetThemeActive(_themeController.GetDefaultTheme());
             InitializeComponent();
 
             Loaded += FrameworkElement_Loaded;
@@ -382,15 +402,43 @@ namespace XTMF.Gui
             StatusDisplay.Text = "Loading XTMF";
             EditorController.Register(this, () =>
             {
+            
                 Dispatcher.BeginInvoke(new Action(() =>
                     {
                         IsEnabled = true;
                         StatusDisplay.Text = "Ready";
                         UpdateRecentProjectsMenu();
 
+                        if (EditorController.Runtime.Configuration.Theme == null)
+                        {
+                            _themeController.SetThemeActive(_themeController.GetDefaultTheme());
+                        }
+                        else
+                        {
+                            ThemeController.Theme theme =
+                                _themeController.FindThemeByName(EditorController.Runtime.Configuration.Theme);
+
+                            if (theme == null)
+                            {
+                                _themeController.SetThemeActive(_themeController.GetDefaultTheme());
+                            }
+                            else
+                            {
+                                _themeController.SetThemeActive(theme);
+                            }
+                        }
+                        Visibility = Visibility.Visible;
+
                     }));
             });
+
+            
             ShowStart_Click(this, null);
+        }
+
+        public void ApplyTheme(ThemeController.Theme theme)
+        {
+            _themeController.SetThemeActive(theme);
         }
 
         public void LoadProjectByName(string projectName)
