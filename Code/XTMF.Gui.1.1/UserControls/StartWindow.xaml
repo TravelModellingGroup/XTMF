@@ -23,7 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800" Background="{DynamicResource WindowBackgroundBrush2}" >
     <Grid>
         <Grid MinWidth="760" MinHeight="460">
             <Grid.Background>
@@ -50,32 +50,19 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid HorizontalAlignment="Center" Margin="0,-100,0,0" VerticalAlignment="Center" >
-                    <Grid.Resources>
+                    <!--<Grid.Resources>
                         <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
                             <Setter Property="Cursor" Value="Hand" />
-                            <Setter Property="Foreground" Value="{StaticResource FocusBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource FocusBrush}" />
                             <Setter Property="FontSize" Value="14"></Setter>
                             <Setter Property="Margin" Value="0.25cm,0,0,0"></Setter>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Trigger.EnterActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </Trigger.EnterActions>
-                                    <Trigger.ExitActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </Trigger.ExitActions>
+                                   <Setter Property="Foreground" Value="{DynamicResource FocusBrush}"></Setter>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
-                    </Grid.Resources>
+                    </Grid.Resources> -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" MinHeight="50" />
                         <RowDefinition Height="AUTO" MinHeight="0" />
@@ -88,8 +75,8 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" Name="ProjectsStackPanel">
                         <Label Content="Projects" FontSize="18" Foreground="White" />
-                        <Label Style="{StaticResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
-                        <Label Style="{StaticResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
+                        <Label Style="{DynamicResource HoverLabel}" Content="Create a new project" Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="NewProject_MouseUp" />
+                        <Label Style="{DynamicResource HoverLabel}" Content="Open a project" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenProject_MouseUp" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left">
@@ -100,8 +87,8 @@
 
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left">
                         <Label Content="Model Systems" FontSize="18" Foreground="White" />
-                        <Label Style="{StaticResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
-                        <Label Style="{StaticResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
+                        <Label Style="{DynamicResource HoverLabel}" Content="Create a new Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="NewModelSystem_MouseUp" />
+                        <Label Style="{DynamicResource HoverLabel}" Content="Open a Model System" Margin="0.25cm,0,0,0" FontSize="14" MouseUp="OpenModelSystem_MouseUp" />
                     </StackPanel>
 
                 </Grid>

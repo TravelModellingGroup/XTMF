@@ -528,7 +528,7 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
 
-                    <Setter Property="Foreground" Value="#FFFFFFFF"></Setter>
+                    <Setter Property="Foreground" Value="{DynamicResource FocusBrushHover}"></Setter>
                
                 <!--
                 <Trigger.EnterActions>
