@@ -169,7 +169,7 @@ namespace TMG.GTAModel.NetworkAssignment
         }
 
         [SubModelInformation(Description = "The TTF's to apply in the assignment.")]
-        public TtfDefinitions[] Ttf;
+        public TtfDefinitions[] TTF;
 
 
         public bool Execute(Controller controller)
@@ -208,7 +208,7 @@ namespace TMG.GTAModel.NetworkAssignment
                                         DistanceMatrixNumber,
                                         Controller.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
-                                        string.Join(",", from ttf in Ttf
+                                        string.Join(",", from ttf in TTF
                                                          select ttf.TtfNumber + ":"
                                                          + Controller.ToEmmeFloat(ttf.CongestionPerception) + ":"
                                                          + Controller.ToEmmeFloat(ttf.CongestionExponent)),
