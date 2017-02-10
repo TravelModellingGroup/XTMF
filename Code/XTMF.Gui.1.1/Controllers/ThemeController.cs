@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Markup;
 
 namespace XTMF.Gui.Controllers
 {
@@ -120,7 +121,7 @@ namespace XTMF.Gui.Controllers
             /* Load themes from Configuration and search for themes in the current configuration
              * directory .*/
 
-            this._configuration = configuration;
+            this._configuration = Path.Combine(configuration,"Themes");
             _themes = new List<Theme>();
 
             LoadDefaultDarkTheme();
@@ -128,11 +129,13 @@ namespace XTMF.Gui.Controllers
 
             foreach (var file in Directory.EnumerateFiles(_configuration))
             {
+                Console.WriteLine(file);
                 if (file.EndsWith(".thm"))
                 {
-                    Uri themeUri = new Uri(file, UriKind.RelativeOrAbsolute);
-                    ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(themeUri);
-                    Theme theme = new Theme("name",themeUri.OriginalString,dictionary);
+              
+                    var themeDictionary = XamlReader.Load(new FileStream(file, FileMode.Open)) as ResourceDictionary;
+                    //ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(themeUri);
+                    Theme theme = new Theme(themeDictionary["ThemeName"].ToString(),file, themeDictionary);
                     _themes.Add(theme);
 
                 }
