@@ -1,15 +1,17 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib"
                     xmlns:local="clr-namespace:XTMF.Gui.UserControls">
 
 
+    <s:String x:Key="ThemeName">Light Theme Default</s:String>
     <Color x:Key="WarningRed" A="255" R="0xA1" G="0x3B" B="0x45" />
     <Color x:Key="AddingYellow" A="255" R="0x7B" G="0x79" B="0x1E" />
     <Color x:Key="InformationGreen" A="255" R="0" G="140" B="0" />
     <Color x:Key="SelectionBlue" A="255" R="0x55" G="0x6C" B="0x93" />
     <Color x:Key="ControlHeaderColour" A="255" R="0x2F" G="0x47" B="0x6E" />
     <Color x:Key="ControlBackgroundColour" A="255" R="0x1A" G="0x2E" B="0x52" />
-    <Color x:Key="FocusColour" A="255" R="150" G="165" B="190" />
+    <Color x:Key="FocusColour" A="255" R="80" G="80" B="110" />
     <Color x:Key="MultiLayedLayerColour" A="200" R="0x50" G="0x50" B="0x60" />
     <Color x:Key="WindowBackgroundColour"  A="255" R="0x09" G="0x18" B="0x32" />
 
@@ -19,13 +21,14 @@
 
 
     <SolidColorBrush x:Key="WindowBackgroundBrush1" Color="#FFFFFFFF"></SolidColorBrush>
-    <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="#FF252526"></SolidColorBrush>
+    <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="#FFDDDDDD"></SolidColorBrush>
 
     <SolidColorBrush x:Key="HighlightBrush1" Color="#FF333333"></SolidColorBrush>
     <SolidColorBrush x:Key="HighlightBrush2" Color="#FF444444"></SolidColorBrush>
 
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
+    <SolidColorBrush x:Key="FocusBrushHover" Color="#FF346BCB" />
     <SolidColorBrush x:Key="AddingYellowBrush" Color="{DynamicResource ResourceKey=AddingYellow}" />
     <SolidColorBrush x:Key="InformationGreenBrush" Color="{DynamicResource ResourceKey=InformationGreen}" />
     <SolidColorBrush x:Key="WarningRedBrush" Color="{DynamicResource ResourceKey=WarningRed}" />
