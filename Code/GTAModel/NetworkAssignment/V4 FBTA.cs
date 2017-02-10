@@ -145,10 +145,10 @@ namespace TMG.GTAModel.NetworkAssignment
         private const string ToolName = "tmg.assignment.transit.V4_FBTA";
 
 
-        public sealed class TtfDefinitions : IModule
+        public sealed class TTFDefinitions : IModule
         {
             [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
-            public int TtfNumber;
+            public int TTFNumber;
 
             [RunParameter("Congestion Perception", 0.0f, "The congestion exponent to apply to this TTF.")]
             public float CongestionPerception;
@@ -169,7 +169,7 @@ namespace TMG.GTAModel.NetworkAssignment
         }
 
         [SubModelInformation(Description = "The TTF's to apply in the assignment.")]
-        public TtfDefinitions[] Ttf;
+        public TTFDefinitions[] TTF;
 
 
         public bool Execute(Controller controller)
@@ -208,8 +208,8 @@ namespace TMG.GTAModel.NetworkAssignment
                                         DistanceMatrixNumber,
                                         Controller.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
-                                        string.Join(",", from ttf in Ttf
-                                                         select ttf.TtfNumber + ":"
+                                        string.Join(",", from ttf in TTF
+                                                         select ttf.TTFNumber + ":"
                                                          + Controller.ToEmmeFloat(ttf.CongestionPerception) + ":"
                                                          + Controller.ToEmmeFloat(ttf.CongestionExponent)),
                                         ImpedanceMatrix,

@@ -41,6 +41,7 @@
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TFARE/@EntryIndexedValue">TFARE</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TIVTT/@EntryIndexedValue">TIVTT</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TTC/@EntryIndexedValue">TTC</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TTF/@EntryIndexedValue">TTF</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TTS/@EntryIndexedValue">TTS</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TWAIT/@EntryIndexedValue">TWAIT</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=TWALK/@EntryIndexedValue">TWALK</s:String>
