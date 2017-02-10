@@ -405,10 +405,6 @@ namespace XTMF.Gui
             
                 Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        IsEnabled = true;
-                        StatusDisplay.Text = "Ready";
-                        UpdateRecentProjectsMenu();
-
                         if (EditorController.Runtime.Configuration.Theme == null)
                         {
                             _themeController.SetThemeActive(_themeController.GetDefaultTheme());
@@ -427,6 +423,12 @@ namespace XTMF.Gui
                                 _themeController.SetThemeActive(theme);
                             }
                         }
+                        IsEnabled = true;
+                        StatusDisplay.Text = "Ready";
+                      
+
+                       
+                        UpdateRecentProjectsMenu();
                         Visibility = Visibility.Visible;
 
                     }));
