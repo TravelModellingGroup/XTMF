@@ -49,7 +49,7 @@
                             Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
 
                             Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0"
-                            Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="15"
+                            Foreground="{DynamicResource ThemeTextColorBrush}" HorizontalContentAlignment="Left" FontSize="15"
                             Background="{x:Null}" />
                     </StackPanel>
                 </Border>
