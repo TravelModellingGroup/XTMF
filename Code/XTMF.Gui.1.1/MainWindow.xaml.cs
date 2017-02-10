@@ -114,8 +114,8 @@ namespace XTMF.Gui
 
 
             _themeController = new ThemeController(_configurationFilePath == null
-                ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "XTMF", "Configuration.xml")
+                ? System.IO.Path.GetDirectoryName(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "XTMF", "Configuration.xml"))
                 : System.IO.Path.GetDirectoryName(_configurationFilePath));
 
 
