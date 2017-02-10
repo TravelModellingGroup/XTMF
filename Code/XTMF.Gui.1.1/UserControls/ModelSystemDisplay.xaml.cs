@@ -697,7 +697,7 @@ namespace XTMF.Gui.UserControls
               if (border.Background.IsFrozen)
               {
 
-                  border.Background = Brushes.Transparent;
+                  //border.Background = Brushes.Transparent;
                   //border.Background = border.Background.CloneCurrentValue();
 
 
@@ -723,15 +723,15 @@ namespace XTMF.Gui.UserControls
             {
                 //border.Background = new SolidColorBrush((Color)Application.Current.FindResource("FocusColour"));
 
-                border.Background = Brushes.Transparent;
+               // border.Background = Brushes.Transparent;
             }
 
             if (!border.IsKeyboardFocusWithin)
             {
                 //var background = (Color)Application.Current.FindResource("ControlBackgroundColour");
 
-                var background = Colors.Transparent;
-                ColorAnimation setFocus = new ColorAnimation(background, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                //var background = Colors.Transparent;
+                //ColorAnimation setFocus = new ColorAnimation(background, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
               // border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
             }
         }
