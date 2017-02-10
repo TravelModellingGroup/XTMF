@@ -38,8 +38,8 @@
             <Grid Grid.Row="0" MinHeight="50">
                 <Image HorizontalAlignment="Left"  Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
                 <StackPanel HorizontalAlignment="Center"  VerticalAlignment="Center">
-                    <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" />
-                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="White" />
+                    <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource TextColor}" />
+                    <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{DynamicResource TextColor}" />
                 </StackPanel>
             </Grid>
 
