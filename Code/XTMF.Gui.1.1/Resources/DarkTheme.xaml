@@ -23,9 +23,13 @@
     <SolidColorBrush x:Key="DarkGrayBackgroundBrush" Color="#FF1F1F1F"></SolidColorBrush>
 
 
-    <SolidColorBrush x:Key="WindowBackgroundBrush1" Color="#FF1F1F1F"></SolidColorBrush>
-    <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="#FF252526"></SolidColorBrush>
 
+    <Color x:Key="WindowBackgroundColor1">#FF1F1F1F</Color>
+    <Color x:Key="WindowBackgroundColor2">#FF252526</Color>
+    <SolidColorBrush x:Key="WindowBackgroundBrush1" Color="{DynamicResource WindowBackgroundColor1}"></SolidColorBrush>
+    <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="{DynamicResource WindowBackgroundColor2}"></SolidColorBrush>
+    
+    
     <SolidColorBrush x:Key="ControlMediumColor" Color="#FF444466"></SolidColorBrush>
 
     <SolidColorBrush x:Key="HighlightBrush1" Color="{DynamicResource HighlightBackground1}"></SolidColorBrush>
