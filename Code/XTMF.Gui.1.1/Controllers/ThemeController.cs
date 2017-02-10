@@ -127,6 +127,10 @@ namespace XTMF.Gui.Controllers
             LoadDefaultDarkTheme();
             LoadDefaultLightTheme();
 
+            if (!Directory.Exists(_configuration))
+            {
+                return;
+            }
             foreach (var file in Directory.EnumerateFiles(_configuration))
             {
         

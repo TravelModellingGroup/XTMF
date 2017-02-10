@@ -143,8 +143,8 @@
                                EndPoint="0,1">
                             <LinearGradientBrush.GradientStops>
                                 <GradientStopCollection>
-                                    <GradientStop Color="#333333" />
-                                    <GradientStop Color="#444444"
+                                    <GradientStop Color="{DynamicResource HighlightBackground1}" />
+                                    <GradientStop Color="{DynamicResource HighlightBackground2}"
                               Offset="1.0" />
                                 </GradientStopCollection>
                             </LinearGradientBrush.GradientStops>
@@ -194,8 +194,8 @@
                                EndPoint="0,1">
                             <LinearGradientBrush.GradientStops>
                                 <GradientStopCollection>
-                                    <GradientStop Color="#333333" />
-                                    <GradientStop Color="#444444"
+                                    <GradientStop Color="{DynamicResource HighlightBackground1}" />
+                                    <GradientStop Color="{DynamicResource HighlightBackground2}"
                               Offset="1.0" />
                                 </GradientStopCollection>
                             </LinearGradientBrush.GradientStops>
@@ -246,9 +246,9 @@
                                EndPoint="0,1">
                             <LinearGradientBrush.GradientStops>
                                 <GradientStopCollection>
-                                    <GradientStop Color="#333333"
+                                    <GradientStop Color="{DynamicResource HighlightBackground1}"
                               Offset="0.0" />
-                                    <GradientStop Color="#444444"
+                                    <GradientStop Color="{DynamicResource HighlightBackground2}"
                               Offset="1.0" />
                                 </GradientStopCollection>
                             </LinearGradientBrush.GradientStops>
@@ -321,9 +321,9 @@
                     <Setter.Value>
                         <LinearGradientBrush EndPoint="0.5,1"
                                StartPoint="0.5,0">
-                            <GradientStop Color="#333333"
+                            <GradientStop Color="{DynamicResource HighlightBackground1}"
                           Offset="0" />
-                            <GradientStop Color="#444444"
+                            <GradientStop Color="{DynamicResource HighlightBackground2}"
                           Offset="1" />
                         </LinearGradientBrush>
                     </Setter.Value>
@@ -333,9 +333,9 @@
                     <Setter.Value>
                         <LinearGradientBrush EndPoint="0.5,1"
                                StartPoint="0.5,0">
-                            <GradientStop Color="#333333"
+                            <GradientStop Color="{DynamicResource HighlightBackground1}"
                           Offset="0" />
-                            <GradientStop Color="#444444"
+                            <GradientStop Color="{DynamicResource HighlightBackground2}"
                           Offset="1" />
                         </LinearGradientBrush>
                     </Setter.Value>
@@ -429,9 +429,9 @@
                     <Setter.Value>
                         <LinearGradientBrush EndPoint="0.5,1"
                                StartPoint="0.5,0">
-                            <GradientStop Color="#333333"
+                            <GradientStop Color="{DynamicResource HighlightBackground1}"
                           Offset="0" />
-                            <GradientStop Color="#444444"
+                            <GradientStop Color="{DynamicResource HighlightBackground2}"
                           Offset="1" />
                         </LinearGradientBrush>
                     </Setter.Value>
@@ -441,9 +441,9 @@
                     <Setter.Value>
                         <LinearGradientBrush EndPoint="0.5,1"
                                StartPoint="0.5,0">
-                            <GradientStop Color="#333333"
+                            <GradientStop Color="{DynamicResource HighlightBackground1}"
                           Offset="0" />
-                            <GradientStop Color="#444444"
+                            <GradientStop Color="{DynamicResource HighlightBackground2}"
                           Offset="1" />
                         </LinearGradientBrush>
                     </Setter.Value>
