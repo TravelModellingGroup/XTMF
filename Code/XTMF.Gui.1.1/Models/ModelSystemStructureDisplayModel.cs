@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -120,37 +120,37 @@ namespace XTMF.Gui.Models
             var ev = PropertyChanged;
             if (ev != null)
             {
-                if (e.PropertyName == "Children")
+                switch (e.PropertyName)
                 {
-                    if (BaseChildren != null)
-                    {
-                        BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
-                    }
-                    BaseChildren = BaseModel.Children;
-                    if (BaseChildren != null)
-                    {
-                        BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
-                    }
-                }
-                if (e.PropertyName == "IsMetaModule")
-                {
-                    UpdateChildren(BaseModel);
-                    ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                    ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                }
+                    case "Children":
+                        if (BaseChildren != null)
+                        {
+                            BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
+                        }
+                        BaseChildren = BaseModel.Children;
+                        if (BaseChildren != null)
+                        {
+                            BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
+                        }
+                        break;
+                    case "IsMetaModule":
+                        UpdateChildren(BaseModel);
+                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
+                        break;
+                    case "IsDisabled":
+                    case "Type":
+                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
+                        break;
+                }            
                 ModelHelper.PropertyChanged(ev, this, e.PropertyName);
-                // If the type changes it is possible that our background colour should change as well
-                if (e.PropertyName == "Type")
-                {
-                    ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                    ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                }
             }
         }
 
-        public string Name { get { return BaseModel.Name; } }
+        public string Name => BaseModel.Name;
 
-        public string Description { get { return BaseModel.Description; } }
+        public string Description => BaseModel.Description;
 
         public Color BackgroundColour
         {
@@ -241,13 +241,7 @@ namespace XTMF.Gui.Models
             }
         }
 
-        public ParametersModel ParametersModel
-        {
-            get
-            {
-                return BaseModel.Parameters;
-            }
-        }
+        public ParametersModel ParametersModel => BaseModel.Parameters;
 
         internal ObservableCollection<ParameterModel> GetParameters()
         {
@@ -317,6 +311,13 @@ namespace XTMF.Gui.Models
                 }
             }
             return null;
+        }
+
+        public bool IsDisabled => BaseModel.IsDisabled;
+
+        internal bool SetDisabled(bool disabled, ref string error)
+        {
+            return BaseModel.SetDisabled(disabled, ref error);
         }
 
         internal bool SetMetaModule(bool set, ref string error)

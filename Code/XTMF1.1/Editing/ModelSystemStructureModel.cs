@@ -76,14 +76,17 @@ namespace XTMF
                             return false;
                         }
                         RealModelSystemStructure.IsDisabled = disabled;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
                         return true;
                     }, (ref string e) =>
                     {
                         RealModelSystemStructure.IsDisabled = oldValue;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
                         return true;
                     }, (ref string e) =>
                     {
                         RealModelSystemStructure.IsDisabled = disabled;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
                         return true;
                     }
                     ), ref error);
@@ -91,7 +94,7 @@ namespace XTMF
             return true;
         }
 
-        public bool IsMetaModule { get { return RealModelSystemStructure.IsMetaModule; } }
+        public bool IsMetaModule => RealModelSystemStructure.IsMetaModule;
 
         public Type Type
         {

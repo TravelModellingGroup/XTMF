@@ -16,8 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System.Collections.Generic;
-using System.Linq;
+
 using XTMF.Testing.Modules.Editing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using XTMF.Testing.Modules;
