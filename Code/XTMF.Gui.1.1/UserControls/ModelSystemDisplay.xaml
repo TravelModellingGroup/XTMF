@@ -29,14 +29,14 @@
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="600" Background="{DynamicResource MediumGrayBackgroundBrush}">
+             d:DesignHeight="300" d:DesignWidth="600" Background="{DynamicResource WindowBackgroundBrush1}">
     <UserControl.Resources>
 
         <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
             <Border Name="b"  BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
-                            MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter" Background="{DynamicResource MediumGrayBackgroundBrush}">
+                            MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter" Background="{DynamicResource WindowBackgroundBrush1}">
                     <Expander Margin="0,0,0.2cm,0" Foreground="White" FontSize="14"
                                   HorizontalAlignment="Stretch"  Style="{DynamicResource ParameterNameStyle}">
                         <Expander.Header>
@@ -111,13 +111,13 @@
 
         <models:ParameterTypeSelector x:Key="ParameterSelecter" Standard="{StaticResource StandardParameterTemplate}" Enumeration="{StaticResource EnumerationParameterTemplate}" />
     </UserControl.Resources>
-    <Grid Background="{DynamicResource MediumGrayBackgroundBrush}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush1}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="200px" Width="*"/>
             <ColumnDefinition Width="AUTO"/>
             <ColumnDefinition MinWidth="200px" Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Background="{DynamicResource MediumGrayBackgroundBrush}">
+        <Grid Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush1}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
@@ -256,7 +256,7 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderBrush="White" Background="{DynamicResource MediumGrayBackgroundBrush}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                    <Border Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -269,12 +269,12 @@
                     <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView  Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                      Margin="0" Background="{DynamicResource MediumGrayBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
+                      Margin="0" Background="{DynamicResource WindowBackgroundBrush1}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
                                 <Setter Property="BorderThickness" Value="0" />
-                                <Setter Property="Background" Value="{DynamicResource MediumGrayBackgroundBrush}"></Setter>
+                                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}"></Setter>
                                 <Style.Resources>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
@@ -387,7 +387,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Quick Parameters (Ctrl+Q)" x:Name="QuickParameterTab" FontSize="14" Style="{DynamicResource XTMFTabItem}" Foreground="White">
-                <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource MediumGrayBackgroundBrush}">
+                <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="AUTO" />
@@ -404,7 +404,7 @@
                     <my:FilterBox Grid.Row="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView Grid.Row="2" x:Name="QuickParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      Margin="0" Background="{DynamicResource MediumGrayBackgroundBrush}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
+                      Margin="0" Background="{DynamicResource WindowBackgroundBrush1}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
