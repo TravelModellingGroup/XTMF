@@ -108,9 +108,7 @@ namespace TMG.Emme
                 {
                     try
                     {
-                        // clear out all of the old input before starting
-                        FromEmme.BaseStream.Flush();
-                        BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
+                        BinaryWriter writer = new BinaryWriter(PipeToEMME);
                         writer.Write(value ? SignalEnableLogbook : SignalDisableLogbook);
                         writer.Flush();
                     }
@@ -122,7 +120,7 @@ namespace TMG.Emme
             }
         }
 
-        private NamedPipeServerStream PipeFromEmme;
+        private NamedPipeServerStream PipeToEMME;
 
         /// <summary>
         /// </summary>
@@ -169,7 +167,7 @@ namespace TMG.Emme
             // When EMME is installed it will link the .py to their python interpreter properly
             string argumentString = AddQuotes(Path.Combine(modulesDirectory, "ModellerBridge.py"));
             var pipeName = Guid.NewGuid().ToString();
-            PipeFromEmme = new NamedPipeServerStream(pipeName, PipeDirection.In);
+            PipeToEMME = new NamedPipeServerStream(pipeName, PipeDirection.In);
             //The first argument that gets passed into the Bridge is the name of the Emme project file
             argumentString += " " + AddQuotes(projectFile) + " " + userInitials + " " + (performanceAnalysis ? 1 : 0) + " \"" + pipeName + "\"";
 
@@ -198,7 +196,7 @@ namespace TMG.Emme
             // Give some short names for the streams that we will be using
             ToEmme = Emme.StandardInput;
             // no more standard out
-            PipeFromEmme.WaitForConnection();
+            PipeToEMME.WaitForConnection();
             //this.FromEmme = this.Emme.StandardOutput;
         }
 
@@ -243,7 +241,7 @@ namespace TMG.Emme
                 string toPrint;
                 while (true)
                 {
-                    BinaryReader reader = new BinaryReader(PipeFromEmme);
+                    BinaryReader reader = new BinaryReader(PipeToEMME);
                     int result = reader.ReadInt32();
                     switch (result)
                     {
@@ -437,10 +435,10 @@ namespace TMG.Emme
                     FromEmme = null;
                 }
 
-                if (PipeFromEmme != null)
+                if (PipeToEMME != null)
                 {
-                    PipeFromEmme.Dispose();
-                    PipeFromEmme = null;
+                    PipeToEMME.Dispose();
+                    PipeToEMME = null;
                 }
 
                 if (ToEmme != null)
