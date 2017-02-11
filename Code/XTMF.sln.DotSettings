@@ -4,6 +4,7 @@
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=AIVTT/@EntryIndexedValue">AIVTT</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=AM/@EntryIndexedValue">AM</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=CDF/@EntryIndexedValue">CDF</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=CSV/@EntryIndexedValue">CSV</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=EMME/@EntryIndexedValue">EMME</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=FBTA/@EntryIndexedValue">FBTA</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=GF/@EntryIndexedValue">GF</s:String>
@@ -16,6 +17,7 @@
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=HOT/@EntryIndexedValue">HOT</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=HOV/@EntryIndexedValue">HOV</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=HSR/@EntryIndexedValue">HSR</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=ID/@EntryIndexedValue">ID</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=IVTT/@EntryIndexedValue">IVTT</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=KM/@EntryIndexedValue">KM</s:String>
   <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=MF/@EntryIndexedValue">MF</s:String>

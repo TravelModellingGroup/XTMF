@@ -1,5 +1,5 @@
 ﻿<!-- 
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -41,6 +41,8 @@
                                      Clicked="ImportModelSystem_Clicked"/>
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Create New" Width="170" Text="Create a new blank Model System" Icon="/XTMF.Gui;component/Resources/Plus.png"
                                      Clicked="CreateNewModelSystem_Clicked"/>
+                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12" Header="Refresh" Text="Refresh previous runs"
+                                         Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" Clicked="RefreshPreviousRuns_Clicked" />
             </WrapPanel>
         </Border>
 
@@ -152,10 +154,6 @@
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="1" FlowDirection="LeftToRight" >
                         <Label Content="Previous Runs" Width="Auto"  Background="#FF252526" FontSize="22" Foreground="White" Margin="5,5,0,5"/>
-
-                        <my:BorderIconButton HorizontalAlignment="Right" x:Name="RefreshPreviousRuns" Margin="0,4,4,0" Header="Refresh" Text="Refresh previous runs"
-                                         Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png"
-                                         Clicked="RefreshPreviousRuns_Clicked" />
                     </DockPanel>
                     <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
                     <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="#FF252526"
