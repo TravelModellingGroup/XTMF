@@ -160,12 +160,13 @@ namespace XTMF.Gui.UserControls
                         PreviousRuns.Clear();
                         foreach (var pastRun in session.GetPreviousRuns())
                         {
-                            DirectoryInfo info = new DirectoryInfo(pastRun);
+                            var info = new DirectoryInfo(pastRun);
+                            var fileInfo = new FileInfo(Path.Combine(pastRun, "RunParameters.xml"));
                             list.Add(new PreviousRun
                             {
                                 Name = info.Name,
                                 Path = pastRun,
-                                Time = info.CreationTime
+                                Time = fileInfo.LastWriteTime
                             });
                         }
                         PreviousRuns.AddRange(from entry in list
