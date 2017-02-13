@@ -21,7 +21,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using XTMF.Annotations;
 using XTMF.Editing;
 
 namespace XTMF
@@ -214,5 +216,13 @@ namespace XTMF
                 RealLinkedParameters.RemoveAt(index);
             }
         }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+ 
     }
 }

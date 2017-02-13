@@ -168,6 +168,7 @@
     <Compile Include="Models\ModelSystemEditingSessionDisplayModel.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="UserControls\AboutXTMF.xaml.cs">
       <DependentUpon>AboutXTMF.xaml</DependentUpon>
     </Compile>
