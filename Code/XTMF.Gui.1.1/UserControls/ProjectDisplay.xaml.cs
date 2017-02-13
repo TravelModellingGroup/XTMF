@@ -190,7 +190,8 @@ namespace XTMF.Gui.UserControls
                 Task.Factory.StartNew(() =>
                 {
                     var modelSystems = (from ms in Project.ModelSystemStructure
-                                        select new ContainedModelSystemModel(ms, Project)).OrderBy(x => x.Name);
+                                        orderby ms.Name ascending 
+                                        select new ContainedModelSystemModel(ms, Project));
                     lock (ContainedModelSystems)
                     {
                         ContainedModelSystems.AddRange(modelSystems);
