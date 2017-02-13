@@ -26,14 +26,14 @@
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush2}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-        <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" Background="#FF252526" BorderThickness="0">
+        <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename ModelSystem (F2)" Click="Rename_Click">

@@ -26,7 +26,7 @@
              Focusable="True"
              d:DesignHeight="400" d:DesignWidth="800">
     <UserControl.Background>
-        <SolidColorBrush Color="#FF252526"/>
+        <SolidColorBrush Color="{DynamicResource WindowBackgroundColor2}"/>
     </UserControl.Background>
     <Grid>
         <Grid.RowDefinitions>
@@ -61,10 +61,10 @@
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <my:FilterBox Grid.Row="0" x:Name="FilterModelSystemsBox" EnterPressed="FilterModelSystemsBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
-                    <DockPanel Grid.Row="1" LastChildFill="True" Background="#FF252526">
+                    <DockPanel Grid.Row="1" LastChildFill="True" Background="{DynamicResource WindowBackgroundBrush2}">
 
-                        <Label Content="Model Systems" DockPanel.Dock="Top" Background="#FF252526" FontSize="22" Foreground="White" Margin="5,5,0,5"/>
-                        <ListView VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="#FF252526"
+                        <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
+                        <ListView VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
                                  SelectionChanged="ModelSystemDisplay_SelectionChanged" BorderBrush="{x:Null}">
                             <ListView.ContextMenu>
                                 <ContextMenu>
@@ -144,21 +144,21 @@
                     </DockPanel>
                 </Grid>
                 <GridSplitter  Width="4" Background="{DynamicResource WindowBackgroundBrush1}"></GridSplitter>
-                <Grid  Grid.Column="2" Background="#FF252526">
+                <Grid  Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="1" FlowDirection="LeftToRight" >
-                        <Label Content="Previous Runs" Width="Auto"  Background="#FF252526" FontSize="22" Foreground="White" Margin="5,5,0,5"/>
+                        <Label Content="Previous Runs" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
 
                         <my:BorderIconButton HorizontalAlignment="Right" x:Name="RefreshPreviousRuns" Margin="0,4,4,0" Header="Refresh" Text="Refresh previous runs"
                                          Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png"
                                          Clicked="RefreshPreviousRuns_Clicked" />
                     </DockPanel>
                     <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
-                    <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="#FF252526"
+                    <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
                                  
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
 
