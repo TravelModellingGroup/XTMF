@@ -211,7 +211,7 @@ namespace XTMF.Gui
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("Invalid path passed with configuration argument.");
+                        Console.WriteLine(Properties.Resources.MainWindow_ParseCommandLineArgs_Invalid_path_passed_with_configuration_argument_);
                     }
 
                 }
