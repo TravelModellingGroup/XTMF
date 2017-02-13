@@ -154,10 +154,6 @@
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="1" FlowDirection="LeftToRight" >
                         <Label Content="Previous Runs" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
-
-                        <my:BorderIconButton HorizontalAlignment="Right" x:Name="RefreshPreviousRuns" Margin="0,4,4,0" Header="Refresh" Text="Refresh previous runs"
-                                         Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png"
-                                         Clicked="RefreshPreviousRuns_Clicked" />
                     </DockPanel>
                     <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
                     <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
