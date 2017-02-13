@@ -51,7 +51,7 @@
                             Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
 
                             Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0"
-                            Foreground="#FFDEDEDE" HorizontalContentAlignment="Left" FontSize="15"
+                            Foreground="{DynamicResource ThemeTextColorBrush}" HorizontalContentAlignment="Left" FontSize="15"
                             Background="{x:Null}" />
                     </StackPanel>
                 </Border>
@@ -67,10 +67,8 @@
                             <Style TargetType="{x:Type Border}">
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background">
-                                            <Setter.Value>
-                                                #333333
-                                            </Setter.Value>
+                                        <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                         
                                         </Setter>
                                     </Trigger>
                                 </Style.Triggers>
@@ -88,11 +86,8 @@
                                     <Style TargetType="{x:Type Border}">
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background">
-                                                    <Setter.Value>
-                                                        #333333
-                                                    </Setter.Value>
-                                                </Setter>
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}"></Setter>
+                                        
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
@@ -121,7 +116,7 @@
 
                                       Data="M 0 0 L 7 7 M 0 7 L 7 0">
                                     <Path.Stroke>
-                                        <SolidColorBrush Color="#CCCCCC" />
+                                        <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
                                     </Path.Stroke>
                                 </Path>
                             </Border>
@@ -155,7 +150,7 @@
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
                 <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{DynamicResource MediumGrayBackgroundBrush}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
+                          Background="{DynamicResource WindowBackgroundBrush1}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
@@ -195,7 +190,7 @@
                 </ListView>
             </Grid>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-            <Grid Grid.Column="2" Background="{DynamicResource MediumGrayBackgroundBrush}">
+            <Grid Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush1}">
                 <Grid.RowDefinitions>
 
                     <RowDefinition Height="AUTO" />
@@ -225,7 +220,7 @@
 
 
                 <Border Grid.Row="1" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
-                    <StackPanel Background="{DynamicResource MediumGrayBackgroundBrush}" >
+                    <StackPanel Background="{DynamicResource WindowBackgroundBrush1}" >
 
                         <Label Content="Linked Parameters" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
                         <ListView KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"

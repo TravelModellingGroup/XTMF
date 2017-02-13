@@ -42,7 +42,7 @@
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Create New" Width="170" Text="Create a new blank Model System" Icon="/XTMF.Gui;component/Resources/Plus.png"
                                      Clicked="CreateNewModelSystem_Clicked"/>
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12" Header="Refresh" Text="Refresh previous runs"
-                                         Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" Clicked="RefreshPreviousRuns_Clicked" />
+                                         Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" Clicked="RefreshPreviousRuns_Clicked" Background="{DynamicResource HighlightBrush1}" />
             </WrapPanel>
         </Border>
 

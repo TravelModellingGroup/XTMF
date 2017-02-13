@@ -25,13 +25,14 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="XTMF Version 1.2" Height="768" Width="1024" IsHitTestVisible="True"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="Transparent"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="#FF6A6A6A"
         ResizeMode="CanResizeWithGrip"
 
 
+        
         MouseDown="Window_MouseDown" MouseDoubleClick="MainWindow_OnMouseDoubleClick"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
-        AllowsTransparency="True" StateChanged="Window_StateChanged"
+        AllowsTransparency="True" StateChanged="Window_StateChanged" BorderBrush="#FF404040" BorderThickness="1"
         >
     <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
         <Grid.RowDefinitions>
@@ -370,7 +371,7 @@
             <StatusBar Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch"
                        Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
                 <StatusBarItem HorizontalAlignment="Left">
-                    <TextBlock x:Name="StatusDisplay" Foreground="White" />
+                    <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource ThemeTextColorBrush}" />
                 </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">

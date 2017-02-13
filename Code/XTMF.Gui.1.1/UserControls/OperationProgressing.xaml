@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Operation Progressing" ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" WindowStyle="None" Background="{x:Null}" AllowsTransparency="True">
 
-    <Border Margin="20"  Background="{DynamicResource MediumGrayBackgroundBrush}" BorderThickness="1">
+    <Border Margin="20"  Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="1">
         <Border.BorderBrush>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="#FF444444" Offset="0"/>
@@ -18,7 +18,7 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
-            <Label Content="Please Wait..." Foreground="White" FontSize="14" />
+            <Label Content="Please Wait..." Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
             <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" >
                 <ProgressBar.Foreground>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">

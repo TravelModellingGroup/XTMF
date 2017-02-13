@@ -73,10 +73,10 @@ namespace XTMF.Gui
             BorderThicknessProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(new Thickness(1), BorderThicknessChanged));
             try
             {
-                DefaultSelectionBlue = (Color)Application.Current.TryFindResource("SelectionBlue");
-                DefaultControlBackgroundColour = (Color)Application.Current.TryFindResource("ControlBackgroundColour");
-                DefaultFocusColour = (Color)Application.Current.TryFindResource("FocusColour");
-                FocusBrush = new SolidColorBrush(DefaultFocusColour);
+                //DefaultSelectionBlue = (Color)Application.Current.TryFindResource("SelectionBlue");
+                //DefaultControlBackgroundColour = (Color)Application.Current.TryFindResource("ControlBackgroundColour");
+                //DefaultFocusColour = (Color)Application.Current.TryFindResource("FocusColour");
+                //FocusBrush = new SolidColorBrush(DefaultFocusColour);
             }
             catch
             {
