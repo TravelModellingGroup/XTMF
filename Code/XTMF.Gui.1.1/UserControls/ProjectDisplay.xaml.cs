@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -112,14 +113,15 @@ namespace XTMF.Gui.UserControls
             {
                 public string Name { get; internal set; }
                 public string Path { get; internal set; }
-                public string TimeStamp { get; internal set; }
+                internal DateTime Time { get; set; }
+                public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
 
                 public event PropertyChangedEventHandler PropertyChanged;
             }
 
             public List<ContainedModelSystemModel> ContainedModelSystems;
 
-            public List<PreviousRun> PreviousRuns;
+            public List<PreviousRun> PreviousRuns = new List<PreviousRun>();
 
             private IProject Project;
 
@@ -145,33 +147,30 @@ namespace XTMF.Gui.UserControls
 
             public void RefreshPastRuns(ProjectEditingSession session)
             {
-
-                if (PreviousRuns == null)
-                {
-                    PreviousRuns = new List<PreviousRun>();
-                }
-                else
+                lock (PreviousRuns)
                 {
                     PreviousRuns.Clear();
                 }
                 Task.Factory.StartNew(() =>
                 {
 
-                    var list = new List<PreviousRun>();
-                    PreviousRuns.Clear();
-                    foreach (var pastRun in session.GetPreviousRuns())
-                    {
-                        DirectoryInfo info = new DirectoryInfo(pastRun);
-                        list.Add(new PreviousRun
-                        {
-                            Name = info.Name,
-                            Path = pastRun,
-                            TimeStamp = info.CreationTime.ToString()
-                        });
-                    }
                     lock (PreviousRuns)
                     {
-                        PreviousRuns.AddRange(list);
+                        var list = new List<PreviousRun>();
+                        PreviousRuns.Clear();
+                        foreach (var pastRun in session.GetPreviousRuns())
+                        {
+                            DirectoryInfo info = new DirectoryInfo(pastRun);
+                            list.Add(new PreviousRun
+                            {
+                                Name = info.Name,
+                                Path = pastRun,
+                                Time = info.CreationTime
+                            });
+                        }
+                        PreviousRuns.AddRange(from entry in list
+                                              orderby entry.Time descending
+                                              select entry);
                     }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
                 });
@@ -362,7 +361,7 @@ namespace XTMF.Gui.UserControls
                         }
                         break;
                     case Key.O:
-                        if(EditorController.IsControlDown())
+                        if (EditorController.IsControlDown())
                         {
                             OpenProjectFolder();
                             e.Handled = true;
@@ -467,7 +466,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-      
+
 
         private void RefreshPreviousRuns_Clicked(object obj)
         {
@@ -691,7 +690,7 @@ namespace XTMF.Gui.UserControls
             });
 
 
-           
+
 
             sr.Owner = Window.GetWindow(this);
 
@@ -728,12 +727,12 @@ namespace XTMF.Gui.UserControls
             LoadModelSystem(selected);
         }
 
-      
+
         private void PastRuns_MouseButton(object sender, MouseButtonEventArgs e)
         {
             var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
 
-            
+
             if (selected != null)
             {
                 var invoke = InitiateModelSystemEditingSession;
@@ -741,9 +740,9 @@ namespace XTMF.Gui.UserControls
                 {
                     string error = null;
                     ModelSystemEditingSession newSession;
-             
-             
-                    
+
+
+
                     if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
                     {
                         if (newSession != null)
@@ -759,7 +758,7 @@ namespace XTMF.Gui.UserControls
                 }
                 PastRunDisplay.SelectedItem = null;
             }
-            
+
         }
     }
 }

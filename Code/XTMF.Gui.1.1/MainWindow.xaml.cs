@@ -85,7 +85,7 @@ namespace XTMF.Gui
         {
             get { return _themeController; }
         }
-      
+
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
@@ -136,7 +136,7 @@ namespace XTMF.Gui
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, this.Minimize_Click, this.OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, this.OnRestoreWindow, this.OnCanResizeWindow));
 
-            
+
 
         }
 
@@ -402,7 +402,7 @@ namespace XTMF.Gui
             StatusDisplay.Text = "Loading XTMF";
             EditorController.Register(this, () =>
             {
-            
+
                 Dispatcher.BeginInvoke(new Action(() =>
                     {
                         if (EditorController.Runtime.Configuration.Theme == null)
@@ -425,16 +425,16 @@ namespace XTMF.Gui
                         }
                         IsEnabled = true;
                         StatusDisplay.Text = "Ready";
-                      
 
-                       
+
+
                         UpdateRecentProjectsMenu();
                         Visibility = Visibility.Visible;
 
                     }));
             });
 
-            
+
             ShowStart_Click(this, null);
         }
 
@@ -461,15 +461,11 @@ namespace XTMF.Gui
 
             if (project != null && !EditorController.Runtime.ProjectController.IsEditSessionOpenForProject(project))
             {
-
                 Task.Run(() =>
                {
-
                    progressing.Dispatcher.BeginInvoke(new Action(() =>
                  {
                      progressing.ShowDialog();
-
-
                  }));
                    ProjectEditingSession session = null;
                    var loadingTask = Task.Run(() =>
@@ -478,33 +474,23 @@ namespace XTMF.Gui
                        session = EditorController.Runtime.ProjectController.EditProject(project);
 
                    });
-
                    loadingTask.Wait();
                    if (session != null)
                    {
                        MainWindow.Us.EditProject(session);
                    }
-
                    progressing.Dispatcher.BeginInvoke(new Action(() =>
                    {
-
                        Application.Current.Dispatcher.Invoke((Action)delegate
                        {
-
                            progressing.Close();
-
                        });
                        //progressing.Visibility = Visibility.Hidden;
-
-
                        var item = OpenPages.Find(doc => doc.Title == "Project - " + project.Name);
-
                        if (item != null)
                        {
                            item.IsSelected = true;
                        }
-
-
                    }));
                    EditorController.Runtime.Configuration.AddRecentProject(project.Name);
                    EditorController.Runtime.Configuration.Save();
@@ -571,7 +557,7 @@ namespace XTMF.Gui
                     };
 
 
-                    display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession, 
+                    display.InitiateModelSystemEditingSession += (editingSession) => EditModelSystem(editingSession,
                         editingSession.PreviousRunName == null ? null : editingSession.ProjectEditingSession.Name + " - " + editingSession.PreviousRunName);
 
                     var doc = AddNewWindow("Project - " + projectSession.Project.Name, display, typeof(ActiveEditingSessionDisplayModel), () => { projectSession.Dispose(); });
@@ -1147,7 +1133,7 @@ namespace XTMF.Gui
             if (item != null)
             {
                 item.IsSelected = true;
-                
+
             }
             else
             {
@@ -1250,31 +1236,31 @@ namespace XTMF.Gui
 
         }
 
-   
+
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-        
+
             if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
-            { 
-          
+            {
+
 
                 if (e.GetPosition(this).Y < 90)
                 {
-                   
-                    
-                    
-                       e.Handled = true;
+
+
+
+                    e.Handled = true;
                     this.DragMove();
-                    
+
                 }
 
             }
 
-      
+
         }
 
-      
+
         private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
         {
             if (this.WindowState == WindowState.Maximized)
@@ -1306,7 +1292,7 @@ namespace XTMF.Gui
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            
+
 
             SystemCommands.CloseWindow(this);
         }
@@ -1321,7 +1307,7 @@ namespace XTMF.Gui
             {
                 SystemCommands.RestoreWindow(this);
 
-                
+
             }
         }
 
@@ -1334,7 +1320,7 @@ namespace XTMF.Gui
                 if (e.GetPosition(this).Y < 90)
                 {
                     e.Handled = true;
-                    this.MaxNorm_OnClick(null,null);
+                    this.MaxNorm_OnClick(null, null);
                 }
 
             }
@@ -1351,7 +1337,7 @@ namespace XTMF.Gui
                     Right = 0,
                     Bottom = 0
                 };
-               
+
             }
             else if (this.WindowState == WindowState.Maximized)
             {
@@ -1362,7 +1348,7 @@ namespace XTMF.Gui
                     Right = 7,
                     Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
                 };
-              
+
 
 
             }
