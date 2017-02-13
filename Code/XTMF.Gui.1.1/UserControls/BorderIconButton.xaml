@@ -24,9 +24,9 @@
              mc:Ignorable="d" Name="Self">
     <Border Name="BorderOutline" BorderBrush="White" BorderThickness="1" Cursor="Hand" CornerRadius="0">
         <Border.Background>
-            <SolidColorBrush Color="{DynamicResource ControlLightColor}" />
+            <SolidColorBrush Color="{DynamicResource WindowBackgroundColor2}" />
         </Border.Background>
-        <Grid x:Name="ContentStackPanel" Margin="5,4,5,4" IsHitTestVisible="False">
+        <Grid x:Name="ContentStackPanel" Margin="0,0,0,0" IsHitTestVisible="False" Background="{DynamicResource WindowBackgroundBrush2}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="*" />

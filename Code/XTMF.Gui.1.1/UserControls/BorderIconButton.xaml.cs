@@ -69,8 +69,8 @@ namespace XTMF.Gui
 
         static BorderIconButton()
         {
-            BorderBrushProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(Brushes.White, BorderBrushChanged));
-            BorderThicknessProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(new Thickness(1), BorderThicknessChanged));
+           // BorderBrushProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(Brushes.White, BorderBrushChanged));
+           // BorderThicknessProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(new Thickness(1), BorderThicknessChanged));
             try
             {
                 //DefaultSelectionBlue = (Color)Application.Current.TryFindResource("SelectionBlue");
