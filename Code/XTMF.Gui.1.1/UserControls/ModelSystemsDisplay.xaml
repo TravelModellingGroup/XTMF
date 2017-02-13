@@ -101,7 +101,7 @@
             </ListView.ItemTemplate>
         </ListView>
         <Border BorderThickness="0" Grid.Row="2" HorizontalAlignment="Stretch">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="#FF1D1D1D">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush1}">
                 <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="New" Width="170" Text="Create a new Model System." Icon="/XTMF.Gui;component/Resources/Plus.png" 
                                      Clicked="NewModelSystem_Clicked"/>
                 <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="Rename" Width="170" Text="Change the name of the model system." Icon="/XTMF.Gui;component/Resources/base_cog_32.png" 

@@ -262,7 +262,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="White" FontSize="16" />
+                            <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" />
                             <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="White" FontSize="12" />
                         </Grid>
                     </Border>

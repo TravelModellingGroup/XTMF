@@ -28,7 +28,7 @@
 
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!--<ResourceDictionary Source="UserControls/DarkTheme.xaml"/> -->
+                <ResourceDictionary Source="Resources/LightTheme.xaml"/> 
                 <ResourceDictionary Source="UserControls/ControlStyles.xaml"/>
                 <ResourceDictionary Source="UserControls/MenuStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>

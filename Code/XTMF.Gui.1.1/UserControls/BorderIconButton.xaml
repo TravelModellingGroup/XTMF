@@ -24,7 +24,7 @@
              mc:Ignorable="d" Name="Self">
     <Border Name="BorderOutline" BorderBrush="White" BorderThickness="1" Cursor="Hand" CornerRadius="0">
         <Border.Background>
-            <SolidColorBrush Color="{DynamicResource ControlBackgroundColour}" />
+            <SolidColorBrush Color="{DynamicResource BorderMediumColor}" />
         </Border.Background>
         <Grid x:Name="ContentStackPanel" Margin="5,4,5,4" IsHitTestVisible="False">
             <Grid.ColumnDefinitions>
@@ -38,9 +38,9 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBlock TextTrimming="WordEllipsis" Grid.Row="0" Name="HeaderContent" Foreground="White" FontSize="14"
+                <TextBlock TextTrimming="WordEllipsis" Grid.Row="0" Name="HeaderContent" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
                        Text="{Binding ElementName=Self, Path=Header}" HorizontalAlignment="Stretch" IsHitTestVisible="False" />
-                <TextBlock TextTrimming="WordEllipsis" Grid.Row="1" Name="TextContent" Foreground="#CCCCCC"
+                <TextBlock TextTrimming="WordEllipsis" Grid.Row="1" Name="TextContent" Foreground="{DynamicResource ThemeTextColorBrush}"
                        Text="{Binding ElementName=Self, Path=Text}"  HorizontalAlignment="Stretch" IsHitTestVisible="False" />
             </Grid>
         </Grid>
