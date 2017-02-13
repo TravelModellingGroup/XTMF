@@ -25,14 +25,14 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="XTMF Version 1.2" Height="768" Width="1024" IsHitTestVisible="True"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="#FF6A6A6A"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" 
         ResizeMode="CanResizeWithGrip"
 
 
-        
+        Background="Transparent"
         MouseDown="Window_MouseDown" MouseDoubleClick="MainWindow_OnMouseDoubleClick"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
-        AllowsTransparency="True" StateChanged="Window_StateChanged" BorderBrush="#FF404040" BorderThickness="1"
+        AllowsTransparency="True" StateChanged="Window_StateChanged"  
         >
     <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
         <Grid.RowDefinitions>

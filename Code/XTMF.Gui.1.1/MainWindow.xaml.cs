@@ -112,6 +112,9 @@ namespace XTMF.Gui
             }
 
 
+            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 9;
+            MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth - 4;
+
 
             _themeController = new ThemeController(_configurationFilePath == null
                 ? System.IO.Path.GetDirectoryName(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -1343,10 +1346,11 @@ namespace XTMF.Gui
             {
                 ExternalGrid.Margin = new Thickness()
                 {
-                    Left = 7,
-                    Top = 2,
-                    Right = 7,
-                    Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
+                    Left = 5,
+                    Top = 0,
+                    Right = 5,
+                    Bottom = 0
+                    //Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
                 };
 
 
