@@ -32,7 +32,7 @@
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#FF252526">
+        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource WindowBackgroundBrush2}">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">
@@ -96,7 +96,7 @@
             </ListView.ItemTemplate>
         </ListView>
         <Border BorderThickness="0" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="#FF1D1D1D">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush1}">
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="New Project" Width="170" Text="Create a new Project." Icon="/XTMF.Gui;component/Resources/Plus.png" Clicked="NewProject_Clicked"/>
                 <my:BorderIconButton x:Name="RenameProject" BorderThickness="0" Margin="5,12,5,12" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/base_cog_32.png" Clicked="RenameProject_Clicked"/>
                 <my:BorderIconButton x:Name="CloneProject"  BorderThickness="0" Margin="5,12,5,12" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png" Clicked="CloneProject_Clicked"/>

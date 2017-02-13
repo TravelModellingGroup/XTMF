@@ -21,12 +21,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" Name="Self">
-    <Border Name="BorderOutline" BorderBrush="White" BorderThickness="1" Cursor="Hand" CornerRadius="0">
+             mc:Ignorable="d" Name="Self" Background="{DynamicResource WindowBackgroundBrush2}" >
+    <Border Name="BorderOutline" BorderBrush="White" BorderThickness="0" Cursor="Hand" CornerRadius="0">
         <Border.Background>
             <SolidColorBrush Color="{DynamicResource WindowBackgroundColor2}" />
         </Border.Background>
-        <Grid x:Name="ContentStackPanel" Margin="0,0,0,0" IsHitTestVisible="False" Background="{DynamicResource WindowBackgroundBrush2}">
+        <Grid x:Name="ContentStackPanel" Margin="4,4,4,4" IsHitTestVisible="False" Background="{DynamicResource WindowBackgroundBrush2}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="*" />
