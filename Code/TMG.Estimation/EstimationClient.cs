@@ -20,7 +20,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using XTMF;
 using XTMF.Networking;
 using System.Threading;
