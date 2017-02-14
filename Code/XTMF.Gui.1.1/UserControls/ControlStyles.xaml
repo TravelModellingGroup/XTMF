@@ -788,8 +788,8 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">
                     <Border SnapsToDevicePixels="True"  
-                                BorderThickness="{TemplateBinding BorderThickness}"   
-                                BorderBrush="{TemplateBinding BorderBrush}"   
+                                BorderThickness="0 0 0 1"   
+                                BorderBrush="{DynamicResource WindowBackgroundBrush3}"   
                                 Background="{TemplateBinding Background}">
                         <Border Name="InnerBorder" CornerRadius="1" BorderThickness="1">
                             <Grid>
@@ -811,7 +811,7 @@
                             <!--<Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" /> -->
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource FocusBrush}" />
+                            <Setter Property="Background" Value="{DynamicResource FocusBrushHover}" />
                             <Setter TargetName="InnerBorder" Property="BorderBrush" Value="#80FFFFFF" />
                         </Trigger>
                         <MultiTrigger>

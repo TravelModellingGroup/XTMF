@@ -22,6 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:xtmf="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              Focusable="True"
              d:DesignHeight="400" d:DesignWidth="800">
@@ -128,17 +129,40 @@
                             </ListView.ContextMenu>
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
+                                    
+                                    <!--
+                                    <StackPanel Orientation="Vertical"></StackPanel>-->
+                                    
+                                    <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
+                                    <!--
                                     <my:VirtualizingWrapPanel  Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                                </ItemsPanelTemplate>
+                               -->
+                                    </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
+                            <!--
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                   <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                </Style>
+                            </ListView.ItemContainerStyle> -->
                             <ListView.ItemTemplate>
                                 <DataTemplate>
+
+
+                                    <xtmf:ListViewControl TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch"
+                                                          SubText="{Binding Description, Mode=OneWay}" >
+
+                                    </xtmf:ListViewControl>
+                                    
+                                    <!--
                                     <my:BorderIconButton x:Name="DisplayButton" Icon="/XTMF.Gui;component/Resources/Settings.png"
                                                          Header="{Binding Name, Mode=OneWay}"
                                                          Selected="{Binding IsSelected, Mode=OneWay}"
                                                          Text="{Binding Description, Mode=OneWay}"
                                                          Width="300" Margin="5" DoubleClicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
-                                                         />
+                                                         /> -->
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>

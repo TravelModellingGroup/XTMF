@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="XTMF.Gui.UserControls.ListViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+             mc:Ignorable="d" Name="ListViewControlName"
+             d:DesignHeight="80" d:DesignWidth="300">
+    <Grid HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>
+        </Border>
+        <StackPanel Orientation="Vertical" Grid.Column="1">
+            <Label FontWeight="Bold" Name="Title" Foreground="{DynamicResource ThemeTextColorBrush}"
+                   Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=TitleText,Mode=TwoWay}" ></Label>
+            <Label Name="SubTextLabel" Foreground="{DynamicResource ThemeTextColorBrush}"
+                   
+                   Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=SubText,Mode=TwoWay}"></Label>
+            </StackPanel>
+    </Grid>
+</UserControl>

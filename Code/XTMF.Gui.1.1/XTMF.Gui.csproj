@@ -207,6 +207,9 @@
     <Compile Include="UserControls\LinkedParameterDisplay.xaml.cs">
       <DependentUpon>LinkedParameterDisplay.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ListViewControl.xaml.cs">
+      <DependentUpon>ListViewControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
     </Compile>
@@ -326,6 +329,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\LinkedParameterDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ListViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -548,6 +555,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\ic_refresh_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_developer_board_24px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
