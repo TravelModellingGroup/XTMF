@@ -35,14 +35,14 @@
         </Grid.RowDefinitions>
         <Border BorderThickness="0" BorderBrush="DarkGray" Grid.Row="1" HorizontalAlignment="Stretch">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">
-                <my:BorderIconButton BorderThickness="0" Margin="10,12,5,12" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/FolderOpen_32x32_72.png" 
+                <my:BorderIconButton BorderThickness="0" Margin="10,12,5,12" Header="Open" Width="170" Text="Open project directory" Icon="/XTMF.Gui;component/Resources/ic_folder_open_white_18dp.png" 
                                      Clicked="OpenProjectFolder_Clicked"/>
-                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Import" Width="170" Text="Model System" Icon="/XTMF.Gui;component/Resources/Plus.png"
+                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Import" Width="170" Text="Model System" Icon="/XTMF.Gui;component/Resources/ic_cloud_download_white_18dp.png"
                                      Clicked="ImportModelSystem_Clicked"/>
-                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Create New" Width="170" Text="Create a new blank Model System" Icon="/XTMF.Gui;component/Resources/Plus.png"
+                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Create New" Width="170" Text="Create a new blank Model System" Icon="/XTMF.Gui;component/Resources/ic_create_new_folder_white_18dp.png"
                                      Clicked="CreateNewModelSystem_Clicked"/>
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12" Header="Refresh" Text="Refresh previous runs"
-                                         Icon="/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" Clicked="RefreshPreviousRuns_Clicked" Background="{DynamicResource HighlightBrush1}" />
+                                         Icon="/XTMF.Gui;component/Resources/ic_refresh_white_18dp.png" Clicked="RefreshPreviousRuns_Clicked" Background="{DynamicResource HighlightBrush1}" />
             </WrapPanel>
         </Border>
 

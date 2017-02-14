@@ -537,6 +537,18 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_folder_open_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_cloud_download_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_create_new_folder_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_refresh_white_18dp.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

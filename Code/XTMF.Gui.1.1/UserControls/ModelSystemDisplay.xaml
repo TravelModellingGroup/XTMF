@@ -208,8 +208,7 @@
                         <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
                                      Header="{Binding Name, Mode=OneWay}"
                                      Text="{Binding Description, Mode=OneWay}"
-                                     ShadowColour="{Binding BackgroundColour, Mode=OneWay}"
-                                     HighlightColour="{Binding HighlightColour, Mode=OneWay}"
+                                   
                                     
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}" 
@@ -221,7 +220,7 @@
                         </my:BorderIconButton>
                         <HierarchicalDataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
-                                <Setter TargetName="DisplayButton" Property="BorderBrush" Value="{DynamicResource ResourceKey=AnimatedFocusBrush}" />
+                               
                                 <Setter TargetName="DisplayButton" Property="BorderThickness" Value="2" />
                                 <Setter TargetName="DisplayButton" Property="Margin" Value="2" />
                             </DataTrigger>

@@ -111,7 +111,7 @@ namespace XTMF.Gui
             newModelSystem.Margin = new Thickness( 5 );
             newModelSystem.Width = 250;
             newModelSystem.Text = description;
-            newModelSystem.HighlightColour = SelectionBlue;
+            //newModelSystem.HighlightColour = SelectionBlue;
             newModelSystem.Icon = SettingsImage;
             newModelSystem.Clicked += ClickedAction;
             newModelSystem.RightClicked += RightClickedAction;
@@ -134,12 +134,12 @@ namespace XTMF.Gui
             newModelSystem.Margin = new Thickness( 5 );
             newModelSystem.Width = 250;
             newModelSystem.Text = description;
-            newModelSystem.HighlightColour = SelectionBlue;
+           // newModelSystem.HighlightColour = SelectionBlue;
             newModelSystem.Icon = SettingsImage;
             newModelSystem.Clicked += ClickedAction;
             newModelSystem.RightClicked += RightClickedAction;
             newModelSystem.ContextMenu = menu;
-            newModelSystem.ShadowColour = colour;
+           // newModelSystem.ShadowColour = colour;
             Items.Add( data );
             DisplayedItems.Add( data );
             Searchable.Add( String.Concat( ( name == null ? String.Empty : name.ToLower() ), " ", ( description == null ? String.Empty : description.ToLower() ) ) );

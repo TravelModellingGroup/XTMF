@@ -132,7 +132,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <!--<my:HintedTextBox Grid.Column="0" Margin="5" x:Name="LinkedParameterValue" HintText="Linked Parameter Value" Width="250" Height="Auto"/>-->
-            <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New"  HighlightColour="{StaticResource AddingYellow}" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
+            <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New"   Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
                                  Icon="/XTMF.Gui;component/Resources/Plus.png" Margin="2"/>
 
             <DockPanel Grid.Column="1"/>
@@ -163,7 +163,7 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <my:BorderIconButton IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+                            <my:BorderIconButton IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="4" Header="{Binding Name}" 
                                              Icon="/XTMF.Gui;component/Resources/Settings.png" DoubleClicked="BorderIconButton_DoubleClicked" Width="300px"  >
                                 <my:BorderIconButton.Style>
                                     <Style TargetType="my:BorderIconButton">

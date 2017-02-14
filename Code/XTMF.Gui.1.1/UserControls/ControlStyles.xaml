@@ -25,13 +25,16 @@
     <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedHoveredBackground" Color="White"></SolidColorBrush>
     <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedHoveredText" Color="White"></SolidColorBrush>
 
+        
+        
+        <!--
     <LinearGradientBrush x:Shared="false" x:Name="AnimatedFocusBrush" x:Key="AnimatedFocusBrush">
         <GradientStop Color="{DynamicResource FocusColour}" Offset="0.0" />
         <GradientStop Color="{DynamicResource FocusColour}" Offset="0.2" />
         <GradientStop Color="White" Offset="0.5" />
         <GradientStop Color="{DynamicResource FocusColour}" Offset="0.8" />
         <GradientStop Color="{DynamicResource FocusColour}" Offset="1.0" />
-    </LinearGradientBrush>
+    </LinearGradientBrush> -->
 
     <Style TargetType="{x:Type Window}">
         <Setter Property="FontFamily" Value="Segoe UI" />
@@ -663,8 +666,10 @@
 
     <Color x:Key="ControlDarkColor">#FF211AA9</Color>
 
+        
+        <!--
     <Color x:Key="ControlMouseOverColor">#FF3843C4</Color>
-    <Color x:Key="ControlPressedColor">#FF211AA9</Color>
+    <Color x:Key="ControlPressedColor">#FF211AA9</Color> -->
 
 
     <Color x:Key="GlyphColor">#FF444444</Color>
@@ -802,8 +807,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource FocusBrush}" />
-                            <Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" />
+                            <!--<Setter Property="Background" Value="{DynamicResource FocusBrush}" /> -->
+                            <!--<Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" /> -->
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{DynamicResource FocusBrush}" />

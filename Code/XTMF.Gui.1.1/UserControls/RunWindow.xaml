@@ -22,7 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
-             mc:Ignorable="d" Background="{StaticResource WindowBackgroundBrush}">
+             mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush1}">
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -60,15 +60,15 @@
 
                     <my:BorderIconButton Grid.Row="0" x:Name="OpenDirectoryButton" Margin="5,5,5,5" Width="250" Header="Open Run Output"
                                      Text="Open the run's output directory" Icon="/XTMF.Gui;component/Resources/FolderOpen_32x32_72.png"
-                                     HighlightColour="{StaticResource InformationGreen}"
+                                     
                                      Clicked="OpenDirectoryButton_Clicked" />
                     <my:BorderIconButton Grid.Row="1" x:Name="CancelButton" Margin="5,5,5,5" Width="250" Header="Cancel Run"
                                      Text="Cancel the run, if possible" Icon="/XTMF.Gui;component/Images/delete.png"
-                                     HighlightColour="{StaticResource WarningRed}"
+                                 
                                      Clicked="CancelButton_Clicked" />
                     <my:BorderIconButton Grid.Row="2" x:Name="ContinueButton" IsEnabled="False" Margin="5,5,5,5" Width="250" Header="Continue"
                                      Text="Continue to the project page" Icon="/XTMF.Gui;component/Resources/XTMFIcon.png"
-                                 HighlightColour="{StaticResource SelectionBlue}"
+                              
                                      Clicked="ContinueButton_Clicked" />
                 </Grid>
             </Border>

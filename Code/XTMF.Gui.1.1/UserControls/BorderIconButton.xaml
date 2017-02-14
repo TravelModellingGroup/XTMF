@@ -21,12 +21,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" Name="Self" Background="{DynamicResource WindowBackgroundBrush2}" >
-    <Border Name="BorderOutline" BorderBrush="White" BorderThickness="0" Cursor="Hand" CornerRadius="0">
-        <Border.Background>
-            <SolidColorBrush Color="{DynamicResource WindowBackgroundColor2}" />
-        </Border.Background>
-        <Grid x:Name="ContentStackPanel" Margin="4,4,4,4" IsHitTestVisible="False" Background="{DynamicResource WindowBackgroundBrush2}">
+             mc:Ignorable="d" Name="Self" Background="Transparent" >
+    <Border Name="BorderOutline" BorderBrush="White" BorderThickness="0" Cursor="Hand" CornerRadius="2">
+        <Border.Style>
+            <Style TargetType="{x:Type Border}">
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"></Setter>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="False">
+                        <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
+                    </Trigger>
+
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        
+      
+        <Grid  x:Name="ContentStackPanel" Margin="6,4,6,4" IsHitTestVisible="True" >
+            <Grid.Style>
+                <Style TargetType="{x:Type Grid}">
+                
+                </Style>
+            </Grid.Style>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="AUTO" />
                 <ColumnDefinition Width="*" />
@@ -38,9 +55,9 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TextBlock TextTrimming="WordEllipsis" Grid.Row="0" Name="HeaderContent" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
+                <TextBlock TextTrimming="WordEllipsis" Grid.Row="0" Name="HeaderContent" Foreground="{DynamicResource ControlTextColourBrush}" FontSize="14"
                        Text="{Binding ElementName=Self, Path=Header}" HorizontalAlignment="Stretch" IsHitTestVisible="False" />
-                <TextBlock TextTrimming="WordEllipsis" Grid.Row="1" Name="TextContent" Foreground="{DynamicResource ThemeTextColorBrush}"
+                <TextBlock TextTrimming="WordEllipsis" Grid.Row="1" Name="TextContent" Foreground="{DynamicResource ControlTextColourBrush}"
                        Text="{Binding ElementName=Self, Path=Text}"  HorizontalAlignment="Stretch" IsHitTestVisible="False" />
             </Grid>
         </Grid>

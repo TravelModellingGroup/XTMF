@@ -41,7 +41,7 @@
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <my:BorderIconButton Margin="5" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
+                    <my:BorderIconButton Margin="5" Header="{Binding Name}" 
                                              Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
                                              DoubleClicked="BorderIconButton_Clicked" />
                 </DataTemplate>
