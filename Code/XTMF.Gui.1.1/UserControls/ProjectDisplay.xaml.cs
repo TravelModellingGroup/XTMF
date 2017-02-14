@@ -24,12 +24,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using XTMF.Gui.Annotations;
 using XTMF.Gui.Controllers;
 
 namespace XTMF.Gui.UserControls
@@ -117,6 +119,12 @@ namespace XTMF.Gui.UserControls
                 public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
 
                 public event PropertyChangedEventHandler PropertyChanged;
+
+                [NotifyPropertyChangedInvocator]
+                protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                }
             }
 
             public List<ContainedModelSystemModel> ContainedModelSystems;

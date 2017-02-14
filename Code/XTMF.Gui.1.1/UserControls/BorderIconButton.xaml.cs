@@ -86,20 +86,20 @@ namespace XTMF.Gui
         private static void BorderThicknessChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var us = d as BorderIconButton;
-            us.BorderOutline.BorderThickness = (Thickness)e.NewValue;
+         //   us.BorderOutline.BorderThickness = (Thickness)e.NewValue;
         }
 
         private static void BorderBrushChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var us = d as BorderIconButton;
-            us.BorderOutline.BorderBrush = e.NewValue as Brush;
+       //     us.BorderOutline.BorderBrush = e.NewValue as Brush;
         }
 
         public BorderIconButton()
         {
             Selected = false;
-            HighlightColour = DefaultSelectionBlue;
-            FocusColour = DefaultFocusColour;
+            //HighlightColour = DefaultSelectionBlue;
+           // FocusColour = DefaultFocusColour;
             InitializeComponent();
             IsEnabledChanged += BorderIconButton_IsEnabledChanged;
             _baseWidth = 200;
@@ -127,7 +127,7 @@ namespace XTMF.Gui
             var brush = BorderOutline.Background as SolidColorBrush;
             if (brush != null && !brush.IsFrozen)
             {
-                brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                //brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
                 brush.Color = ShadowColour;
             }
         }
@@ -365,14 +365,14 @@ namespace XTMF.Gui
             {
                 if (e.ClickCount == 1)
                 {
-                    BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                   // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     if (IsFocused || Selected)
                     {
-                        BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+                     //   BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
                     }
                     else
                     {
-                        BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+                 //       BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
                     }
                     if (_mouseDownInside && RightClicked != null)
                     {
@@ -438,7 +438,7 @@ namespace XTMF.Gui
                         var oldColour = brush.Color;
                         if (oldColour != value)
                         {
-                            brush.Color = value;
+                        //    brush.Color = value;
                       //      us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                             ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
                         //    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
@@ -465,7 +465,7 @@ namespace XTMF.Gui
                     if (oldColour != value)
                     {
                         brush.Color = value;
-                        us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                       // us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                         ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
                       //  us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                     }

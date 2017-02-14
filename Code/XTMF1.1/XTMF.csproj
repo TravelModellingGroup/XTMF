@@ -71,6 +71,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Editing\ModuleMetaProperty.cs" />
     <Compile Include="Editing\ProjectExternallySavedEventArgs.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="RunProxy\ConfigurationProxy.cs" />
     <Compile Include="Editing\CopyBuffer.cs" />
