@@ -366,15 +366,18 @@ namespace XTMF.Gui.UserControls
 
         private void SetRunFinished()
         {
-            _taskbarInformation.ProgressState = _wasCanceled
-                ? TaskbarItemProgressState.Error
-                : TaskbarItemProgressState.Indeterminate;
-            Task.Run(async () =>
+            if (_taskbarInformation != null)
             {
-                await Task.Delay(3000);
-                await Dispatcher.BeginInvoke(
-                    new Action(() => { _taskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
-            });
+                _taskbarInformation.ProgressState = _wasCanceled
+                    ? TaskbarItemProgressState.Error
+                    : TaskbarItemProgressState.Indeterminate;
+                Task.Run(async () =>
+                {
+                    await Task.Delay(3000);
+                    await Dispatcher.BeginInvoke(
+                        new Action(() => { _taskbarInformation.ProgressState = TaskbarItemProgressState.None; }));
+                });
+            }
             _isFinished = true;
             ContinueButton.IsEnabled = true;
             CancelButton.IsEnabled = false;
