@@ -72,19 +72,15 @@ namespace TMG.Functions
                     {
                         var current = toGet.Pop();
                         var p = current.Parameters;
-                        if (p != null)
+                        var parameters = p?.Parameters;
+                        if (parameters != null)
                         {
-                            var parameters = p.Parameters;
-                            if (parameters != null)
+                            for (int i = 0; i < parameters.Count; i++)
                             {
-                                for (int i = 0; i < parameters.Count; i++)
+                                if (parameters[i].Name == parts[currentIndex])
                                 {
-                                    if (parameters[i].Name == parts[currentIndex])
-                                    {
-                                        return parameters[i];
-                                    }
+                                    return parameters[i];
                                 }
-                                return null;
                             }
                         }
                         if (current.Children != null)
@@ -132,14 +128,17 @@ namespace TMG.Functions
                 + "' in order to assign parameters!\r\nFull Path:'" + fullPath + "'");
         }
 
-        public static void AssignValue(IModelSystemStructure root, string parameterName, string value)
+        public static bool AssignValue(IModelSystemStructure root, string parameterName, string value, ref string error)
         {
             string[] parts = SplitNameToParts(parameterName);
             var parameter = FindParameter(root, 0, parts, parameterName);
-            if(parameter != null)
+            if(parameter == null)
             {
-                AssignValue(parameter, value);
+                error = $"Unable to find parameter {parameterName}";
+                return false;
             }
+            AssignValue(parameter, value);
+            return true;
         }
 
         public static void AssignValue(IModuleParameter parameter, string value)

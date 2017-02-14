@@ -19,6 +19,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using XTMF;
 using XTMF.Networking;
@@ -129,119 +130,19 @@ namespace TMG.Estimation
 
         private void InitializeParameters(ClientTask task)
         {
+            string error = null;
             for ( int i = 0; i < task.ParameterValues.Length && i < Parameters.Length; i++ )
             {
                 for ( int j = 0; j < Parameters[i].Names.Length; j++ )
                 {
-                    AssignValue( Parameters[i].Names[j], task.ParameterValues[i] );
-                }
-            }
-        }
-
-        private void AssignValue(string parameterName, float value)
-        {
-            string[] parts = SplitNameToParts( parameterName );
-            AssignValue( parts, 0, ClientStructure, value );
-        }
-
-        private void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, float value)
-        {
-            if ( currentIndex == parts.Length - 1 )
-            {
-                AssignValue( parts[currentIndex], currentStructure, value );
-                return;
-            }
-            if ( currentStructure.Children != null )
-            {
-                for ( int i = 0; i < currentStructure.Children.Count; i++ )
-                {
-                    if ( currentStructure.Children[i].Name == parts[currentIndex] )
+                    if (
+                        !Functions.ModelSystemReflection.AssignValue(ClientStructure, Parameters[i].Names[j],
+                            task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
                     {
-                        AssignValue( parts, currentIndex + 1, currentStructure.Children[i], value );
-                        return;
+                        throw new XTMFRuntimeException($"In '{Name}' we were unable to assign a parameter!\r\n{error}");
                     }
                 }
             }
-            throw new XTMFRuntimeException( "Unable to find a child module in '" + currentStructure.Name + "' named '" + parts[currentIndex]
-                + "' in order to assign parameters!" );
-        }
-
-        private void AssignValue(string variableName, IModelSystemStructure currentStructure, float value)
-        {
-            if ( currentStructure == null )
-            {
-                throw new XTMFRuntimeException( "Unable to assign '" + variableName + "', the module is null!" );
-            }
-            var p = currentStructure.Parameters;
-            if ( p == null )
-            {
-                throw new XTMFRuntimeException( "The structure '" + currentStructure.Name + "' has no parameters!" );
-            }
-            var parameters = p.Parameters;
-            bool any = false;
-            if ( parameters != null )
-            {
-                for ( int i = 0; i < parameters.Count; i++ )
-                {
-                    if ( parameters[i].Name == variableName )
-                    {
-                        var type = currentStructure.Module.GetType();
-                        if ( parameters[i].OnField )
-                        {
-                            var field = type.GetField( parameters[i].VariableName );
-                            field.SetValue( currentStructure.Module, value );
-                            any = true;
-                        }
-                        else
-                        {
-                            var field = type.GetProperty( parameters[i].VariableName );
-                            field.SetValue( currentStructure.Module, value, null );
-                            any = true;
-                        }
-                    }
-                }
-            }
-            if ( !any )
-            {
-                throw new XTMFRuntimeException( "Unable to find a parameter named '" + variableName
-                    + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!" );
-            }
-        }
-
-        private string[] SplitNameToParts(string parameterName)
-        {
-            List<string> parts = new List<string>();
-            var stringLength = parameterName.Length;
-            StringBuilder builder = new StringBuilder();
-            for ( int i = 0; i < stringLength; i++ )
-            {
-                switch ( parameterName[i] )
-                {
-                    case '.':
-                        parts.Add( builder.ToString() );
-                        builder.Clear();
-                        break;
-                    case '\\':
-                        if ( i + 1 < stringLength )
-                        {
-                            if ( parameterName[i + 1] == '.' )
-                            {
-                                builder.Append( '.' );
-                                i += 2;
-                            }
-                            else if ( parameterName[i + 1] == '\\' )
-                            {
-                                builder.Append( '\\' );
-                            }
-                        }
-                        break;
-                    default:
-                        builder.Append( parameterName[i] );
-                        break;
-                }
-            }
-            parts.Add( builder.ToString() );
-            return parts.ToArray();
         }
 
         /// <summary>
