@@ -26,8 +26,11 @@ namespace Tasha.DataExtraction
 
     public class SaveAsCSVMatrix : ISelfContainedModule
     {
-        [SubModelInformation(Required = true, Description = "Zone based ODMatrix of the zone system.")]
+        [SubModelInformation(Required = false, Description = "Zone based ODMatrix of the zone system.")]
         public IResource ODMatrix;
+
+        [SubModelInformation(Required = false, Description = "A data-source of zone based ODMatrix of the zone system.")]
+        public IDataSource<SparseTwinIndex<float>> ODMatixRaw;
 
         public string Name { get; set; }
 
@@ -37,7 +40,17 @@ namespace Tasha.DataExtraction
 
         public bool RuntimeValidation(ref string error)
         {
-            if(!ODMatrix.CheckResourceType<SparseTwinIndex<float>>())
+            if (ODMatixRaw == null && ODMatrix == null)
+            {
+                error = $"In '{Name}' either ODMatrix or ODMatrixRaw need to be assigned values!";
+                return false;
+            }
+            if (ODMatrix != null && ODMatrix != null)
+            {
+                error = $"In '{Name}' either ODMatrix or ODMatrixRaw need to be assigned values, not both!";
+                return false;
+            }
+            if(ODMatrix != null && !ODMatrix.CheckResourceType<SparseTwinIndex<float>>())
             {
                 error = "In '" + Name + "' the ODMatrix resource is not of type SparseTwinIndex<float>!";
                 return false;
@@ -53,7 +66,24 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var matrix = ODMatrix.AcquireResource<SparseTwinIndex<float>>();
+            SparseTwinIndex<float> matrix;
+            if (ODMatrix != null)
+            {
+                matrix = ODMatrix.AcquireResource<SparseTwinIndex<float>>();
+            }
+            else
+            {
+                var previouslyLoaded = ODMatixRaw.Loaded;
+                if (!previouslyLoaded)
+                {
+                    ODMatixRaw.LoadData();
+                }
+                matrix = ODMatixRaw.GiveData();
+                if (!previouslyLoaded)
+                {
+                    ODMatixRaw.UnloadData();
+                }
+            }
             if(ThirdNormalized)
             {
                 TMG.Functions.SaveData.SaveMatrixThirdNormalized(matrix, SaveLocation);
