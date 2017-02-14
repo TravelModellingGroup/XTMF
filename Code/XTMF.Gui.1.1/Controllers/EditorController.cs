@@ -91,7 +91,11 @@ namespace XTMF.Gui.Controllers
 
         internal static void Unregister(MainWindow window)
         {
-            OpenWindows.Run((list) => list.Remove(window));
+            OpenWindows.Run((list) =>
+                {
+                    list.Remove(window);
+                }
+            );
         }
 
         internal static bool IsControlDown()

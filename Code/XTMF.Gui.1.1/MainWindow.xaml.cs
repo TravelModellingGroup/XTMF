@@ -886,7 +886,7 @@ namespace XTMF.Gui
                         return;
                     }
                 }
-                if (runPage != null)
+                if (runPage != null)            
                 {
                     if (!runPage.CloseRequested())
                     {
@@ -894,6 +894,7 @@ namespace XTMF.Gui
                         return;
                     }
                 }
+                CloseWindow(runPage);
             }
             if (!e.Cancel)
             {
@@ -1078,8 +1079,6 @@ namespace XTMF.Gui
 
         internal void CloseWindow(UIElement window)
         {
-
-
             var page = OpenPages.FirstOrDefault(p =>
             {
                 if (p.Content == window)
@@ -1092,10 +1091,7 @@ namespace XTMF.Gui
                 }
                 return false;
             });
-            if (page != null)
-            {
-                page.Close();
-            }
+            page?.Close();
         }
 
         internal void SetWindowName(object window, string newName)
