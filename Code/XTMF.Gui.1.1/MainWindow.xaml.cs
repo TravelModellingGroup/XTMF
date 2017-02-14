@@ -874,7 +874,7 @@ namespace XTMF.Gui
         }
         protected override void OnClosing(CancelEventArgs e)
         {
-            foreach (var document in OpenPages.Select(page => page.Content))
+            foreach (var document in OpenPages.Select(page => page.Content).ToList())
             {
                 var modelSystemPage = document as ModelSystemDisplay;
                 var runPage = document as RunWindow;

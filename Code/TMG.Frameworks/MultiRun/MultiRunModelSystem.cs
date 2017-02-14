@@ -378,6 +378,7 @@ For specification about the language, and extensibility please consult the TMG F
         private void ChangeParameter(XmlNode command)
         {
             string value = GetAttributeOrError(command, "Value", "The attribute 'Value' was not found!");
+            string error = null;
             if (command.HasChildNodes)
             {
                 foreach (XmlNode child in command)
@@ -385,14 +386,20 @@ For specification about the language, and extensibility please consult the TMG F
                     if (child.LocalName.ToLowerInvariant() == "parameter")
                     {
                         string parameterName = GetAttributeOrError(child, "ParameterPath", "The attribute 'ParameterPath' was not found!");
-                        ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
+                        if (!ModelSystemReflection.AssignValue(ChildStructure, parameterName, value, ref error))
+                        {
+                            throw new XTMFRuntimeException($"In '{Name}' we were unable assign a variable.\r\n{error}");
+                        }
                     }
                 }
             }
             else
             {
                 string parameterName = GetAttributeOrError(command, "ParameterPath", "The attribute 'ParameterPath' was not found!");
-                ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
+                if (!ModelSystemReflection.AssignValue(ChildStructure, parameterName, value, ref error))
+                {
+                    throw new XTMFRuntimeException($"In '{Name}' we were unable assign a variable.\r\n{error}");
+                }
             }
         }
 
