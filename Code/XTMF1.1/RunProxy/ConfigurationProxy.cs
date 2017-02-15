@@ -114,7 +114,7 @@ namespace XTMF.RunProxy
         {
             lock (this)
             {
-                foreach (var report in this.ProgressReports)
+                foreach (var report in ProgressReports)
                 {
                     if (report.Name == name)
                     {
@@ -122,7 +122,7 @@ namespace XTMF.RunProxy
                         return;
                     }
                 }
-                this.ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = Color });
+                ProgressReports.Add(new ProgressReport() { Name = name, GetProgress = ReportProgress, Colour = Color });
             }
         }
 
@@ -130,7 +130,7 @@ namespace XTMF.RunProxy
         {
             lock (this)
             {
-                this.ProgressReports.Clear();
+                ProgressReports.Clear();
             }
         }
 
@@ -138,11 +138,11 @@ namespace XTMF.RunProxy
         {
             lock (this)
             {
-                for (int i = 0; i < this.ProgressReports.Count; i++)
+                for (int i = 0; i < ProgressReports.Count; i++)
                 {
-                    if (this.ProgressReports[i].Name == name)
+                    if (ProgressReports[i].Name == name)
                     {
-                        this.ProgressReports.RemoveAt(i);
+                        ProgressReports.RemoveAt(i);
                         break;
                     }
                 }
@@ -197,21 +197,21 @@ namespace XTMF.RunProxy
 
         internal void ModelSystemExited()
         {
-            if (this.OnModelSystemExit != null)
+            if (OnModelSystemExit != null)
             {
                 try
                 {
-                    this.OnModelSystemExit();
+                    OnModelSystemExit();
                 }
                 catch
                 {
                 }
-                var dels = this.OnModelSystemExit.GetInvocationList();
+                var dels = OnModelSystemExit.GetInvocationList();
                 foreach (Delegate d in dels)
                 {
-                    this.OnModelSystemExit -= (Action)d;
+                    OnModelSystemExit -= (Action)d;
                 }
-                this.OnModelSystemExit = null;
+                OnModelSystemExit = null;
             }
         }
     }

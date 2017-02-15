@@ -25,8 +25,8 @@ namespace XTMF.Networking
 
         internal Message(MessageType type, object data = null)
         {
-            this.Type = type;
-            this.Data = data;
+            Type = type;
+            Data = data;
         }
     }
 }

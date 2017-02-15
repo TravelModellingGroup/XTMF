@@ -67,7 +67,7 @@ namespace XTMF
             BaseAssembly = baseAssembly;
             ProgressReports = new BindingListWithRemoving<IProgressReport>();
             LoadUserConfiguration(configurationFileName);
-            Directory.SetCurrentDirectory(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
             ModelRepository = new ModuleRepository();
             ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
             LoadVersion();
@@ -469,7 +469,7 @@ namespace XTMF
             return true;
         }
 
-        public bool StartupNetworkingClient(out Networking.IClient networkingClient, ref string error)
+        public bool StartupNetworkingClient(out IClient networkingClient, ref string error)
         {
             networkingClient = null;
             lock (this)
@@ -497,7 +497,7 @@ namespace XTMF
             }
         }
 
-        public bool StartupNetworkingHost(out Networking.IHost networkingHost, ref string error)
+        public bool StartupNetworkingHost(out IHost networkingHost, ref string error)
         {
             networkingHost = null;
             lock (this)
@@ -925,7 +925,7 @@ namespace XTMF
         private void SaveConfiguration(string configFileName)
         {
             
-            using (XmlWriter writer = XmlTextWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true, NewLineOnAttributes = true }))
+            using (XmlWriter writer = XmlWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true, NewLineOnAttributes = true }))
             {
 
     

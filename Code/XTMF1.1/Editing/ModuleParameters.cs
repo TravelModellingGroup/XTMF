@@ -25,12 +25,12 @@ namespace XTMF
     {
         public ModuleParameters()
         {
-            this.Parameters = new List<IModuleParameter>( 5 );
+            Parameters = new List<IModuleParameter>( 5 );
         }
 
         public ModuleParameters(IList<IModuleParameter> givenParameters)
         {
-            this.Parameters = givenParameters;
+            Parameters = givenParameters;
         }
 
         public IModelSystemStructure BelongsTo { get; set; }
@@ -43,13 +43,13 @@ namespace XTMF
 
         public void Add(ParameterAttribute param, Type t)
         {
-            this.Parameters.Add( new ModuleParameter( param, t ) );
+            Parameters.Add( new ModuleParameter( param, t ) );
         }
 
         public IModuleParameters Clone()
         {
             ModuleParameters copy = new ModuleParameters();
-            foreach ( var p in this.Parameters )
+            foreach ( var p in Parameters )
             {
                 copy.Parameters.Add( p.Clone() );
             }
@@ -58,7 +58,7 @@ namespace XTMF
 
         public IEnumerator<IModuleParameter> GetEnumerator()
         {
-            return this.Parameters.GetEnumerator();
+            return Parameters.GetEnumerator();
         }
 
         public void Save()
@@ -68,7 +68,7 @@ namespace XTMF
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.Parameters.GetEnumerator();
+            return Parameters.GetEnumerator();
         }
     }
 }

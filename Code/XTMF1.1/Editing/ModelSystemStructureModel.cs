@@ -194,7 +194,7 @@ namespace XTMF
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             if (!IsCollection)
             {

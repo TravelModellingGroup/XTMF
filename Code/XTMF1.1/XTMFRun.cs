@@ -66,7 +66,7 @@ namespace XTMF
         {
             Project = project;
             ModelSystemStructureModelRoot = root.Root;
-            Configuration = new XTMF.RunProxy.ConfigurationProxy(config, Project);
+            Configuration = new RunProxy.ConfigurationProxy(config, Project);
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
             ModelSystemIndex = modelSystemIndex;
@@ -81,7 +81,7 @@ namespace XTMF
             ModelSystemStructureModelRoot = root;
             var index = project.ModelSystemStructure.IndexOf(root.RealModelSystemStructure);
             if (index >= 0)
-                Configuration = new XTMF.RunProxy.ConfigurationProxy(configuration, Project);
+                Configuration = new RunProxy.ConfigurationProxy(configuration, Project);
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
         }
@@ -376,7 +376,7 @@ namespace XTMF
             RuntimeError?.Invoke(errorMessage.Message, errorMessage.StackTrace);
         }
 
-        private static System.Exception GetTopRootException(System.Exception value)
+        private static Exception GetTopRootException(Exception value)
         {
             if (value == null) return null;
             var agg = value as AggregateException;

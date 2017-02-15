@@ -79,7 +79,7 @@ namespace XTMF.Editing
 
             public override bool CanUndo()
             {
-                return this.OnUndo != null;
+                return OnUndo != null;
             }
 
             public override bool Do(ref string error)
@@ -109,7 +109,7 @@ namespace XTMF.Editing
         {
             if ( OnDo == null )
             {
-                throw new ArgumentNullException( "OnDo" );
+                throw new ArgumentNullException( nameof(OnDo) );
             }
             if ( ( OnUndo == null ) != ( OnRedo == null ) )
             {

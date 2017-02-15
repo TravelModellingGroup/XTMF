@@ -41,9 +41,9 @@ namespace XTMF
         /// <param name="config">The configuration in which this model system repository is built</param>
         public ModelSystemRepository(IConfiguration config)
         {
-            this.Config = config;
-            this.ModelSystems = new List<IModelSystem>();
-            this.LoadModelSystemsFromDisk();
+            Config = config;
+            ModelSystems = new List<IModelSystem>();
+            LoadModelSystemsFromDisk();
         }
 
         /// <summary>
@@ -76,13 +76,13 @@ namespace XTMF
             {
                 lock (this)
                 {
-                    this.ModelSystems.Add(modelSystem);
-                    (this.ModelSystems as List<IModelSystem>).Sort(delegate (IModelSystem first, IModelSystem second)
+                    ModelSystems.Add(modelSystem);
+                    (ModelSystems as List<IModelSystem>).Sort(delegate (IModelSystem first, IModelSystem second)
                  {
                      return first.Name.CompareTo(second.Name);
                  });
                 }
-                var msa = this.ModelSystemAdded;
+                var msa = ModelSystemAdded;
                 if (msa != null)
                 {
                     msa(modelSystem);
@@ -96,7 +96,7 @@ namespace XTMF
         /// <returns></returns>
         public IEnumerator<IModelSystem> GetEnumerator()
         {
-            return this.ModelSystems.GetEnumerator();
+            return ModelSystems.GetEnumerator();
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace XTMF
             {
                 try
                 {
-                    File.Delete(Path.Combine(this.Config.ModelSystemDirectory, oldName + ".xml"));
+                    File.Delete(Path.Combine(Config.ModelSystemDirectory, oldName + ".xml"));
                 }
                 catch (IOException)
                 {
@@ -171,13 +171,13 @@ namespace XTMF
                 int index;
                 lock (this)
                 {
-                    index = this.ModelSystems.IndexOf(modelSystem);
-                    if (!this.ModelSystems.Remove(modelSystem))
+                    index = ModelSystems.IndexOf(modelSystem);
+                    if (!ModelSystems.Remove(modelSystem))
                     {
                         return false;
                     }
                 }
-                var msr = this.ModelSystemRemoved;
+                var msr = ModelSystemRemoved;
                 if (msr != null)
                 {
                     msr(modelSystem, index);
@@ -185,7 +185,7 @@ namespace XTMF
                 // we don't need to be locked in order to delete it
                 try
                 {
-                    File.Delete(Path.Combine(this.Config.ModelSystemDirectory, modelSystem.Name + ".xml"));
+                    File.Delete(Path.Combine(Config.ModelSystemDirectory, modelSystem.Name + ".xml"));
                 }
                 catch
                 {
@@ -203,7 +203,7 @@ namespace XTMF
         /// <returns></returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.ModelSystems.GetEnumerator();
+            return ModelSystems.GetEnumerator();
         }
 
         /// <summary>
@@ -211,8 +211,8 @@ namespace XTMF
         /// </summary>
         private void LoadModelSystemsFromDisk()
         {
-            if (!Directory.Exists(this.Config.ModelSystemDirectory)) return;
-            string[] files = Directory.GetFiles(this.Config.ModelSystemDirectory);
+            if (!Directory.Exists(Config.ModelSystemDirectory)) return;
+            string[] files = Directory.GetFiles(Config.ModelSystemDirectory);
             ConcurrentQueue<IModelSystem> temp = new ConcurrentQueue<IModelSystem>();
             Parallel.For(0, files.Length, (int i) =>
            {
@@ -220,7 +220,7 @@ namespace XTMF
                // After we have it, then we can just go and create a new model system from it
                try
                {
-                   var ms = new ModelSystem(this.Config, Path.GetFileNameWithoutExtension(files[i]));
+                   var ms = new ModelSystem(Config, Path.GetFileNameWithoutExtension(files[i]));
                    if (ms != null)
                    {
                        temp.Enqueue(ms);
@@ -233,9 +233,9 @@ namespace XTMF
             IModelSystem dequeueMe;
             while (temp.TryDequeue(out dequeueMe))
             {
-                this.ModelSystems.Add(dequeueMe);
+                ModelSystems.Add(dequeueMe);
             }
-            (this.ModelSystems as List<IModelSystem>).Sort(delegate (IModelSystem first, IModelSystem second)
+            (ModelSystems as List<IModelSystem>).Sort(delegate (IModelSystem first, IModelSystem second)
          {
              return first.Name.CompareTo(second.Name);
          });

@@ -60,23 +60,23 @@ namespace XTMF
         {
             if (project == null)
             {
-                throw new ArgumentNullException("project");
+                throw new ArgumentNullException(nameof(project));
             }
-            lock (this.EditingSessionLock)
+            lock (EditingSessionLock)
             {
                 // First check to see if a session is already open
-                for (int i = 0; i < this.EditingSessions.Count; i++)
+                for (int i = 0; i < EditingSessions.Count; i++)
                 {
-                    if (this.EditingSessions[i].Project == project)
+                    if (EditingSessions[i].Project == project)
                     {
-                        this.ReferenceCount[i]++;
-                        return this.EditingSessions[i];
+                        ReferenceCount[i]++;
+                        return EditingSessions[i];
                     }
                 }
                 // If we didn't find one create a new reference
-                var session = new ProjectEditingSession(project, this.Runtime);
-                this.EditingSessions.Add(session);
-                this.ReferenceCount.Add(1);
+                var session = new ProjectEditingSession(project, Runtime);
+                EditingSessions.Add(session);
+                ReferenceCount.Add(1);
                 return session;
             }
         }
@@ -111,7 +111,7 @@ namespace XTMF
             {
                 var repository = Runtime.Configuration.ProjectRepository;
                 // Make sure the name is unique
-                if ((from project in this.Runtime.Configuration.ProjectRepository.Projects
+                if ((from project in Runtime.Configuration.ProjectRepository.Projects
                      where project.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                      select project as Project).Any())
                 {
@@ -170,21 +170,21 @@ namespace XTMF
         {
             if (session == null)
             {
-                throw new ArgumentNullException("session");
+                throw new ArgumentNullException(nameof(session));
             }
-            lock (this.EditingSessionLock)
+            lock (EditingSessionLock)
             {
-                var index = this.EditingSessions.IndexOf(session);
+                var index = EditingSessions.IndexOf(session);
                 if (index >= 0)
                 {
-                    this.ReferenceCount[index]--;
-                    if (this.ReferenceCount[index] <= 0)
+                    ReferenceCount[index]--;
+                    if (ReferenceCount[index] <= 0)
                     {
                         // Make sure to remove this binding since it will hold memory
-                        this.EditingSessions[index].Project.ExternallySaved -= this.EditingSessions[index].Project_ExternallySaved;
+                        EditingSessions[index].Project.ExternallySaved -= EditingSessions[index].Project_ExternallySaved;
                         // now remove the references from our session 
-                        this.EditingSessions.RemoveAt(index);
-                        this.ReferenceCount.RemoveAt(index);
+                        EditingSessions.RemoveAt(index);
+                        ReferenceCount.RemoveAt(index);
                     }
                 }
             }
@@ -192,7 +192,7 @@ namespace XTMF
 
         private bool ValidateProjectName(string name, ref string error)
         {
-            if (String.IsNullOrWhiteSpace(name) || !this.Runtime.Configuration.ProjectRepository.ValidateProjectName(name))
+            if (String.IsNullOrWhiteSpace(name) || !Runtime.Configuration.ProjectRepository.ValidateProjectName(name))
             {
                 error = "The name is invalid.";
                 return false;
@@ -210,7 +210,7 @@ namespace XTMF
         {
             lock (EditingSessionLock)
             {
-                var loadedProject = (from project in this.Runtime.Configuration.ProjectRepository.Projects
+                var loadedProject = (from project in Runtime.Configuration.ProjectRepository.Projects
                                      where project.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                                      select project as Project).FirstOrDefault();
                 if (loadedProject == null)
@@ -232,7 +232,7 @@ namespace XTMF
             lock (EditingSessionLock)
             {
                 Project alreadyLoaded;
-                if ((alreadyLoaded = this.Load(name, ref error)) != null)
+                if ((alreadyLoaded = Load(name, ref error)) != null)
                 {
                     return alreadyLoaded;
                 }
@@ -241,12 +241,12 @@ namespace XTMF
                 {
                     return null;
                 }
-                var newProject = new Project(name, this.Runtime.Configuration);
+                var newProject = new Project(name, Runtime.Configuration);
                 if (!newProject.Save(ref error))
                 {
                     return null;
                 }
-                this.Runtime.Configuration.ProjectRepository.AddProject(newProject);
+                Runtime.Configuration.ProjectRepository.AddProject(newProject);
                 return newProject;
             }
         }
@@ -261,21 +261,21 @@ namespace XTMF
         {
             if (project == null)
             {
-                throw new ArgumentNullException("project");
+                throw new ArgumentNullException(nameof(project));
             }
             lock (EditingSessionLock)
             {
                 // check to see if it already exists
                 int index;
-                if ((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
+                if ((index = IndexOf(EditingSessions, (session) => session.Project == project)) >= 0)
                 {
-                    this.ReferenceCount[index]++;
-                    return this.EditingSessions[index];
+                    ReferenceCount[index]++;
+                    return EditingSessions[index];
                 }
                 // if it doesn't exist already we need to make a new session
-                var newSession = new ProjectEditingSession(project, this.Runtime);
-                this.EditingSessions.Add(newSession);
-                this.ReferenceCount.Add(1);
+                var newSession = new ProjectEditingSession(project, Runtime);
+                EditingSessions.Add(newSession);
+                ReferenceCount.Add(1);
                 return newSession;
             }
         }
@@ -303,9 +303,9 @@ namespace XTMF
         {
             Project project;
             string ignore = null;
-            if ((project = this.Load(name, ref ignore)) != null)
+            if ((project = Load(name, ref ignore)) != null)
             {
-                return this.DeleteProject(project, ref error);
+                return DeleteProject(project, ref error);
             }
             error = "A project with that name was not found.";
             return false;
@@ -322,12 +322,12 @@ namespace XTMF
             lock (EditingSessionLock)
             {
                 int index;
-                if ((index = IndexOf(this.EditingSessions, (session) => session.Project == project)) >= 0)
+                if ((index = IndexOf(EditingSessions, (session) => session.Project == project)) >= 0)
                 {
                     error = "You can not delete a project while it is being edited.";
                     return false;
                 }
-                return this.Runtime.Configuration.ProjectRepository.Remove(project);
+                return Runtime.Configuration.ProjectRepository.Remove(project);
             }
         }
 
@@ -337,9 +337,9 @@ namespace XTMF
         /// <returns>A snapshot of the projects that are currently active</returns>
         public List<Project> GetProjects()
         {
-            lock (this.EditingSessionLock)
+            lock (EditingSessionLock)
             {
-                return (from project in this.Runtime.Configuration.ProjectRepository.Projects
+                return (from project in Runtime.Configuration.ProjectRepository.Projects
                         select project as Project).ToList();
             }
         }

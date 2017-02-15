@@ -37,7 +37,7 @@ namespace XTMF
         protected IModelSystemStructure _ModelSystemStructure;
 
 
-      
+
         private bool IsLoaded;
 
         protected void SetIsLoaded(bool value)
@@ -128,7 +128,7 @@ namespace XTMF
             {
                 lock (this)
                 {
-                    if(!IsLoaded)
+                    if (!IsLoaded)
                     {
                         Load(Config, Name);
                         SetIsLoaded(true);
@@ -316,143 +316,166 @@ namespace XTMF
             return null;
         }
 
+        /// <summary>
+        /// Load a model system into memory with no
+        /// references to the model system repository.
+        /// </summary>
+        /// <param name="stream">The stream to read from</param>
+        /// <param name="config">The XTMF configuration to use</param>
+        /// <param name="error">A description of the error if there is one.</param>
+        /// <returns>The loaded model system, null if there was an error loading the model system.</returns>
+        public static ModelSystem LoadDetachedModelSystem(Stream stream, IConfiguration config, ref string error)
+        {
+            var ms = new ModelSystem(config);
+            ms.LoadFromStream(stream, config, ref error);
+            return ms;
+        }
+
+        private void LoadFromStream(Stream stream, IConfiguration config, ref string error)
+        {
+            if (_LinkedParameters == null)
+            {
+                _LinkedParameters = new List<ILinkedParameter>();
+            }
+            else
+            {
+                _LinkedParameters.Clear();
+            }
+            try
+            {
+                ModelSystemStructure = XTMF.ModelSystemStructure.Load(stream, config);
+                // restart to get to the linked parameters
+                stream.Seek(0, SeekOrigin.Begin);
+                using (XmlReader reader = XmlReader.Create(stream))
+                {
+                    bool skipRead = false;
+                    while (!reader.EOF && (skipRead || reader.Read()))
+                    {
+                        skipRead = false;
+                        if (reader.NodeType != XmlNodeType.Element) continue;
+                        switch (reader.LocalName)
+                        {
+                            case "LinkedParameter":
+                                {
+                                    string linkedParameterName = "Unnamed";
+                                    string valueRepresentation = null;
+                                    var startingDepth = reader.Depth;
+                                    while (reader.MoveToNextAttribute())
+                                    {
+                                        if (reader.NodeType == XmlNodeType.Attribute)
+                                        {
+                                            if (reader.LocalName == "Name")
+                                            {
+                                                linkedParameterName = reader.ReadContentAsString();
+                                            }
+                                            else if (reader.LocalName == "Value")
+                                            {
+                                                valueRepresentation = reader.ReadContentAsString();
+                                            }
+                                        }
+                                    }
+                                    LinkedParameter lp = new LinkedParameter(linkedParameterName);
+                                    lp.SetValue(valueRepresentation, ref error);
+                                    _LinkedParameters.Add(lp);
+                                    skipRead = true;
+                                    while (reader.Read())
+                                    {
+                                        if (reader.Depth <= startingDepth && reader.NodeType != XmlNodeType.Element)
+                                        {
+                                            break;
+                                        }
+                                        if (reader.NodeType != XmlNodeType.Element)
+                                        {
+                                            continue;
+                                        }
+                                        if (reader.LocalName == "Reference")
+                                        {
+                                            string variableLink = null;
+                                            while (reader.MoveToNextAttribute())
+                                            {
+                                                if (reader.Name == "Name")
+                                                {
+                                                    variableLink = reader.ReadContentAsString();
+                                                }
+                                            }
+                                            if (variableLink != null)
+                                            {
+                                                IModuleParameter param = GetParameterFromLink(variableLink);
+                                                if (param != null)
+                                                {
+                                                    // in any case if there is a type error, just throw it out
+                                                    lp.Add(param, ref error);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case "Description":
+                                {
+                                    bool textLast = false;
+
+                                    while (reader.Read())
+                                    {
+                                        if (reader.NodeType == XmlNodeType.Text)
+                                        {
+                                            textLast = true;
+                                            break;
+                                        }
+                                        if (reader.NodeType == XmlNodeType.Element)
+                                        {
+                                            skipRead = true;
+                                            break;
+                                        }
+                                    }
+                                    if (textLast)
+                                    {
+                                        Description = reader.ReadContentAsString();
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                Description = string.Empty;
+                if (_ModelSystemStructure == null)
+                {
+                    _ModelSystemStructure = new ModelSystemStructure(Config, Name, typeof(IModelSystemTemplate));
+                    _ModelSystemStructure.Required = true;
+                }
+                else
+                {
+                    _ModelSystemStructure.ParentFieldType = typeof(IModelSystemTemplate);
+                    _ModelSystemStructure.Required = true;
+                }
+            }
+        }
+
         private void Load(IConfiguration config, string name)
         {
             if (name != null)
             {
+                string error = null;
                 var fileName = Path.Combine(Config.ModelSystemDirectory, name + ".xml");
-                if (_LinkedParameters == null)
+                using (Stream stream = File.OpenRead(fileName))
                 {
-                    _LinkedParameters = new List<ILinkedParameter>();
-                }
-                else
-                {
-                    _LinkedParameters.Clear();
-                }
-                try
-                {
-                    ModelSystemStructure = XTMF.ModelSystemStructure.Load(fileName, config);
-                    using (XmlReader reader = XmlReader.Create(fileName))
-                    {
-                        bool skipRead = false;
-                        while (!reader.EOF && (skipRead || reader.Read()))
-                        {
-                            skipRead = false;
-                            if (reader.NodeType != XmlNodeType.Element) continue;
-                            switch (reader.LocalName)
-                            {
-                                case "LinkedParameter":
-                                    {
-                                        string linkedParameterName = "Unnamed";
-                                        string valueRepresentation = null;
-                                        var startingDepth = reader.Depth;
-                                        while (reader.MoveToNextAttribute())
-                                        {
-                                            if (reader.NodeType == XmlNodeType.Attribute)
-                                            {
-                                                if (reader.LocalName == "Name")
-                                                {
-                                                    linkedParameterName = reader.ReadContentAsString();
-                                                }
-                                                else if (reader.LocalName == "Value")
-                                                {
-                                                    valueRepresentation = reader.ReadContentAsString();
-                                                }
-                                            }
-                                        }
-                                        LinkedParameter lp = new LinkedParameter(linkedParameterName);
-                                        string error = null;
-                                        lp.SetValue(valueRepresentation, ref error);
-                                        _LinkedParameters.Add(lp);
-                                        skipRead = true;
-                                        while (reader.Read())
-                                        {
-                                            if (reader.Depth <= startingDepth && reader.NodeType != XmlNodeType.Element)
-                                            {
-                                                break;
-                                            }
-                                            if (reader.NodeType != XmlNodeType.Element)
-                                            {
-                                                continue;
-                                            }
-                                            if (reader.LocalName == "Reference")
-                                            {
-                                                string variableLink = null;
-                                                while (reader.MoveToNextAttribute())
-                                                {
-                                                    if (reader.Name == "Name")
-                                                    {
-                                                        variableLink = reader.ReadContentAsString();
-                                                    }
-                                                }
-                                                if (variableLink != null)
-                                                {
-                                                    IModuleParameter param = GetParameterFromLink(variableLink);
-                                                    if (param != null)
-                                                    {
-                                                        // in any case if there is a type error, just throw it out
-                                                        lp.Add(param, ref error);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case "Description":
-                                    {
-                                        bool textLast = false;
-
-                                        while (reader.Read())
-                                        {
-                                            if (reader.NodeType == XmlNodeType.Text)
-                                            {
-                                                textLast = true;
-                                                break;
-                                            }
-                                            else if (reader.NodeType == XmlNodeType.Element)
-                                            {
-                                                skipRead = true;
-                                                break;
-                                            }
-                                        }
-                                        if (textLast)
-                                        {
-                                            Description = reader.ReadContentAsString();
-                                        }
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                    Description = string.Empty;
-                    if (_ModelSystemStructure == null)
-                    {
-                        _ModelSystemStructure = new ModelSystemStructure(Config, Name, typeof(IModelSystemTemplate));
-                        _ModelSystemStructure.Required = true;
-                    }
-                    else
-                    {
-                        _ModelSystemStructure.ParentFieldType = typeof(IModelSystemTemplate);
-                        _ModelSystemStructure.Required = true;
-                    }
+                    LoadFromStream(stream, config, ref error);
                 }
             }
         }
 
         internal void Unload()
         {
-            IsLoaded = false;
-            _ModelSystemStructure = null;
-            LinkedParameters = null;
-        }
-
-        private string LookupName(IModuleParameter reference)
-        {
-            return LookupName(reference, ModelSystemStructure);
+            lock (this)
+            {
+                IsLoaded = false;
+                _ModelSystemStructure = null;
+                LinkedParameters = null;
+            }
         }
 
         private static string LookupName(IModuleParameter reference, IModelSystemStructure current)
@@ -529,17 +552,14 @@ namespace XTMF
             {
                 using (XmlReader reader = XmlReader.Create(fileName))
                 {
-                    bool skipRead = false;
-                    while (!reader.EOF && (skipRead || reader.Read()))
+                    while (!reader.EOF && reader.Read())
                     {
-                        skipRead = false;
                         if (reader.NodeType != XmlNodeType.Element) continue;
                         switch (reader.LocalName)
                         {
                             case "Description":
                                 {
                                     bool textLast = false;
-
                                     while (reader.Read())
                                     {
                                         if (reader.NodeType == XmlNodeType.Text)
@@ -547,9 +567,8 @@ namespace XTMF
                                             textLast = true;
                                             break;
                                         }
-                                        else if (reader.NodeType == XmlNodeType.Element)
+                                        if (reader.NodeType == XmlNodeType.Element)
                                         {
-                                            skipRead = true;
                                             break;
                                         }
                                     }

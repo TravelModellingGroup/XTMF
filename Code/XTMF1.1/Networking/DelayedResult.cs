@@ -30,20 +30,20 @@ namespace XTMF.Networking
 
         public DelayedResult()
         {
-            this.Lock = new SemaphoreSlim( 0 );
+            Lock = new SemaphoreSlim( 0 );
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
         }
 
         protected virtual void Dispose(bool includeManaged)
         {
-            if ( this.Lock != null )
+            if ( Lock != null )
             {
-                this.Lock.Dispose();
-                this.Lock = null;
+                Lock.Dispose();
+                Lock = null;
             }
         }
     }

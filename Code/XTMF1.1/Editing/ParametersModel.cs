@@ -40,7 +40,7 @@ namespace XTMF
         {
             get
             {
-                var parameters = this.Parameters;
+                var parameters = Parameters;
                 if(parameters == null) return false;
                 for(int i = 0; i < parameters.Count; i++)
                 {
@@ -71,7 +71,7 @@ namespace XTMF
         public ObservableCollection<ParameterModel> GetParameters()
         {
             //return this.Parameters != null ? this.Parameters.ToList() : new List<ParameterModel>();
-            return this.Parameters != null ? this.Parameters.ToObservableCollection() : new ObservableCollection<ParameterModel>();
+            return Parameters != null ? Parameters.ToObservableCollection() : new ObservableCollection<ParameterModel>();
         }
 
         internal void Update()

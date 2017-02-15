@@ -40,9 +40,9 @@ namespace XTMF
         public XTMFRuntime(Configuration configuration = null)
         {
             CopyBuffer = new CopyBuffer();
-            this.Configuration = configuration == null ? BuildConfiguration() : configuration;
-            this.ModelSystemController = new ModelSystemController(this);
-            this.ProjectController = new ProjectController(this);
+            Configuration = configuration == null ? BuildConfiguration() : configuration;
+            ModelSystemController = new ModelSystemController(this);
+            ProjectController = new ProjectController(this);
 
          
         }
@@ -69,7 +69,7 @@ namespace XTMF
         {
             get
             {
-                return this.Configuration.GetActiveHost();
+                return Configuration.GetActiveHost();
             }
         }
 
@@ -83,9 +83,9 @@ namespace XTMF
         {
             IClient client;
             string error = null;
-            this.Configuration.RemoteServerAddress = address;
-            this.Configuration.RemoteServerPort = port;
-            if (this.Configuration.StartupNetworkingClient(out client, ref error))
+            Configuration.RemoteServerAddress = address;
+            Configuration.RemoteServerPort = port;
+            if (Configuration.StartupNetworkingClient(out client, ref error))
             {
                 return client;
             }
@@ -103,16 +103,16 @@ namespace XTMF
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            if (this.Configuration != null)
+            if (Configuration != null)
             {
-                this.Configuration.Dispose();
-                this.Configuration = null;
+                Configuration.Dispose();
+                Configuration = null;
             }
         }
     }

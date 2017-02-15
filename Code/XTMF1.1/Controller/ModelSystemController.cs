@@ -62,24 +62,41 @@ namespace XTMF
         {
             if(String.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", "name");
+                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", nameof(name));
             }
             if(!ValidateName(name))
             {
-                throw new ArgumentException("The given name '" + name + "' was an invalid name for a model system!.", "name");
+                throw new ArgumentException("The given name '" + name + "' was an invalid name for a model system!.", nameof(name));
             }
             lock (RepositoryLock)
             {
                 // if another model system with the same name already exists
-                if(this.Repository.ModelSystems.Any((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                if(Repository.ModelSystems.Any((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
                 {
                     //then we can't make this new model system
                     return null;
                 }
                 // if no one else has the same name we can go and make the model system and add it to the repository
                 var ms = new ModelSystem(Runtime.Configuration, name);
-                this.Repository.Add(ms);
+                Repository.Add(ms);
                 return ms;
+            }
+        }
+
+        /// <summary>
+        /// Load a model system that has been saved into a string
+        /// </summary>
+        /// <param name="modelSystemAsText">The model system stored as a string.</param>
+        /// <param name="ms">The model system loaded</param>
+        /// <param name="error">A description of the error if the operation fails.</param>
+        /// <returns>True if the model system was loaded, false otherwise with a description of the failure in error.</returns>
+        public bool LoadDetachedModelSystem(string modelSystemAsText, out ModelSystem ms, ref string error)
+        {
+            using (MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(modelSystemAsText)))
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                ms = ModelSystem.LoadDetachedModelSystem(stream, Runtime.Configuration, ref error);
+                return ms != null;
             }
         }
 
@@ -107,7 +124,7 @@ namespace XTMF
                     return false;
                 }
                 var oldModelSystem =
-                    this.Runtime.Configuration.ModelSystemRepository.ModelSystems
+                    Runtime.Configuration.ModelSystemRepository.ModelSystems
                         .FirstOrDefault((ms) => ms.Name.Equals(msName, StringComparison.InvariantCultureIgnoreCase));
                 if(oldModelSystem != null & !overwrite)
                 {
@@ -118,7 +135,7 @@ namespace XTMF
                 {
                     if(oldModelSystem != null)
                     {
-                        if(!this.Delete((ModelSystem)oldModelSystem, ref error))
+                        if(!Delete((ModelSystem)oldModelSystem, ref error))
                         {
                             return false;
                         }
@@ -133,14 +150,14 @@ namespace XTMF
                             error = "We were unable to copy the file.";
                             return false;
                         }
-                        this.Runtime.Configuration.ModelSystemRepository.Add(new ModelSystem(Runtime.Configuration, msName));
-                        var newMS = this.Load(msName);
+                        Runtime.Configuration.ModelSystemRepository.Add(new ModelSystem(Runtime.Configuration, msName));
+                        var newMS = Load(msName);
                         if(newMS == null)
                         {
                             error = "We were unable to load the model system after copying it into XTMF.";
                             return false;
                         }
-                        return newMS != null;
+                        return true;
                     }
                 }
                 catch (IOException)
@@ -165,14 +182,14 @@ namespace XTMF
             {
                 // if another model system with the same name already exists
                 IModelSystem alreadyMade;
-                if((alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
+                if((alreadyMade = Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
                 {
                     //then we can't make this new model system
                     return alreadyMade as ModelSystem;
                 }
                 // if no one else has the same name we can go and make the model system and add it to the repository
                 var ms = new ModelSystem(Runtime.Configuration, name);
-                this.Repository.Add(ms);
+                Repository.Add(ms);
                 return ms;
             }
         }
@@ -195,12 +212,12 @@ namespace XTMF
         {
             if(string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", "name");
+                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", nameof(name));
             }
 
             if(!ValidateName(name))
             {
-                throw new ArgumentException("The given name '" + name + "' was an invalid name for a model system!", "name");
+                throw new ArgumentException("The given name '" + name + "' was an invalid name for a model system!", nameof(name));
             }
         }
 
@@ -235,13 +252,13 @@ namespace XTMF
         {
             if(String.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", "name");
+                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", nameof(name));
             }
             lock (RepositoryLock)
             {
                 IModelSystem alreadyMade;
                 // if another model system with the same name already exists
-                if((alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
+                if((alreadyMade = Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
                 {
                     //then we can't make this new model system
                     return alreadyMade as ModelSystem;
@@ -259,24 +276,24 @@ namespace XTMF
         {
             if(String.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", "name");
+                throw new ArgumentException("The name of a model system can not be null, empty or just whitespace!", nameof(name));
             }
             lock (RepositoryLock)
             {
                 // if another model system with the same name already exists
                 IModelSystem alreadyMade;
-                if((alreadyMade = this.Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
+                if((alreadyMade = Repository.ModelSystems.FirstOrDefault((other) => other.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) != null)
                 {
                     lock (EditingLock)
                     {
-                        if(this.EditingSessions.Any((session) => session.IsEditing(alreadyMade as ModelSystem)))
+                        if(EditingSessions.Any((session) => session.IsEditing(alreadyMade as ModelSystem)))
                         {
                             // we can't delete a model system that is currently being edited
                             return false;
                         }
                     }
                     //then we can't make this new model system
-                    this.Repository.Remove(alreadyMade);
+                    Repository.Remove(alreadyMade);
                     return true;
                 }
                 return false;
@@ -302,7 +319,7 @@ namespace XTMF
                 lock(EditingLock)
                 {
                     // as long as it isn't being edited
-                    if (this.EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
+                    if (EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
                     {
                         // we can't delete a model system that is currently being edited
                         error = "A model system can not be cloned while being edited!";
@@ -332,7 +349,7 @@ namespace XTMF
                 lock (EditingLock)
                 {
                     // as long as it isn't being edited
-                    if (this.EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
+                    if (EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
                     {
                         // we can't delete a model system that is currently being edited
                         error = "A model system can not be renamed while being edited!";
@@ -340,7 +357,7 @@ namespace XTMF
                     }
                 }
                 // just use the repositories model system remove
-                return this.Repository.Rename(modelSystem, newName, ref error);
+                return Repository.Rename(modelSystem, newName, ref error);
             }
         }
 
@@ -356,14 +373,14 @@ namespace XTMF
                 lock (EditingLock)
                 {
                     // as long as it isn't being edited
-                    if(this.EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
+                    if(EditingSessions.Any((session) => session.IsEditing(modelSystem as ModelSystem)))
                     {
                         error = "We can't delete a model system that is currently being edited";
                         return false;
                     }
                 }
                 // just use the repositories model system remove
-                return this.Repository.Remove(modelSystem);
+                return Repository.Remove(modelSystem);
             }
         }
 
@@ -395,7 +412,7 @@ namespace XTMF
         {
             if(modelSystem == null)
             {
-                throw new ArgumentNullException("modelSystem");
+                throw new ArgumentNullException(nameof(modelSystem));
             }
             lock (EditingLock)
             {
@@ -423,7 +440,7 @@ namespace XTMF
         {
             if (modelSystemEditingSession == null)
             {
-                throw new ArgumentNullException("modelSystemEditingSession");
+                throw new ArgumentNullException(nameof(modelSystemEditingSession));
             }
             bool terminate = false;
             lock (EditingLock)
@@ -451,7 +468,7 @@ namespace XTMF
         {
             if(modelSystemEditingSession == null)
             {
-                throw new ArgumentNullException("modelSystemEditingSession");
+                throw new ArgumentNullException(nameof(modelSystemEditingSession));
             }
             bool terminate = false;
             lock (EditingLock)
@@ -485,7 +502,7 @@ namespace XTMF
         /// <returns></returns>
         public List<IModelSystem> GetModelSystems()
         {
-            return new List<IModelSystem>(this.Repository.ModelSystems);
+            return new List<IModelSystem>(Repository.ModelSystems);
         }
     }
 }

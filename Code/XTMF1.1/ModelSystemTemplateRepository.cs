@@ -28,15 +28,15 @@ namespace XTMF
     {
         public ModelSystemTemplateRepository()
         {
-            this.ModelSystemTemplates = new List<Type>();
+            ModelSystemTemplates = new List<Type>();
         }
 
         public List<Type> ModelSystemTemplates { get; private set; }
 
         public void Add(Type type)
         {
-            this.ModelSystemTemplates.Add( type );
-            this.ModelSystemTemplates.Sort( delegate(Type first, Type second)
+            ModelSystemTemplates.Add( type );
+            ModelSystemTemplates.Sort( delegate(Type first, Type second)
             {
                 return first.FullName.CompareTo( second.FullName );
             } );
@@ -44,17 +44,17 @@ namespace XTMF
 
         public IEnumerator<Type> GetEnumerator()
         {
-            return this.ModelSystemTemplates.GetEnumerator();
+            return ModelSystemTemplates.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.ModelSystemTemplates.GetEnumerator();
+            return ModelSystemTemplates.GetEnumerator();
         }
 
         public void Unload(Type type)
         {
-            this.ModelSystemTemplates.Remove( type );
+            ModelSystemTemplates.Remove( type );
         }
     }
 }
