@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,32 +26,32 @@ namespace XTMF
 {
     public class ModelSystemController
     {
-        private XTMFRuntime Runtime;
+        private readonly XTMFRuntime Runtime;
 
         public ModelSystemController(XTMFRuntime runtime)
         {
             Runtime = runtime;
             Repository = Runtime.Configuration.ModelSystemRepository as ModelSystemRepository;
         }
-        private ModelSystemRepository Repository { get; set; }
+        private ModelSystemRepository Repository { get; }
 
         /// <summary>
         /// The lock for editing what is inside of the repository.  This should be grabbed before getting the editing lock.
         /// </summary>
-        private object RepositoryLock = new object();
+        private readonly object RepositoryLock = new object();
         /// <summary>
         /// The current editing sessions
         /// </summary>
-        private List<ModelSystemEditingSession> EditingSessions = new List<ModelSystemEditingSession>();
+        private readonly List<ModelSystemEditingSession> EditingSessions = new List<ModelSystemEditingSession>();
         /// <summary>
         /// The number of references to each model system editing session
         /// </summary>
-        private List<int> References = new List<int>();
+        private readonly List<int> References = new List<int>();
 
         /// <summary>
         /// The lock to get before using the editing sessions
         /// </summary>
-        private object EditingLock = new object();
+        private readonly object EditingLock = new object();
 
         /// <summary>
         /// Create a new model system
@@ -401,6 +401,28 @@ namespace XTMF
             {
                 error = e.Message;
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Export a model system to a string
+        /// </summary>
+        /// <param name="ms">The model system to export</param>
+        /// <param name="modelSystemAsString">The string to save the model system into</param>
+        /// <param name="error">A description of the error if one occurs</param>
+        /// <returns>True if the export was successful, false with description otherwise</returns>
+        public bool ExportModelSystemAsString(ModelSystem ms, out string modelSystemAsString, ref string error)
+        {
+            using (var stream = new MemoryStream())
+            {
+                if (!ms.Save(stream, ref error))
+                {
+                    modelSystemAsString = null;
+                    return false;
+                }
+                var buffer = stream.ToArray();
+                modelSystemAsString = new string(Encoding.Unicode.GetChars(buffer, 0, buffer.Length));
+                return true;
             }
         }
 

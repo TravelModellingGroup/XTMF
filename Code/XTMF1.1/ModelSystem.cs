@@ -54,7 +54,7 @@ namespace XTMF
         /// Create a new instance of a model system
         /// </summary>
         /// <param name="config">The configuration of the XTMFRuntime</param>
-        /// <param name="structure">The structure to use for this model system</param>
+        /// <param name="name">The name of the model system</param>
         public ModelSystem(IConfiguration config, string name = null)
         {
             Config = config;
@@ -79,6 +79,21 @@ namespace XTMF
                 LinkedParameter.MapLinkedParameters(LinkedParameters, ourClone, ModelSystemStructure)
                 : new List<ILinkedParameter>();
             return ourClone as ModelSystemStructure;
+        }
+
+        /// <summary>
+        /// Create a clone of the model system
+        /// </summary>
+        /// <returns></returns>
+        public ModelSystem Clone()
+        {
+            List<ILinkedParameter> linkedParameters;
+            var structure = CreateEditingClone(out linkedParameters);
+            return new ModelSystem(Config, Name)
+            {
+                ModelSystemStructure = structure,
+                LinkedParameters = linkedParameters
+            };
         }
 
         /// <summary>
@@ -153,6 +168,11 @@ namespace XTMF
             set;
         }
 
+        public bool Save(Stream stream, ref string error)
+        {
+            return Save(stream, ModelSystemStructure, Description, LinkedParameters, ref error);
+        }
+
         public bool Save(string fileName, ref string error)
         {
             return Save(fileName, ModelSystemStructure, Description, LinkedParameters, ref error);
@@ -172,7 +192,30 @@ namespace XTMF
             string tempFileName = Path.GetTempFileName();
             try
             {
-                using (XmlWriter writer = XmlWriter.Create(tempFileName, new XmlWriterSettings() { Indent = true, Encoding = Encoding.Unicode }))
+                using (var stream = new FileStream(tempFileName, FileMode.Create, FileAccess.Write))
+                {
+                    Save(stream, root, description, linkedParameters, ref error);
+                }
+            }
+            catch (Exception e)
+            {
+                description = string.Empty;
+                error = e.Message;
+                return false;
+            }
+            File.Copy(tempFileName, fileName, true);
+            File.Delete(tempFileName);
+            return true;
+        }
+
+        public static bool Save(Stream stream, IModelSystemStructure root, string description,
+            List<ILinkedParameter> linkedParameters, ref string error)
+        {
+            try
+            {
+                using (
+                    XmlWriter writer = XmlWriter.Create(stream,
+                        new XmlWriterSettings() {Indent = true, Encoding = Encoding.Unicode}))
                 {
                     writer.WriteStartDocument();
                     writer.WriteStartElement("Root");
@@ -205,16 +248,13 @@ namespace XTMF
                     }
                     writer.WriteEndDocument();
                 }
+                return true;
             }
             catch (Exception e)
             {
-                description = string.Empty;
                 error = e.Message;
                 return false;
             }
-            File.Copy(tempFileName, fileName, true);
-            File.Delete(tempFileName);
-            return true;
         }
 
         public bool Save(ref string error)

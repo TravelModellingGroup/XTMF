@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -35,7 +35,7 @@ namespace XTMF
         }
 
         public Project Project;
-        private XTMFRuntime Runtime;
+        private readonly XTMFRuntime Runtime;
         public ProjectEditingSession(Project project, XTMFRuntime runtime)
         {
             Project = project;
@@ -105,9 +105,9 @@ namespace XTMF
             {
                 var ret = Runtime.ProjectController.RenameProject(Project, newName, ref error);
                 var e = NameChanged;
-                if (ret && e != null)
+                if (ret)
                 {
-                    e(this, new PropertyChangedEventArgs(Name));
+                    e?.Invoke(this, new PropertyChangedEventArgs(Name));
                 }
                 return ret;
             }
@@ -234,6 +234,29 @@ namespace XTMF
         }
 
         /// <summary>
+        /// Export the model system as a string.
+        /// </summary>
+        /// <param name="ms">The model system to export</param>
+        /// <param name="modelSystemAsString">The string to export the model system to.</param>
+        /// <param name="error">A description of the error if one occurs</param>
+        /// <returns>True if successful, false with a description of the error.</returns>
+        public bool ExportModelSystemAsString(ModelSystemModel ms, out string modelSystemAsString, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                return Runtime.ProjectController.ExportModelSystemAsString(ms, out modelSystemAsString, ref error);
+            }
+        }
+
+        public bool ExportModelSystemAsString(int modelSystemIndex, out string modelSystemAsString, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                return Runtime.ProjectController.ExportModelSystemAsString(Project, modelSystemIndex, out modelSystemAsString, ref error);
+            }
+        }
+
+        /// <summary>
         /// Add a model system to the project
         /// </summary>
         /// <param name="modelSystem">The model system to add to the project</param>
@@ -340,9 +363,9 @@ namespace XTMF
         /// <param name="name"></param>
         /// <param name="error"></param>
         /// <returns></returns>
-        public static bool CloneModelSystemAs(XTMFRuntime Runtime, IModelSystemStructure root, List<ILinkedParameter> linkedParameters, string description, string name, ref string error)
+        public static bool CloneModelSystemAs(XTMFRuntime runtime, IModelSystemStructure root, List<ILinkedParameter> linkedParameters, string description, string name, ref string error)
         {
-            var ms = Runtime.ModelSystemController.LoadOrCreate(name);
+            var ms = runtime.ModelSystemController.LoadOrCreate(name);
             ms.Name = name;
             ms.Description = description;
             ms.ModelSystemStructure = root;
@@ -358,7 +381,7 @@ namespace XTMF
         /// </summary>
         /// <param name="modelSystemIndex">The index of the model system to export</param>
         /// <param name="fileName">The name of the file to save it to.</param>
-        /// <param name="error">A description of the error that ocured if one did.</param>
+        /// <param name="error">A description of the error that occurred if one did.</param>
         /// <returns>False if there was an error, true otherwise.</returns>
         public bool ExportModelSystem(int modelSystemIndex, string fileName, ref string error)
         {

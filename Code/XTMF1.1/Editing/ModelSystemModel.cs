@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -314,6 +314,25 @@ namespace XTMF
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Create a clone of this model system model as a model system.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public ModelSystem CloneAsModelSystem(IConfiguration config)
+        {
+            if (ModelSystem != null)
+            {
+                return ModelSystem.Clone();
+            }
+            var ms = new ModelSystem(config, _Name)
+            {
+                LinkedParameters = LinkedParameters.GetRealLinkedParameters(),
+                ModelSystemStructure = Root.RealModelSystemStructure
+            };
+            return ms.Clone();
         }
     }
 }

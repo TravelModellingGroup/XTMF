@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,7 +26,8 @@ namespace XTMF
 {
     public class ProjectController
     {
-        private XTMFRuntime Runtime;
+        private readonly XTMFRuntime Runtime;
+
         public ProjectController(XTMFRuntime runtime)
         {
             Runtime = runtime;
@@ -83,13 +84,19 @@ namespace XTMF
 
         public bool IsEditSessionOpenForProject(Project project)
         {
-            return EditingSessions.Count(p => p.Name == project.Name) > 0;
+            lock (EditingSessionLock)
+            {
+                return EditingSessions.Count(p => p.Name == project.Name) > 0;
+            }
         }
 
         public void ClearEditingSessions()
         {
-            ReferenceCount.Clear();
-            EditingSessions.Clear();
+            lock (EditingSessionLock)
+            {
+                ReferenceCount.Clear();
+                EditingSessions.Clear();
+            }
         }
 
 
@@ -282,15 +289,17 @@ namespace XTMF
 
         private static int IndexOf<T>(IList<T> data, Predicate<T> condition)
         {
-            var enumerator = data.GetEnumerator();
-            for (int i = 0; enumerator.MoveNext(); i++)
+            using (var enumerator = data.GetEnumerator())
             {
-                if (condition(enumerator.Current))
+                for (int i = 0; enumerator.MoveNext(); i++)
                 {
-                    return i;
+                    if (condition(enumerator.Current))
+                    {
+                        return i;
+                    }
                 }
+                return -1;
             }
-            return -1;
         }
 
         /// <summary>
@@ -321,8 +330,7 @@ namespace XTMF
         {
             lock (EditingSessionLock)
             {
-                int index;
-                if ((index = IndexOf(EditingSessions, (session) => session.Project == project)) >= 0)
+                if (IndexOf(EditingSessions, (session) => session.Project == project) >= 0)
                 {
                     error = "You can not delete a project while it is being edited.";
                     return false;
@@ -353,6 +361,41 @@ namespace XTMF
         {
             var root = project.ModelSystemStructure[modelSystemIndex];
             return ModelSystem.Save(fileName, root, root.Description, project.LinkedParameters[modelSystemIndex], ref error);
+        }
+
+        /// <summary>
+        /// Exports the model system model to a string.
+        /// </summary>
+        /// <param name="ms">The model system model to export</param>
+        /// <param name="modelSystemAsString">The string to store the results into.</param>
+        /// <param name="error">A description of the error if there is one.</param>
+        /// <returns>True if successful, false otherwise with description.</returns>
+        public bool ExportModelSystemAsString(ModelSystemModel ms, out string modelSystemAsString, ref string error)
+        {
+            var modelSystem = ms.CloneAsModelSystem(Runtime.Configuration);
+            return Runtime.ModelSystemController.ExportModelSystemAsString(modelSystem, out modelSystemAsString,
+                ref error);
+        }
+
+        /// <summary>
+        /// Exports the model system model to a string.
+        /// </summary>
+        /// <param name="project">The project to export the model system from</param>
+        /// <param name="modelSystemIndex">The index of the model system</param>
+        /// <param name="modelSystemAsString">The string to store the results into.</param>
+        /// <param name="error">A description of the error that occurred</param>
+        /// <returns>The if successful, false otherwise with description.</returns>
+        public bool ExportModelSystemAsString(Project project, int modelSystemIndex, out string modelSystemAsString, ref string error)
+        {
+            var mss = project.ModelSystemStructure[modelSystemIndex];
+            // It is safe to not use a clone since this model system doesn't escape this method
+            return
+                Runtime.ModelSystemController.ExportModelSystemAsString(new ModelSystem(Runtime.Configuration, mss.Name)
+                {
+                    Description = mss.Description,
+                    LinkedParameters = project.LinkedParameters[modelSystemIndex],
+                    ModelSystemStructure = mss
+                }, out modelSystemAsString, ref error);
         }
     }
 }
