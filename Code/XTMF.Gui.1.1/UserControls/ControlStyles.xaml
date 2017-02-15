@@ -796,7 +796,7 @@
                                 BorderThickness="0 0 0 1"   
                                 BorderBrush="{DynamicResource WindowBackgroundBrush3}"   
                                 Background="{TemplateBinding Background}">
-                        <Border Name="InnerBorder" CornerRadius="1" BorderThickness="1">
+                        <Border Name="InnerBorder" CornerRadius="1" BorderThickness="0">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition MaxHeight="11" />
