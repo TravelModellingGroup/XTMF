@@ -33,11 +33,11 @@ namespace XTMF.Gui
     public partial class BorderIconButton : UserControl, INotifyPropertyChanged
     {
 
-       
+
         public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register("Header", typeof(string), typeof(BorderIconButton),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender, OnHeaderChanged, OnCoerceChanged));
 
-       
+
         public static readonly DependencyProperty TextProperty = DependencyProperty.Register("Text", typeof(string), typeof(BorderIconButton),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender, OnTextChanged, OnCoerceChanged));
 
@@ -64,8 +64,8 @@ namespace XTMF.Gui
 
         static BorderIconButton()
         {
-           // BorderBrushProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(Brushes.White, BorderBrushChanged));
-           // BorderThicknessProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(new Thickness(1), BorderThicknessChanged));
+            // BorderBrushProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(Brushes.White, BorderBrushChanged));
+            // BorderThicknessProperty.OverrideMetadata(typeof(BorderIconButton), new FrameworkPropertyMetadata(new Thickness(1), BorderThicknessChanged));
             try
             {
                 //DefaultSelectionBlue = (Color)Application.Current.TryFindResource("SelectionBlue");
@@ -81,20 +81,20 @@ namespace XTMF.Gui
         private static void BorderThicknessChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var us = d as BorderIconButton;
-         //   us.BorderOutline.BorderThickness = (Thickness)e.NewValue;
+            //   us.BorderOutline.BorderThickness = (Thickness)e.NewValue;
         }
 
         private static void BorderBrushChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var us = d as BorderIconButton;
-       //     us.BorderOutline.BorderBrush = e.NewValue as Brush;
+            //     us.BorderOutline.BorderBrush = e.NewValue as Brush;
         }
 
         public BorderIconButton()
         {
             Selected = false;
             //HighlightColour = DefaultSelectionBlue;
-           // FocusColour = DefaultFocusColour;
+            // FocusColour = DefaultFocusColour;
             InitializeComponent();
             IsEnabledChanged += BorderIconButton_IsEnabledChanged;
             _baseWidth = 200;
@@ -111,8 +111,8 @@ namespace XTMF.Gui
             var brush = BorderOutline.Background as SolidColorBrush;
             if (brush != null && !brush.IsFrozen)
             {
-              //  brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
-            //    brush.Color = ShadowColour;
+                //  brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                //    brush.Color = ShadowColour;
             }
         }
 
@@ -140,7 +140,7 @@ namespace XTMF.Gui
             set;
         }
 
-        
+
 
         public string Header
         {
@@ -148,7 +148,7 @@ namespace XTMF.Gui
             set { SetValue(HeaderProperty, value); }
         }
 
-      
+
 
         public ImageSource Icon
         {
@@ -169,7 +169,7 @@ namespace XTMF.Gui
             set { SetValue(SelectedProperty, value); }
         }
 
-      
+
 
         public string Text
         {
@@ -180,45 +180,45 @@ namespace XTMF.Gui
         public void DoContractAnimation()
         {
             DoubleAnimation fadeInAnimation = new DoubleAnimation(_baseWidth, 0, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-        //    BeginAnimation(WidthProperty, fadeInAnimation);
+            //    BeginAnimation(WidthProperty, fadeInAnimation);
         }
 
         public void DoExpandAnimation()
         {
             DoubleAnimation fadeInAnimation = new DoubleAnimation(0, _baseWidth, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-         //   BeginAnimation(WidthProperty, fadeInAnimation);
+            //   BeginAnimation(WidthProperty, fadeInAnimation);
         }
 
         public void DoFadeInAnimation()
         {
             DoubleAnimation fadeInAnimation = new DoubleAnimation(0, 1, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-         //   BeginAnimation(OpacityProperty, fadeInAnimation);
+            //   BeginAnimation(OpacityProperty, fadeInAnimation);
         }
 
         public void DoFadeOutAnimation()
         {
             DoubleAnimation fadeInAnimation = new DoubleAnimation(1, 0, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-        //    BeginAnimation(OpacityProperty, fadeInAnimation);
+            //    BeginAnimation(OpacityProperty, fadeInAnimation);
         }
 
         public void FadeInContent()
         {
             DoubleAnimation fadeInAnimation = new DoubleAnimation(0, 1, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-       //     ContentStackPanel.BeginAnimation(OpacityProperty, fadeInAnimation);
+            //     ContentStackPanel.BeginAnimation(OpacityProperty, fadeInAnimation);
         }
 
         public void FadeOutContent()
         {
             DoubleAnimation fadeInAnimation = new DoubleAnimation(1, 0, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-        //    ContentStackPanel.BeginAnimation(OpacityProperty, fadeInAnimation);
+            //    ContentStackPanel.BeginAnimation(OpacityProperty, fadeInAnimation);
         }
 
         public void FlashAnimation(int times = 3)
         {
-           // var blink = new ColorAnimation(ShadowColour, HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 750)));
+            // var blink = new ColorAnimation(ShadowColour, HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 750)));
             //blink.AutoReverse = true;
             //blink.RepeatBehavior = new RepeatBehavior(times);
-          //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, blink);
+            //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, blink);
         }
 
 
@@ -228,7 +228,7 @@ namespace XTMF.Gui
             {
                 if (!Selected)
                 {
-                   // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                    // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     //ColorAnimation fadeInAnimation = new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
                     //BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                 }
@@ -242,9 +242,9 @@ namespace XTMF.Gui
             {
                 if (!Selected)
                 {
-                   // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                   // ColorAnimation fadeInAnimation = new ColorAnimation(ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-                  //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
+                    // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                    // ColorAnimation fadeInAnimation = new ColorAnimation(ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+                    //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                 }
             }
             base.OnLostFocus(e);
@@ -254,8 +254,8 @@ namespace XTMF.Gui
         {
             ColorAnimation fadeInAnimation;
             if (!IsHitTestVisible) return;
-           // fadeInAnimation = new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-           // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+            // fadeInAnimation = new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+            // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
             //BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
             e.Handled = true;
             MouseInside = true;
@@ -267,9 +267,9 @@ namespace XTMF.Gui
             ColorAnimation fadeOutAnimation;
             if (!IsHitTestVisible) return;
             _mouseDownInside = false;
-           // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-          
-          //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeOutAnimation);
+            // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+
+            //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeOutAnimation);
             e.Handled = true;
             MouseInside = false;
             base.OnMouseLeave(e);
@@ -282,8 +282,8 @@ namespace XTMF.Gui
                 _mouseDownInside = true;
                 _mouseDownPoint = e.GetPosition(this);
             }
-           // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-           // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+            // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+            // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
             base.OnMouseLeftButtonDown(e);
         }
 
@@ -325,8 +325,8 @@ namespace XTMF.Gui
             if (RightClicked != null)
             {
                 _mouseDownInside = true;
-              //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-              //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+                //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
             }
             base.OnMouseRightButtonDown(e);
         }
@@ -337,14 +337,14 @@ namespace XTMF.Gui
             {
                 if (e.ClickCount == 1)
                 {
-                   // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                    // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     if (IsFocused || Selected)
                     {
-                     //   BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+                        //   BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
                     }
                     else
                     {
-                 //       BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+                        //       BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
                     }
                     if (_mouseDownInside && RightClicked != null)
                     {
@@ -386,11 +386,11 @@ namespace XTMF.Gui
                     //us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
                     if ((bool)e.NewValue)
                     {
-                     //   us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(us.FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+                        //   us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(us.FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
                     }
                     else
                     {
-                    //    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(us.ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
+                        //    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(us.ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
                     }
                 }
             }
@@ -407,19 +407,19 @@ namespace XTMF.Gui
                 {
                     if (us.Selected || us.IsFocused)
                     {
-                     //   var oldColour = brush.Color;
-                 //       if (oldColour != value)
-                  //      {
+                        //   var oldColour = brush.Color;
+                        //       if (oldColour != value)
+                        //      {
                         //    brush.Color = value;
-                      //      us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                   //         ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-                   //     //    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
-                 //       }
+                        //      us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                        //         ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+                        //     //    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
+                        //       }
                     }
                 }
                 else
                 {
-                  //  us.BorderOutline.Background = new SolidColorBrush(value);
+                    //  us.BorderOutline.Background = new SolidColorBrush(value);
                 }
             }
         }
@@ -436,15 +436,15 @@ namespace XTMF.Gui
                     var oldColour = brush.Color;
                     if (oldColour != value)
                     {
-                      //  brush.Color = value;
-                       // us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                   //     ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-                      //  us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
+                        //  brush.Color = value;
+                        // us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
+                        //     ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
+                        //  us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
                     }
                 }
                 else
                 {
-                 //   us.BorderOutline.Background = new SolidColorBrush(value);
+                    //   us.BorderOutline.Background = new SolidColorBrush(value);
                 }
             }
         }

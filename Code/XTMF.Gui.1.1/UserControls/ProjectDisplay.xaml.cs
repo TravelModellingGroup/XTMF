@@ -189,7 +189,10 @@ namespace XTMF.Gui.UserControls
             {
                 if (ContainedModelSystems == null)
                 {
-                    ContainedModelSystems = new List<ContainedModelSystemModel>();
+      
+                      
+                   ContainedModelSystems = new List<ContainedModelSystemModel>();
+                        
                 }
                 else
                 {
@@ -454,6 +457,8 @@ namespace XTMF.Gui.UserControls
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+            var s = ModelSystemDisplay.SelectedItem;
+            Console.WriteLine(s);
         }
 
         private void LoadModelSystem()
@@ -769,6 +774,11 @@ namespace XTMF.Gui.UserControls
                 PastRunDisplay.SelectedItem = null;
             }
 
+        }
+
+        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            LoadModelSystem();
         }
     }
 }

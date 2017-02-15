@@ -151,9 +151,18 @@
                                 <DataTemplate>
 
 
-                                    <xtmf:ListViewControl TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch"
-                                                          SubText="{Binding Description, Mode=OneWay}" >
+                                    <xtmf:ListViewControl  TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch"
+                                                          SubText="{Binding Description, Mode=OneWay}" MouseDoubleClick="ListViewControl_MouseDoubleClick"  >
 
+                                       
+                                        <xtmf:ListViewControl.IconPath>
+                                            
+                                            
+                                            
+                                            <Path Data="{DynamicResource ModelSystemIconPath}">
+                                              
+                                            </Path>
+                                        </xtmf:ListViewControl.IconPath>
                                     </xtmf:ListViewControl>
                                     
                                     <!--

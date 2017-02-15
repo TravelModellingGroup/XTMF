@@ -5,21 +5,68 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" Name="ListViewControlName"
-             d:DesignHeight="80" d:DesignWidth="300">
+             d:DesignHeight="80" d:DesignWidth="300" Background="Transparent">
+   
+    
+    <UserControl.Resources>
+        <Style TargetType="{x:Type local:ListViewControl}">
+            <Style.Triggers>
+
+                <DataTrigger Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}">
+                    <Setter Property="Foreground" Value="White"></Setter>
+                </DataTrigger>
+
+                <DataTrigger Value="False"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}">
+                    <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
+                </DataTrigger>
+
+                <!--
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"></Setter>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="False">
+                    <Setter Property="Foreground" Value="White"></Setter>
+                </Trigger> -->
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="30"></ColumnDefinition>
+            <ColumnDefinition Width="50"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Top">
-            <Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>
+        
+        
+        <Border Background="Transparent" Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Top">
+
+            <Path Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
+                  Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"
+                  Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconPath.Data,Mode=TwoWay}">
+                
+                <!--
+                <Path.Style>
+                    <Style  TargetType="{x:Type Path}" >
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource  Mode=FindAncestor, AncestorType=local:ListViewControl}, Path=IsMouseOver}" Value="True">
+                                <Setter  Property="C" Value="5"></Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Path.Style> -->
+            </Path>
+            
+            
+            
+            <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
         </Border>
         <StackPanel Orientation="Vertical" Grid.Column="1">
-            <Label FontWeight="Bold" Name="Title" Foreground="{DynamicResource ThemeTextColorBrush}"
+            <Label FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=TitleText,Mode=TwoWay}" ></Label>
-            <Label Name="SubTextLabel" Foreground="{DynamicResource ThemeTextColorBrush}"
+            <Label Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"
                    
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=SubText,Mode=TwoWay}"></Label>
             </StackPanel>
     </Grid>
+    
+     
 </UserControl>
