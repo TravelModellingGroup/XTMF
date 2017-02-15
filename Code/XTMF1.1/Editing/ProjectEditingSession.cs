@@ -230,6 +230,7 @@ namespace XTMF
             {
                 return false;
             }
+            modelSystem.Name = name;
             return AddModelSystem(modelSystem, ref error);
         }
 

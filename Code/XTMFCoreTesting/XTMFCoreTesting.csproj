@@ -74,7 +74,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -88,6 +90,7 @@
     <Compile Include="Editing\TestEditingParameter.cs" />
     <Compile Include="Editing\TestLinkedParameter.cs" />
     <Compile Include="Editing\TestProjectEditingSession.cs" />
+    <Compile Include="Editing\TestImportingExportingModelSystemAsString.cs" />
     <Compile Include="Modules\Editing\TestGenericModule.cs" />
     <Compile Include="Modules\Editing\TestModelSystemTemplate.cs" />
     <Compile Include="Modules\Editing\TestModule.cs" />
