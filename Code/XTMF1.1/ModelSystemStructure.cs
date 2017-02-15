@@ -99,23 +99,19 @@ namespace XTMF
 
             set
             {
-                if (Children != null)
-                {
-                    Children.Clear();
-                }
+                Children?.Clear();
                 if (value != null)
                 {
                     if ((Parameters = Project.LoadDefaultParams(value)) != null)
                     {
-                        (Parameters as ModuleParameters).BelongsTo = this;
+                        ((ModuleParameters)Parameters).BelongsTo = this;
                         foreach (var p in Parameters)
                         {
-                            (p as ModuleParameter).BelongsTo = this;
+                            ((ModuleParameter)p).BelongsTo = this;
                         }
                     }
-                    bool nullBefore = _Type == null;
                     _Type = value;
-                    ModelSystemStructure.GenerateChildren(Configuration, this);
+                    GenerateChildren(Configuration, this);
                 }
                 else
                 {
@@ -130,7 +126,7 @@ namespace XTMF
             foreach (var field in t.GetFields())
             {
                 var attributes = field.GetCustomAttributes(typeof(ParentModel), true);
-                if (attributes != null && attributes.Length > 0)
+                if (attributes.Length > 0)
                 {
                     if (!field.FieldType.IsAssignableFrom(parent))
                     {
@@ -141,7 +137,7 @@ namespace XTMF
             foreach (var field in t.GetProperties())
             {
                 var attributes = field.GetCustomAttributes(typeof(ParentModel), true);
-                if (attributes != null && attributes.Length > 0)
+                if (attributes.Length > 0)
                 {
                     if (!field.PropertyType.IsAssignableFrom(parent))
                     {
@@ -150,19 +146,6 @@ namespace XTMF
                 }
             }
             return true;
-        }
-
-        public static bool CheckForRootModel(Type root, Type t)
-        {
-            // get what module is required
-            var rootRequirement = GetRootRequirement(t);
-            // if there is no requirement then we are fine
-            if (rootRequirement == null)
-            {
-                return true;
-            }
-            // if there is a requirement, make sure that we can assign to it properly
-            return rootRequirement.IsAssignableFrom(root);
         }
 
         /// <summary>
@@ -199,8 +182,8 @@ namespace XTMF
 
             foreach (var field in element.Type.GetFields())
             {
-                IModelSystemStructure child = null;
-                if ((child = GenerateChildren(element, field.FieldType, field.GetCustomAttributes(true), config)) != null)
+                IModelSystemStructure child;
+                if ((child = GenerateChildren(field.FieldType, field.GetCustomAttributes(true), config)) != null)
                 {
                     // set the name
                     child.ParentFieldName = field.Name;
@@ -218,8 +201,8 @@ namespace XTMF
             }
             foreach (var property in element.Type.GetProperties())
             {
-                IModelSystemStructure child = null;
-                if ((child = GenerateChildren(element, property.PropertyType, property.GetCustomAttributes(true), config)) != null)
+                IModelSystemStructure child;
+                if ((child = GenerateChildren(property.PropertyType, property.GetCustomAttributes(true), config)) != null)
                 {
                     child.ParentFieldName = property.Name;
                     child.Name = CreateModuleName(property.Name);
@@ -277,7 +260,7 @@ namespace XTMF
                 foreach (var field in moduleType.GetFields())
                 {
                     var attributes = field.GetCustomAttributes(typeof(RootModule), true);
-                    if (attributes != null && attributes.Length > 0)
+                    if (attributes.Length > 0)
                     {
                         return field.FieldType;
                     }
@@ -285,7 +268,7 @@ namespace XTMF
                 foreach (var field in moduleType.GetProperties())
                 {
                     var attributes = field.GetCustomAttributes(typeof(RootModule), true);
-                    if (attributes != null && attributes.Length > 0)
+                    if (attributes.Length > 0)
                     {
                         return field.PropertyType;
                     }
@@ -303,7 +286,12 @@ namespace XTMF
             root.ParentFieldName = "Root";
             XmlDocument doc = new XmlDocument();
             doc.Load(stream);
-            LoadRoot(config, root, doc["Root"].ChildNodes);
+            var rootChildren = doc["Root"]?.ChildNodes;
+            if (rootChildren == null)
+            {
+                return null;
+            }
+            LoadRoot(config, root, rootChildren);
             return root;
         }
 
@@ -321,7 +309,11 @@ namespace XTMF
 
             XmlDocument doc = new XmlDocument();
             doc.Load(fileName);
-            var list = doc["Root"].ChildNodes;
+            var list = doc["Root"]?.ChildNodes;
+            if (list == null)
+            {
+                return null;
+            }
             LoadRoot(config, root, list);
             return root;
         }
@@ -357,10 +349,10 @@ namespace XTMF
             {
                 if ((cloneUs.Parameters = Parameters.Clone()) != null)
                 {
-                    (cloneUs.Parameters as ModuleParameters).BelongsTo = cloneUs;
+                    ((ModuleParameters)cloneUs.Parameters).BelongsTo = cloneUs;
                     foreach (var p in cloneUs.Parameters)
                     {
-                        (p as ModuleParameter).BelongsTo = cloneUs;
+                        ((ModuleParameter)p).BelongsTo = cloneUs;
                     }
                 }
             }
@@ -382,12 +374,12 @@ namespace XTMF
 
         internal ModelSystemStructure GetRoot(ModelSystemStructure modelSystemRoot)
         {
-            return ModelSystemStructure.CheckForRootModule(modelSystemRoot, this, Type) as ModelSystemStructure;
+            return CheckForRootModule(modelSystemRoot, this, Type) as ModelSystemStructure;
         }
 
         internal ModelSystemStructure GetParent(ModelSystemStructure realModelSystemStructure)
         {
-            return ModelSystemStructure.GetParent(realModelSystemStructure, this) as ModelSystemStructure;
+            return GetParent(realModelSystemStructure, this) as ModelSystemStructure;
         }
 
         public IModelSystemStructure CreateCollectionMember(Type newType)
@@ -540,7 +532,7 @@ namespace XTMF
                 {
                     if (Children == null || !Children.Any(c => !(c is ModelSystemStructure) || !((ModelSystemStructure)c).IsDisabled))
                     {
-                        error = "The collection '" + Name + "' in module '" + parent.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.";
+                        error = "The collection '" + Name + "' in module '" + parent?.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.";
                         return false;
                     }
                 }
@@ -587,7 +579,7 @@ namespace XTMF
 
         internal static ModelSystemStructure Load(XmlNode modelSystemNode, IConfiguration config)
         {
-            XTMF.ModelSystemStructure structure = new ModelSystemStructure(config);
+            ModelSystemStructure structure = new ModelSystemStructure(config);
             LoadRoot(config, structure, modelSystemNode.ChildNodes);
             return structure;
         }
@@ -625,7 +617,7 @@ namespace XTMF
             return null;
         }
 
-        private static void AssignTypeValue(XmlAttribute paramTIndex, XmlAttribute paramTypeAttribute, XmlAttribute paramValueAttribute, IModuleParameter selectedParam, Dictionary<int, Type> lookUp)
+        private static void AssignTypeValue(XmlAttribute paramValueAttribute, IModuleParameter selectedParam)
         {
             string error = null;
             var temp = ArbitraryParameterParser.ArbitraryParameterParse(selectedParam.Type, paramValueAttribute.InnerText, ref error);
@@ -750,7 +742,7 @@ namespace XTMF
             }
         }
 
-        private static IModelSystemStructure GenerateChildren(IModelSystemStructure element, Type type, object[] attributes, IConfiguration config)
+        private static IModelSystemStructure GenerateChildren(Type type, object[] attributes, IConfiguration config)
         {
             Type iModel = typeof(IModule);
             if (type.IsArray)
@@ -786,7 +778,7 @@ namespace XTMF
             if (type.IsGenericType)
             {
                 var arguements = type.GetGenericArguments();
-                if (arguements != null && arguements.Length == 1)
+                if (arguements.Length == 1)
                 {
                     // if the type of this generic is assignable to IModel..
                     if (iModel.IsAssignableFrom(arguements[0]))
@@ -852,7 +844,7 @@ namespace XTMF
         /// This is done to somewhat prevent broken project / model system loading of the underlying DLL definition changes.
         /// </summary>
         /// <param name="parent">The parent ModelSystemStructure element to this passed node.</param>
-        /// <param name="currentNode">The node being investigated for its "code" type.</param>
+        /// <param name="fieldName">The field to identify.</param>
         /// <returns>Returns the Type of the passed node, null if no type could be matched.</returns>
         private static Type DiscernType(IModelSystemStructure parent, string fieldName)
         {
@@ -863,18 +855,18 @@ namespace XTMF
                 return null;
             }
 
-                System.Reflection.FieldInfo[] fieldsInfo = type.GetFields();
-                foreach (var field in fieldsInfo)
+            System.Reflection.FieldInfo[] fieldsInfo = type.GetFields();
+            foreach (var field in fieldsInfo)
+            {
+
+                if (field.Name == fieldName)
                 {
 
-                    if (field.Name == fieldName)
-                    {
-               
-                        return field.FieldType;
-                    }
+                    return field.FieldType;
                 }
-            
-      
+            }
+
+
 
             return null;
         }
@@ -916,7 +908,7 @@ namespace XTMF
             // Find the type
             if (tIndexAttribute != null)
             {
-                int index = -1;
+                int index;
                 if (!int.TryParse(tIndexAttribute.InnerText, out index))
                 {
                     index = -1;
@@ -958,7 +950,7 @@ namespace XTMF
             }
             if (parentTIndexAttribute != null)
             {
-                int index = -1;
+                int index;
                 if (!int.TryParse(parentTIndexAttribute.InnerText, out index))
                 {
                     index = -1;
@@ -1061,7 +1053,7 @@ namespace XTMF
                 bool anyChanges = false;
                 for (int j = 0; j < list.Count - 1 - i; j++)
                 {
-                    if (list[j].Name.CompareTo(list[j + 1].Name) > 0)
+                    if (String.Compare(list[j].Name, list[j + 1].Name, StringComparison.InvariantCulture) > 0)
                     {
                         var temp = list[j];
                         list[j] = list[j + 1];
@@ -1084,14 +1076,14 @@ namespace XTMF
         private static void LoadChildNode(IModelSystemStructure modelSystemStructure, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
             /* Check the parent class type */
-            
+
             Type type = null;
-            if (child.Attributes["Name"] != null)
+            if (child.Attributes?["Name"] != null)
             {
-                 type = DiscernType(modelSystemStructure, child.Attributes["Name"].Value);
+                type = DiscernType(modelSystemStructure, child.Attributes["Name"].Value);
             }
-        
-            if(type != null)
+
+            if (type != null)
             {
                 if (typeof(IModule).IsAssignableFrom(type))
                 {
@@ -1107,7 +1099,7 @@ namespace XTMF
             else
             {
 
-        
+
                 switch (child.Name)
                 {
                     case "Module":
@@ -1124,7 +1116,7 @@ namespace XTMF
 
                     case "Parameters":
                         {
-                            LoadParameters(modelSystemStructure, child, lookUp);
+                            LoadParameters(modelSystemStructure, child);
                         }
                         break;
                 }
@@ -1134,7 +1126,7 @@ namespace XTMF
         private static void LoadCollection(IModelSystemStructure parent, XmlNode child, IConfiguration config, Dictionary<int, Type> lookUp)
         {
             IModelSystemStructure us = null;
-            
+
             var attributes = child.Attributes;
             if (attributes == null)
             {
@@ -1182,7 +1174,7 @@ namespace XTMF
                     {
                         foreach (XmlNode element in child.ChildNodes)
                         {
-                            XTMF.ModelSystemStructure ps = new ModelSystemStructure(config);
+                            ModelSystemStructure ps = new ModelSystemStructure(config);
                             Load(ps, us, element, config, lookUp);
                             if (ps.ParentFieldType == null || ps.ParentFieldName == null)
                             {
@@ -1207,15 +1199,17 @@ namespace XTMF
                     {
                         try
                         {
-                            //writer.WriteElementString( "Name", typesUsed[i].AssemblyQualifiedName );
-                            var type = Type.GetType(child.Attributes["Name"].InnerText);
-                            int index = -1;
-                            //writer.WriteElementString( "TIndex", i.ToString() );
-                            if (!int.TryParse(child.Attributes["TIndex"].InnerText, out index))
+                            var typeName = child.Attributes?["Name"]?.InnerText;
+                            if (typeName != null)
                             {
-                                continue;
+                                int index;
+                                var type = Type.GetType(typeName);
+                                if (!int.TryParse(child.Attributes["TIndex"].InnerText, out index))
+                                {
+                                    continue;
+                                }
+                                lookUp[index] = type;
                             }
-                            lookUp[index] = type;
                         }
                         catch (TypeLoadException)
                         {
@@ -1231,7 +1225,7 @@ namespace XTMF
             {
                 if (modelSystemStructure.Children != null)
                 {
-                    var parentFieldNameAttribute = child.Attributes["ParentFieldName"];
+                    var parentFieldNameAttribute = child.Attributes?["ParentFieldName"];
                     if (parentFieldNameAttribute != null)
                     {
                         for (int i = 0; i < modelSystemStructure.Children.Count; i++)
@@ -1252,7 +1246,7 @@ namespace XTMF
             }
         }
 
-        private static void LoadParameters(IModelSystemStructure modelSystemStructure, XmlNode child, Dictionary<int, Type> lookUp)
+        private static void LoadParameters(IModelSystemStructure modelSystemStructure, XmlNode child)
         {
             if (child.HasChildNodes)
             {
@@ -1260,16 +1254,15 @@ namespace XTMF
                 {
                     if (paramChild.Name == "Param")
                     {
-                        var paramNameAttribute = paramChild.Attributes["Name"];
-                        var paramFriendlyNameAttribute = paramChild.Attributes["FriendlyName"];
-                        var paramTIndexAttribute = paramChild.Attributes["TIndex"];
-                        var paramTypeAttribute = paramChild.Attributes["Type"];
-                        var paramValueAttribute = paramChild.Attributes["Value"];
-                        var paramQuickParameterAttribute = paramChild.Attributes["QuickParameter"];
-                        var paramHiddenAttribute = paramChild.Attributes["Hidden"];
+                        var paramNameAttribute = paramChild.Attributes?["Name"];
+                        var paramFriendlyNameAttribute = paramChild.Attributes?["FriendlyName"];
+                        var paramTypeAttribute = paramChild.Attributes?["Type"];
+                        var paramValueAttribute = paramChild.Attributes?["Value"];
+                        var paramQuickParameterAttribute = paramChild.Attributes?["QuickParameter"];
+                        var paramHiddenAttribute = paramChild.Attributes?["Hidden"];
                         if (paramNameAttribute != null || paramTypeAttribute != null || paramValueAttribute != null)
                         {
-                            string nameOnModule = paramNameAttribute.InnerText;
+                            string nameOnModule = paramNameAttribute?.InnerText;
                             if (modelSystemStructure.Parameters != null)
                             {
                                 ModuleParameter selectedParam = null;
@@ -1286,7 +1279,7 @@ namespace XTMF
                                 // we will just ignore parameters that no longer exist
                                 if (selectedParam != null)
                                 {
-                                    if(paramHiddenAttribute != null)
+                                    if (paramHiddenAttribute != null)
                                     {
                                         selectedParam.IsHidden = true;
                                     }
@@ -1307,7 +1300,7 @@ namespace XTMF
                                     {
                                         selectedParam.QuickParameter = false;
                                     }
-                                    AssignTypeValue(paramTIndexAttribute, paramTypeAttribute, paramValueAttribute, selectedParam, lookUp);
+                                    AssignTypeValue(paramValueAttribute, selectedParam);
                                 }
                             }
                         }
@@ -1353,7 +1346,7 @@ namespace XTMF
             for (int i = 0; i < typesUsed.Count; i++)
             {
                 writer.WriteStartElement("Type");
-                writer.WriteAttributeString("Name", typesUsed[i].AssemblyQualifiedName);
+                writer.WriteAttributeString("Name", typesUsed[i]?.AssemblyQualifiedName ?? String.Empty);
                 writer.WriteAttributeString("TIndex", i.ToString());
                 writer.WriteEndElement();
             }
@@ -1394,45 +1387,43 @@ namespace XTMF
                 }
             }
             var originalParentTypes = parent.GetGenericArguments();
-            if (originalParentTypes != null)
-            {
-                //check to make sure the highest order match
-                var highestInterfaceTypes = highestInterface.GetGenericArguments();
-                for (int i = 0; i < highestInterfaceTypes.Length; i++)
-                {
-                    if ((!originalParentTypes[i].IsGenericParameter)
-                        && (!highestInterfaceTypes[i].IsGenericParameter)
-                        && originalParentTypes[i] != highestInterfaceTypes[i])
-                    {
-                        return false;
-                    }
-                }
-                var map = new Type[tArguments.Length];
-                // fill in the generic types with their starting generic values
-                for (int i = 0; i < tArguments.Length; i++)
-                {
-                    map[i] = tArguments[i];
-                }
 
-                for (int i = 0; i < highestInterfaceTypes.Length; i++)
+            //check to make sure the highest order match
+            var highestInterfaceTypes = highestInterface.GetGenericArguments();
+            for (int i = 0; i < highestInterfaceTypes.Length; i++)
+            {
+                if ((!originalParentTypes[i].IsGenericParameter)
+                    && (!highestInterfaceTypes[i].IsGenericParameter)
+                    && originalParentTypes[i] != highestInterfaceTypes[i])
                 {
-                    // if the parent's parameter has been set
-                    if (originalParentTypes[i] != highestInterfaceTypes[i])
+                    return false;
+                }
+            }
+            var map = new Type[tArguments.Length];
+            // fill in the generic types with their starting generic values
+            for (int i = 0; i < tArguments.Length; i++)
+            {
+                map[i] = tArguments[i];
+            }
+
+            for (int i = 0; i < highestInterfaceTypes.Length; i++)
+            {
+                // if the parent's parameter has been set
+                if (originalParentTypes[i] != highestInterfaceTypes[i])
+                {
+                    // go through and find the right type to replace
+                    for (int j = 0; j < tArguments.Length; j++)
                     {
-                        // go through and find the right type to replace
-                        for (int j = 0; j < tArguments.Length; j++)
+                        // and map it
+                        if (tArguments[j] == highestInterfaceTypes[i])
                         {
-                            // and map it
-                            if (tArguments[j] == highestInterfaceTypes[i])
-                            {
-                                map[j] = originalParentTypes[i];
-                                break;
-                            }
+                            map[j] = originalParentTypes[i];
+                            break;
                         }
                     }
                 }
-                mappedType = t.MakeGenericType(map);
             }
+            mappedType = t.MakeGenericType(map);
             return true;
         }
 
@@ -1445,8 +1436,6 @@ namespace XTMF
         {
             var modules = Configuration.ModelRepository.Modules;
             if (ParentFieldType == null) return;
-            Type generalParentForm = ParentFieldType.IsConstructedGenericType ? ParentFieldType.GetGenericTypeDefinition() : null;
-            Type[] parentGenericTypes = ParentFieldType.IsConstructedGenericType ? ParentFieldType.GetGenericArguments() : null;
             Parallel.For(0, modules.Count, delegate (int i)
             {
                 Type t = modules[i];
@@ -1473,8 +1462,6 @@ namespace XTMF
         private void GetPossibleModulesCollection(ConcurrentBag<Type> possibleTypes, Type parent, IModelSystemStructure topModule)
         {
             if (ParentFieldType == null) return;
-
-            int count = ParentFieldType.GetGenericArguments().Count();
             var innerCollectionType = ParentFieldType.IsArray ? ParentFieldType.GetElementType() : ParentFieldType.GetGenericArguments()[0];
             var modules = Configuration.ModelRepository.Modules;
             Parallel.For(0, modules.Count, delegate (int i)
@@ -1501,7 +1488,7 @@ namespace XTMF
         {
             if (s.IsCollection)
             {
-                SaveCollection(writer, s, parent, lookup);
+                SaveCollection(writer, s, lookup);
             }
             else
             {
@@ -1509,7 +1496,7 @@ namespace XTMF
             }
         }
 
-        private void SaveCollection(XmlWriter writer, IModelSystemStructure s, IModelSystemStructure parent, Dictionary<Type, int> lookup)
+        private void SaveCollection(XmlWriter writer, IModelSystemStructure s, Dictionary<Type, int> lookup)
         {
             var mod = s as ModelSystemStructure;
             writer.WriteStartElement("Collection");
@@ -1600,7 +1587,7 @@ namespace XTMF
                     {
                         writer.WriteAttributeString("QuickParameter", "true");
                     }
-                    if(p.IsHidden)
+                    if (p.IsHidden)
                     {
                         writer.WriteAttributeString("Hidden", "true");
                     }
