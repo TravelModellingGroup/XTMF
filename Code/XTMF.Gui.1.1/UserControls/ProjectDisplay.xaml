@@ -189,31 +189,50 @@
                         <Label Content="Previous Runs" Width="Auto"  Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
                     </DockPanel>
                     <my:FilterBox Grid.Row="0" x:Name="FilterPastRunsBox" />
-                    <ListBox Grid.Row="2" x:Name="PastRunDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
+                    <ListView Grid.Row="2" x:Name="PastRunDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
                                  
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
 
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListBoxItem}">
+                        <!--
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}">
                                 <EventSetter Event="MouseDoubleClick" Handler="PastRuns_MouseButton" />
                                
                             </Style>
-                        </ListBox.ItemContainerStyle>
+                        </ListView.ItemContainerStyle> -->
                         <ListBox.ItemsPanel>
                             
                             <ItemsPanelTemplate>
+                                <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
                                 
-                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                
+                                <!--<WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                            ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"  />
+                                -->
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
+
+                                <xtmf:ListViewControl TitleText="{Binding Name}" SubText="{Binding TimeStamp}" MouseDoubleClick="PastRuns_MouseButton">
+                                    <xtmf:ListViewControl.IconPath>
+
+
+
+                                        <Path Data="{DynamicResource PreviousRunIconPath}">
+
+                                        </Path>
+                                    </xtmf:ListViewControl.IconPath>
+                                </xtmf:ListViewControl >
+                                
+                                <!--
                                 <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" Header="{Binding Name}"
                                                          Text="{Binding TimeStamp}" Width="300" Margin="5"/>
+                                
+                                -->
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-                    </ListBox>
+                    </ListView>
                 </Grid>
 
             </Grid>
