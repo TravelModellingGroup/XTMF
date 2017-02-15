@@ -132,7 +132,7 @@
 
                     <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="true" Focusable="false">
                         <Track.Thumb>
-                            <Thumb  BorderThickness="0" x:Name="Thumb" Background="#FFFFFF" Style="{DynamicResource FlatScrollThumbs}" />
+                            <Thumb  BorderThickness="0" x:Name="Thumb" Background="#FF686868" Style="{DynamicResource FlatScrollThumbs}" />
                         </Track.Thumb>
                         <Track.IncreaseRepeatButton>
                             <RepeatButton x:Name="PageUp" Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="false" />
