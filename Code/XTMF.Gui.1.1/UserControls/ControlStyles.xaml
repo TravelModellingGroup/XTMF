@@ -292,6 +292,7 @@
 
                         <Trigger Property="IsSelected" Value="False">
                             <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlColourUnselectedBrush}"></Setter>
+                            <Setter Property="Opacity" Value="0.7"></Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

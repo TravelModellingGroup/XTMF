@@ -47,9 +47,9 @@
                                     <ColumnDefinition Width="AUTO"/>
                                     <ColumnDefinition Width="AUTO"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
+                                <CheckBox Grid.Column="0" Width="16" Margin="4,4,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
-                                <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource ThemeTextColorBrush}" TextTrimming="CharacterEllipsis" Cursor="Hand" />
+                                <TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource ThemeTextColorBrush}" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                 <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
                                                ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}" />
                                 <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
@@ -260,22 +260,22 @@
             </TreeView>
         </Grid>
         <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-        <TabControl Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush1}"  SelectionChanged="TabControl_SelectionChanged">
+        <TabControl BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush1}"  SelectionChanged="TabControl_SelectionChanged">
             <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters (Ctrl+P)" x:Name="ModuleParameterTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
-                <Grid HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
+                <Grid  HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                    <Border  Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" />
-                            <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" />
+                            <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
+                            <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
                         </Grid>
                     </Border>
                     <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
@@ -286,11 +286,12 @@
                             <Style TargetType="ListViewItem">
                                 <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
                                 <Setter Property="BorderThickness" Value="0" />
-                                <Setter Property="Margin" Value="0,5,0,5"></Setter>
+                                <Setter Property="Margin" Value="0,0,0,0"></Setter>
+                                <Setter Property="Padding" Value="5,5,5,5"></Setter>
                                 <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}"></Setter>
                                 <Style.Resources>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
-                                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Black"/>
                                 </Style.Resources>
                                 <Style.Triggers>
                                     <Trigger Property="IsKeyboardFocusWithin" Value="true">
@@ -299,7 +300,7 @@
                                     </Trigger>
 
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource ControlMediumColor}"></Setter>
+                                        <Setter Property="Background" Value="{DynamicResource ControlDarkColor}"></Setter>
                                     </Trigger>
                                 </Style.Triggers>
 
@@ -400,24 +401,24 @@
                 </Grid>
             </TabItem>
             <TabItem Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters (Ctrl+Q)" x:Name="QuickParameterTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
-                <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}">
+                <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                    <Border Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Foreground="White" FontSize="16" />
+                            <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
                         </Grid>
                     </Border>
                     <my:FilterBox Grid.Row="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView Grid.Row="2" x:Name="QuickParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      Margin="0" Background="{DynamicResource WindowBackgroundBrush1}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
+                      Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
