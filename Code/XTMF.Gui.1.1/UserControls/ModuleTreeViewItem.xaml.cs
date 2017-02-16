@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace XTMF.Gui.UserControls
@@ -53,6 +55,11 @@ namespace XTMF.Gui.UserControls
         public ModuleTreeViewItem()
         {
             InitializeComponent();
+
+            Path path = new Path();
+            path.Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"];
+            path.Fill = Brushes.Black;
+            this.IconPath = path;
         }
 
 

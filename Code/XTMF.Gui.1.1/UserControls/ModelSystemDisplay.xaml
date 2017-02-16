@@ -113,20 +113,26 @@
     </UserControl.Resources>
     <Grid Background="{DynamicResource WindowBackgroundBrush1}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="200px" Width="*"/>
+            <ColumnDefinition MinWidth="100px" Width="*"/>
             <ColumnDefinition Width="AUTO"/>
-            <ColumnDefinition MinWidth="200px" Width="*"/>
+            <ColumnDefinition MinWidth="330px" Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush2}">
+        <Grid Grid.Column="0" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="{DynamicResource WindowBackgroundBrush2}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
             <TreeView Grid.Row="1" Background="#FF252526"  BorderThickness="0"
-                  x:Name="ModuleDisplay"  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  x:Name="ModuleDisplay"  
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
+                
+                <TreeView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </TreeView.ItemsPanel>
                 <TreeView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
@@ -259,8 +265,8 @@
                 </TreeView.ItemContainerStyle> -->
             </TreeView>
         </Grid>
-        <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-        <TabControl BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush1}"  SelectionChanged="TabControl_SelectionChanged">
+        <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
+        <TabControl BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged">
             <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters (Ctrl+P)" x:Name="ModuleParameterTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
                 <Grid VerticalAlignment="Stretch"  HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
                     <Grid.RowDefinitions>
