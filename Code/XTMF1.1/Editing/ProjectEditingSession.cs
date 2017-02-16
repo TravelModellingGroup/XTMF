@@ -226,10 +226,29 @@ namespace XTMF
         public bool ImportModelSystemFromString(string modelSystemAsText, string name, ref string error)
         {
             ModelSystem modelSystem;
-            if (!Runtime.ModelSystemController.LoadDetachedModelSystem(modelSystemAsText, out modelSystem, ref error))
+            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromString(modelSystemAsText, out modelSystem, ref error))
             {
                 return false;
             }
+            modelSystem.Name = name;
+            return AddModelSystem(modelSystem, ref error);
+        }
+
+        /// <summary>
+        /// Import a model system into the project from file.
+        /// </summary>
+        /// <param name="fileName">The path of the file to load.</param>
+        /// <param name="modelSystemName">The name to assign to this new model system.</param>
+        /// <param name="error">A description of the error if one occurs</param>
+        /// <returns>True if the model system was imported, false with a description otherwise.</returns>
+        public bool ImportModelSystemFromFile(string fileName, string modelSystemName, ref string error)
+        {
+            ModelSystem modelSystem;
+            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromFile(fileName, out modelSystem, ref error))
+            {
+                return false;
+            }
+            modelSystem.Name = modelSystemName;
             return AddModelSystem(modelSystem, ref error);
         }
 
