@@ -257,49 +257,48 @@
         </Setter>
     </Style>
 
-    <Style x:Key="XTMFTabItem" TargetType="{x:Type TabItem}">
-        <Setter Property="Template">
+    <Style x:Key="XtmfTabItem" TargetType="{x:Type TabItem}">
+        
+      
+        <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
+
+
+        <Setter Property="HeaderTemplate">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type TabItem}">
-                    <Grid>
-                        <Border
-            Name="Border"
-            Margin="0,0,2,0"
-            BorderBrush="White"
-            BorderThickness="1,1,1,1"
-            CornerRadius="0,0,0,0">
-                            <Border.Background>
-                                <SolidColorBrush x:Name="BackgroundBrush" Color="{DynamicResource ResourceKey=ControlBackgroundColour}" />
-                            </Border.Background>
-                            <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                ContentSource="Header" Margin="12,2,12,2" RecognizesAccessKey="True" />
-                        </Border>
-                    </Grid>
+                <DataTemplate>
+                    <ContentPresenter Content="{TemplateBinding Content}">
+                        <ContentPresenter.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </ContentPresenter.LayoutTransform>
+                    </ContentPresenter>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+
+            <Setter.Value>
+            <ControlTemplate TargetType="TabItem">
+                    <Border Name="Border" BorderThickness="0,0,0,0" BorderBrush="Gainsboro" CornerRadius="0,0,0,0" Margin="0,0">
+                        <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="5,10"/>
+                    </Border>
                     <ControlTemplate.Triggers>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True" />
-                                <Condition Property="IsSelected" Value="False" />
-                            </MultiTrigger.Conditions>
-                            
-                            <MultiTrigger.Setters>
-                                <Setter Property="Background" Value="{DynamicResource ResourceKey=SelectionBlue}"></Setter>
-                            </MultiTrigger.Setters>
-                           
-                        </MultiTrigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource ResourceKey=FocusColour}"></Setter>
-                            
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
                         </Trigger>
 
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Border" Property="BorderBrush" Value="Gray" />
-                            <Setter TargetName="Border" Property="Label.Foreground" Value="Gray" />
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlColourUnselectedBrush}"></Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
+
             </Setter.Value>
         </Setter>
+    
     </Style>
 
     <!-- Expander -->
@@ -425,13 +424,14 @@
                 </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <Grid>
-                <TextBlock x:Name="CollapsedArrow" Foreground="White" FontStyle="Italic" Text="(Show More)" Cursor="Hand" FontSize="12" VerticalAlignment="Center" />
-                <TextBlock x:Name="ExpandededArrow" Foreground="White" FontStyle="Italic" Text="(Show Less)" Visibility="Hidden" FontSize="12" VerticalAlignment="Center" />
+                <TextBlock x:Name="CollapsedArrow" Foreground="{DynamicResource ThemeTextColorBrush}" FontStyle="Italic" Text="(Show More)" Cursor="Hand" FontSize="12" VerticalAlignment="Center" />
+                <TextBlock x:Name="ExpandededArrow" Foreground="{DynamicResource ThemeTextColorBrush}" FontStyle="Italic" Text="(Show Less)" Visibility="Hidden" FontSize="12" VerticalAlignment="Center" />
             </Grid>
         </Border>
     </ControlTemplate>
 
     <Style x:Key="ParameterNameStyle" TargetType="{x:Type Expander}">
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate x:Name="ParameterNameStyleTemplate" TargetType="{x:Type Expander}">
@@ -477,7 +477,7 @@
                                     </ToggleButton.Background>
                                 </ToggleButton>
                                 <ContentPresenter Grid.Column="0"
-                                Margin="4"
+                                Margin="0"
                                 ContentSource="Header"
                                 RecognizesAccessKey="True" />
                             </Grid>
@@ -485,7 +485,7 @@
                         <Border x:Name="Content"
                   Grid.Row="1"
                   Focusable="False"
-                  BorderThickness="2,0,0,0"
+                  BorderThickness="0,0,0,0"
                   CornerRadius="20,20,20,20">
                             <Border.RenderTransform>
                                 <TransformGroup>
@@ -538,21 +538,7 @@
 
                     <Setter Property="Foreground" Value="{DynamicResource FocusBrushHover}"></Setter>
                
-                <!--
-                <Trigger.EnterActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{DynamicResource FocusColour}" Duration="0:0:0.1" />
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.ExitActions> -->
+              
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -880,7 +866,7 @@
                 Margin="1,1,1,1"
                 Data="M 4 0 L 8 4 L 4 8 Z">
                             <Path.Fill>
-                                <SolidColorBrush Color="{DynamicResource ControlLightColor}" />
+                                <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
                             </Path.Fill>
                         </Path>
                         <Path x:Name="Expanded"
@@ -890,7 +876,7 @@
                 Data="M 0 4 L 8 4 L 4 8 Z"
                 Visibility="Hidden">
                             <Path.Fill>
-                                <SolidColorBrush Color="{DynamicResource ControlLightColor}" />
+                                <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
                             </Path.Fill>
                         </Path>
                     </Grid>
@@ -1041,7 +1027,7 @@
         </Setter>
 
         <Style.Resources>
-            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource SelectionBlue}"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource ControlMediumColor}"/>
             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource SelectionBlue}"/>
         </Style.Resources>
     </Style>

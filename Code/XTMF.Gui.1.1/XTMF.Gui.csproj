@@ -168,6 +168,9 @@
     <Compile Include="Models\ModelSystemEditingSessionDisplayModel.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
+    <Compile Include="UserControls\ModuleTreeViewItem.xaml.cs">
+      <DependentUpon>ModuleTreeViewItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="UserControls\AboutXTMF.xaml.cs">
       <DependentUpon>AboutXTMF.xaml</DependentUpon>
@@ -225,6 +228,9 @@
     <Compile Include="UserControls\OperationProgressing.xaml.cs">
       <DependentUpon>OperationProgressing.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\PathIcon.xaml.cs">
+      <DependentUpon>PathIcon.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ProjectDisplay.xaml.cs">
       <DependentUpon>ProjectDisplay.xaml</DependentUpon>
     </Compile>
@@ -272,6 +278,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\ModuleTreeViewItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\LightTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -357,6 +367,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\OperationProgressing.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\PathIcon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
