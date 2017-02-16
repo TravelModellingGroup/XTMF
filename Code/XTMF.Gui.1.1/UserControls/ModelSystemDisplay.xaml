@@ -24,7 +24,7 @@
              xmlns:xtmf="clr-namespace:XTMF;assembly=XTMF"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:models="clr-namespace:XTMF.Gui.Models"
-             xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:my="clr-namespace:XTMF.Gui" Margin="0"
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
@@ -206,7 +206,7 @@
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
 
-                        <this:ListViewControl BorderThickness="1" BorderBrush="AntiqueWhite" TitleText="{Binding Name, Mode=OneWay}"
+                        <this:ModuleTreeViewItem BorderThickness="1" BorderBrush="AntiqueWhite" TitleText="{Binding Name, Mode=OneWay}"
                                               SubText="{Binding Description, Mode=OneWay}"
                                               
                                               
@@ -214,7 +214,7 @@
                                                     AncestorType=TreeView}, Path=ContextMenu}" 
                                               >
                             
-                        </this:ListViewControl>
+                        </this:ModuleTreeViewItem>
                         
                         <!--
                         <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
@@ -266,7 +266,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="AUTO" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="212" />
                     </Grid.RowDefinitions>
                     <Border  Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                         <Grid>
