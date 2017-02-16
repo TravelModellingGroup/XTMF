@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
@@ -16,6 +17,11 @@ namespace XTMF.Gui.UserControls
   DependencyProperty.Register("ModuleType",
       typeof(ModuleType), typeof(ModuleTreeViewItem),
           new PropertyMetadata(null));
+
+        public static readonly DependencyProperty BackingModelDependencyProperty =
+DependencyProperty.Register("BackingModel",
+   typeof(ModelSystemStructureDisplayModel), typeof(ModuleTreeViewItem),
+       new PropertyMetadata(null));
 
 
         public static readonly DependencyProperty IsSelectedDependencyProperty =
@@ -56,12 +62,31 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
 
-            Path path = new Path();
-            path.Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"];
-            path.Fill = Brushes.Black;
-            this.IconPath = path;
+          
+
+
+            this.Loaded += ModuleTreeViewItem_Loaded;
         }
 
+        private void ModuleTreeViewItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (BackingModel.BaseModel.IsMetaModule)
+            {
+                Path path = new Path();
+
+                path.Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"];
+                path.Fill = Brushes.DarkSlateGray;
+                this.IconPath = path;
+            }
+            else if (!BackingModel.BaseModel.IsMetaModule)
+            {
+                Path path = new Path();
+
+                path.Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"];
+                path.Fill = Brushes.DarkSlateGray;
+                this.IconPath = path;
+            }
+        }
 
         public ModuleType ModuleType
         {
@@ -87,7 +112,7 @@ namespace XTMF.Gui.UserControls
             set { this.SetValue(IconPathDependencyProperty, value); }
         }
 
-        public bool IsBitmapIcon
+        public bool IsBitmapIcon 
         {
             get { return (bool)this.GetValue(BitmapIconDependencyProperty); }
             set
@@ -97,9 +122,17 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-    
 
 
+        public ModelSystemStructureDisplayModel BackingModel
+        {
+            get { return (ModelSystemStructureDisplayModel) GetValue(BackingModelDependencyProperty); }
+
+            set
+            {
+                SetValue(BackingModelDependencyProperty,value);
+            }
+        }
 
         public bool IsPathIcon
         {

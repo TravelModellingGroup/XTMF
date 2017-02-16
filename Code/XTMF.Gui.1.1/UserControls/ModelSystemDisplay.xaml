@@ -214,6 +214,7 @@
 
                         <this:ModuleTreeViewItem BorderThickness="1" BorderBrush="AntiqueWhite" TitleText="{Binding Name, Mode=OneWay}"
                                               SubText="{Binding Description, Mode=OneWay}"
+                                                 BackingModel="{Binding BackingDisplayModel}"
                                               
                                               
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,

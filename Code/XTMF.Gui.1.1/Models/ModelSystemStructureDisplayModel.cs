@@ -26,20 +26,29 @@ using System.Windows.Media;
 using System.Collections.Specialized;
 using System.Windows.Forms;
 using System.Windows;
+using XTMF.Gui.UserControls;
 
 namespace XTMF.Gui.Models
 {
-    internal sealed class ModelSystemStructureDisplayModel : INotifyPropertyChanged
+    public  class ModelSystemStructureDisplayModel : INotifyPropertyChanged
     {
         internal ModelSystemStructureModel BaseModel;
         private ObservableCollection<ModelSystemStructureModel> BaseChildren;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private ModelSystemStructureDisplayModel _modelSystemStructureDisplayModel;
+
         private static Color AddingYellow;
         private static Color OptionalGreen;
         private static Color WarningRed;
         private static Color MetaModule;
+
+
+        public ModelSystemStructureDisplayModel BackingDisplayModel
+        {
+            get { return this; }
+        }
 
         static ModelSystemStructureDisplayModel()
         {
@@ -60,6 +69,8 @@ namespace XTMF.Gui.Models
                 BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
             }
         }
+
+   
 
         private void UpdateChildren(ModelSystemStructureModel baseModel)
         {
