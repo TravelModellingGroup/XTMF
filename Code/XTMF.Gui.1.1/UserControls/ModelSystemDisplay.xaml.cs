@@ -565,9 +565,19 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.D:
-                            SelectDirectoryForCurrentParameter();
+                            if (ModuleParameterTab.IsKeyboardFocusWithin)
+                            {
+                                SelectDirectoryForCurrentParameter();
+                         
+                            }
+                            if (ModuleDisplay.IsKeyboardFocusWithin)
+                            {
+
+                                ToggleDisableModule();
+                            }
                             e.Handled = true;
                             break;
+
                         case Key.Z:
                             Undo();
                             e.Handled = true;
@@ -592,6 +602,7 @@ namespace XTMF.Gui.UserControls
                             ShowQuickParameters();
                             e.Handled = true;
                             break;
+
                     }
                 }
                 else
@@ -607,13 +618,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
 
-                        case Key.D:
-                            if (EditorController.IsShiftDown())
-                            {
-                                ToggleDisableModule();
-                            }
-                            e.Handled = true;
-                            break;
+                       
                         case Key.F2:
                             if (EditorController.IsShiftDown())
                             {
@@ -1233,22 +1238,12 @@ namespace XTMF.Gui.UserControls
             if (selectedModuleControl != null)
             {
 
-
                 string error = null;
-                bool success = false;
-                if (!selected.IsDisabled)
+                if (!selected.SetDisabled(!selected.IsDisabled, ref error))
                 {
-                     success = selected.SetDisabled(true, ref error);
+                    MessageBox.Show(MainWindow.Us, error, "Error", MessageBoxButton.OK);
                 }
-                else
-                {
-                     success = selected.SetDisabled(false, ref error);
-                }
-                if (!success)
-                {
-                    throw new Exception(error);
-                }
-
+          
    
 
                
