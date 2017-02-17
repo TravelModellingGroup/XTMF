@@ -395,7 +395,7 @@ namespace Datastructure
             }
             if (!LoadedFromStream)
             {
-                Reader.Close();
+                Reader?.Close();
             }
         }
 
