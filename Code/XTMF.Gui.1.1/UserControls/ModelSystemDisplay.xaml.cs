@@ -33,12 +33,22 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
+using Clipboard = System.Windows.Clipboard;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using ListView = System.Windows.Controls.ListView;
+using MenuItem = System.Windows.Controls.MenuItem;
+using MessageBox = System.Windows.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using TextBox = System.Windows.Controls.TextBox;
+using TreeView = System.Windows.Controls.TreeView;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui.UserControls
 {
@@ -1234,10 +1244,10 @@ namespace XTMF.Gui.UserControls
         {
             var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel)?.BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
-            if (selectedModuleControl != null)
+            if (selectedModuleControl != null && selected != null)
             {
                 string error = null;
-                Session.ExecuteCombinedCommands("Disable Module", () =>
+                Session.ExecuteCombinedCommands(selected.IsDisabled ? "Enable Module" : "Disable Module", () =>
                 {
                     foreach (var sel in CurrentlySelected)
                     {
@@ -1249,7 +1259,7 @@ namespace XTMF.Gui.UserControls
                 });
                 if (error != null)
                 {
-                    MessageBox.Show(MainWindow.Us, error, "Error", MessageBoxButton.OK);
+                    MessageBox.Show(MainWindow.Us, error, selected.IsDisabled ? "Unable to Enable" : "Unable to Disable", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
