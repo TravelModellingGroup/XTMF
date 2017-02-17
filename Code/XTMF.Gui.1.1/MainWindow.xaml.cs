@@ -99,6 +99,9 @@ namespace XTMF.Gui
 
         private ConcurrentDictionary<LayoutDocument, ActiveEditingSessionDisplayModel> DisplaysForLayout = new ConcurrentDictionary<LayoutDocument, ActiveEditingSessionDisplayModel>();
         private ActiveEditingSessionDisplayModel NullEditingDisplayModel;
+
+
+        
         public MainWindow()
         {
             // start it with a blank editing display model
@@ -115,16 +118,58 @@ namespace XTMF.Gui
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 9;
             MaxWidth = SystemParameters.MaximizedPrimaryScreenWidth - 4;
 
-
             _themeController = new ThemeController(_configurationFilePath == null
-                ? System.IO.Path.GetDirectoryName(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "XTMF", "Configuration.xml"))
-                : System.IO.Path.GetDirectoryName(_configurationFilePath));
+              ? System.IO.Path.GetDirectoryName(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                  "XTMF", "Configuration.xml"))
+              : System.IO.Path.GetDirectoryName(_configurationFilePath));
+
+            EditorController.Register(this, () =>
+            {
+
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    if (EditorController.Runtime.Configuration.Theme == null)
+                    {
+                        _themeController.SetThemeActive(_themeController.GetDefaultTheme());
+                    }
+                    else
+                    {
+                        ThemeController.Theme theme =
+                            _themeController.FindThemeByName(EditorController.Runtime.Configuration.Theme);
+
+                        if (theme == null)
+                        {
+                            _themeController.SetThemeActive(_themeController.GetDefaultTheme());
+                        }
+                        else
+                        {
+                            _themeController.SetThemeActive(theme);
+                        }
+                    }
+                    IsEnabled = true;
+                    StatusDisplay.Text = "Ready";
 
 
 
-            Visibility = Visibility.Collapsed;
-            _themeController.SetThemeActive(_themeController.GetDefaultTheme());
+                    UpdateRecentProjectsMenu();
+
+                    //  System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(Show));
+
+                    //Show();
+                    // Show();
+                    // Visibility = Visibility.Visible;
+
+                }));
+            });
+
+
+          
+
+
+
+            //Hide();
+            //Visibility = Visibility.Collapsed;
+           // _themeController.SetThemeActive(_themeController.GetDefaultTheme());
             InitializeComponent();
 
             Loaded += FrameworkElement_Loaded;
@@ -403,39 +448,7 @@ namespace XTMF.Gui
         {
             IsEnabled = false;
             StatusDisplay.Text = "Loading XTMF";
-            EditorController.Register(this, () =>
-            {
-
-                Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        if (EditorController.Runtime.Configuration.Theme == null)
-                        {
-                            _themeController.SetThemeActive(_themeController.GetDefaultTheme());
-                        }
-                        else
-                        {
-                            ThemeController.Theme theme =
-                                _themeController.FindThemeByName(EditorController.Runtime.Configuration.Theme);
-
-                            if (theme == null)
-                            {
-                                _themeController.SetThemeActive(_themeController.GetDefaultTheme());
-                            }
-                            else
-                            {
-                                _themeController.SetThemeActive(theme);
-                            }
-                        }
-                        IsEnabled = true;
-                        StatusDisplay.Text = "Ready";
-
-
-
-                        UpdateRecentProjectsMenu();
-                        Visibility = Visibility.Visible;
-
-                    }));
-            });
+           
 
 
             ShowStart_Click(this, null);

@@ -49,10 +49,10 @@ namespace XTMF.Gui.Models
 
         static ModelSystemStructureDisplayModel()
         {
-            AddingYellow = (Color)App.Current.FindResource("AddingYellow");
-            WarningRed = (Color)App.Current.FindResource("WarningRed");
-            OptionalGreen = Color.FromRgb(50, 140, 50);
-            MetaModule = Color.FromArgb(255, 60, 20, 90);
+           // AddingYellow = (Color)App.Current.FindResource("AddingYellow");
+           // WarningRed = (Color)App.Current.FindResource("WarningRed");
+           // OptionalGreen = Color.FromRgb(50, 140, 50);
+           // MetaModule = Color.FromArgb(255, 60, 20, 90);
         }
 
         public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel)
