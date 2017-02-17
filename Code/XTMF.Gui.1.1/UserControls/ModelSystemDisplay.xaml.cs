@@ -515,6 +515,7 @@ namespace XTMF.Gui.UserControls
             base.OnKeyDown(e);
             if (e.Handled == false)
             {
+                
                 if (EditorController.IsControlDown())
                 {
                     switch (e.Key)
@@ -603,6 +604,14 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.Delete:
                             RemoveSelectedModules();
+                            e.Handled = true;
+                            break;
+
+                        case Key.D:
+                            if (EditorController.IsShiftDown())
+                            {
+                                ToggleDisableModule();
+                            }
                             e.Handled = true;
                             break;
                         case Key.F2:
@@ -1217,6 +1226,35 @@ namespace XTMF.Gui.UserControls
             RenameDescription();
         }
 
+        private void ToggleDisableModule()
+        {
+            var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel)?.BaseModel;
+            var selectedModuleControl = GetCurrentlySelectedControl();
+            if (selectedModuleControl != null)
+            {
+
+
+                string error = null;
+                bool success = false;
+                if (!selected.IsDisabled)
+                {
+                     success = selected.SetDisabled(true, ref error);
+                }
+                else
+                {
+                     success = selected.SetDisabled(false, ref error);
+                }
+                if (!success)
+                {
+                    throw new Exception(error);
+                }
+
+   
+
+               
+            }
+        }
+
         private void Rename()
         {
             var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
@@ -1279,6 +1317,8 @@ namespace XTMF.Gui.UserControls
                 throw new InvalidAsynchronousStateException("The current module could not be found!");
             }
         }
+
+
 
         private void MoveCurrentModule(int deltaPosition)
         {
@@ -1904,6 +1944,8 @@ namespace XTMF.Gui.UserControls
             };
         }
 
+      
+
         private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
         {
             SetMetaModuleStateForSelected(true);
@@ -1932,6 +1974,51 @@ namespace XTMF.Gui.UserControls
         private void ShowParameter_Click(object sender, RoutedEventArgs e)
         {
             SetCurrentParameterHidden(false);
+        }
+
+        private void DisableModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            
+            ToggleDisableModule();
+        }
+
+        private void ModuleTreeViewItem_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+
+            var treeViewItem = sender as ModuleTreeViewItem;
+            if (treeViewItem != null)
+            {
+                var menu = treeViewItem.ContextMenu;
+
+                foreach (var item in menu.Items)
+                {
+                    var menuItem = 
+                    item as MenuItem;
+
+                    if (menuItem != null)
+                    {
+                        if (menuItem.Name == "DisableModuleMenuItem")
+                        {
+                            if (treeViewItem.BackingModel.BaseModel.CanDisable)
+                            {
+                                if (treeViewItem.BackingModel.BaseModel.IsDisabled)
+                                {
+                                    menuItem.Header = "Enable Module (Shift + D)";
+                                }
+                                else
+                                {
+                                    menuItem.Header = "Disable Module (Shift + D)";
+                                }
+                            }
+                            else
+                            {
+                                menuItem.IsEnabled = false;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -70,6 +71,8 @@ DependencyProperty.Register("BackingModel",
 
         private void ModuleTreeViewItem_Loaded(object sender, RoutedEventArgs e)
         {
+
+            BackingModel.BaseModel.PropertyChanged += BaseModelOnPropertyChanged;
             if (BackingModel.BaseModel.IsMetaModule)
             {
                 Path path = new Path();
@@ -87,6 +90,48 @@ DependencyProperty.Register("BackingModel",
                 this.IconPath = path;
             }
         }
+
+        private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        {
+
+
+            Console.WriteLine(propertyChangedEventArgs.PropertyName);
+
+            if (propertyChangedEventArgs.PropertyName == "IsMetaModule")
+            {
+                if (BackingModel.BaseModel.IsMetaModule)
+                {
+                    Path path = new Path();
+
+                    path.Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"];
+                    path.Fill = Brushes.DarkSlateGray;
+                    this.IconPath = path;
+                }
+                else if (!BackingModel.BaseModel.IsMetaModule)
+                {
+                    Path path = new Path();
+
+                    path.Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"];
+                    path.Fill = Brushes.DarkSlateGray;
+                    this.IconPath = path;
+                }
+            }
+
+            if (propertyChangedEventArgs.PropertyName == "IsDisabled")
+            {
+
+                if (BackingModel.BaseModel.IsDisabled)
+                {
+                    Opacity = 0.4;
+                }
+                else
+                {
+                    Opacity = 1.0;
+                }
+            }
+
+        }
+        
 
         public ModuleType ModuleType
         {

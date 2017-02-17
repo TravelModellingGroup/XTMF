@@ -117,138 +117,143 @@
             <ColumnDefinition Width="AUTO"/>
             <ColumnDefinition MinWidth="330px" Width="*"/>
         </Grid.ColumnDefinitions>
-        
-        <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource WindowBackgroundBrush2}">
-        <Canvas Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-            <Canvas.Background>
-                <DrawingBrush TileMode="Tile" Viewport="-10,-10,30,30" 
+        <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource WindowBackgroundBrush2}">
+            <Canvas UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True">
+
+                <Canvas.Background>
+                    <DrawingBrush TileMode="Tile" Viewport="-10,-10,30,30" 
                                      ViewportUnits="Absolute" >
-                    <DrawingBrush.Drawing>
-                        <GeometryDrawing>
-                            <GeometryDrawing.Geometry>
-                                <RectangleGeometry Rect="0,0,80,80"/>
-                            </GeometryDrawing.Geometry>
-                            <GeometryDrawing.Pen>
-                                <Pen Brush="LightBlue" Thickness="1"/>
-                            </GeometryDrawing.Pen>
-                            
-                           
-                        </GeometryDrawing>
-                    </DrawingBrush.Drawing>
-                </DrawingBrush>
-            </Canvas.Background>
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing>
+                                <GeometryDrawing.Geometry>
+                                    <RectangleGeometry Rect="0,0,80,80"/>
+                                </GeometryDrawing.Geometry>
+                                <GeometryDrawing.Pen>
+                                    <Pen Brush="LightBlue" Thickness="1"/>
+                                </GeometryDrawing.Pen>
+
+
+                            </GeometryDrawing>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Canvas.Background>
                 <Grid Width="{Binding ActualWidth, ElementName=GridCanvas}" 
                       Height="{Binding ActualHeight, ElementName=GridCanvas}"
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
-            
-          
-            <Grid.RowDefinitions>
-                <RowDefinition Height="AUTO" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
-            <TreeView Grid.Row="1" Background="#FF252526"  BorderThickness="0"
+
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="AUTO" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
+                    <TreeView Grid.Row="1" Background="#FF252526"  BorderThickness="0"
                   x:Name="ModuleDisplay"  
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
-                
-                <TreeView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel />
-                    </ItemsPanelTemplate>
-                </TreeView.ItemsPanel>
-                <TreeView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Paste (Ctrl+V)" Click="PasteModule_Click">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/PasteHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Edit Description (Shift + F2)" Click="Description_Clicked">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Meta-Module">
-                            <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click" />
-                            <MenuItem Header="Convert From(Ctrl+Alt+M)" Click="ConvertFromMetaModule_Click" />
-                        </MenuItem>
-                        <MenuItem Header="Module (Ctrl+M)" Click="Module_Clicked" />
-                        <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Help (F1)" Click="Help_Clicked">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/help.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Move">
-                            <MenuItem Header="Up   (Ctrl+Shift+Up)" Click="MoveUp_Click" />
-                            <MenuItem Header="Down (Ctrl+Shift+Down)" Click="MoveDown_Click" />
-                        </MenuItem>
-                        <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
-                            <MenuItem.Icon>
-                                <Image>
-                                    <Image.Source>
-                                        <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                    </Image.Source>
-                                </Image>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </ContextMenu>
-                </TreeView.ContextMenu>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
 
-                        <this:ModuleTreeViewItem BorderThickness="1" BorderBrush="AntiqueWhite" TitleText="{Binding Name, Mode=OneWay}"
+                        <TreeView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </TreeView.ItemsPanel>
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Paste (Ctrl+V)" Click="PasteModule_Click">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/PasteHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Edit Description (Shift + F2)" Click="Description_Clicked">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Meta-Module">
+                                    <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click" />
+                                    <MenuItem Header="Convert From(Ctrl+Alt+M)" Click="ConvertFromMetaModule_Click" />
+                                </MenuItem>
+                                <MenuItem Header="Module (Ctrl+M)" Click="Module_Clicked" />
+                                <MenuItem 
+                                    
+                                    Name="DisableModuleMenuItem" Header="Disable Module (Shift+D)" Click="DisableModuleMenuItem_OnClick" />
+
+                             
+                                <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Help (F1)" Click="Help_Clicked">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/help.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Move">
+                                    <MenuItem Header="Up   (Ctrl+Shift+Up)" Click="MoveUp_Click" />
+                                    <MenuItem Header="Down (Ctrl+Shift+Down)" Click="MoveDown_Click" />
+                                </MenuItem>
+                                <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
+                                    <MenuItem.Icon>
+                                        <Image>
+                                            <Image.Source>
+                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
+                                            </Image.Source>
+                                        </Image>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
+
+                                <this:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name, Mode=OneWay}"
                                               SubText="{Binding Description, Mode=OneWay}"
                                                  BackingModel="{Binding BackingDisplayModel}"
                                               
-                                              
+                                              ContextMenuOpening="ModuleTreeViewItem_OnContextMenuOpening"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=TreeView}, Path=ContextMenu}" 
                                               >
-                            
-                        </this:ModuleTreeViewItem>
-                        
-                        <!--
+
+                                </this:ModuleTreeViewItem>
+
+                                <!--
                         <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
                                      Header="{Binding Name, Mode=OneWay}"
                                      Text="{Binding Description, Mode=OneWay}"
@@ -262,18 +267,18 @@
                                     KeyboardNavigation.TabNavigation="Continue"
                                     KeyboardNavigation.IsTabStop="false" IsTabStop="False" MinWidth="275" Focusable="False" x:Name="DisplayButton">
                         </my:BorderIconButton>-->
-                        <HierarchicalDataTemplate.Triggers>
-                            <!--
+                                <HierarchicalDataTemplate.Triggers>
+                                    <!--
                             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
                                
                                 <Setter TargetName="DisplayButton" Property="BorderThickness" Value="2" />
                                 <Setter TargetName="DisplayButton" Property="Margin" Value="2" />
                             </DataTrigger> -->
-                        </HierarchicalDataTemplate.Triggers>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
+                                </HierarchicalDataTemplate.Triggers>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
 
-                <!--
+                        <!--
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="TreeViewItem" >
                         <Style.Resources>
@@ -289,9 +294,9 @@
                         <Setter Property="Background" Value="Transparent" />
                     </Style>
                 </TreeView.ItemContainerStyle> -->
-            </TreeView>
-        </Grid>
-        </Canvas>
+                    </TreeView>
+                </Grid>
+            </Canvas>
         </Grid>
         <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
         <TabControl BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged">

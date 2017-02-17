@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" Margin="2">
+             d:DesignHeight="300" d:DesignWidth="300" Margin="2" SnapsToDevicePixels="True">
     <UserControl.Resources>
         <Style TargetType="{x:Type userControls:ModuleTreeViewItem}">
 
@@ -34,6 +34,7 @@
 
                     <MultiDataTrigger.Setters>
                         <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"></Setter>
+                        <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"></Setter>
                     </MultiDataTrigger.Setters>
 
 
@@ -96,12 +97,14 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Border>
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
+    <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+        <Grid.Effect>
+            <DropShadowEffect RenderingBias="Quality" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
 
             </DropShadowEffect>
-        </Border.Effect>
+        </Grid.Effect>
+        
+        
 
         <Grid HorizontalAlignment="Stretch" Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}" >
         <Grid.ColumnDefinitions>
@@ -124,13 +127,13 @@
 
             <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
         </Border>
-        <StackPanel Orientation="Vertical" Grid.Column="1">
-            <Label FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+            <StackPanel Orientation="Vertical" Grid.Column="1" Margin="0,0,7,0" TextOptions.TextFormattingMode="Display">
+                <Label TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=TitleText,Mode=TwoWay}" ></Label>
-            <Label Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                <Label TextOptions.TextFormattingMode="Display"  Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=SubText,Mode=TwoWay}"></Label>
         </StackPanel>
     </Grid>
-    </Border>
+    </Grid>
 </UserControl>
