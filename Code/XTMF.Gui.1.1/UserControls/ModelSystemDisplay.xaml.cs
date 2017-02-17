@@ -572,7 +572,6 @@ namespace XTMF.Gui.UserControls
                             }
                             if (ModuleDisplay.IsKeyboardFocusWithin)
                             {
-
                                 ToggleDisableModule();
                             }
                             e.Handled = true;
@@ -1237,16 +1236,21 @@ namespace XTMF.Gui.UserControls
             var selectedModuleControl = GetCurrentlySelectedControl();
             if (selectedModuleControl != null)
             {
-
                 string error = null;
-                if (!selected.SetDisabled(!selected.IsDisabled, ref error))
+                Session.ExecuteCombinedCommands("Disable Module", () =>
+                {
+                    foreach (var sel in CurrentlySelected)
+                    {
+                        if (!sel.SetDisabled(!sel.IsDisabled, ref error))
+                        {
+                            return;
+                        }
+                    }
+                });
+                if (error != null)
                 {
                     MessageBox.Show(MainWindow.Us, error, "Error", MessageBoxButton.OK);
                 }
-          
-   
-
-               
             }
         }
 
