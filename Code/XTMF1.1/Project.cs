@@ -516,6 +516,7 @@ namespace XTMF
         private bool AddCollection(IConfiguration config, IModule root, IModelSystemStructure rootMS, IModelSystemStructure child,
             FieldInfo infoField, [NotNull] PropertyInfo infoProperty, Type listOfInner, Type inner, ref string error)
         {
+            var mod = child as ModelSystemStructure;
             object collectionValue;
             Type collectionType;
 
@@ -552,7 +553,8 @@ namespace XTMF
                 {
                     if (collectionType.IsArray)
                     {
-                        var collectionObject = Array.CreateInstance(collectionType.GetElementType(), child.Children == null ? 0 : child.Children.Count(
+                        var collectionObject = Array.CreateInstance(collectionType.GetElementType(),
+                            child.Children == null || (mod != null && mod.IsDisabled) ? 0 : child.Children.Count(
                             gc =>
                             {
                                 var mss = gc as ModelSystemStructure;
@@ -618,8 +620,7 @@ namespace XTMF
                     return false;
                 }
             }
-            // check to see if the collection is disabled, if it is we are done as we don't want to add any children.
-            var mod = child as ModelSystemStructure;
+            // check to see if the collection is disabled, if it is we are done as we don't want to add any children.            
             if (mod != null && mod.IsDisabled)
             {
                 return true;
@@ -859,7 +860,7 @@ namespace XTMF
                             // otherwise create something of the proper type
                             var listOfInner = array ? inner.MakeArrayType()
                                 : (child.ParentFieldType.IsInterface | child.ParentFieldType.IsAbstract ?
-                              typeof(List<>).MakeGenericType(new[] { inner })
+                              typeof(List<>).MakeGenericType(inner)
                             : child.ParentFieldType);
                             var infoField = ps.Type.GetField(child.ParentFieldName);
                             var infoProperty = ps.Type.GetProperty(child.ParentFieldName);
