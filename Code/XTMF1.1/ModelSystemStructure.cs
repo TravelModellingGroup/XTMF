@@ -889,7 +889,7 @@ namespace XTMF
             var isMetaAttribute = attributes["IsMeta"];
             if (mod != null)
             {
-                var isDisabled = attributes["IsDisabled"];
+                var isDisabled = attributes["Disabled"];
                 var disabled = false;
                 if (isDisabled != null)
                 {
@@ -1155,7 +1155,7 @@ namespace XTMF
                     var mod = us as ModelSystemStructure;
                     if (mod != null)
                     {
-                        var isDisabled = attributes["IsDisabled"];
+                        var isDisabled = attributes["Disabled"];
                         var disabled = false;
                         if (isDisabled != null)
                         {
