@@ -44,13 +44,9 @@ namespace XTMF.Gui
         public static DependencyProperty SelectedProperty = DependencyProperty.Register("Selected", typeof(bool), typeof(BorderIconButton),
             new FrameworkPropertyMetadata(false, OnSelectedChanged));
 
-        private static Color DefaultControlBackgroundColour;
+     
 
-        private static Color DefaultFocusColour;
-
-        private static Color DefaultSelectionBlue;
-
-        private static Brush FocusBrush;
+      
 
         private ImageSource _Icon;
 
@@ -252,7 +248,7 @@ namespace XTMF.Gui
 
         protected override void OnMouseEnter(MouseEventArgs e)
         {
-            ColorAnimation fadeInAnimation;
+           
             if (!IsHitTestVisible) return;
             // fadeInAnimation = new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
             // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
@@ -264,7 +260,7 @@ namespace XTMF.Gui
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
-            ColorAnimation fadeOutAnimation;
+          
             if (!IsHitTestVisible) return;
             _mouseDownInside = false;
             // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);

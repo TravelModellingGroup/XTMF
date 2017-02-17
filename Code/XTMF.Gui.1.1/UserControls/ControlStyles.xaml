@@ -948,17 +948,7 @@
                         </Grid.RowDefinitions>
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="SelectionStates">
-                                <VisualState x:Name="Selected">
-                                    <Storyboard>
-                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Bd"
-                                                Storyboard.TargetProperty="(Panel.Background).
-                    (SolidColorBrush.Color)"
-                                                >
-                                            <EasingColorKeyFrame KeyTime="0"
-                                         Value="{DynamicResource SelectionBlue}" />
-                                        </ColorAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
+                           
                                 <VisualState x:Name="Unselected" />
                                 <VisualState x:Name="SelectedInactive">
                                     <Storyboard>
@@ -966,7 +956,7 @@
                                                 Storyboard.TargetProperty="(Panel.Background).
                     (SolidColorBrush.Color)">
                                             <EasingColorKeyFrame KeyTime="0"
-                                         Value="{DynamicResource SelectedUnfocusedColor}" />
+                                         Value="{DynamicResource ControlColourUnselected}" />
                                         </ColorAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
@@ -993,7 +983,7 @@
                   Grid.Column="1"
                   Background="Transparent"
                   BorderBrush="{TemplateBinding BorderBrush}"
-                  BorderThickness="{TemplateBinding BorderThickness}"
+                  BorderThickness="0"
                   Padding="{TemplateBinding Padding}">
                             <ContentPresenter x:Name="PART_Header"
                               ContentSource="Header"
@@ -1040,8 +1030,8 @@
         </Setter>
 
         <Style.Resources>
-            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource ControlMediumColor}"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource SelectionBlue}"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource ControlColour}"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource ControlHighlightColour}"/>
         </Style.Resources>
     </Style>
 

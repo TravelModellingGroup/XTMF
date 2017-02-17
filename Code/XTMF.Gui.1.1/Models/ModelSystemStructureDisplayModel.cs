@@ -37,7 +37,7 @@ namespace XTMF.Gui.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ModelSystemStructureDisplayModel _modelSystemStructureDisplayModel;
+      
 
         private static Color AddingYellow;
         private static Color OptionalGreen;
@@ -45,10 +45,7 @@ namespace XTMF.Gui.Models
         private static Color MetaModule;
 
 
-        public ModelSystemStructureDisplayModel BackingDisplayModel
-        {
-            get { return this; }
-        }
+        public ModelSystemStructureDisplayModel BackingDisplayModel => this;
 
         static ModelSystemStructureDisplayModel()
         {

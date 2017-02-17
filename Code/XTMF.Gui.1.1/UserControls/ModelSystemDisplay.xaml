@@ -117,7 +117,32 @@
             <ColumnDefinition Width="AUTO"/>
             <ColumnDefinition MinWidth="330px" Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="{DynamicResource WindowBackgroundBrush2}">
+        
+        <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource WindowBackgroundBrush2}">
+        <Canvas Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <Canvas.Background>
+                <DrawingBrush TileMode="Tile" Viewport="-10,-10,30,30" 
+                                     ViewportUnits="Absolute" >
+                    <DrawingBrush.Drawing>
+                        <GeometryDrawing>
+                            <GeometryDrawing.Geometry>
+                                <RectangleGeometry Rect="0,0,80,80"/>
+                            </GeometryDrawing.Geometry>
+                            <GeometryDrawing.Pen>
+                                <Pen Brush="LightBlue" Thickness="1"/>
+                            </GeometryDrawing.Pen>
+                            
+                           
+                        </GeometryDrawing>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Canvas.Background>
+                <Grid Width="{Binding ActualWidth, ElementName=GridCanvas}" 
+                      Height="{Binding ActualHeight, ElementName=GridCanvas}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
+            
+          
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
@@ -265,6 +290,8 @@
                     </Style>
                 </TreeView.ItemContainerStyle> -->
             </TreeView>
+        </Grid>
+        </Canvas>
         </Grid>
         <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
         <TabControl BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged">
