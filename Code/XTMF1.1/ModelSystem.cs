@@ -382,6 +382,7 @@ namespace XTMF
                 _LinkedParameters.Clear();
             }
             ModelSystemStructure = XTMF.ModelSystemStructure.Load(stream, config);
+            ModelSystemStructure.Required = true;
             // restart to get to the linked parameters
             stream.Seek(0, SeekOrigin.Begin);
             using (XmlReader reader = XmlReader.Create(stream))

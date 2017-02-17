@@ -579,7 +579,10 @@ namespace XTMF
 
         internal static ModelSystemStructure Load(XmlNode modelSystemNode, IConfiguration config)
         {
-            ModelSystemStructure structure = new ModelSystemStructure(config);
+            ModelSystemStructure structure = new ModelSystemStructure(config)
+            {
+                Required = true
+            };
             LoadRoot(config, structure, modelSystemNode.ChildNodes);
             return structure;
         }
