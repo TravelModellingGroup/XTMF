@@ -89,6 +89,17 @@ DependencyProperty.Register("BackingModel",
                 path.Fill = Brushes.DarkSlateGray;
                 this.IconPath = path;
             }
+
+       
+                if (BackingModel.BaseModel.IsDisabled)
+                {
+                    Opacity = 0.4;
+                }
+                else
+                {
+                    Opacity = 1.0;
+                }
+        
         }
 
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)

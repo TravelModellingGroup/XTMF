@@ -1243,10 +1243,7 @@ namespace XTMF.Gui.UserControls
                 {
                     MessageBox.Show(MainWindow.Us, error, "Error", MessageBoxButton.OK);
                 }
-          
-   
 
-               
             }
         }
 
