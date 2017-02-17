@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -19,10 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF.Editing;
 using XTMF.Gui.UserControls;
 
@@ -47,9 +44,9 @@ namespace XTMF.Gui.Models
             Session.CommandExecuted += Session_CommandExecuted;
         }
 
-        public ObservableCollection<CommandDisplayModel> UndoList;
+        public readonly ObservableCollection<CommandDisplayModel> UndoList;
 
-        public ObservableCollection<CommandDisplayModel> RedoList;
+        public readonly ObservableCollection<CommandDisplayModel> RedoList;
 
         private void Session_CommandExecuted(object sender, EventArgs e)
         {
@@ -63,21 +60,9 @@ namespace XTMF.Gui.Models
             InvokeParameterChanged(nameof(RedoName));
         }
 
-        public override string UndoName
-        {
-            get
-            {
-                return $"Undo {(UndoList.Count > 0 ? MaxLength(UndoList[0].Command.Name, 20) : String.Empty)} (Ctrl+Z)";
-            }
-        }
+        public override string UndoName => $"Undo {(UndoList.Count > 0 ? MaxLength(UndoList[0].Command.Name, 20) : String.Empty)} (Ctrl+Z)";
 
-        public override string RedoName
-        {
-            get
-            {
-                return $"Redo {(RedoList.Count > 0 ? MaxLength(RedoList[0].Command.Name, 20) : String.Empty)} (Ctrl+Y)";
-            }
-        }
+        public override string RedoName => $"Redo {(RedoList.Count > 0 ? MaxLength(RedoList[0].Command.Name, 20) : String.Empty)} (Ctrl+Y)";
 
         private string MaxLength(string str, int length)
         {
@@ -99,7 +84,7 @@ namespace XTMF.Gui.Models
                 list.Remove(toRemove);
             }
             //Step 3 find new things
-            var newCommands = commands.Where(c => !list.Any(m => m.Command == c))
+            var newCommands = commands.Where(c => list.All(m => m.Command != c))
                                 .Select((c, i)=>new { Command = c, Index = i })
                                 .OrderBy(c => c.Index)
                                 .ToList();
@@ -112,21 +97,9 @@ namespace XTMF.Gui.Models
 
         private bool _CanUndo;
         private bool _CanRedo;
-        override public bool CanUndo
-        {
-            get
-            {
-                return _CanUndo;
-            }
-        }
+        public override bool CanUndo => _CanUndo;
 
-        override public bool CanRedo
-        {
-            get
-            {
-                return _CanRedo;
-            }
-        }
+        public override bool CanRedo => _CanRedo;
 
         private void SetUndo(bool value)
         {
@@ -146,21 +119,9 @@ namespace XTMF.Gui.Models
             }
         }
 
-        public override bool CanSave
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CanSave => true;
 
-        public override bool CanSaveAs
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool CanSaveAs => true;
 
         internal override void Undo()
         {
@@ -182,13 +143,6 @@ namespace XTMF.Gui.Models
             Display.SaveRequested(true);
         }
 
-        public override bool CanExecuteRun
-        {
-            get
-            {
-                return !Session.IsRunning;
-            }
-        }
-
+        public override bool CanExecuteRun => !Session.IsRunning;
     }
 }

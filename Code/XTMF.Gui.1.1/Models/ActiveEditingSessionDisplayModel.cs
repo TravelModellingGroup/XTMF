@@ -73,12 +73,12 @@ namespace XTMF.Gui.Models
 
         internal virtual void Redo()
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
 
         internal virtual void Undo()
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
     }
 }
