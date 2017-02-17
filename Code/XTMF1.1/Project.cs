@@ -552,7 +552,12 @@ namespace XTMF
                 {
                     if (collectionType.IsArray)
                     {
-                        var collectionObject = Array.CreateInstance(collectionType.GetElementType(), child.Children == null ? 0 : child.Children.Count);
+                        var collectionObject = Array.CreateInstance(collectionType.GetElementType(), child.Children == null ? 0 : child.Children.Count(
+                            gc =>
+                            {
+                                var mss = gc as ModelSystemStructure;
+                                return mss == null || !mss.IsDisabled;
+                            }));
                         if (infoField != null)
                         {
                             infoField.SetValue(root, collectionObject);
@@ -638,13 +643,20 @@ namespace XTMF
                     return false;
                 }
                 var collectionTrueType = collectionObject.GetType();
+                var grandChildren = child.Children;
                 if (collectionType.IsArray)
                 {
                     var setValue = collectionTrueType.GetMethod("SetValue", new[] { typeof(object), typeof(int) });
-                    for (int i = 0; i < child.Children.Count; i++)
+                    int pos = 0;
+                    for (int i = 0; i < grandChildren.Count; i++)
                     {
+                        mod = grandChildren[i] as ModelSystemStructure;
+                        if (mod != null && mod.IsDisabled)
+                        {
+                            continue;
+                        }
                         if (!CreateModule(config, rootMS, child.Children[i], ref error)) return false;
-                        setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, i });
+                        setValue.Invoke(collectionObject, new object[] { child.Children[i].Module, pos++ });
                     }
                 }
                 else
@@ -655,8 +667,13 @@ namespace XTMF
                         error = string.Format("For module '{2}' we were unable to find an Add method for type {0} in Type {1}", inner.FullName, collectionType.FullName, root.Name);
                         return false;
                     }
-                    foreach (var member in child.Children)
+                    foreach (var member in grandChildren)
                     {
+                        mod = member as ModelSystemStructure;
+                        if (mod != null && mod.IsDisabled)
+                        {
+                            continue;
+                        }
                         if (!CreateModule(config, rootMS, member, ref error)) return false;
                         addMethod.Invoke(collectionObject, new object[] { member.Module });
                     }
