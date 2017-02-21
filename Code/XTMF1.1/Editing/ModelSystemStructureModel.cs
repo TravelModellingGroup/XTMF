@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -70,7 +70,7 @@ namespace XTMF
                     disabled ? "Disable Module" : "Enable Module",
                     (ref string e) =>
                     {
-                        if (RealModelSystemStructure.Required)
+                        if (RealModelSystemStructure.Required && disabled)
                         {
                             e = "You can not disable a module that is required!";
                             return false;
@@ -80,11 +80,21 @@ namespace XTMF
                         return true;
                     }, (ref string e) =>
                     {
+                        if (RealModelSystemStructure.Required && oldValue)
+                        {
+                            e = "You can not disable a module that is required!";
+                            return false;
+                        }
                         RealModelSystemStructure.IsDisabled = oldValue;
                         ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
                         return true;
                     }, (ref string e) =>
                     {
+                        if (RealModelSystemStructure.Required && disabled)
+                        {
+                            e = "You can not disable a module that is required!";
+                            return false;
+                        }
                         RealModelSystemStructure.IsDisabled = disabled;
                         ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
                         return true;
@@ -632,6 +642,7 @@ namespace XTMF
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
         }
 
         private bool IsAssignable(ModelSystemStructure rootStructure, ModelSystemStructure parentStructure, ModelSystemStructure copyBuffer)
