@@ -69,7 +69,7 @@
         </Grid.ColumnDefinitions>
 
 
-        <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=VerticalAlignment,Mode=TwoWay}">
 
             <Path Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
                   Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"

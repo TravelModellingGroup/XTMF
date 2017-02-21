@@ -149,28 +149,35 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
-                <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{DynamicResource WindowBackgroundBrush1}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
-                    <ListView.Resources>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
-                        </Style>
-                    </ListView.Resources>
+                <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
+                          Background="{DynamicResource WindowBackgroundBrush2}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
+                    
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
+                            <VirtualizingStackPanel Orientation="Vertical" />
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <my:BorderIconButton IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="4" Header="{Binding Name}" 
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" DoubleClicked="BorderIconButton_DoubleClicked" Width="300px"  >
+
+                                <xtmfgui:ListViewControl IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="0" TitleText="{Binding Name}" 
+                                             MouseDoubleClick="Control_OnMouseDoubleClick" VerticalAlignment="Center">
+                                    
+
+                                    <xtmfgui:ListViewControl.IconPath>
+                                        <Path Data="{DynamicResource LinkIconPath}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
+                                    </xtmfgui:ListViewControl.IconPath>
+                                
+                            </xtmfgui:ListViewControl>
+                            
+                            <!--
+                            <my:BorderIconButton  >
                                 <my:BorderIconButton.Style>
                                     <Style TargetType="my:BorderIconButton">
-                                        <!--   <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
+                                        <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
                                     </Style>
                                 </my:BorderIconButton.Style>
-                            </my:BorderIconButton>
+                            </my:BorderIconButton> -->
                         </DataTemplate>
                     </ListView.ItemTemplate>
                     <ListView.ContextMenu>
@@ -190,7 +197,7 @@
                 </ListView>
             </Grid>
             <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-            <Grid Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush1}">
+            <Grid Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}">
                 <Grid.RowDefinitions>
 
                     <RowDefinition Height="AUTO" />
@@ -202,30 +209,30 @@
                 <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
                     <StackPanel >
 
-                        <Label Content="Parameter Properties" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
+                        <Label Content="Parameter Properties" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
 
                         <DockPanel FlowDirection="LeftToRight" >
-                            <Label Content="Name" Width="50" Foreground="White" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
+                            <Label Content="Name" Width="50" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
 
                             <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"/>
                         </DockPanel>
 
                         <DockPanel FlowDirection="LeftToRight" >
-                            <Label Content="Value" Width="50"  Foreground="White" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
+                            <Label Content="Value" Width="50"  Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
 
-                            <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"/>
+                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"/>
                         </DockPanel>
                     </StackPanel>
                 </Border>
 
 
-                <Border Grid.Row="1" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
-                    <StackPanel Background="{DynamicResource WindowBackgroundBrush1}" >
+                <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
+                    <StackPanel Background="{DynamicResource WindowBackgroundBrush2}" >
 
-                        <Label Content="Linked Parameters" Foreground="White" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
+                        <Label Content="Linked Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
                         <ListView KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                               x:Name="ContainedParameterDisplay" Focusable="False"  Background="{StaticResource WindowBackgroundBrush1}"
-                     HorizontalContentAlignment="Stretch">
+                               x:Name="ContainedParameterDisplay" Focusable="False"  Background="{DynamicResource WindowBackgroundBrush2}"
+                     HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}">
                             <ListView.Resources>
                                 <Style TargetType="{x:Type ListViewItem}">
                                     <!--<Setter Property="Focusable" Value="False"></Setter>-->
@@ -249,7 +256,7 @@
                             </ListView.ItemsPanel>
                             <ListView.ItemTemplate>
                                 <DataTemplate DataType="{x:Type xtmfgui:LinkedParameterDisplay+ParameterDisplay}">
-                                    <Border BorderBrush="White" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
+                                    <Border BorderBrush="Transparent" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
                                         <Grid HorizontalAlignment="Stretch">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="50" />
@@ -275,11 +282,11 @@
                                                   ToolTip="Uncheck to remove this parameter from the linked parameter.">
                                                 
                                             </CheckBox> -->
-                                            <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="#96FFFFFF" FontSize="10" Text="Module Name" Opacity="0.995" />
-                                            <TextBlock Grid.Column="1" Margin="2" Grid.Row="1" Foreground="White" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
+                                            <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="10" Text="Module Name" Opacity="0.995" />
+                                            <TextBlock Grid.Column="1" Margin="2" Grid.Row="1" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
 
-                                            <TextBlock Grid.Column="2" Margin="2" Grid.Row="0" Foreground="#96FFFFFF" FontSize="10" Text="Parameter Name" Opacity="0.995" />
-                                            <TextBlock Grid.Column="2" Grid.Row="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
+                                            <TextBlock Grid.Column="2" Margin="2" Grid.Row="0" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="10" Text="Parameter Name" Opacity="0.995" />
+                                            <TextBlock Grid.Column="2" Grid.Row="1" Margin="2" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

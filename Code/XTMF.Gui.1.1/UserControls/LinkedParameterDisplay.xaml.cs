@@ -483,6 +483,14 @@ namespace XTMF.Gui.UserControls
         {
             Close();
         }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (_assignMode)
+            {
+                AssignCurrentlySelected();
+            }
+        }
     }
 
     public class ParameterDatatemplateSelector : DataTemplateSelector
