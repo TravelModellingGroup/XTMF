@@ -37,12 +37,7 @@ namespace XTMF.Gui.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-      
-
-        private static Color AddingYellow;
-        private static Color OptionalGreen;
-        private static Color WarningRed;
-        private static Color MetaModule;
+  
 
 
         public ModelSystemStructureDisplayModel BackingDisplayModel => this;
@@ -160,45 +155,8 @@ namespace XTMF.Gui.Models
 
         public string Description => BaseModel.Description;
 
-        public Color BackgroundColour
-        {
-            get
-            {
-                if (BaseModel.IsMetaModule)
-                {
-                    return MetaModule;
-                }
-                if (BaseModel.IsCollection)
-                {
-                    return AddingYellow;
-                }
-                if (BaseModel.Type == null)
-                {
-                    return (BaseModel.IsOptional) ? OptionalGreen : WarningRed;
-                }
-                return Color.FromRgb(0x30, 0x30, 0x30);
-            }
-        }
-
-        public Color HighlightColour
-        {
-            get
-            {
-                if (BaseModel.IsMetaModule)
-                {
-                    return MetaModule;
-                }
-                if (BaseModel.IsCollection)
-                {
-                    return AddingYellow;
-                }
-                if (BaseModel.Type == null)
-                {
-                    return (BaseModel.IsOptional) ? OptionalGreen : WarningRed;
-                }
-                return Color.FromRgb(0x30, 0x30, 0x30);
-            }
-        }
+       
+    
 
         public ObservableCollection<ModelSystemStructureDisplayModel> Children { get; private set; }
         public Type Type

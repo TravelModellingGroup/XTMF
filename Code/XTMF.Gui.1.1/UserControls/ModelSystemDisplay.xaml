@@ -307,7 +307,7 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border  Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                    <Border  Grid.Row="1" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -317,7 +317,7 @@
                             <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
                         </Grid>
                     </Border>
-                    <my:FilterBox Grid.Row="1" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
+                    <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView  Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
