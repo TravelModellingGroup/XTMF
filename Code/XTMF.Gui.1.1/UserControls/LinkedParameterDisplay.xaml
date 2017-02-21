@@ -206,10 +206,10 @@
                 </Grid.RowDefinitions>
                 <!-- <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" /> -->
 
-                <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
+                <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}" Background="{DynamicResource WindowBackgroundBrush1}">
                     <StackPanel >
 
-                        <Label Content="Parameter Properties" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
+                        <Label Content="Parameter Properties" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
 
                         <DockPanel FlowDirection="LeftToRight" >
                             <Label Content="Name" Width="50" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
@@ -226,13 +226,13 @@
                 </Border>
 
 
-                <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
-                    <StackPanel Background="{DynamicResource WindowBackgroundBrush2}" >
+                <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
+                    <StackPanel Background="{DynamicResource WindowBackgroundBrush1}" >
 
-                        <Label Content="Linked Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush1}"/>
-                        <ListView KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                               x:Name="ContainedParameterDisplay" Focusable="False"  Background="{DynamicResource WindowBackgroundBrush2}"
-                     HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}">
+                        <Label Content="Linked Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
+                        <ListView  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                               x:Name="ContainedParameterDisplay" Focusable="False"
+                     HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}">
                             <ListView.Resources>
                                 <Style TargetType="{x:Type ListViewItem}">
                                     <!--<Setter Property="Focusable" Value="False"></Setter>-->

@@ -22,7 +22,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Startup="App_OnStartup"
-             ShutdownMode="OnMainWindowClose"
+             ShutdownMode="OnExplicitShutdown"
              
              >
     <Application.Resources>
