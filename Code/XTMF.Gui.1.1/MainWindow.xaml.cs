@@ -934,7 +934,11 @@ namespace XTMF.Gui
                 }
             }
             base.OnClosing(e);
-            Environment.Exit(0);
+            if (!e.Cancel)
+            {
+                Application.Current.Shutdown(0);
+                Process.GetCurrentProcess().Kill();
+            }
         }
 
         private void AboutXTMF_Click(object sender, RoutedEventArgs e)
