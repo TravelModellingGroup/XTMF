@@ -63,7 +63,7 @@ DependencyProperty.Register("BackingModel",
         {
             InitializeComponent();
 
-          
+
 
 
             this.Loaded += ModuleTreeViewItem_Loaded;
@@ -90,16 +90,27 @@ DependencyProperty.Register("BackingModel",
                 this.IconPath = path;
             }
 
-       
-                if (BackingModel.BaseModel.IsDisabled)
-                {
-                    Opacity = 0.4;
-                }
-                else
-                {
-                    Opacity = 1.0;
-                }
-        
+
+            if (BackingModel.BaseModel.IsDisabled)
+            {
+                Opacity = 0.4;
+            }
+            else
+            {
+                Opacity = 1.0;
+            }
+
+
+            if (BackingModel.BaseModel.IsOptional)
+            {
+                ContentBorder.BorderThickness = new Thickness(1);
+            }
+            else
+            {
+                ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
+                ContentBorder.BorderThickness = new Thickness(1);
+            }
+
         }
 
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -114,7 +125,7 @@ DependencyProperty.Register("BackingModel",
                 {
                     Path path = new Path();
 
-                    path.Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"];
+                    path.Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"];
                     path.Fill = Brushes.DarkSlateGray;
                     this.IconPath = path;
                 }
@@ -122,7 +133,7 @@ DependencyProperty.Register("BackingModel",
                 {
                     Path path = new Path();
 
-                    path.Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"];
+                    path.Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"];
                     path.Fill = Brushes.DarkSlateGray;
                     this.IconPath = path;
                 }
@@ -142,14 +153,14 @@ DependencyProperty.Register("BackingModel",
             }
 
         }
-        
+
 
         public ModuleType ModuleType
         {
 
             get { return (ModuleType)GetValue(ModuleTypeDependencyProperty); }
 
-            set { SetValue(ModuleTypeDependencyProperty,value);}
+            set { SetValue(ModuleTypeDependencyProperty, value); }
         }
 
         public bool IsSelected
@@ -168,7 +179,7 @@ DependencyProperty.Register("BackingModel",
             set { this.SetValue(IconPathDependencyProperty, value); }
         }
 
-        public bool IsBitmapIcon 
+        public bool IsBitmapIcon
         {
             get { return (bool)this.GetValue(BitmapIconDependencyProperty); }
             set
@@ -182,11 +193,11 @@ DependencyProperty.Register("BackingModel",
 
         public ModelSystemStructureDisplayModel BackingModel
         {
-            get { return (ModelSystemStructureDisplayModel) GetValue(BackingModelDependencyProperty); }
+            get { return (ModelSystemStructureDisplayModel)GetValue(BackingModelDependencyProperty); }
 
             set
             {
-                SetValue(BackingModelDependencyProperty,value);
+                SetValue(BackingModelDependencyProperty, value);
             }
         }
 

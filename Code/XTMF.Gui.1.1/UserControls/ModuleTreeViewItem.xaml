@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"  
              d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True" >
     <UserControl.Resources>
         <Style TargetType="{x:Type userControls:ModuleTreeViewItem}">
@@ -71,42 +71,36 @@
                 </MultiDataTrigger>
 
 
-                <!--
-                <Trigger Value="False" Property="IsMouseOver">
-                    <Setter Property="Background" Value="White"></Setter>
-                </Trigger> -->
-
-                
-                <!--
-                <DataTrigger Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}">
-                    <Setter Property="Foreground" Value="White"></Setter>
-                </DataTrigger> -->
-
-                <!--
-                <DataTrigger Value="False"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeViewItem},Path=IsSelected,Mode=TwoWay}">
-                    <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
-                </DataTrigger> -->
-
-                <!--
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="White"></Setter>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="False">
-                    <Setter Property="Foreground" Value="White"></Setter>
-                </Trigger> -->
+              
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+    
+    <Border Name="ContentBorder">
+
+        <Border.BorderBrush>
+            <VisualBrush>
+                <VisualBrush.Visual>
+                    <Rectangle StrokeDashArray="4 2"
+                      Stroke="LightSlateGray"
+                      StrokeThickness="2"
+                      RadiusX="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=CornerRadius.TopRight}"
+                      RadiusY="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=CornerRadius.BottomLeft}"
+                      Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualWidth}"
+                      Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualHeight}"/>
+                </VisualBrush.Visual>
+            </VisualBrush>
+        </Border.BorderBrush>
+        <Grid Name="ContentGrid" UseLayoutRounding="True" SnapsToDevicePixels="True" >
         <Grid.Effect>
-            <DropShadowEffect RenderingBias="Quality" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
+            <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
 
             </DropShadowEffect>
         </Grid.Effect>
         
         
 
-        <Grid HorizontalAlignment="Stretch" Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}" >
+        <Grid  HorizontalAlignment="Stretch" Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -128,7 +122,7 @@
             <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
         </Border>
             <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="1" Margin="0,8,7,0" TextOptions.TextFormattingMode="Display">
-                <Label Padding="0" TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                <Label Margin="0,0,7,1" Padding="0" TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=TitleText,Mode=TwoWay}" ></Label>
                 <TextBlock   Margin="0,3,4,7" TextWrapping="WrapWithOverflow" MaxWidth="400" TextOptions.TextFormattingMode="Display"  Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    
@@ -136,4 +130,5 @@
         </StackPanel>
     </Grid>
     </Grid>
+    </Border>
 </UserControl>
