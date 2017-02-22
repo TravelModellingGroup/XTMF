@@ -25,14 +25,14 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource WindowBackgroundBrush2}">
+        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource WindowBackgroundBrush2}" BorderBrush="{x:Null}">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">

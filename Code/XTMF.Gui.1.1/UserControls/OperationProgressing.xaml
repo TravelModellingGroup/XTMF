@@ -3,13 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Operation Progressing" ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" WindowStyle="None" Background="{x:Null}" AllowsTransparency="True">
 
-    <Border Margin="20"  Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="1">
-        <Border.BorderBrush>
-            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="#FF444444" Offset="0"/>
-                <GradientStop Color="#FF3E3E3E" Offset="1"/>
-            </LinearGradientBrush>
-        </Border.BorderBrush>
+    <Border Margin="20"  Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="1">
         <Border.Effect>
             <DropShadowEffect BlurRadius="15" ShadowDepth="5" Color="Black"></DropShadowEffect>
         </Border.Effect>
