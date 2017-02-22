@@ -24,6 +24,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -937,9 +939,22 @@ namespace XTMF.Gui
             if (!e.Cancel)
             {
                 Application.Current.Shutdown(0);
-                Process.GetCurrentProcess().Kill();
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    var handel = Process.GetCurrentProcess().Handle;
+                    TerminateProcess(handel, 0);
+                }
+                else
+                {
+                    Process.GetCurrentProcess().Kill();
+                }
             }
         }
+
+        [DllImport("Kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto, SetLastError = true)]
+        [ResourceExposure(ResourceScope.Machine)]
+        public static extern bool TerminateProcess(IntPtr processHandle, int exitCode);
+
 
         private void AboutXTMF_Click(object sender, RoutedEventArgs e)
         {
