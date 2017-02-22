@@ -92,11 +92,11 @@
             </VisualBrush>
         </Border.BorderBrush>
         <Grid Name="ContentGrid" UseLayoutRounding="True" SnapsToDevicePixels="True" >
-        <Grid.Effect>
+        <!--<Grid.Effect>
             <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
 
             </DropShadowEffect>
-        </Grid.Effect>
+        </Grid.Effect> -->
         
         
 

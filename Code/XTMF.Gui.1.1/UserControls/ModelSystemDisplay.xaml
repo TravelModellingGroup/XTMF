@@ -131,7 +131,7 @@
                                     <RectangleGeometry Rect="0,0,80,80"/>
                                 </GeometryDrawing.Geometry>
                                 <GeometryDrawing.Pen>
-                                    <Pen  Brush="#FF4890A8" Thickness="0.8"/>
+                                    <Pen  Brush="#FF94C1D1" Thickness="0.8"/>
                                 </GeometryDrawing.Pen>
 
 
