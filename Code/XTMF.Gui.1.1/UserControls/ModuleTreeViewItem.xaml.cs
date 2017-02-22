@@ -104,6 +104,7 @@ DependencyProperty.Register("BackingModel",
             if (BackingModel.BaseModel.IsOptional)
             {
                 ContentBorder.BorderThickness = new Thickness(1);
+              
             }
             else
             {

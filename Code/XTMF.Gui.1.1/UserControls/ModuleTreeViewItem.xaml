@@ -82,12 +82,12 @@
             <VisualBrush>
                 <VisualBrush.Visual>
                     <Rectangle StrokeDashArray="4 2"
-                      Stroke="LightSlateGray"
-                      StrokeThickness="2"
+                      Stroke="#FF23B26B"
+                      StrokeThickness="3"
                       RadiusX="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=CornerRadius.TopRight}"
                       RadiusY="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=CornerRadius.BottomLeft}"
                       Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualWidth}"
-                      Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualHeight}"/>
+                      Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualHeight}" />
                 </VisualBrush.Visual>
             </VisualBrush>
         </Border.BorderBrush>
