@@ -81,11 +81,19 @@ DependencyProperty.Register("BackingModel",
                 path.Fill = Brushes.DarkSlateGray;
                 this.IconPath = path;
             }
-            else if (!BackingModel.BaseModel.IsMetaModule)
+            else if (!BackingModel.BaseModel.IsMetaModule && !BackingModel.BaseModel.IsCollection)
             {
                 Path path = new Path();
 
                 path.Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"];
+                path.Fill = Brushes.DarkSlateGray;
+                this.IconPath = path;
+            }
+            else if (BackingModel.BaseModel.IsCollection)
+            {
+                Path path = new Path();
+
+                path.Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"];
                 path.Fill = Brushes.DarkSlateGray;
                 this.IconPath = path;
             }
@@ -111,6 +119,10 @@ DependencyProperty.Register("BackingModel",
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
                 ContentBorder.BorderThickness = new Thickness(1);
             }
+
+            
+
+          
 
         }
 
