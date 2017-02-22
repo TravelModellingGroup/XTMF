@@ -216,5 +216,15 @@ namespace XTMF.Gui.UserControls
             }
             SelectModel(selected);
         }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var selected = Display.SelectedItem as Model;
+            if (selected == null)
+            {
+                selected = GetFirstItem();
+            }
+            SelectModel(selected);
+        }
     }
 }

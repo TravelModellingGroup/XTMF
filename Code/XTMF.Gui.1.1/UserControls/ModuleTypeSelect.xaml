@@ -41,7 +41,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
 
-                    <userControls:ListViewControl TitleText="{Binding Name}" 
+                    <userControls:ListViewControl TitleText="{Binding Name}" MouseDoubleClick="Control_OnMouseDoubleClick"
                                              SubText="{Binding Text}">
                         
                         
