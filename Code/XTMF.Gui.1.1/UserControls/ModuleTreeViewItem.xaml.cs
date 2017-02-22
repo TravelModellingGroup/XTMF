@@ -75,26 +75,25 @@ DependencyProperty.Register("BackingModel",
             BackingModel.BaseModel.PropertyChanged += BaseModelOnPropertyChanged;
             if (BackingModel.BaseModel.IsMetaModule)
             {
-                Path path = new Path();
+                Path path = new Path {Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"]};
 
-                path.Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"];
-                path.Fill = Brushes.DarkSlateGray;
+
                 this.IconPath = path;
             }
             else if (!BackingModel.BaseModel.IsMetaModule && !BackingModel.BaseModel.IsCollection)
             {
-                Path path = new Path();
+                Path path = new Path
+                {
+                    Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"],
+                  
+                };
 
-                path.Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"];
-                path.Fill = Brushes.DarkSlateGray;
                 this.IconPath = path;
             }
             else if (BackingModel.BaseModel.IsCollection)
             {
-                Path path = new Path();
+                Path path = new Path {Data = (PathGeometry) Application.Current.Resources["CollectionIconPath"]};
 
-                path.Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"];
-                path.Fill = Brushes.DarkSlateGray;
                 this.IconPath = path;
             }
 
