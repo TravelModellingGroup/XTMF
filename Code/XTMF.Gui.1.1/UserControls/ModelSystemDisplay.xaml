@@ -29,8 +29,16 @@
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="600" Background="{DynamicResource WindowBackgroundBrush1}">
+             d:DesignHeight="500" d:DesignWidth="600" Background="{DynamicResource WindowBackgroundBrush}">
     <UserControl.Resources>
+        <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20"
+          Viewbox="0,0,14,14" ViewportUnits="Absolute" 
+          ViewboxUnits="Absolute">
+            <VisualBrush.Visual>
+                <Rectangle SnapsToDevicePixels="True" Opacity="0.4" Stroke="#FF94C1D1" StrokeThickness="0.8" Width="20" Height="20"/>
+            </VisualBrush.Visual>
+        </VisualBrush>
+
 
         <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
             <Border Name="b"  BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
@@ -112,16 +120,17 @@
 
         <models:ParameterTypeSelector x:Key="ParameterSelecter" Standard="{StaticResource StandardParameterTemplate}" Enumeration="{StaticResource EnumerationParameterTemplate}" />
     </UserControl.Resources>
-    <Grid Background="{DynamicResource WindowBackgroundBrush1}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush2}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="100px" Width="*"/>
             <ColumnDefinition Width="AUTO"/>
             <ColumnDefinition MinWidth="330px" Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource WindowBackgroundBrush2}">
+        <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
             <Canvas UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True">
 
+                <!--
                 <Canvas.Background>
                     <DrawingBrush TileMode="Tile" Viewport="-10,-10,20,20" 
                                      ViewportUnits="Absolute" >
@@ -138,7 +147,7 @@
                             </GeometryDrawing>
                         </DrawingBrush.Drawing>
                     </DrawingBrush>
-                </Canvas.Background>
+                </Canvas.Background> -->
                 <Grid Width="{Binding ActualWidth, ElementName=GridCanvas}" 
                       Height="{Binding ActualHeight, ElementName=GridCanvas}"
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
@@ -149,7 +158,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
-                    <TreeView Grid.Row="1" Background="#FF252526"  BorderThickness="0"
+                    <TreeView Grid.Row="1"   BorderThickness="0"
                   x:Name="ModuleDisplay"  
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
                       PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
