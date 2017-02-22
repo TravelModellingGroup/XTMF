@@ -31,28 +31,28 @@ namespace XTMF.Gui.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private LinkedParameterModel RealLinkedParameter;
+        private LinkedParameterModel _realLinkedParameter;
 
         public string Name
         {
             get
             {
-                return RealLinkedParameter.Name;
+                return _realLinkedParameter.Name;
             }
             set
             {
                 string error = null;
-                RealLinkedParameter.SetName(value, ref error);
+                _realLinkedParameter.SetName(value, ref error);
                 ModelHelper.PropertyChanged(PropertyChanged, this, "Name");
             }
         }
 
-        public LinkedParameterModel LinkedParameter { get { return RealLinkedParameter; } }
+        public LinkedParameterModel LinkedParameter { get { return _realLinkedParameter; } }
 
         public LinkedParameterDisplayModel(LinkedParameterModel realLinkedParameter)
         {
-            RealLinkedParameter = realLinkedParameter;
-            RealLinkedParameter.PropertyChanged += RealLinkedParameter_PropertyChanged;
+            _realLinkedParameter = realLinkedParameter;
+            _realLinkedParameter.PropertyChanged += RealLinkedParameter_PropertyChanged;
         }
 
         private void RealLinkedParameter_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -68,7 +68,7 @@ namespace XTMF.Gui.Models
         public void Dispose()
         {
             PropertyChanged = null;
-            RealLinkedParameter.PropertyChanged -= RealLinkedParameter_PropertyChanged;
+            _realLinkedParameter.PropertyChanged -= RealLinkedParameter_PropertyChanged;
         }
 
         internal static ObservableCollection<LinkedParameterDisplayModel> CreateDisplayModel(ObservableCollection<LinkedParameterModel> observableCollection)

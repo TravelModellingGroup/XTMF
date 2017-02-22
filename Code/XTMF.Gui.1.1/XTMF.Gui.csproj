@@ -231,6 +231,9 @@
     <Compile Include="UserControls\PathIcon.xaml.cs">
       <DependentUpon>PathIcon.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\PathIconButton.xaml.cs">
+      <DependentUpon>PathIconButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ProjectDisplay.xaml.cs">
       <DependentUpon>ProjectDisplay.xaml</DependentUpon>
     </Compile>
@@ -371,6 +374,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\PathIcon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\PathIconButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

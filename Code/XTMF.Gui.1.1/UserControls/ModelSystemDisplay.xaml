@@ -456,7 +456,7 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" BorderBrush="White" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                    <Border Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -464,7 +464,7 @@
                             <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Quick Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
                         </Grid>
                     </Border>
-                    <my:FilterBox Grid.Row="1" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2" />
+                    <my:FilterBox Grid.Row="0" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2" />
                     <ListView Grid.Row="2" x:Name="QuickParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">

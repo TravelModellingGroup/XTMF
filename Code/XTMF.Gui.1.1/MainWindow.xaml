@@ -300,12 +300,12 @@
                 </MenuItem>
             </Menu>
             <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-            <xcad:DockingManager  IsHitTestVisible="True" x:Name="DockManager"
+            <xcad:DockingManager BorderThickness="0"  IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"
                                  ScrollViewer.PanningMode="HorizontalOnly"
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
-                                 Margin="0,7,0,0" Grid.ColumnSpan="2"
-                                 Background="{DynamicResource WindowBackgroundBrush1}">
+                                 Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
+                                  Background="{DynamicResource WindowBackgroundBrush1}">
                 <xcad:DockingManager.DocumentTitleTemplate>
                     <DataTemplate>
                         <Grid HorizontalAlignment="Stretch">
@@ -325,7 +325,7 @@
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
-                            <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="#EEEEEEEE">
+                            <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="{DynamicResource ControlTextColourBrush}">
                                 <TextBlock.Style>
                                     <Style TargetType="{x:Type TextBlock}">
                                         <Style.Triggers>
