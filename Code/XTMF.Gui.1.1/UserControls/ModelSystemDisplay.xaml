@@ -151,8 +151,11 @@
                 <Grid Width="{Binding ActualWidth, ElementName=GridCanvas}" 
                       Height="{Binding ActualHeight, ElementName=GridCanvas}"
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >
+                    <Grid.Effect>
+                        <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
 
-
+                        </DropShadowEffect>
+                    </Grid.Effect>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />

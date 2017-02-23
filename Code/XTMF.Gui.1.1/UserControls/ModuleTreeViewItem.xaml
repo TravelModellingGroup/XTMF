@@ -81,7 +81,7 @@
         <Border.BorderBrush>
             <VisualBrush>
                 <VisualBrush.Visual>
-                    <Rectangle StrokeDashArray="3 2"
+                    <Rectangle StrokeDashArray="4 1"
                       Stroke="#FF23B24A"
                       StrokeThickness="3"
                       RadiusX="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=CornerRadius.TopRight}"
