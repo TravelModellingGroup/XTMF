@@ -71,64 +71,72 @@
                 </MultiDataTrigger>
 
 
-              
+
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    
+
     <Border Name="ContentBorder">
 
-        <Border.BorderBrush>
-            <VisualBrush>
-                <VisualBrush.Visual>
-                    <Rectangle StrokeDashArray="4 2"
+        <Grid>
+
+            <Border>
+            <Border.BorderBrush>
+                <VisualBrush>
+                    <VisualBrush.Visual>
+                        <Rectangle StrokeDashArray="4 2"
                       Stroke="#FF23B26B"
                       StrokeThickness="3"
                       RadiusX="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=CornerRadius.TopRight}"
                       RadiusY="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=CornerRadius.BottomLeft}"
                       Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualWidth}"
                       Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualHeight}" />
-                </VisualBrush.Visual>
-            </VisualBrush>
-        </Border.BorderBrush>
-        <Grid Name="ContentGrid" UseLayoutRounding="True" SnapsToDevicePixels="True" >
-        <!--<Grid.Effect>
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </Border.BorderBrush>
+
+                <Border.Effect>
             <DropShadowEffect RenderingBias="Performance" BlurRadius="5" Opacity="0.5" Direction="275" Color="#323232" ShadowDepth="3">
 
             </DropShadowEffect>
-        </Grid.Effect> -->
-        
-        
-
-        <Grid  HorizontalAlignment="Stretch" Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}" >
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-      
+        </Border.Effect> 
+              
+          
 
 
-        <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-            <Path Width="24" Height="24" Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
+                <Grid  HorizontalAlignment="Stretch" Background="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Background,Mode=TwoWay}" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+
+
+                    <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                        <Path Width="24" Height="24" Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
                   Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                   Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=IconPath.Data,Mode=TwoWay}">
 
 
-            </Path>
+                        </Path>
 
 
 
-            <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
-        </Border>
-            <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="1" Margin="0,8,7,0" TextOptions.TextFormattingMode="Display">
-                <Label Margin="0,0,7,1" Padding="0" TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                        <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
+                    </Border>
+                    <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="1" Margin="0,8,7,0" TextOptions.TextFormattingMode="Display">
+                        <Label Margin="0,0,7,1" Padding="0" TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=TitleText,Mode=TwoWay}" ></Label>
-                <TextBlock   Margin="0,3,4,7" TextWrapping="WrapWithOverflow" MaxWidth="400" TextOptions.TextFormattingMode="Display"  Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                        <TextBlock   Margin="0,3,4,7" TextWrapping="WrapWithOverflow" MaxWidth="400" TextOptions.TextFormattingMode="Display"  Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    
                    Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=SubText,Mode=TwoWay}"></TextBlock>
-        </StackPanel>
-    </Grid>
-    </Grid>
+                    </StackPanel>
+                </Grid>
+   
+            </Border>
+        </Grid>
     </Border>
+        
 </UserControl>
