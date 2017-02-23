@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -44,12 +44,6 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Peak Hour Factor", 0f, "A factor to apply to the demand in order to build a representative hour.")]
         public float PeakHourFactor;
 
-        [RunParameter("Link Cost", 0f, "")]
-        public float LinkCost;
-
-        [RunParameter("Toll Weight", 0f, "")]
-        public float TollWeight;
-
         [RunParameter("Iterations", 0, "The maximum number of iterations to run.")]
         public int Iterations;
 
@@ -65,13 +59,11 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Performance Mode", true, "Set this to false to leave a free core for other work, recommended to leave set to true.")]
         public bool PerformanceMode;
 
+        [RunParameter("LinkCost", 0f, "The penalty in minutes per dollar to apply when traversing a link.")]
+        public float LinkCost;
+
         [RunParameter("Run Title", "Multi-class Run", "The name of the run to appear in the logbook.")]
         public string RunTitle;
-
-        [RunParameter("Toll Attribute ID", "@toll", "The name of the toll attribute.")]
-        // ReSharper disable once InconsistentNaming
-        public string LinkTollAttributeID;
-
 
         public sealed class Class : IModule
         {
@@ -90,6 +82,15 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("Toll Matrix", 0, "The matrix to save the toll costs into.")]
             public int TollMatrix;
 
+            [RunParameter("VolumeAttribute", "@classVolume", "The name of the attribute to save the volumes into")]
+            public string VolumeAttribute;
+
+            [RunParameter("TollAttributeID", "@toll", "The attribute containing the road tolls for this class of vehicle.")]
+            public string LinkTollAttributeID;
+
+            [RunParameter("Toll Weight", 0f, "")]
+            public float TollWeight;
+
             public string Name { get; set; }
 
             public float Progress { get; set; }
@@ -98,7 +99,7 @@ namespace TMG.Emme.NetworkAssignment
 
             public bool RuntimeValidation(ref string error)
             {
-                if((Mode >= 'a' && Mode <= 'z') || (Mode >= 'A' && Mode <= 'Z'))
+                if(Mode >= 'a' && Mode <= 'z' || Mode >= 'A' && Mode <= 'Z')
                 {
                     return true;
                 }
@@ -116,9 +117,10 @@ namespace TMG.Emme.NetworkAssignment
                 throw new XTMFRuntimeException("TMG.Emme.NetworkAssignment.MultiClassRoadAssignment requires the use of EMME Modeller and will not work through command prompt!");
             }
             /*
-             xtmf_ScenarioNumber, xtmf_Demand_String, TimesMatrixId, CostMatrixId, TollsMatrixId,
-                 PeakHourFactor, LinkCost, TollWeight, Iterations, rGap, brGap, normGap, PerformanceFlag,
-                 RunTitle, LinkTollAttributeId
+             xtmf_ScenarioNumber, Mode_List, xtmf_Demand_String, TimesMatrixId,
+                 CostMatrixId, TollsMatrixId, PeakHourFactor, LinkCost,
+                 TollWeight, Iterations, rGap, brGap, normGap, PerformanceFlag,
+                 RunTitle, LinkTollAttributeId, xtmf_NameString, ResultAttributes
             */
             string ret = null;
             if(!mc.CheckToolExists(ToolName))
@@ -128,41 +130,54 @@ namespace TMG.Emme.NetworkAssignment
             return mc.Run(ToolName, GetParameters(), (p) => Progress = p, ref ret);
         }
 
-        private string GetParameters()
+        private ModellerControllerParameter[] GetParameters()
         {
-            return string.Join(" ",
-                ScenarioNumber.ToString(),
-                GetClasses(),
-                GetDemand(),
-                GetTimes(), GetCosts(), GetTolls(),
-                PeakHourFactor.ToString(CultureInfo.InvariantCulture), LinkCost.ToString(CultureInfo.InvariantCulture), TollWeight.ToString(CultureInfo.InvariantCulture), Iterations.ToString(CultureInfo.InvariantCulture), RelativeGap.ToString(CultureInfo.InvariantCulture), BestRelativeGap.ToString(CultureInfo.InvariantCulture),
-                NormalizedGap.ToString(CultureInfo.InvariantCulture), PerformanceMode.ToString(CultureInfo.InvariantCulture), "\"" + RunTitle + "\"", "\"" + LinkTollAttributeID + "\""
-                );
+            return new[]
+            {
+                new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+                new ModellerControllerParameter("Mode_List", GetClasses()),
+                new ModellerControllerParameter("xtmf_Demand_String", GetDemand()),
+                new ModellerControllerParameter("TimesMatrixId", GetTimes()),
+                new ModellerControllerParameter("CostMatrixId", GetCosts()),
+                new ModellerControllerParameter("TollsMatrixId", GetTolls()),
+                new ModellerControllerParameter("PeakHourFactor", PeakHourFactor.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("LinkCost", LinkCost.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("TollWeight", string.Join(",", Classes.Select(c => c.TollWeight.ToString(CultureInfo.InvariantCulture)))),
+                new ModellerControllerParameter("Iterations", Iterations.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("rGap", RelativeGap.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("brGap", BestRelativeGap.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("normGap", NormalizedGap.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("PerformanceFlag", PerformanceMode.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("RunTitle", RunTitle),
+                new ModellerControllerParameter("LinkTollAttributeId", string.Join(",", Classes.Select(c => c.LinkTollAttributeID))),
+                new ModellerControllerParameter("xtmf_NameString", string.Join(",", Classes.Select(c => c.Name))),
+                new ModellerControllerParameter("ResultAttributes", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
+            };
         }
 
         private string GetTimes()
         {
-            return "\"" + string.Join(",", Classes.Select(c => "mf" + c.TimeMatrix.ToString())) + "\"";
+            return string.Join(",", Classes.Select(c => "mf" + c.TimeMatrix.ToString()));
         }
 
         private string GetCosts()
         {
-            return "\"" + string.Join(",", Classes.Select(c => "mf" + c.CostMatrix.ToString())) + "\"";
+            return string.Join(",", Classes.Select(c => "mf" + c.CostMatrix.ToString()));
         }
 
         private string GetTolls()
         {
-            return "\"" + string.Join(",", Classes.Select(c => "mf" + c.TollMatrix.ToString())) + "\"";
+            return string.Join(",", Classes.Select(c => "mf" + c.TollMatrix.ToString()));
         }
 
         private string GetClasses()
         {
-            return "\"" + string.Join(",", Classes.Select(c => c.Mode.ToString())) + "\"";
+            return string.Join(",", Classes.Select(c => c.Mode.ToString()));
         }
 
         private string GetDemand()
         {
-            return "\"" + string.Join(",", Classes.Select(c => "mf" + c.DemandMatrixNumber.ToString())) + "\"";
+            return string.Join(",", Classes.Select(c => "mf" + c.DemandMatrixNumber.ToString()));
         }
 
         public bool RuntimeValidation(ref string error)
