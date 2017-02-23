@@ -35,6 +35,8 @@ namespace XTMF.Gui.UserControls
 
         static HintedTextBox()
         {
+
+           
             var contextMenu = new ContextMenu();
             // copy
             contextMenu.Items.Add(new MenuItem
@@ -48,6 +50,7 @@ namespace XTMF.Gui.UserControls
                     VerticalAlignment = VerticalAlignment.Stretch,
                     Width = 20,
                     Height = 20
+
                 }
             });
             // cut
@@ -86,6 +89,7 @@ namespace XTMF.Gui.UserControls
         {
             ClipToBounds = true;
             ContextMenu = _LocalContextMenu;
+            Padding = new Thickness(5, 5, 5, 5);
         }
 
         public string HintText

@@ -25,9 +25,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" SizeToContent="WidthAndHeight"
         Title="Answer" MinWidth="300" Background="{x:Null}">
-    <Window.Effect>
-        <DropShadowEffect/>
-    </Window.Effect>
+ 
  
 
     <Border Margin="20"  Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="1">
@@ -38,7 +36,7 @@
             </LinearGradientBrush>
         </Border.BorderBrush>
         <Border.Effect>
-            <DropShadowEffect BlurRadius="15" ShadowDepth="5" Color="Black"></DropShadowEffect>
+            <DropShadowEffect BlurRadius="5" ShadowDepth="5" Color="#333333" Opacity="0.5"></DropShadowEffect>
         </Border.Effect>
         <Grid Margin="5,5,5,5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}">
         <Grid.RowDefinitions>
@@ -46,7 +44,7 @@
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="AUTO" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" x:Name="QuestionLabel" Foreground="{DynamicResource ThemeTextColorBrush}" />
+        <TextBlock Grid.Row="0" Margin="0,0,0,4" x:Name="QuestionLabel" Foreground="{DynamicResource ThemeTextColorBrush}" />
         <TextBlock Grid.Row="1" x:Name="ValidationLabel" Text="Invalid answer" Foreground="Red" Visibility="Collapsed" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

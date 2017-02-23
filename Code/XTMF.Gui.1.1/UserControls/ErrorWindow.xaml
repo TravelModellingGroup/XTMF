@@ -44,7 +44,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" Margin="5px,5px,5px,5px">Error Message</TextBlock>
 
-                    <Path Data="{DynamicResource ErrorIconPath}" Fill="Red" Stretch="Uniform" Width="32"></Path>
+                    <Path Margin="6,6,6,6" Data="{DynamicResource ErrorIconPath}" Fill="Red" Stretch="Uniform" Width="32"></Path>
 
                 </StackPanel>
                 <ScrollViewer MaxHeight="150" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
@@ -63,8 +63,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <my:BorderIconButton Margin="5" Grid.Column="0" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Images/delete.png" Header="Continue" Text="Continue on" Clicked="Continue" />
-            <my:BorderIconButton Margin="5" Grid.Column="1" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Images/copyHS.png" Header="Copy" Text="Copy Error to Clipboard" Clicked="Copy" />
+            <my:BorderIconButton Margin="5" Grid.Column="0" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Resources/ic_arrow_forward_white_36dp.png" Header="Continue" Text="Continue on" Clicked="Continue" />
+            <my:BorderIconButton Margin="5" Grid.Column="1" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Resources/ic_content_copy_white_2x.png" Header="Copy" Text="Copy Error to Clipboard" Clicked="Copy" />
         </Grid>
     </Grid>
 </Window>

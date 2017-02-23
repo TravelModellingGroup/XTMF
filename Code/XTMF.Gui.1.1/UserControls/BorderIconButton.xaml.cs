@@ -460,6 +460,19 @@ namespace XTMF.Gui
 
         private void BorderIconButton_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+
+            if (!this.IsEnabled)
+            {
+                TextContent.Opacity = 0.3;
+                HeaderContent.Opacity = 0.3;
+                IconImage.Opacity = 0.3;
+            }
+            else
+            {
+                TextContent.Opacity = 1.0;
+                HeaderContent.Opacity = 1.0;
+                IconImage.Opacity = 1.0;
+            }
             if ((bool)e.NewValue != (bool)e.OldValue)
             {
                 if ((bool)e.NewValue)

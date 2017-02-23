@@ -65,6 +65,8 @@ namespace XTMF.Gui
 
             BottomBrush.GradientStops.Add( new GradientStop( Colors.Transparent, 0 ) );
             BottomBrush.GradientStops.Add( new GradientStop( transparent, 1 ) );
+
+            Value = 25;
         }
 
         public bool Finished

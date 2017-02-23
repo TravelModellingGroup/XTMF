@@ -99,6 +99,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MahApps.Metro, Version=1.4.1.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.1.4.1\lib\net45\MahApps.Metro.dll</HintPath>
@@ -445,6 +448,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -579,6 +583,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\ic_developer_board_24px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_cancel_white_18pt_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_arrow_forward_white_36dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_content_copy_white_2x.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

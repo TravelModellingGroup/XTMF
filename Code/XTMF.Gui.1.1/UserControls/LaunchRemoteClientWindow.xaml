@@ -28,12 +28,9 @@
     <UserControl.Background>
         <SolidColorBrush Color="#FF252526"/>
     </UserControl.Background>
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
-        <StackPanel.Background>
-            <SolidColorBrush Color="#FF1F1F1F"/>
-        </StackPanel.Background>
-        <local:HintedTextBox x:Name="Server" Margin="9.44881889763779,25,9.44881889763779,9.44881889763779" HintText="Server Address" PreviewKeyDown="Server_PreviewKeyDown" />
-        <local:HintedTextBox x:Name="Port" Margin="0.25cm" HintText="Port Number" PreviewKeyDown="Port_PreviewKeyDown" />
-        <my:BorderIconButton Margin="9.44881889763779,9.44881889763779,9.44881889763779,25" Icon="/XTMF.Gui;component/Resources/Run.png" Header="Launch" Width="200" Text="Launch Remote Client" Clicked="Launch_Clicked" />
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Background="{DynamicResource WindowBackgroundBrush1}">
+        <local:HintedTextBox x:Name="Server" Padding="5" Margin="0.25cm,0.25cm,0.25cm,0.1cm" HintText="Server Address" PreviewKeyDown="Server_PreviewKeyDown" />
+        <local:HintedTextBox x:Name="Port" Padding="10"  Margin="0.25cm" HintText="Port Number" PreviewKeyDown="Port_PreviewKeyDown" />
+        <my:BorderIconButton Margin="9.44881889763779,9.44881889763779,9.44881889763779,25" Icon="/XTMF.Gui;component/Resources/ic_arrow_forward_white_36dp.png" Header="Launch" Width="200" Text="Launch Remote Client" Clicked="Launch_Clicked" />
     </StackPanel>
 </UserControl>
