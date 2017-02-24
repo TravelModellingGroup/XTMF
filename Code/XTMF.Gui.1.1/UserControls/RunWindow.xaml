@@ -22,17 +22,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
-             mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush2}">
+             mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush1}" Height="268.334" Width="874.667">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0"  Margin="20,0,0,0">
+        <Grid Grid.Column="0"  Margin="0,0,0,0">
 
-            <StackPanel VerticalAlignment="Center" >
-            <my:BorderIconButton Margin="0,0,0,0"  x:Name="OpenDirectoryButton"  Width="250" Header="Open Run Output"
+            <StackPanel VerticalAlignment="Top" >
+                <my:BorderIconButton Margin="0,0,0,0"  x:Name="OpenDirectoryButton"  Width="250" Header="Open Run Output"
                                      Text="Open the run's output directory" Icon="/XTMF.Gui;component/Resources/ic_folder_open_white_18dp.png"
                                      
                                      Clicked="OpenDirectoryButton_Clicked" HorizontalAlignment="Left" VerticalAlignment="Top" />
@@ -47,33 +48,33 @@
 
             </StackPanel>
         </Grid>
-        <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid Grid.Column="1" Background="{DynamicResource WindowBackgroundBrush1}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Border Grid.Row="0" Margin="5" HorizontalAlignment="Stretch" BorderBrush="White" BorderThickness="1">
-                <Grid Margin="5" Width="550">
+            <Border Grid.Row="0"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                <Grid Margin="0" Height="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="1" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" Text="Run Name: " />
-                    <TextBlock Grid.Column="2" x:Name="RunNameLabel" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" TextTrimming="CharacterEllipsis" Text="Run Name" />
+                    <TextBlock Grid.Column="1" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" Text="Run Name: "  Visibility="Hidden"/>
+                    <TextBlock Grid.Column="2" x:Name="RunNameLabel" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" TextTrimming="CharacterEllipsis" Text="Run Name" Visibility="Hidden" />
                 </Grid>
             </Border>
             <Grid Grid.Row="1" >
                 <Grid.ColumnDefinitions>
+                    
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="AUTO" />
-                    <ColumnDefinition Width="AUTO" />
-                    <ColumnDefinition Width="*" />
+                  
+                 
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="1" Background="{DynamicResource WindowBackgroundBrush1}" BorderBrush="White" BorderThickness="1"
-                    VerticalAlignment="Stretch" Margin="5">
+                <Border Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush1}"  
+                    VerticalAlignment="Stretch" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO" />
@@ -81,10 +82,10 @@
                             <RowDefinition Height="AUTO" />
                         </Grid.RowDefinitions>
 
-                      
+
                     </Grid>
                 </Border>
-                <Border Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush1}" BorderBrush="White" BorderThickness="0" Width="300" Margin="5">
+                <Border HorizontalAlignment="Stretch"  Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="0" Width="300" Margin="5">
                     <ScrollViewer  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -94,7 +95,7 @@
                                 <RowDefinition Height="AUTO" />
                                 <RowDefinition Height="AUTO" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" x:Name="StatusLabel" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" Text="Status" TextTrimming="WordEllipsis" HorizontalAlignment="Center"
+                            <TextBlock Grid.Row="0" x:Name="StatusLabel" Foreground="{DynamicResource ThemeTextColorBrush}"  Text="Status" TextTrimming="WordEllipsis" HorizontalAlignment="Center"
                                        TextAlignment="Center" TextWrapping="Wrap" />
                             <my:TMGProgressBar Grid.Row="1" x:Name="ProgressBar" Background="{DynamicResource ControlColourUnselectedBrush}" HorizontalAlignment="Stretch" Height="20" Minimum="0"  Maximum="10000" Value="0"  FontSize="14" IsIndeterminate="False" Margin="5,5,5,5" Foreground="{DynamicResource ControlColourBrush}"  />
                             <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" BorderBrush="White" Height="0" BorderThickness="1" CornerRadius="5" Margin="5" Visibility="Collapsed">
@@ -106,26 +107,28 @@
                     </ScrollViewer>
                 </Border>
             </Grid>
-            <Border x:Name="ConsoleBorder" Margin="5" Grid.Row="2" BorderBrush="White" BorderThickness="0" VerticalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}"
-                Visibility="Visible">
-                <Grid VerticalAlignment="Stretch" >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="AUTO" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Padding="3"  Grid.Row="0" Text="Console Output" Background="{DynamicResource WindowBackgroundBrush3}" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
-                    <Border BorderThickness="1"  Grid.Row="1" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
-                    <ScrollViewer  Padding="0" x:Name="ConsoleScrollViewer"   BorderThickness="1"
+
+        </Grid>
+
+        <Border Margin="5" Grid.Column="2" x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}"
+                Visibility="Visible" >
+            <Grid VerticalAlignment="Stretch" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="AUTO" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Padding="0"  Grid.Row="0" Text="Console Output"  Foreground="{DynamicResource ThemeTextColorBrush}"  HorizontalAlignment="Center" />
+                <Border HorizontalAlignment="Stretch" Margin="0,5,0,0" BorderThickness="1"  Grid.Row="1" BorderBrush="{DynamicResource WindowBackgroundBrush3}">
+                    <ScrollViewer  Padding="0" x:Name="ConsoleScrollViewer"   BorderThickness="0"
                               HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible"
-                              VerticalAlignment="Stretch" Height="200" BorderBrush="{DynamicResource WindowBackgroundBrush1}" Margin="1,0,-1,0">
-                        <TextBox Padding="0" Margin="0" x:Name="ConsoleOutput" Background="{DynamicResource WindowBackgroundBrush2}" Foreground="{DynamicResource ThemeTextColorBrush}"
+                              VerticalAlignment="Stretch"  BorderBrush="{DynamicResource WindowBackgroundBrush1}" Margin="0,0,0,0">
+                        <TextBox HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" Background="{DynamicResource WindowBackgroundBrush2}" Foreground="{DynamicResource ThemeTextColorBrush}"
                          TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
-                         Width="550" TextChanged="ConsoleOutput_TextChanged"
+                       TextChanged="ConsoleOutput_TextChanged"
                              IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderBrush="{x:Null}"/>
                     </ScrollViewer>
-                    </Border>
-                </Grid>
-            </Border>
-        </Grid>
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

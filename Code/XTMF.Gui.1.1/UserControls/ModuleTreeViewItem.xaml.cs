@@ -100,13 +100,17 @@ DependencyProperty.Register("BackingModel",
 
             if (BackingModel.BaseModel.IsDisabled)
             {
-                Opacity = 0.4;
+                //Opacity = 0.4;
+                SubTextLabel.Opacity = 0.4;
+                Title.Opacity = 0.4;
+                IconPath.Opacity = 0.4;
             }
             else
             {
-                Opacity = 1.0;
+                SubTextLabel.Opacity = 1.0;
+                Title.Opacity = 1.0;
+                IconPath.Opacity = 1.0;
             }
-
 
             if (BackingModel.BaseModel.IsOptional)
             {
@@ -117,12 +121,19 @@ DependencyProperty.Register("BackingModel",
             {
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
                 ContentBorder.BorderThickness = new Thickness(1);
+
+                
             }
 
             
 
           
 
+        }
+
+        private void UpdateComponents()
+        {
+            
         }
 
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -156,11 +167,16 @@ DependencyProperty.Register("BackingModel",
 
                 if (BackingModel.BaseModel.IsDisabled)
                 {
-                    Opacity = 0.4;
+                    //Opacity = 0.4;
+                    SubTextLabel.Opacity = 0.4;
+                    Title.Opacity = 0.4;
+                    IconPath.Opacity = 0.4;
                 }
                 else
                 {
-                    Opacity = 1.0;
+                    SubTextLabel.Opacity = 1.0;
+                    Title.Opacity = 1.0;
+                    IconPath.Opacity = 1.0;
                 }
             }
 

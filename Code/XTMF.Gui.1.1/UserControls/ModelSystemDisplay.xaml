@@ -29,7 +29,7 @@
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="600" Background="{DynamicResource WindowBackgroundBrush}">
+             d:DesignHeight="500" d:DesignWidth="1200" Background="{DynamicResource WindowBackgroundBrush}">
     <UserControl.Resources>
         <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20"
           Viewbox="0,0,14,14" ViewportUnits="Absolute" 
@@ -126,6 +126,11 @@
             <ColumnDefinition Width="AUTO"/>
             <ColumnDefinition MinWidth="330px" Width="*"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="3"></RowDefinition>
+            <RowDefinition Height="AUTO"></RowDefinition>
+        </Grid.RowDefinitions>
 
         <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
             <Canvas UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True">
@@ -574,5 +579,33 @@
                 </Grid>
             </TabItem>
         </TabControl>
+        <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Grid.Row="1" Height="3" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True"></GridSplitter>
+        <Grid Visibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="2" ColumnSpan="3" Grid.Column="0" Name="ModelRunGrid" Height="0">
+
+           
+            <Grid HorizontalAlignment="Stretch">
+                
+                <Grid.ColumnDefinitions>
+
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <this:RunWindow x:Name="RunWindowFrame"  VerticalAlignment="Stretch" Height="Auto" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0" Width="Auto"></this:RunWindow>
+                <StackPanel Grid.Column="0" Grid.Row="0"  VerticalAlignment="Center" FlowDirection="LeftToRight" Orientation="Vertical">
+                    <Border VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="30" Background="{DynamicResource WindowBackgroundBrush3}">
+                        <StackPanel>
+                            <Label Content="Model Run: Model Run Name"></Label>
+                            <Label Opacity="0.5" Name="ModelRunNameLabel" Content="Model Run Name">
+                            </Label>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </Grid>
+           
+        </Grid>
     </Grid>
 </UserControl>

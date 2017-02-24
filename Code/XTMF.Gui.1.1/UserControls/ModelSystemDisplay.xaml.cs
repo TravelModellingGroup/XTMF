@@ -641,7 +641,8 @@ namespace XTMF.Gui.UserControls
                             break;
                         case Key.F5:
                             SaveCurrentlySelectedParameters();
-                            MainWindow.Us.ExecuteRun();
+                          //  MainWindow.Us.ExecuteRun();
+                            this.ExecuteRun();
                             e.Handled = true;
                             break;
                         case Key.Escape:
@@ -649,6 +650,30 @@ namespace XTMF.Gui.UserControls
                             break;
                     }
                 }
+            }
+        }
+        private bool ValidateName(string name)
+        {
+            return Project.ValidateProjectName(name);
+        }
+
+        private void ExecuteRun()
+        {
+            //ModelRunGrid.Height = 100;
+
+        
+            var runName = "Run Name";
+            string error = null;
+            StringRequest req = new StringRequest("Run Name", ValidateName);
+
+            if (req.ShowDialog() == true)
+            {
+                ModelRunGrid.Height = 250;
+                ModelRunGrid.Visibility = Visibility.Visible;
+                var run = Session.Run(runName, ref error);
+                runName = req.Answer;
+
+                this.RunWindowFrame.StartRun(Session, run, runName);
             }
         }
 

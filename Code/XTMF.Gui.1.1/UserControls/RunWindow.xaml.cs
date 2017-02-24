@@ -35,7 +35,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for RunWindow.xaml
     /// </summary>
-    public partial class RunWindow
+    public partial class RunWindow : UserControl
     {
         private XTMFRun _run;
         private string _runDirectory;
@@ -73,7 +73,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public sealed class ConsoleOutputController : INotifyPropertyChanged, IDisposable
+        public RunWindow()
+        {
+            InitializeComponent();
+        }
+
+        public  class ConsoleOutputController : INotifyPropertyChanged, IDisposable
         {
             public string ConsoleOutput { get; set; }
 
@@ -175,6 +180,13 @@ namespace XTMF.Gui.UserControls
         public RunWindow(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             InitializeComponent();
+            Session = session;
+            session.SessionClosed += Session_SessionClosed;
+            StartRun(run, runName);
+        }
+
+        public void StartRun(ModelSystemEditingSession session, XTMFRun run, string runName)
+        {
             Session = session;
             session.SessionClosed += Session_SessionClosed;
             StartRun(run, runName);
