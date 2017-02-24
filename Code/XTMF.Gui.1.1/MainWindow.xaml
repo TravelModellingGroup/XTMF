@@ -284,6 +284,13 @@
                                    Width="20" Height="20" />
                         </MenuItem.Icon>
                     </MenuItem>
+
+                    <MenuItem Header="_Model Run Pane" Click="ShowModelRunPane_OnClick">
+                        <MenuItem.Icon>
+                            <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png"
+                                   Width="20" Height="20" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem.Background>
@@ -306,6 +313,8 @@
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
                                  Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
                                   Background="{DynamicResource WindowBackgroundBrush1}">
+                
+                
                 <xcad:DockingManager.DocumentTitleTemplate>
                     <DataTemplate>
                         <Grid HorizontalAlignment="Stretch">
@@ -317,7 +326,7 @@
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0" />
                             <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="22" Margin="1"
-                                       Foreground="White" />
+                                       Foreground="Black"  />
                         </Grid>
                     </DataTemplate>
                 </xcad:DockingManager.DocumentTitleTemplate>
@@ -328,28 +337,7 @@
                             <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="{DynamicResource ControlTextColourBrush}">
                                 <TextBlock.Style>
                                     <Style TargetType="{x:Type TextBlock}">
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Trigger.EnterActions>
-                                                    <BeginStoryboard>
-                                                        <Storyboard>
-                                                            <ColorAnimation
-                                                                Storyboard.TargetProperty="Foreground.Color" To="White"
-                                                                Duration="0:0:0.1" />
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </Trigger.EnterActions>
-                                                <Trigger.ExitActions>
-                                                    <BeginStoryboard>
-                                                        <Storyboard>
-                                                            <ColorAnimation
-                                                                Storyboard.TargetProperty="Foreground.Color"
-                                                                To="#EEEEEEEE" Duration="0:0:0.1" />
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </Trigger.ExitActions>
-                                            </Trigger>
-                                        </Style.Triggers>
+                                      
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
@@ -357,15 +345,27 @@
                     </DataTemplate>
                 </xcad:DockingManager.DocumentHeaderTemplate>
                 <xcad:DockingManager.Theme>
-                    <xcad:Vs2013DarkTheme />
+                    <xcad:Vs2013LightTheme />
                 </xcad:DockingManager.Theme>
+                
+            
+               
                 <xcad:LayoutRoot x:Name="LayoutRoot">
-                    <xcad:LayoutPanel Orientation="Horizontal">
+                    <xcad:LayoutPanel Orientation="Vertical">
                         <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
                             <xcad:LayoutDocumentPane x:Name="DocumentPane"
                                                      />
                         </xcad:LayoutDocumentPaneGroup>
+                        
+                        <xcad:LayoutAnchorablePane DockHeight="250" FloatingHeight="250">
+                      
+                            <xcad:LayoutAnchorable x:Name="ModelRunPane"  Title="Model System Run" CanClose="False" CanAutoHide="False" CanFloat="True" CanHide="True" AutoHideMinWidth="200" AutoHideWidth="200" AutoHideHeight="200">
+                                <uc:RunWindow HorizontalAlignment="Stretch"></uc:RunWindow>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
                     </xcad:LayoutPanel>
+                    
+                 
                 </xcad:LayoutRoot>
             </xcad:DockingManager>
             <StatusBar Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch"

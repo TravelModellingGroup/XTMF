@@ -18,11 +18,18 @@ namespace XTMF.Gui
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+
+            this.DispatcherUnhandledException += AppGlobalDispatcherUnhandledException;
             var xtmfMainWindow = new MainWindow();
 
 
             xtmfMainWindow.Show();
         }
+        private void AppGlobalDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            e.Handled = true;
+        }
+
     }
 
 

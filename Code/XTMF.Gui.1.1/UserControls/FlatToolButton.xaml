@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="XTMF.Gui.UserControls.FlatToolButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+             mc:Ignorable="d" Background="Transparent"
+                     d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Margin="0">
+            <Button BorderThickness="0" Padding="0" Margin="0,0,0,0" Click="ButtonBase_OnClick" Background="Transparent">
+                
+        
+                <StackPanel Margin="2,0,2,0" Orientation="Horizontal" >
+                <Path Name="IconPathComponent" Stretch="Uniform" Data="{Binding IconPath.Data}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
+                <Label Foreground="{DynamicResource ThemeTextColorBrush}" Padding="0" Margin="3,0,3,0"  Content="{Binding ToolText }"></Label>
+       
+             
+            </StackPanel>
+        </Button>
+    </Grid>
+</UserControl>

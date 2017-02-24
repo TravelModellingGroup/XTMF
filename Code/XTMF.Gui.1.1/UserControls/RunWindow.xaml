@@ -22,7 +22,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
-             mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush1}" Height="268.334" Width="874.667">
+             xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
+             mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush3}" >
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -30,8 +31,47 @@
             <ColumnDefinition Width="3*"></ColumnDefinition>
             <ColumnDefinition Width="3*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0"  Margin="0,0,0,0">
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0" ColumnSpan="3" Background="{DynamicResource WindowBackgroundBrush1}">
+            <StackPanel Margin="0" FlowDirection="LeftToRight" Orientation="Horizontal">
 
+
+                <userControls:FlatToolButton  x:Name="OpenDirectoryButton" ToolText="Open Run Output" Click="OpenDirectoryButton_Clicked" >
+
+                    <userControls:FlatToolButton.IconPath  >
+                        <Path Data="{DynamicResource FolderOpenIconPath}" Stretch="Uniform" >
+
+                        </Path>
+                    </userControls:FlatToolButton.IconPath>
+                </userControls:FlatToolButton>
+                <userControls:FlatToolButton Click="CancelButton_Clicked" x:Name="CancelButton"  ToolText="Cancel Run">
+                   
+                    <userControls:FlatToolButton.IconPath  >
+                        <Path Data="{DynamicResource CancelIconPath}" Stretch="Uniform" >
+                            
+                        </Path>
+                    </userControls:FlatToolButton.IconPath>
+                </userControls:FlatToolButton>
+
+                <userControls:FlatToolButton x:Name="ContinueButton" Click="ContinueButton_Clicked"  ToolText="Continue to Project">
+
+                    <userControls:FlatToolButton.IconPath  >
+                        <Path Data="{DynamicResource Checkmark}" Stretch="Uniform" >
+
+                        </Path>
+                    </userControls:FlatToolButton.IconPath>
+                </userControls:FlatToolButton>
+            </StackPanel>
+        </Grid>
+        <GroupBox Grid.Row="1"  Grid.Column="0"  Margin="3" Header="Module Execution Status" BorderThickness="0.5">
+
+            <Label></Label>
+            <!--
             <StackPanel VerticalAlignment="Top" >
                 <my:BorderIconButton Margin="0,0,0,0"  x:Name="OpenDirectoryButton"  Width="250" Header="Open Run Output"
                                      Text="Open the run's output directory" Icon="/XTMF.Gui;component/Resources/ic_folder_open_white_18dp.png"
@@ -46,9 +86,10 @@
                               
                                      Clicked="ContinueButton_Clicked" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-            </StackPanel>
-        </Grid>
-        <Grid Grid.Column="1" Background="{DynamicResource WindowBackgroundBrush1}">
+            </StackPanel> -->
+        </GroupBox>
+        <GroupBox Margin="3" Grid.Row="1" Grid.Column="1" Header="Run Status" BorderThickness="0.5" >
+        <Grid  Background="{DynamicResource WindowBackgroundBrush3}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -73,7 +114,7 @@
                   
                  
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush1}"  
+                <Border Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush3}"  
                     VerticalAlignment="Stretch" >
                     <Grid>
                         <Grid.RowDefinitions>
@@ -85,17 +126,17 @@
 
                     </Grid>
                 </Border>
-                <Border HorizontalAlignment="Stretch"  Background="{DynamicResource WindowBackgroundBrush1}" BorderThickness="0" Width="300" Margin="5">
+                <Border HorizontalAlignment="Stretch"  Background="{DynamicResource WindowBackgroundBrush3}" BorderThickness="0"  Margin="5">
                     <ScrollViewer  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="AUTO" />
-                                <RowDefinition Height="AUTO" />
+                                    <RowDefinition Height="AUTO" />
+                                    <RowDefinition Height="AUTO" />
                                 <RowDefinition Height="AUTO" />
                                 <RowDefinition Height="AUTO" />
                                 <RowDefinition Height="AUTO" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" x:Name="StatusLabel" Foreground="{DynamicResource ThemeTextColorBrush}"  Text="Status" TextTrimming="WordEllipsis" HorizontalAlignment="Center"
+                            <TextBlock Grid.Row="0" x:Name="StatusLabel" Foreground="{DynamicResource ThemeTextColorBrush}"  Text="Status" TextTrimming="WordEllipsis" HorizontalAlignment="Left"
                                        TextAlignment="Center" TextWrapping="Wrap" />
                             <my:TMGProgressBar Grid.Row="1" x:Name="ProgressBar" Background="{DynamicResource ControlColourUnselectedBrush}" HorizontalAlignment="Stretch" Height="20" Minimum="0"  Maximum="10000" Value="0"  FontSize="14" IsIndeterminate="False" Margin="5,5,5,5" Foreground="{DynamicResource ControlColourBrush}"  />
                             <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" BorderBrush="White" Height="0" BorderThickness="1" CornerRadius="5" Margin="5" Visibility="Collapsed">
@@ -109,26 +150,29 @@
             </Grid>
 
         </Grid>
+        </GroupBox>
 
-        <Border Margin="5" Grid.Column="2" x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}"
+        <GroupBox Margin="3" Grid.Row="1" Grid.Column="2" Header="Console Output" BorderThickness="0.5">
+            <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush3}"
                 Visibility="Visible" >
-            <Grid VerticalAlignment="Stretch" >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="AUTO" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <TextBlock Padding="0"  Grid.Row="0" Text="Console Output"  Foreground="{DynamicResource ThemeTextColorBrush}"  HorizontalAlignment="Center" />
-                <Border HorizontalAlignment="Stretch" Margin="0,5,0,0" BorderThickness="1"  Grid.Row="1" BorderBrush="{DynamicResource WindowBackgroundBrush3}">
-                    <ScrollViewer  Padding="0" x:Name="ConsoleScrollViewer"   BorderThickness="0"
+                <Grid VerticalAlignment="Stretch" >
+                    <Grid.RowDefinitions>
+                  
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+               
+                    <Border HorizontalAlignment="Stretch" Margin="0,0,0,0" BorderThickness="1"  Grid.Row="0" BorderBrush="{DynamicResource WindowBackgroundBrush3}">
+                        <ScrollViewer  Padding="0" x:Name="ConsoleScrollViewer"   BorderThickness="0"  
                               HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible"
                               VerticalAlignment="Stretch"  BorderBrush="{DynamicResource WindowBackgroundBrush1}" Margin="0,0,0,0">
-                        <TextBox HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" Background="{DynamicResource WindowBackgroundBrush2}" Foreground="{DynamicResource ThemeTextColorBrush}"
+                            <TextBox HorizontalAlignment="Stretch" Padding="0" Margin="0" x:Name="ConsoleOutput" Background="{DynamicResource WindowBackgroundBrush2}" Foreground="{DynamicResource ThemeTextColorBrush}"
                          TextWrapping="Wrap" Text="{Binding ConsoleOutput}" UndoLimit="0" IsUndoEnabled="False"
                        TextChanged="ConsoleOutput_TextChanged"
                              IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderBrush="{x:Null}"/>
-                    </ScrollViewer>
-                </Border>
-            </Grid>
-        </Border>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Border>
+        </GroupBox>
     </Grid>
 </UserControl>

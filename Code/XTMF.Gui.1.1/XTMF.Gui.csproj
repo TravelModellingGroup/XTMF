@@ -171,6 +171,9 @@
     <Compile Include="Models\ModelSystemEditingSessionDisplayModel.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
+    <Compile Include="UserControls\FlatToolButton.xaml.cs">
+      <DependentUpon>FlatToolButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModuleTreeViewItem.xaml.cs">
       <DependentUpon>ModuleTreeViewItem.xaml</DependentUpon>
     </Compile>
@@ -284,6 +287,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\FlatToolButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\ModuleTreeViewItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

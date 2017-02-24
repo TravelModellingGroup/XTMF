@@ -1385,5 +1385,19 @@ namespace XTMF.Gui
 
             }
         }
+
+    
+
+        private void ShowModelRunPane_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (ModelRunPane.IsHidden)
+            {
+                ModelRunPane.Show();
+            }
+            else
+            {
+                ModelRunPane.Hide();
+            }
+        }
     }
 }

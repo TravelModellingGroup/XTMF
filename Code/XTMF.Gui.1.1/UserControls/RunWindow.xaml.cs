@@ -395,8 +395,8 @@ namespace XTMF.Gui.UserControls
             CancelButton.IsEnabled = false;
             StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
             ProgressBar.Finished = true;
-            ContinueButton.FlashAnimation(5);
-            OpenDirectoryButton.FlashAnimation(5);
+           // ContinueButton.FlashAnimation(5);
+           // OpenDirectoryButton.FlashAnimation(5);
         }
 
         private void Run_RunStarted()
@@ -434,7 +434,7 @@ namespace XTMF.Gui.UserControls
 
         public ModelSystemEditingSession Session { get; private set; }
 
-        private void OpenDirectoryButton_Clicked(object obj)
+        private void OpenDirectoryButton_Clicked(object sender, RoutedEventArgs e)
         {
             if (Directory.Exists(_runDirectory))
             {
@@ -446,7 +446,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void CancelButton_Clicked(object obj)
+        private void CancelButton_Clicked(object sender, RoutedEventArgs e)
         {
             //Are you sure?
             if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
@@ -456,7 +456,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void ContinueButton_Clicked(object obj)
+        private void ContinueButton_Clicked(object sender, RoutedEventArgs e)
         {
             MainWindow.Us.CloseWindow(this);
         }

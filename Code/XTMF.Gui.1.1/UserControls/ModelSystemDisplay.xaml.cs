@@ -668,13 +668,16 @@ namespace XTMF.Gui.UserControls
 
             if (req.ShowDialog() == true)
             {
-                ModelRunGrid.Height = 250;
-                ModelRunGrid.Visibility = Visibility.Visible;
+              
                 var run = Session.Run(runName, ref error);
                 runName = req.Answer;
 
+
+                MainWindow.Us.ModelRunPane.Show();
                 this.RunWindowFrame.StartRun(Session, run, runName);
             }
+
+           
         }
 
         private void ShowQuickParameters()
