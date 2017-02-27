@@ -668,12 +668,19 @@ namespace XTMF.Gui.UserControls
             {
                 runName = req.Answer;
                 var run = Session.Run(runName, ref error);
-                MainWindow.Us.ModelRunPane.Show();
-                Console.WriteLine(MainWindow.Us.RunWindow);
-                MainWindow.Us.RunWindow.StartRun(Session,run,runName);
+                if (run != null)
+                {
+                    MainWindow.Us.ModelRunPane.Show();
+                    Console.WriteLine(MainWindow.Us.RunWindow);
+                    MainWindow.Us.RunWindow.StartRun(Session, run, runName);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Unable to start run.\r\n" + error,
+                        "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Question, MessageBoxResult.OK);
+                }
             }
-
-           
         }
 
         private void ShowQuickParameters()
