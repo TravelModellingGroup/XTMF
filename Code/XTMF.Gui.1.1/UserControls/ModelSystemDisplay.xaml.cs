@@ -660,25 +660,17 @@ namespace XTMF.Gui.UserControls
         private void ExecuteRun()
         {
             //ModelRunGrid.Height = 100;
-
-        
-            var runName = "Run Name";
+            var runName = String.Empty;
             string error = null;
             StringRequest req = new StringRequest("Run Name", ValidateName);
 
             if (req.ShowDialog() == true)
             {
-              
-                var run = Session.Run(runName, ref error);
                 runName = req.Answer;
-
-
+                var run = Session.Run(runName, ref error);
                 MainWindow.Us.ModelRunPane.Show();
-
                 Console.WriteLine(MainWindow.Us.RunWindow);
-
                 MainWindow.Us.RunWindow.StartRun(Session,run,runName);
-                //MainWindow.Us.ModelRunPane.Content
             }
 
            
