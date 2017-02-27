@@ -359,8 +359,8 @@
                         
                         <xcad:LayoutAnchorablePane DockHeight="250" FloatingHeight="250">
                       
-                            <xcad:LayoutAnchorable x:Name="ModelRunPane"  Title="Model System Run" CanClose="False" CanAutoHide="False" CanFloat="True" CanHide="True" AutoHideMinWidth="200" AutoHideWidth="200" AutoHideHeight="200">
-                                <uc:RunWindow HorizontalAlignment="Stretch"></uc:RunWindow>
+                            <xcad:LayoutAnchorable  IsVisible="False" IsMaximized="False" x:Name="ModelRunPane"  Title="Model System Run" CanClose="False" CanAutoHide="False" CanFloat="True" CanHide="True" AutoHideMinWidth="200" AutoHideWidth="200" AutoHideHeight="200">
+                                <uc:RunWindow   HorizontalAlignment="Stretch"></uc:RunWindow>
                             </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorablePane>
                     </xcad:LayoutPanel>

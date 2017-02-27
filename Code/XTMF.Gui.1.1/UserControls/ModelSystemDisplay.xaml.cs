@@ -674,7 +674,11 @@ namespace XTMF.Gui.UserControls
 
 
                 MainWindow.Us.ModelRunPane.Show();
-                this.RunWindowFrame.StartRun(Session, run, runName);
+
+                Console.WriteLine(MainWindow.Us.RunWindow);
+
+                MainWindow.Us.RunWindow.StartRun(Session,run,runName);
+                //MainWindow.Us.ModelRunPane.Content
             }
 
            

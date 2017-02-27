@@ -64,7 +64,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
 
             
-            //this.Title.Content = (string)this.GetValue(TitleTextDependencyProperty);
+  
         }
 
         public Path IconPath

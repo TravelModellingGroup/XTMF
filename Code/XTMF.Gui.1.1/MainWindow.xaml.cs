@@ -89,6 +89,11 @@ namespace XTMF.Gui
         }
 
 
+        public RunWindow RunWindow
+        {
+            get { return (RunWindow)ModelRunPane.Content; }
+        }
+
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
             get { return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty); }
@@ -103,7 +108,7 @@ namespace XTMF.Gui
         private ActiveEditingSessionDisplayModel NullEditingDisplayModel;
 
 
-        
+
         public MainWindow()
         {
             // start it with a blank editing display model
@@ -115,6 +120,7 @@ namespace XTMF.Gui
             {
                 CheckHasLocalConfiguration();
             }
+
 
 
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 9;
@@ -155,30 +161,18 @@ namespace XTMF.Gui
 
                     UpdateRecentProjectsMenu();
 
-                    //  System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(Show));
 
-                    //Show();
-                    // Show();
-                    // Visibility = Visibility.Visible;
 
                 }));
             });
 
 
-          
-
-
-
-            //Hide();
-            //Visibility = Visibility.Collapsed;
-           // _themeController.SetThemeActive(_themeController.GetDefaultTheme());
             InitializeComponent();
-
+            ModelRunPane.Hide();
             Loaded += FrameworkElement_Loaded;
             Us = this;
 
             operationProgressing = new OperationProgressing();
-            //operationProgressing.Owner = this;
 
 
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, this.Close_Click));
@@ -450,7 +444,7 @@ namespace XTMF.Gui
         {
             IsEnabled = false;
             StatusDisplay.Text = "Loading XTMF";
-           
+
 
 
             ShowStart_Click(this, null);
@@ -901,7 +895,7 @@ namespace XTMF.Gui
                         return;
                     }
                 }
-                if (runPage != null)            
+                if (runPage != null)
                 {
                     if (!runPage.CloseRequested())
                     {
@@ -1386,7 +1380,7 @@ namespace XTMF.Gui
             }
         }
 
-    
+
 
         private void ShowModelRunPane_OnClick(object sender, RoutedEventArgs e)
         {
