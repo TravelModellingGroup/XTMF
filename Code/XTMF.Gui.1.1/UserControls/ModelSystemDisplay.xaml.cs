@@ -678,7 +678,7 @@ namespace XTMF.Gui.UserControls
                 {
                     MessageBox.Show(
                         "Unable to start run.\r\n" + error,
-                        "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Question, MessageBoxResult.OK);
+                        "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 }
             }
         }
