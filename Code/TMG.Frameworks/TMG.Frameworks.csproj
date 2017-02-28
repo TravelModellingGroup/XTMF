@@ -75,6 +75,7 @@
     <Compile Include="Data\Loading\ZoneSystemVector.cs" />
     <Compile Include="Data\Loading\RemoteSetableDataSource.cs" />
     <Compile Include="Data\Loading\RemoteDataSource.cs" />
+    <Compile Include="Data\Loading\ZoneSystemVectorFromRange.cs" />
     <Compile Include="Data\Processing\AST\CompareOr.cs" />
     <Compile Include="Data\Processing\AST\CompareAnd.cs" />
     <Compile Include="Data\Processing\AST\FusedMultiplyAdd.cs" />

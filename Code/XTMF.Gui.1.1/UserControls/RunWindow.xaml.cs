@@ -215,6 +215,7 @@ namespace XTMF.Gui.UserControls
             _run.ValidationError += Run_ValidationError;
             _runDirectory = _run.RunDirectory;
             _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(value: 33)};
+            _isFinished = false;
             _timer.Tick += Timer_Tick;
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
