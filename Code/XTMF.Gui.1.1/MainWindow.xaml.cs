@@ -89,6 +89,8 @@ namespace XTMF.Gui
         }
 
 
+        
+
         public RunWindow RunWindow
         {
             get { return (RunWindow)ModelRunPane.Content; }
@@ -180,7 +182,16 @@ namespace XTMF.Gui
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, this.Minimize_Click, this.OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, this.OnRestoreWindow, this.OnCanResizeWindow));
 
+            RoutedCommand routed = new RoutedCommand();
+            routed.InputGestures.Add(new KeyGesture(Key.F5,ModifierKeys.Control));
 
+            CommandBindings.Add(new CommandBinding(routed, ToggleModuleRunDisplay));
+            //CommandBindings.Add()
+
+        }
+
+        public void ToggleModuleRunDisplay(object sender, RoutedEventArgs e)
+        {
 
         }
 

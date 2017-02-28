@@ -40,6 +40,8 @@
                                      Clicked="OpenProjectFolder_Clicked"/>
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Import" Width="170" Text="Model System" Icon="/XTMF.Gui;component/Resources/ic_cloud_download_white_18dp.png"
                                      Clicked="ImportModelSystem_Clicked"/>
+                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Import" Width="190" Text="Model System From File" Icon="/XTMF.Gui;component/Resources/ic_note_add_white_18pt_2x.png"
+                                     Clicked="ImportModelSystemFromFile_OnClicked"/>
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="Create New" Width="170" Text="Create a new blank Model System" Icon="/XTMF.Gui;component/Resources/ic_create_new_folder_white_18dp.png"
                                      Clicked="CreateNewModelSystem_Clicked"/>
                 <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12" Header="Refresh" Text="Refresh previous runs"

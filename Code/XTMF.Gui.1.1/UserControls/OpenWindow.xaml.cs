@@ -344,5 +344,10 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Select();
+        }
     }
 }

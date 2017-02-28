@@ -1,8 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:XTMFControls="clr-namespace:XTMF.Gui"
-             xmlns:UserControl="clr-namespace:XTMF.Gui.UserControls"
+      
                     xmlns:local="clr-namespace:XTMF.Gui.UserControls">
 
 

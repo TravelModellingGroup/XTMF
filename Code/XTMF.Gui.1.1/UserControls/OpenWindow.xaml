@@ -20,6 +20,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:XTMF.Gui"
+        xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
         Title="Open" Height="400" Width="660" ShowInTaskbar="True"
         WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner">
     <Grid Background="{StaticResource WindowBackgroundBrush}">
@@ -53,37 +54,22 @@
                         </MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
-                <ListView.Resources>
-                    <Style TargetType="{x:Type ListViewItem}">
-                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                    </Style>
-                </ListView.Resources>
+                
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
+                        <VirtualizingStackPanel></VirtualizingStackPanel>
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <my:BorderIconButton Margin="2" Header="{Binding Name}" Text="{Binding Text}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="BorderIconButton_Clicked">
-                            <my:BorderIconButton.Style>
-                                <Style TargetType="my:BorderIconButton">
-                                    <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                </Style>
-                            </my:BorderIconButton.Style>
-                        </my:BorderIconButton>
+
+                        <userControls:ListViewControl TitleText="{Binding Name}" SubText="{Binding Text}" MouseDoubleClick="Control_OnMouseDoubleClick">
+                            
+                        </userControls:ListViewControl>
+                        
                     </DataTemplate>
                 </ListView.ItemTemplate>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Style.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource FocusColour}"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource FocusColour}"/>
-                        </Style.Resources>
-                    </Style>
-                </ListView.ItemContainerStyle>
+                
             </ListView>
         </ScrollViewer>
     </Grid>

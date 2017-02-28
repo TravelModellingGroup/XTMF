@@ -96,6 +96,8 @@
 
 
     </Style>
+        
+        
 
     <Style x:Key="FlatScrollThumbs" TargetType="{x:Type Thumb}">
         <Setter Property="Template">
@@ -106,10 +108,7 @@
                         <Border x:Name="RBorder" CornerRadius="1" BorderThickness="1 " HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto" Background="{TemplateBinding Background}" BorderBrush="#FFE6E6E6" />
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="Tag" Value="Horizontal">
-                            <Setter TargetName="RBorder" Property="Width" Value="Auto" />
-                            <Setter TargetName="RBorder" Property="Height" Value="7" />
-                        </Trigger>
+                    
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -211,7 +210,7 @@
                                         Grid.Row="0"
                                        
                                         Grid.Column="1"
-                                       Width="5"
+                               
                                         Value="{TemplateBinding VerticalOffset}"
                                         Maximum="{TemplateBinding ScrollableHeight}"
                                         ViewportSize="{TemplateBinding ViewportHeight}"
@@ -221,19 +220,14 @@
 
                         </ScrollBar>
                         <ScrollBar x:Name="PART_HorizontalScrollBar"
-                                        Orientation="Horizontal"
-                                        Grid.Row="1"
-                                        Grid.Column="0"
-                                        Grid.ColumnSpan="2"
-                                       Height="5"
-                                       Width="50"
-                                        Value="{TemplateBinding HorizontalOffset}"
-                                        Maximum="{TemplateBinding ScrollableWidth}"
-                                        ViewportSize="{TemplateBinding ViewportWidth}"
-                                        Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
-                                       Focusable="False"
-                                       IsTabStop="False">
-                        </ScrollBar>
+                       Orientation="Horizontal"
+                       Grid.Row="1"
+                       Grid.Column="1"
+
+                       Value="{TemplateBinding HorizontalOffset}"
+                       Maximum="{TemplateBinding ScrollableWidth}"
+                       ViewportSize="{TemplateBinding ViewportWidth}"
+                       Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

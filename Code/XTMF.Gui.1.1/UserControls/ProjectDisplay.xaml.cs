@@ -29,10 +29,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using XTMF.Gui.Annotations;
 using XTMF.Gui.Controllers;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui.UserControls
 {
@@ -779,6 +783,56 @@ namespace XTMF.Gui.UserControls
         private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             LoadModelSystem();
+        }
+
+        private void ImportModelSystemFromFile_OnClicked(object obj)
+        {
+            var fileDialog = new System.Windows.Forms.OpenFileDialog();
+            var result = fileDialog.ShowDialog();
+
+            switch (result)
+            {
+                case System.Windows.Forms.DialogResult.OK:
+                    string error = null;
+
+                    try
+                    {
+                        ModelSystem modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(), EditorController.Runtime.Configuration,
+                       ref error);
+                        //Session.AddModelSystem()
+
+
+                        StringRequest sr = new StringRequest("Save Model System As?", newName =>
+                        {
+                            return Session.ValidateModelSystemName(newName);
+                        });
+                        sr.Owner = GetWindow();
+                        if (sr.ShowDialog() == true)
+                        {
+                            if (!Session.AddModelSystem(modelSystem, sr.Answer, ref error))
+                            {
+                                MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK,
+                                    MessageBoxImage.Error, MessageBoxResult.OK);
+                                return;
+                            }
+                            Model.RefreshModelSystems();
+                        }
+
+                  
+
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(GetWindow(), "There was an error importing the model system.", "Unable to Import Model System", MessageBoxButton.OK,
+                                    MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
+                   
+
+                    break;
+                case System.Windows.Forms.DialogResult.Cancel:
+                default:
+                    break;
+            }
         }
     }
 }
