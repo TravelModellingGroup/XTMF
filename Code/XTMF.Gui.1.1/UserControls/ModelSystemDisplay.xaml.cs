@@ -486,11 +486,16 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void KeyNavigate()
+        {
+           
+        }
+
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
         {
             var ret = new ObservableCollection<ModelSystemStructureDisplayModel>
             {
-                (DisplayRoot = new ModelSystemStructureDisplayModel(root))
+                (DisplayRoot = new ModelSystemStructureDisplayModel(root,null,0))
             };
             return ret;
         }
@@ -758,15 +763,7 @@ namespace XTMF.Gui.UserControls
 
               }
 
-              /*
-             // else
-              //{
-                  ColorAnimation setFocus = new ColorAnimation(border.IsKeyboardFocusWithin
-                          ? (Color) Application.Current.FindResource("FocusColour")
-                          : Colors.Transparent,
-                      new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-                  border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
-             // } */
+           
 
           
         }
@@ -836,9 +833,7 @@ namespace XTMF.Gui.UserControls
             {
                 textbox.Background = textbox.Background.CloneCurrentValue();
             }
-            ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-           // textbox.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
-        }
+           }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -852,9 +847,7 @@ namespace XTMF.Gui.UserControls
                 {
                     box.Background = box.Background.CloneCurrentValue();
                 }
-                ColorAnimation setFocus = new ColorAnimation(Color.FromRgb(0xEE, 0xEE, 0xEE), new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-            //    box.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
-            }
+                 }
         }
 
         private void SaveCurrentlySelectedParameters()
@@ -1171,7 +1164,7 @@ namespace XTMF.Gui.UserControls
                         }
                     }
 
-                    Dispatcher.BeginInvoke(new Action(() =>
+                    Dispatcher.InvokeAsync(new Action(() =>
                     {
                         CleanUpParameters();
                         ParameterDisplay.ItemsSource = source;
@@ -1180,16 +1173,10 @@ namespace XTMF.Gui.UserControls
                         ParameterFilterBox.RefreshFilter();
                         var type = CurrentlySelected.Count == 1 ? CurrentlySelected[0].Type : null;
 
-                        
-                        
-
                         if (type != null)
                         {
                             SelectedName.Text = type.Name;
                             SelectedNamespace.Text = type.FullName;
-
-
-
 
                         }
                         else
@@ -1197,8 +1184,8 @@ namespace XTMF.Gui.UserControls
                             SelectedName.Text = CurrentlySelected.Count > 1 ? "Multiple Selected" : "None Selected";
                             SelectedNamespace.Text = string.Empty;
                         }
-                        DoubleAnimation fadeIn = new DoubleAnimation(0.0, 1.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-                        ParameterDisplay.BeginAnimation(OpacityProperty, fadeIn);
+                        ParameterDisplay.Opacity = 1.0;
+                      
                     }));
                 });
             }
@@ -1485,9 +1472,9 @@ namespace XTMF.Gui.UserControls
 
         private void FadeOut()
         {
-            DoubleAnimation fadeOut = new DoubleAnimation(0.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-            ParameterDisplay.BeginAnimation(OpacityProperty, null);
-            ParameterDisplay.BeginAnimation(OpacityProperty, fadeOut);
+          //  DoubleAnimation fadeOut = new DoubleAnimation(0.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
+           // ParameterDisplay.BeginAnimation(OpacityProperty, null);
+           // ParameterDisplay.BeginAnimation(OpacityProperty, fadeOut);
         }
 
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)
@@ -2060,5 +2047,44 @@ namespace XTMF.Gui.UserControls
                 }
             }
         }
+
+        private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
+
+            
+          
+            e.Handled = false;
+
+            if (e.Key == Key.Down)
+                try
+                {
+                    if (item.IsExpanded)
+                    {
+                   
+                        item.Children.First().IsSelected = true;
+                       
+                    }
+                    else if (item.Index == item.Parent.Children.Count - 1)
+                        item.Parent.Parent.Children[item.Parent.Index + 1].IsSelected = true;
+                    else
+                        item.Parent.Children[item.Index + 1].IsSelected = true;
+                    e.Handled = true;
+                }
+                catch { }
+
+            if (e.Key == Key.Up)
+                try
+                {
+                    if (item.Index == 0)
+                        item.Parent.IsSelected = true;
+                    else
+                        item.Parent.Children[item.Index - 1].IsSelected = true;
+                    e.Handled = true;
+                }
+                catch { }
+                  
+        }
+
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using XTMF.Annotations;
 using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
@@ -11,7 +13,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     /// Interaction logic for ModuleTreeViewItem.xaml
     /// </summary>
-    public partial class ModuleTreeViewItem : UserControl
+    public partial class ModuleTreeViewItem : UserControl, INotifyPropertyChanged
     {
 
         public static readonly DependencyProperty ModuleTypeDependencyProperty =
@@ -30,6 +32,10 @@ DependencyProperty.Register("BackingModel",
              typeof(bool), typeof(ModuleTreeViewItem),
                  new PropertyMetadata(true));
 
+        public static readonly DependencyProperty IsExpandedDependencyProperty =
+        DependencyProperty.Register("IsExpanded",
+            typeof(bool), typeof(ModuleTreeViewItem),
+                new PropertyMetadata(true));
 
 
         public static readonly DependencyProperty TitleTextDependencyProperty =
@@ -73,6 +79,7 @@ DependencyProperty.Register("BackingModel",
         {
 
             BackingModel.BaseModel.PropertyChanged += BaseModelOnPropertyChanged;
+            BackingModel.PropertyChanged += BaseModelOnPropertyChanged;
             if (BackingModel.BaseModel.IsMetaModule)
             {
                 Path path = new Path {Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"]};
@@ -140,7 +147,22 @@ DependencyProperty.Register("BackingModel",
         {
 
 
-            Console.WriteLine(propertyChangedEventArgs.PropertyName);
+
+            if (sender is ModelSystemStructureDisplayModel)
+            {
+                if (propertyChangedEventArgs.PropertyName == "IsSelected")
+                {
+                    IsSelected = (sender as ModelSystemStructureDisplayModel).IsSelected;
+               
+                    //  this.IsSelected = propertyChangedEventArgs.
+                }
+
+                if (propertyChangedEventArgs.PropertyName == "IsExpanded")
+                {
+                    IsExpanded = (sender as ModelSystemStructureDisplayModel).IsExpanded;
+                    //  this.IsSelected = propertyChangedEventArgs.
+                }
+            }
 
             if (propertyChangedEventArgs.PropertyName == "IsMetaModule")
             {
@@ -191,13 +213,24 @@ DependencyProperty.Register("BackingModel",
             set { SetValue(ModuleTypeDependencyProperty, value); }
         }
 
+    
         public bool IsSelected
         {
-            get { return (bool)this.GetValue(IsSelectedDependencyProperty); }
+            get
+            {
+             
+                return (bool)this.GetValue(IsSelectedDependencyProperty);
+            }
             set
             {
 
-                this.SetValue(IsSelectedDependencyProperty, value);
+            
+               this.SetValue(IsSelectedDependencyProperty, value);
+
+               // PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
+                //PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
+                //     BackingModel.IsSelected = value;
+                //  BackingModel.PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
             }
         }
 
@@ -259,12 +292,41 @@ DependencyProperty.Register("BackingModel",
                 this.SetValue(SubTextDependencyProperty, value);
             }
         }
+
+        private bool _IsExpanded = false;
+        public bool IsExpanded
+        {
+            get
+            {
+                return _IsExpanded;
+            }
+            set
+            {
+                _IsExpanded = value;
+          //      SetValue(IsExpandedDependencyProperty,value);
+                //    ModelHelper.PropertyChanged(PropertyChanged, this, "IsExpanded");
+                //PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded"));
+           //     BackingModel.IsExpanded = value;
+
+
+            }
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public enum ModuleType
     {
         Optional, Meta, Required
     }
+
 
 
 }

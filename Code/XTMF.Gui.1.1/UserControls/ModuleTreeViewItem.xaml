@@ -8,8 +8,11 @@
              mc:Ignorable="d"  
              d:DesignHeight="150" d:DesignWidth="300" Margin="2,2,2,3" SnapsToDevicePixels="True" >
     <UserControl.Resources>
+        
+        
         <Style TargetType="{x:Type userControls:ModuleTreeViewItem}">
-
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWay}" /> 
             <Style.Triggers>
                 <MultiDataTrigger >
                     <MultiDataTrigger.Conditions>

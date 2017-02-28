@@ -799,8 +799,7 @@ namespace XTMF.Gui.UserControls
                     {
                         ModelSystem modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(), EditorController.Runtime.Configuration,
                        ref error);
-                        //Session.AddModelSystem()
-
+                   
 
                         StringRequest sr = new StringRequest("Save Model System As?", newName =>
                         {

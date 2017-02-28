@@ -26,7 +26,9 @@ using System.Windows.Media;
 using System.Collections.Specialized;
 using System.Windows.Forms;
 using System.Windows;
+using System.Windows.Input;
 using XTMF.Gui.UserControls;
+using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 
 namespace XTMF.Gui.Models
 {
@@ -37,7 +39,14 @@ namespace XTMF.Gui.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-  
+
+
+        private ObservableCollection<ModelSystemStructureDisplayModel> DisplayChildren;
+
+
+        public int Index { get; }
+
+        public ModelSystemStructureDisplayModel Parent { get; }
 
 
         public ModelSystemStructureDisplayModel BackingDisplayModel => this;
@@ -50,8 +59,11 @@ namespace XTMF.Gui.Models
            // MetaModule = Color.FromArgb(255, 60, 20, 90);
         }
 
-        public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel)
+        public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel, ModelSystemStructureDisplayModel parent, int index)
         {
+            //BaseChildren.
+            this.Parent = parent;
+            this.Index = index;
             BaseModel = baseModel;
             BaseChildren = baseModel.Children;
             UpdateChildren(baseModel);
@@ -66,10 +78,26 @@ namespace XTMF.Gui.Models
 
         private void UpdateChildren(ModelSystemStructureModel baseModel)
         {
-            Children = baseModel.IsMetaModule || BaseChildren == null ? new ObservableCollection<ModelSystemStructureDisplayModel>()
+            /*Children = baseModel.IsMetaModule || BaseChildren == null ? new ObservableCollection<ModelSystemStructureDisplayModel>()
                 : new ObservableCollection<ModelSystemStructureDisplayModel>(
                 from child in baseModel.Children
-                select new ModelSystemStructureDisplayModel(child));
+                select new ModelSystemStructureDisplayModel(child,this)); */
+
+            if (baseModel.IsMetaModule || BaseChildren == null)
+            {
+                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+            }
+            else
+            {
+                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+                int i = 0;
+                foreach (var item in baseModel.Children)
+                {
+                    Children.Add(new ModelSystemStructureDisplayModel(item,this,i));
+                    i++;
+                }
+            }
+
             ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
         }
 
@@ -82,7 +110,7 @@ namespace XTMF.Gui.Models
                         var insertAt = e.NewStartingIndex;
                         foreach (var item in e.NewItems)
                         {
-                            Children.Insert(insertAt, new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel));
+                            Children.Insert(insertAt, new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel,this,insertAt));
                             insertAt++;
                         }
                     }
@@ -102,7 +130,7 @@ namespace XTMF.Gui.Models
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     {
-                        Children[e.OldStartingIndex] = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel);
+                        Children[e.OldStartingIndex] = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel,this,e.OldStartingIndex);
                     }
                     break;
                 case NotifyCollectionChangedAction.Reset:
@@ -182,11 +210,11 @@ namespace XTMF.Gui.Models
             }
             set
             {
-                if (_IsExpanded != value)
-                {
-                    _IsExpanded = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "IsExpanded");
-                }
+                _IsExpanded = value;
+
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded"));
+
             }
         }
 
@@ -213,6 +241,22 @@ namespace XTMF.Gui.Models
         {
             return !BaseModel.IsMetaModule ? BaseModel.Parameters.GetParameters() : GetMetaModuleParamters();
         }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                _isSelected = value;
+
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
+
+            }
+        }
+
+      
 
         private ObservableCollection<ParameterModel> GetMetaModuleParamters()
         {

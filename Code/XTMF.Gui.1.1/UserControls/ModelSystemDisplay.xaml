@@ -166,14 +166,14 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <my:FilterBox x:Name="FilterBox" UseItemSourceFilter="False" FilterWatermark="Search Modules... (Ctrl+E)" Margin="0.2cm,2,0.2cm,5" />
-                    <TreeView Grid.Row="1"   BorderThickness="0"
+                    <TreeView Grid.Row="1"   BorderThickness="0" 
                   x:Name="ModuleDisplay"  
                       KeyboardNavigation.TabNavigation="Cycle" KeyboardNavigation.DirectionalNavigation="Cycle"
-                      PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown">
+                      PreviewMouseRightButtonDown="OnPreviewMouseRightButtonDown" PreviewKeyDown="ModuleDisplay_PreviewKeyDown" >
 
                         <TreeView.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel />
+                                <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" Orientation="Vertical" CanHorizontallyScroll="True" CanVerticallyScroll="True" />
                             </ItemsPanelTemplate>
                         </TreeView.ItemsPanel>
                         <TreeView.ContextMenu>
@@ -257,12 +257,14 @@
                                 </MenuItem>
                             </ContextMenu>
                         </TreeView.ContextMenu>
+
+                      
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
 
                                 <this:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name, Mode=OneWay}"
                                               SubText="{Binding Description, Mode=OneWay}"
-                                                 BackingModel="{Binding BackingDisplayModel}"
+                                                 BackingModel="{Binding BackingDisplayModel}" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
                                               
                                               ContextMenuOpening="ModuleTreeViewItem_OnContextMenuOpening"
                                      ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
