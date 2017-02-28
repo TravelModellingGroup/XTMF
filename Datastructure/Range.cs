@@ -46,7 +46,7 @@ namespace Datastructure
         {
             if (obj is Range)
             {
-                var other = (Range)(obj);
+                var other = (Range)obj;
                 return this == other;
             }
             return false;
@@ -71,7 +71,7 @@ namespace Datastructure
         /// <returns>True IFF i is greater than or equal to Start and i is less than Stop.</returns>
         public bool Contains(int i)
         {
-            return ((i >= Start) & (i < Stop));
+            return (i >= Start) & (i < Stop);
         }
 
         /// <summary>
@@ -81,7 +81,17 @@ namespace Datastructure
         /// <returns>True IFF i is less than Start and i is less than Stop.</returns>
         public bool ContainsExcusive(int i)
         {
-            return ((i > Start) & (i < Stop));
+            return (i > Start) & (i < Stop);
+        }
+
+        /// <summary>
+        /// Checks if a given value is inside the range defined by (Start, Stop)
+        /// </summary>
+        /// <param name="valueToFind">The value to check for</param>
+        /// <returns>True if the value is contained within the range</returns>
+        public bool ContainsExcusive(float valueToFind)
+        {
+            return (valueToFind > Start) & (valueToFind < Stop);
         }
 
         /// <summary>
@@ -91,7 +101,17 @@ namespace Datastructure
         /// <returns>True IFF i is greater than or equal to Start and i is less than or equal to Stop.</returns>
         public bool ContainsInclusive(int i)
         {
-            return ((i >= Start) & (i <= Stop));
+            return (i >= Start) & (i <= Stop);
+        }
+
+        /// <summary>
+        /// Checks if a given value is inside the range defined by [Start, Stop]
+        /// </summary>
+        /// <param name="valueToFind">The value to check for</param>
+        /// <returns>True if the value is contained within the range</returns>
+        public bool ContainsInclusive(float valueToFind)
+        {
+            return (valueToFind >= Start) & (valueToFind <= Stop);
         }
 
         /// <summary>
@@ -101,7 +121,7 @@ namespace Datastructure
         /// <returns></returns>
         public bool Overlaps(Range other)
         {
-            return (ContainsInclusive(other.Start) || ContainsInclusive(other.Stop));
+            return ContainsInclusive(other.Start) || ContainsInclusive(other.Stop);
         }
 
         public override string ToString()
@@ -131,7 +151,7 @@ namespace Datastructure
                     case 0:
                         if (Char.IsNumber(c))
                         {
-                            index = ((index << 3) + (index << 1)) + (c - '0');
+                            index = (index << 3) + (index << 1) + (c - '0');
                         }
                         else if (c == ':')
                         {
@@ -143,7 +163,7 @@ namespace Datastructure
                     case 1:
                         if (Char.IsNumber(c))
                         {
-                            start = ((start << 3) + (start << 1)) + (c - '0');
+                            start = (start << 3) + (start << 1) + (c - '0');
                         }
                         else if (c == '+')
                         {
@@ -164,7 +184,7 @@ namespace Datastructure
                     case 2:
                         if (Char.IsNumber(c))
                         {
-                            end = ((end << 3) + (end << 1)) + (c - '0');
+                            end = (end << 3) + (end << 1) + (c - '0');
                         }
                         else if (c == ',')
                         {

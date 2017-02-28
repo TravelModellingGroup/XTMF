@@ -224,6 +224,11 @@ namespace Datastructure
             return IndexOf(item) != -1;
         }
 
+        public bool Contains(float value)
+        {
+            return IndexOf(value) != -1;
+        }
+
         public bool Contains(int number)
         {
             for (var i = 0; i < SetRanges.Length; i++)
@@ -295,6 +300,23 @@ namespace Datastructure
             for (var i = 0; i < SetRanges.Length; i++)
             {
                 if (SetRanges[i].ContainsInclusive(integerToFind))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Gives the index in the range set where this integer is first contained.
+        /// </summary>
+        /// <param name="valueToFind">The floating point value to find.</param>
+        /// <returns>The index of the range that contains the value, -1 otherwise.</returns>
+        public int IndexOf(float valueToFind)
+        {
+            for (var i = 0; i < SetRanges.Length; i++)
+            {
+                if (SetRanges[i].ContainsInclusive(valueToFind))
                 {
                     return i;
                 }
