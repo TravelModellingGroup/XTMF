@@ -51,7 +51,7 @@ namespace Datastructure
         public static bool TryParse(string rangeString, out RangeSetSeries output)
         {
             string error = null;
-            return TryParse( ref error, rangeString, out output );
+            return TryParse(ref error, rangeString, out output);
         }
 
         public static bool TryParse(ref string error, string rangeString, out RangeSetSeries output)
@@ -60,27 +60,27 @@ namespace Datastructure
             output = null;
             var strLength = rangeString.Length;
             int startPos;
-            for ( startPos = 0; startPos < strLength; startPos++ )
+            for (startPos = 0; startPos < strLength; startPos++)
             {
-                if ( rangeString[startPos] == '{' )
+                if (rangeString[startPos] == '{')
                 {
                     var success = false;
-                    for ( var endPos = startPos + 1; endPos < strLength; endPos++ )
+                    for (var endPos = startPos + 1; endPos < strLength; endPos++)
                     {
-                        if ( rangeString[endPos] == '}' )
+                        if (rangeString[endPos] == '}')
                         {
                             RangeSet temp;
-                            if ( !RangeSet.TryParse( ref error, rangeString.Substring( startPos + 1, endPos - startPos - 1 ), out temp ) )
+                            if (!RangeSet.TryParse(ref error, rangeString.Substring(startPos + 1, endPos - startPos - 1), out temp))
                             {
                                 return false;
                             }
-                            rangeSets.Add( temp );
+                            rangeSets.Add(temp);
                             startPos = endPos; // the increment will make sure we don't re explore this
                             success = true;
                             break;
                         }
                     }
-                    if ( !success )
+                    if (!success)
                     {
                         error = "There was an unmatched '{' at position " + startPos;
                         return false;
@@ -88,16 +88,16 @@ namespace Datastructure
                 }
             }
             // in case it is a set of 1 element
-            if ( rangeSets.Count == 0 )
+            if (rangeSets.Count == 0)
             {
                 RangeSet temp;
-                if ( RangeSet.TryParse( ref error, rangeString, out temp ) )
+                if (RangeSet.TryParse(ref error, rangeString, out temp))
                 {
                     return false;
                 }
-                rangeSets.Add( temp );
+                rangeSets.Add(temp);
             }
-            output = new RangeSetSeries( rangeSets );
+            output = new RangeSetSeries(rangeSets);
             return true;
         }
 
@@ -120,21 +120,21 @@ namespace Datastructure
 
         public bool Contains(RangeSet item)
         {
-            return IndexOf( item ) != -1;
+            return IndexOf(item) != -1;
         }
 
         public void CopyTo(RangeSet[] array, int arrayIndex)
         {
             var localRangeSets = RangeSets;
-            if ( localRangeSets.Length + arrayIndex >= array.Length )
+            if (localRangeSets.Length + arrayIndex >= array.Length)
             {
-                throw new ArgumentException( "The given array is not long enough to support copying starting at index " + arrayIndex );
+                throw new ArgumentException("The given array is not long enough to support copying starting at index " + arrayIndex);
             }
-            if ( arrayIndex < 0 )
+            if (arrayIndex < 0)
             {
-                throw new ArgumentOutOfRangeException( "arrayIndex", "This argument must be greater than or equal to zero!" );
+                throw new ArgumentOutOfRangeException("arrayIndex", "This argument must be greater than or equal to zero!");
             }
-            for ( var i = 0; i < localRangeSets.Length; i++ )
+            for (var i = 0; i < localRangeSets.Length; i++)
             {
                 array[i + arrayIndex] = localRangeSets[i];
             }
@@ -143,10 +143,10 @@ namespace Datastructure
         public override bool Equals(object obj)
         {
             var other = obj as RangeSetSeries;
-            if (Count != other?.Count ) return false;
-            for ( var i = 0; i < RangeSets.Length; i++ )
+            if (Count != other?.Count) return false;
+            for (var i = 0; i < RangeSets.Length; i++)
             {
-                if ( !RangeSets[i].Equals( other.RangeSets[i] ) )
+                if (!RangeSets[i].Equals(other.RangeSets[i]))
                 {
                     return false;
                 }
@@ -156,13 +156,13 @@ namespace Datastructure
 
         public IEnumerator<RangeSet> GetEnumerator()
         {
-            return ( (ICollection<RangeSet>)RangeSets).GetEnumerator();
+            return ((ICollection<RangeSet>)RangeSets).GetEnumerator();
         }
 
         public override int GetHashCode()
         {
             var hash = 0;
-            for ( var i = 0; i < RangeSets.Length; i++ )
+            for (var i = 0; i < RangeSets.Length; i++)
             {
                 hash += RangeSets[i].GetHashCode();
             }
@@ -171,13 +171,13 @@ namespace Datastructure
 
         public int IndexOf(RangeSet item)
         {
-            if ( item == null )
+            if (item == null)
             {
-                throw new ArgumentNullException( "item", "The item to search for must not be null!" );
+                throw new ArgumentNullException("item", "The item to search for must not be null!");
             }
-            for ( var i = 0; i < RangeSets.Length; i++ )
+            for (var i = 0; i < RangeSets.Length; i++)
             {
-                if ( item.Equals(RangeSets[i] ) )
+                if (item.Equals(RangeSets[i]))
                 {
                     return i;
                 }
@@ -187,9 +187,26 @@ namespace Datastructure
 
         public int IndexOf(int numberToFind)
         {
-            for ( var i = 0; i < RangeSets.Length; i++ )
+            for (var i = 0; i < RangeSets.Length; i++)
             {
-                if (RangeSets[i].Contains( numberToFind ) )
+                if (RangeSets[i].Contains(numberToFind))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the first set that contains a range that contains the value.
+        /// </summary>
+        /// <param name="value">The value to seek</param>
+        /// <returns>The index of the set that first contains the value, -1 otherwise.</returns>
+        public int IndexOf(float value)
+        {
+            for (var i = 0; i < RangeSets.Length; i++)
+            {
+                if (RangeSets[i].Contains(value))
                 {
                     return i;
                 }
@@ -229,16 +246,16 @@ namespace Datastructure
         {
             var builder = new StringBuilder();
             var first = true;
-            for ( var i = 0; i < RangeSets.Length; i++ )
+            for (var i = 0; i < RangeSets.Length; i++)
             {
-                if ( !first )
+                if (!first)
                 {
-                    builder.Append( ',' );
+                    builder.Append(',');
                 }
                 first = false;
-                builder.Append( '{' );
-                builder.Append( RangeSets[i] );
-                builder.Append( '}' );
+                builder.Append('{');
+                builder.Append(RangeSets[i]);
+                builder.Append('}');
             }
             return builder.ToString();
         }

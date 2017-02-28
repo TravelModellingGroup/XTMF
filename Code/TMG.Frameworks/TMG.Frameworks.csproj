@@ -103,6 +103,7 @@
     <Compile Include="Data\Processing\VectorMath.cs" />
     <Compile Include="Data\Processing\ScalarMath.cs" />
     <Compile Include="Data\Processing\ODMath.cs" />
+    <Compile Include="Data\Saving\SaveHistogramData.cs" />
     <Compile Include="Data\Saving\SaveLabeledDataToCSV.cs" />
     <Compile Include="Data\Saving\SaveODToThirdNormalizedCSV.cs" />
     <Compile Include="Data\Synthesis\Gibbs\Aggregation.cs" />
