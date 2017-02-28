@@ -334,7 +334,7 @@
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
-                            <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="{DynamicResource ControlTextColourBrush}">
+                            <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" >
                                 <TextBlock.Style>
                                     <Style TargetType="{x:Type TextBlock}">
                                       

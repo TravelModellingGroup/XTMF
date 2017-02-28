@@ -33,7 +33,7 @@
 
     <PathGeometry x:Key="FolderOpenIconPath" Figures="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" FillRule="NonZero"/>
     <!-- These resources are added to avoid missing message spam-->
-    <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedText" Color="White"></SolidColorBrush>
+    <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedText" Color="Black"></SolidColorBrush>
     <SolidColorBrush x:Key="AvalonDockThemeVs2013TabBackground" Color="White"></SolidColorBrush>
     <SolidColorBrush x:Key="AvalonDockThemeVs2013PanelBorderBrush" Color="White"></SolidColorBrush>
     <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellOverflowButtonDefaultGlyph" Color="White"></SolidColorBrush>
@@ -41,7 +41,7 @@
     <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabSelectedActiveBackground" Color="White"></SolidColorBrush>
     <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabSelectedActiveText" Color="White"></SolidColorBrush>
     <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedHoveredBackground" Color="White"></SolidColorBrush>
-    <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedHoveredText" Color="White"></SolidColorBrush>
+    <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedHoveredText" Color="Black"></SolidColorBrush>
 
         
         
