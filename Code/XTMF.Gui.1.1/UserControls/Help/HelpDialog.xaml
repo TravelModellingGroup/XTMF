@@ -25,22 +25,26 @@
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush1}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="AUTO" />
             <ColumnDefinition Width="3" />
-            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="AUTO" />
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
+        <Grid Grid.Column="0"  >
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <userControls:HintedTextBox x:Name="SearchBox" Grid.Row="0" Height="20" HintText="Search..."/>
-            <ListBox Grid.Row="1" x:Name="ResultBox" Background="{StaticResource ControlBackgroundBrush}"
-                             Foreground="White" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" />
+            <userControls:HintedTextBox MinHeight="10" Grid.Row="0"  x:Name="SearchBox"  Height="20" HintText="Search..." />
+
+
+            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1"  HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"  x:Name="ResultBox" Background="{DynamicResource WindowBackgroundBrush1}"
+                             Foreground="{DynamicResource ThemeTextColorBrush}" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" BorderBrush="{x:Null}" />
+    
+           
         </Grid>
-        <GridSplitter Grid.Column="1" Width="3" Background="White" />
-        <Grid Grid.Column="2" x:Name="ContentPresenter"/>
+        <GridSplitter  Grid.Column="1" Width="3" Background="{DynamicResource WindowBackgroundBrush3}" />
+        <Grid Grid.Column="2" x:Name="ContentPresenter" Background="{DynamicResource WindowBackgroundBrush2}"/>
     </Grid>
 </UserControl>
