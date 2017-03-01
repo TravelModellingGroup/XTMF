@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
@@ -40,7 +41,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
+using Application = System.Windows.Application;
 using Clipboard = System.Windows.Clipboard;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using ListView = System.Windows.Controls.ListView;
 using MenuItem = System.Windows.Controls.MenuItem;
@@ -667,8 +670,9 @@ namespace XTMF.Gui.UserControls
             //ModelRunGrid.Height = 100;
             var runName = String.Empty;
             string error = null;
-            StringRequest req = new StringRequest("Run Name", ValidateName);
-            req.Owner = this.GetWindow();
+            StringRequest req = new StringRequest("Run Name", ValidateName) {Owner  = this.GetWindow()};
+
+        
             if (req.ShowDialog() == true)
             {
                 runName = req.Answer;
@@ -676,7 +680,7 @@ namespace XTMF.Gui.UserControls
                 if (run != null)
                 {
                     MainWindow.Us.ModelRunPane.Show();
-                    Console.WriteLine(MainWindow.Us.RunWindow);
+      
                     MainWindow.Us.RunWindow.StartRun(Session, run, runName);
                 }
                 else

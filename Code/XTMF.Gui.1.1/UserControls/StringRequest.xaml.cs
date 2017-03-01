@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -45,6 +46,13 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
             AnswerBox.PreviewKeyDown += AnswerBox_PreviewKeyDown;
+
+
+            if (Owner == null)
+            {
+                var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+                Owner = window;
+            }
         }
 
         protected override void OnActivated(EventArgs e)
@@ -52,6 +60,8 @@ namespace XTMF.Gui.UserControls
             base.OnActivated( e );
             AnswerBox.Focus();
         }
+
+   
 
         public StringRequest(string question, Func<string, bool> validation)
             : this()
@@ -62,7 +72,15 @@ namespace XTMF.Gui.UserControls
             {
                 ValidationLabel.Visibility = validation( Answer ) ? Visibility.Hidden : Visibility.Visible;
             }
+
+           // if (Owner.GetType() != typeof(Window))
+            //{
+                var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+                Owner = window;
+          //  }
         }
+
+    
 
         private void AnswerBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -132,5 +150,7 @@ namespace XTMF.Gui.UserControls
         {
             CloseSuccessfully();
         }
+
+
     }
 }

@@ -49,14 +49,14 @@ namespace XTMF.Gui.UserControls
         private async void FreeVariableEntry_Loaded(object sender, RoutedEventArgs e)
         {
             var temp = await Model.CreateModel(Session.GetValidGenericVariableTypes(Conditions));
-            Display.ItemsSource = (AvailableModules = temp);
+            Display.ItemsSource = (_availableModules = temp);
             FilterBox.Filter = CheckAgainstFilter;
             FilterBox.Display = Display;
         }
 
         public Type SelectedType { get; private set; }
 
-        private ObservableCollection<Model> AvailableModules;
+        private ObservableCollection<Model> _availableModules;
 
         private bool CheckAgainstFilter(object o, string text)
         {

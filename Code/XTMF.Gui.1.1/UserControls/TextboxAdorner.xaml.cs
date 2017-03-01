@@ -32,15 +32,15 @@ namespace XTMF.Gui.UserControls
     public partial class TextboxAdorner
     {
         private static readonly Brush Background;
-        private readonly Border Border = new Border();
+        private readonly Border _border = new Border();
 
 
-        private readonly Action<string> GiveResult;
+        private readonly Action<string> _giveResult;
 
-        private readonly Grid Grid = new Grid();
-        private readonly TextBlock TextBlock = new TextBlock();
+        private readonly Grid _grid = new Grid();
+        private readonly TextBlock _textBlock = new TextBlock();
 
-        private readonly TextBox Textbox = new TextBox
+        private readonly TextBox _textbox = new TextBox
         {
             Width = 400,
             Height = 25
@@ -64,31 +64,31 @@ namespace XTMF.Gui.UserControls
             : base(attachedTo)
         {
             Opacity = 0.9;
-            Border.BorderBrush = Brushes.White;
-            Border.Background = Background;
-            Border.BorderThickness = new Thickness(2.0);
-            Border.Width = 400;
-            Border.Height = 52;
-            Grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
-            Grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
-            Grid.Margin = new Thickness(2.0);
-            Border.Child = Grid;
-            TextBlock.Text = question;
-            TextBlock.Foreground = Brushes.White;
-            TextBlock.FontSize = 14.0;
+            _border.BorderBrush = Brushes.White;
+            _border.Background = Background;
+            _border.BorderThickness = new Thickness(2.0);
+            _border.Width = 400;
+            _border.Height = 52;
+            _grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
+            _grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
+            _grid.Margin = new Thickness(2.0);
+            _border.Child = _grid;
+            _textBlock.Text = question;
+            _textBlock.Foreground = Brushes.White;
+            _textBlock.FontSize = 14.0;
             if (initialValue == null)
             {
                 initialValue = string.Empty;
             }
-            Textbox.Text = initialValue;
-            Textbox.CaretIndex = initialValue.Length;
-            Grid.Children.Add(TextBlock);
-            Grid.Children.Add(Textbox);
-            Grid.SetRow(TextBlock, 0);
-            Grid.SetRow(Textbox, 1);
-            AddVisualChild(Border);
-            GiveResult = giveResult;
-            Textbox.LostFocus += Textbox_LostFocus;
+            _textbox.Text = initialValue;
+            _textbox.CaretIndex = initialValue.Length;
+            _grid.Children.Add(_textBlock);
+            _grid.Children.Add(_textbox);
+            Grid.SetRow(_textBlock, 0);
+            Grid.SetRow(_textbox, 1);
+            AddVisualChild(_border);
+            _giveResult = giveResult;
+            _textbox.LostFocus += Textbox_LostFocus;
             Loaded += MainLoaded;
         }
 
@@ -97,7 +97,7 @@ namespace XTMF.Gui.UserControls
         private void MainLoaded(object sender, RoutedEventArgs e)
         {
             PreviousFocus = Keyboard.FocusedElement;
-            Keyboard.Focus(Textbox);
+            Keyboard.Focus(_textbox);
         }
 
         private void Textbox_LostFocus(object sender, RoutedEventArgs e)
@@ -114,7 +114,7 @@ namespace XTMF.Gui.UserControls
             Keyboard.Focus(PreviousFocus);
             if (save && !AlreadySaved)
             {
-                GiveResult?.Invoke(Textbox.Text);
+                _giveResult?.Invoke(_textbox.Text);
                 AlreadySaved = true;
             }
         }
@@ -122,8 +122,8 @@ namespace XTMF.Gui.UserControls
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             base.OnGotFocus(e);
-            Textbox.Focus();
-            Keyboard.Focus(Textbox);
+            _textbox.Focus();
+            Keyboard.Focus(_textbox);
         }
 
         protected override Visual GetVisualChild(int index)
@@ -132,19 +132,19 @@ namespace XTMF.Gui.UserControls
             {
                 throw new ArgumentOutOfRangeException();
             }
-            return Border;
+            return _border;
         }
 
         protected override Size MeasureOverride(Size constraint)
         {
-            Border.Measure(constraint);
-            return Border.DesiredSize;
+            _border.Measure(constraint);
+            return _border.DesiredSize;
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            Border.Arrange(new Rect(new Point(0, 0), finalSize));
-            return new Size(Border.ActualWidth, Border.ActualHeight);
+            _border.Arrange(new Rect(new Point(0, 0), finalSize));
+            return new Size(_border.ActualWidth, _border.ActualHeight);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)

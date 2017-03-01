@@ -6,7 +6,21 @@
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" Background="Transparent"
                      d:DesignHeight="300" d:DesignWidth="300">
+    
+    <UserControl.Resources>
+        <Style TargetType="local:FlatToolButton">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"></Setter>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="True">
+                    <Setter Property="Opacity" Value="1.0"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid Margin="0">
+        
             <Button BorderThickness="0" Padding="0" Margin="0,0,0,0" Click="ButtonBase_OnClick" Background="Transparent">
                 
         
