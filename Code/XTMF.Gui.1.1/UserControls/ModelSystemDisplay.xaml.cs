@@ -668,7 +668,7 @@ namespace XTMF.Gui.UserControls
             var runName = String.Empty;
             string error = null;
             StringRequest req = new StringRequest("Run Name", ValidateName);
-
+            req.Owner = this.GetWindow();
             if (req.ShowDialog() == true)
             {
                 runName = req.Answer;
