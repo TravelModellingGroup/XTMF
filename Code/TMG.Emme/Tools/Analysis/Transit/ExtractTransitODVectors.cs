@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using Datastructure;
 using XTMF;
 namespace TMG.Emme.Tools.Analysis.Transit
 {
@@ -47,6 +48,13 @@ namespace TMG.Emme.Tools.Analysis.Transit
         // ReSharper disable once InconsistentNaming
         public int AutoODMatrixId;
 
+        [RunParameter("Zone Centroids", "1-8999", typeof(RangeSet), "The regular TAZ zones to get the ODs for.")]
+        public RangeSet ZoneCentroids;
+
+        [RunParameter("Station Centroids", "9000-9999", typeof(RangeSet), "The zones that are used for access stations.")]
+        public RangeSet StationCentroids;
+
+
         private const string ToolName = "tmg.analysis.transit.strategy_analysis.extract_transit_OD_vectors";
 
         public string Name { get; set; }
@@ -65,18 +73,23 @@ namespace TMG.Emme.Tools.Analysis.Transit
             return modeller.Run(ToolName, GetParameters());
         }
 
-        private string GetParameters()
+        private ModellerControllerParameter[] GetParameters()
         {
             /*
-                self, xtmf_ScenarioNumber, LineFilterExpression, xtmf_LineODMatrixNumber,
-                  xtmf_AggOriginMatrixNumber, xtmf_AggDestinationMatrixNumber, xtmf_AutoODMatrixId
+               def __call__(self, xtmf_ScenarioNumber, LineFilterExpression, xtmf_LineODMatrixNumber,
+                  xtmf_AggOriginMatrixNumber, xtmf_AggDestinationMatrixNumber, xtmf_AutoODMatrixId, xtmf_AccessStationRange, xtmf_ZoneCentroidRange):
             */
-            return string.Join(" ", ScenarioNumber, AddQuotes(LineFilterExpression), LineODMatrixNumber, AggOriginMatrixNumber, AggDestinationMatrixNumber, AutoODMatrixId);
-        }
-
-        private static string AddQuotes(string lineFilterExpression)
-        {
-            return string.Concat("\"", lineFilterExpression.Replace("\"", "\\\""), "\"");
+            return new[]
+            {
+                new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
+                new ModellerControllerParameter("LineFilterExpression", LineFilterExpression),
+                new ModellerControllerParameter("xtmf_LineODMatrixNumber", LineODMatrixNumber.ToString()),
+                new ModellerControllerParameter("xtmf_AggOriginMatrixNumber", AggOriginMatrixNumber.ToString()),
+                new ModellerControllerParameter("xtmf_AggDestinationMatrixNumber", AggDestinationMatrixNumber.ToString()),
+                new ModellerControllerParameter("xtmf_AutoODMatrixId", AutoODMatrixId.ToString()),
+                new ModellerControllerParameter("xtmf_AccessStationRange", StationCentroids.ToString()),
+                new ModellerControllerParameter("xtmf_ZoneCentroidRange", ZoneCentroids.ToString())
+            };
         }
 
         public bool RuntimeValidation(ref string error)
