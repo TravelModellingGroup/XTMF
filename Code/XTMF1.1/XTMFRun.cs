@@ -21,6 +21,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using XTMF.RunProxy;
 
 namespace XTMF
 {
@@ -311,7 +312,7 @@ namespace XTMF
                 SendValidationError(error);
                 return;
             }
-
+            Exception caughtError = null;
             try
             {
                 AlertValidationStarting();
@@ -338,7 +339,7 @@ namespace XTMF
             {
                 if (!(e is ThreadAbortException))
                 {
-                    SendRuntimeError(e);
+                    caughtError = e;
                 }
             }
             finally
@@ -347,20 +348,28 @@ namespace XTMF
                 CleanUpModelSystem(mstStructure);
                 mstStructure = null;
                 MST = null;
-                if (Configuration is Configuration)
+                var configuration = Configuration as Configuration;
+                if (configuration != null)
                 {
-                    ((Configuration as Configuration)).ModelSystemExited();
+                    configuration.ModelSystemExited();
                 }
                 else
                 {
-                    ((Configuration as RunProxy.ConfigurationProxy)).ModelSystemExited();
+                    ((ConfigurationProxy) Configuration).ModelSystemExited();
                 }
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 Thread.MemoryBarrier();
                 Directory.SetCurrentDirectory(cwd);
-                SendRunComplete();
+                if (caughtError != null)
+                {
+                    SendRuntimeError(caughtError);
+                }
+                else
+                {
+                    SendRunComplete();
+                }
             }
         }
 
