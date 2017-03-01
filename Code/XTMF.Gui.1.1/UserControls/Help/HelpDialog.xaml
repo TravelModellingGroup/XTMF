@@ -23,28 +23,30 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:my="clr-namespace:XTMF.Gui"
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Background="{DynamicResource WindowBackgroundBrush1}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="AUTO" />
+            <ColumnDefinition  MinWidth="150" />
             <ColumnDefinition Width="3" />
-            <ColumnDefinition Width="AUTO" />
+            <ColumnDefinition  MinWidth="300"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0"  >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="AUTO" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <Grid  VerticalAlignment="Stretch"  Grid.Column="0" HorizontalAlignment="Stretch"  >
+  
+            <Grid HorizontalAlignment="Stretch" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
             <userControls:HintedTextBox MinHeight="10" Grid.Row="0"  x:Name="SearchBox"  Height="20" HintText="Search..." />
 
 
-            <ListBox ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1"  HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"  x:Name="ResultBox" Background="{DynamicResource WindowBackgroundBrush1}"
+            <ListView HorizontalContentAlignment="Stretch" Grid.Row="1" HorizontalAlignment="Stretch"     x:Name="ResultBox" Background="{DynamicResource WindowBackgroundBrush1}"
                              Foreground="{DynamicResource ThemeTextColorBrush}" ItemsSource="{Binding SearchedItems, BindsDirectlyToSource=True}" SelectionChanged="ResultBox_Selected" BorderBrush="{x:Null}" />
-    
-           
+            </Grid>
+
         </Grid>
-        <GridSplitter  Grid.Column="1" Width="3" Background="{DynamicResource WindowBackgroundBrush3}" />
-        <Grid Grid.Column="2" x:Name="ContentPresenter" Background="{DynamicResource WindowBackgroundBrush2}"/>
+        <GridSplitter ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"  Grid.Column="1" Width="3" Background="{DynamicResource WindowBackgroundBrush3}" />
+        <Grid HorizontalAlignment="Stretch" Grid.Column="2" x:Name="ContentPresenter" Background="{DynamicResource WindowBackgroundBrush2}"/>
     </Grid>
 </UserControl>

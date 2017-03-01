@@ -32,13 +32,13 @@ namespace XTMF.Gui.UserControls
     public partial class TextboxAdorner
     {
         private static readonly Brush Background;
-        private readonly Border _border = new Border();
+        private readonly Border Border = new Border();
 
 
         private readonly Action<string> _giveResult;
 
-        private readonly Grid _grid = new Grid();
-        private readonly TextBlock _textBlock = new TextBlock();
+        private readonly Grid Grid = new Grid();
+        private readonly TextBlock TextBlock = new TextBlock();
 
         private readonly TextBox _textbox = new TextBox
         {
@@ -64,29 +64,29 @@ namespace XTMF.Gui.UserControls
             : base(attachedTo)
         {
             Opacity = 0.9;
-            _border.BorderBrush = Brushes.White;
-            _border.Background = Background;
-            _border.BorderThickness = new Thickness(2.0);
-            _border.Width = 400;
-            _border.Height = 52;
-            _grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
-            _grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
-            _grid.Margin = new Thickness(2.0);
-            _border.Child = _grid;
-            _textBlock.Text = question;
-            _textBlock.Foreground = Brushes.White;
-            _textBlock.FontSize = 14.0;
+            Border.BorderBrush = Brushes.White;
+            Border.Background = Background;
+            Border.BorderThickness = new Thickness(2.0);
+            Border.Width = 400;
+            Border.Height = 52;
+            Grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
+            Grid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(25)});
+            Grid.Margin = new Thickness(2.0);
+            Border.Child = Grid;
+            TextBlock.Text = question;
+            TextBlock.Foreground = Brushes.White;
+            TextBlock.FontSize = 14.0;
             if (initialValue == null)
             {
                 initialValue = string.Empty;
             }
             _textbox.Text = initialValue;
             _textbox.CaretIndex = initialValue.Length;
-            _grid.Children.Add(_textBlock);
-            _grid.Children.Add(_textbox);
-            Grid.SetRow(_textBlock, 0);
+            Grid.Children.Add(TextBlock);
+            Grid.Children.Add(_textbox);
+            Grid.SetRow(TextBlock, 0);
             Grid.SetRow(_textbox, 1);
-            AddVisualChild(_border);
+            AddVisualChild(Border);
             _giveResult = giveResult;
             _textbox.LostFocus += Textbox_LostFocus;
             Loaded += MainLoaded;
@@ -132,19 +132,19 @@ namespace XTMF.Gui.UserControls
             {
                 throw new ArgumentOutOfRangeException();
             }
-            return _border;
+            return Border;
         }
 
         protected override Size MeasureOverride(Size constraint)
         {
-            _border.Measure(constraint);
-            return _border.DesiredSize;
+            Border.Measure(constraint);
+            return Border.DesiredSize;
         }
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            _border.Arrange(new Rect(new Point(0, 0), finalSize));
-            return new Size(_border.ActualWidth, _border.ActualHeight);
+            Border.Arrange(new Rect(new Point(0, 0), finalSize));
+            return new Size(Border.ActualWidth, Border.ActualHeight);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)

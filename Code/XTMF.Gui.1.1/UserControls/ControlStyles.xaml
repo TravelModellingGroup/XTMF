@@ -770,6 +770,7 @@
             </Setter>
         </Style>-->
 
+    
     <Style TargetType="{x:Type ListViewItem}">
         <Style.Resources>
             <LinearGradientBrush x:Key="ListItemHoverFill" EndPoint="0,1" StartPoint="0,0">
@@ -792,12 +793,12 @@
                         <Border Name="InnerBorder" CornerRadius="1" BorderThickness="0">
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition MaxHeight="11" />
+                                    <RowDefinition MaxHeight="25" />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
 
                                 <Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="#75FFFFFF" />
-                                <ContentPresenter Grid.RowSpan="2"   
+                                <ContentPresenter Grid.Row="0" Grid.RowSpan="2"   
                                             VerticalAlignment="{TemplateBinding VerticalContentAlignment}"   
                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Grid>
