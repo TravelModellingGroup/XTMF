@@ -34,11 +34,11 @@
                 <RowDefinition Height="AUTO" />
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Margin="5" HorizontalAlignment="Center" FontSize="24" Text="{Binding ModuleName}" Foreground="White" />
-            <TextBlock Grid.Row="1" Margin="5" HorizontalAlignment="Center" FontSize="16" Text="{Binding ModuleNamespace}" Foreground="White" />
+            <TextBlock Grid.Row="0" Margin="5" HorizontalAlignment="Center" FontSize="24" Text="{Binding ModuleName}" Foreground="{DynamicResource ThemeTextColorBrush}" />
+            <TextBlock Grid.Row="1" Margin="5" HorizontalAlignment="Center" FontSize="16" Text="{Binding ModuleNamespace}" Foreground="{DynamicResource ThemeTextColorBrush}" />
             <WebBrowser Grid.Row="2" x:Name="Browser" Margin="5" HorizontalAlignment="Stretch" DataContext="{Binding ModuleDescription}" VerticalAlignment="Top"
                         ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.CanContentScroll="False" />
-            <Grid Grid.Row="3" Background="White" Height="2" HorizontalAlignment="Stretch" Margin="5" />
+            <Grid Grid.Row="3" Background="{DynamicResource WindowBackgroundBrush4}" Height="2" HorizontalAlignment="Stretch" Margin="5" />
             <Grid Grid.Row="4" Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="AUTO" />
@@ -54,9 +54,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="3*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Foreground="White" Text="{Binding Name}" />
-                                <TextBlock Grid.Column="1" Foreground="White" Text="{Binding Type}" />
-                                <TextBlock Grid.Column="2" Foreground="White" Text="{Binding Description}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Name}" />
+                                <TextBlock Grid.Column="1" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Type}" />
+                                <TextBlock Grid.Column="2" Foreground="{DynamicResource ThemeTextColorBrush}" Text="{Binding Description}" TextWrapping="Wrap"/>
                             </Grid>
                         </ItemContainerTemplate>
                     </ItemsControl.ItemTemplate>

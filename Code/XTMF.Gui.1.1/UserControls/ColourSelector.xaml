@@ -39,9 +39,9 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Red" Foreground="White" FontSize="12" />
-        <TextBlock Text="Green" Foreground="White" FontSize="12" Grid.Row="1" />
-        <TextBlock Text="Blue" Foreground="White" FontSize="12" Grid.Row="2" />
+        <TextBlock Text="Red" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" />
+        <TextBlock Text="Green" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Grid.Row="1" />
+        <TextBlock Text="Blue" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Grid.Row="2" />
 
         <Slider Name="redSlider" Grid.Column="1" Margin="5" Minimum="0" Maximum="255" Foreground="Red"  Width="200" Height="20" Grid.ColumnSpan="2" ValueChanged="redSlider_ValueChanged">
             <Slider.Background>

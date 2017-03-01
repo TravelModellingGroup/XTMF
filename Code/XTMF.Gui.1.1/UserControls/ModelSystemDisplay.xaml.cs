@@ -676,18 +676,22 @@ namespace XTMF.Gui.UserControls
             if (req.ShowDialog() == true)
             {
                 runName = req.Answer;
-                var run = Session.Run(runName, ref error);
-                if (run != null)
+                if (!Session.RunNameExists(runName) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?",
+                        MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    MainWindow.Us.ModelRunPane.Show();
-      
-                    MainWindow.Us.RunWindow.StartRun(Session, run, runName);
-                }
-                else
-                {
-                    MessageBox.Show(
-                        "Unable to start run.\r\n" + error,
-                        "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    var run = Session.Run(runName, ref error);
+                    if (run != null)
+                    {
+                        MainWindow.Us.ModelRunPane.Show();
+
+                        MainWindow.Us.RunWindow.StartRun(Session, run, runName);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "Unable to start run.\r\n" + error,
+                            "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
                 }
             }
         }
