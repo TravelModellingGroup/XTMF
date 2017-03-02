@@ -39,6 +39,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Xceed.Wpf.AvalonDock.Layout;
+using Xceed.Wpf.AvalonDock.Themes;
 using XTMF.Gui.Controllers;
 using XTMF.Gui.Models;
 using XTMF.Gui.UserControls;
@@ -188,6 +189,10 @@ namespace XTMF.Gui
             CommandBindings.Add(new CommandBinding(routed, ToggleModuleRunDisplay));
             //CommandBindings.Add()
 
+
+           
+
+            //DockManager.Theme = new Vs2013DarkTheme();
         }
 
         public void ToggleModuleRunDisplay(object sender, RoutedEventArgs e)

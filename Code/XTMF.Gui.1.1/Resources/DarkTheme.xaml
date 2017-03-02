@@ -24,11 +24,26 @@
 
 
 
+    <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013DarkTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>
+
+    <Color x:Key="ControlTextColour">#FFFFFF</Color>
+
+    <Color x:Key="ControlColour">#4475BE</Color>
+    <Color x:Key="ControlColourUnselected">#A0ADBC</Color>
+    <Color x:Key="ControlHighlightColour">#5E8CC0</Color>
+
+    <SolidColorBrush x:Key="ControlHighlightColourBrush" Color="{DynamicResource ControlHighlightColour}"></SolidColorBrush>
+    <SolidColorBrush x:Key="ControlColourBrush" Color="{DynamicResource ControlColour}"></SolidColorBrush>
+    <SolidColorBrush x:Key="ControlTextColourBrush" Color="{DynamicResource ControlTextColour}"></SolidColorBrush>
+    <SolidColorBrush x:Key="ControlColourUnselectedBrush" Color="{DynamicResource ControlColourUnselected}"></SolidColorBrush>
+
+
     <Color x:Key="WindowBackgroundColor1">#FF1F1F1F</Color>
     <Color x:Key="WindowBackgroundColor2">#FF252526</Color>
+    <Color x:Key="WindowBackgroundColor3">#191919</Color>
     <SolidColorBrush x:Key="WindowBackgroundBrush1" Color="{DynamicResource WindowBackgroundColor1}"></SolidColorBrush>
     <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="{DynamicResource WindowBackgroundColor2}"></SolidColorBrush>
-    
+    <SolidColorBrush x:Key="WindowBackgroundBrush3" Color="{DynamicResource WindowBackgroundColor3}"></SolidColorBrush>
     
     <SolidColorBrush x:Key="ControlMediumColor" Color="#FF444466"></SolidColorBrush>
 
@@ -38,7 +53,12 @@
     <SolidColorBrush x:Key="ThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
-    <SolidColorBrush x:Key="FocusBrushHover" Color="#FF5684C7" />
+
+    <SolidColorBrush x:Key="FocusBrushHover" Color="#FF4065A6" />
+    <SolidColorBrush x:Key="FocusBrushHover2" Color="#FF3F5D80" />
+    <SolidColorBrush x:Key="FocusBrushHover3" Color="#FF465C76" />
+
+
     <SolidColorBrush x:Key="AddingYellowBrush" Color="{DynamicResource ResourceKey=AddingYellow}" />
     <SolidColorBrush x:Key="InformationGreenBrush" Color="{DynamicResource ResourceKey=InformationGreen}" />
     <SolidColorBrush x:Key="WarningRedBrush" Color="{DynamicResource ResourceKey=WarningRed}" />

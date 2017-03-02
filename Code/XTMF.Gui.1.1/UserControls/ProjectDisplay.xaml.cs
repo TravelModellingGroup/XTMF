@@ -801,10 +801,7 @@ namespace XTMF.Gui.UserControls
                        ref error);
                    
 
-                        StringRequest sr = new StringRequest("Save Model System As?", newName =>
-                        {
-                            return Session.ValidateModelSystemName(newName);
-                        });
+                        StringRequest sr = new StringRequest("Save Model System As?", newName => Session.ValidateModelSystemName(newName));
                         sr.Owner = GetWindow();
                         if (sr.ShowDialog() == true)
                         {
@@ -820,7 +817,7 @@ namespace XTMF.Gui.UserControls
                   
 
                     }
-                    catch (Exception e)
+                    catch
                     {
                         MessageBox.Show(GetWindow(), "There was an error importing the model system.", "Unable to Import Model System", MessageBoxButton.OK,
                                     MessageBoxImage.Error, MessageBoxResult.OK);

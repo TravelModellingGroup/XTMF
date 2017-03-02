@@ -24,6 +24,9 @@
 
 
 
+    <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013LightTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>
+
+
     <Color x:Key="ControlTextColour">#FFFFFF</Color>
     
     <Color x:Key="ControlColour">#2075D5</Color>

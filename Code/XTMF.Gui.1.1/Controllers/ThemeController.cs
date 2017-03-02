@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
+using Xceed.Wpf.AvalonDock.Themes;
 
 namespace XTMF.Gui.Controllers
 {
@@ -89,7 +90,28 @@ namespace XTMF.Gui.Controllers
             ClearThemeDictionaries();
 
             Application.Current.Resources.MergedDictionaries.Add(theme.ThemeResourceDictionary);
+
+            /* Look up Avalon Theme if present */
+            if (theme.ThemeResourceDictionary.Contains("AvalonDockTheme"))
+            {
+                try
+                {
+                    string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
+
+                    Type themeType = Type.GetType(themeClass);
+
+              
+                    Xceed.Wpf.AvalonDock.Themes.Theme themeObj = (Xceed.Wpf.AvalonDock.Themes.Theme) Activator.CreateInstance(themeType);
+                    MainWindow.Us.DockManager.Theme = themeObj;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    
+                }
             
+
+            }
         }
 
         public Theme FindThemeByName(string name)

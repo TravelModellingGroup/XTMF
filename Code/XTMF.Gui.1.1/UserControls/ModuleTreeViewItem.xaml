@@ -67,6 +67,7 @@
 
                     <MultiDataTrigger.Setters>
                         <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}"></Setter>
+                        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
                     </MultiDataTrigger.Setters>
 
 
