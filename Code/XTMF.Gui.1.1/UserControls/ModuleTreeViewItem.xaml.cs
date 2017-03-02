@@ -119,23 +119,31 @@ DependencyProperty.Register("BackingModel",
                 IconPath.Opacity = 1.0;
             }
 
-            if (BackingModel.BaseModel.IsOptional && 
-                ((BackingModel.BaseModel.Type == null && BackingModel.Children.Count == 0 && BackingModel.IsCollection) ||
-                (BackingModel.BaseModel.Type == null && !BackingModel.IsCollection)))
+            if (BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
             {
                 ContentBorder.BorderThickness = new Thickness(1);
-              
+                ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
+                IconPath.Fill = new SolidColorBrush(Colors.OliveDrab);
+                NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
+                NotificationIcon.Visibility = Visibility.Visible;
+                NotificationIcon.Fill = Brushes.OliveDrab;
+
+
             }
-            else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null)
+            else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null && !BackingModel.IsCollection)
             {
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
                 ContentBorder.BorderThickness = new Thickness(1);
                 NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
                 NotificationIcon.Visibility = Visibility.Visible;
                 NotificationIcon.Fill = Brushes.IndianRed;
+                InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
+                BlockBorder.Opacity = 0.7;
             }
             else
             {
+                BlockBorder.Opacity = 1.0;
+                NotificationIcon.Visibility = Visibility.Hidden;
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
                 ContentBorder.BorderThickness = new Thickness(1);
 
@@ -212,20 +220,34 @@ DependencyProperty.Register("BackingModel",
                 }
             }
 
+            if (BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
+            {
+                ContentBorder.BorderThickness = new Thickness(1);
+                ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
+                NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
+                NotificationIcon.Visibility = Visibility.Visible;
+                NotificationIcon.Fill = Brushes.OliveDrab;
+
+            }
+
             else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null)
             {
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
                 ContentBorder.BorderThickness = new Thickness(1);
-                NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
+                NotificationIcon.Data = (PathGeometry) Application.Current.Resources["FullErrorIconPath"];
                 NotificationIcon.Visibility = Visibility.Visible;
                 NotificationIcon.Fill = Brushes.IndianRed;
+                InfoBorder.Background = (Brush) Application.Current.Resources["StripeBrush"];
+                BlockBorder.Opacity = 0.7;
+              
             }
             else
             {
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
                 ContentBorder.BorderThickness = new Thickness(1);
+                BlockBorder.Opacity = 1.0;
+                NotificationIcon.Visibility = Visibility.Hidden;
 
-      
 
 
             }

@@ -66,4 +66,25 @@
     <SolidColorBrush x:Key="ControlHeaderBrush" Color="{DynamicResource ResourceKey=ControlHeaderColour}" />
     <SolidColorBrush x:Key="WindowBackgroundBrush"  Color="{DynamicResource ResourceKey=WindowBackgroundColour}" />
 
+
+    <LinearGradientBrush x:Key="StripeBrush" StartPoint="0,0" EndPoint="1,1" SpreadMethod="Repeat">
+
+        <GradientStop Offset="0" Color="#FFB82929"/>
+
+        <GradientStop Offset="0.5" Color="#FFAE2E2E"/>
+
+        <GradientStop Offset="0.5" Color="{DynamicResource WindowBackgroundColor2}"/>
+
+        <GradientStop Offset="1" Color="{DynamicResource WindowBackgroundColor2}"/>
+
+
+        <LinearGradientBrush.RelativeTransform>
+
+            <ScaleTransform ScaleX="0.2" ScaleY="0.1"/>
+
+        </LinearGradientBrush.RelativeTransform>
+
+    </LinearGradientBrush>
+
+
 </ResourceDictionary>
