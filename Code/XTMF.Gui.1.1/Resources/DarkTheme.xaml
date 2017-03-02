@@ -40,7 +40,7 @@
 
     <Color x:Key="WindowBackgroundColor1">#FF1F1F1F</Color>
     <Color x:Key="WindowBackgroundColor2">#FF252526</Color>
-    <Color x:Key="WindowBackgroundColor3">#191919</Color>
+    <Color x:Key="WindowBackgroundColor3">#303030</Color>
     <SolidColorBrush x:Key="WindowBackgroundBrush1" Color="{DynamicResource WindowBackgroundColor1}"></SolidColorBrush>
     <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="{DynamicResource WindowBackgroundColor2}"></SolidColorBrush>
     <SolidColorBrush x:Key="WindowBackgroundBrush3" Color="{DynamicResource WindowBackgroundColor3}"></SolidColorBrush>

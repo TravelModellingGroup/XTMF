@@ -354,10 +354,7 @@ DependencyProperty.Register("BackingModel",
             set
             {
                 _IsExpanded = value;
-          //      SetValue(IsExpandedDependencyProperty,value);
-                //    ModelHelper.PropertyChanged(PropertyChanged, this, "IsExpanded");
-                //PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded"));
-           //     BackingModel.IsExpanded = value;
+
 
 
             }

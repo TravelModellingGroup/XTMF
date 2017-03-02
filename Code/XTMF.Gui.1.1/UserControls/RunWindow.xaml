@@ -68,7 +68,7 @@
                 </userControls:FlatToolButton>
             </StackPanel>
         </Grid>
-        <GroupBox Grid.Row="1"  Grid.Column="0"  Margin="3" Header="Module Execution Status" BorderThickness="0.5">
+        <GroupBox Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Row="1"  Grid.Column="0"  Margin="3" Header="Module Execution Status" BorderThickness="0.5">
 
             <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" BorderBrush="White" Height="0" BorderThickness="0" CornerRadius="5" Margin="5" Visibility="Collapsed">
                 <my:CollapsePanel x:Name="AdditionDetailsPanel" IsExpanded="False" InternalHeight="150" Header="Additional Information" Foreground="White" />
@@ -90,7 +90,7 @@
 
             </StackPanel> -->
         </GroupBox>
-        <GroupBox Margin="3" Grid.Row="1" Grid.Column="1" Header="Run Status" BorderThickness="0.5" >
+        <GroupBox Foreground="{DynamicResource ThemeTextColorBrush}" Margin="3" Grid.Row="1" Grid.Column="1" Header="Run Status" BorderThickness="0.5" >
         <Grid  Background="{DynamicResource WindowBackgroundBrush3}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -152,7 +152,7 @@
         </Grid>
         </GroupBox>
 
-        <GroupBox Margin="3" Grid.Row="1" Grid.Column="2" Header="Console Output" BorderThickness="0.5">
+        <GroupBox Foreground="{DynamicResource ThemeTextColorBrush}" Margin="3" Grid.Row="1" Grid.Column="2" Header="Console Output" BorderThickness="0.5">
             <Border  Margin="2"  x:Name="ConsoleBorder" BorderThickness="0" VerticalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush3}"
                 Visibility="Visible" >
                 <Grid VerticalAlignment="Stretch" >
