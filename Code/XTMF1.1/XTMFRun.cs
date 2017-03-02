@@ -361,7 +361,6 @@ namespace XTMF
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 Thread.MemoryBarrier();
-                Directory.SetCurrentDirectory(cwd);
                 if (caughtError != null)
                 {
                     SendRuntimeError(caughtError);
@@ -370,6 +369,7 @@ namespace XTMF
                 {
                     SendRunComplete();
                 }
+                Directory.SetCurrentDirectory(cwd);
             }
         }
 
