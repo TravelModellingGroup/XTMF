@@ -126,6 +126,14 @@ DependencyProperty.Register("BackingModel",
                 ContentBorder.BorderThickness = new Thickness(1);
               
             }
+            else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null)
+            {
+                ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
+                ContentBorder.BorderThickness = new Thickness(1);
+                NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
+                NotificationIcon.Visibility = Visibility.Visible;
+                NotificationIcon.Fill = Brushes.IndianRed;
+            }
             else
             {
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
@@ -203,6 +211,25 @@ DependencyProperty.Register("BackingModel",
                     IconPath.Opacity = 1.0;
                 }
             }
+
+            else if (!BackingModel.BaseModel.IsOptional && BackingModel.Type == null)
+            {
+                ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
+                ContentBorder.BorderThickness = new Thickness(1);
+                NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
+                NotificationIcon.Visibility = Visibility.Visible;
+                NotificationIcon.Fill = Brushes.IndianRed;
+            }
+            else
+            {
+                ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
+                ContentBorder.BorderThickness = new Thickness(1);
+
+      
+
+
+            }
+
 
         }
 

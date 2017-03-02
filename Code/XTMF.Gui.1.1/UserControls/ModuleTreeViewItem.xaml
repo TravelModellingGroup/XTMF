@@ -128,9 +128,19 @@
             <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
         </Border>
             <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="1" Margin="0,8,7,0" TextOptions.TextFormattingMode="Display">
-                <Label  Margin="0,0,7,1" Padding="0" TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                <DockPanel  >
+                <Label DockPanel.Dock="Left"  Margin="0,0,7,1" Padding="0" TextOptions.TextFormattingMode="Display"  FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=TitleText,Mode=TwoWay}" ></Label>
-                <TextBlock   Margin="0,3,4,7" TextWrapping="WrapWithOverflow" MaxWidth="400" TextOptions.TextFormattingMode="Display"  Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
+                        
+                    
+                    <Path Visibility="Hidden" DockPanel.Dock="Right"  Width="16" Height="16" Margin="5,1,1,1" Name="NotificationIcon" Stretch="Uniform" Opacity="0.8"
+                  Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=OneWay}"
+                 HorizontalAlignment="Right">
+
+
+                        </Path>
+                    </DockPanel>
+                    <TextBlock   Margin="0,3,4,7" TextWrapping="WrapWithOverflow" MaxWidth="400" TextOptions.TextFormattingMode="Display"  Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                    
                    Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=SubText,Mode=TwoWay}"></TextBlock>
         </StackPanel>
