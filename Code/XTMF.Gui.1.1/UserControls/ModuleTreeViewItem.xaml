@@ -22,6 +22,7 @@
 
                     <MultiDataTrigger.Setters>
                         <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}"></Setter>
+                        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
                     </MultiDataTrigger.Setters>
 
 

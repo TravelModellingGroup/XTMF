@@ -119,7 +119,9 @@ DependencyProperty.Register("BackingModel",
                 IconPath.Opacity = 1.0;
             }
 
-            if (BackingModel.BaseModel.IsOptional)
+            if (BackingModel.BaseModel.IsOptional && 
+                ((BackingModel.BaseModel.Type == null && BackingModel.Children.Count == 0 && BackingModel.IsCollection) ||
+                (BackingModel.BaseModel.Type == null && !BackingModel.IsCollection)))
             {
                 ContentBorder.BorderThickness = new Thickness(1);
               
