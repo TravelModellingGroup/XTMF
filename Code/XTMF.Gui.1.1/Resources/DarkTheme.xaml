@@ -22,7 +22,7 @@
     <SolidColorBrush x:Key="MediumGrayBackgroundBrush" Color="#FF252526"></SolidColorBrush>
     <SolidColorBrush x:Key="DarkGrayBackgroundBrush" Color="#FF1F1F1F"></SolidColorBrush>
 
-    <Color x:Key="GridStrokeColour">#111A1E</Color>
+    <Color x:Key="GridStrokeColour">#434343</Color>
     <SolidColorBrush x:Key="GridStrokeBrush" Color="{DynamicResource GridStrokeColour}"></SolidColorBrush>
     <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013DarkTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>
 
@@ -63,7 +63,10 @@
     <SolidColorBrush x:Key="FocusBrushHover2" Color="#FF3F5D80" />
     <SolidColorBrush x:Key="FocusBrushHover3" Color="#FF465C76" />
 
-
+    
+    <SolidColorBrush x:Key="ModuleTreeViewItemBackground" Color="White"></SolidColorBrush>
+    <SolidColorBrush x:Key="ModuleTreeViewItemForeground" Color="#111111"></SolidColorBrush>
+    
     <SolidColorBrush x:Key="AddingYellowBrush" Color="{DynamicResource ResourceKey=AddingYellow}" />
     <SolidColorBrush x:Key="InformationGreenBrush" Color="{DynamicResource ResourceKey=InformationGreen}" />
     <SolidColorBrush x:Key="WarningRedBrush" Color="{DynamicResource ResourceKey=WarningRed}" />
@@ -74,13 +77,13 @@
 
     <LinearGradientBrush x:Key="StripeBrush" StartPoint="0,0" EndPoint="1,1" SpreadMethod="Repeat">
 
-        <GradientStop Offset="0" Color="#FFB82929"/>
+        <GradientStop Offset="0" Color="#FFE67B7B"/>
 
-        <GradientStop Offset="0.5" Color="#FFAE2E2E"/>
+        <GradientStop Offset="0.5" Color="#FFE09999"/>
 
-        <GradientStop Offset="0.5" Color="{DynamicResource WindowBackgroundColor2}"/>
+        <GradientStop Offset="0.5" Color="{DynamicResource ModelSystemTreeBackgroundColour}"/>
 
-        <GradientStop Offset="1" Color="{DynamicResource WindowBackgroundColor2}"/>
+        <GradientStop Offset="1" Color="{DynamicResource ModelSystemTreeBackgroundColour}"/>
 
 
         <LinearGradientBrush.RelativeTransform>
@@ -90,6 +93,7 @@
         </LinearGradientBrush.RelativeTransform>
 
     </LinearGradientBrush>
+
 
 
 </ResourceDictionary>

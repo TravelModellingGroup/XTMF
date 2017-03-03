@@ -67,8 +67,8 @@
                     </MultiDataTrigger.Conditions>
 
                     <MultiDataTrigger.Setters>
-                        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}"></Setter>
-                        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
+                        <Setter Property="Background" Value="{DynamicResource ModuleTreeViewItemBackground}"></Setter>
+                        <Setter Property="Foreground" Value="{DynamicResource ModuleTreeViewItemForeground}"></Setter>
                     </MultiDataTrigger.Setters>
 
 
