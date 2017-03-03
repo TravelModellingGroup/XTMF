@@ -82,7 +82,7 @@ DependencyProperty.Register("BackingModel",
             BackingModel.PropertyChanged += BaseModelOnPropertyChanged;
             if (BackingModel.BaseModel.IsMetaModule)
             {
-                Path path = new Path {Data = (PathGeometry) Application.Current.Resources["MetaModuleIconPath"]};
+                Path path = new Path { Data = (PathGeometry)Application.Current.Resources["MetaModuleIconPath"] };
 
 
                 this.IconPath = path;
@@ -91,15 +91,15 @@ DependencyProperty.Register("BackingModel",
             {
                 Path path = new Path
                 {
-                    Data = (PathGeometry) Application.Current.Resources["ModuleIcon2Path"],
-                  
+                    Data = (PathGeometry)Application.Current.Resources["ModuleIcon2Path"],
+
                 };
 
                 this.IconPath = path;
             }
             else if (BackingModel.BaseModel.IsCollection)
             {
-                Path path = new Path {Data = (PathGeometry) Application.Current.Resources["CollectionIconPath"]};
+                Path path = new Path { Data = (PathGeometry)Application.Current.Resources["CollectionIconPath"] };
 
                 this.IconPath = path;
             }
@@ -107,7 +107,7 @@ DependencyProperty.Register("BackingModel",
 
             if (BackingModel.BaseModel.IsDisabled)
             {
-                //Opacity = 0.4;
+
                 SubTextLabel.Opacity = 0.4;
                 Title.Opacity = 0.4;
                 IconPath.Opacity = 0.4;
@@ -130,7 +130,7 @@ DependencyProperty.Register("BackingModel",
 
 
             }
-            else if(!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
+            else if (!BackingModel.BaseModel.IsOptional && BackingModel.IsCollection && BackingModel.BaseModel.Children.Count == 0)
             {
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
                 ContentBorder.BorderThickness = new Thickness(1);
@@ -157,18 +157,18 @@ DependencyProperty.Register("BackingModel",
                 ContentBorder.BorderBrush = new SolidColorBrush(Colors.LightSlateGray);
                 ContentBorder.BorderThickness = new Thickness(1);
 
-                
+
             }
 
-            
 
-          
+
+
 
         }
 
         private void UpdateComponents()
         {
-            
+
         }
 
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -181,14 +181,13 @@ DependencyProperty.Register("BackingModel",
                 if (propertyChangedEventArgs.PropertyName == "IsSelected")
                 {
                     IsSelected = (sender as ModelSystemStructureDisplayModel).IsSelected;
-               
-                    //  this.IsSelected = propertyChangedEventArgs.
+
                 }
 
                 if (propertyChangedEventArgs.PropertyName == "IsExpanded")
                 {
                     IsExpanded = (sender as ModelSystemStructureDisplayModel).IsExpanded;
-                    //  this.IsSelected = propertyChangedEventArgs.
+
                 }
             }
 
@@ -217,7 +216,7 @@ DependencyProperty.Register("BackingModel",
 
                 if (BackingModel.BaseModel.IsDisabled)
                 {
-                    //Opacity = 0.4;
+
                     SubTextLabel.Opacity = 0.4;
                     Title.Opacity = 0.4;
                     IconPath.Opacity = 0.4;
@@ -237,7 +236,7 @@ DependencyProperty.Register("BackingModel",
                     ContentBorder.BorderThickness = new Thickness(1);
                     ContentBorder.BorderBrush = new SolidColorBrush(Colors.OliveDrab);
                     IconPath.Fill = new SolidColorBrush(Colors.OliveDrab);
-                    NotificationIcon.Data = (PathGeometry) Application.Current.Resources["OptionalIconPath"];
+                    NotificationIcon.Data = (PathGeometry)Application.Current.Resources["OptionalIconPath"];
                     NotificationIcon.Visibility = Visibility.Visible;
                     NotificationIcon.Fill = Brushes.OliveDrab;
 
@@ -257,10 +256,10 @@ DependencyProperty.Register("BackingModel",
                 {
                     ContentBorder.BorderBrush = new SolidColorBrush(Colors.IndianRed);
                     ContentBorder.BorderThickness = new Thickness(1);
-                    NotificationIcon.Data = (PathGeometry) Application.Current.Resources["FullErrorIconPath"];
+                    NotificationIcon.Data = (PathGeometry)Application.Current.Resources["FullErrorIconPath"];
                     NotificationIcon.Visibility = Visibility.Visible;
                     NotificationIcon.Fill = Brushes.IndianRed;
-                    InfoBorder.Background = (Brush) Application.Current.Resources["StripeBrush"];
+                    InfoBorder.Background = (Brush)Application.Current.Resources["StripeBrush"];
                     BlockBorder.Opacity = 0.7;
                 }
                 else
@@ -286,24 +285,21 @@ DependencyProperty.Register("BackingModel",
             set { SetValue(ModuleTypeDependencyProperty, value); }
         }
 
-    
+
         public bool IsSelected
         {
             get
             {
-             
+
                 return (bool)this.GetValue(IsSelectedDependencyProperty);
             }
             set
             {
 
-            
-               this.SetValue(IsSelectedDependencyProperty, value);
 
-               // PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
-                //PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
-                //     BackingModel.IsSelected = value;
-                //  BackingModel.PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
+                this.SetValue(IsSelectedDependencyProperty, value);
+
+
             }
         }
 
@@ -366,21 +362,7 @@ DependencyProperty.Register("BackingModel",
             }
         }
 
-        private bool _IsExpanded = false;
-        public bool IsExpanded
-        {
-            get
-            {
-                return _IsExpanded;
-            }
-            set
-            {
-                _IsExpanded = value;
-
-
-
-            }
-        }
+        public bool IsExpanded { get; set; } = false;
 
 
         public event PropertyChangedEventHandler PropertyChanged;

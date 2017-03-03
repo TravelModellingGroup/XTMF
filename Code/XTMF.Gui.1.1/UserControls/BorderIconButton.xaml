@@ -22,7 +22,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" Name="Self" Background="Transparent" >
-    <Border Name="BorderOutline" BorderBrush="White" BorderThickness="0" Cursor="Hand" CornerRadius="2">
+    <Border Name="BorderOutline"  BorderThickness="0" Cursor="Hand" CornerRadius="2">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
                 <Style.Triggers>
