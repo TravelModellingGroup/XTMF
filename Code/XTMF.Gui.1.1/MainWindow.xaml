@@ -375,36 +375,10 @@
                 </StatusBarItem>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
-                        <Label x:Name="RunLabel" Content="Run Model (F5)"
+                        <Label x:Name="RunLabel" Content="Run Model (F5)" Style="{DynamicResource HoverLabel}"
                                ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
                                FontSize="14" MouseUp="RunModel_MouseUp">
-                            <Label.Style>
-                                <Style TargetType="{x:Type Label}">
-                                    <Setter Property="Cursor" Value="Hand" />
-                                    <Setter Property="Foreground" Value="{StaticResource FocusBrush}" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Trigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color"
-                                                                        To="White" Duration="0:0:0.1" />
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </Trigger.EnterActions>
-                                            <Trigger.ExitActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color"
-                                                                        To="{StaticResource FocusColour}"
-                                                                        Duration="0:0:0.1" />
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </Trigger.ExitActions>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Label.Style>
+                           
                         </Label>
                        
                     </StackPanel>

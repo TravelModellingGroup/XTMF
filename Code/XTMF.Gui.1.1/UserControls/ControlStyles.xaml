@@ -800,13 +800,7 @@
     <Style TargetType="{x:Type ListViewItem}">
 
 
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderBrush" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="0" />
-            </Trigger>
-        </Style.Triggers>
+        
         <Style.Resources>
             
             <!--
@@ -824,27 +818,46 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                  <!--  <Border SnapsToDevicePixels="True"  
+                    <Border SnapsToDevicePixels="True"  
                                 BorderThickness="0 0 0 0"   
                                 BorderBrush="{DynamicResource WindowBackgroundBrush3}"   
                                 Background="{TemplateBinding Background}">
-                        <Border Name="InnerBorder" CornerRadius="1" BorderThickness="0">--> 
+                        <Border Name="InnerBorder" CornerRadius="1" BorderThickness="0">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition MaxHeight="25" />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
 
-                                <!--<Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="#75FFFFFF" /> -->
+                                <Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="#75FFFFFF" />
                                 <ContentPresenter Grid.Row="0" Grid.RowSpan="2"   
                                             VerticalAlignment="{TemplateBinding VerticalContentAlignment}"   
                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Grid>
-                    <!-- </Border>
-                     </Border>-->
+                        </Border>
+                    </Border>
                     <ControlTemplate.Triggers>
-                        
-                        
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="BorderBrush" Value="{DynamicResource FocusBrushHover}" />
+                        </MultiTrigger>
+
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}" />
+                            
+                        </Trigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True" />
+                                <Condition Property="Selector.IsSelectionActive" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="BorderBrush" Value="{DynamicResource FocusBrushHover2}" />
+                        </MultiTrigger>
+
                         <!--<Trigger Property="IsMouseOver" Value="True">
                             --><!--<Setter Property="Background" Value="{DynamicResource FocusBrush}" /> -->
                             <!--<Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" /> --><!--
@@ -860,13 +873,7 @@
                             </MultiTrigger.Conditions>
                             <Setter Property="BorderBrush" Value="{DynamicResource FocusBrush}" />
                         </MultiTrigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsSelected" Value="True" />
-                                <Condition Property="IsMouseOver" Value="True" />
-                            </MultiTrigger.Conditions>
-                            <Setter Property="BorderBrush" Value="{DynamicResource FocusBrush}" />
-                        </MultiTrigger>
+                        
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
                         </Trigger>-->

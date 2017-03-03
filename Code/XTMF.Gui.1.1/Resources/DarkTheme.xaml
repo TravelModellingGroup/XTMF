@@ -13,7 +13,7 @@
     <Color x:Key="SelectionBlue" A="255" R="0x55" G="0x6C" B="0x93" />
     <Color x:Key="ControlHeaderColour" A="255" R="0x2F" G="0x47" B="0x6E" />
     <Color x:Key="ControlBackgroundColour" A="255" R="0x1A" G="0x2E" B="0x52" />
-    <Color x:Key="FocusColour" A="255" R="150" G="165" B="190" />
+    
     <Color x:Key="MultiLayedLayerColour" A="200" R="0x50" G="0x50" B="0x60" />
     <Color x:Key="WindowBackgroundColour"  A="255" R="0x09" G="0x18" B="0x32" />
     <Color x:Key="HighlightBackground1">#FF333333</Color>
@@ -43,8 +43,8 @@
     
     
     <Color x:Key="WindowBackgroundColor1">#232323</Color>
-    <Color x:Key="WindowBackgroundColor2">#FF252526</Color>
-    <Color x:Key="WindowBackgroundColor3">#303030</Color>
+    <Color x:Key="WindowBackgroundColor2">#303030</Color>
+    <Color x:Key="WindowBackgroundColor3">#2A2A2A</Color>
     <Color x:Key="WindowBackgroundColor4">#353535</Color>
     <SolidColorBrush x:Key="WindowBackgroundBrush1" Color="{DynamicResource WindowBackgroundColor1}"></SolidColorBrush>
     <SolidColorBrush x:Key="WindowBackgroundBrush2" Color="{DynamicResource WindowBackgroundColor2}"></SolidColorBrush>
@@ -57,10 +57,12 @@
     <Color x:Key="ThemeTextColor">#FFFFFF</Color>
     <SolidColorBrush x:Key="ThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
+
+    <Color x:Key="FocusColour">#979EA5</Color>
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
 
-    <SolidColorBrush x:Key="FocusBrushHover" Color="#FF4065A6" />
-    <SolidColorBrush x:Key="FocusBrushHover2" Color="#FF3F5D80" />
+    <SolidColorBrush x:Key="FocusBrushHover" Color="#B7D2EC" />
+    <SolidColorBrush x:Key="FocusBrushHover2" Color="#FF6D95C5" />
     <SolidColorBrush x:Key="FocusBrushHover3" Color="#FF465C76" />
 
     
