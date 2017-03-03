@@ -23,7 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d">
-    <Border BorderThickness="1" BorderBrush="White" CornerRadius="2">
+    <Border BorderThickness="0" BorderBrush="White" CornerRadius="2">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />

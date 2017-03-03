@@ -293,6 +293,7 @@ namespace XTMF.Gui.UserControls
 
                         if (_subProgressBars.Count > 0)
                         {
+                            /* Resize the column */
                             BaseGrid.ColumnDefinitions[0].Width = new GridLength(2,GridUnitType.Star);
                         }
                         else
