@@ -197,7 +197,7 @@ namespace XTMF.Gui.UserControls
         private void StartRun(XTMFRun run, string runName)
         {
             _run = run;
-            BaseGrid.ColumnDefinitions[0].Width = new GridLength(0);
+  
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 MainWindow.Us.SetWindowName(this, "Run - " + runName);
@@ -289,6 +289,15 @@ namespace XTMF.Gui.UserControls
                         {
                             _taskbarInformation.ProgressState = TaskbarItemProgressState.Normal;
                             _taskbarInformation.ProgressValue = progress / 10000;
+                        }
+
+                        if (_subProgressBars.Count > 0)
+                        {
+                            BaseGrid.ColumnDefinitions[0].Width = new GridLength(2,GridUnitType.Star);
+                        }
+                        else
+                        {
+                            BaseGrid.ColumnDefinitions[0].Width = new GridLength(0);
                         }
                         for (var i = 0; i < _subProgressBars.Count; i++)
                         {
