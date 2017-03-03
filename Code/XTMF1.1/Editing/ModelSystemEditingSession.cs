@@ -233,6 +233,7 @@ namespace XTMF
                     run.RunComplete += () => TerminateRun(run);
                     run.ValidationError += (e) => TerminateRun(run);
                     run.RuntimeValidationError += (e) => TerminateRun(run);
+                    run.RuntimeError += (msg,stack) => TerminateRun(run);
                     return run;
                 }
             }
