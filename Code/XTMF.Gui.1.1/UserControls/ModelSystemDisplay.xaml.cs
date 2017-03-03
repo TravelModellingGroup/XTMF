@@ -778,21 +778,7 @@ namespace XTMF.Gui.UserControls
 
         new private void LostFocus(StackPanel border)
         {
-            if (border.Background.IsFrozen)
-            {
-                //border.Background = new SolidColorBrush((Color)Application.Current.FindResource("FocusColour"));
-
-               // border.Background = Brushes.Transparent;
-            }
-
-            if (!border.IsKeyboardFocusWithin)
-            {
-                //var background = (Color)Application.Current.FindResource("ControlBackgroundColour");
-
-                //var background = Colors.Transparent;
-                //ColorAnimation setFocus = new ColorAnimation(background, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-              // border.Background.BeginAnimation(SolidColorBrush.ColorProperty, setFocus);
-            }
+          
         }
 
         private void ParameterBorder_GotFocus(object sender, RoutedEventArgs e)
@@ -839,7 +825,7 @@ namespace XTMF.Gui.UserControls
             if (textbox == null) return;
             if (textbox.Background.IsFrozen)
             {
-                textbox.Background = textbox.Background.CloneCurrentValue();
+              //  textbox.Background = textbox.Background.CloneCurrentValue();
             }
            }
 
@@ -853,7 +839,7 @@ namespace XTMF.Gui.UserControls
                 if (box == null) return;
                 if (box.Background.IsFrozen)
                 {
-                    box.Background = box.Background.CloneCurrentValue();
+                 //   box.Background = box.Background.CloneCurrentValue();
                 }
                  }
         }

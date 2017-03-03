@@ -53,7 +53,7 @@
     <SolidColorBrush x:Key="HighlightBrush2" Color="{DynamicResource HighlightBackground2}"></SolidColorBrush>
 
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
-    <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
+    <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource ControlHighlightColour}" />
     <SolidColorBrush x:Key="FocusBrushHover" Color="#FF5FA7FF" />
     <SolidColorBrush x:Key="FocusBrushHover2" Color="#FFB9D8FF" />
     <SolidColorBrush x:Key="FocusBrushHover3" Color="#FF73B0FB" />

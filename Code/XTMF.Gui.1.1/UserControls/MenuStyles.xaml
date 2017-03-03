@@ -259,8 +259,8 @@
                                EndPoint="0,1">
                             <LinearGradientBrush.GradientStops>
                                 <GradientStopCollection>
-                                    <GradientStop Color="#000" />
-                                    <GradientStop Color="#111"
+                                    <GradientStop Color="{DynamicResource WindowBackgroundColor1}" />
+                                    <GradientStop Color="{DynamicResource WindowBackgroundColor2}"
                               Offset="1.0" />
                                 </GradientStopCollection>
                             </LinearGradientBrush.GradientStops>
@@ -274,7 +274,7 @@
               StrokeThickness="2"
               Data="M 0 0 L 7 7 M 0 7 L 7 0">
                         <Path.Stroke>
-                            <SolidColorBrush Color="#CCCCCC" />
+                            <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
                         </Path.Stroke>
                     </Path>
                 </Border>

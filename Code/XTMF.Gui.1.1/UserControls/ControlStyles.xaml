@@ -484,12 +484,12 @@
                                           Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
 
                                             <EasingColorKeyFrame KeyTime="0"
-                                         Value="{DynamicResource ResourceKey=ControlBackgroundColour}" />
+                                         Value="{DynamicResource  ControlColour}" />
                                         </ColorAnimationUsingKeyFrames>
                                         <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
                                           Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
                                             <EasingColorKeyFrame KeyTime="0"
-                                         Value="{DynamicResource ResourceKey=ControlBackgroundColour}" />
+                                         Value="{DynamicResource ControlColour}" />
                                         </ColorAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
@@ -798,46 +798,60 @@
 
     
     <Style TargetType="{x:Type ListViewItem}">
+
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Trigger>
+        </Style.Triggers>
         <Style.Resources>
+            
+            <!--
             <LinearGradientBrush x:Key="ListItemHoverFill" EndPoint="0,1" StartPoint="0,0">
                 <GradientStop Color="#FFF1FBFF" Offset="0"/>
                 <GradientStop Color="#FFD5F1FE" Offset="1"/>
             </LinearGradientBrush>
 
             <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{DynamicResource SelectionBlue}"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource SelectionBlue}"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{DynamicResource SelectionBlue}"/> -->
         </Style.Resources>
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                    <Border SnapsToDevicePixels="True"  
-                                BorderThickness="0 0 0 1"   
+                  <!--  <Border SnapsToDevicePixels="True"  
+                                BorderThickness="0 0 0 0"   
                                 BorderBrush="{DynamicResource WindowBackgroundBrush3}"   
                                 Background="{TemplateBinding Background}">
-                        <Border Name="InnerBorder" CornerRadius="1" BorderThickness="0">
+                        <Border Name="InnerBorder" CornerRadius="1" BorderThickness="0">--> 
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition MaxHeight="25" />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
 
-                                <Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="#75FFFFFF" />
+                                <!--<Rectangle Name="UpperHighlight" Visibility="Collapsed" Fill="#75FFFFFF" /> -->
                                 <ContentPresenter Grid.Row="0" Grid.RowSpan="2"   
                                             VerticalAlignment="{TemplateBinding VerticalContentAlignment}"   
                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Grid>
-                        </Border>
-                    </Border>
+                    <!-- </Border>
+                     </Border>-->
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <!--<Setter Property="Background" Value="{DynamicResource FocusBrush}" /> -->
-                            <!--<Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" /> -->
+                        
+                        
+                        <!--<Trigger Property="IsMouseOver" Value="True">
+                            --><!--<Setter Property="Background" Value="{DynamicResource FocusBrush}" /> -->
+                            <!--<Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" /> --><!--
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{DynamicResource FocusBrushHover}" />
-                            <Setter TargetName="InnerBorder" Property="BorderBrush" Value="#80FFFFFF" />
+                            <Setter TargetName="InnerBorder" Property="BorderBrush" Value="#FFFFFFFF" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -855,7 +869,7 @@
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                        </Trigger>
+                        </Trigger>-->
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -944,12 +958,7 @@
 
         <Setter Property="Background"
           Value="Transparent" />
-        <!-- <Setter Property="HorizontalContentAlignment"
-          Value="{Binding Path=HorizontalContentAlignment,
-    RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
-            <Setter Property="VerticalContentAlignment"
-          Value="{Binding Path=VerticalContentAlignment,
-    RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" /> -->
+       
         <Setter Property="Padding"
           Value="1,0,0,0" />
         <Setter Property="Foreground"
@@ -975,14 +984,7 @@
 
                                 <VisualState x:Name="Unselected" />
                                 <VisualState x:Name="SelectedInactive">
-                                    <Storyboard>
-                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Bd"
-                                                Storyboard.TargetProperty="(Panel.Background).
-                    (SolidColorBrush.Color)">
-                                            <EasingColorKeyFrame KeyTime="0"
-                                         Value="{DynamicResource ControlColourUnselected}" />
-                                        </ColorAnimationUsingKeyFrames>
-                                    </Storyboard>
+                                  
                                 </VisualState>
                             </VisualStateGroup>
                             <VisualStateGroup x:Name="ExpansionStates">

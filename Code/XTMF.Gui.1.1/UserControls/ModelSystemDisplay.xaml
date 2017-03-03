@@ -41,7 +41,7 @@
 
 
         <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
-            <Border Name="b"  BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
+            <Border Name="b"  BorderThickness="0"  HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter" Background="{DynamicResource WindowBackgroundBrush1}">
@@ -68,13 +68,13 @@
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
                     <TextBox TextWrapping="Wrap"  VerticalContentAlignment="Center" MaxWidth="{Binding ElementName=b,Path=ActualWidth}"  Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
-                                             PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="Black" FontSize="14"
-                                         SelectionOpacity="0.4" BorderThickness="0" Height="25" Padding="10">
+                                             PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
+                                         SelectionOpacity="0.6" BorderThickness="0" Height="25" Padding="10" SelectionBrush="{DynamicResource ControlHighlightColourBrush}">
                         <TextBox.Background>
-                            <SolidColorBrush Color="#EEEEEE" />
+                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColor4}" />
                         </TextBox.Background>
                         <TextBox.CaretBrush>
-                            <SolidColorBrush Color="Black" />
+                            <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
                         </TextBox.CaretBrush>
                         
                     </TextBox>
@@ -83,12 +83,12 @@
         </DataTemplate>
 
         <DataTemplate x:Key="EnumerationParameterTemplate">
-            <Border BorderThickness="0" BorderBrush="#999999" HorizontalAlignment="Stretch">
+            <Border BorderThickness="0" HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter">
                     <StackPanel.Background>
-                        <SolidColorBrush Color="{DynamicResource ResourceKey=ControlBackgroundColour}" />
+                        <SolidColorBrush Color="{DynamicResource ResourceKey=ControlColour}" />
                     </StackPanel.Background>
                     <Expander Margin="0.2cm,5,0.2cm,5" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
                                   HorizontalAlignment="Stretch" Style="{DynamicResource ParameterNameStyle}">
@@ -102,7 +102,7 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
-                                <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="{Binding FontColour}" TextTrimming="CharacterEllipsis" Cursor="Hand" />
+                                <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource ThemeTextColorBrush}" TextTrimming="CharacterEllipsis" Cursor="Hand" />
                                 <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
                                                ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}" />
                                 <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
@@ -112,7 +112,7 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{Binding FontColour}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <ComboBox Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Foreground="Black" FontSize="14"
+                    <ComboBox Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
                 </StackPanel>
             </Border>
@@ -256,47 +256,14 @@
 
                                 </this:ModuleTreeViewItem>
 
-                                <!--
-                        <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" 
-                                     Header="{Binding Name, Mode=OneWay}"
-                                     Text="{Binding Description, Mode=OneWay}"
-                                   
-                                    
-                                     ContextMenu="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
-                                                    AncestorType=TreeView}, Path=ContextMenu}" 
-
-                                    RightClicked="DisplayButton_RightClicked"
-                                    Margin="4"
-                                    KeyboardNavigation.TabNavigation="Continue"
-                                    KeyboardNavigation.IsTabStop="false" IsTabStop="False" MinWidth="275" Focusable="False" x:Name="DisplayButton">
-                        </my:BorderIconButton>-->
+                   
                                 <HierarchicalDataTemplate.Triggers>
-                                    <!--
-                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TreeViewItem}}" Value="True">
-                               
-                                <Setter TargetName="DisplayButton" Property="BorderThickness" Value="2" />
-                                <Setter TargetName="DisplayButton" Property="Margin" Value="2" />
-                            </DataTrigger> -->
+                             
                                 </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
 
-                        <!--
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="TreeViewItem" >
-                        <Style.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource SelectionBlue}"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource SelectionBlue}"/>
-                        </Style.Resources>
-                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                        <Setter Property="Visibility" Value="{Binding ModuleVisibility, Mode=TwoWay}" />
-                        <Setter Property="KeyboardNavigation.TabNavigation" Value="Once" />
-                        <Setter Property="KeyboardNavigation.IsTabStop" Value="True" />
-                        <Setter Property="Focusable" Value="True" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Background" Value="Transparent" />
-                    </Style>
-                </TreeView.ItemContainerStyle> -->
+               
                     </TreeView>
                 </Grid>
             </Canvas>
@@ -342,7 +309,7 @@
                                     </Trigger>
 
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource ControlDarkColor}"></Setter>
+                                        <Setter Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"></Setter>
                                     </Trigger>
                                 </Style.Triggers>
 
