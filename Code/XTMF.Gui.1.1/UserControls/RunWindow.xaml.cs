@@ -197,6 +197,7 @@ namespace XTMF.Gui.UserControls
         private void StartRun(XTMFRun run, string runName)
         {
             _run = run;
+            BaseGrid.ColumnDefinitions[0].Width = new GridLength(0);
             Dispatcher.BeginInvoke(new Action(() =>
             {
                 MainWindow.Us.SetWindowName(this, "Run - " + runName);
@@ -230,6 +231,8 @@ namespace XTMF.Gui.UserControls
             }
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
+
+            
             StartRunAsync();
             _timer.Start();
         }
@@ -493,9 +496,13 @@ namespace XTMF.Gui.UserControls
                     }
                     _subProgressBars.Add(new SubProgress
                     {
+
                         Name = new Label {Content = toAdd.Name, Foreground = Brushes.White},
                         ProgressBar = progressBar
                     });
+
+                    BaseGrid.ColumnDefinitions[0].Width = new GridLength(2, GridUnitType.Star);
+                    ;
                 });
             }
             else if (e.ListChangedType == ListChangedType.ItemDeleted)

@@ -25,9 +25,9 @@
              xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" Background="{DynamicResource WindowBackgroundBrush3}" >
 
-    <Grid>
+    <Grid Name="BaseGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="0"></ColumnDefinition>
             <ColumnDefinition Width="3*"></ColumnDefinition>
             <ColumnDefinition Width="3*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
