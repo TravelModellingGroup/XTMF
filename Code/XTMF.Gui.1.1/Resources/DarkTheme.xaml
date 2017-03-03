@@ -22,8 +22,8 @@
     <SolidColorBrush x:Key="MediumGrayBackgroundBrush" Color="#FF252526"></SolidColorBrush>
     <SolidColorBrush x:Key="DarkGrayBackgroundBrush" Color="#FF1F1F1F"></SolidColorBrush>
 
-
-
+    <Color x:Key="GridStrokeColour">#111A1E</Color>
+    <SolidColorBrush x:Key="GridStrokeBrush" Color="{DynamicResource GridStrokeColour}"></SolidColorBrush>
     <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013DarkTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>
 
     <Color x:Key="ControlTextColour">#FFFFFF</Color>
@@ -37,7 +37,11 @@
     <SolidColorBrush x:Key="ControlTextColourBrush" Color="{DynamicResource ControlTextColour}"></SolidColorBrush>
     <SolidColorBrush x:Key="ControlColourUnselectedBrush" Color="{DynamicResource ControlColourUnselected}"></SolidColorBrush>
 
-
+    
+    <Color x:Key="ModelSystemTreeBackgroundColour">#00454545</Color>
+    <SolidColorBrush x:Key="ModelSystemTreeBackgroundColourBrush" Color="{DynamicResource ModelSystemTreeBackgroundColour}"></SolidColorBrush>
+    
+    
     <Color x:Key="WindowBackgroundColor1">#232323</Color>
     <Color x:Key="WindowBackgroundColor2">#FF252526</Color>
     <Color x:Key="WindowBackgroundColor3">#303030</Color>

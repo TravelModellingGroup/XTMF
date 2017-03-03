@@ -35,7 +35,7 @@
           Viewbox="0,0,14,14" ViewportUnits="Absolute" 
           ViewboxUnits="Absolute">
             <VisualBrush.Visual>
-                <Rectangle SnapsToDevicePixels="True" Opacity="0.4" Stroke="#FF94C1D1" StrokeThickness="0.8" Width="20" Height="20"/>
+                <Rectangle SnapsToDevicePixels="True" Opacity="0.4" Stroke="{DynamicResource GridStrokeBrush}" StrokeThickness="0.8" Width="20" Height="20"/>
             </VisualBrush.Visual>
         </VisualBrush>
 
@@ -135,24 +135,7 @@
         <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
             <Canvas UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True">
 
-                <!--
-                <Canvas.Background>
-                    <DrawingBrush TileMode="Tile" Viewport="-10,-10,20,20" 
-                                     ViewportUnits="Absolute" >
-                        <DrawingBrush.Drawing>
-                            <GeometryDrawing>
-                                <GeometryDrawing.Geometry>
-                                    <RectangleGeometry Rect="0,0,80,80"/>
-                                </GeometryDrawing.Geometry>
-                                <GeometryDrawing.Pen>
-                                    <Pen  Brush="#FF94C1D1" Thickness="0.8"/>
-                                </GeometryDrawing.Pen>
-
-
-                            </GeometryDrawing>
-                        </DrawingBrush.Drawing>
-                    </DrawingBrush>
-                </Canvas.Background> -->
+               
                 <Grid Width="{Binding ActualWidth, ElementName=GridCanvas}" 
                       Height="{Binding ActualHeight, ElementName=GridCanvas}"
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent" >

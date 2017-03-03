@@ -19,6 +19,8 @@
     <Color x:Key="HighlightBackground2">#FFBBBBBB</Color>
 
 
+    <Color x:Key="GridStrokeColour">#FF94C1D1</Color>
+    <SolidColorBrush x:Key="GridStrokeBrush" Color="{DynamicResource GridStrokeColour}"></SolidColorBrush>
     <SolidColorBrush x:Key="MediumGrayBackgroundBrush" Color="#FF252526"></SolidColorBrush>
     <SolidColorBrush x:Key="DarkGrayBackgroundBrush" Color="#FF1F1F1F"></SolidColorBrush>
 

@@ -184,7 +184,7 @@
         <Grid Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush1}">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="179*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="837*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
