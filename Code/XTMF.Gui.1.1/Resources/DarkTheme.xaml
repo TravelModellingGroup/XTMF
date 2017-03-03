@@ -27,7 +27,7 @@
     <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013DarkTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>
 
     <Color x:Key="ControlTextColour">#FFFFFF</Color>
-   
+  
     <Color x:Key="ControlColour">#545F6B</Color>
     <Color x:Key="ControlColourUnselected">#696D73</Color>
     <Color x:Key="ControlHighlightColour">#647A9B</Color>

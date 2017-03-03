@@ -27,8 +27,8 @@
 
     <Grid Name="BaseGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0"></ColumnDefinition>
-            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="400"></ColumnDefinition>
             <ColumnDefinition Width="3*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         
