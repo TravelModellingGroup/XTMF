@@ -603,6 +603,9 @@
   <ItemGroup>
     <Resource Include="Resources\ic_note_add_white_18pt_2x.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_content_paste_white_2x.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

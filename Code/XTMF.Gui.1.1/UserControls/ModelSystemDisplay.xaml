@@ -163,38 +163,22 @@
                             <ContextMenu>
                                 <MenuItem Header="Copy (Ctrl+C)" Click="CopyModule_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Template="{DynamicResource CopyIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Paste (Ctrl+V)" Click="PasteModule_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/PasteHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Template="{DynamicResource PasteIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Rename (F2)" Click="Rename_Clicked">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Edit Description (Shift + F2)" Click="Description_Clicked">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource EditIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Meta-Module">
@@ -209,11 +193,7 @@
                              
                                 <MenuItem Header="Remove (Del)" Click="Remove_Clicked">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource CancelIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Help (F1)" Click="Help_Clicked">
@@ -231,11 +211,7 @@
                                 </MenuItem>
                                 <MenuItem Header="Linked Parameters (Ctrl+L)" Click="LinkedParameters_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource LinkIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                             </ContextMenu>
@@ -325,11 +301,7 @@
                                 <MenuItem Header="Parameter">
                                     <MenuItem Header="Copy (Ctrl+N)" Click="CopyParameterName_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource CopyIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <Separator />
