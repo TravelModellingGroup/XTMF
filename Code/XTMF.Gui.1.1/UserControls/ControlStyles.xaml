@@ -95,6 +95,15 @@
         </Canvas>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="OpenIcon">
+        <Canvas Left="-4" Top="-4" Width="16" Height="16">
+            <Path Width="16" Height="16" Fill="{DynamicResource ThemeTextColorBrush}"
+                       
+                          Stretch="Uniform"
+                          Data="{DynamicResource FolderOpenIconPath}" />
+        </Canvas>
+    </ControlTemplate>
+
     <!-- These resources are added to avoid missing message spam-->
     <SolidColorBrush x:Key="AvalonDockThemeVs2013DocumentWellTabUnselectedText" Color="Black"></SolidColorBrush>
     <SolidColorBrush x:Key="AvalonDockThemeVs2013TabBackground" Color="White"></SolidColorBrush>

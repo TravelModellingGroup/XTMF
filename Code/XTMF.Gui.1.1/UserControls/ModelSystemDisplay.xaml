@@ -314,11 +314,7 @@
                                 <MenuItem Header="Open">
                                     <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/OpenFile.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource OpenIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="Open File With" Click="OpenWith_Click" />
@@ -327,11 +323,7 @@
                                 <Separator />
                                 <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/Edit.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource EditIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
@@ -339,11 +331,7 @@
                                 <Separator />
                                 <MenuItem x:Name="ParameterLinkedParameterMenuItem" Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource LinkIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem x:Name="ParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
@@ -360,20 +348,12 @@
                                 </MenuItem>
                                 <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource CancelIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                             </ContextMenu>
