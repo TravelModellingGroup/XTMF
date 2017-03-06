@@ -198,11 +198,7 @@
                                 </MenuItem>
                                 <MenuItem Header="Help (F1)" Click="Help_Clicked">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/help.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource HelpIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Move">
