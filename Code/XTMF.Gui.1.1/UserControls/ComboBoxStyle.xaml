@@ -15,7 +15,7 @@
   BorderThickness="1" />
             <Border 
   Grid.Column="0"
-  CornerRadius="2,0,0,2" 
+  CornerRadius="0,0,0,0" 
   Margin="1" 
   Background="{DynamicResource WindowBackgroundBrush2}" 
   BorderThickness="0,0,1,0" />
