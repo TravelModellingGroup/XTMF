@@ -234,11 +234,21 @@ namespace XTMF.Gui.Models
             }
         }
 
+        private static readonly List<string> BoolValueList = new List<string>(new string[] { "True", "False" });
+
         public List<string> PossibleEnumerationValues
         {
             get
             {
-                return RealParameter.Type.GetEnumNames().ToList();
+                if (RealParameter.Type == typeof(bool))
+                {
+                    return BoolValueList;
+                }
+                else
+                {
+                    return RealParameter.Type.GetEnumNames().ToList();
+                }
+                
             }
         }
 
@@ -263,6 +273,11 @@ namespace XTMF.Gui.Models
             if (param != null)
             {
                 if (param.IsEnumeration)
+                {
+                    return Enumeration;
+                }
+
+                if (param.RealParameter.Type == typeof(bool))
                 {
                     return Enumeration;
                 }

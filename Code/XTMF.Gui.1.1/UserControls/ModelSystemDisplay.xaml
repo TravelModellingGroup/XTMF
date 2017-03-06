@@ -84,12 +84,13 @@
 
         <DataTemplate x:Key="EnumerationParameterTemplate">
             <Border BorderThickness="0" HorizontalAlignment="Stretch">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch"
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter">
+                    <!-- 
                     <StackPanel.Background>
-                        <SolidColorBrush Color="{DynamicResource ResourceKey=ControlColour}" />
-                    </StackPanel.Background>
+                      <SolidColorBrush Color="{DynamicResource ResourceKey=ControlColour}" /> 
+                    </StackPanel.Background>-->
                     <Expander Margin="0.2cm,5,0.2cm,5" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
                                   HorizontalAlignment="Stretch" Style="{DynamicResource ParameterNameStyle}">
                         <Expander.Header>
@@ -112,7 +113,7 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{Binding FontColour}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <ComboBox Margin="0.25cm,5,0.25cm,5" HorizontalAlignment="Stretch" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
+                    <ComboBox Margin="0.25cm,5,0.25cm,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
                 </StackPanel>
             </Border>

@@ -761,15 +761,7 @@ namespace XTMF.Gui.UserControls
 
         private void SetFocus(StackPanel border)
         {
-              if (border.Background.IsFrozen)
-              {
-
-                  //border.Background = Brushes.Transparent;
-                  //border.Background = border.Background.CloneCurrentValue();
-
-
-
-              }
+            
 
            
 
