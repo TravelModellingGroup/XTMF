@@ -113,7 +113,7 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{Binding FontColour}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <ComboBox Margin="0.25cm,5,0.25cm,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
+                    <ComboBox IsReadOnly="True"  Margin="0.25cm,5,0.25cm,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
                 </StackPanel>
             </Border>
