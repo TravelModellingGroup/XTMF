@@ -29,7 +29,10 @@
 
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Arrow" Property="Opacity" Value="0.6"></Setter>
+                <Setter TargetName="Arrow" Property="Opacity" Value="1.0"></Setter>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter TargetName="Arrow" Property="Opacity" Value="0.8"></Setter>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
