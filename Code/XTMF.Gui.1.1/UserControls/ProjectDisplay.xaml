@@ -75,56 +75,32 @@
                                 <ContextMenu>
                                     <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource RefreshIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="Delete Model System (Del)" Click="DeleteModelSystem_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource CancelIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="Save Model System As" Click="SaveModelSystemAs_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/SaveHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource SaveIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="Export Model System As (Ctrl+S)" Click="ExportModelSystemAs_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/SaveHS.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource SaveIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="_New Model System (Ctrl+N)" Click="NewModelSystem_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="/XTMF.Gui;component/Resources/Plus.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource NewIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="Clone Model System As (Ctrl+C)" Click="CloneModelSystem_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="/XTMF.Gui;component/Images/CopyFolderHSx64.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource CopyIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>
