@@ -54,7 +54,7 @@ namespace XTMF.Gui.Models
 
         public bool CanClose { get; private set; }
 
-        public virtual bool CanExecuteRun { get { return false; } }
+        public virtual bool CanExecuteRun { get { return true; } }
 
         protected void InvokeParameterChanged(string parameterName)
         {

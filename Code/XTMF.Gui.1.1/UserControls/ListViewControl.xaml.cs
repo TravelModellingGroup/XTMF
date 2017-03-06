@@ -16,7 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using XTMF.Gui.Annotations;
 
-namespace XTMF.Gui.UserControls
+namespace XTMF.Gui.UserControls 
 {
     /// <summary>
     /// Interaction logic for ListViewControl.xaml
