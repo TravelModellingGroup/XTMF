@@ -4,7 +4,7 @@
 
     <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
 
-      
+
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -40,9 +40,9 @@
 
 
     <Style x:Key="{x:Type ComboBox}" TargetType="ComboBox">
-        
-        
-       
+
+
+
         <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}">
 
         </Setter>
@@ -72,11 +72,12 @@
          HorizontalAlignment="Left" 
          VerticalAlignment="Center" 
          Margin="3,3,23,3" 
+                                 IsHitTestVisible="{TemplateBinding IsEditable}"
                                  
                                  Height="20"
            
                     Text="{TemplateBinding Text}"
-         Focusable="True" 
+         Focusable="{TemplateBinding Focusable}" 
          Background="Transparent"
          Foreground="{DynamicResource ThemeTextColorBrush}"
          Visibility="Visible"
@@ -95,7 +96,7 @@
                                 Background="{DynamicResource WindowBackgroundBrush3}"
           MinWidth="{TemplateBinding ActualWidth}"
           MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                               
+
 
                                 <Border 
             x:Name="DropDownBorder"
@@ -109,7 +110,7 @@
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
-            
+
         </Setter>
         <Style.Triggers>
         </Style.Triggers>
