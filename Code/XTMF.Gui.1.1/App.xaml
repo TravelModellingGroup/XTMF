@@ -30,8 +30,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/LightTheme.xaml"/> 
-                <ResourceDictionary Source="UserControls/ControlStyles.xaml"/>
-                <ResourceDictionary Source="UserControls/ComboBoxStyle.xaml"/>
+                <ResourceDictionary Source="Resources/ControlStyles.xaml"/>
+                <ResourceDictionary Source="Resources/ComboBoxStyle.xaml"/>
                 <ResourceDictionary Source="UserControls/MenuStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

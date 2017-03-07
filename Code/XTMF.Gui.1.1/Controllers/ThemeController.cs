@@ -15,6 +15,12 @@ namespace XTMF.Gui.Controllers
 
     public class ThemeController
     {
+        private static readonly Uri[] RequiredResources =
+        {
+            new Uri("Resources/ControlStyles.xaml", UriKind.RelativeOrAbsolute),
+            new Uri("Resources/ComboBoxStyle.xaml", UriKind.RelativeOrAbsolute),
+           new Uri("UserControls/MenuStyles.xaml", UriKind.RelativeOrAbsolute)
+        };
 
         public class Theme
         {
@@ -87,15 +93,26 @@ namespace XTMF.Gui.Controllers
         public void SetThemeActive(Theme theme)
         {
 
-            ClearThemeDictionaries();
+         //   var dict = Application.Current.Resources.MergedDictionaries;
+            Application.Current.Resources.MergedDictionaries.Clear();
+
+           
 
             Application.Current.Resources.MergedDictionaries.Add(theme.ThemeResourceDictionary);
+
+            foreach (var uri in RequiredResources)
+            {
+                Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
+
+            }
 
             /* Look up Avalon Theme if present */
             if (theme.ThemeResourceDictionary.Contains("AvalonDockTheme"))
             {
                 try
                 {
+
+            
                     string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
 
                     Type themeType = Type.GetType(themeClass);
