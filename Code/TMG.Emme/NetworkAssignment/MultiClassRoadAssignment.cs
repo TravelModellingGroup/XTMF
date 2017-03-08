@@ -126,6 +126,11 @@ namespace TMG.Emme.NetworkAssignment
 
                 public bool RuntimeValidation(ref string error)
                 {
+                    if(String.IsNullOrWhiteSpace(AttributeId))
+                    {
+                        error = $"In {Name} the attriubute ID was not valid!";
+                        return false;
+                    }
                     return true;
                 }
             }
@@ -188,8 +193,11 @@ namespace TMG.Emme.NetworkAssignment
             {
                 for (int j = 0; j < Classes.Length; j++)
                 {
+                    if (j > 0)
+                    {
+                        builder.Append(",");
+                    }
                     builder.Append(Classes[j].AdditionalAttributesToAggregate[i].AttributeId);
-                    builder.Append(",");
                 }
             }
             return builder.ToString();
@@ -203,9 +211,12 @@ namespace TMG.Emme.NetworkAssignment
             {
                 for (int j = 0; j < Classes.Length; j++)
                 {
+                    if(j > 0)
+                    {
+                        builder.Append(",");
+                    }
                     builder.Append("mf");
                     builder.Append(Classes[j].AdditionalAttributesToAggregate[i].AggregationMatrix);
-                    builder.Append(",");
                 }
             }
             return builder.ToString();
