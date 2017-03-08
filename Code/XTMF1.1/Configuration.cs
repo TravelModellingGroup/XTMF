@@ -61,7 +61,10 @@ namespace XTMF
             set { _theme = value; }
         }
 
-        public Configuration(string configurationFileName, Assembly baseAssembly = null)
+   
+        
+
+        public Configuration(string configurationFileName, Assembly baseAssembly = null, bool loadModules = true)
         {
             HostPort = 1447;
             BaseAssembly = baseAssembly;
@@ -71,7 +74,11 @@ namespace XTMF
             ModelRepository = new ModuleRepository();
             ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
             LoadVersion();
-            LoadModules();
+
+            if (loadModules)
+            {
+                LoadModules();
+            }
             try
             {
                 ModelSystemRepository = new ModelSystemRepository(this);
@@ -853,6 +860,13 @@ namespace XTMF
                 });
             }
             return validTypes.ToList();
+        }
+
+        public void LoadModules(Action loadModulesCompleteAction)
+        {
+            LoadModules();
+
+            loadModulesCompleteAction.Invoke();
         }
 
         private void LoadModules()

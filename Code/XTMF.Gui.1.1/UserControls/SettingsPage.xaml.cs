@@ -63,7 +63,8 @@ namespace XTMF.Gui.UserControls
                 DeleteConfigLabel.Visibility = Visibility.Collapsed;
             }
 
-            foreach(var theme in MainWindow.Us.ThemeController.Themes)
+
+            foreach (var theme in MainWindow.Us.ThemeController.Themes)
             {
                 ComboBoxItem comboBoxItem = new ComboBoxItem
                 {
@@ -73,7 +74,7 @@ namespace XTMF.Gui.UserControls
 
                 ThemeComboBox.Items.Add(comboBoxItem);
             }
-
+            
             if (((Configuration) _configuration).Theme != null)
             {
                 foreach (ComboBoxItem item in ThemeComboBox.Items)
@@ -88,7 +89,7 @@ namespace XTMF.Gui.UserControls
             else
             {
                 ThemeComboBox.SelectedIndex = 0;
-            }
+            } 
         }
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e)

@@ -33,7 +33,7 @@ namespace XTMF.Gui.Controllers
         static SingleAccess<List<MainWindow>> OpenWindows = new SingleAccess<List<MainWindow>>(new List<MainWindow>());
         public static XTMFRuntime Runtime { get; private set; }
 
-        internal static void Register(MainWindow window, Action OnComplete)
+        internal static void Register(MainWindow window, Action OnComplete, bool loadModules = true)
         {
             Task.Factory.StartNew(
                 () =>
@@ -49,7 +49,7 @@ namespace XTMF.Gui.Controllers
                        }
                        else
                        {
-                           Configuration configuration = new Configuration(window.ConfigurationFilePath);
+                           Configuration configuration = new Configuration(window.ConfigurationFilePath,loadModules: loadModules);
                            Runtime = new XTMFRuntime(configuration);
                        }
                        var loadError = ((Configuration)Runtime.Configuration).LoadError;

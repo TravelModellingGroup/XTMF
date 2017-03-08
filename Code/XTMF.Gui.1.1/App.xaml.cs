@@ -46,13 +46,18 @@ namespace XTMF.Gui
                     }
                     xtmfMainWindow.UpdateRecentProjectsMenu();
                     xtmfMainWindow.Show();
-                    xtmfMainWindow.IsEnabled = true;
-                    xtmfMainWindow.StatusDisplay.Text = "Ready";
+
+                    EditorController.Runtime.Configuration.LoadModules(() =>
+                    {
+                        xtmfMainWindow.IsEnabled = true;
+                        xtmfMainWindow.StatusDisplay.Text = "Ready";
+                    });
+                   
                 }));
              
            
                 
-            });
+            },loadModules:false);
 
         }
 
