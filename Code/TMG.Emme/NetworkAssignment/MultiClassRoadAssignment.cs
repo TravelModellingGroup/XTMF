@@ -19,6 +19,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using XTMF;
 
 namespace TMG.Emme.NetworkAssignment
@@ -106,6 +107,28 @@ namespace TMG.Emme.NetworkAssignment
                 error = "In '" + Name + "' the Mode '" + Mode + "' is not a feasible mode for multi class assignment!";
                 return false;
             }
+
+            public Aggregation[] AdditionalAttributesToAggregate;
+
+            public class Aggregation : IModule
+            {
+                public string Name { get; set; }
+
+                public float Progress => 0f;
+
+                public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+
+                [RunParameter("Attribute ID", "", "The attribute to aggregate.")]
+                public string AttributeId;
+
+                [RunParameter("Aggregation Matrix", 0, "The matrix number to store the aggregated results into.")]
+                public int AggregationMatrix;
+
+                public bool RuntimeValidation(ref string error)
+                {
+                    return true;
+                }
+            }
         }
 
 
@@ -152,8 +175,42 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("LinkTollAttributeId", string.Join(",", Classes.Select(c => c.LinkTollAttributeID))),
                 new ModellerControllerParameter("xtmf_NameString", string.Join(",", Classes.Select(c => c.Name))),
                 new ModellerControllerParameter("ResultAttributes", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
+                new ModellerControllerParameter("xtmf_AggAttributes", GetAttributesFromClass()),
+                new ModellerControllerParameter("xtmf_AggAttributes", GetAttributeMatrixIds())
             };
         }
+
+        private string GetAttributesFromClass()
+        {
+            StringBuilder builder = new StringBuilder();
+            var numberOfAttributes = Classes.Length > 0 ? Classes[0].AdditionalAttributesToAggregate.Length : 0;
+            for (int i = 0; i < numberOfAttributes; i++)
+            {
+                for (int j = 0; j < Classes.Length; j++)
+                {
+                    builder.Append(Classes[j].AdditionalAttributesToAggregate[i].AttributeId);
+                    builder.Append(",");
+                }
+            }
+            return builder.ToString();
+        }
+
+        private string GetAttributeMatrixIds()
+        {
+            StringBuilder builder = new StringBuilder();
+            var numberOfAttributes = Classes.Length > 0 ? Classes[0].AdditionalAttributesToAggregate.Length : 0;
+            for (int i = 0; i < numberOfAttributes; i++)
+            {
+                for (int j = 0; j < Classes.Length; j++)
+                {
+                    builder.Append("mf");
+                    builder.Append(Classes[j].AdditionalAttributesToAggregate[i].AggregationMatrix);
+                    builder.Append(",");
+                }
+            }
+            return builder.ToString();
+        }
+
 
         private string GetTimes()
         {
@@ -182,6 +239,7 @@ namespace TMG.Emme.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
+            // Check the 
             return true;
         }
     }
