@@ -131,6 +131,11 @@ namespace TMG.Emme.NetworkAssignment
                         error = $"In {Name} the attriubute ID was not valid!";
                         return false;
                     }
+                    if(AggregationMatrix <= 0)
+                    {
+                        error = $"In {Name} the aggregation matrix number was invalid!";
+                        return false;
+                    }
                     return true;
                 }
             }
