@@ -11,7 +11,7 @@ using Xceed.Wpf.AvalonDock.Themes;
 namespace XTMF.Gui.Controllers
 {
 
-   
+
 
     public class ThemeController
     {
@@ -24,8 +24,8 @@ namespace XTMF.Gui.Controllers
 
         public class Theme
         {
-             public string Name;
-             public string ThemeFile;
+            public string Name;
+            public string ThemeFile;
              public ResourceDictionary ThemeResourceDictionary;
 
             public Theme(string name, string themeFile, ResourceDictionary tDictionary)
@@ -36,7 +36,7 @@ namespace XTMF.Gui.Controllers
             }
         }
 
-        private List<Theme> _themes;
+        private readonly List<Theme> _themes;
 
         private string _configuration;
 
@@ -49,7 +49,7 @@ namespace XTMF.Gui.Controllers
         {
 
             Application.Current.Resources.MergedDictionaries.Clear();
-            Uri NewTheme = new Uri(theme+".thm", UriKind.Relative);
+            Uri NewTheme = new Uri(theme + ".thm", UriKind.Relative);
             ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
             Application.Current.Resources.MergedDictionaries.Add(dictionary);
         }
@@ -60,7 +60,7 @@ namespace XTMF.Gui.Controllers
         /// </summary>
         private void LoadDefaultDarkTheme()
         {
-            
+
             ClearThemeDictionaries();
 
 
@@ -93,10 +93,10 @@ namespace XTMF.Gui.Controllers
         public void SetThemeActive(Theme theme)
         {
 
-         //   var dict = Application.Current.Resources.MergedDictionaries;
+
             Application.Current.Resources.MergedDictionaries.Clear();
 
-           
+
 
             Application.Current.Resources.MergedDictionaries.Add(theme.ThemeResourceDictionary);
 
@@ -107,26 +107,25 @@ namespace XTMF.Gui.Controllers
             }
 
             /* Look up Avalon Theme if present */
-            if (theme.ThemeResourceDictionary.Contains("AvalonDockTheme"))
+            if (!theme.ThemeResourceDictionary.Contains("AvalonDockTheme"))
             {
-                try
-                {
+                return;
+            }
+            try
+            {
 
-            
-                    string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
 
-                    Type themeType = Type.GetType(themeClass);
+                string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
 
-              
-                    Xceed.Wpf.AvalonDock.Themes.Theme themeObj = (Xceed.Wpf.AvalonDock.Themes.Theme) Activator.CreateInstance(themeType);
-                    MainWindow.Us.DockManager.Theme = themeObj;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    
-                }
-            
+                Type themeType = Type.GetType(themeClass);
+
+
+                Xceed.Wpf.AvalonDock.Themes.Theme themeObj = (Xceed.Wpf.AvalonDock.Themes.Theme)Activator.CreateInstance(themeType);
+                MainWindow.Us.DockManager.Theme = themeObj;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
 
             }
         }
@@ -149,18 +148,18 @@ namespace XTMF.Gui.Controllers
             ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
             dictionary.Source = NewTheme;
 
-            this._themes.Add(new Theme("Light Theme Default",NewTheme.OriginalString,dictionary));
+            this._themes.Add(new Theme("Light Theme Default", NewTheme.OriginalString, dictionary));
 
 
         }
 
         public ThemeController(string configuration)
         {
-            
+
             /* Load themes from Configuration and search for themes in the current configuration
              * directory .*/
 
-            this._configuration = Path.Combine(configuration,"Themes");
+            this._configuration = Path.Combine(configuration, "Themes");
             _themes = new List<Theme>();
 
             LoadDefaultDarkTheme();
@@ -172,7 +171,7 @@ namespace XTMF.Gui.Controllers
             }
             foreach (var file in Directory.EnumerateFiles(_configuration))
             {
-        
+
                 if (file.EndsWith(".thm"))
                 {
 
@@ -188,7 +187,7 @@ namespace XTMF.Gui.Controllers
                         Console.WriteLine(e);
                         throw;
                     }
-                    
+
 
                 }
             }

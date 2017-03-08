@@ -69,10 +69,10 @@
                     <DockPanel Grid.Row="1" LastChildFill="True" Background="{DynamicResource WindowBackgroundBrush2}">
 
                         <Label Content="Model Systems" DockPanel.Dock="Top" Background="Transparent" FontSize="22" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,0,5"/>
-                        <ListView VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
+                        <ListView  VerticalAlignment="Stretch"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" x:Name="ModelSystemDisplay" Background="{DynamicResource WindowBackgroundBrush2}"
                                  SelectionChanged="ModelSystemDisplay_SelectionChanged" BorderBrush="{x:Null}">
                             <ListView.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu >
                                     <MenuItem Header="Rename Model System (F2)" Click="RenameModelSystem_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource RefreshIcon}" />
@@ -98,9 +98,14 @@
                                             <ContentControl Template="{DynamicResource NewIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
-                                    <MenuItem Header="Clone Model System As (Ctrl+C)" Click="CloneModelSystem_Click">
+                                    <MenuItem Header="Copy Model System (Ctrl+C)" Click="CopyModelSystem_Click">
                                         <MenuItem.Icon>
                                             <ContentControl Template="{DynamicResource CopyIcon}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem IsEnabled="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=xtmf:ProjectDisplay}, Path=CanPasteModelSystem}" Name="PasteModelSystemMenuItem" Header="Paste Model System (Ctrl+V)" Click="PasteModelSystem_OnClick" >
+                                        <MenuItem.Icon>
+                                            <ContentControl Template="{DynamicResource PasteIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>

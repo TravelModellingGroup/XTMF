@@ -112,6 +112,8 @@ namespace XTMF.Gui
 
 
 
+        public ProjectDisplay.ProjectModel.ContainedModelSystemModel ClipboardModel { get; set; }
+
         public MainWindow()
         {
             // start it with a blank editing display model
@@ -134,41 +136,7 @@ namespace XTMF.Gui
                   "XTMF", "Configuration.xml"))
               : System.IO.Path.GetDirectoryName(_configurationFilePath));
 
-            EditorController.Register(this, () =>
-            {
-
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    if (EditorController.Runtime.Configuration.Theme == null)
-                    {
-                        _themeController.SetThemeActive(_themeController.GetDefaultTheme());
-                    }
-                    else
-                    {
-                        ThemeController.Theme theme =
-                            _themeController.FindThemeByName(EditorController.Runtime.Configuration.Theme);
-
-                        if (theme == null)
-                        {
-                            _themeController.SetThemeActive(_themeController.GetDefaultTheme());
-                        }
-                        else
-                        {
-                            _themeController.SetThemeActive(theme);
-                        }
-                    }
-                    IsEnabled = true;
-                    StatusDisplay.Text = "Ready";
-
-
-
-                    UpdateRecentProjectsMenu();
-
-
-
-                }));
-            });
-
+          
 
             InitializeComponent();
             ModelRunPane.Hide();
@@ -187,12 +155,7 @@ namespace XTMF.Gui
             routed.InputGestures.Add(new KeyGesture(Key.F5,ModifierKeys.Control));
 
             CommandBindings.Add(new CommandBinding(routed, ToggleModuleRunDisplay));
-            //CommandBindings.Add()
-
-
-           
-
-            //DockManager.Theme = new Vs2013DarkTheme();
+     
         }
 
         public void ToggleModuleRunDisplay(object sender, RoutedEventArgs e)
@@ -326,7 +289,7 @@ namespace XTMF.Gui
 
 
 
-                RecentProjectsUpdated(this, new System.EventArgs());
+                RecentProjectsUpdated?.Invoke(this, new System.EventArgs());
             });
         }
 

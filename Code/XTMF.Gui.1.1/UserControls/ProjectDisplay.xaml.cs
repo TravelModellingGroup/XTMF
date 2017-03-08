@@ -35,6 +35,7 @@ using System.Windows.Media;
 using XTMF.Gui.Annotations;
 using XTMF.Gui.Controllers;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -661,7 +662,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void CloneModelSystem_Click(object sender, RoutedEventArgs e)
+        private void CopyModelSystem_Click(object sender, RoutedEventArgs e)
         {
             CloneCurrentModelSystem();
         }
@@ -671,6 +672,7 @@ namespace XTMF.Gui.UserControls
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
             if (selected != null)
             {
+                MainWindow.Us.ClipboardModel = selected;
                 StringRequest sr = new StringRequest("Cloned Model System's Name?", newName =>
                 {
                     return Session.ValidateModelSystemName(newName);
@@ -828,6 +830,28 @@ namespace XTMF.Gui.UserControls
                 case System.Windows.Forms.DialogResult.Cancel:
                 default:
                     break;
+            }
+        }
+
+        private void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Paste");
+        }
+
+      
+
+        private void PasteModelSystemMenuItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            var s = sender as MenuItem;
+            if (MainWindow.Us.ClipboardModel != null)
+            {
+                s.IsEnabled = true;
+
+
+            }
+            else
+            {
+                s.IsEnabled = false;
             }
         }
     }
