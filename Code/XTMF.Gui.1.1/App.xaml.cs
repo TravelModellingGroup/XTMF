@@ -34,15 +34,7 @@ namespace XTMF.Gui
                           ThemeController.Theme theme =
                                 xtmfMainWindow.ThemeController.FindThemeByName(EditorController.Runtime.Configuration.Theme);
 
-                            if (theme == null)
-                           {
-                            xtmfMainWindow.ThemeController.SetThemeActive(xtmfMainWindow.ThemeController.GetDefaultTheme());
-                            }
-                            else
-                            {
-                            xtmfMainWindow.ThemeController.SetThemeActive(theme);
-                           }
-                            
+                        xtmfMainWindow.ThemeController.SetThemeActive(theme ?? xtmfMainWindow.ThemeController.GetDefaultTheme());
                     }
                     xtmfMainWindow.UpdateRecentProjectsMenu();
                     xtmfMainWindow.Show();

@@ -133,7 +133,7 @@
             </Grid.ColumnDefinitions>
             <!--<my:HintedTextBox Grid.Column="0" Margin="5" x:Name="LinkedParameterValue" HintText="Linked Parameter Value" Width="250" Height="Auto"/>-->
             <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New"   Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
-                                 Icon="/XTMF.Gui;component/Resources/Plus.png" Margin="2"/>
+                                 Icon="/XTMF.Gui;component/Resources/ic_create_white_48dp.png" Margin="2"/>
 
             <DockPanel Grid.Column="1"/>
         </Grid>
