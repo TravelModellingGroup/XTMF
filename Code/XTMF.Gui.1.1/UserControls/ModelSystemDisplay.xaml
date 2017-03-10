@@ -110,7 +110,7 @@
                                                ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
                             </Grid>
                         </Expander.Header>
-                        <TextBlock HorizontalAlignment="Left" Foreground="{Binding FontColour}" FontWeight="Normal"
+                        <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
                     <ComboBox  IsReadOnly="True"  Margin="0.25cm,5,0.25cm,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
