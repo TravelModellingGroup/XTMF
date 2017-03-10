@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -418,6 +419,33 @@ namespace XTMF
             }
         }
 
+
+        public bool AddExternalModelSystem(IModelSystem system, string name, ref string error)
+        {
+        
+
+            system.ModelSystemStructure.Name = name;
+            system.Name = name;
+            
+            if (Project.AddExternalModelSystem(system, ref error))
+            {
+                var temp = new SessionData[EditingSessions.Length + 1];
+                Array.Copy(EditingSessions, temp, EditingSessions.Length);
+                EditingSessions = temp;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public ModelSystem CloneModelSystem(IModelSystemStructure root, ref string error)
+        {
+
+            return Project.CloneModelSystem(root);
+        }
+
         public bool CloneModelSystemToProjectAs(IModelSystemStructure root, string name, ref string error)
         {
             lock (EditingSessionsLock)
@@ -427,6 +455,7 @@ namespace XTMF
                 {
                     error = "The model system was not found within the project!";
                     return false;
+                    
                 }
                 if (Project.AddModelSystem(index, name, ref error))
                 {

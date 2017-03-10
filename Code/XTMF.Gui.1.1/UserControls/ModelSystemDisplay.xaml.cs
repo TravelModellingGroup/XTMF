@@ -68,6 +68,11 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty ModelSystemNameProperty = DependencyProperty.Register("ModelSystemName", typeof(string), typeof(ModelSystemDisplay),
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
+
+        public static readonly DependencyProperty IsCanPasteModelSystemDependencyProperty = 
+            DependencyProperty.Register("IsCanPasteModelSystem", typeof(bool), typeof(ModelSystemDisplay),
+new FrameworkPropertyMetadata(false));
+
         private ModelSystemEditingSession _Session;
         public ModelSystemEditingSession Session
         {
@@ -89,6 +94,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+       
         private void ProjectWasExternalSaved(object sender, EventArgs e)
         {
 

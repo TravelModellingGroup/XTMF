@@ -52,7 +52,7 @@ using UserControl = System.Windows.Controls.UserControl;
 namespace XTMF.Gui
 {
 
-    internal class ExtendedLayoutDocument : LayoutDocument
+    internal class ExtendedLayoutDocument : LayoutDocument, INotifyPropertyChanged
     {
 
         public enum DocumentType { Project, ModelSystem, Interface }
@@ -112,7 +112,10 @@ namespace XTMF.Gui
 
 
 
-        public ProjectDisplay.ProjectModel.ContainedModelSystemModel ClipboardModel { get; set; }
+        public ProjectDisplay.ProjectModel.ContainedModelSystemModel ClipboardModel
+        {
+            get; set;
+        }
 
         public MainWindow()
         {
@@ -762,6 +765,8 @@ namespace XTMF.Gui
             NewModelSystem();
 
         }
+
+      
 
         public void NewModelSystem()
         {

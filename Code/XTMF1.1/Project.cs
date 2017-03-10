@@ -96,6 +96,16 @@ namespace XTMF
             return Save(ref error);
         }
 
+        internal bool AddExternalModelSystem(IModelSystem system, ref string error)
+        {
+            
+            ModelSystemStructure.Add(system.ModelSystemStructure);
+            LinkedParameters.Add(system.LinkedParameters);
+            ModelSystemDescriptions.Add(system.Description);
+
+            return Save(ref error);
+        }
+
         internal bool AddModelSystem(string modelSystemName, ref string error)
         {
             if (String.IsNullOrWhiteSpace(modelSystemName))
@@ -205,6 +215,43 @@ namespace XTMF
                 LinkedParameter.MapLinkedParameters(LinkedParameters[modelSystemIndex], ourClone, ModelSystemStructure[modelSystemIndex])
                 : new List<ILinkedParameter>();
             return ourClone as ModelSystemStructure;
+        }
+
+
+        internal ModelSystem CloneModelSystem(IModelSystemStructure modelSystemStructure)
+        {
+            int index = 0;
+            var clone = modelSystemStructure.Clone();
+            var modelSystem = new ModelSystem(Configuration, modelSystemStructure.Name)
+            {
+                ModelSystemStructure = clone
+            };
+
+            
+            foreach (var f in ModelSystemStructure)
+            {
+                if (f.Name == modelSystemStructure.Name)
+                {
+                    modelSystem.LinkedParameters = LinkedParameters[index].Count > 0 ?
+                LinkedParameter.MapLinkedParameters(LinkedParameters[index], clone, ModelSystemStructure[index])
+                : new List<ILinkedParameter>();
+                }
+
+                index++;
+            }
+
+           
+
+         
+            return modelSystem;
+            ;
+            //ModelSystem()
+            //var ourClone = modelSystemStructure.Clone();
+            //linkedParameters = LinkedParameters[modelSystemIndex].Count > 0 ?
+            //   LinkedParameter.MapLinkedParameters(LinkedParameters[modelSystemIndex], ourClone, ModelSystemStructure[modelSystemIndex])
+            //   : new List<ILinkedParameter>();
+            //return ourClone as ModelSystemStructure;
+
         }
 
         private ModelSystemStructure CloneModelSystemStructure(ModelSystem modelSystem, out List<ILinkedParameter> list)

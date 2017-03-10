@@ -28,7 +28,7 @@
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" 
         ResizeMode="CanResizeWithGrip"
  BorderBrush="{DynamicResource WindowBackgroundBrush3}"
- BorderThickness="1"
+ BorderThickness="1"  Name="XtmfWindow"
         Background="Transparent"
         MouseDown="Window_MouseDown" MouseDoubleClick="MainWindow_OnMouseDoubleClick"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"

@@ -44,7 +44,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     /// Interaction logic for ProjectDisplay.xaml
     /// </summary>
-    public partial class ProjectDisplay : UserControl
+    public partial class ProjectDisplay : UserControl, INotifyPropertyChanged
     {
         public static readonly DependencyProperty ProjectProperty = DependencyProperty.Register("Project", typeof(Project), typeof(ProjectDisplay),
     new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectChanged));
@@ -55,12 +55,21 @@ namespace XTMF.Gui.UserControls
         public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
 
 
+      
+
+
 
         public class ProjectModel : INotifyPropertyChanged
         {
             public class ContainedModelSystemModel : INotifyPropertyChanged
             {
                 private IModelSystemStructure Root;
+
+
+                public IModelSystemStructure ModelSystemStructure
+                {
+                    get { return Root; }
+                }
 
                 public event PropertyChangedEventHandler PropertyChanged;
 
@@ -109,6 +118,8 @@ namespace XTMF.Gui.UserControls
                 {
                     return session.CloneModelSystemToProjectAs(Root, name, ref error);
                 }
+
+              
 
                 internal bool ExportModelSystem(ProjectEditingSession session, string fileName, ref string error)
                 {
@@ -194,10 +205,10 @@ namespace XTMF.Gui.UserControls
             {
                 if (ContainedModelSystems == null)
                 {
-      
-                      
-                   ContainedModelSystems = new List<ContainedModelSystemModel>();
-                        
+
+
+                    ContainedModelSystems = new List<ContainedModelSystemModel>();
+
                 }
                 else
                 {
@@ -206,7 +217,7 @@ namespace XTMF.Gui.UserControls
                 Task.Factory.StartNew(() =>
                 {
                     var modelSystems = (from ms in Project.ModelSystemStructure
-                                        orderby ms.Name ascending 
+                                        orderby ms.Name ascending
                                         select new ContainedModelSystemModel(ms, Project));
                     lock (ContainedModelSystems)
                     {
@@ -261,10 +272,30 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+       /* public static readonly DependencyProperty IsCanPasteModelSystemDependencyProperty =
+       DependencyProperty.Register("IsCanPasteModelSystem", typeof(bool), typeof(ProjectDisplay),
+new PropertyMetadata(false));
+
+        public bool IsCanPasteModelSystem
+        {
+            set
+            {
+                SetValue(IsCanPasteModelSystemDependencyProperty, value);
+            }
+            // SetValue(IsCanPasteModelSystemDependencyProperty, value);
+
+            get
+            {
+                return false;
+                // return (bool)GetValue(IsCanPasteModelSystemDependencyProperty);
+            }
+        } */
+
         public ProjectDisplay()
         {
             InitializeComponent();
             Loaded += ProjectDisplay_Loaded;
+            ContextMenu.PlacementTarget = this;
         }
 
         private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
@@ -417,6 +448,15 @@ namespace XTMF.Gui.UserControls
                         {
                             SaveCurrentAsModelSystem(true);
                         }
+                        break;
+
+                    case Key.V:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            PasteModelSystem_OnClick(null,null);
+                            e.Handled = true;
+                        }
+
                         break;
                 }
             }
@@ -664,16 +704,24 @@ namespace XTMF.Gui.UserControls
 
         private void CopyModelSystem_Click(object sender, RoutedEventArgs e)
         {
+           // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
+            ModelSystemDisplay.IsCanPasteModelSystem = true;
+            
             CloneCurrentModelSystem();
         }
 
         private void CloneCurrentModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+
+
+          
             if (selected != null)
             {
+                var error = string.Empty;
                 MainWindow.Us.ClipboardModel = selected;
-                StringRequest sr = new StringRequest("Cloned Model System's Name?", newName =>
+
+                /*StringRequest sr = new StringRequest("Cloned Model System's Name?", newName =>
                 {
                     return Session.ValidateModelSystemName(newName);
                 });
@@ -690,6 +738,7 @@ namespace XTMF.Gui.UserControls
                         Model.RefreshModelSystems();
                     }
                 }
+                */
             }
         }
 
@@ -801,7 +850,7 @@ namespace XTMF.Gui.UserControls
                     {
                         ModelSystem modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(), EditorController.Runtime.Configuration,
                        ref error);
-                   
+
 
                         StringRequest sr = new StringRequest("Save Model System As?", newName => Session.ValidateModelSystemName(newName));
                         sr.Owner = GetWindow();
@@ -816,7 +865,7 @@ namespace XTMF.Gui.UserControls
                             Model.RefreshModelSystems();
                         }
 
-                  
+
 
                     }
                     catch
@@ -824,7 +873,7 @@ namespace XTMF.Gui.UserControls
                         MessageBox.Show(GetWindow(), "There was an error importing the model system.", "Unable to Import Model System", MessageBoxButton.OK,
                                     MessageBoxImage.Error, MessageBoxResult.OK);
                     }
-                   
+
 
                     break;
                 case System.Windows.Forms.DialogResult.Cancel:
@@ -835,24 +884,48 @@ namespace XTMF.Gui.UserControls
 
         private void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Paste");
-        }
-
-      
-
-        private void PasteModelSystemMenuItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            var s = sender as MenuItem;
+         
+            string error = null;
             if (MainWindow.Us.ClipboardModel != null)
             {
-                s.IsEnabled = true;
+
+                ModelSystem cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
+                StringRequest sr = new StringRequest("Paste: Model System's Name?", newName =>
+                {
+                    return Session.ValidateModelSystemName(newName);
+                });
+                sr.Owner = GetWindow();
+                if (sr.ShowDialog() == true)
+                {
+                    
+
+                    if (
+                        !Session.AddExternalModelSystem(cloned, sr.Answer,
+                            ref error))
+                    {
+                        MessageBox.Show(error, "Unable to Paste Model System", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Model.RefreshModelSystems();
+                    }
+                 
+                }
+            }
+
+        }
 
 
-            }
-            else
-            {
-                s.IsEnabled = false;
-            }
+
+        
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [XTMF.Annotations.NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
