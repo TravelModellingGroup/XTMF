@@ -76,6 +76,8 @@ namespace XTMF.Gui.UserControls
         public RunWindow()
         {
             InitializeComponent();
+
+            ConsoleOutput.DataContext = new ConsoleOutputController(this);
         }
 
         public  class ConsoleOutputController : INotifyPropertyChanged, IDisposable

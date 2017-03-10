@@ -94,15 +94,18 @@ namespace XTMF.Gui.Controllers
         {
 
 
-            Application.Current.Resources.MergedDictionaries.Clear();
+            Application.Current.Resources.MergedDictionaries.RemoveAt(Application.Current.Resources.MergedDictionaries.Count-1);
 
 
 
             Application.Current.Resources.MergedDictionaries.Add(theme.ThemeResourceDictionary);
 
+            
+
             foreach (var uri in RequiredResources)
             {
-                Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
+                Application.Current.Resources.MergedDictionaries.RemoveAt(0);
+                   Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
 
             }
 
