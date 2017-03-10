@@ -198,13 +198,13 @@ DependencyProperty.Register("BackingModel",
             {
                 if (propertyChangedEventArgs.PropertyName == "IsSelected")
                 {
-                    IsSelected = (sender as ModelSystemStructureDisplayModel).IsSelected;
+                    IsSelected = ((ModelSystemStructureDisplayModel) sender).IsSelected;
 
                 }
 
                 if (propertyChangedEventArgs.PropertyName == "IsExpanded")
                 {
-                    IsExpanded = (sender as ModelSystemStructureDisplayModel).IsExpanded;
+                    IsExpanded = ((ModelSystemStructureDisplayModel) sender).IsExpanded;
 
                 }
             }
