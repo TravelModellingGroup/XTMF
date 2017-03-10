@@ -28,7 +28,7 @@
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Name="MDisplay"
              d:DesignHeight="500" d:DesignWidth="1200" Background="{DynamicResource WindowBackgroundBrush}">
     <UserControl.Resources>
         <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20"
@@ -41,7 +41,9 @@
 
 
         <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
-            <Border Name="b"  BorderThickness="0"  HorizontalAlignment="Stretch">
+            <Border  MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                              Name="b"  BorderThickness="0"  HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" CanHorizontallyScroll="False"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter" Background="{DynamicResource WindowBackgroundBrush1}">
@@ -67,9 +69,14 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <TextBox TextWrapping="Wrap"  VerticalContentAlignment="Center" MaxWidth="{Binding ElementName=b,Path=ActualWidth}"  Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
+                    <TextBox TextWrapping="Wrap"  VerticalContentAlignment="Center" 
+                             
+                             MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                             
+                             Margin="5,5,5,5" HorizontalAlignment="Stretch" Text="{Binding Value, UpdateSourceTrigger=Explicit,NotifyOnSourceUpdated=True}" SourceUpdated="TextBox_SourceUpdated"
                                              PreviewKeyDown="HintedTextBox_PreviewKeyDown"  LostFocus="TextBox_LostFocus" GotFocus="TextBox_GotFocus" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
-                                         SelectionOpacity="0.6" BorderThickness="0" Height="25" Padding="10" SelectionBrush="{DynamicResource ControlHighlightColourBrush}">
+                                         SelectionOpacity="0.6" BorderThickness="0" MinHeight="25" Padding="10" SelectionBrush="{DynamicResource ControlHighlightColourBrush}">
                         <TextBox.Background>
                             <SolidColorBrush Color="{DynamicResource WindowBackgroundColor4}" />
                         </TextBox.Background>
@@ -83,7 +90,9 @@
         </DataTemplate>
 
         <DataTemplate x:Key="EnumerationParameterTemplate">
-            <Border BorderThickness="0" HorizontalAlignment="Stretch">
+            <Border  MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                              BorderThickness="0" HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter">
@@ -113,7 +122,11 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <ComboBox  IsReadOnly="True"  Margin="0.25cm,5,0.25cm,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
+                    <ComboBox 
+                         MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                             
+                        IsReadOnly="True"  Margin="0.25cm,5,0.25cm,5" Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch" FontSize="14"
                                          BorderThickness="0" SelectedValue="{Binding Value}" ItemsSource="{Binding PossibleEnumerationValues, Mode=OneTime}" />
                 </StackPanel>
             </Border>
@@ -250,8 +263,8 @@
                         <RowDefinition Height="AUTO" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border  Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
-                        <Grid>
+                    <Border   Name="ListBorder"  Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                        <Grid Name="ListGrid">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -261,14 +274,20 @@
                         </Grid>
                     </Border>
                     <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
-                    <ListView  Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    <ListView
+                       
+                        Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                      Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}">
+                      Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged">
+                        
+                      
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
                                 <Setter Property="BorderThickness" Value="0" />
                                 <Setter Property="Margin" Value="0,0,0,0"></Setter>
+                                <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
                                 <Setter Property="Padding" Value="5,5,5,5"></Setter>
                                 <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush2}"></Setter>
                                 <Style.Resources>

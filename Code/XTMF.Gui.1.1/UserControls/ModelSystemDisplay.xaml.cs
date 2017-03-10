@@ -69,9 +69,23 @@ namespace XTMF.Gui.UserControls
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
 
-        public static readonly DependencyProperty IsCanPasteModelSystemDependencyProperty = 
-            DependencyProperty.Register("IsCanPasteModelSystem", typeof(bool), typeof(ModelSystemDisplay),
-new FrameworkPropertyMetadata(false));
+
+
+        public static readonly DependencyProperty ParameterWidthDependencyProperty =
+           DependencyProperty.Register("ParameterWidth", typeof(double), typeof(ModelSystemDisplay),
+        new PropertyMetadata(100.0));
+
+
+        public double ParameterWidth
+        {
+            get { return (double) GetValue(ParameterWidthDependencyProperty); }
+
+            set
+            {
+                SetValue(ParameterWidthDependencyProperty,value);
+            }
+           
+        }
 
         private ModelSystemEditingSession _Session;
         public ModelSystemEditingSession Session
@@ -2078,5 +2092,9 @@ new FrameworkPropertyMetadata(false));
                   
         }
 
+        private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ParameterWidth = ParameterDisplay.ActualWidth - 36;
+        }
     }
 }

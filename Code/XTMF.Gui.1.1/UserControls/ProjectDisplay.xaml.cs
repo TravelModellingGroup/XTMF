@@ -212,7 +212,10 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
-                    ContainedModelSystems.Clear();
+                    lock (ContainedModelSystems)
+                    {
+                        ContainedModelSystems.Clear();
+                    }
                 }
                 Task.Factory.StartNew(() =>
                 {
@@ -233,7 +236,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public Project Project
+        private Project Project
         {
             get
             {
