@@ -96,10 +96,7 @@
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush1}"
                                     x:Name="ParameterBorder" GotKeyboardFocus="ParameterBorder_GotFocus" LostKeyboardFocus="ParameterBorder_LostFocus"
                             MouseLeave="ParameterBorder_MouseLeave" MouseEnter="ParameterBorder_MouseEnter">
-                    <!-- 
-                    <StackPanel.Background>
-                      <SolidColorBrush Color="{DynamicResource ResourceKey=ControlColour}" /> 
-                    </StackPanel.Background>-->
+                 
                     <Expander Margin="0.2cm,5,0.2cm,5" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14"
                                   HorizontalAlignment="Stretch" Style="{DynamicResource ParameterNameStyle}">
                         <Expander.Header>
@@ -243,9 +240,7 @@
                                 </this:ModuleTreeViewItem>
 
                    
-                                <HierarchicalDataTemplate.Triggers>
                              
-                                </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
 

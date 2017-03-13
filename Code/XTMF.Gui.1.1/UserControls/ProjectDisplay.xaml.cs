@@ -275,30 +275,13 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-       /* public static readonly DependencyProperty IsCanPasteModelSystemDependencyProperty =
-       DependencyProperty.Register("IsCanPasteModelSystem", typeof(bool), typeof(ProjectDisplay),
-new PropertyMetadata(false));
-
-        public bool IsCanPasteModelSystem
-        {
-            set
-            {
-                SetValue(IsCanPasteModelSystemDependencyProperty, value);
-            }
-            // SetValue(IsCanPasteModelSystemDependencyProperty, value);
-
-            get
-            {
-                return false;
-                // return (bool)GetValue(IsCanPasteModelSystemDependencyProperty);
-            }
-        } */
+       
 
         public ProjectDisplay()
         {
             InitializeComponent();
             Loaded += ProjectDisplay_Loaded;
-            ContextMenu.PlacementTarget = this;
+            ContextMenu.PlacementTarget = ModelSystemDisplay;
         }
 
         private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)

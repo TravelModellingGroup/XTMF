@@ -316,12 +316,15 @@ namespace XTMF.Gui.UserControls
 
         private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var configuration = _configuration as Configuration;
-            if (configuration != null)
+            if (IsLoaded)
             {
-                configuration.Theme = ((ThemeController.Theme) ((ComboBoxItem)ThemeComboBox.SelectedItem).Tag).Name;
-                MainWindow.Us.ApplyTheme(((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag));
-                _configuration.Save();
+                var configuration = _configuration as Configuration;
+                if (configuration != null)
+                {
+                    configuration.Theme = ((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag).Name;
+                    MainWindow.Us.ApplyTheme(((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag));
+                    _configuration.Save();
+                }
             }
         }
     }
