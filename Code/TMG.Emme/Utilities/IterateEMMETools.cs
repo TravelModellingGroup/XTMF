@@ -21,13 +21,15 @@ using XTMF;
 
 namespace TMG.Emme.Utilities
 {
+    [ModuleInformation(Description = @"This module provides an easy way to run EMME tools multiple times.  It will execute by going through each child 
+executing them and then once finished the list will start again for the number of times given by the parameter 'Iterations'.")]
     public class IterateEMMETools : IEmmeTool
     {
         public string Name { get; set; }
 
         public float Progress { get; private set; }
 
-        public Tuple<byte, byte, byte> ProgressColour => throw new NotImplementedException();
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
 
         [SubModelInformation(Required = false, Description = "The tools to iterate")]
         public IEmmeTool[] ToExecute;
