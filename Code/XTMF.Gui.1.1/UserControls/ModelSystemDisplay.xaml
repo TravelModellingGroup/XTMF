@@ -199,7 +199,7 @@
                                 <MenuItem Header="Module (Ctrl+M)" Click="Module_Clicked" />
                                 <MenuItem 
                                     
-                                    Name="DisableModuleMenuItem" Header="Disable Module (Shift+D)" Click="DisableModuleMenuItem_OnClick" />
+                                    Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick" />
 
                              
                                 <MenuItem Header="Remove (Del)" Click="Remove_Clicked">

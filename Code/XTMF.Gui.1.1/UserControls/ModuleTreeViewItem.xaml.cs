@@ -248,6 +248,11 @@ DependencyProperty.Register("BackingModel",
             }
             this.Dispatcher.Invoke(() =>
             {
+
+                if (BackingModel == null)
+                {
+                    return;
+                }
                 if (BackingModel.BaseModel.IsOptional && BackingModel.IsCollection &&
                     BackingModel.BaseModel.Children.Count == 0)
                 {

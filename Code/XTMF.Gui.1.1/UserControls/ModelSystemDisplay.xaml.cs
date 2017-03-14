@@ -1144,7 +1144,7 @@ namespace XTMF.Gui.UserControls
 
             if (parameters != null)
             {
-                FadeOut();
+                
                 Task.Factory.StartNew(() =>
                 {
                     var source = ParameterDisplayModel.CreateParameters(parameters.OrderBy(el => el.Name).OrderBy(el => el.IsHidden), CurrentlySelected.Count > 1);
@@ -1302,12 +1302,9 @@ namespace XTMF.Gui.UserControls
                         "Rename ModelSystem",
                         () =>
                    {
-                       foreach (var sel in CurrentlySelected)
+                       if (CurrentlySelected.Any(sel => !sel.BaseModel.SetName(result, ref error)))
                        {
-                           if (!sel.BaseModel.SetName(result, ref error))
-                           {
-                               throw new Exception(error);
-                           }
+                           throw new Exception(error);
                        }
                    });
                 }, selectedModuleControl, selected.Name);
@@ -1378,7 +1375,7 @@ namespace XTMF.Gui.UserControls
                        string error = null;
                        if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
                        {
-                           //MessageBox.Show(GetWindow(), error, "Unable to move", MessageBoxButton.OK, MessageBoxImage.Error);
+       
                            SystemSounds.Asterisk.Play();
                            break;
                        }
@@ -1455,6 +1452,9 @@ namespace XTMF.Gui.UserControls
                           }
                       });
 
+                    
+                       /* Re order the children from parent node */
+
                        /* Remove the module from selected items */
                        CurrentlySelected.Remove(selected);
 
@@ -1463,6 +1463,8 @@ namespace XTMF.Gui.UserControls
                        Keyboard.Focus(ModuleDisplay);
                    }
                    string error = null;
+
+                   
                    if (!ModelSystem.Remove(selected.BaseModel, ref error))
                    {
                        SystemSounds.Asterisk.Play();
@@ -1476,12 +1478,7 @@ namespace XTMF.Gui.UserControls
             ParameterDisplay.BeginAnimation(OpacityProperty, null);
         }
 
-        private void FadeOut()
-        {
-          //  DoubleAnimation fadeOut = new DoubleAnimation(0.0, new Duration(new TimeSpan(0, 0, 0, 0, 100)));
-           // ParameterDisplay.BeginAnimation(OpacityProperty, null);
-           // ParameterDisplay.BeginAnimation(OpacityProperty, fadeOut);
-        }
+     
 
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)
         {
@@ -2073,9 +2070,13 @@ namespace XTMF.Gui.UserControls
 
                     }
                     else if (item.Index == item.Parent.Children.Count - 1)
+                    {
                         item.Parent.Parent.Children[item.Parent.Index + 1].IsSelected = true;
+                    }
                     else
+                    {
                         item.Parent.Children[item.Index + 1].IsSelected = true;
+                    }
                     e.Handled = true;
                 }
                 catch
