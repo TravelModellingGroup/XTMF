@@ -32,7 +32,7 @@ using XTMF;
 namespace TMG.NetworkEstimation
 {
     [ModuleInformation(Description = "Calculates Root Mean Square Error (RMSE) of transit line boardings for AM and PM time periods, including an entry for walk-all-way numbers")]
-    public class CalcRmsEofBoardingsAmpmwaw : IEmmeTool
+    public class CalcRMSEofBoardingsAMPMWAW : IEmmeTool
     {
 
         [RootModule]
