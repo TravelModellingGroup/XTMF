@@ -223,11 +223,12 @@
                     </MenuItem>
                     <MenuItem x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
                               IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
+                    <!--
                     <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
                         <MenuItem.Icon>
                             <ContentControl Template="{DynamicResource ImportIcon}" />
                         </MenuItem.Icon>
-                    </MenuItem>
+                    </MenuItem> -->
                     <Separator Background="{StaticResource ControlBackgroundBrush}" />
                     <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
                         <MenuItem.Icon>
