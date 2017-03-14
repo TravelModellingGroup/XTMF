@@ -181,35 +181,6 @@
 
 
 
-    <LinearGradientBrush x:Key="StripeBrush" StartPoint="0,0" EndPoint="1,1" SpreadMethod="Repeat">
-
-        <GradientStop Offset="0" Color="#FFB82929"/>
-
-        <GradientStop Offset="0.5" Color="#FFAE2E2E"/>
-
-        <GradientStop Offset="0.5" Color="{DynamicResource WindowBackgroundColor2}"/>
-
-        <GradientStop Offset="1" Color="{DynamicResource WindowBackgroundColor2}"/>
-        
- 
-        <LinearGradientBrush.RelativeTransform>
-            
-            <ScaleTransform ScaleX="0.2" ScaleY="0.1"/>
-            
-        </LinearGradientBrush.RelativeTransform>
-
-    </LinearGradientBrush>
-
-    
-
-    <!--
-    <LinearGradientBrush x:Shared="false" x:Name="AnimatedFocusBrush" x:Key="AnimatedFocusBrush">
-        <GradientStop Color="{DynamicResource FocusColour}" Offset="0.0" />
-        <GradientStop Color="{DynamicResource FocusColour}" Offset="0.2" />
-        <GradientStop Color="White" Offset="0.5" />
-        <GradientStop Color="{DynamicResource FocusColour}" Offset="0.8" />
-        <GradientStop Color="{DynamicResource FocusColour}" Offset="1.0" />
-    </LinearGradientBrush> -->
 
     <Style TargetType="{x:Type Window}">
         <Setter Property="FontFamily" Value="Segoe UI" />
@@ -690,14 +661,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Menu">
-        <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
-        <Setter Property="Foreground" Value="White" />
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize" Value="14"/>
-
-
-    </Style>
+   
 
     <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
         <Setter Property="Cursor" Value="Hand" />
@@ -712,101 +676,6 @@
 
             </Trigger>
         </Style.Triggers>
-    </Style>
-
-    <Style TargetType="MenuItem">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}" />
-        <Setter Property="Foreground" Value="White" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Style.Triggers>
-            <Trigger Property="IsHighlighted" Value="True">
-                <Setter Property="Background" Value="{DynamicResource FocusBrush}" />
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
-    <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="MenuItem">
-        <Border Background="{DynamicResource ControlBackgroundBrush}" x:Name="_grid" Padding="2" BorderThickness="0" BorderBrush="{DynamicResource ControlBackgroundBrush}" >
-            <Grid >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
-                    <ColumnDefinition Width="Auto" MinWidth="20" />
-                    <ColumnDefinition Width="20" />
-                </Grid.ColumnDefinitions>
-                <ContentPresenter ContentSource="Icon" Margin="{TemplateBinding Padding}" />
-
-                <!-- check mark / checkable -->
-                <Border Name="Check" Width="17" Height="17" Visibility="Collapsed" Margin="1,1,1,1" Background="{DynamicResource ControlBackgroundBrush}" BorderThickness="1" BorderBrush="{DynamicResource FocusBrush}">
-                    <Path HorizontalAlignment="Center" x:Name="CheckMarkIcon" Data="{DynamicResource Checkmark}" Fill="{TemplateBinding Foreground}" FlowDirection="LeftToRight" Margin="1,1,1,1" Visibility="Hidden" VerticalAlignment="Center"/>
-                </Border>
-
-                <ContentPresenter Grid.Column="1" VerticalAlignment="Center" ContentSource="Header" RecognizesAccessKey="True" />
-            </Grid>
-        </Border>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsHighlighted" Value="True">
-                <Setter Property="Background" Value="{DynamicResource FocusBrush}" TargetName="_grid"/>
-                <Setter Property="BorderBrush" Value="Black" TargetName="_grid"/>
-                <Setter Property="Foreground" Value="White" />
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="Gray" />
-            </Trigger>
-            <Trigger Property="IsChecked" Value="true">
-                <Setter TargetName="CheckMarkIcon" Property="Visibility" Value="Visible"/>
-            </Trigger>
-
-            <Trigger Property="IsCheckable" Value="true">
-                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
-            </Trigger>
-
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
-
-    <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="MenuItem">
-        <Border Background="{DynamicResource ControlBackgroundBrush}" Padding="2" x:Name="_grid" BorderThickness="0" >
-            <Grid >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" MinWidth="24" SharedSizeGroup="IconGroup"/>
-                    <ColumnDefinition Width="Auto" MinWidth="30" />
-                    <ColumnDefinition Width="*" MinWidth="30"/>
-                    <ColumnDefinition Width="18" MinWidth="0" />
-                </Grid.ColumnDefinitions>
-                <Path Data="M 0,2 L 10,10 L 0,18 Z" Fill="White" Grid.Column="3" Margin="0,0,0,0" />
-                <ContentPresenter VerticalAlignment="Center" ContentSource="Icon" Margin="{TemplateBinding Padding}" />
-                <ContentPresenter  Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}" />
-                <Popup x:Name="popup" PlacementTarget="{Binding ElementName=_grid}" Placement="Right" HorizontalOffset="0">
-                    <Border BorderBrush="White" BorderThickness="1">
-                        <ItemsPresenter x:Name="_items" />
-                    </Border>
-                </Popup>
-            </Grid>
-        </Border>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsHighlighted" Value="True" >
-                <Setter Property="Visibility" Value="Visible" TargetName="_items" />
-                <Setter Property="IsOpen" Value="True" TargetName="popup" />
-                <Setter Property="Background" Value="{DynamicResource FocusBrush}" TargetName="_grid"/>
-                <Setter Property="BorderBrush" Value="White" TargetName="_grid"/>
-                <Setter Property="Foreground" Value="White" />
-            </Trigger>
-
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
-
-
-    <Style TargetType="Separator" x:Key="{x:Static MenuItem.SeparatorStyleKey}">
-        <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Separator">
-                    <Grid Background="{DynamicResource ControlBackgroundBrush}">
-                        <Border Background="White" Height="2" Margin="5,2,5,2" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
     </Style>
 
 
@@ -885,54 +754,7 @@
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 
-    <!--        <Style TargetType="{x:Type XTMFControls:HintedTextBox}">
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="OverridesDefaultStyle" Value="True" />
-            <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="MinWidth" Value="120" />
-            <Setter Property="MinHeight" Value="20" />
-            <Setter Property="AllowDrop" Value="true" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TextBoxBase}">
-                        <Border Name="Border" CornerRadius="2" Padding="2" BorderThickness="1">
-                            <Border.Background>
-                                <SolidColorBrush Color="{DynamicResource ControlLightColor}" />
-                            </Border.Background>
-                            <Border.BorderBrush>
-                                <SolidColorBrush Color="{DynamicResource BorderMediumColor}" />
-                            </Border.BorderBrush>
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal" />
-                                    <VisualState x:Name="Disabled">
-                                        <Storyboard>
-                                            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
-                                                Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
-                                                <EasingColorKeyFrame KeyTime="0"
-                                         Value="{DynamicResource DisabledControlLightColor}" />
-                                            </ColorAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="ReadOnly">
-                                        <Storyboard>
-                                            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
-                                                Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
-                                                <EasingColorKeyFrame KeyTime="0"
-                                         Value="{DynamicResource DisabledControlDarkColor}" />
-                                            </ColorAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="MouseOver" />
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                            <ScrollViewer Margin="0" x:Name="PART_ContentHost" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>-->
+  
 
     
     <Style TargetType="{x:Type ListViewItem}">
