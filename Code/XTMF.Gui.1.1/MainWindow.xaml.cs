@@ -721,7 +721,7 @@ namespace XTMF.Gui
             return null;
         }
 
-        private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
+        public void ImportModelSystem()
         {
             var fileName = OpenFile("Import Model System", new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, true);
             string error = null;
@@ -748,6 +748,11 @@ namespace XTMF.Gui
                     }
                 }
             }
+        }
+
+        private void ImportModelSystem_Click(object sender, RoutedEventArgs e)
+        {
+            ImportModelSystem();
         }
 
         private void Undo_Click(object sender, RoutedEventArgs e)

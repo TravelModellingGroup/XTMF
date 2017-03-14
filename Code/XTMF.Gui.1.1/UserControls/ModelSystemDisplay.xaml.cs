@@ -2063,13 +2063,14 @@ namespace XTMF.Gui.UserControls
             e.Handled = false;
 
             if (e.Key == Key.Down)
+            {
                 try
                 {
                     if (item.IsExpanded)
                     {
-                   
+
                         item.Children.First().IsSelected = true;
-                       
+
                     }
                     else if (item.Index == item.Parent.Children.Count - 1)
                         item.Parent.Parent.Children[item.Parent.Index + 1].IsSelected = true;
@@ -2077,19 +2078,23 @@ namespace XTMF.Gui.UserControls
                         item.Parent.Children[item.Index + 1].IsSelected = true;
                     e.Handled = true;
                 }
-                catch { }
-
-            if (e.Key == Key.Up)
-                try
+                catch
                 {
-                    if (item.Index == 0)
-                        item.Parent.IsSelected = true;
-                    else
-                        item.Parent.Children[item.Index - 1].IsSelected = true;
-                    e.Handled = true;
                 }
-                catch { }
-                  
+            }
+            if (e.Key != Key.Up)
+            {
+                return;
+            }
+            try
+            {
+                if (item.Index == 0)
+                    item.Parent.IsSelected = true;
+                else
+                    item.Parent.Children[item.Index - 1].IsSelected = true;
+                e.Handled = true;
+            }
+            catch { }
         }
 
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)

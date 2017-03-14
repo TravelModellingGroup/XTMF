@@ -345,5 +345,10 @@ namespace XTMF.Gui.UserControls
             }
             LoadModelSystem(selected);
         }
+
+        private void ImportModelSystemButton_OnClicked(object obj)
+        {
+            MainWindow.Us.ImportModelSystem();
+        }
     }
 }
