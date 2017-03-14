@@ -111,7 +111,7 @@
   <ItemGroup>
     <Compile Include="AdvancedGeneticNetworkEstimationHost.cs" />
     <Compile Include="CalcMSEofBoardingsAM.cs" />
-    <Compile Include="CalcRMSEofBoardingsAMPMpWAW.cs" />
+    <Compile Include="CalcRMSEofBoardingsAMPMWAW.cs" />
     <Compile Include="CalcRMSEofBoardingsAM.cs" />
     <Compile Include="CalcWMPE.cs" />
     <Compile Include="V4ClienntEstimationSupplementalReport2.cs" />
