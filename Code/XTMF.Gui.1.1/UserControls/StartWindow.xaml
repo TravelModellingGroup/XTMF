@@ -36,7 +36,11 @@
 
 
             <Grid Grid.Row="0" MinHeight="50">
+                
+                <StackPanel Width="128" Orientation="Vertical" HorizontalAlignment="Left">
                 <Image HorizontalAlignment="Left"  Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
+                <Label Content="XTMF" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,-45,0,0" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Bold" FontSize="24" FontFamily="Nirmala UI"/>
+                </StackPanel>
                 <StackPanel HorizontalAlignment="Center"  VerticalAlignment="Center">
                     <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeTextColorBrush}" />
                     <Label Content="&lt;Insert Your Model Here/&gt;" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="{DynamicResource ThemeTextColorBrush}" />
