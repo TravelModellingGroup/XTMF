@@ -2080,6 +2080,18 @@ namespace XTMF.Gui.UserControls
                                 menuItem.IsEnabled = false;
                             }
                         }
+
+                        if (menuItem.Name == "ModuleMenuItem")
+                        {
+                            if (treeViewItem.BackingModel.BaseModel.IsCollection)
+                            {
+                                menuItem.Header = "Add Module (Ctrl + M)";
+                            }
+                            else
+                            {
+                                menuItem.Header = "Set Module (Ctrl + M)";
+                            }
+                        }
                     }
                 }
             }
