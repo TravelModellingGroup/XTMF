@@ -593,9 +593,10 @@ namespace XTMF
                 for (int i = 0; i < types.Length; i++)
                 {
                     var type = types[i];
+                    if (type.IsNotPublic || InvalidClassName(type)) continue;
                     // Make sure that they are valid types
                     FreeVariableType.Add(type);
-                    if (type.IsAbstract | type.IsNotPublic | !(type.IsClass | type.IsValueType)) continue;
+                    if (type.IsAbstract || !(type.IsClass || type.IsValueType)) continue;
                     if (module.IsAssignableFrom(type))
                     {
                         string error = null;
@@ -622,6 +623,17 @@ namespace XTMF
             {
                 Console.WriteLine(e);
             }
+        }
+
+        /// <summary>
+        /// Check to see if the given type should not be loaded given its name
+        /// </summary>
+        /// <param name="type">The type to check for</param>
+        /// <returns>If it should not be loaded</returns>
+        private static bool InvalidClassName(Type type)
+        {
+            var c = type.Name[0];
+            return c == '_' || c == '<';
         }
 
         /// <summary>
