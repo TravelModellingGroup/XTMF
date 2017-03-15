@@ -1464,10 +1464,37 @@ namespace XTMF.Gui.UserControls
                    }
                    string error = null;
 
-                   
+
+
+
+
                    if (!ModelSystem.Remove(selected.BaseModel, ref error))
                    {
                        SystemSounds.Asterisk.Play();
+                   }
+                   else
+                   {
+                       /* Remove from parent */
+                       if (selected.Parent != null)
+                       {
+                           int index = 0;
+                           for (int i = 0; i < selected.Parent.Children.Count; i++)
+                           {
+                               var sibling = selected.Parent.Children[i];
+                               if (sibling == selected)
+                               {
+                                   selected.Parent.Children.RemoveAt(i);
+                                   i = i - 1;
+                               }
+                               else
+                               {
+                                   sibling.Index = index;
+                                   index++;
+                               }
+                               
+                           }
+                       }
+                       Console.WriteLine("Here");
                    }
                }
            });

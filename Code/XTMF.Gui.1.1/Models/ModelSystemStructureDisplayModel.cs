@@ -44,7 +44,7 @@ namespace XTMF.Gui.Models
         private ObservableCollection<ModelSystemStructureDisplayModel> DisplayChildren;
 
 
-        public int Index { get; }
+        public int Index { get; set; }
 
         public ModelSystemStructureDisplayModel Parent { get; }
 
