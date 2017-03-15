@@ -1474,8 +1474,15 @@ namespace XTMF.Gui.UserControls
                    }
                    else
                    {
-                       /* Remove from parent */
-                       if (selected.Parent != null)
+                       if (selected.IsCollection)
+                       {
+                           selected.Children.Clear();
+                       }
+                       else if (!selected.Parent.IsCollection)
+                       {
+                           continue;
+                       }
+                       else if (selected.Parent != null)
                        {
                            int index = 0;
                            for (int i = 0; i < selected.Parent.Children.Count; i++)
