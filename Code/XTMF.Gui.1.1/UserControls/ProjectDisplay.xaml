@@ -218,6 +218,20 @@
                                 -->
                             </DataTemplate>
                         </ListBox.ItemTemplate>
+                        <ListBox.ContextMenu>
+                            <ContextMenu Name="PreviousRunContextMenu">
+                                <MenuItem Header="Open Results" Click="OpenPreviousRun_Click">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource OpenIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Delete" Click="DeletePreviousRun_Click">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource CancelIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
                     </ListView>
                 </Grid>
 

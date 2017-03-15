@@ -442,7 +442,6 @@ namespace XTMF.Gui.UserControls
                             PasteModelSystem_OnClick(null,null);
                             e.Handled = true;
                         }
-
                         break;
                 }
             }
@@ -512,8 +511,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
-
         private void RefreshPreviousRuns_Clicked(object obj)
         {
             Model.RefreshPastRuns(Session);
@@ -522,6 +519,26 @@ namespace XTMF.Gui.UserControls
         private void OpenProjectFolder_Clicked(object obj)
         {
             OpenProjectFolder();
+        }
+
+        private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
+        {
+            var previousRun = (ProjectModel.PreviousRun)PastRunDisplay.SelectedItem;
+            if (previousRun != null)
+            {
+                var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name, previousRun.Name);
+                try
+                {
+                    if (Project != null && Directory.Exists(directoryName))
+                    {
+                        Process.Start(directoryName);
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show(MainWindow.Us, "We were unable to open the run directory '" + directoryName + "'!", "Unable to Open");
+                }
+            }
         }
 
         private void OpenProjectFolder()
@@ -610,6 +627,28 @@ namespace XTMF.Gui.UserControls
                     {
                         Model.RefreshModelSystems();
                     }
+                }
+            }
+        }
+
+        private void DeletePreviousRun_Click(object sender, RoutedEventArgs e)
+        {
+            var previousRun = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
+            if(previousRun != null)
+            {
+                try
+                {
+                    var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name, previousRun.Name);
+                    DirectoryInfo dir = new DirectoryInfo(directoryName);
+                    if(dir.Exists)
+                    {
+                        dir.Delete(true);
+                    }
+                    Model.RefreshPastRuns(Session);
+                }
+                catch(IOException error)
+                {
+                    MessageBox.Show(error.Message, "Unable to Delete Previous Run", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -901,10 +940,6 @@ namespace XTMF.Gui.UserControls
             }
 
         }
-
-
-
-        
 
         public event PropertyChangedEventHandler PropertyChanged;
 
