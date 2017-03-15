@@ -1494,7 +1494,7 @@ namespace XTMF.Gui.UserControls
                                
                            }
                        }
-                       Console.WriteLine("Here");
+                     
                    }
                }
            });
