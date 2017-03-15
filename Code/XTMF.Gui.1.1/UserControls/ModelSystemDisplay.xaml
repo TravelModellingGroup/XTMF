@@ -196,7 +196,10 @@
                                     <MenuItem Header="Convert To  (Ctrl+Shift+M)" Click="ConvertToMetaModule_Click" />
                                     <MenuItem Header="Convert From(Ctrl+Alt+M)" Click="ConvertFromMetaModule_Click" />
                                 </MenuItem>
-                                <MenuItem Header="Module (Ctrl+M)" Click="Module_Clicked" />
+                                
+                                <MenuItem Name="ModuleMenuItem" Header="Module (Ctrl+M)" Click="Module_Clicked" />
+                                
+                                
                                 <MenuItem 
                                     
                                     Name="DisableModuleMenuItem" Header="Disable Module (Ctrl+D)" Click="DisableModuleMenuItem_OnClick" />
