@@ -851,26 +851,27 @@ namespace XTMF
         /// <returns>Returns the Type of the passed node, null if no type could be matched.</returns>
         private static Type DiscernType(IModelSystemStructure parent, string fieldName)
         {
-
             Type type = parent.Type;
             if (type == null)
             {
                 return null;
             }
-
             System.Reflection.FieldInfo[] fieldsInfo = type.GetFields();
             foreach (var field in fieldsInfo)
             {
-
                 if (field.Name == fieldName)
                 {
-
                     return field.FieldType;
                 }
             }
-
-
-
+            System.Reflection.PropertyInfo[] propertyInfo = type.GetProperties();
+            foreach (var field in propertyInfo)
+            {
+                if (field.Name == fieldName)
+                {
+                    return field.PropertyType;
+                }
+            }
             return null;
         }
 

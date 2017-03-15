@@ -393,9 +393,10 @@ namespace XTMF
         public void Reload()
         {
             ModelSystemStructure = null;
-            if (!Load())
+            string error = null;
+            if (!Load(ref error))
             {
-                throw new Exception("Unable to reload!");
+                throw new Exception(error);
             }
         }
 
@@ -511,10 +512,11 @@ namespace XTMF
                     Thread.MemoryBarrier();
                     if (!IsLoaded)
                     {
+                        string error = null;
                         // Load off of the disk in parallel to provide faster UI reaction
-                        if (!Load())
+                        if (!Load(ref error))
                         {
-                            throw new Exception("Unable to load!");
+                            throw new Exception(error);
                         }
                     }
                 }
@@ -990,11 +992,14 @@ namespace XTMF
             {
                 // search the parameters
                 var parameters = current.Parameters;
-                foreach (var p in parameters)
+                if (parameters != null)
                 {
-                    if (p.Name == variableLink[index])
+                    foreach (var p in parameters)
                     {
-                        return p;
+                        if (p.Name == variableLink[index])
+                        {
+                            return p;
+                        }
                     }
                 }
             }
@@ -1139,7 +1144,7 @@ namespace XTMF
         /// Async, load all of the data for this project.
         /// If it doesn't exist then we will create all of the default data.
         /// </summary>
-        private bool Load()
+        private bool Load(ref string error)
         {
             if (Path.IsPathRooted(Name))
             {
@@ -1151,6 +1156,7 @@ namespace XTMF
             }
             if (DirectoryLocation == null)
             {
+                error = "Invalid directory path!";
                 return false;
             }
             IsLoaded = false;
@@ -1221,6 +1227,7 @@ namespace XTMF
             }
             catch (Exception e)
             {
+                error = e.Message;
                 Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
             }
             return false;
