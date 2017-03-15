@@ -41,14 +41,13 @@
                   x:Name="Display" Foreground="{DynamicResource ThemeTextColorBrush}" BorderBrush="{x:Null}" Background="{DynamicResource WindowBackgroundBrush2}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <my:VirtualizingWrapPanel Orientation="Horizontal" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" />
+                    <VirtualizingStackPanel></VirtualizingStackPanel>
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <my:BorderIconButton Loaded="BorderIconButton_Loaded" Margin="5" Header="{Binding Name}" 
-                                             Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
-                                             DoubleClicked="BorderIconButton_Clicked" ScrollViewer.CanContentScroll="True" />
+                    <local:ListViewControl Name="ListViewControl" TitleText="{Binding Name}" SubText="{Binding Text}"
+                                           MouseDoubleClick="Control_OnMouseDoubleClick"></local:ListViewControl>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

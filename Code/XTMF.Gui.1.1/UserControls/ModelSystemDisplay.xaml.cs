@@ -2124,9 +2124,21 @@ namespace XTMF.Gui.UserControls
             try
             {
                 if (item.Index == 0)
+                {
+                    
                     item.Parent.IsSelected = true;
+                }
                 else
-                    item.Parent.Children[item.Index - 1].IsSelected = true;
+                {
+                    if (item.Parent.Children[item.Index - 1].Children.Count == 0)
+                    {
+                        item.Parent.Children[item.Index - 1].IsSelected = true;
+                    }
+                    else
+                    {
+                        item.Parent.Children[item.Index - 1].Children.Last().IsSelected = true;
+                    }
+                }
                 e.Handled = true;
             }
             catch { }

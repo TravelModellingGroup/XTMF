@@ -369,5 +369,10 @@ namespace XTMF.Gui.UserControls
             }
             LoadProject(selected);
         }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            LoadCurrentProject();
+        }
     }
 }

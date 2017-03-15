@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:XTMF.Gui.UserControls"
-             mc:Ignorable="d" Name="ListViewControlName"
+             mc:Ignorable="d" Name="ListViewControlName" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource HighlightBrush1}"
              d:DesignHeight="80" d:DesignWidth="300" >
    
     
@@ -21,11 +21,19 @@
                     <MultiDataTrigger.Setters>
                         <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}"></Setter>
                     </MultiDataTrigger.Setters>
-                    
-                    
-             
+
                 </MultiDataTrigger>
 
+                <MultiDataTrigger >
+                    <MultiDataTrigger.Conditions>
+                        <Condition Value="False" Binding="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}"></Condition>
+                        <Condition  Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}"></Condition>
+                    </MultiDataTrigger.Conditions>
+
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"></Setter>
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
 
                 <MultiDataTrigger >
                     <MultiDataTrigger.Conditions>
@@ -36,14 +44,9 @@
                     <MultiDataTrigger.Setters>
                         <Setter Property="Background" Value="{DynamicResource FocusBrushHover3}"></Setter>
                     </MultiDataTrigger.Setters>
-
-
-
                 </MultiDataTrigger>
-                <Trigger Value="False" Property="IsMouseOver">
-                    <Setter Property="Background" Value="Transparent"></Setter>
-                </Trigger>
-
+                
+     
                 <DataTrigger Value="True"   Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListViewItem},Path=IsSelected,Mode=TwoWay}">
                     <Setter Property="Foreground" Value="White"></Setter>
                 </DataTrigger>
@@ -52,13 +55,6 @@
                     <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
                 </DataTrigger>
 
-                <!--
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="White"></Setter>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="False">
-                    <Setter Property="Foreground" Value="White"></Setter>
-                </Trigger> -->
             </Style.Triggers>
         </Style>
     </UserControl.Resources>

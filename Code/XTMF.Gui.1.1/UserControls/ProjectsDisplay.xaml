@@ -65,13 +65,26 @@
             </ListView.ContextMenu>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <my:VirtualizingWrapPanel Orientation="Horizontal" />
+                    <VirtualizingStackPanel></VirtualizingStackPanel>
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <my:BorderIconButton Margin="4" Header="{Binding Name}" Text="{Binding Description}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="Project_DoubleClicked" />
+                    
+                    <local:ListViewControl MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" MouseDoubleClick="Control_OnMouseDoubleClick">
+
+                        <local:ListViewControl.IconPath>
+
+
+
+                            <Path Data="{DynamicResource FolderOpenIconPath}">
+
+                            </Path>
+                        </local:ListViewControl.IconPath>
+
+                    </local:ListViewControl>
+                    
+                 
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

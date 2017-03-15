@@ -198,5 +198,10 @@ namespace XTMF.Gui.UserControls
         {
             TimesLoaded++;
         }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Select();
+        }
     }
 }
