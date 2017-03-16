@@ -61,7 +61,7 @@
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
                                 <TextBlock Grid.Column="1" Margin="5,4,2,2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource ThemeTextColorBrush}" TextTrimming="CharacterEllipsis" Cursor="Hand" />
 
-                                <Path MaxHeight="16" VerticalAlignment="Center" Stretch="Uniform" Grid.Column="2" Margin="0,4,0,0" Data="{DynamicResource LinkIconPath}" Fill="DarkGoldenrod"  ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}">
+                                <Path MaxHeight="16" VerticalAlignment="Center" Stretch="Uniform" Grid.Column="2" Margin="4,4,6,0" Data="{DynamicResource LinkIconPath}" Fill="DarkGoldenrod"  ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}">
                                     
                                 </Path>
 
@@ -69,13 +69,7 @@
                                         ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}">
 
                                 </Path>
-                                <!--<Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
-                                               ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}" /> -->
-                                
-                                
-                                <!--
-                                <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
-                                               ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" /> -->
+
                             </Grid>
                         </Expander.Header>
                         <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
@@ -122,10 +116,16 @@
                                 <CheckBox Grid.Column="0" Width="16" Margin="0,0,0,0" Height="16" VerticalAlignment="Center" IsChecked="{Binding QuickParameter}" ToolTip="Quick Parameter"
                                                   Checked="CheckBox_Checked" Unchecked="CheckBox_Checked" IsTabStop="False" />
                                 <TextBlock Grid.Column="1" Margin="2" Text="{Binding Name, Mode=OneTime}" Foreground="{DynamicResource ThemeTextColorBrush}" TextTrimming="CharacterEllipsis" Cursor="Hand" />
-                                <Image Grid.Column="2" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Links.png" 
-                                               ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}" />
-                                <Image Grid.Column="3" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center" Source="/XTMF.Gui;component/Resources/Lock.png" 
-                                               ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}" />
+
+
+                                <Path MaxHeight="16" VerticalAlignment="Center" Stretch="Uniform" Grid.Column="2" Margin="4,4,6,0" Data="{DynamicResource LinkIconPath}" Fill="DarkGoldenrod"  ToolTip="{Binding LinkedParameterName}" Visibility="{Binding LinkedParameterVisibility}">
+
+                                </Path>
+
+                                <Path MaxHeight="16"  VerticalAlignment="Center" Stretch="Uniform" Grid.Column="3"  Data="{DynamicResource SettingsIconPathGeometry}" Fill="SlateGray" 
+                                        ToolTip="System Parameter" Visibility="{Binding SystemParameterVisibility, Mode=OneTime}">
+
+                                </Path>
                             </Grid>
                         </Expander.Header>
                         <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
@@ -430,22 +430,14 @@
                             <ContextMenu>
                                 <MenuItem Header="Copy Parameter Name (Ctrl+N)" Click="CopyParameterName_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource CopyIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <Separator />
                                 <MenuItem Header="Open">
                                     <MenuItem Header="Open File  (Ctrl+O)" Click="OpenFile_Click">
                                         <MenuItem.Icon>
-                                            <Image>
-                                                <Image.Source>
-                                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/OpenFile.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                                </Image.Source>
-                                            </Image>
+                                            <ContentControl Template="{DynamicResource OpenIcon}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem Header="Open File With" Click="OpenWith_Click" />
@@ -454,11 +446,7 @@
                                 <Separator />
                                 <MenuItem Header="Select File (Ctrl+F)" Click="SelectFile_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/Edit.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource EditIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Select Directory (Ctrl+D)" Click="SelectDirectory_Click">
@@ -466,11 +454,7 @@
                                 <Separator />
                                 <MenuItem Header="Assign Linked Parameter (Ctrl+L)" Click="AssignLinkedParameters_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/BigLinks.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource LinkIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem x:Name="QuickParameterRecentLinkedParameters" Header="Recent Linked Parameters" IsEnabled="False">
@@ -487,20 +471,12 @@
                                 </MenuItem>
                                 <MenuItem Header="Remove From Linked Parameter" Click="RemoveLinkedParameters_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource CancelIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="Reset to Default" Click="ResetParameter_Click">
                                     <MenuItem.Icon>
-                                        <Image>
-                                            <Image.Source>
-                                                <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Resources/112_ArrowReturnLeft_Blue_24x24_72.png" DecodePixelWidth="16" DecodePixelHeight="16"/>
-                                            </Image.Source>
-                                        </Image>
+                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                             </ContextMenu>

@@ -37,50 +37,28 @@ namespace XTMF.Gui.UserControls
         {
 
            
+
             var contextMenu = new ContextMenu();
             // copy
             contextMenu.Items.Add(new MenuItem
             {
                 Header = "Copy",
                 Command = ApplicationCommands.Copy,
-                Icon = new Image
-                {
-                    Source = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png")),
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Stretch,
-                    Width = 20,
-                    Height = 20
-
-                }
+                
             });
             // cut
             contextMenu.Items.Add(new MenuItem
             {
                 Header = "Cut",
                 Command = ApplicationCommands.Cut,
-                Icon = new Image
-                {
-                    Source = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Images/CutHS.png"))
-                    ,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Stretch,
-                    Width = 20,
-                    Height = 20
-                }
+               
             });
             // paste
             contextMenu.Items.Add(new MenuItem
             {
                 Header = "Paste",
                 Command = ApplicationCommands.Paste,
-                Icon = new Image
-                {
-                    Source = new BitmapImage(new Uri("pack://application:,,,/XTMF.Gui;component/Images/PasteHS.png")),
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Stretch,
-                    Width = 20,
-                    Height = 20
-                }
+                
             });
             _LocalContextMenu = contextMenu;
         }

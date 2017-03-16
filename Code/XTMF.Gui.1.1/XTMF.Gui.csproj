@@ -473,24 +473,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\CopyFolderHSx64.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\CopyHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\CutHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\delete.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\FolderOpen_16x16_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\PasteHS.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\XTMF_icon.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -501,18 +483,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\075b_UpFolder_24x24_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\112_ArrowReturnLeft_Blue_24x24_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\base_cog_32.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Download.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\FloppyDisk.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\FolderOpen_24x24_72.png" />
@@ -530,9 +500,6 @@
     <Resource Include="Resources\Links.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Lock.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\OpenFile.png" />
   </ItemGroup>
   <ItemGroup>
@@ -543,9 +510,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\saveHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Settings.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\XTMF_corner_splash.png" />
@@ -568,10 +532,6 @@
       <Project>{5a7c8449-be6f-4cbb-ad7f-b38560dae637}</Project>
       <Name>XTMFInterfaces</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\BigLinks.png" />
-    <Resource Include="Resources\Edit.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

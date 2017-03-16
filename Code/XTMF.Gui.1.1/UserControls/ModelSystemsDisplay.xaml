@@ -71,7 +71,7 @@
             <ListView.ItemTemplate>
                 <DataTemplate DataType="{x:Type xtmf:ModelSystem}">
                     <my:BorderIconButton Margin="5" Header="{Binding Name}" Text="{Binding Description}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
+                                             Icon="/XTMF.Gui;component/Resources/ic_developer_board_24px.png" Width="300px"
                                              DoubleClicked="ModelSystem_DoubleClicked" >
                         <my:BorderIconButton.Background>
                             <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlDarkColorKey}}"/>
