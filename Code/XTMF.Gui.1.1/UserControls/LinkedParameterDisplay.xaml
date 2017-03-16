@@ -170,28 +170,21 @@
                                 
                             </xtmfgui:ListViewControl>
                             
-                            <!--
-                            <my:BorderIconButton  >
-                                <my:BorderIconButton.Style>
-                                    <Style TargetType="my:BorderIconButton">
-                                        <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                    </Style>
-                                </my:BorderIconButton.Style>
-                            </my:BorderIconButton> -->
+                         
                         </DataTemplate>
                     </ListView.ItemTemplate>
                     <ListView.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Rename (F2)" Click="Rename_Click">
-                                <MenuItem.Icon>
-                                    <Image Source="/XTMF.Gui;component/Resources/base_cog_32.png" Width="16" Height="16" />
-                                </MenuItem.Icon>
-                            </MenuItem>
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
                             <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
-                                <MenuItem.Icon>
-                                    <Image Source="/XTMF.Gui;component/Images/Delete.png" Width="16" Height="16" />
-                                </MenuItem.Icon>
-                            </MenuItem>
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource CancelIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
                         </ContextMenu>
                     </ListView.ContextMenu>
                 </ListView>
@@ -235,8 +228,7 @@
                      HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}">
                             <ListView.Resources>
                                 <Style TargetType="{x:Type ListViewItem}">
-                                    <!--<Setter Property="Focusable" Value="False"></Setter>-->
-                                    <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
+                                
                                     <Setter Property="BorderThickness" Value="0" />
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
@@ -277,11 +269,7 @@
                                                 <TextBlock TextDecorations="Underline">Unlink</TextBlock>
                                             </Label>
 
-                                            <!--
-                                            <CheckBox Name="Checkbox"   IsChecked="{Binding KeepAttached}"
-                                                  ToolTip="Uncheck to remove this parameter from the linked parameter.">
-                                                
-                                            </CheckBox> -->
+                                            
                                             <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="10" Text="Module Name" Opacity="0.995" />
                                             <TextBlock Grid.Column="1" Margin="2" Grid.Row="1" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
 

@@ -396,15 +396,8 @@
     </Style>
 
     <Style x:Key="XtmfTabItem" TargetType="{x:Type TabItem}">
-
-
         <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
-
-       
-
         <Setter Property="HeaderTemplate">
-
-
             <Setter.Value>
 
 
@@ -419,7 +412,6 @@
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
-
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
                     <Border Name="Border" BorderThickness="0,0,0,0" BorderBrush="Gainsboro" CornerRadius="0,0,0,0" Margin="0,0">
