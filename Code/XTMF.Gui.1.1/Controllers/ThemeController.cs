@@ -175,6 +175,15 @@ namespace XTMF.Gui.Controllers
 
         }
 
+        private void LoadDefaultWarmTheme()
+        {
+            Uri NewTheme = new Uri("/XTMF.Gui;component/Resources/WarmTheme.xaml", UriKind.RelativeOrAbsolute);
+            ResourceDictionary dictionary = (ResourceDictionary)Application.LoadComponent(NewTheme);
+            dictionary.Source = NewTheme;
+
+            this._themes.Add(new Theme("Warm Theme Default", NewTheme.OriginalString, dictionary));
+        }
+
         public ThemeController(string configuration)
         {
 
@@ -186,6 +195,7 @@ namespace XTMF.Gui.Controllers
 
             LoadDefaultDarkTheme();
             LoadDefaultLightTheme();
+            LoadDefaultWarmTheme();
 
             if (!Directory.Exists(_configuration))
             {

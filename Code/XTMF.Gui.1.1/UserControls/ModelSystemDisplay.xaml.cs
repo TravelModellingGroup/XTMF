@@ -2158,7 +2158,7 @@ namespace XTMF.Gui.UserControls
 
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ParameterWidth = ParameterDisplay.ActualWidth - 36;
+            ParameterWidth = ParameterDisplay.ActualWidth - 32;
         }
     }
 }

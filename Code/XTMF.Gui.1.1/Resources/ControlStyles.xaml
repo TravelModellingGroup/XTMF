@@ -387,6 +387,8 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4" />
                         </Trigger>
+                        
+                        
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -398,6 +400,7 @@
 
         <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
 
+       
 
         <Setter Property="HeaderTemplate">
 
@@ -431,10 +434,27 @@
                             <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
                         </Trigger>
 
+                        <Trigger SourceName="Border"  Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"></Setter>
+                        </Trigger>
+
                         <Trigger Property="IsSelected" Value="False">
                             <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlColourUnselectedBrush}"></Setter>
                             <Setter Property="Opacity" Value="0.7"></Setter>
                         </Trigger>
+                        
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="False"></Condition>
+                                <Condition Property="IsMouseOver" Value="True"></Condition>
+                            </MultiTrigger.Conditions>
+                            
+                            <MultiTrigger.Setters>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource ControlHighlightColourBrush}"></Setter>
+                                <Setter Property="Opacity" Value="0.7"></Setter>
+                            </MultiTrigger.Setters>
+                            
+                        </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
 

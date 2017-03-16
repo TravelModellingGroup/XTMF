@@ -73,22 +73,7 @@
             <Border Grid.Row="2" x:Name="AdditionDetailsPanelBorder" BorderBrush="White" Height="0" BorderThickness="0" CornerRadius="5" Margin="5" Visibility="Collapsed">
                 <my:CollapsePanel x:Name="AdditionDetailsPanel" IsExpanded="False" InternalHeight="150" Header="Additional Information" Foreground="White" />
             </Border>
-            <!--
-            <StackPanel VerticalAlignment="Top" >
-                <my:BorderIconButton Margin="0,0,0,0"  x:Name="OpenDirectoryButton"  Width="250" Header="Open Run Output"
-                                     Text="Open the run's output directory" Icon="/XTMF.Gui;component/Resources/ic_folder_open_white_18dp.png"
-                                     
-                                     Clicked="OpenDirectoryButton_Clicked" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <my:BorderIconButton Margin="0,10,0,0"  x:Name="CancelButton"  Width="250" Header="Cancel Run"
-                                     Text="Cancel the run, if possible" Icon="/XTMF.Gui;component/Resources/ic_cancel_white_18pt_2x.png"
-                                 
-                                     Clicked="CancelButton_Clicked" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <my:BorderIconButton Margin="0,10,0,0" x:Name="ContinueButton" IsEnabled="False"  Width="250" Header="Continue"
-                                     Text="Continue to the project page" Icon="/XTMF.Gui;component/Resources/ic_arrow_forward_white_36dp.png"
-                              
-                                     Clicked="ContinueButton_Clicked" HorizontalAlignment="Left" VerticalAlignment="Top" />
-
-            </StackPanel> -->
+          
         </GroupBox>
         <GroupBox Foreground="{DynamicResource ThemeTextColorBrush}" Margin="3" Grid.Row="1" Grid.Column="1" Header="Run Status" BorderThickness="0.5" >
         <Grid  Background="{DynamicResource WindowBackgroundBrush3}">
