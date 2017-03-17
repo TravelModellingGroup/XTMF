@@ -29,7 +29,7 @@
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" Name="MDisplay"
-             d:DesignHeight="500" d:DesignWidth="1200" Background="{DynamicResource WindowBackgroundBrush}">
+             d:DesignHeight="500" d:DesignWidth="1200" Background="{DynamicResource WindowBackgroundBrush}" Unloaded="MDisplay_Unloaded">
     <UserControl.Resources>
         <VisualBrush x:Key="TextureBrush" TileMode="Tile" Viewport="0,0,20,20"
           Viewbox="0,0,14,14" ViewportUnits="Absolute" 

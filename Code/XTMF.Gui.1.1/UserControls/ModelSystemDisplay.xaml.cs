@@ -234,13 +234,35 @@ namespace XTMF.Gui.UserControls
               });
                return true;
            };
+
+         
         }
+
+        private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
+        {
+            
+                if (keyEventArgs.Key == Key.F5)
+                {
+                    SaveCurrentlySelectedParameters();
+
+                    this.ExecuteRun();
+                }
+            
+        }
+
+        private void MDisplay_Unloaded(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Us.PreviewKeyDown -= UsOnPreviewKeyDown;
+        }
+
+
 
         private void ModelSystemDisplay_Loaded(object sender, RoutedEventArgs e)
         {
             // This needs to be executed via the dispatcher to avoid an issue with AvalonDock
             Dispatcher.BeginInvoke(new Action(() =>
             {
+                MainWindow.Us.PreviewKeyDown += UsOnPreviewKeyDown;
                 FilterBox.Focus();
             }));
         }
@@ -668,9 +690,9 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.F5:
-                            SaveCurrentlySelectedParameters();
+                           // SaveCurrentlySelectedParameters();
                           //  MainWindow.Us.ExecuteRun();
-                            this.ExecuteRun();
+                          //  this.ExecuteRun();
                             e.Handled = true;
                             break;
                         case Key.Escape:
@@ -2162,5 +2184,7 @@ namespace XTMF.Gui.UserControls
         {
             ParameterWidth = ParameterDisplay.ActualWidth - 32;
         }
+
+      
     }
 }

@@ -154,17 +154,10 @@ namespace XTMF.Gui
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, this.Minimize_Click, this.OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, this.OnRestoreWindow, this.OnCanResizeWindow));
 
-            RoutedCommand routed = new RoutedCommand();
-            routed.InputGestures.Add(new KeyGesture(Key.F5,ModifierKeys.Control));
-
-            CommandBindings.Add(new CommandBinding(routed, ToggleModuleRunDisplay));
+          
      
         }
 
-        public void ToggleModuleRunDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
         {
