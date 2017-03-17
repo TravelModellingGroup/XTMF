@@ -60,9 +60,6 @@ namespace TMG.Emme.NetworkAssignment
         [RunParameter("Performance Mode", true, "Set this to false to leave a free core for other work, recommended to leave set to true.")]
         public bool PerformanceMode;
 
-        [RunParameter("LinkCost", 0f, "The penalty in minutes per dollar to apply when traversing a link.")]
-        public float LinkCost;
-
         [RunParameter("Run Title", "Multi-class Run", "The name of the run to appear in the logbook.")]
         public string RunTitle;
 
@@ -91,6 +88,9 @@ namespace TMG.Emme.NetworkAssignment
 
             [RunParameter("Toll Weight", 0f, "")]
             public float TollWeight;
+
+            [RunParameter("LinkCost", 0f, "The penalty in minutes per dollar to apply when traversing a link.")]
+            public float LinkCost;
 
             public string Name { get; set; }
 
@@ -153,7 +153,7 @@ namespace TMG.Emme.NetworkAssignment
              xtmf_ScenarioNumber, Mode_List, xtmf_Demand_String, TimesMatrixId,
                  CostMatrixId, TollsMatrixId, PeakHourFactor, LinkCost,
                  TollWeight, Iterations, rGap, brGap, normGap, PerformanceFlag,
-                 RunTitle, LinkTollAttributeId, xtmf_NameString, ResultAttributes
+                 RunTitle, LinkTollAttributeId, xtmf_NameString, ResultAttributes, xtmf_AggAttributes, xtmf_aggAttributesMatrixId
             */
             string ret = null;
             if(!mc.CheckToolExists(ToolName))
@@ -174,7 +174,7 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("CostMatrixId", GetCosts()),
                 new ModellerControllerParameter("TollsMatrixId", GetTolls()),
                 new ModellerControllerParameter("PeakHourFactor", PeakHourFactor.ToString(CultureInfo.InvariantCulture)),
-                new ModellerControllerParameter("LinkCost", LinkCost.ToString(CultureInfo.InvariantCulture)),
+                new ModellerControllerParameter("LinkCost", string.Join(",", Classes.Select(c => c.LinkCost.ToString(CultureInfo.InvariantCulture)))),
                 new ModellerControllerParameter("TollWeight", string.Join(",", Classes.Select(c => c.TollWeight.ToString(CultureInfo.InvariantCulture)))),
                 new ModellerControllerParameter("Iterations", Iterations.ToString(CultureInfo.InvariantCulture)),
                 new ModellerControllerParameter("rGap", RelativeGap.ToString(CultureInfo.InvariantCulture)),
@@ -186,47 +186,23 @@ namespace TMG.Emme.NetworkAssignment
                 new ModellerControllerParameter("xtmf_NameString", string.Join(",", Classes.Select(c => c.Name))),
                 new ModellerControllerParameter("ResultAttributes", string.Join(",", Classes.Select(c => c.VolumeAttribute))),
                 new ModellerControllerParameter("xtmf_AggAttributes", GetAttributesFromClass()),
-                new ModellerControllerParameter("xtmf_AggAttributes", GetAttributeMatrixIds())
+                new ModellerControllerParameter("xtmf_aggAttributesMatrixId", GetAttributeMatrixIds())
             };
         }
 
         private string GetAttributesFromClass()
         {
-            StringBuilder builder = new StringBuilder();
-            var numberOfAttributes = Classes.Length > 0 ? Classes[0].AdditionalAttributesToAggregate.Length : 0;
-            for (int i = 0; i < numberOfAttributes; i++)
-            {
-                for (int j = 0; j < Classes.Length; j++)
-                {
-                    if (j > 0)
-                    {
-                        builder.Append(",");
-                    }
-                    builder.Append(Classes[j].AdditionalAttributesToAggregate[i].AttributeId);
-                }
-            }
-            return builder.ToString();
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.AdditionalAttributesToAggregate
+                                                            select at.AttributeId));
         }
 
         private string GetAttributeMatrixIds()
         {
-            StringBuilder builder = new StringBuilder();
-            var numberOfAttributes = Classes.Length > 0 ? Classes[0].AdditionalAttributesToAggregate.Length : 0;
-            for (int i = 0; i < numberOfAttributes; i++)
-            {
-                for (int j = 0; j < Classes.Length; j++)
-                {
-                    if(j > 0)
-                    {
-                        builder.Append(",");
-                    }
-                    builder.Append("mf");
-                    builder.Append(Classes[j].AdditionalAttributesToAggregate[i].AggregationMatrix);
-                }
-            }
-            return builder.ToString();
+            return string.Join("|", from c in Classes
+                                    select string.Join(",", from at in c.AdditionalAttributesToAggregate
+                                                            select "mf" + at.AggregationMatrix));
         }
-
 
         private string GetTimes()
         {
@@ -255,7 +231,6 @@ namespace TMG.Emme.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
-            // Check the 
             return true;
         }
     }

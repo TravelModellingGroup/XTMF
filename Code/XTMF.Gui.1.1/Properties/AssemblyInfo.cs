@@ -10,8 +10,8 @@ using System.Windows;
 [assembly: AssemblyTitle("XTMF.Gui.1.1")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("XTMF.Gui.1.2")]
+[assembly: AssemblyCompany("University of Toronto")]
+[assembly: AssemblyProduct("XTMF.Gui.1.3")]
 [assembly: AssemblyCopyright("Copyright © University of Toronto 2011-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyVersion("1.3.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
