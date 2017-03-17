@@ -158,15 +158,15 @@ namespace XTMF.Gui.UserControls
             };
         }
 
-        private ModelSystemEditingSession MSEditSession;
-        private ProjectEditingSession PEditSession;
+        private ModelSystemEditingSession _msEditSession;
+        private ProjectEditingSession _pEditSession;
         XTMFRuntime Runtime;
 
         public ModelSystemEditingSession OpenModelSystem(XTMFRuntime runtime)
         {
             ExportButton.IsEnabled = true;
             Runtime = runtime;
-            MSEditSession = null;
+            _msEditSession = null;
             InternalModel.Initialize(runtime.ModelSystemController.GetModelSystems());
             DataContext = InternalModel;
             lock (InternalModel.Data)
@@ -176,14 +176,14 @@ namespace XTMF.Gui.UserControls
             FilterBox.Display = Display;
             FilterBox.Filter = Filter;
             ShowDialog();
-            return MSEditSession;
+            return _msEditSession;
         }
 
         public ProjectEditingSession OpenProject(XTMFRuntime runtime)
         {
             ExportButton.IsEnabled = false;
             Runtime = runtime;
-            PEditSession = null;
+            _pEditSession = null;
             InternalModel.Initialize(runtime.ProjectController.GetProjects());
             DataContext = InternalModel;
             lock (InternalModel.Data)
@@ -193,7 +193,7 @@ namespace XTMF.Gui.UserControls
             FilterBox.Display = Display;
             FilterBox.Filter = Filter;
             ShowDialog();
-            return PEditSession;
+            return _pEditSession;
         }
 
         private bool Filter(object e, string text)
@@ -228,11 +228,11 @@ namespace XTMF.Gui.UserControls
                 {
                     if (result is Project)
                     {
-                        ProjectSession = PEditSession = Runtime.ProjectController.EditProject(result as Project);
+                        ProjectSession = _pEditSession = Runtime.ProjectController.EditProject(result as Project);
                     }
                     else
                     {
-                        ModelSystemSession = MSEditSession = Runtime.ModelSystemController.EditModelSystem(result as ModelSystem);
+                        ModelSystemSession = _msEditSession = Runtime.ModelSystemController.EditModelSystem(result as ModelSystem);
                     }
                 });
             Close();
@@ -310,10 +310,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void BorderIconButton_Clicked(object obj)
-        {
-            Select();
-        }
+        
 
         private void Display_GotFocus(object sender, RoutedEventArgs e)
         {

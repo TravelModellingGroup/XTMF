@@ -115,26 +115,19 @@
                             </ListView.ContextMenu>
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    
-                              
-                                    
                                     <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
-                            
-                                    </ItemsPanelTemplate>
+                                </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
-                      
+                    
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-
 
                                     <xtmf:ListViewControl  TitleText="{Binding Name, Mode=OneWay}" HorizontalAlignment="Stretch"
                                                           SubText="{Binding Description, Mode=OneWay}" MouseDoubleClick="ListViewControl_MouseDoubleClick"  >
 
                                        
                                         <xtmf:ListViewControl.IconPath>
-                                            
-                                            
-                                            
+ 
                                             <Path Data="{DynamicResource ModelSystemIconPath}">
                                               
                                             </Path>
