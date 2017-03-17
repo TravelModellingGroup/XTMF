@@ -488,7 +488,7 @@ namespace XTMF.Gui.UserControls
         {
 
             var s = ModelSystemDisplay.SelectedItem;
-            Console.WriteLine(s);
+            
         }
 
         private void LoadModelSystem()
