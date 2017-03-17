@@ -22,8 +22,11 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui
 {
@@ -180,6 +183,24 @@ namespace XTMF.Gui
             {
                 Dispatcher.BeginInvoke(Refresh, DispatcherPriority.Input);
             }
+        }
+
+        private void Box_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void Box_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+            UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+
+            if (keyboardFocus != null)
+            {
+                keyboardFocus.MoveFocus(tRequest);
+            }
+
+            e.Handled = true;
         }
     }
 }

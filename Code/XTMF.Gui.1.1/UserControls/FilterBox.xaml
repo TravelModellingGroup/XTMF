@@ -30,7 +30,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="AUTO" />
         </Grid.ColumnDefinitions>
-        <userControls:HintedTextBox Grid.Column="0" x:Name="Box" HintText="Search..." TextChanged="Box_TextChanged" />
+        <userControls:HintedTextBox Grid.Column="0" x:Name="Box" HintText="Search..." TextChanged="Box_TextChanged" PreviewMouseDown="Box_PreviewMouseDown" PreviewKeyDown="Box_PreviewKeyDown" />
 
         <Button Margin="2,0,0,0" BorderThickness="0" Background="Transparent" Grid.Column="1" x:Name="ClearFilterButton" Click="ClearFilter_Click" Visibility="Collapsed" >
         <Path Stretch="Uniform" Fill="Red"  Data="{DynamicResource CancelIconPath}"     >
