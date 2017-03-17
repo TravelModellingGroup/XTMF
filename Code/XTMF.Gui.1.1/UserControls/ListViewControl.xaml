@@ -76,7 +76,7 @@
             
             
             
-            <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
+            
         </Border>
         <StackPanel Orientation="Vertical" Grid.Column="1">
             <Label FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"
