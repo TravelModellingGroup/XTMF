@@ -1912,7 +1912,7 @@ namespace XTMF.Gui.UserControls
             MoveCurrentModule(1);
         }
 
-        ///
+      
         private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
                                               "IsSelectionChangeActive",
                                               BindingFlags.NonPublic | BindingFlags.Instance
@@ -2185,6 +2185,9 @@ namespace XTMF.Gui.UserControls
             ParameterWidth = ParameterDisplay.ActualWidth - 32;
         }
 
-      
+        private void QuickParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ParameterWidth = QuickParameterDisplay.ActualWidth - 32;
+        }
     }
 }
