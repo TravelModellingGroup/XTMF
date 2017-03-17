@@ -464,25 +464,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void ModelSystemButton_Clicked(object obj)
-        {
-            var button = obj as BorderIconButton;
-            if (button != null)
-            {
-                LoadModelSystem();
-            }
-        }
-
-        private void DisplayButton_RightClicked(object obj)
-        {
-            var button = obj as BorderIconButton;
-            var contextMenu = button?.ContextMenu;
-            if (contextMenu != null)
-            {
-                contextMenu.PlacementTarget = button;
-                contextMenu.IsOpen = true;
-            }
-        }
+       
 
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
