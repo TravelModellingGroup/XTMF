@@ -202,7 +202,7 @@ namespace XTMF.Gui.UserControls
   
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                MainWindow.Us.SetWindowName(this, "Run - " + runName);
+                //MainWindow.Us.SetWindowName(this, "Run - " + runName);
                 RunNameLabel.Text = runName;
             }));
             _progressReports = _run.Configuration.ProgressReports;

@@ -116,23 +116,13 @@
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     
-                                    <!--
-                                    <StackPanel Orientation="Vertical"></StackPanel>-->
+                              
                                     
                                     <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
-                                    <!--
-                                    <my:VirtualizingWrapPanel  Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                               -->
+                            
                                     </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
-                            <!--
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                   <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
-                                </Style>
-                            </ListView.ItemContainerStyle> -->
+                      
                             <ListView.ItemTemplate>
                                 <DataTemplate>
 
@@ -151,13 +141,7 @@
                                         </xtmf:ListViewControl.IconPath>
                                     </xtmf:ListViewControl>
                                     
-                                    <!--
-                                    <my:BorderIconButton x:Name="DisplayButton" Icon="/XTMF.Gui;component/Resources/Settings.png"
-                                                         Header="{Binding Name, Mode=OneWay}"
-                                                         Selected="{Binding IsSelected, Mode=OneWay}"
-                                                         Text="{Binding Description, Mode=OneWay}"
-                                                         Width="300" Margin="5" DoubleClicked="ModelSystemButton_Clicked" RightClicked="DisplayButton_RightClicked"
-                                                         /> -->
+                                
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </xtmf:ModelSystemListView>
@@ -179,22 +163,14 @@
                                  
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="{x:Null}">
 
-                        <!--
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="{x:Type ListViewItem}">
-                                <EventSetter Event="MouseDoubleClick" Handler="PastRuns_MouseButton" />
-                               
-                            </Style>
-                        </ListView.ItemContainerStyle> -->
+                      
                         <ListBox.ItemsPanel>
                             
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel Orientation="Vertical"></VirtualizingStackPanel>
                                 
                                 
-                                <!--<WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                           ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"  />
-                                -->
+                             
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
@@ -211,11 +187,7 @@
                                     </xtmf:ListViewControl.IconPath>
                                 </xtmf:ListViewControl >
                                 
-                                <!--
-                                <my:BorderIconButton Icon="/XTMF.Gui;component/Resources/Settings.png" Header="{Binding Name}"
-                                                         Text="{Binding TimeStamp}" Width="300" Margin="5"/>
-                                
-                                -->
+                          
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.ContextMenu>

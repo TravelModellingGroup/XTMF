@@ -73,6 +73,10 @@ namespace XTMF
             ModelSystemIndex = modelSystemIndex;
             Project.ModelSystemStructure[ModelSystemIndex] = root.ClonedModelSystemRoot;
             Project.LinkedParameters[ModelSystemIndex] = root.LinkedParameters.GetRealLinkedParameters();
+
+
+            //throw new Exception(RunDirectory);
+            ClearFolder(RunDirectory);
         }
 
         public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName)
@@ -85,8 +89,26 @@ namespace XTMF
                 Configuration = new RunProxy.ConfigurationProxy(configuration, Project);
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
+
+           ClearFolder(RunDirectory);
         }
 
+        public void ClearFolder(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+                DirectoryInfo directory = new DirectoryInfo(path);
+            foreach (System.IO.FileInfo file in directory.GetFiles())
+            {
+                if (file.Name.Contains("XTMF.ErrorLog.txt"))
+                {
+                    file.Delete();
+                }
+            }
+  
+        }
 
         /// <summary>
         /// An event that fires when the run completes successfully

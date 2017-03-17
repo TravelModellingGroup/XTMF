@@ -696,6 +696,8 @@ namespace XTMF.Gui.UserControls
             if (req.ShowDialog() == true)
             {
                 runName = req.Answer;
+
+                
                 if (!Session.RunNameExists(runName) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?",
                         MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {

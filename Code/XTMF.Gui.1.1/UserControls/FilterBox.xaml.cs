@@ -195,10 +195,7 @@ namespace XTMF.Gui
             TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
             UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
 
-            if (keyboardFocus != null)
-            {
-                keyboardFocus.MoveFocus(tRequest);
-            }
+            keyboardFocus?.MoveFocus(tRequest);
 
             e.Handled = true;
         }
