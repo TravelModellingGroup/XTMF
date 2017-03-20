@@ -87,6 +87,7 @@ namespace XTMF.Gui.UserControls
         {
             var address = Server.Text;
             var port = Port.Text;
+            var xtmfDirectory = GetXTMFDirectory();
             Process.Start(Path.Combine(GetXTMFDirectory(), "XTMF.RemoteClient.exe"), AddQuotes(address) + " " + port);
         }
 
