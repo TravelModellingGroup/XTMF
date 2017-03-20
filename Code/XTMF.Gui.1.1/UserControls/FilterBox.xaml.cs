@@ -192,12 +192,16 @@ namespace XTMF.Gui
 
         private void Box_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
-            UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
 
-            keyboardFocus?.MoveFocus(tRequest);
+            if (e.Key == Key.Down)
+            {
+                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
 
-            e.Handled = true;
+                keyboardFocus?.MoveFocus(tRequest);
+
+                e.Handled = true;
+            }
         }
     }
 }
