@@ -296,7 +296,15 @@ namespace XTMF.Gui.UserControls
             if (request.ShowDialog() == true)
             {
                 string error = null;
-                if (!LinkedParameters.NewLinkedParameter(request.Answer, ref error))
+
+
+                if (request.Answer == string.Empty || request.Answer == null)
+                {
+                    MessageBox.Show(MainWindow.Us, "Linked Paramter must have a name.", "Failed to create new Linked Parameter", MessageBoxButton.OK,
+                   MessageBoxImage.Error);
+                    return;
+                }
+                if (!LinkedParameters.NewLinkedParameter(request.Answer, ref error) )
                 {
                     MessageBox.Show(MainWindow.Us, error, "Failed to create new Linked Parameter", MessageBoxButton.OK,
                         MessageBoxImage.Error);
