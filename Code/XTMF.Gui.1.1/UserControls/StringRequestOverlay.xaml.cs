@@ -54,6 +54,7 @@ namespace XTMF.Gui.UserControls
         {
             ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
             StringInput.Clear();
+            ClearListeners();
 
         }
 

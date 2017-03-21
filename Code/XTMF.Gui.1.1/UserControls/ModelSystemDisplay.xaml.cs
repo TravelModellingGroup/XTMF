@@ -247,9 +247,13 @@ namespace XTMF.Gui.UserControls
             
                 if (keyEventArgs.Key == Key.F5)
                 {
-                    SaveCurrentlySelectedParameters();
 
-                    this.ExecuteRun();
+                    if (IsKeyboardFocusWithin)
+                    {
+                        SaveCurrentlySelectedParameters();
+
+                        this.ExecuteRun();
+                    }
                 }
             
         }
@@ -2226,6 +2230,11 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ParameterWidth = QuickParameterDisplay.ActualWidth - 32;
+        }
+
+        private void GridCanvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ModuleDisplay.Focus();
         }
     }
 }

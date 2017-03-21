@@ -171,7 +171,7 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
-                <Canvas UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True">
+                <Canvas  UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True" MouseDown="GridCanvas_MouseDown">
 
 
                     <Grid Width="{Binding ActualWidth, ElementName=GridCanvas}" 
