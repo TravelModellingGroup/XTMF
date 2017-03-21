@@ -48,41 +48,20 @@ namespace TMG.Emme.Tools
         {
             var mc = controller as ModellerController;
             if (mc == null)
+            {
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
-
-            var result = "";
-
-            var outputPath = Path.GetFullPath(Filepath.GetFilePath());
-            StringBuilder sb = new StringBuilder();
-            StringWriter sw = new StringWriter(sb);
-
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                writer.Formatting = Formatting.Indented;
-
-                writer.WriteStartObject();
-
-                writer.WritePropertyName("xtmf_exportPath");
-                writer.WriteValue(outputPath);
-
-                writer.WritePropertyName("xtmf_transitShapes");
-                writer.WriteValue(this.TransitShape.ToString());
-
-                writer.WritePropertyName("xtmf_scenario");
-                writer.WriteValue(this.ScenarioNumber);
-
-                writer.WriteEndObject();
             }
 
-            var args = sb.ToString();
-
-            if (mc.CheckToolExists(ToolName))
-            {
-               return mc.Run(ToolName, args, (p => Progress = p), ref result);
-            }
-         
-            return true;
+            Console.WriteLine("Running Export EMME network shape file.");
+            return mc.Run(ToolName,
+                new[]
+                {
+                    new ModellerControllerParameter("xtmf_exportPath", Filepath.GetFilePath()),
+                    new ModellerControllerParameter("xtmf_transitShapes", TransitShape.ToString()),
+                    new ModellerControllerParameter("xtmf_scenario", ScenarioNumber.ToString()),
+                });
         }
+    
 
         public bool RuntimeValidation(ref string error)
         {
