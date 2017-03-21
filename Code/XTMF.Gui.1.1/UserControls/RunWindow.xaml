@@ -50,7 +50,7 @@
                     </userControls:FlatToolButton.IconPath>
                 </userControls:FlatToolButton>
                 <userControls:FlatToolButton Click="CancelButton_Clicked" x:Name="CancelButton"  ToolText="Cancel Run">
-                   
+
                     <userControls:FlatToolButton.IconPath  >
                         <Path Data="{DynamicResource CancelIconPath}" Stretch="Uniform" >
                             
@@ -161,3 +161,10 @@
         </GroupBox>
     </Grid>
 </UserControl>
+
+
+
+
+
+
+

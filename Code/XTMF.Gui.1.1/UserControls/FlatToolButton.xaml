@@ -8,7 +8,7 @@
                      d:DesignHeight="300" d:DesignWidth="300">
     
     <UserControl.Resources>
-        <Style TargetType="local:FlatToolButton">
+        <Style TargetType="local:FlatButton">
             <Style.Triggers>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Opacity" Value="0.5"></Setter>

@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="XTMF.Gui.UserControls.StringRequestOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:gui="clr-namespace:XTMF.Gui"
+             mc:Ignorable="d"  
+             d:DesignHeight="300" d:DesignWidth="300" IsVisibleChanged="UserControl_IsVisibleChanged">
+    <Grid
+          VerticalAlignment="Center" HorizontalAlignment="Center">
+
+
+        <Border  Background="{DynamicResource WindowBackgroundBrush3}" Padding="10,5,10,10">
+            
+            <StackPanel Orientation="Vertical">
+                
+                <Label Name="DescriptionLabel" Content="{Binding Description}" Foreground="{DynamicResource ThemeTextColorBrush}" Opacity="0.8"></Label>
+        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+            
+            
+            
+            <TextBox   Margin="0,0,0,0" Name="StringInput" KeyDown="StringInput_OnKeyDown"
+                Width="250" Height="25" VerticalContentAlignment="Center" Foreground="{DynamicResource ThemeTextColorBrush}" Background="{DynamicResource WindowBackgroundBrush1}">
+                
+            </TextBox>
+
+            <local:FlatButton Width="30" VerticalAlignment="Stretch"   ToolText="OK" Click="FlatButton_OnClick">
+
+            </local:FlatButton>
+        </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
+
+
+

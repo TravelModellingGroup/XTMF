@@ -235,8 +235,12 @@ namespace XTMF.Gui.UserControls
                return true;
            };
 
+
+
          
         }
+
+      
 
         private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
         {
@@ -712,9 +716,43 @@ namespace XTMF.Gui.UserControls
             //ModelRunGrid.Height = 100;
             var runName = String.Empty;
             string error = null;
-            StringRequest req = new StringRequest("Run Name", ValidateName) {Owner  = this.GetWindow()};
+            //StringRequest req = new StringRequest("Run Name", ValidateName) {Owner  = this.GetWindow()};
 
-        
+
+            StringRequestOverlay.Description = "Please enter a run name.";
+            Overlay.Visibility = Visibility.Visible;
+
+           
+            StringRequestOverlay.StringEntryComplete = (sender, args) =>
+            {
+
+                runName = StringRequestOverlay.StringEntryValue;
+
+
+                if (!Session.RunNameExists(runName) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?",
+                        MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                {
+                    var run = Session.Run(runName, ref error);
+                    if (run != null)
+                    {
+                        MainWindow.Us.ModelRunPane.Show();
+
+                        MainWindow.Us.RunWindow.StartRun(Session, run, runName);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "Unable to start run.\r\n" + error,
+                            "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
+
+
+                    StringRequestOverlay.Reset();
+                }
+
+            };
+
+            /*
             if (req.ShowDialog() == true)
             {
                 runName = req.Answer;
@@ -737,7 +775,7 @@ namespace XTMF.Gui.UserControls
                             "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                     }
                 }
-            }
+            } */
         }
 
         private void ShowQuickParameters()
