@@ -286,8 +286,8 @@ namespace XTMF.Gui.UserControls
             FilterBox.RefreshFilter();
             Display.SelectedItem = selected;
 
-            MainWindow window = GetWindow() as MainWindow;
-            window.UpdateRecentProjectsMenu();
+    
+            MainWindow.Us.UpdateRecentProjectsMenu();
         }
 
         private void Adorn_Unloaded(object sender, RoutedEventArgs e)
