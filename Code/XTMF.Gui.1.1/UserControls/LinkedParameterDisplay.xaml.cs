@@ -33,34 +33,73 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for LinkedParameterDisplay.xaml
     /// </summary>
-    public partial class LinkedParameterDisplay : Window
+    public partial class LinkedParameterDisplay : UserControl
     {
         private ObservableCollection<LinkedParameterDisplayModel> Items;
-        private readonly LinkedParametersModel LinkedParameters;
+        private  LinkedParametersModel _linkedParametersModel;
 
-        private readonly bool _assignMode;
 
-        public LinkedParameterDisplay(LinkedParametersModel linkedParameters, bool assignLinkedParameter = false)
+        public LinkedParametersModel LinkedParametersModel
+            {
+
+            get
+            {
+                return _linkedParametersModel;
+            }
+            set
+            {
+                _linkedParametersModel = value;
+                SetupLinkedParameters(_linkedParametersModel);
+            }
+
+            }
+
+        private  bool _assignMode;
+
+        public LinkedParameterDisplay(LinkedParametersModel linkedParameters)
         {
             InitializeComponent();
             ChangesMade = false;
-            LinkedParameters = linkedParameters;
+            _linkedParametersModel = linkedParameters;
             SetupLinkedParameters(linkedParameters);
+            
+     
+
+        }
+
+
+
+
+
+        
+        public void ShowLinkedParameterDisplay(bool assignLinkedParameter = false)
+        {
+            _assignMode = assignLinkedParameter;
+
+        }
+    
+
+        public LinkedParameterDisplay()
+        {
+
+
+            InitializeComponent();
+            ChangesMade = false;
+
             LinkedParameterFilterBox.Display = Display;
             LinkedParameterFilterBox.Filter = (o, text) =>
             {
                 var model = o as LinkedParameterDisplayModel;
                 return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
             };
-            _assignMode = assignLinkedParameter;
+           
             Display.SelectionChanged += Display_SelectionChanged;
-            Loaded += LinkedParameterDisplay_Loaded;
+        
             LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
+
         }
 
-        public LinkedParameterDisplay()
-        {
-        }
+
 
         private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -87,6 +126,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        /*
         protected override void OnClosing(CancelEventArgs e)
         {
             CleanupSelectedParameters();
@@ -95,7 +135,7 @@ namespace XTMF.Gui.UserControls
                 item.Dispose();
             }
             base.OnClosing(e);
-        }
+        } */
 
         private void LinkedParameterDisplay_Loaded(object sender, RoutedEventArgs e)
         {
@@ -202,6 +242,7 @@ namespace XTMF.Gui.UserControls
 
         internal LinkedParameterModel SelectedLinkParameter { get; set; }
 
+        /*
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
             if (_assignMode && !_renaming)
@@ -214,7 +255,7 @@ namespace XTMF.Gui.UserControls
                 }
             }
             base.OnPreviewKeyDown(e);
-        }
+        } */
 
         private void AssignCurrentlySelected()
         {
@@ -233,13 +274,15 @@ namespace XTMF.Gui.UserControls
                 CleanupSelectedParameters();
             }
             SelectedLinkParameter = selected.LinkedParameter;
-            DialogResult = true;
+            //DialogResult = true;
             ChangesMade = true;
-            Close();
+           // Close();
         }
 
         private bool _renaming;
 
+
+        /*
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Handled == false)
@@ -255,7 +298,7 @@ namespace XTMF.Gui.UserControls
                 }
             }
             base.OnKeyDown(e);
-        }
+        } */
 
         private void Rename_Click(object sender, RoutedEventArgs e)
         {
@@ -290,29 +333,36 @@ namespace XTMF.Gui.UserControls
 
         private void NewLinkedParameter_Clicked(object obj)
         {
-            var request = new StringRequest("Name the new Linked Parameter", s => true);
-            request.Owner = this;
-            request.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            if (request.ShowDialog() == true)
+
+
+            StringRequestOverlay.Description = "Name of new linked parameter:";
+            Overlay.Visibility = Visibility.Visible;
+
+
+            StringRequestOverlay.Visibility = Visibility.Visible;
+
+            StringRequestOverlay.StringEntryComplete = (sender, args) =>
             {
+                var name  = StringRequestOverlay.StringEntryValue;
                 string error = null;
-
-
-                if (request.Answer == string.Empty || request.Answer == null)
+                if (name == string.Empty || name == null)
                 {
                     MessageBox.Show(MainWindow.Us, "Linked Paramter must have a name.", "Failed to create new Linked Parameter", MessageBoxButton.OK,
                    MessageBoxImage.Error);
                     return;
                 }
-                if (!LinkedParameters.NewLinkedParameter(request.Answer, ref error) )
+                if (!_linkedParametersModel.NewLinkedParameter(name, ref error))
                 {
                     MessageBox.Show(MainWindow.Us, error, "Failed to create new Linked Parameter", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                     return;
                 }
-                SetupLinkedParameters(LinkedParameters);
+                SetupLinkedParameters(_linkedParametersModel);
                 ChangesMade = true;
-            }
+                StringRequestOverlay.Reset();
+            };
+
+          
         }
 
         private void RemoveCurrentlySelectedParameter(object sender, RoutedEventArgs e)
@@ -325,8 +375,8 @@ namespace XTMF.Gui.UserControls
                 return;
             }
             string error = null;
-            var index = LinkedParameters.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
-            if (!LinkedParameters.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
+            var index = _linkedParametersModel.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
+            if (!_linkedParametersModel.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
             {
                 MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -377,6 +427,7 @@ namespace XTMF.Gui.UserControls
 
         private void BorderIconButton_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+
         }
 
         private void UnlinkParameter(string parameterName)
@@ -454,7 +505,8 @@ namespace XTMF.Gui.UserControls
         {
             if (e.Key == Key.Escape && !e.Handled)
             {
-                Close();
+                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                Visibility = Visibility.Collapsed;
             }
         }
 
@@ -464,22 +516,22 @@ namespace XTMF.Gui.UserControls
             {
 
 
-                if (e.GetPosition(this).Y < 30)
-                {
+               // if (e.GetPosition(this).Y < 30)
+               // {
 
 
 
-                    e.Handled = true;
-                    DragMove();
+               //     e.Handled = true;
+                 //   DragMove();
 
-                }
+             //   }
 
             }
         }
 
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
-            WindowState = WindowState.Minimized;
+            //WindowState = WindowState.Minimized;
         }
 
         private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
@@ -489,7 +541,7 @@ namespace XTMF.Gui.UserControls
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            //Close();
         }
 
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -498,6 +550,21 @@ namespace XTMF.Gui.UserControls
             {
                 AssignCurrentlySelected();
             }
+        }
+
+        private void UserControl_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape && !e.Handled)
+            {
+               
+            }
+        }
+
+        private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+            Display.Focus();
+       
         }
     }
 

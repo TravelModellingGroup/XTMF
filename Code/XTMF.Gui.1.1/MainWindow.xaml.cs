@@ -1199,13 +1199,13 @@ namespace XTMF.Gui
                 var modelSystem = document.Content as ModelSystemDisplay;
 
 
-                var linkedParameterDialog = new LinkedParameterDisplay(modelSystem.ModelSystem.LinkedParameters, false);
-                linkedParameterDialog.Owner = Us;
+               // var linkedParameterDialog = new LinkedParameterDisplay(modelSystem.ModelSystem.LinkedParameters, false);
+               // linkedParameterDialog.Owner = Us;
 
-                if (linkedParameterDialog.ShowDialog() == true)
-                {
+               // if (linkedParameterDialog.ShowDialog() == true)
+                //{
 
-                }
+                //}
 
                 // modelSystem.ExternalUpdateParameters();
 

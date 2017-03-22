@@ -148,12 +148,15 @@
 
         <Grid x:Name="Overlay" Panel.ZIndex="1000" Visibility="Collapsed">
             <Grid.Background>
-                <SolidColorBrush Color="Black" Opacity=".5"/>
+                <SolidColorBrush Color="Black" Opacity=".6"/>
             </Grid.Background>
 
             <!-- Add controls as needed -->
-            
-            <this:StringRequestOverlay x:Name="StringRequestOverlay"  ></this:StringRequestOverlay>
+
+            <this:LinkedParameterDisplay Visibility="Collapsed"  x:Name="LinkedParameterDisplayOverlay"></this:LinkedParameterDisplay>
+            <this:StringRequestOverlay Visibility="Collapsed" x:Name="StringRequestOverlay"></this:StringRequestOverlay>
+
+          
            
         </Grid>
 

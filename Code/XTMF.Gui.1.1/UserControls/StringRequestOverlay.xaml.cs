@@ -53,6 +53,7 @@ namespace XTMF.Gui.UserControls
         public void Reset()
         {
             ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+            Visibility = Visibility.Collapsed;
             StringInput.Clear();
             ClearListeners();
 
@@ -67,7 +68,7 @@ namespace XTMF.Gui.UserControls
 
         public string Description
         {
-            get { return (string) GetValue(DescriptionDependencyProperty); }
+            get { return (string)GetValue(DescriptionDependencyProperty); }
 
             set
             {
@@ -79,7 +80,7 @@ namespace XTMF.Gui.UserControls
 
         public RoutedEventHandler StringEntryComplete
         {
-            get { return (RoutedEventHandler) GetValue(StringEntryCompleteDependencyProperty); }
+            get { return (RoutedEventHandler)GetValue(StringEntryCompleteDependencyProperty); }
             set { SetValue(StringEntryCompleteDependencyProperty, value); }
         }
 
@@ -93,10 +94,17 @@ namespace XTMF.Gui.UserControls
 
         private void ClearListeners()
         {
-            foreach (Delegate d in StringEntryComplete.GetInvocationList())
+            if (StringEntryComplete != null)
             {
-                if (StringEntryComplete != null)
-                    StringEntryComplete -= (RoutedEventHandler)d;
+                foreach (Delegate d in StringEntryComplete.GetInvocationList())
+                {
+                    if (StringEntryComplete != null)
+                    {
+
+                        
+                        StringEntryComplete -= d as RoutedEventHandler;
+                    }
+                }
             }
         }
 
@@ -114,10 +122,11 @@ namespace XTMF.Gui.UserControls
             }
             else if (e.Key == Key.Escape)
             {
-               Reset();
+                Reset();
+                e.Handled = true;
             }
 
-            
+
         }
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

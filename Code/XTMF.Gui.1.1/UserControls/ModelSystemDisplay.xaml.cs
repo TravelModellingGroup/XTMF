@@ -343,9 +343,16 @@ namespace XTMF.Gui.UserControls
 
         private void ShowLinkedParameterDialog(bool assign = false)
         {
-            var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters, assign);
-            linkedParameterDialog.Owner = GetWindow();
-            if (linkedParameterDialog.ShowDialog() == true && assign)
+          
+
+            LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
+
+            LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
+
+            Overlay.Visibility = Visibility.Visible;
+            LinkedParameterDisplayOverlay.Visibility = Visibility.Visible;
+            // linkedParameterDialog.Owner = GetWindow();
+            /*if (linkedParameterDialog.ShowDialog() == true && assign)
             {
                 // assign the selected linked parameter
                 var newLP = linkedParameterDialog.SelectedLinkParameter;
@@ -369,7 +376,7 @@ namespace XTMF.Gui.UserControls
             if (linkedParameterDialog.ChangesMade)
             {
                 RefreshParameters();
-            }
+            } */
         }
 
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
@@ -726,7 +733,8 @@ namespace XTMF.Gui.UserControls
             StringRequestOverlay.Description = "Please enter a run name.";
             Overlay.Visibility = Visibility.Visible;
 
-           
+
+            StringRequestOverlay.Visibility = Visibility.Visible;
             StringRequestOverlay.StringEntryComplete = (sender, args) =>
             {
 
