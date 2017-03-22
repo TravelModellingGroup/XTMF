@@ -1283,14 +1283,14 @@ namespace XTMF.Gui
             }
             else if (this.WindowState == WindowState.Normal)
             {
-                /*
+                
                 ExternalGrid.Margin = new Thickness()
                 {
                     Left = 0,
                     Top = 0,
                     Right = 0,
-                    Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
-                  };*/
+                   Bottom = 0,
+                  };
                 SystemCommands.MaximizeWindow(this);
 
 
@@ -1337,7 +1337,7 @@ namespace XTMF.Gui
         {
             if (this.WindowState == WindowState.Normal)
             {
-                ExternalGrid.Margin = new Thickness()
+                WindowGrid.Margin = new Thickness()
                 {
                     Left = 0,
                     Top = 0,
@@ -1348,13 +1348,13 @@ namespace XTMF.Gui
             }
             else if (this.WindowState == WindowState.Maximized)
             {
-                ExternalGrid.Margin = new Thickness()
+                WindowGrid.Margin = new Thickness()
                 {
-                    Left = 5,
-                    Top = 0,
-                    Right = 5,
-                    Bottom = 0
-                    //Bottom = Screen.PrimaryScreen.Bounds.Height - Screen.PrimaryScreen.WorkingArea.Height + 5
+                    Left = 7,
+                    Top = 7,
+                    Right = 7,
+                    Bottom = 7
+
                 };
 
 
