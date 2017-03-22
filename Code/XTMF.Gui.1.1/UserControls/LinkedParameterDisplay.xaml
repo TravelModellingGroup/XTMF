@@ -130,7 +130,7 @@
                     </StackPanel>
                 </DockPanel>
             </Border>
-            <Grid Grid.Row="1" Margin="0" Background="{DynamicResource WindowBackgroundBrush1}">
+            <Grid Grid.Row="2" Margin="0" Background="{DynamicResource WindowBackgroundBrush1}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
