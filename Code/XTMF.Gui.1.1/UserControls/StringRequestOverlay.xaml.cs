@@ -100,8 +100,6 @@ namespace XTMF.Gui.UserControls
                 {
                     if (StringEntryComplete != null)
                     {
-
-                        
                         StringEntryComplete -= d as RoutedEventHandler;
                     }
                 }

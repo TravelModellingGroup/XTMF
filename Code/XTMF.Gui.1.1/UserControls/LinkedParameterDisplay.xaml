@@ -42,15 +42,94 @@
 
         </Grid>
 
-        <Grid MinWidth="700" MinHeight="450" VerticalAlignment="Center" HorizontalAlignment="Center" >
+        <Grid MinWidth="700" MinHeight="500" MaxHeight="500" VerticalAlignment="Center" HorizontalAlignment="Center" >
 
 
             <Grid.RowDefinitions>
 
+                <RowDefinition Height="20"></RowDefinition>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush1}"
+                MouseDown="Window_MouseDown">
+                <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,0,0">
+                    <Border DockPanel.Dock="Left">
+                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                           
+                       
+                        </StackPanel>
+                    </Border>
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
 
+                      
+                       
+                        <Border HorizontalAlignment="Right" Width="20" Margin="0,0,0,0">
+
+
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Button Click="Button_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}"
+                                BorderBrush="{x:Null}">
+                                <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Width="20"
+                                    Height="20"
+                                    Visibility="Visible"
+                                    Margin="0,0,0,0"
+                                    BorderThickness="0">
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0"
+                                                         EndPoint="0,1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStopCollection>
+                                                    <GradientStop Color="{DynamicResource ThemeTextColor}"
+                                                              Offset="0.0"  />
+                                                    <GradientStop Color="{DynamicResource ThemeTextColor}"
+                                                              Offset="1.0" />
+                                                </GradientStopCollection>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+
+                                    </Border.BorderBrush>
+
+                                    <Path x:Name="CheckMark"
+
+                                      Visibility="Visible"
+                                      SnapsToDevicePixels="False"
+                                      Margin="5,5,5,5"
+                                      StrokeThickness="2" Stretch="Fill"
+
+                                      Data="M 0 0 L 7 7 M 0 7 L 7 0">
+                                        <Path.Stroke>
+                                            <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
+                                        </Path.Stroke>
+                                    </Path>
+                                </Border>
+                            </Button>
+
+                        </Border>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
             <Grid Grid.Row="1" Margin="0" Background="{DynamicResource WindowBackgroundBrush1}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -62,7 +141,7 @@
 
                 <DockPanel Grid.Column="1"/>
             </Grid>
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MinWidth="325" />
                     <ColumnDefinition Width="AUTO" />

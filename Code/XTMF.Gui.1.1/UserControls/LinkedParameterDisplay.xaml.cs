@@ -516,15 +516,6 @@ namespace XTMF.Gui.UserControls
             {
 
 
-               // if (e.GetPosition(this).Y < 30)
-               // {
-
-
-
-               //     e.Handled = true;
-                 //   DragMove();
-
-             //   }
 
             }
         }
@@ -565,6 +556,12 @@ namespace XTMF.Gui.UserControls
 
             Display.Focus();
        
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+            Visibility = Visibility.Collapsed;
         }
     }
 
