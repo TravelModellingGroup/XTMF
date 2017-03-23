@@ -358,6 +358,7 @@ namespace XTMF
                             indexOffset = RealModelSystemStructure.Children != null ? RealModelSystemStructure.Children.Count : 0;
                             foreach (var child in copiedStructure.Children)
                             {
+                                child.Required = false;
                                 RealModelSystemStructure.Add(child);
                             }
                             UpdateChildren();
@@ -365,6 +366,7 @@ namespace XTMF
                         }
                         else
                         {
+                            copiedStructure.Required = false;
                             RealModelSystemStructure.Add(copiedStructure);
                             UpdateChildren();
                             beingAdded = Children[Children.Count - 1];
