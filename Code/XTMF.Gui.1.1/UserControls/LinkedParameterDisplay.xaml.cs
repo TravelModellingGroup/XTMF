@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,6 +26,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Threading;
 using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
@@ -86,14 +87,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             ChangesMade = false;
 
-            LinkedParameterFilterBox.Display = Display;
-            LinkedParameterFilterBox.Filter = (o, text) =>
-            {
-                var model = o as LinkedParameterDisplayModel;
-                return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
-            };
-           
-            Display.SelectionChanged += Display_SelectionChanged;
+         
         
             LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
 
@@ -238,6 +232,15 @@ namespace XTMF.Gui.UserControls
             var items = LinkedParameterDisplayModel.CreateDisplayModel(linkedParameters.GetLinkedParameters());
             Display.ItemsSource = items;
             Items = items;
+
+            LinkedParameterFilterBox.Display = Display;
+            LinkedParameterFilterBox.Filter = (o, text) =>
+            {
+                var model = o as LinkedParameterDisplayModel;
+                return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            };
+
+            Display.SelectionChanged += Display_SelectionChanged;
         }
 
         internal LinkedParameterModel SelectedLinkParameter { get; set; }
@@ -518,6 +521,18 @@ namespace XTMF.Gui.UserControls
 
 
             }
+        }
+
+        public void Show()
+        {
+            ((FrameworkElement)Parent).Visibility = Visibility.Visible;
+            Visibility = Visibility.Visible;
+
+
+            this.Dispatcher.BeginInvoke((Action)delegate
+            {
+                Keyboard.Focus(LinkedParameterFilterBox);
+            }, DispatcherPriority.Render);
         }
 
         private void Minimize_Click(object sender, RoutedEventArgs e)

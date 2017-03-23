@@ -349,8 +349,10 @@ namespace XTMF.Gui.UserControls
 
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
 
-            Overlay.Visibility = Visibility.Visible;
-            LinkedParameterDisplayOverlay.Visibility = Visibility.Visible;
+           // Overlay.Visibility = Visibility.Visible;
+          //  LinkedParameterDisplayOverlay.Visibility = Visibility.Visible;
+
+            LinkedParameterDisplayOverlay.Show();
             // linkedParameterDialog.Owner = GetWindow();
             /*if (linkedParameterDialog.ShowDialog() == true && assign)
             {
