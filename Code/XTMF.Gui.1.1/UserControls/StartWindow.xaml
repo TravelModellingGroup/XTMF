@@ -39,7 +39,7 @@
                 
                 <StackPanel Width="128" Orientation="Vertical" HorizontalAlignment="Left">
                 <Image HorizontalAlignment="Left"  Source="/XTMF.Gui;component/Resources/XTMF_corner_splash.png" Height="128" Width="128" />
-                <Label Content="XTMF" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,-45,0,0" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Bold" FontSize="24" FontFamily="Nirmala UI"/>
+                <Label Content="XTMF" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,-45,0,0" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Bold" FontSize="24" FontFamily="Lucida Console"/>
                 </StackPanel>
                 <StackPanel HorizontalAlignment="Center"  VerticalAlignment="Center">
                     <Label Content="eXtensible Travel Modelling Framework" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ThemeTextColorBrush}" />

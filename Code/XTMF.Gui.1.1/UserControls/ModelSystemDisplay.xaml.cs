@@ -690,21 +690,32 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.Delete:
-                            RemoveSelectedModules();
-                            e.Handled = true;
+                            if (ModuleDisplay.IsKeyboardFocusWithin)
+                            {
+                                RemoveSelectedModules();
+                                e.Handled = true;
+                            }
                             break;
 
                        
                         case Key.F2:
+                            /*
                             if (EditorController.IsShiftDown())
                             {
                                 RenameDescription();
                             }
                             else
                             {
-                                Rename();
+                                
+                                    if(ModuleDisplay.IsKeyboardFocusWithin)
+                                    {
+                                        Rename();
+                                        e.Handled = true;
+                                        break;
+                                    }
                             }
-                            e.Handled = true;
+
+                            e.Handled = false; */
                             break;
                         case Key.F5:
                            // SaveCurrentlySelectedParameters();

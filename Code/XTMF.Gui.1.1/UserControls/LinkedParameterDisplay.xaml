@@ -19,11 +19,12 @@
 <UserControl x:Class="XTMF.Gui.UserControls.LinkedParameterDisplay"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xtmfgui="clr-namespace:XTMF.Gui.UserControls"
              xmlns:my="clr-namespace:XTMF.Gui" MouseDown="UserControl_MouseDown" 
-              KeyDown="Window_KeyDown" PreviewKeyDown="UserControl_PreviewKeyDown">
+              KeyDown="Window_KeyDown" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown">
 
 
     <Grid x:Name="LayoutRoot">
@@ -164,7 +165,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
 
-                                <xtmfgui:ListViewControl IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="0" TitleText="{Binding Name}" 
+                                <xtmfgui:ListViewControl PreviewKeyDown="LinkedParameterValue_PreviewKeyDown" IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="0" TitleText="{Binding Name}" 
                                              MouseDoubleClick="Control_OnMouseDoubleClick" VerticalAlignment="Center">
 
 
@@ -227,7 +228,7 @@
                         <StackPanel Background="{DynamicResource WindowBackgroundBrush1}" >
 
                             <Label Content="Linked Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
-                            <ListView  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                            <ListView PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                x:Name="ContainedParameterDisplay" Focusable="False"
                      HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}">
                                 <ListView.Resources>

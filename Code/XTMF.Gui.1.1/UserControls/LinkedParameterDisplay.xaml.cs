@@ -493,6 +493,7 @@ namespace XTMF.Gui.UserControls
 
                 UnlinkParameter(parameterDisplay.ParameterName);
             }
+          
         }
 
         private MessageBoxResult ConfirmUnlinkParameterMessageBox(ParameterDisplay parameterDisplay)
@@ -578,6 +579,34 @@ namespace XTMF.Gui.UserControls
             ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
             Visibility = Visibility.Collapsed;
         }
+
+        private void ListViewControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Handled == false)
+            {
+                switch (e.Key)
+                {
+                    case Key.F2:
+                        {
+                            Rename();
+                        }
+                        e.Handled = true;
+                        break;
+                }
+            }
+            base.OnKeyDown(e);
+        }
+
+        private void ContainedParameterDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+             if (e.Key == Key.F2)
+            {
+                Rename();
+            }
+        }
+
+     
+       
     }
 
     public class ParameterDatatemplateSelector : DataTemplateSelector

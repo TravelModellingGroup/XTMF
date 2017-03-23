@@ -37,9 +37,6 @@
            
         </Path>
         </Button>
-        <!--
-        <Button Grid.Column="1" x:Name="ClearFilterButton" Click="ClearFilter_Click" Background="White" BorderThickness="0" ToolTip="Clear Selection (Esc)">
-            <Image Source="pack://application:,,,/XTMF.Gui;component/Images/delete.png" />
-        </Button> -->
+
     </Grid>
 </UserControl>

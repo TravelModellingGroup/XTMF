@@ -89,6 +89,10 @@ namespace XTMF.Gui
         private ItemsControl _display;
         public ItemsControl Display
         {
+            get
+            {
+                return _display;
+            }
             set
             {
                 _display = value;
