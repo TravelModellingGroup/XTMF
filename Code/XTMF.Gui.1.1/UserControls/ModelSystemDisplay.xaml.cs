@@ -2263,7 +2263,7 @@ namespace XTMF.Gui.UserControls
             ShowLinkedParameterDialog();
         }
 
-        private void FlatToolButton_Click(object sender, RoutedEventArgs e)
+        private void RunModelSystem_Click(object sender, RoutedEventArgs e)
         {
             SaveCurrentlySelectedParameters();
 
