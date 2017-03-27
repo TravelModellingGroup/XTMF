@@ -35,8 +35,8 @@
     
     <Color x:Key="ControlColour">#2075D5</Color>
     <Color x:Key="ControlColourUnselected">#A0ADBC</Color>
-    <Color x:Key="ControlHighlightColour">#3A8CE9</Color>
-    
+    <Color x:Key="ControlHighlightColour">#FFA5BDD9</Color>
+
     <SolidColorBrush x:Key="ControlHighlightColourBrush" Color="{DynamicResource ControlHighlightColour}"></SolidColorBrush>
     <SolidColorBrush x:Key="ControlColourBrush" Color="{DynamicResource ControlColour}"></SolidColorBrush>
     <SolidColorBrush x:Key="ControlTextColourBrush" Color="{DynamicResource ControlTextColour}"></SolidColorBrush>

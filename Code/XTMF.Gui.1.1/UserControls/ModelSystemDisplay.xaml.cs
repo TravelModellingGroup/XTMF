@@ -2257,5 +2257,17 @@ namespace XTMF.Gui.UserControls
         {
             ModuleDisplay.Focus();
         }
+
+        private void LinkedParameter_Click(object sender, RoutedEventArgs e)
+        {
+            ShowLinkedParameterDialog();
+        }
+
+        private void FlatToolButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCurrentlySelectedParameters();
+
+            this.ExecuteRun();
+        }
     }
 }

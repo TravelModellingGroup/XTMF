@@ -678,7 +678,7 @@
     <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FontSize" Value="14"></Setter>
-        <Setter Property="Foreground" Value="{DynamicResource FocusBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ControlColourBrush}" />
         <Setter Property="Margin" Value="0.25cm,0,0,0"></Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">

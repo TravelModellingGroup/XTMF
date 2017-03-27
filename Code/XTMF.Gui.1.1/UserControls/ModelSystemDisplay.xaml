@@ -168,12 +168,32 @@
                 <ColumnDefinition MinWidth="330px" Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="24"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="3"></RowDefinition>
 
             </Grid.RowDefinitions>
 
-            <Grid  Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
+            <Grid Grid.Row="0" Grid.ColumnSpan="3">
+                <StackPanel Orientation="Horizontal">
+                    <this:FlatToolButton ToolText="Linked Parameters" Height="24" Click="LinkedParameter_Click">
+                        <this:FlatToolButton.IconPath  >
+                            <Path Data="{DynamicResource LinkIconPath}" Stretch="Uniform" >
+
+                            </Path>
+                        </this:FlatToolButton.IconPath>
+                    </this:FlatToolButton>
+                    <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource WindowBackgroundBrush3}" Width="1" Height="20"/>
+                    <this:FlatToolButton ToolText="Run Model System" Height="24" Click="FlatToolButton_Click">
+                        <this:FlatToolButton.IconPath  >
+                            <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform" >
+
+                            </Path>
+                        </this:FlatToolButton.IconPath>
+                    </this:FlatToolButton>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="{DynamicResource TextureBrush}">
               
                     <Canvas   UseLayoutRounding="True" Name="GridCanvas"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True" MouseDown="GridCanvas_MouseDown">
 
@@ -285,8 +305,8 @@
                     </Canvas>
               
             </Grid>
-            <GridSplitter Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-            <TabControl BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged">
+            <GridSplitter Grid.Row="1" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
+            <TabControl Grid.Row="1" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged">
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Module Parameters (Ctrl+P)" x:Name="ModuleParameterTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
                     <Grid VerticalAlignment="Stretch"  HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
                         <Grid.RowDefinitions>
@@ -510,7 +530,7 @@
                     </Grid>
                 </TabItem>
             </TabControl>
-            <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Grid.Row="1" Height="3" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True"></GridSplitter>
+            <GridSplitter Grid.ColumnSpan="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Grid.Row="2" Height="3" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True"></GridSplitter>
         </Grid>
 
     </Grid>
