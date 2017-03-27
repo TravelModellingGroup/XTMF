@@ -75,10 +75,10 @@ namespace TMG.Emme.Tools
             if (string.IsNullOrEmpty(Filepath.GetFilePath()))
             {
                 error = "Export path cannot be null or empty.";
-                return true;
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         public string Name { get; set; }

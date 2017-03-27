@@ -71,12 +71,9 @@
                   Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"
                   Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=IconPath.Data,Mode=TwoWay}">
                 
-              
+             
             </Path>
-            
-            
-            
-            
+  
         </Border>
         <StackPanel Orientation="Vertical" Grid.Column="1">
             <Label FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"

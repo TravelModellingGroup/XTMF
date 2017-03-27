@@ -78,13 +78,13 @@ namespace XTMF.Gui.UserControls
 
         public double ParameterWidth
         {
-            get { return (double) GetValue(ParameterWidthDependencyProperty); }
+            get { return (double)GetValue(ParameterWidthDependencyProperty); }
 
             set
             {
-                SetValue(ParameterWidthDependencyProperty,value);
+                SetValue(ParameterWidthDependencyProperty, value);
             }
-           
+
         }
 
         private ModelSystemEditingSession _Session;
@@ -108,7 +108,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-       
+
         private void ProjectWasExternalSaved(object sender, EventArgs e)
         {
 
@@ -237,25 +237,29 @@ namespace XTMF.Gui.UserControls
 
 
 
-         
+
         }
 
-      
+
 
         private void UsOnPreviewKeyDown(object sender, KeyEventArgs keyEventArgs)
         {
-            
-                if (keyEventArgs.Key == Key.F5)
+
+            if (keyEventArgs.Key == Key.F5)
+            {
+
+                if (IsKeyboardFocusWithin)
                 {
 
-                    if (IsKeyboardFocusWithin)
+                    if (!LinkedParameterDisplayOverlay.IsVisible)
                     {
                         SaveCurrentlySelectedParameters();
 
                         this.ExecuteRun();
                     }
                 }
-            
+            }
+
         }
 
         private void MDisplay_Unloaded(object sender, RoutedEventArgs e)
@@ -343,42 +347,13 @@ namespace XTMF.Gui.UserControls
 
         private void ShowLinkedParameterDialog(bool assign = false)
         {
-          
 
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
 
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
 
-           // Overlay.Visibility = Visibility.Visible;
-          //  LinkedParameterDisplayOverlay.Visibility = Visibility.Visible;
-
             LinkedParameterDisplayOverlay.Show();
-            // linkedParameterDialog.Owner = GetWindow();
-            /*if (linkedParameterDialog.ShowDialog() == true && assign)
-            {
-                // assign the selected linked parameter
-                var newLP = linkedParameterDialog.SelectedLinkParameter;
-
-                if (AddCurrentParameterToLinkedParameter(newLP))
-                {
-                    LinkedParameterDisplayModel matched;
-                    if ((matched = RecentLinkedParameters.FirstOrDefault(lpdm => lpdm.LinkedParameter == newLP)) != null)
-                    {
-                        RecentLinkedParameters.Remove(matched);
-                    }
-                    RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
-                    if (RecentLinkedParameters.Count > 5)
-                    {
-                        RecentLinkedParameters.RemoveAt(5);
-                    }
-                    ParameterRecentLinkedParameters.IsEnabled = true;
-                    QuickParameterRecentLinkedParameters.IsEnabled = true;
-                }
-            }
-            if (linkedParameterDialog.ChangesMade)
-            {
-                RefreshParameters();
-            } */
+            
         }
 
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
@@ -550,7 +525,7 @@ namespace XTMF.Gui.UserControls
 
         private void KeyNavigate()
         {
-           
+
         }
 
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
@@ -592,7 +567,7 @@ namespace XTMF.Gui.UserControls
             base.OnKeyDown(e);
             if (e.Handled == false)
             {
-                
+
                 if (EditorController.IsControlDown())
                 {
                     switch (e.Key)
@@ -645,7 +620,7 @@ namespace XTMF.Gui.UserControls
                             if (ModuleParameterTab.IsKeyboardFocusWithin)
                             {
                                 SelectDirectoryForCurrentParameter();
-                         
+
                             }
                             if (ModuleDisplay.IsKeyboardFocusWithin)
                             {
@@ -697,7 +672,7 @@ namespace XTMF.Gui.UserControls
                             }
                             break;
 
-                       
+
                         case Key.F2:
                             /*
                             if (EditorController.IsShiftDown())
@@ -718,9 +693,9 @@ namespace XTMF.Gui.UserControls
                             e.Handled = false; */
                             break;
                         case Key.F5:
-                           // SaveCurrentlySelectedParameters();
-                          //  MainWindow.Us.ExecuteRun();
-                          //  this.ExecuteRun();
+                            // SaveCurrentlySelectedParameters();
+                            //  MainWindow.Us.ExecuteRun();
+                            //  this.ExecuteRun();
                             e.Handled = true;
                             break;
                         case Key.Escape:
@@ -868,16 +843,16 @@ namespace XTMF.Gui.UserControls
 
         private void SetFocus(StackPanel border)
         {
-            
 
-           
 
-          
+
+
+
         }
 
         new private void LostFocus(StackPanel border)
         {
-          
+
         }
 
         private void ParameterBorder_GotFocus(object sender, RoutedEventArgs e)
@@ -924,9 +899,9 @@ namespace XTMF.Gui.UserControls
             if (textbox == null) return;
             if (textbox.Background.IsFrozen)
             {
-              //  textbox.Background = textbox.Background.CloneCurrentValue();
+                //  textbox.Background = textbox.Background.CloneCurrentValue();
             }
-           }
+        }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -938,9 +913,9 @@ namespace XTMF.Gui.UserControls
                 if (box == null) return;
                 if (box.Background.IsFrozen)
                 {
-                 //   box.Background = box.Background.CloneCurrentValue();
+                    //   box.Background = box.Background.CloneCurrentValue();
                 }
-                 }
+            }
         }
 
         private void SaveCurrentlySelectedParameters()
@@ -1231,7 +1206,7 @@ namespace XTMF.Gui.UserControls
 
             if (parameters != null)
             {
-                
+
                 Task.Factory.StartNew(() =>
                 {
                     var source = ParameterDisplayModel.CreateParameters(parameters.OrderBy(el => el.Name).OrderBy(el => el.IsHidden), CurrentlySelected.Count > 1);
@@ -1278,7 +1253,7 @@ namespace XTMF.Gui.UserControls
                             SelectedNamespace.Text = string.Empty;
                         }
                         ParameterDisplay.Opacity = 1.0;
-                      
+
                     }));
                 });
             }
@@ -1462,7 +1437,7 @@ namespace XTMF.Gui.UserControls
                        string error = null;
                        if (!selected.BaseModel.MoveModeInParent(deltaPosition, ref error))
                        {
-       
+
                            SystemSounds.Asterisk.Play();
                            break;
                        }
@@ -1539,7 +1514,7 @@ namespace XTMF.Gui.UserControls
                           }
                       });
 
-                    
+
                        /* Re order the children from parent node */
 
                        /* Remove the module from selected items */
@@ -1585,10 +1560,10 @@ namespace XTMF.Gui.UserControls
                                    sibling.Index = index;
                                    index++;
                                }
-                               
+
                            }
                        }
-                     
+
                    }
                }
            });
@@ -1599,7 +1574,7 @@ namespace XTMF.Gui.UserControls
             ParameterDisplay.BeginAnimation(OpacityProperty, null);
         }
 
-     
+
 
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)
         {
@@ -1975,7 +1950,7 @@ namespace XTMF.Gui.UserControls
             MoveCurrentModule(1);
         }
 
-      
+
         private static readonly PropertyInfo IsSelectionChangeActiveProperty = typeof(TreeView).GetProperty(
                                               "IsSelectionChangeActive",
                                               BindingFlags.NonPublic | BindingFlags.Instance
@@ -2095,7 +2070,7 @@ namespace XTMF.Gui.UserControls
             };
         }
 
-      
+
 
         private void ConvertToMetaModule_Click(object sender, RoutedEventArgs e)
         {
@@ -2130,7 +2105,7 @@ namespace XTMF.Gui.UserControls
         private void DisableModuleMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
 
-            
+
             ToggleDisableModule();
         }
 
@@ -2144,7 +2119,7 @@ namespace XTMF.Gui.UserControls
 
                 foreach (var item in menu.Items)
                 {
-                    var menuItem = 
+                    var menuItem =
                     item as MenuItem;
 
                     if (menuItem != null)
@@ -2188,8 +2163,8 @@ namespace XTMF.Gui.UserControls
         {
             var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
 
-            
-          
+
+
             e.Handled = false;
 
             if (e.Key == Key.Down)
@@ -2224,7 +2199,7 @@ namespace XTMF.Gui.UserControls
             {
                 if (item.Index == 0)
                 {
-                    
+
                     item.Parent.IsSelected = true;
                 }
                 else
