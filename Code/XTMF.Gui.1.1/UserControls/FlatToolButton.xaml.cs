@@ -64,7 +64,7 @@ DependencyProperty.Register("IconPath",
             InitializeComponent();
             DataContext = this;
 
-           
+
         }
 
 
@@ -84,24 +84,21 @@ DependencyProperty.Register("IconPath",
         {
             get
             {
-                return (Path)this.GetValue(IconPathDependencyProperty); 
+                return (Path)this.GetValue(IconPathDependencyProperty);
 
-                
+
             }
             set
             {
-        
+
                 this.SetValue(IconPathDependencyProperty, value);
-              
+
             }
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            if (Click != null)
-            {
-                Click(sender, e);
-            }
+            Click?.Invoke(sender, e);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

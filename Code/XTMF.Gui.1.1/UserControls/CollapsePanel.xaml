@@ -24,8 +24,8 @@
              mc:Ignorable="d" ExpandDirection="Down">
     <Expander.Content>
 
-        <ScrollViewer x:Name="InnerContentContainer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
-            <StackPanel x:Name="InnerContents" Margin="2,2,2,2" />
+        <ScrollViewer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" x:Name="InnerContentContainer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Stretch" x:Name="InnerContents" Margin="2,2,2,2" />
         </ScrollViewer>
     </Expander.Content>
 </Expander>
