@@ -68,6 +68,8 @@ namespace XTMF.Gui.UserControls
 
         }
 
+        public Action OnCloseDisplay;
+
 
 
 
@@ -116,7 +118,13 @@ namespace XTMF.Gui.UserControls
             else if (!e.Handled && e.Key == Key.Enter)
             {
                 e.Handled = true;
+                //AssignLinkedParameterValue()
+              
+                AssignCurrentlySelected();
+                ChangesMade = true;
                 CleanupSelectedParameters();
+
+                OnCloseDisplay.BeginInvoke(null, null);
             }
         }
 
@@ -207,6 +215,8 @@ namespace XTMF.Gui.UserControls
                     }
                 }
             }
+
+            return;
         }
 
         private void AssignLinkedParameterValue(string text)

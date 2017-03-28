@@ -235,7 +235,33 @@ namespace XTMF.Gui.UserControls
                return true;
            };
 
+            LinkedParameterDisplayOverlay.OnCloseDisplay += () =>
 
+            {
+
+                Dispatcher.Invoke(() =>
+               {
+                   var newLP = LinkedParameterDisplayOverlay.SelectedLinkParameter;
+
+                   if (AddCurrentParameterToLinkedParameter(newLP))
+                   {
+                       LinkedParameterDisplayModel matched;
+                       if ((matched = RecentLinkedParameters.FirstOrDefault(lpdm => lpdm.LinkedParameter == newLP)) != null)
+                       {
+                           RecentLinkedParameters.Remove(matched);
+                       }
+                       RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
+                       if (RecentLinkedParameters.Count > 5)
+                       {
+                           RecentLinkedParameters.RemoveAt(5);
+                       }
+                       ParameterRecentLinkedParameters.IsEnabled = true;
+                       QuickParameterRecentLinkedParameters.IsEnabled = true;
+                   }
+                   RefreshParameters();
+
+               });
+            };
 
 
         }
@@ -345,6 +371,8 @@ namespace XTMF.Gui.UserControls
 
         }
 
+
+
         private void ShowLinkedParameterDialog(bool assign = false)
         {
 
@@ -353,7 +381,11 @@ namespace XTMF.Gui.UserControls
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
 
             LinkedParameterDisplayOverlay.Show();
-            
+
+           
+
+
+
         }
 
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
@@ -601,7 +633,7 @@ namespace XTMF.Gui.UserControls
                             e.Handled = true;
                             break;
                         case Key.L:
-                            ShowLinkedParameterDialog();
+                            ShowLinkedParameterDialog(true);
                             e.Handled = true;
                             break;
                         case Key.N:
@@ -752,30 +784,7 @@ namespace XTMF.Gui.UserControls
 
             };
 
-            /*
-            if (req.ShowDialog() == true)
-            {
-                runName = req.Answer;
-
-                
-                if (!Session.RunNameExists(runName) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?",
-                        MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
-                {
-                    var run = Session.Run(runName, ref error);
-                    if (run != null)
-                    {
-                        MainWindow.Us.ModelRunPane.Show();
-
-                        MainWindow.Us.RunWindow.StartRun(Session, run, runName);
-                    }
-                    else
-                    {
-                        MessageBox.Show(
-                            "Unable to start run.\r\n" + error,
-                            "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
-                    }
-                }
-            } */
+            
         }
 
         private void ShowQuickParameters()
