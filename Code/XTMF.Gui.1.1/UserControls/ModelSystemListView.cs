@@ -32,12 +32,7 @@ namespace XTMF.Gui.UserControls
         protected override void OnContextMenuOpening(ContextMenuEventArgs e)
         {
             base.OnContextMenuOpening(e);
-
-
             IsCanPasteModelSystem = MainWindow.Us.ClipboardModel != null;
-
-
-
         }
 
         public static readonly DependencyProperty IsCanPasteModelSystemDependencyProperty =
@@ -50,8 +45,6 @@ namespace XTMF.Gui.UserControls
             {
                 SetValue(IsCanPasteModelSystemDependencyProperty, value);
             }
-
-
             get
             {
                 return (bool)GetValue(IsCanPasteModelSystemDependencyProperty);

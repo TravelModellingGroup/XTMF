@@ -555,10 +555,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void KeyNavigate()
-        {
-
-        }
+    
 
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
         {
@@ -706,28 +703,10 @@ namespace XTMF.Gui.UserControls
 
 
                         case Key.F2:
-                            /*
-                            if (EditorController.IsShiftDown())
-                            {
-                                RenameDescription();
-                            }
-                            else
-                            {
-                                
-                                    if(ModuleDisplay.IsKeyboardFocusWithin)
-                                    {
-                                        Rename();
-                                        e.Handled = true;
-                                        break;
-                                    }
-                            }
-
-                            e.Handled = false; */
+                          
                             break;
                         case Key.F5:
-                            // SaveCurrentlySelectedParameters();
-                            //  MainWindow.Us.ExecuteRun();
-                            //  this.ExecuteRun();
+                
                             e.Handled = true;
                             break;
                         case Key.Escape:
@@ -744,12 +723,9 @@ namespace XTMF.Gui.UserControls
 
         private void ExecuteRun()
         {
-            //ModelRunGrid.Height = 100;
+
             var runName = String.Empty;
             string error = null;
-            //StringRequest req = new StringRequest("Run Name", ValidateName) {Owner  = this.GetWindow()};
-
-
             StringRequestOverlay.Description = "Please enter a run name.";
             Overlay.Visibility = Visibility.Visible;
 
@@ -852,11 +828,7 @@ namespace XTMF.Gui.UserControls
 
         private void SetFocus(StackPanel border)
         {
-
-
-
-
-
+        
         }
 
         new private void LostFocus(StackPanel border)
@@ -906,10 +878,7 @@ namespace XTMF.Gui.UserControls
         {
             var textbox = (sender as TextBox);
             if (textbox == null) return;
-            if (textbox.Background.IsFrozen)
-            {
-                //  textbox.Background = textbox.Background.CloneCurrentValue();
-            }
+          
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -920,10 +889,7 @@ namespace XTMF.Gui.UserControls
                 BindingExpression be = box.GetBindingExpression(TextBox.TextProperty);
                 be.UpdateSource();
                 if (box == null) return;
-                if (box.Background.IsFrozen)
-                {
-                    //   box.Background = box.Background.CloneCurrentValue();
-                }
+               
             }
         }
 
