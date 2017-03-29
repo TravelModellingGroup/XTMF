@@ -255,20 +255,7 @@ namespace XTMF.Gui.UserControls
 
         internal LinkedParameterModel SelectedLinkParameter { get; set; }
 
-        /*
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
-            if (_assignMode && !_renaming)
-            {
-                switch (e.Key)
-                {
-                    case Key.Enter:
-                        AssignCurrentlySelected();
-                        break;
-                }
-            }
-            base.OnPreviewKeyDown(e);
-        } */
+        
 
         private void AssignCurrentlySelected()
         {
@@ -295,23 +282,7 @@ namespace XTMF.Gui.UserControls
         private bool _renaming;
 
 
-        /*
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Handled == false)
-            {
-                switch (e.Key)
-                {
-                    case Key.F2:
-                    {
-                        Rename();
-                    }
-                        e.Handled = true;
-                        break;
-                }
-            }
-            base.OnKeyDown(e);
-        } */
+       
 
         private void Rename_Click(object sender, RoutedEventArgs e)
         {

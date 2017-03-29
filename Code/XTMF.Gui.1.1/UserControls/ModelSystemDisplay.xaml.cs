@@ -75,6 +75,8 @@ namespace XTMF.Gui.UserControls
            DependencyProperty.Register("ParameterWidth", typeof(double), typeof(ModelSystemDisplay),
         new PropertyMetadata(100.0));
 
+        private ParameterDisplayModel _selectedParameterDisplayModel;
+
 
         public double ParameterWidth
         {
@@ -259,6 +261,7 @@ namespace XTMF.Gui.UserControls
                        QuickParameterRecentLinkedParameters.IsEnabled = true;
                    }
                    RefreshParameters();
+                   _selectedParameterDisplayModel = null;
 
                });
             };
@@ -390,7 +393,8 @@ namespace XTMF.Gui.UserControls
 
         private bool AddCurrentParameterToLinkedParameter(LinkedParameterModel newLP)
         {
-            var displayParameter = (ParameterTabControl.SelectedItem == QuickParameterTab ? QuickParameterDisplay.SelectedItem : ParameterDisplay.SelectedItem) as ParameterDisplayModel;
+
+            var displayParameter = _selectedParameterDisplayModel;
             if (displayParameter != null)
             {
 
@@ -1186,14 +1190,10 @@ namespace XTMF.Gui.UserControls
                 {
                     var source = ParameterDisplayModel.CreateParameters(parameters.OrderBy(el => el.Name).OrderBy(el => el.IsHidden), CurrentlySelected.Count > 1);
 
-
-
                     if (!MainWindow.Us.ShowMetaModuleHiddenParameters)
                     {
                         if (CurrentlySelected.Count == 1)
                         {
-
-
 
                             if (CurrentlySelected[0].BaseModel.IsMetaModule)
                             {
@@ -1220,7 +1220,7 @@ namespace XTMF.Gui.UserControls
                         {
                             SelectedName.Text = type.Name;
                             SelectedNamespace.Text = type.FullName;
-
+                       
                         }
                         else
                         {
@@ -1489,12 +1489,10 @@ namespace XTMF.Gui.UserControls
                           }
                       });
 
-
                        /* Re order the children from parent node */
 
                        /* Remove the module from selected items */
                        CurrentlySelected.Remove(selected);
-
 
                        UpdateParameters();
                        Keyboard.Focus(ModuleDisplay);
@@ -2179,14 +2177,26 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
-                    if (item.Parent.Children[item.Index - 1].Children.Count == 0)
+
+                    var upItem = item.Parent.Children[item.Index - 1];
+
+                    while(true)
                     {
-                        item.Parent.Children[item.Index - 1].IsSelected = true;
+                        if(upItem.IsExpanded)
+                        {
+                            upItem = upItem.Children[upItem.Children.Count - 1];
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                    else
-                    {
-                        item.Parent.Children[item.Index - 1].Children.Last().IsSelected = true;
-                    }
+                    upItem.IsSelected = true;
+                    //if (item.Parent.Children[item.Index - 1].Children.Count == 0)
+                    //{
+                    //    item.Parent.Children[item.Index - 1].IsSelected = true;
+                    //}
+                   
                 }
                 e.Handled = true;
             }
@@ -2218,6 +2228,16 @@ namespace XTMF.Gui.UserControls
             SaveCurrentlySelectedParameters();
 
             this.ExecuteRun();
+        }
+
+        private void ParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var s = ((ListView)sender).SelectedItem as ParameterDisplayModel;
+
+            if (s != null)
+            {
+                _selectedParameterDisplayModel = s;
+            }
         }
     }
 }

@@ -27,8 +27,8 @@
     <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013DarkTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>
 
     <Color x:Key="ControlTextColour">#FFFFFF</Color>
-  
-    <Color x:Key="ControlColour">#545F6B</Color>
+
+    <Color x:Key="ControlColour">#728599</Color>
     <Color x:Key="ControlColourUnselected">#696D73</Color>
     <Color x:Key="ControlHighlightColour">#647A9B</Color>
 
@@ -58,7 +58,7 @@
     <SolidColorBrush x:Key="ThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
 
-    <Color x:Key="FocusColour">#979EA5</Color>
+    <Color x:Key="FocusColour">#FF979EA5</Color>
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
 
     <SolidColorBrush x:Key="FocusBrushHover" Color="#B7D2EC" />
