@@ -45,7 +45,7 @@ namespace XTMF.Gui.Controllers
         {
             public string Name;
             public string ThemeFile;
-             public ResourceDictionary ThemeResourceDictionary;
+            public ResourceDictionary ThemeResourceDictionary;
 
             public Theme(string name, string themeFile, ResourceDictionary tDictionary)
             {
@@ -96,8 +96,6 @@ namespace XTMF.Gui.Controllers
         private void ClearThemeDictionaries()
         {
 
-
-
             foreach (var d in _themes)
             {
                 Application.Current.Resources.MergedDictionaries.Remove(d.ThemeResourceDictionary);
@@ -113,18 +111,15 @@ namespace XTMF.Gui.Controllers
         {
 
 
-            Application.Current.Resources.MergedDictionaries.RemoveAt(Application.Current.Resources.MergedDictionaries.Count-1);
-
-
-
+            Application.Current.Resources.MergedDictionaries.RemoveAt(Application.Current.Resources.MergedDictionaries.Count - 1);
             Application.Current.Resources.MergedDictionaries.Add(theme.ThemeResourceDictionary);
 
-            
+
 
             foreach (var uri in RequiredResources)
             {
                 Application.Current.Resources.MergedDictionaries.RemoveAt(0);
-                   Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
+                Application.Current.Resources.MergedDictionaries.Add((ResourceDictionary)Application.LoadComponent(uri));
 
             }
 
@@ -136,11 +131,9 @@ namespace XTMF.Gui.Controllers
             try
             {
 
-
                 string themeClass = (string)theme.ThemeResourceDictionary["AvalonDockTheme"];
 
                 Type themeType = Type.GetType(themeClass);
-
 
                 Xceed.Wpf.AvalonDock.Themes.Theme themeObj = (Xceed.Wpf.AvalonDock.Themes.Theme)Activator.CreateInstance(themeType);
                 MainWindow.Us.DockManager.Theme = themeObj;

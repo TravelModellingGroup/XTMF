@@ -63,18 +63,11 @@ namespace XTMF.Gui.UserControls
             ChangesMade = false;
             _linkedParametersModel = linkedParameters;
             SetupLinkedParameters(linkedParameters);
-            
-     
 
         }
 
         public Action OnCloseDisplay;
 
-
-
-
-
-        
         public void ShowLinkedParameterDisplay(bool assignLinkedParameter = false)
         {
             _assignMode = assignLinkedParameter;
@@ -85,12 +78,8 @@ namespace XTMF.Gui.UserControls
         public LinkedParameterDisplay()
         {
 
-
             InitializeComponent();
             ChangesMade = false;
-
-         
-        
             LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
 
         }
@@ -313,7 +302,6 @@ namespace XTMF.Gui.UserControls
             StringRequestOverlay.Description = "Name of new linked parameter:";
             Overlay.Visibility = Visibility.Visible;
 
-
             StringRequestOverlay.Visibility = Visibility.Visible;
 
             StringRequestOverlay.StringEntryComplete = (sender, args) =>
@@ -488,12 +476,7 @@ namespace XTMF.Gui.UserControls
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
-            {
-
-
-
-            }
+        
         }
 
         public void Show()
@@ -510,17 +493,17 @@ namespace XTMF.Gui.UserControls
 
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
-            //WindowState = WindowState.Minimized;
+         
         }
 
         private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
         {
-            //throw new NotImplementedException();
+           
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            //Close();
+    
         }
 
         private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -533,10 +516,7 @@ namespace XTMF.Gui.UserControls
 
         private void UserControl_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape && !e.Handled)
-            {
-               
-            }
+           
         }
 
         private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)

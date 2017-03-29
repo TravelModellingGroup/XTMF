@@ -1,7 +1,7 @@
 ﻿extensions: designer.cs generated.cs
 extensions: .cs .cpp .h
 /*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -20,7 +20,7 @@ extensions: .cs .cpp .h
 */
 extensions: .aspx .ascx .xaml
 <!-- 
-    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
