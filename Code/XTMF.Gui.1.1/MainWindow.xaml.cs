@@ -629,18 +629,15 @@ namespace XTMF.Gui
                 ContentId = contentGuid
 
             };
-
+          
 
             document.Closed += (source, ev) =>
             {
                 //integrate into the main window
-
                 var layout = source as LayoutDocument;
                 OpenPages.Remove(layout);
                 ActiveEditingSessionDisplayModel _;
                 DisplaysForLayout.TryRemove(layout, out _);
-                // run the default code
-
 
                 onClose?.Invoke();
                 Focus();
@@ -1259,12 +1256,10 @@ namespace XTMF.Gui
         private void LinkedParameters_Click(object sender, RoutedEventArgs e)
         {
 
-
             var document = CurrentDocument;
             if (document.Content is ModelSystemDisplay)
             {
                 var modelSystem = document.Content as ModelSystemDisplay;
-
 
             }
          
@@ -1275,15 +1270,11 @@ namespace XTMF.Gui
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-
+     
             if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
             {
-
-
                 if (e.GetPosition(this).Y < 90)
                 {
-
-
 
                     e.Handled = true;
                     this.DragMove();
@@ -1300,13 +1291,7 @@ namespace XTMF.Gui
         {
             if (this.WindowState == WindowState.Maximized)
             {
-                /*ExternalGrid.Margin = new Thickness()
-                {
-                    Left = 0,
-                    Top = 0,
-                    Right = 0,
-                    Bottom = 0
-                };*/
+                
                 SystemCommands.RestoreWindow(this);
             }
             else if (this.WindowState == WindowState.Normal)
@@ -1384,8 +1369,6 @@ namespace XTMF.Gui
                     Bottom = 7
 
                 };
-
-
 
             }
         }

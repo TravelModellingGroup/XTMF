@@ -485,6 +485,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="XTMF.Gui.1.1.licenseheader" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\XTMF_icon.ico" />
