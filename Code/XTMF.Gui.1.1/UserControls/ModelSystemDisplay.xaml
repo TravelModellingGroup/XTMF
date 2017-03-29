@@ -445,7 +445,7 @@
                         </Border>
                         <my:FilterBox Grid.Row="0" x:Name="QuickParameterFilterBox" FilterWatermark="Search Parameters...(Ctrl+Q)" Margin="0.2cm,2,0.2cm,2" />
                         <ListView Grid.Row="2" x:Name="QuickParameterDisplay"
-                              HorizontalAlignment="Stretch" 
+                              HorizontalAlignment="Stretch" SelectionChanged="QuickParameterDisplay_SelectionChanged"
                               VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="QuickParameterDisplay_SizeChanged">

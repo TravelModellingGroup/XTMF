@@ -2192,10 +2192,7 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                     upItem.IsSelected = true;
-                    //if (item.Parent.Children[item.Index - 1].Children.Count == 0)
-                    //{
-                    //    item.Parent.Children[item.Index - 1].IsSelected = true;
-                    //}
+
                    
                 }
                 e.Handled = true;
@@ -2231,6 +2228,16 @@ namespace XTMF.Gui.UserControls
         }
 
         private void ParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var s = ((ListView)sender).SelectedItem as ParameterDisplayModel;
+
+            if (s != null)
+            {
+                _selectedParameterDisplayModel = s;
+            }
+        }
+
+        private void QuickParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var s = ((ListView)sender).SelectedItem as ParameterDisplayModel;
 
