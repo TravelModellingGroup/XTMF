@@ -118,26 +118,17 @@ namespace XTMF.Gui.UserControls
             else if (!e.Handled && e.Key == Key.Enter)
             {
                 e.Handled = true;
-                //AssignLinkedParameterValue()
-              
+
                 AssignCurrentlySelected();
                 ChangesMade = true;
                 CleanupSelectedParameters();
-
+                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                Visibility = Visibility.Collapsed;
                 OnCloseDisplay.BeginInvoke(null, null);
             }
         }
 
-        /*
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            CleanupSelectedParameters();
-            foreach (var item in Items)
-            {
-                item.Dispose();
-            }
-            base.OnClosing(e);
-        } */
+     
 
         private void LinkedParameterDisplay_Loaded(object sender, RoutedEventArgs e)
         {
