@@ -40,7 +40,7 @@ namespace TMG.Emme.Tools
     {
         private const string ToolName = "tmg.input_output.export_network_shapefile";
 
-        [RunParameter("Transit Shape", "SEGMENTS", typeof(Tools.TransitShape), "Type of geometry / transhit shape to export.")]
+        [RunParameter("Transit Shape", "SEGMENTS", typeof(Tools.TransitShape), "Type of geometry / transit shape to export.")]
         public TransitShape TransitShape;
 
         [RunParameter("Scenario", 0,

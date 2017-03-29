@@ -479,7 +479,7 @@ namespace XTMF.Gui.UserControls
 
         private void ContinueButton_Clicked(object sender, RoutedEventArgs e)
         {
-           // MainWindow.Us.CloseWindow(this);
+
         }
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)
