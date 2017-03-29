@@ -415,8 +415,7 @@ namespace XTMF.Gui.UserControls
             ProgressBar.Finished = true;
             MainWindow.Us.UpdateStatusDisplay("Ready");
             MainWindow.Us.HideStatusLink();
-           // ContinueButton.FlashAnimation(5);
-           // OpenDirectoryButton.FlashAnimation(5);
+       
         }
 
         private void Run_RunStarted()
@@ -474,7 +473,7 @@ namespace XTMF.Gui.UserControls
             {
                 _wasCanceled = _run.ExitRequest();
                 MainWindow.Us.UpdateStatusDisplay("Ready");
-                //MainWindow.Us.HideStatusLink();
+                MainWindow.Us.HideStatusLink();
             }
         }
 
