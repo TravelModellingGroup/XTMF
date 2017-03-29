@@ -372,9 +372,12 @@
                     <StatusBarItem HorizontalAlignment="Left">
                         <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource ThemeTextColorBrush}" />
                     </StatusBarItem>
+                    <StatusBarItem HorizontalAlignment="Left" Margin="-5,0,0,0" >
+                        <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Style="{DynamicResource HoverLabel}" Content="Click here"  ></Label>
+                    </StatusBarItem>
                     <StatusBarItem HorizontalAlignment="Right">
                         <StackPanel Orientation="Horizontal">
-                            <Label x:Name="RunLabel" Content="Run Model (F5)" Style="{DynamicResource HoverLabel}"
+                            <Label  x:Name="RunLabel" Content="Run Model (F5)" Style="{DynamicResource HoverLabel}"
                                ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
                                FontSize="14" MouseUp="RunModel_MouseUp">
 

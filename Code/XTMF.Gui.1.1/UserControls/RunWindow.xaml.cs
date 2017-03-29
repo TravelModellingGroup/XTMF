@@ -413,6 +413,8 @@ namespace XTMF.Gui.UserControls
             CancelButton.IsEnabled = false;
             StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
             ProgressBar.Finished = true;
+            MainWindow.Us.UpdateStatusDisplay("Ready");
+            MainWindow.Us.HideStatusLink();
            // ContinueButton.FlashAnimation(5);
            // OpenDirectoryButton.FlashAnimation(5);
         }
@@ -471,12 +473,14 @@ namespace XTMF.Gui.UserControls
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
                 _wasCanceled = _run.ExitRequest();
+                MainWindow.Us.UpdateStatusDisplay("Ready");
+                //MainWindow.Us.HideStatusLink();
             }
         }
 
         private void ContinueButton_Clicked(object sender, RoutedEventArgs e)
         {
-            MainWindow.Us.CloseWindow(this);
+           // MainWindow.Us.CloseWindow(this);
         }
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)

@@ -77,6 +77,18 @@ namespace XTMF.Gui.UserControls
 
         private ParameterDisplayModel _selectedParameterDisplayModel;
 
+        private string _contentGuid;
+
+        public string ContentGuid
+            {
+
+            get { return _contentGuid; }
+
+            set
+            {
+                _contentGuid = value;
+            }
+            }
 
         public double ParameterWidth
         {
@@ -747,9 +759,16 @@ namespace XTMF.Gui.UserControls
                     var run = Session.Run(runName, ref error);
                     if (run != null)
                     {
+                        MainWindow.Us.UpdateStatusDisplay("Running Model System ");
                         MainWindow.Us.ModelRunPane.Show();
 
                         MainWindow.Us.RunWindow.StartRun(Session, run, runName);
+
+                        MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " +  Session.Name, () =>
+                         {
+
+                             MainWindow.Us.LoadPageId(ContentGuid);
+                         });
                     }
                     else
                     {

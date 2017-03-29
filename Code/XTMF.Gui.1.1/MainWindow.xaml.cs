@@ -295,6 +295,11 @@ namespace XTMF.Gui
 
         }
 
+        public void UpdateStatusDisplay(string text)
+        {
+            StatusDisplay.Text = text;
+        }
+
         public void ReloadWithDefaultConfiguration()
         {
             if (!ClosePages())
@@ -497,6 +502,33 @@ namespace XTMF.Gui
 
         internal static MainWindow Us;
 
+
+        private MouseButtonEventHandler lastAdded;
+        public void SetStatusLink(string text, Action clickAction)
+        {
+
+            Dispatcher.Invoke( ()=>
+           {
+               StatusLinkLabel.Visibility = Visibility.Visible;
+     
+
+               MouseButtonEventHandler handler = new MouseButtonEventHandler((e, a) => { clickAction.BeginInvoke(null, null); });
+
+               if (lastAdded != null)
+               {
+                   StatusLinkLabel.MouseDown -= lastAdded;
+               }
+               StatusLinkLabel.MouseDown += handler;
+               StatusLinkLabel.Content = text;
+               lastAdded = handler;
+           });
+        }
+
+        public void HideStatusLink()
+        {
+            StatusLinkLabel.Visibility = Visibility.Collapsed;
+        }
+
         public static void SetStatusText(string text)
         {
             Us.Dispatcher.BeginInvoke(new Action(() =>
@@ -587,12 +619,15 @@ namespace XTMF.Gui
 
 
 
-        internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null)
+        internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null, string
+            contentGuid = null)
         {
             var document = new LayoutDocument()
             {
                 Title = name,
-                Content = content
+                Content = content,
+                ContentId = contentGuid
+
             };
 
 
@@ -809,12 +844,15 @@ namespace XTMF.Gui
                     Session = modelSystemSession,
                     ModelSystem = modelSystemSession.ModelSystemModel,
                 };
+
+                display.ContentGuid = Guid.NewGuid().ToString();
                 var displayModel = new ModelSystemEditingSessionDisplayModel(display);
 
                 var titleBarName = titleBar == null ? modelSystemSession.EditingProject ?
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name : titleBar;
-                var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel));
+                var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel),null,
+                    display.ContentGuid);
                 DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
                 {
@@ -1134,6 +1172,35 @@ namespace XTMF.Gui
             Keyboard.Focus(helpUI);
         }
 
+        public void LoadPageId(string id)
+        {
+            Dispatcher.BeginInvoke((MethodInvoker)delegate
+            {
+
+                var item = OpenPages.Find(doc => doc.ContentId == id);
+                if (item != null)
+                {
+                    item.IsSelected = true;
+
+                }
+            });
+        }
+
+        public void LoadPage(string title)
+        {
+
+            Dispatcher.BeginInvoke((MethodInvoker)delegate {
+
+                var item = OpenPages.Find(doc => doc.Title == title);
+                if (item != null)
+                {
+                    item.IsSelected = true;
+
+                }
+            });
+           
+        }
+
         private void LaunchSettingsPage()
         {
             var item = OpenPages.Find(doc => doc.Title == "Settings");
@@ -1199,47 +1266,8 @@ namespace XTMF.Gui
                 var modelSystem = document.Content as ModelSystemDisplay;
 
 
-               // var linkedParameterDialog = new LinkedParameterDisplay(modelSystem.ModelSystem.LinkedParameters, false);
-               // linkedParameterDialog.Owner = Us;
-
-               // if (linkedParameterDialog.ShowDialog() == true)
-                //{
-
-                //}
-
-                // modelSystem.ExternalUpdateParameters();
-
-                //modelSystem.Lin
             }
-            /*
-            var linkedParameterDialog = new LinkedParameterDisplay(ModelSystem.LinkedParameters, false);
-            linkedParameterDialog.Owner = Us;
-            if (linkedParameterDialog.ShowDialog() == true && assign)
-            {
-                // assign the selected linked parameter
-                var newLP = linkedParameterDialog.SelectedLinkParameter;
-
-                if (AddCurrentParameterToLinkedParameter(newLP))
-                {
-                    LinkedParameterDisplayModel matched;
-                    if ((matched = RecentLinkedParameters.FirstOrDefault(lpdm => lpdm.LinkedParameter == newLP)) != null)
-                    {
-                        RecentLinkedParameters.Remove(matched);
-                    }
-                    RecentLinkedParameters.Insert(0, new LinkedParameterDisplayModel(newLP));
-                    if (RecentLinkedParameters.Count > 5)
-                    {
-                        RecentLinkedParameters.RemoveAt(5);
-                    }
-                    ParameterRecentLinkedParameters.IsEnabled = true;
-                    QuickParameterRecentLinkedParameters.IsEnabled = true;
-                }
-            }
-            if (linkedParameterDialog.ChangesMade)
-            {
-                RefreshParameters();
-            }
-            */
+         
 
         }
 
@@ -1375,5 +1403,7 @@ namespace XTMF.Gui
                 ModelRunPane.Hide();
             }
         }
+
+       
     }
 }

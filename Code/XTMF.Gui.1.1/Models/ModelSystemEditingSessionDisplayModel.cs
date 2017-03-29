@@ -32,6 +32,9 @@ namespace XTMF.Gui.Models
 
         private readonly ModelSystemDisplay Display;
 
+
+  
+
         public ModelSystemEditingSessionDisplayModel(ModelSystemDisplay display) : base(true)
         {
             var session = display.Session;
