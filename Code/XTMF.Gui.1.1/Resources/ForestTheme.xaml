@@ -78,12 +78,12 @@
     <SolidColorBrush x:Key="ThemeTextColorBrush" Color="{DynamicResource ThemeTextColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="SelectionBlueBrush" Color="{DynamicResource SelectionBlue}" />
 
-    <Color x:Key="FocusColour">#FF979EA5</Color>
+    <Color x:Key="FocusColour">#FF559154</Color>
     <SolidColorBrush x:Key="FocusBrush" Color="{DynamicResource FocusColour}" />
 
     <SolidColorBrush x:Key="FocusBrushHover" Color="#FF6B8D72" />
-    <SolidColorBrush x:Key="FocusBrushHover2" Color="#FF6D95C5" />
-    <SolidColorBrush x:Key="FocusBrushHover3" Color="#FF465C76" />
+    <SolidColorBrush x:Key="FocusBrushHover2" Color="#FFBDCDBD" />
+    <SolidColorBrush x:Key="FocusBrushHover3" Color="#FF526E48" />
 
     
     
