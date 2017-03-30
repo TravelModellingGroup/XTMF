@@ -556,8 +556,6 @@ namespace XTMF.Gui.UserControls
                 Rename();
             }
         }
-
-     
        
     }
 
