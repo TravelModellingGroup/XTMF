@@ -151,7 +151,7 @@
 
     <Color x:Key="ControlColour">#FF4B7454</Color>
     <Color x:Key="ControlColourUnselected">#696D73</Color>
-    <Color x:Key="ControlHighlightColour">#FF3E764A</Color>
+    <Color x:Key="ControlHighlightColour">#FF2A6637</Color>
 
     <SolidColorBrush x:Key="ControlHighlightColourBrush" Color="{DynamicResource ControlHighlightColour}"></SolidColorBrush>
     <SolidColorBrush x:Key="ControlColourBrush" Color="{DynamicResource ControlColour}"></SolidColorBrush>
