@@ -22,7 +22,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" Name="Self" Background="Transparent" >
-    <Border Name="BorderOutline"  BorderThickness="0" Cursor="Hand" CornerRadius="2">
+
+    <Border Background="{DynamicResource ControlColourBrush}" BorderThickness="1" BorderBrush="{DynamicResource ControlColourBrush}" CornerRadius="2">
+    <Border Name="BorderOutline"  BorderThickness="0" Cursor="Hand" Margin="1" CornerRadius="2">
         <Border.Style>
             <Style TargetType="{x:Type Border}">
                 <Style.Triggers>
@@ -59,7 +61,7 @@
                        Text="{Binding ElementName=Self, Path=Header}" HorizontalAlignment="Stretch" IsHitTestVisible="False">
                     <TextBlock.Effect>
                         <DropShadowEffect
-            ShadowDepth="1"
+            ShadowDepth="0"
             Direction="330"
             Color="Black"
             Opacity="1.0" 
@@ -70,5 +72,6 @@
                        Text="{Binding ElementName=Self, Path=Text}"  HorizontalAlignment="Stretch" IsHitTestVisible="False" />
             </Grid>
         </Grid>
+    </Border>
     </Border>
 </UserControl>

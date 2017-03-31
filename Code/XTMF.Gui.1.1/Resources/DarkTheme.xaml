@@ -48,7 +48,7 @@
 
     <Color x:Key="ControlColour">#728599</Color>
     <Color x:Key="ControlColourUnselected">#696D73</Color>
-    <Color x:Key="ControlHighlightColour">#647A9B</Color>
+    <Color x:Key="ControlHighlightColour">#FF2970A9</Color>
 
     <SolidColorBrush x:Key="ControlHighlightColourBrush" Color="{DynamicResource ControlHighlightColour}"></SolidColorBrush>
     <SolidColorBrush x:Key="ControlColourBrush" Color="{DynamicResource ControlColour}"></SolidColorBrush>
