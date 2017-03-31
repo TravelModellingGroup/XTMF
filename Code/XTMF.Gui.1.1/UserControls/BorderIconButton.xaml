@@ -56,7 +56,16 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock TextTrimming="WordEllipsis" Grid.Row="0" Name="HeaderContent" Foreground="{DynamicResource ControlTextColourBrush}" FontSize="14"
-                       Text="{Binding ElementName=Self, Path=Header}" HorizontalAlignment="Stretch" IsHitTestVisible="False" />
+                       Text="{Binding ElementName=Self, Path=Header}" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+                    <TextBlock.Effect>
+                        <DropShadowEffect
+            ShadowDepth="1"
+            Direction="330"
+            Color="Black"
+            Opacity="1.0" 
+           BlurRadius="2"/>
+                    </TextBlock.Effect>
+                </TextBlock>
                 <TextBlock TextTrimming="WordEllipsis" Grid.Row="1" Name="TextContent" Foreground="{DynamicResource ControlTextColourBrush}"
                        Text="{Binding ElementName=Self, Path=Text}"  HorizontalAlignment="Stretch" IsHitTestVisible="False" />
             </Grid>
