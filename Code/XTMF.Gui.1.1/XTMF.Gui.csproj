@@ -163,6 +163,7 @@
     <Compile Include="Models\ModelSystemEditingSessionDisplayModel.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
+    <Compile Include="Resources\ForestTheme.cs" />
     <Compile Include="UserControls\FlatButton.xaml.cs">
       <DependentUpon>FlatButton.xaml</DependentUpon>
     </Compile>
