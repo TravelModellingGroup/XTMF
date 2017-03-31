@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using XTMF.Editing;
 
 namespace XTMF
@@ -59,6 +60,7 @@ namespace XTMF
 
         private string _previousRunName;
 
+        private Semaphore _saveSemaphor;
     
 
         /// <summary>
@@ -105,6 +107,17 @@ namespace XTMF
             get { return _IsRunning; }
         }
 
+
+        public bool SaveWait()
+        {
+            return _saveSemaphor.WaitOne();
+        }
+
+        public void SaveRelease()
+        {
+            _saveSemaphor.Release(1);
+        }
+
         /// <summary>
         /// Create a new session to edit a model system
         /// </summary>
@@ -115,6 +128,7 @@ namespace XTMF
             ModelSystem = modelSystem;
             ModelSystemModel = new ModelSystemModel(this, modelSystem);
             ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
+            _saveSemaphor = new Semaphore(1, 1);
         }
 
         private void ModelSystemModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -140,6 +154,7 @@ namespace XTMF
             this.ProjectEditingSession = ProjectEditingSession;
             ModelSystemIndex = modelSystemIndex;
             Reload();
+            _saveSemaphor = new Semaphore(1, 1);
         }
 
         /// <summary>

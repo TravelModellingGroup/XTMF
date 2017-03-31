@@ -80,7 +80,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Border BorderThickness="0" Grid.Row="2" HorizontalAlignment="Stretch">
+        <Border SnapsToDevicePixels="True" BorderThickness="0" Grid.Row="2" HorizontalAlignment="Stretch">
             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">
                 <my:BorderIconButton  BorderThickness="0" Margin="10,12,5,12"  Header="New" Width="170" Text="Create a new Model System." Icon="/XTMF.Gui;component/Resources/ic_create_new_folder_white_18dp.png" 
                                      Clicked="NewModelSystem_Clicked"/>

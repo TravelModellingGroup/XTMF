@@ -122,6 +122,8 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private Semaphore _saveSemaphor;
+
 
         private void ProjectWasExternalSaved(object sender, EventArgs e)
         {
@@ -227,6 +229,7 @@ namespace XTMF.Gui.UserControls
 
         public ModelSystemDisplay()
         {
+            _saveSemaphor = new Semaphore(1, 1);
             DataContext = this;
             InitializeComponent();
             AllowMultiSelection(ModuleDisplay);
@@ -938,7 +941,10 @@ namespace XTMF.Gui.UserControls
                 if (textBox != null)
                 {
                     BindingExpression be = textBox.GetBindingExpression(TextBox.TextProperty);
-                    be.UpdateSource();
+                    if (be != null)
+                    {
+                        be.UpdateSource();
+                    }
                 }
             }
         }
@@ -1094,6 +1100,7 @@ namespace XTMF.Gui.UserControls
 
         public void SaveRequested(bool saveAs)
         {
+            
             string error = null;
             SaveCurrentlySelectedParameters();
             if (saveAs)
@@ -1112,41 +1119,51 @@ namespace XTMF.Gui.UserControls
             }
             else
             {
-                Monitor.Enter(SaveLock);
-                MainWindow.SetStatusText("Saving...");
-                Task.Run(async () =>
-                    {
-                        try
+     
+            
+               
+                    MainWindow.SetStatusText("Saving...");
+           
+                    Task.Run(async () =>
                         {
-                            var watch = Stopwatch.StartNew();
-                            if (!Session.Save(ref error))
+                            if (Session.SaveWait())
                             {
-                                Dispatcher.Invoke(() =>
+                                try
                                 {
-                                    MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-                                });
+                                    var watch = Stopwatch.StartNew();
+                                    if (!Session.Save(ref error))
+                                    {
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        });
+                                    }
+                                    watch.Stop();
+                                    var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
+                                    if (displayTimeRemaining > 0)
+                                    {
+                                        MainWindow.SetStatusText("Saved");
+                                        await Task.Delay(displayTimeRemaining);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    Dispatcher.Invoke(() =>
+                                   {
+                                       MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                                   });
+                                }
+                                finally
+                                {
+                                    MainWindow.SetStatusText("Ready");
+
+                                    Session.SaveRelease();
+
+
+                                }
                             }
-                            watch.Stop();
-                            var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
-                            if (displayTimeRemaining > 0)
-                            {
-                                MainWindow.SetStatusText("Saved");
-                                await Task.Delay(displayTimeRemaining);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Dispatcher.Invoke(() =>
-                           {
-                               MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-                           });
-                        }
-                        finally
-                        {
-                            MainWindow.SetStatusText("Ready");
-                            Monitor.Exit(SaveLock);
-                        }
-                    });
+                        });
+
             }
         }
 
