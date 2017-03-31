@@ -2265,5 +2265,42 @@ namespace XTMF.Gui.UserControls
                 _selectedParameterDisplayModel = s;
             }
         }
+
+        private void ComboBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            
+        }
+
+        private void ComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Down)
+            {
+                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+
+                if (keyboardFocus != null)
+                {
+                    keyboardFocus.MoveFocus(tRequest);
+                }
+
+                e.Handled = true;
+                return;
+            }
+            else if(e.Key == Key.Up)
+            {
+                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Previous);
+                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+
+                if (keyboardFocus != null)
+                {
+                    keyboardFocus.MoveFocus(tRequest);
+                }
+
+                e.Handled = true;
+                return;
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
     }
 }
