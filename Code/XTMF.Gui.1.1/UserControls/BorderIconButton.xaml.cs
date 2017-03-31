@@ -259,9 +259,7 @@ namespace XTMF.Gui
             if (RightClicked != null)
             {
                 _mouseDownInside = true;
-                //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                //  BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
-            }
+                }
             base.OnMouseRightButtonDown(e);
         }
 
@@ -271,15 +269,7 @@ namespace XTMF.Gui
             {
                 if (e.ClickCount == 1)
                 {
-                    // BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                    if (IsFocused || Selected)
-                    {
-                        //   BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
-                    }
-                    else
-                    {
-                        //       BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
-                    }
+         
                     if (_mouseDownInside && RightClicked != null)
                     {
                         RightClicked(this);
@@ -312,75 +302,17 @@ namespace XTMF.Gui
 
         private static void OnSelectedChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            var us = source as BorderIconButton;
-            if (us.BorderOutline != null && us.BorderOutline.Background != null)
-            {
-                if (e.OldValue != e.NewValue)
-                {
-                    //us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                    if ((bool)e.NewValue)
-                    {
-                        //   us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(us.FocusColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
-                    }
-                    else
-                    {
-                        //    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(us.ShadowColour, new Duration(new TimeSpan(0, 0, 0, 0, 75))));
-                    }
-                }
-            }
+          
         }
 
         private static void OnHighlightColourChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            var us = source as BorderIconButton;
-            var value = (Color)e.NewValue;
-            if (!us._isConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
-            {
-                var brush = (us.BorderOutline.Background as SolidColorBrush);
-                if (brush != null)
-                {
-                    if (us.Selected || us.IsFocused)
-                    {
-                        //   var oldColour = brush.Color;
-                        //       if (oldColour != value)
-                        //      {
-                        //    brush.Color = value;
-                        //      us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                        //         ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-                        //     //    us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
-                        //       }
-                    }
-                }
-                else
-                {
-                    //  us.BorderOutline.Background = new SolidColorBrush(value);
-                }
-            }
+           
         }
 
         private static void OnShadowColourChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            var us = source as BorderIconButton;
-            var value = (Color)e.NewValue;
-            if (!us._isConstructing && us.BorderOutline != null && us.BorderOutline.Background != null)
-            {
-                var brush = (us.BorderOutline.Background as SolidColorBrush);
-                if (brush != null)
-                {
-                    var oldColour = brush.Color;
-                    if (oldColour != value)
-                    {
-                        //  brush.Color = value;
-                        // us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                        //     ColorAnimation fadeInAnimation = new ColorAnimation(oldColour, !us.IsFocused && !us.MouseInside ? value : us.HighlightColour, new Duration(new TimeSpan(0, 0, 0, 0, 250)));
-                        //  us.BorderOutline.Background.BeginAnimation(SolidColorBrush.ColorProperty, fadeInAnimation);
-                    }
-                }
-                else
-                {
-                    //   us.BorderOutline.Background = new SolidColorBrush(value);
-                }
-            }
+           
         }
 
         private static void OnTextChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
