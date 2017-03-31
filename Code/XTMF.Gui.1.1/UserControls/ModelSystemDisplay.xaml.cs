@@ -1120,8 +1120,6 @@ namespace XTMF.Gui.UserControls
             else
             {
      
-            
-               
                     MainWindow.SetStatusText("Saving...");
            
                     Task.Run(async () =>
@@ -1158,7 +1156,6 @@ namespace XTMF.Gui.UserControls
                                     MainWindow.SetStatusText("Ready");
 
                                     Session.SaveRelease();
-
 
                                 }
                             }
@@ -1534,9 +1531,6 @@ namespace XTMF.Gui.UserControls
                        Keyboard.Focus(ModuleDisplay);
                    }
                    string error = null;
-
-
-
 
 
                    if (!ModelSystem.Remove(selected.BaseModel, ref error))
