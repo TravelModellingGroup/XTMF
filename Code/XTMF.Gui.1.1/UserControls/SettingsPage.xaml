@@ -66,7 +66,7 @@
             <Label Content="Configuration file loaded from: " Name="NonStandardConfigLabel" Visibility="Collapsed" Background="Transparent" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Margin="9.4,0"/>
             <Label Content="" Name="ConfigLocationLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource ThemeTextColorBrush}" Opacity="0.7" FontSize="12" Margin="9.4,-6,9.4,0"/>
             <Label Content="Delete local configuration?" Cursor="Hand" Name="DeleteConfigLabel" Visibility="Collapsed" Background="{x:Null}" Foreground="{DynamicResource FocusBrush}" FontSize="12" Margin="9.4,-3,9.4,6" MouseDown="DeleteConfigLabel_MouseDown"/>
-            <Button Name="CreateLocalConfigButton" Padding="10" Style="{StaticResource FlatButton}" Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0" Foreground="White" Height="20" Width="220" Click="CreateLocalConfigButton_Click"/>
+            <Button  Name="CreateLocalConfigButton" Foreground="{DynamicResource ControlTextColourBrush}" Background="{DynamicResource ControlColourBrush}" Padding="0"  Content="Create local copy of configuration" Visibility="Visible" Margin="0,10,0,0"  Height="25" Width="220" Click="CreateLocalConfigButton_Click"/>
             <Separator Background="Transparent" Height="25"></Separator>
         </StackPanel>
     </Grid>
