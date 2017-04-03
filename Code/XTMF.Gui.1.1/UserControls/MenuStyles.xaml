@@ -24,7 +24,6 @@
 
 
     <MenuScrollingVisibilityConverter x:Key="MenuScrollingVisibilityConverter" />
-
     <Style x:Key="MenuScrollViewer"
        TargetType="{x:Type ScrollViewer}"
        BasedOn="{x:Null}">
@@ -48,8 +47,6 @@
                   Grid.Column="0">
                             <ScrollContentPresenter Margin="{TemplateBinding Padding}" />
                         </Border>
-
-
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -65,21 +62,14 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Menu}">
-
                     <Border BorderThickness="0" Background="{DynamicResource WindowBackgroundBrush1}">
-
-
                         <StackPanel ClipToBounds="True"
                       Orientation="Horizontal"
                       IsItemsHost="True" />
-
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
-
-
         </Setter>
-
         <Setter Property="Foreground">
             <Setter.Value>
                 <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
@@ -133,7 +123,6 @@
                             <StackPanel IsItemsHost="True"
                         KeyboardNavigation.DirectionalNavigation="Cycle" />
                         </ScrollViewer>
-
                         <Border.Effect>
                             <DropShadowEffect Color="Black" ShadowDepth="5" BlurRadius="8" Opacity="0.4"/>
                         </Border.Effect>
@@ -166,7 +155,6 @@
                                 </GradientStopCollection>
                             </LinearGradientBrush.GradientStops>
                         </LinearGradientBrush>
-
                     </Setter.Value>
                 </Setter>
             </Trigger>
@@ -373,8 +361,6 @@
                  TargetType="{x:Type MenuItem}">
         <Border x:Name="Border"
           BorderThickness="0" Height="28">
-
-
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"
@@ -534,8 +520,6 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
-
-
                     <Border Margin="10" x:Name="Border"
                 Background="{DynamicResource WindowBackgroundBrush1}"
                 BorderThickness="1">
@@ -563,5 +547,4 @@
             </Setter.Value>
         </Setter>
     </Style>
-
 </ResourceDictionary>

@@ -23,7 +23,7 @@
         xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
         Title="Open" Height="400" Width="660" ShowInTaskbar="True"
         WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+    <Grid Background="{StaticResource WindowBackgroundBrush2}">
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
