@@ -77,11 +77,7 @@ namespace XTMF.Gui.UserControls
 
         public ListViewControl()
         {
-            
-
             InitializeComponent();
-
-            
   
         }
 
@@ -96,7 +92,6 @@ namespace XTMF.Gui.UserControls
             get { return (bool)this.GetValue(BitmapIconDependencyProperty); }
             set
             {
-
                 this.SetValue(BitmapIconDependencyProperty, value);
             }
         }
@@ -106,7 +101,6 @@ namespace XTMF.Gui.UserControls
             get { return (bool)this.GetValue(IsSelectedDependencyProperty); }
             set
             {
-
                 this.SetValue(IsSelectedDependencyProperty, value);
             }
         }
@@ -118,7 +112,6 @@ namespace XTMF.Gui.UserControls
             get { return (bool)this.GetValue(PathIconDependencyProperty); }
             set
             {
-
                 this.SetValue(PathIconDependencyProperty, value);
             }
         }

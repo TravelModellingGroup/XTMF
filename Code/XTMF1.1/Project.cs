@@ -239,12 +239,9 @@ namespace XTMF
 
                 index++;
             }
-
-           
-
          
             return modelSystem;
-            ;
+            
             //ModelSystem()
             //var ourClone = modelSystemStructure.Clone();
             //linkedParameters = LinkedParameters[modelSystemIndex].Count > 0 ?

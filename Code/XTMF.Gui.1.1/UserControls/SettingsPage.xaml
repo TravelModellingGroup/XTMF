@@ -28,8 +28,8 @@
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Content="Project Directory" FontSize="12" />
                 <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="ProjectDirectoryBox" Text="{Binding ProjectDirectory}" HintText="Project Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-                <Button Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ProjectDirectory">
-                    <Path Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
+                <Button BorderBrush="Transparent" Grid.Row="1" Grid.Column="3" Width="20" Height="20" Click="Select_ProjectDirectory" >
+                    <Path  Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
                 </Button>
             </Grid>
             <Grid Margin="0.25cm,2,0.25cm,2" >
@@ -45,7 +45,7 @@
 
                 <Label Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource ThemeTextColorBrush}" Content="Model System Directory" FontSize="12" />
                 <local:HintedTextBox Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" Text="{Binding ModelSystemDirectory}" HintText="Model System Directory" Keyboard.PreviewKeyDown="HintedTextBox_KeyDown" />
-                <Button Grid.Row="1" Grid.Column="2" Width="20" Height="20" Click="Select_ModelSystemDirectory">
+                <Button BorderBrush="Transparent" Grid.Row="1" Grid.Column="2" Width="20" Height="20" Click="Select_ModelSystemDirectory">
                     <Path Stretch="Fill"  Data="{DynamicResource FolderOpenIconPath}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
                 </Button>
             </Grid>

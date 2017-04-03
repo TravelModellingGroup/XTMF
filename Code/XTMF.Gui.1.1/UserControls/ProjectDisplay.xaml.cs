@@ -872,8 +872,6 @@ namespace XTMF.Gui.UserControls
                             Model.RefreshModelSystems();
                         }
 
-
-
                     }
                     catch
                     {

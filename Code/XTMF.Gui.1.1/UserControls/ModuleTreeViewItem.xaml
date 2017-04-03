@@ -43,8 +43,6 @@
                         <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}"></Setter>
                     </MultiDataTrigger.Setters>
 
-
-
                 </MultiDataTrigger>
 
 
@@ -73,9 +71,6 @@
                         <Setter Property="Foreground" Value="{DynamicResource ControlTextColourBrush}"></Setter>
                         <Setter Property="Background" Value="{DynamicResource ControlColourBrush}"></Setter>
                     </MultiDataTrigger.Setters>
-
-
-
                 </MultiDataTrigger>
 
                 <MultiDataTrigger >
@@ -88,9 +83,6 @@
                         <Setter Property="Background" Value="{DynamicResource ModuleTreeViewItemBackground}"></Setter>
                         <Setter Property="Foreground" Value="{DynamicResource ModuleTreeViewItemForeground}"></Setter>
                     </MultiDataTrigger.Setters>
-
-
-
                 </MultiDataTrigger>
 
 
@@ -108,34 +100,19 @@
         </Grid>
         <Grid>
             <Border   Name="ContentBorder" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-
-
-
                 <Grid Name="ContentGrid" UseLayoutRounding="True" SnapsToDevicePixels="True" >
-
-
-
-
                     <Grid  HorizontalAlignment="Stretch"  >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="50"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-
-
-
                         <Border Grid.Column="0" UseLayoutRounding="True" HorizontalAlignment="Center" VerticalAlignment="Center">
-
                             <Path Width="24" Height="24" Margin="5,5,5,5" Name="PathIcon" Stretch="Uniform" Opacity="0.8"
                   Fill="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=Foreground,Mode=TwoWay}"
                   Data="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=userControls:ModuleTreeViewItem},Path=IconPath.Data,Mode=TwoWay}">
 
-
                             </Path>
 
-
-
-                            <!--<Image Margin="5,5,0,0" Width="24" Height="22" Stretch="UniformToFill" Source="/Resources/ic_developer_board_24px.png" HorizontalAlignment="Center" VerticalAlignment="Top"></Image>-->
                         </Border>
                         <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="1" Margin="0,8,7,0" TextOptions.TextFormattingMode="Display">
                             <DockPanel  >

@@ -37,7 +37,6 @@ namespace XTMF.Gui.UserControls
         {
 
            
-
             var contextMenu = new ContextMenu();
             // copy
             contextMenu.Items.Add(new MenuItem
