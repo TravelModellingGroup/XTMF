@@ -93,7 +93,7 @@
             </Path>
   
         </Border>
-        <StackPanel Orientation="Vertical" Grid.Column="1">
+        <StackPanel Margin="8,0,0,0" Orientation="Vertical" Grid.Column="1">
             <Label Margin="0,8,0,0" Height="20" Padding="0" FontWeight="Bold" Name="Title" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"
                    Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=TitleText,Mode=TwoWay}" ></Label>
             <Label Height="20" Padding="0" Name="SubTextLabel" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ListViewControl},Path=Foreground,Mode=TwoWay}"
