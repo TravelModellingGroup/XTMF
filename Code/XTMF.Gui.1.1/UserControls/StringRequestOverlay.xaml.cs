@@ -143,7 +143,6 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
             }
 
-
         }
 
         private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

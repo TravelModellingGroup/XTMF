@@ -53,6 +53,11 @@ namespace XTMF.Gui.UserControls
             typeof(string), typeof(ListViewControl),
                 new PropertyMetadata(null));
 
+        public static readonly DependencyProperty StatusTextDependencyProperty =
+  DependencyProperty.Register("StatusText",
+      typeof(string), typeof(ListViewControl),
+          new PropertyMetadata(null));
+
         public static readonly DependencyProperty BitmapIconDependencyProperty =
         DependencyProperty.Register("IsBitmapIcon",
             typeof(bool), typeof(ListViewControl),
@@ -134,6 +139,23 @@ namespace XTMF.Gui.UserControls
             {
 
                 this.SetValue(SubTextDependencyProperty, value);
+            }
+        }
+
+        public string StatusText
+        {
+            get { return (string)this.GetValue(StatusTextDependencyProperty); }
+            set
+            {
+                if(string.IsNullOrEmpty(value))
+                {
+                    StatusTextLabel.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    StatusTextLabel.Visibility = Visibility.Collapsed;
+                }
+                this.SetValue(StatusTextDependencyProperty, value);
             }
         }
 

@@ -63,6 +63,33 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         private TaskbarItemInfo _taskbarInformation;
 
+        public static readonly DependencyProperty IsRunCancellableDependencyProperty =
+     DependencyProperty.Register("IsRunCancellable",
+         typeof(bool), typeof(RunWindow),
+             new PropertyMetadata(false));
+
+        public bool IsRunCancellable
+        {
+            get
+            {
+                return (bool)GetValue(IsRunCancellableDependencyProperty);
+            }
+            set
+            {
+                if(_run != null)
+                {
+                    SetValue(IsRunCancellableDependencyProperty, true);
+                }
+
+                else
+                {
+                    SetValue(IsRunCancellableDependencyProperty, false);
+                }
+            }
+
+        }
+
+
         static RunWindow()
         {
             var findResource = Application.Current.FindResource("WarningRed");
@@ -431,7 +458,7 @@ namespace XTMF.Gui.UserControls
             }
             catch
             {
-                // ignored
+
             }
         }
 
@@ -471,7 +498,10 @@ namespace XTMF.Gui.UserControls
             if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
-                _wasCanceled = _run.ExitRequest();
+                if (_run != null)
+                {
+                    _wasCanceled = _run.ExitRequest();
+                }
                 MainWindow.Us.UpdateStatusDisplay("Ready");
                 MainWindow.Us.HideStatusLink();
             }

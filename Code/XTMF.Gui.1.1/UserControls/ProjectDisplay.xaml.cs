@@ -65,6 +65,7 @@ namespace XTMF.Gui.UserControls
             {
                 private IModelSystemStructure Root;
 
+                private ProjectEditingSession _session;
 
                 public IModelSystemStructure ModelSystemStructure
                 {
@@ -75,10 +76,36 @@ namespace XTMF.Gui.UserControls
 
                 public string Name { get { return Root.Name; } }
 
+                public string StatusText {
+                    get {
+
+                        if (!_IsMissingModules)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return "This module requires additional setup, or a required module is not present.";
+                        }
+                    }
+                }
+
                 public string Description { get { return Root.Description; } }
+
+                public bool IsMissingModules
+                {
+                    get
+                    {
+                        return _IsMissingModules;
+                    }
+                    
+                }
 
                 public int RealIndex { get; private set; }
 
+                private bool _IsMissingModules = false;
+
+                private IProject _project;
                 private bool _IsSelected;
                 public bool IsSelected
                 {
@@ -96,10 +123,50 @@ namespace XTMF.Gui.UserControls
                     }
                 }
 
-                public ContainedModelSystemModel(IModelSystemStructure ms, IProject project)
+                public ContainedModelSystemModel(ProjectEditingSession session, IModelSystemStructure ms, IProject project)
                 {
                     Root = ms;
                     RealIndex = project.ModelSystemStructure.IndexOf(ms);
+                    this._project = project;
+                    _session = session;
+
+
+                    FindMissingModules(ms);
+                }
+
+                private void FindMissingModules(IModelSystemStructure ms)
+                {
+                    var loadTask = Task.Run(() =>
+                    {
+                        try
+                        {
+                            
+                            
+                            if(ms.Type == null && ms.Required)
+                            {
+                                _IsMissingModules = true;
+                            }
+                            else
+                            {
+                               
+                            }
+
+
+                        }
+                        catch (Exception error)
+                        {
+                            
+                        }
+                    });
+
+                    if (ms.Children != null)
+                    {
+                        foreach (var subModule in ms.Children)
+                        {
+                            FindMissingModules(subModule);
+                        }
+                    }
+
                 }
 
                 internal bool SetName(ProjectEditingSession session, string newName, ref string error)
@@ -221,7 +288,7 @@ namespace XTMF.Gui.UserControls
                 {
                     var modelSystems = (from ms in Project.ModelSystemStructure
                                         orderby ms.Name ascending
-                                        select new ContainedModelSystemModel(ms, Project));
+                                        select new ContainedModelSystemModel(Session,ms, Project));
                     lock (ContainedModelSystems)
                     {
                         ContainedModelSystems.AddRange(modelSystems);

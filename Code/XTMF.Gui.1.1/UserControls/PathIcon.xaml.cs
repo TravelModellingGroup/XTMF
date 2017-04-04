@@ -39,7 +39,7 @@ namespace XTMF.Gui.UserControls
     public partial class PathIcon : UserControl
     {
 
-        //public static readonly Pa
+
         public PathIcon()
         {
             InitializeComponent();
