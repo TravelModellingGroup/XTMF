@@ -80,7 +80,7 @@ namespace XTMF.Gui.UserControls
         private string _contentGuid;
 
         public string ContentGuid
-            {
+        {
 
             get { return _contentGuid; }
 
@@ -88,7 +88,7 @@ namespace XTMF.Gui.UserControls
             {
                 _contentGuid = value;
             }
-            }
+        }
 
         public double ParameterWidth
         {
@@ -400,7 +400,7 @@ namespace XTMF.Gui.UserControls
 
             LinkedParameterDisplayOverlay.Show();
 
-           
+
 
 
 
@@ -574,7 +574,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-    
+
 
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
         {
@@ -706,7 +706,7 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
-                    switch(e.SystemKey)
+                    switch (e.SystemKey)
                     {
                         case Key.F2:
                             RenameParameter();
@@ -731,7 +731,7 @@ namespace XTMF.Gui.UserControls
                             RenameParameter();
                             break;
                         case Key.F5:
-                
+
                             e.Handled = true;
                             break;
                         case Key.Escape:
@@ -773,11 +773,11 @@ namespace XTMF.Gui.UserControls
 
                         MainWindow.Us.RunWindow.StartRun(Session, run, runName);
 
-                        MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " +  Session.Name, () =>
-                         {
+                        MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name, () =>
+                        {
 
-                             MainWindow.Us.LoadPageId(ContentGuid);
-                         });
+                            MainWindow.Us.LoadPageId(ContentGuid);
+                        });
                     }
                     else
                     {
@@ -792,7 +792,7 @@ namespace XTMF.Gui.UserControls
 
             };
 
-            
+
         }
 
         private void ShowQuickParameters()
@@ -860,7 +860,7 @@ namespace XTMF.Gui.UserControls
 
         private void SetFocus(StackPanel border)
         {
-        
+
         }
 
         new private void LostFocus(StackPanel border)
@@ -910,7 +910,7 @@ namespace XTMF.Gui.UserControls
         {
             var textbox = (sender as TextBox);
             if (textbox == null) return;
-          
+
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
@@ -921,7 +921,7 @@ namespace XTMF.Gui.UserControls
                 BindingExpression be = box.GetBindingExpression(TextBox.TextProperty);
                 be.UpdateSource();
                 if (box == null) return;
-               
+
             }
         }
 
@@ -1106,7 +1106,7 @@ namespace XTMF.Gui.UserControls
 
         public void SaveRequested(bool saveAs)
         {
-            
+
             string error = null;
             SaveCurrentlySelectedParameters();
             if (saveAs)
@@ -1125,47 +1125,47 @@ namespace XTMF.Gui.UserControls
             }
             else
             {
-     
-                    MainWindow.SetStatusText("Saving...");
-           
-                    Task.Run(async () =>
+
+                MainWindow.SetStatusText("Saving...");
+
+                Task.Run(async () =>
+                    {
+                        if (Session.SaveWait())
                         {
-                            if (Session.SaveWait())
+                            try
                             {
-                                try
-                                {
-                                    var watch = Stopwatch.StartNew();
-                                    if (!Session.Save(ref error))
-                                    {
-                                        Dispatcher.Invoke(() =>
-                                        {
-                                            MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-                                        });
-                                    }
-                                    watch.Stop();
-                                    var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
-                                    if (displayTimeRemaining > 0)
-                                    {
-                                        MainWindow.SetStatusText("Saved");
-                                        await Task.Delay(displayTimeRemaining);
-                                    }
-                                }
-                                catch (Exception e)
+                                var watch = Stopwatch.StartNew();
+                                if (!Session.Save(ref error))
                                 {
                                     Dispatcher.Invoke(() =>
-                                   {
-                                       MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
-                                   });
+                                    {
+                                        MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + error, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    });
                                 }
-                                finally
+                                watch.Stop();
+                                var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
+                                if (displayTimeRemaining > 0)
                                 {
-                                    MainWindow.SetStatusText("Ready");
-
-                                    Session.SaveRelease();
-
+                                    MainWindow.SetStatusText("Saved");
+                                    await Task.Delay(displayTimeRemaining);
                                 }
                             }
-                        });
+                            catch (Exception e)
+                            {
+                                Dispatcher.Invoke(() =>
+                               {
+                                   MessageBox.Show(MainWindow.Us, "Failed to save.\r\n" + e.Message, "Unable to Save", MessageBoxButton.OK, MessageBoxImage.Error);
+                               });
+                            }
+                            finally
+                            {
+                                MainWindow.SetStatusText("Ready");
+
+                                Session.SaveRelease();
+
+                            }
+                        }
+                    });
 
             }
         }
@@ -1259,12 +1259,26 @@ namespace XTMF.Gui.UserControls
                         {
                             SelectedName.Text = type.Name;
                             SelectedNamespace.Text = type.FullName;
-                       
+
+                            ModuleInformationAttribute attr =
+                            (ModuleInformationAttribute)
+                            Attribute.GetCustomAttribute(type, typeof(ModuleInformationAttribute));
+
+                            if (attr != null)
+                            {
+                                SelectedDescription.Text = attr.Description;
+                            }
+                            else
+                            {
+                                SelectedDescription.Text = "No description available.";
+                            }
+
                         }
                         else
                         {
                             SelectedName.Text = CurrentlySelected.Count > 1 ? "Multiple Selected" : "None Selected";
                             SelectedNamespace.Text = string.Empty;
+                            SelectedDescription.Text = "No description available.";
                         }
                         ParameterDisplay.Opacity = 1.0;
 
@@ -1276,6 +1290,7 @@ namespace XTMF.Gui.UserControls
                 ParameterDisplay.ItemsSource = null;
                 SelectedName.Text = "None Selected";
                 SelectedNamespace.Text = string.Empty;
+                SelectedDescription.Text = "No description available.";
             }
         }
 
@@ -2176,7 +2191,7 @@ namespace XTMF.Gui.UserControls
 
             e.Handled = false;
 
-            if(e.Key == Key.F2)
+            if (e.Key == Key.F2)
             {
                 RenameSelectedModule();
                 return;
@@ -2222,9 +2237,9 @@ namespace XTMF.Gui.UserControls
 
                     var upItem = item.Parent.Children[item.Index - 1];
 
-                    while(true)
+                    while (true)
                     {
-                        if(upItem.IsExpanded)
+                        if (upItem.IsExpanded)
                         {
                             upItem = upItem.Children[upItem.Children.Count - 1];
                         }
@@ -2235,7 +2250,7 @@ namespace XTMF.Gui.UserControls
                     }
                     upItem.IsSelected = true;
 
-                   
+
                 }
                 e.Handled = true;
             }
@@ -2291,12 +2306,12 @@ namespace XTMF.Gui.UserControls
 
         private void ComboBox_KeyDown(object sender, KeyEventArgs e)
         {
-            
+
         }
 
         private void ComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Down)
+            if (e.Key == Key.Down)
             {
                 TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
                 UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
@@ -2309,7 +2324,7 @@ namespace XTMF.Gui.UserControls
                 e.Handled = true;
                 return;
             }
-            else if(e.Key == Key.Up)
+            else if (e.Key == Key.Up)
             {
                 TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Previous);
                 UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
