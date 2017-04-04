@@ -21,9 +21,6 @@
                     xmlns:s="clr-namespace:System;assembly=mscorlib"
                     xmlns:local="clr-namespace:XTMF.Gui.UserControls">
 
-
- 
-    
     <s:String x:Key="ThemeName">Dark Theme Default</s:String>
     <Color x:Key="WarningRed" A="255" R="0xA1" G="0x3B" B="0x45" />
     <Color x:Key="AddingYellow" A="255" R="0x7B" G="0x79" B="0x1E" />

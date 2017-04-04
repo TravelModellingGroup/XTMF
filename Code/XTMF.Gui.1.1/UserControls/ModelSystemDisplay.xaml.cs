@@ -706,6 +706,12 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
+                    switch(e.SystemKey)
+                    {
+                        case Key.F2:
+                            RenameParameter();
+                            break;
+                    }
                     switch (e.Key)
                     {
                         case Key.F1:
@@ -722,7 +728,7 @@ namespace XTMF.Gui.UserControls
 
 
                         case Key.F2:
-                          
+                            RenameParameter();
                             break;
                         case Key.F5:
                 
@@ -1326,7 +1332,7 @@ namespace XTMF.Gui.UserControls
 
         private void Rename_Clicked(object sender, RoutedEventArgs e)
         {
-            Rename();
+            RenameSelectedModule();
         }
 
         private void Description_Clicked(object sender, RoutedEventArgs e)
@@ -1358,7 +1364,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void Rename()
+        private void RenameSelectedModule()
         {
             var selected = (ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel).BaseModel;
             var selectedModuleControl = GetCurrentlySelectedControl();
@@ -2169,6 +2175,12 @@ namespace XTMF.Gui.UserControls
 
 
             e.Handled = false;
+
+            if(e.Key == Key.F2)
+            {
+                RenameSelectedModule();
+                return;
+            }
 
             if (e.Key == Key.Down)
             {
