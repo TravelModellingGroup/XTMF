@@ -314,7 +314,7 @@
                             <RowDefinition Height="AUTO" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Border HorizontalAlignment="Stretch"   Name="ListBorder"  Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" >
+                        <Border Padding="0" HorizontalAlignment="Stretch"   Name="ListBorder"  Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" >
                             <Grid HorizontalAlignment="Stretch" Name="ListGrid">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -323,7 +323,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
                                 <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
-                                <Expander Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,12,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
+                                <Expander Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,16,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
                                      Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                                     MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
@@ -346,6 +346,7 @@
                     
                         <ListView 
                        
+                            ScrollViewer.VerticalScrollBarVisibility="Visible"
                         Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged">

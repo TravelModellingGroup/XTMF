@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -2194,8 +2194,6 @@ namespace XTMF.Gui.UserControls
         {
             var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
 
-
-
             e.Handled = false;
 
             if (e.Key == Key.F2)
@@ -2219,8 +2217,8 @@ namespace XTMF.Gui.UserControls
                         if (item.Parent.Parent != null)
                         {
                             if (item.Parent.Index + 1 < item.Parent.Parent.Children.Count)
-                        {
-                          
+                            {
+
                                 item.Parent.Parent.Children[item.Parent.Index + 1].IsSelected = true;
                             }
                         }
@@ -2263,8 +2261,6 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                     upItem.IsSelected = true;
-
-
                 }
                 e.Handled = true;
             }
@@ -2273,12 +2269,12 @@ namespace XTMF.Gui.UserControls
 
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ParameterWidth = ParameterDisplay.ActualWidth - 32;
+            ParameterWidth = ParameterDisplay.ActualWidth - 24;
         }
 
         private void QuickParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ParameterWidth = QuickParameterDisplay.ActualWidth - 32;
+            ParameterWidth = QuickParameterDisplay.ActualWidth - 24;
         }
 
         private void GridCanvas_MouseDown(object sender, MouseButtonEventArgs e)
