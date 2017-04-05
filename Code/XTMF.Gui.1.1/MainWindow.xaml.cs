@@ -101,9 +101,8 @@ namespace XTMF.Gui
         {
             get {
 
-                var ac = DockManager.ActiveContent;
-                var c = DockManager.Layout.ActiveContent;
-                return DisplaysForLayout[(LayoutDocument)DockManager.Layout.ActiveContent];
+
+                return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
             }
             set {
 
@@ -628,7 +627,7 @@ namespace XTMF.Gui
 
 
         internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null, string
-            contentGuid = null)
+            contentGuid = null,object k = null)
         {
             var document = new LayoutDocument()
             {
@@ -638,6 +637,10 @@ namespace XTMF.Gui
 
             };
           
+            if(k != null)
+            {
+                DisplaysForLayout.TryAdd(document, (ActiveEditingSessionDisplayModel)k);
+            }
 
             document.Closed += (source, ev) =>
             {
@@ -857,8 +860,9 @@ namespace XTMF.Gui
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name : titleBar;
                 var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel),null,
-                    display.ContentGuid);
-                DisplaysForLayout.TryAdd(doc, displayModel);
+                    display.ContentGuid,displayModel);
+
+                //DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
                 {
                     Dispatcher.Invoke(() =>
@@ -1395,6 +1399,14 @@ namespace XTMF.Gui
             }
         }
 
-       
+        private void DockManager_ActiveContentChanged(object sender, EventArgs e)
+        {
+
+            EditingDisplayModel =
+
+                DisplaysForLayout.ContainsKey((LayoutDocument)DockManager.Layout.ActiveContent)?
+                DisplaysForLayout[(LayoutDocument)DockManager.Layout.ActiveContent] : NullEditingDisplayModel;
+
+        }
     }
 }

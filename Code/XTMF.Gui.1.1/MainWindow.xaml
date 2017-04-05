@@ -308,12 +308,11 @@
                 <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
                 <xcad:DockingManager BorderThickness="0"  IsHitTestVisible="True" x:Name="DockManager"
                                  Grid.Row="1" ScrollViewer.CanContentScroll="True"
-                                 ScrollViewer.PanningMode="HorizontalOnly"
-                                     ActiveContent="{Binding DocumentManager.ActiveDocument,
-                                                   Mode=TwoWay}"
+                                 ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"
+                                     
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
                                  Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
-                                  Background="{DynamicResource WindowBackgroundBrush1}">
+                                  Background="{DynamicResource WindowBackgroundBrush1}" ActiveContentChanged="DockManager_ActiveContentChanged">
 
 
                     <xcad:DockingManager.DocumentTitleTemplate>

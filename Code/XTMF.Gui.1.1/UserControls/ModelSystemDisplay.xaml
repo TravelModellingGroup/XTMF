@@ -184,7 +184,9 @@
                         </this:FlatToolButton.IconPath>
                     </this:FlatToolButton>
                     <Rectangle VerticalAlignment="Stretch" Fill="{DynamicResource WindowBackgroundBrush3}" Width="1" Height="20"/>
-                    <this:FlatToolButton ToolText="Run Model System" Height="24" Click="RunModelSystem_Click">
+                    <this:FlatToolButton IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, 
+AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
+                        x:Name="RunModelSystemButton" ToolText="Run Model System" Height="24" Click="RunModelSystem_Click">
                         <this:FlatToolButton.IconPath  >
                             <Path  Data="{DynamicResource RunIconPathGeometry}" Stretch="Uniform" >
 

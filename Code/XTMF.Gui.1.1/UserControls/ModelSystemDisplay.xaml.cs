@@ -68,8 +68,25 @@ namespace XTMF.Gui.UserControls
         public static readonly DependencyProperty ModelSystemNameProperty = DependencyProperty.Register("ModelSystemName", typeof(string), typeof(ModelSystemDisplay),
     new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
+        public static readonly DependencyProperty CanRunModelSystemDependencyProperty =
+            DependencyProperty.Register("CanRunModelSystem", typeof(bool), typeof(ModelSystemDisplay),
+    new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
 
+
+        public bool CanRunModelSystem
+        {
+
+            get
+            {
+                return (bool)GetValue(CanRunModelSystemDependencyProperty);
+            }
+
+            set
+            {
+                SetValue(CanRunModelSystemDependencyProperty,value);
+            }
+        }
 
         public static readonly DependencyProperty ParameterWidthDependencyProperty =
            DependencyProperty.Register("ParameterWidth", typeof(double), typeof(ModelSystemDisplay),
@@ -118,6 +135,14 @@ namespace XTMF.Gui.UserControls
                 if (value != null)
                 {
                     value.ProjectWasExternallySaved += ProjectWasExternalSaved;
+                }
+                if (_Session.ProjectEditingSession != null)
+                {
+                    CanRunModelSystem = true;
+                }
+                else
+                {
+                    CanRunModelSystem = false;
                 }
             }
         }
@@ -278,7 +303,8 @@ namespace XTMF.Gui.UserControls
 
                });
             };
-      
+
+
         }
 
 
@@ -394,7 +420,7 @@ namespace XTMF.Gui.UserControls
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
 
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
-       
+
             LinkedParameterDisplayOverlay.Show();
 
         }
@@ -2345,7 +2371,7 @@ namespace XTMF.Gui.UserControls
 
             module.IsExpanded = true;
 
-            foreach(ModelSystemStructureDisplayModel child in module.Children)
+            foreach (ModelSystemStructureDisplayModel child in module.Children)
             {
                 ExpandModule(child);
             }
