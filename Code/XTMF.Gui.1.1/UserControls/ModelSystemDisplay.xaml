@@ -314,7 +314,7 @@
                             <RowDefinition Height="AUTO" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Border HorizontalAlignment="Stretch"   Name="ListBorder"  Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
+                        <Border HorizontalAlignment="Stretch"   Name="ListBorder"  Grid.Row="1" BorderBrush="Transparent" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" >
                             <Grid HorizontalAlignment="Stretch" Name="ListGrid">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -323,15 +323,27 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" HorizontalAlignment="Center" x:Name="SelectedName" Text="None Selected" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="18" FontWeight="Bold" />
                                 <TextBlock Grid.Row="1" HorizontalAlignment="Center" x:Name="SelectedNamespace" Text="" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
-                                <TextBlock Padding="5" Background="{DynamicResource WindowBackgroundBrush4}" TextWrapping="Wrap"
-                                    Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                <Expander Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,12,0" HorizontalAlignment="Stretch" IsExpanded="True" Padding="0" Header="Module Description"
+                                     Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                                     MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
-                                    Margin="0,5,0,0" HorizontalAlignment="Stretch" Grid.Row="2"  x:Name="SelectedDescription" Text="No description available." Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" />
+                                    Name="DescriptionExpander" Grid.Row="2" VerticalAlignment="Bottom" Background="Transparent">
+                                    <Border Margin="0,4,0,0" Background="{DynamicResource WindowBackgroundBrush4}"  Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
+                                    MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
+                                                    AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}">
+                                    <TextBox Margin="8" BorderThickness="0" BorderBrush="Transparent" IsReadOnly="True"  Padding="5" Background="{DynamicResource WindowBackgroundBrush4}" TextWrapping="Wrap"
+                                 
+                                    HorizontalAlignment="Stretch"   x:Name="SelectedDescription" Text="No description available." Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12">
+                                    
+                                </TextBox>
+                                    </Border>
+                                </Expander>
                             </Grid>
                         </Border>
                         <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
+                    
                         <ListView 
                        
                         Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

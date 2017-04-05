@@ -1267,10 +1267,14 @@ namespace XTMF.Gui.UserControls
                             if (attr != null)
                             {
                                 SelectedDescription.Text = attr.Description;
+                                SelectedDescription.Visibility = Visibility.Visible;
+                                DescriptionExpander.Visibility = Visibility.Visible;
                             }
                             else
                             {
+                                SelectedDescription.Visibility = Visibility.Collapsed;
                                 SelectedDescription.Text = "No description available.";
+                                DescriptionExpander.Visibility = Visibility.Collapsed;
                             }
 
                         }
@@ -1279,6 +1283,8 @@ namespace XTMF.Gui.UserControls
                             SelectedName.Text = CurrentlySelected.Count > 1 ? "Multiple Selected" : "None Selected";
                             SelectedNamespace.Text = string.Empty;
                             SelectedDescription.Text = "No description available.";
+                            SelectedDescription.Visibility = Visibility.Collapsed;
+                            DescriptionExpander.Visibility = Visibility.Collapsed;
                         }
                         ParameterDisplay.Opacity = 1.0;
 
@@ -1291,6 +1297,7 @@ namespace XTMF.Gui.UserControls
                 SelectedName.Text = "None Selected";
                 SelectedNamespace.Text = string.Empty;
                 SelectedDescription.Text = "No description available.";
+                SelectedDescription.Visibility = Visibility.Collapsed;
             }
         }
 
