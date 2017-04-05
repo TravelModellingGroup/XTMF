@@ -131,7 +131,7 @@
                         <TextBlock HorizontalAlignment="Left" Foreground="{DynamicResource ThemeTextColorBrush}" FontWeight="Normal"
                                        FontSize="11" TextWrapping="Wrap" Text="{Binding Description, Mode=OneTime}" />
                     </Expander>
-                    <ComboBox PreviewKeyDown="ComboBox_PreviewKeyDown" KeyDown="ComboBox_KeyDown" 
+                    <ComboBox PreviewKeyDown="ComboBox_PreviewKeyDown" 
                          MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                              

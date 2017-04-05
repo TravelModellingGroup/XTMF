@@ -253,9 +253,7 @@ namespace XTMF.Gui.UserControls
            };
 
             LinkedParameterDisplayOverlay.OnCloseDisplay += () =>
-
             {
-
                 Dispatcher.Invoke(() =>
                {
                    var newLP = LinkedParameterDisplayOverlay.SelectedLinkParameter;
@@ -280,8 +278,7 @@ namespace XTMF.Gui.UserControls
 
                });
             };
-
-
+      
         }
 
 
@@ -397,12 +394,8 @@ namespace XTMF.Gui.UserControls
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
 
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
-
+       
             LinkedParameterDisplayOverlay.Show();
-
-
-
-
 
         }
 
@@ -2314,10 +2307,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void ComboBox_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
 
         private void ComboBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {

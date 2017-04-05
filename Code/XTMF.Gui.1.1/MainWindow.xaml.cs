@@ -99,8 +99,16 @@ namespace XTMF.Gui
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
-            get { return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty); }
-            set { SetValue(EditingDisplayModelProperty, value); }
+            get {
+
+                var ac = DockManager.ActiveContent;
+                var c = DockManager.Layout.ActiveContent;
+                return DisplaysForLayout[(LayoutDocument)DockManager.Layout.ActiveContent];
+            }
+            set {
+
+                SetValue(EditingDisplayModelProperty, value);
+            }
         }
 
         // Using a DependencyProperty as the backing store for EditingDisplayModel.  This enables animation, styling, binding, etc...
