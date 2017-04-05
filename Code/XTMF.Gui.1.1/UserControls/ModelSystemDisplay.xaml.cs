@@ -2350,5 +2350,27 @@ namespace XTMF.Gui.UserControls
 
             base.OnPreviewKeyDown(e);
         }
+
+        private void ExpandModule(ModelSystemStructureDisplayModel module)
+        {
+
+            module.IsExpanded = true;
+
+            foreach(ModelSystemStructureDisplayModel child in module.Children)
+            {
+                ExpandModule(child);
+            }
+
+        }
+
+        private void ExpandAllMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (ModuleDisplay.Items.Count > 0)
+            {
+                ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.Items.GetItemAt(0));
+            }
+
+        }
     }
 }

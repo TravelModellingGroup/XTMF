@@ -276,7 +276,10 @@
                                                 <ContentControl Template="{DynamicResource LinkIcon}" />
                                             </MenuItem.Icon>
                                         </MenuItem>
-                                    </ContextMenu>
+                                    <MenuItem Header="Expand all Modules" Click="ExpandAllMenuItem_Click">
+                                       
+                                    </MenuItem>
+                                </ContextMenu>
                                 </TreeView.ContextMenu>
 
 
