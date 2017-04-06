@@ -21,9 +21,16 @@
                     xmlns:s="clr-namespace:System;assembly=mscorlib"
                     xmlns:local="clr-namespace:XTMF.Gui.UserControls">
 
+
+
+
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Xceed.Wpf.AvalonDock.Themes.VS2013;component/Theme.xaml" />
     </ResourceDictionary.MergedDictionaries>
+
+    <LinearGradientBrush x:Key="ProgressBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FFD69E09" Offset="0"/>
+    </LinearGradientBrush>
 
     <!-- General -->
     <SolidColorBrush x:Key="AvalonDockThemeVs2013Background" Color="#EEEEF2" />

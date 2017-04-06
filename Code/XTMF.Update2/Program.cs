@@ -38,16 +38,16 @@ namespace XTMF.Update
                 try
                 {
                     var p = Process.GetProcessById(processID);
-                    Application.Run(new Form1() { ParentProcess = p, LaunchPoint = args[1] });
+                    Application.Run(new XTMFUpdateForm() { ParentProcess = p, LaunchPoint = args[1] });
                 }
                 catch
                 {
-                    Application.Run(new Form1());
+                    Application.Run(new XTMFUpdateForm());
                 }
             }
             else
             {
-                Application.Run(new Form1());
+                Application.Run(new XTMFUpdateForm());
             }
         }
 

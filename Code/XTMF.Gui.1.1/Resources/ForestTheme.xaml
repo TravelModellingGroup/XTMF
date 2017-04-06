@@ -26,6 +26,10 @@
         <ResourceDictionary Source="pack://application:,,,/Xceed.Wpf.AvalonDock.Themes.VS2013;component/Theme.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <LinearGradientBrush x:Key="ProgressBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FF068D12" Offset="0"/>
+    </LinearGradientBrush>
+
     <!-- General -->
     <SolidColorBrush x:Key="AvalonDockThemeVs2013Background" Color="#EEEEF2" />
     <SolidColorBrush x:Key="AvalonDockThemeVs2013PanelBorderBrush" Color="#FFCCCEDB" />

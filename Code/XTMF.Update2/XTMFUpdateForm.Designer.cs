@@ -18,7 +18,7 @@
 */
 namespace XTMF.Update
 {
-    partial class Form1
+    partial class XTMFUpdateForm
     {
         /// <summary>
         /// Required designer variable.
@@ -46,7 +46,7 @@ namespace XTMF.Update
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(XTMFUpdateForm));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.WebserviceCheckBox = new System.Windows.Forms.CheckBox();

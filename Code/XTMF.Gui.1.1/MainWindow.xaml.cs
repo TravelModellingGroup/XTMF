@@ -350,8 +350,6 @@ namespace XTMF.Gui
 
                     projectDisplay.Model.Unload();
 
-
-
                 }
                 if (modelSystemPage != null)
                 {
@@ -376,8 +374,7 @@ namespace XTMF.Gui
                         return true;
                     }
                 }
-
-
+                
             }
 
             EditorController.Runtime.ProjectController.ClearEditingSessions();
@@ -385,11 +382,8 @@ namespace XTMF.Gui
             EditorController.Unregister(this);
 
             DocumentPane.Children.Clear();
-
             OpenPages.Clear();
-
             DisplaysForLayout.Clear();
-
             EditorController.FreeRuntime();
             return false;
 
@@ -400,7 +394,6 @@ namespace XTMF.Gui
 
             if (!ClosePages())
             {
-
 
                 IsEnabled = false;
                 StatusDisplay.Text = "Loading XTMF";
@@ -417,13 +410,10 @@ namespace XTMF.Gui
                         StatusDisplay.Text = "Ready";
                         UpdateRecentProjectsMenu();
                         ShowStart_Click(this, null);
-
-
                     }));
                 });
 
             }
-
 
         }
 
@@ -431,8 +421,6 @@ namespace XTMF.Gui
         {
             IsEnabled = false;
             StatusDisplay.Text = "Loading XTMF";
-
-
 
             ShowStart_Click(this, null);
         }
@@ -517,7 +505,6 @@ namespace XTMF.Gui
             Dispatcher.Invoke( ()=>
            {
                StatusLinkLabel.Visibility = Visibility.Visible;
-     
 
                MouseButtonEventHandler handler = new MouseButtonEventHandler((e, a) => { clickAction.BeginInvoke(null, null); });
 
@@ -599,7 +586,7 @@ namespace XTMF.Gui
                         display.Model.Unload();
                         projectSession.NameChanged -= onRename;
                     };
-                    //display.Focus();
+               
                     SetStatusText("Ready");
                 }
                 ));
@@ -622,9 +609,6 @@ namespace XTMF.Gui
         /// The pages that are currently open from the main window
         /// </summary>
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
-
-
-
 
         internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null, string
             contentGuid = null,object k = null)
@@ -1024,6 +1008,7 @@ namespace XTMF.Gui
             try
             {
                 string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                
                 Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), DocumentationName));
             }
             catch
@@ -1274,7 +1259,6 @@ namespace XTMF.Gui
                 var modelSystem = document.Content as ModelSystemDisplay;
 
             }
-         
 
         }
 

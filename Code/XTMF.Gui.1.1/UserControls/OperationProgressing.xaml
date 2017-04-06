@@ -13,14 +13,8 @@
                 <RowDefinition Height="AUTO" />
             </Grid.RowDefinitions>
             <Label Content="Please Wait..." Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" />
-            <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" >
-                <ProgressBar.Foreground>
-                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                        <GradientStop Color="#FF14346E" Offset="0"/>
-                        <GradientStop Color="#FF1F5BC3" Offset="1"/>
-                        <GradientStop Color="#FF16428F" Offset="0.246"/>
-                    </LinearGradientBrush>
-                </ProgressBar.Foreground>
+            <ProgressBar Grid.Row="1" Width="250" Height="15" IsIndeterminate="True" Foreground="{DynamicResource ProgressBrush}" >
+              
             </ProgressBar>
         </Grid>
     </Border>
