@@ -436,7 +436,13 @@ namespace XTMF.Gui.UserControls
             }
             _isFinished = true;
             ContinueButton.IsEnabled = true;
-            CancelButton.IsEnabled = false;
+
+            Dispatcher.BeginInvoke((Action) (() =>
+            {
+                CancelButton.IsEnabled = false;
+
+            }));
+           
             StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
             ProgressBar.Finished = true;
             MainWindow.Us.UpdateStatusDisplay("Ready");
@@ -447,7 +453,11 @@ namespace XTMF.Gui.UserControls
         private void Run_RunStarted()
         {
             _isActive = true;
-            CancelButton.IsEnabled = true;
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                CancelButton.IsEnabled = true;
+
+            }));
         }
 
         private void Run_RunComplete()
@@ -602,7 +612,11 @@ namespace XTMF.Gui.UserControls
                 {
                     _wasCanceled = true;
                     _isActive = false;
-                    CancelButton.IsEnabled = false;
+                    Dispatcher.BeginInvoke((Action)(() =>
+                    {
+                        CancelButton.IsEnabled = false;
+
+                    }));
                     _timer.Stop();
                     _run.TerminateRun();
                     return true;
