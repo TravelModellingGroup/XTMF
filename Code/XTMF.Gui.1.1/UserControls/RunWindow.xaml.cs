@@ -261,7 +261,7 @@ namespace XTMF.Gui.UserControls
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
 
-            
+        
             StartRunAsync();
             _timer.Start();
         }
@@ -448,6 +448,7 @@ namespace XTMF.Gui.UserControls
         private void Run_RunStarted()
         {
             _isActive = true;
+            CancelButton.IsEnabled = true;
         }
 
         private void Run_RunComplete()
