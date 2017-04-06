@@ -2260,8 +2260,10 @@ namespace XTMF.Gui.UserControls
             {
                 if (item.Index == 0)
                 {
-
-                    item.Parent.IsSelected = true;
+                    if (item.Parent != null)
+                    {
+                        item.Parent.IsSelected = true;
+                    }
                 }
                 else
                 {
