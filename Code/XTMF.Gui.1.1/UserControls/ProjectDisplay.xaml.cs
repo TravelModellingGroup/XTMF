@@ -795,24 +795,7 @@ namespace XTMF.Gui.UserControls
                 var error = string.Empty;
                 MainWindow.Us.ClipboardModel = selected;
 
-                /*StringRequest sr = new StringRequest("Cloned Model System's Name?", newName =>
-                {
-                    return Session.ValidateModelSystemName(newName);
-                });
-                sr.Owner = GetWindow();
-                if (sr.ShowDialog() == true)
-                {
-                    string error = null;
-                    if (!selected.CloneModelSystemToProject(Session, sr.Answer, ref error))
-                    {
-                        MessageBox.Show(error, "Unable to Clone Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Model.RefreshModelSystems();
-                    }
-                }
-                */
+            
             }
         }
 

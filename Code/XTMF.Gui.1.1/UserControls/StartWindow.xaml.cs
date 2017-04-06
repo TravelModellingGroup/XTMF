@@ -37,7 +37,6 @@ namespace XTMF.Gui
             {
                 RecentProjectsStackPanel.Children.Clear();
 
-
                 foreach (var recentProject in MainWindow.Us.RecentProjects)
                 {
                     Label x = new Label();
@@ -46,7 +45,6 @@ namespace XTMF.Gui
 
                     x.PreviewMouseUp += (senderc, EventArgs) =>
                     {
-
                             MainWindow.Us.LoadProjectByName(recentProject);
                         
                     };
@@ -56,10 +54,7 @@ namespace XTMF.Gui
             }
         }
 
-        private void RecentProjectMouseDown(object sender, MouseButtonEventArgs e)
-        {
-
-        }
+     
 
         private void NewProject_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -73,8 +68,7 @@ namespace XTMF.Gui
         {
            
                 MainWindow.Us.OpenProject();
-            
-        
+
         }
 
         private void NewModelSystem_MouseUp(object sender, MouseButtonEventArgs e)

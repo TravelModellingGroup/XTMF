@@ -57,11 +57,11 @@ namespace XTMF.Gui.UserControls
 
         protected override void OnActivated(EventArgs e)
         {
-            base.OnActivated( e );
+            base.OnActivated(e);
             AnswerBox.Focus();
         }
 
-   
+
 
         public StringRequest(string question, Func<string, bool> validation)
             : this()
@@ -70,21 +70,18 @@ namespace XTMF.Gui.UserControls
             Validation = validation;
             if (validation != null)
             {
-                ValidationLabel.Visibility = validation( Answer ) ? Visibility.Hidden : Visibility.Visible;
+                ValidationLabel.Visibility = validation(Answer) ? Visibility.Hidden : Visibility.Visible;
             }
 
-           // if (Owner.GetType() != typeof(Window))
-            //{
-                var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
-                Owner = window;
-          //  }
+            var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+            Owner = window;
         }
 
-    
+
 
         private void AnswerBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if ( e.Key == Key.Enter )
+            if (e.Key == Key.Enter)
             {
                 e.Handled = true;
                 CloseSuccessfully();
@@ -93,7 +90,7 @@ namespace XTMF.Gui.UserControls
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyDown( e );
+            base.OnKeyDown(e);
             if (e.Handled == false)
             {
                 if (e.Key == Key.Escape)
@@ -109,9 +106,9 @@ namespace XTMF.Gui.UserControls
         private void CloseSuccessfully()
         {
             var ev = Validation;
-            if ( ev != null )
+            if (ev != null)
             {
-                if ( !ev( Answer ) )
+                if (!ev(Answer))
                 {
                     DialogResult = false;
                     return;
@@ -124,27 +121,7 @@ namespace XTMF.Gui.UserControls
 
         public string Answer { get; private set; }
 
-        private void AnswerBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string text = AnswerBox.Text;
-            if ( text != null )
-            {
-                var ev = Validation;
-                if ( text.IndexOf( '\b' ) >= 0 )
-                {
-                    text = text.Replace( "\b", "" );
-                }
-                if ( ev == null || ev( text ) )
-                {
-                    Answer = text;
-                    ValidationLabel.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    ValidationLabel.Visibility = Visibility.Visible;
-                }
-            }
-        }
+       
 
         private void EnterButton_Click(object sender, RoutedEventArgs e)
         {
