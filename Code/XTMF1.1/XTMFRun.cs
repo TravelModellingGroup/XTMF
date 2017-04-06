@@ -99,13 +99,17 @@ namespace XTMF
             {
                 return;
             }
-                DirectoryInfo directory = new DirectoryInfo(path);
+            DirectoryInfo directory = new DirectoryInfo(path);
             foreach (System.IO.FileInfo file in directory.GetFiles())
             {
-                if (file.Name.Contains("XTMF.ErrorLog.txt"))
-                {
+                
                     file.Delete();
-                }
+                
+            }
+
+            foreach(var dir in directory.GetDirectories())
+            {
+                ClearFolder(dir.FullName);
             }
   
         }
