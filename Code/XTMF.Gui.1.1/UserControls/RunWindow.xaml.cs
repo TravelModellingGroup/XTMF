@@ -76,7 +76,7 @@ namespace XTMF.Gui.UserControls
             }
             set
             {
-                if(_run != null)
+                if (_run != null)
                 {
                     SetValue(IsRunCancellableDependencyProperty, true);
                 }
@@ -95,7 +95,7 @@ namespace XTMF.Gui.UserControls
             var findResource = Application.Current.FindResource("WarningRed");
             if (findResource != null)
             {
-                var errorColour = (Color) findResource;
+                var errorColour = (Color)findResource;
                 ErrorColour = new Tuple<byte, byte, byte>(errorColour.R, errorColour.G, errorColour.B);
             }
         }
@@ -107,7 +107,7 @@ namespace XTMF.Gui.UserControls
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
         }
 
-        public  class ConsoleOutputController : INotifyPropertyChanged, IDisposable
+        public class ConsoleOutputController : INotifyPropertyChanged, IDisposable
         {
             public string ConsoleOutput { get; set; }
 
@@ -226,10 +226,10 @@ namespace XTMF.Gui.UserControls
         private void StartRun(XTMFRun run, string runName)
         {
             _run = run;
-  
+
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                //MainWindow.Us.SetWindowName(this, "Run - " + runName);
+
                 RunNameLabel.Text = runName;
             }));
             _progressReports = _run.Configuration.ProgressReports;
@@ -244,7 +244,7 @@ namespace XTMF.Gui.UserControls
             _run.ValidationStarting += Run_ValidationStarting;
             _run.ValidationError += Run_ValidationError;
             _runDirectory = _run.RunDirectory;
-            _timer = new DispatcherTimer {Interval = TimeSpan.FromMilliseconds(value: 33)};
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(value: 33) };
             _isFinished = false;
             _timer.Tick += Timer_Tick;
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
@@ -261,7 +261,6 @@ namespace XTMF.Gui.UserControls
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
             ConsoleBorder.DataContext = ConsoleOutput.DataContext;
 
-        
             StartRunAsync();
             _timer.Start();
         }
@@ -323,7 +322,7 @@ namespace XTMF.Gui.UserControls
                         if (_subProgressBars.Count > 0)
                         {
                             /* Resize the column */
-                            BaseGrid.ColumnDefinitions[0].Width = new GridLength(2,GridUnitType.Star);
+                            BaseGrid.ColumnDefinitions[0].Width = new GridLength(2, GridUnitType.Star);
                         }
                         else
                         {
@@ -355,7 +354,7 @@ namespace XTMF.Gui.UserControls
                         elapsedTime = new TimeSpan(elapsedTime.Hours, elapsedTime.Minutes, elapsedTime.Seconds);
                         if (days < 1)
                         {
-                                    
+
                             ElapsedTimeLabel.Content = $"Elapsed Time: {elapsedTime:g}";
                         }
                         else
@@ -396,7 +395,7 @@ namespace XTMF.Gui.UserControls
 
         private void ShowErrorMessage(string v, string message, string stackTrace)
         {
-            new ErrorWindow {Owner = GetWindow(this), ErrorMessage = message, ErrorStackTrace = stackTrace}.ShowDialog();
+            new ErrorWindow { Owner = GetWindow(this), ErrorMessage = message, ErrorStackTrace = stackTrace }.ShowDialog();
         }
 
         private static void Run_ValidationStarting()
@@ -442,7 +441,7 @@ namespace XTMF.Gui.UserControls
             ProgressBar.Finished = true;
             MainWindow.Us.UpdateStatusDisplay("Ready");
             MainWindow.Us.HideStatusLink();
-       
+
         }
 
         private void Run_RunStarted()
@@ -508,10 +507,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void ContinueButton_Clicked(object sender, RoutedEventArgs e)
-        {
 
-        }
 
         private void ProgressReports_BeforeRemove(object sender, ListChangedEventArgs e)
         {
@@ -543,7 +539,7 @@ namespace XTMF.Gui.UserControls
                     _subProgressBars.Add(new SubProgress
                     {
 
-                        Name = new Label {Content = toAdd.Name, Foreground = Brushes.White},
+                        Name = new Label { Content = toAdd.Name, Foreground = Brushes.White },
                         ProgressBar = progressBar
                     });
 
@@ -606,6 +602,7 @@ namespace XTMF.Gui.UserControls
                 {
                     _wasCanceled = true;
                     _isActive = false;
+                    CancelButton.IsEnabled = false;
                     _timer.Stop();
                     _run.TerminateRun();
                     return true;

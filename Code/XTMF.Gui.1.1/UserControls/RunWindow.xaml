@@ -58,7 +58,7 @@
                     </userControls:FlatToolButton.IconPath>
                 </userControls:FlatToolButton>
 
-                <userControls:FlatToolButton x:Name="ContinueButton" Visibility="Hidden" Click="ContinueButton_Clicked"  ToolText="Continue to Project">
+                <userControls:FlatToolButton x:Name="ContinueButton" Visibility="Hidden"  ToolText="Continue to Project">
 
                     <userControls:FlatToolButton.IconPath  >
                         <Path Data="{DynamicResource Checkmark}" Stretch="Uniform" >

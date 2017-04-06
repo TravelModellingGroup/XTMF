@@ -1288,6 +1288,7 @@ namespace XTMF.Gui.UserControls
                                 SelectedDescription.Text = attr.Description;
                                 SelectedDescription.Visibility = Visibility.Visible;
                                 DescriptionExpander.Visibility = Visibility.Visible;
+                                DescriptionExpander.IsExpanded = false;
                             }
                             else
                             {
@@ -2231,7 +2232,8 @@ namespace XTMF.Gui.UserControls
                         item.Children.First().IsSelected = true;
 
                     }
-                    else if (item.Index == item.Parent.Children.Count - 1)
+                 
+                    else if (item.Parent != null && (item.Index == item.Parent.Children.Count - 1))
                     {
                         if (item.Parent.Parent != null)
                         {
@@ -2244,7 +2246,10 @@ namespace XTMF.Gui.UserControls
                     }
                     else
                     {
-                        item.Parent.Children[item.Index + 1].IsSelected = true;
+                        if (item.Parent != null)
+                        {
+                            item.Parent.Children[item.Index + 1].IsSelected = true;
+                        }
                     }
                     e.Handled = true;
                 }
