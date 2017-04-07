@@ -191,9 +191,6 @@ DependencyProperty.Register("BackingModel",
 
         private void BaseModelOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
-
-
-
             if (sender is ModelSystemStructureDisplayModel)
             {
                 if (propertyChangedEventArgs.PropertyName == "IsSelected")

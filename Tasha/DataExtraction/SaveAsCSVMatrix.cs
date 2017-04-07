@@ -45,7 +45,7 @@ namespace Tasha.DataExtraction
                 error = $"In '{Name}' either ODMatrix or ODMatrixRaw need to be assigned values!";
                 return false;
             }
-            if (ODMatrix != null && ODMatrix != null)
+            if (ODMatixRaw != null && ODMatrix != null)
             {
                 error = $"In '{Name}' either ODMatrix or ODMatrixRaw need to be assigned values, not both!";
                 return false;

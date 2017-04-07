@@ -511,6 +511,11 @@ namespace XTMF.Gui.UserControls
             if (_assignMode)
             {
                 AssignCurrentlySelected();
+                ChangesMade = true;
+                CleanupSelectedParameters();
+                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                Visibility = Visibility.Collapsed;
+                OnCloseDisplay.BeginInvoke(null, null);
             }
         }
 

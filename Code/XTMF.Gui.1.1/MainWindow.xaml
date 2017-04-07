@@ -26,7 +26,7 @@
         xmlns:s="clr-namespace:System;assembly=mscorlib"
          MaxWidth="{Binding Source={x:Static SystemParameters.MaximizedPrimaryScreenWidth}}"
         MaxHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}"
-        Title="XTMF Version 1.2" Height="768" Width="1024" IsHitTestVisible="True"
+        Title="XTMF Version 1.3" Height="768" Width="1024" IsHitTestVisible="True"
         Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="1000"
         ResizeMode="CanResizeWithGrip"
   Name="XtmfWindow"
