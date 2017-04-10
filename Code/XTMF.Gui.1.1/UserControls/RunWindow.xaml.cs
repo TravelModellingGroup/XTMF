@@ -549,7 +549,7 @@ namespace XTMF.Gui.UserControls
                 if (_run != null)
                 {
 
-                    _run.ActiveMSTExitRequest();
+                    _run.DeepExitRequest();
 
                     _wasCanceled = _run.ExitRequest();
                    
