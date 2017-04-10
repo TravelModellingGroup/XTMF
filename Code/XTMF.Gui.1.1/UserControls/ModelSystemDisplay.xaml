@@ -348,14 +348,13 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                             </Grid>
                         </Border>
                         <my:FilterBox Grid.Row="0" x:Name="ParameterFilterBox" FilterWatermark="Search Parameters... (Ctrl+P)" Margin="0.2cm,2,0.2cm,2" />
-                    
+
                         <ListView 
                        
                             ScrollViewer.VerticalScrollBarVisibility="Visible"
                         Grid.Row="2" x:Name="ParameterDisplay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch" Padding="0" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       Margin="0" Background="{DynamicResource WindowBackgroundBrush2}" KeyboardNavigation.TabNavigation="Cycle" ItemTemplateSelector="{StaticResource ParameterSelecter}" SizeChanged="ParameterDisplay_SizeChanged" SelectionChanged="ParameterDisplay_SelectionChanged">
-
 
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">

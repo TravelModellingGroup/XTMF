@@ -298,12 +298,11 @@ namespace XTMF.Gui.UserControls
         private void NewLinkedParameter_Clicked(object obj)
         {
 
-
             StringRequestOverlay.Description = "Name of new linked parameter:";
             Overlay.Visibility = Visibility.Visible;
 
             StringRequestOverlay.Visibility = Visibility.Visible;
-
+        
             StringRequestOverlay.StringEntryComplete = (sender, args) =>
             {
                 var name  = StringRequestOverlay.StringEntryValue;
@@ -426,7 +425,6 @@ namespace XTMF.Gui.UserControls
                                 KeepAttached = true
                             }).ToList();
 
-                    // ContainedParameterDisplay.Items.Clear();
                     ContainedParameterDisplay.ItemsSource =
                         new ObservableCollection<ParameterDisplay>(containedParameters);
                     break;

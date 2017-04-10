@@ -46,7 +46,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="AUTO"/>
             </Grid.ColumnDefinitions>
-            <userControls:HintedTextBox Grid.Column="0" x:Name="AnswerBox" HintText="" TextChanged="AnswerBox_TextChanged" />
+            <userControls:HintedTextBox Grid.Column="0" x:Name="AnswerBox" HintText="" TextChanged="AnswerBox_TextChanged_1"  />
             <Button Padding="2" BorderThickness="0" Background="{DynamicResource ControlColourBrush}" Foreground="{DynamicResource ControlTextColourBrush}" Grid.Column="1" x:Name="EnterButton" Click="EnterButton_Click">
                 OK
             </Button>

@@ -90,7 +90,7 @@ namespace XTMF
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
 
-           ClearFolder(RunDirectory);
+            ClearFolder(RunDirectory);
         }
 
         public void ClearFolder(string path)
@@ -102,16 +102,16 @@ namespace XTMF
             DirectoryInfo directory = new DirectoryInfo(path);
             foreach (System.IO.FileInfo file in directory.GetFiles())
             {
-                
-                    file.Delete();
-                
+
+                file.Delete();
+
             }
 
-            foreach(var dir in directory.GetDirectories())
+            foreach (var dir in directory.GetDirectories())
             {
                 ClearFolder(dir.FullName);
             }
-  
+
         }
 
         /// <summary>
@@ -200,6 +200,63 @@ namespace XTMF
                 return mst.ToString();
             }
             return null;
+        }
+
+        public virtual bool ActiveMSTExitRequest()
+        {
+            if (MST != null)
+            {
+
+
+
+                ModelSystemStructure s = ModelSystemStructureModelRoot.RealModelSystemStructure;
+
+
+                ExitRecursive(s, s.Module);
+
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void ExitRecursive(IModelSystemStructure structure, IModule module)
+        {
+
+            if (module != null && structure != null)
+            {
+                if (typeof(IModelSystemTemplate).IsAssignableFrom(module.GetType()))
+                {
+
+                    ((IModelSystemTemplate)module).ExitRequest();
+                }
+
+
+                if (structure.Children != null)
+                {
+                    foreach (var child in structure.Children)
+                    {
+                        ExitRecursive(child, child.Module);
+                    }
+
+                }
+
+            }
+
+            if (structure != null && structure.IsCollection)
+            {
+                if (structure.Children != null)
+                {
+                    foreach (var child in structure.Children)
+                    {
+
+                        ExitRecursive(child, child.Module);
+                    }
+                }
+            }
         }
 
         private Thread RunThread;
@@ -381,7 +438,7 @@ namespace XTMF
                 }
                 else
                 {
-                    ((ConfigurationProxy) Configuration).ModelSystemExited();
+                    ((ConfigurationProxy)Configuration).ModelSystemExited();
                 }
                 GC.Collect();
                 GC.WaitForPendingFinalizers();

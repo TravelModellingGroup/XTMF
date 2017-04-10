@@ -35,7 +35,7 @@ namespace XTMF.Gui.UserControls
     /// <summary>
     ///     Interaction logic for RunWindow.xaml
     /// </summary>
-    public partial class RunWindow : UserControl
+    public partial class RunWindow : UserControl, INotifyPropertyChanged
     {
         private XTMFRun _run;
         private string _runDirectory;
@@ -67,6 +67,27 @@ namespace XTMF.Gui.UserControls
      DependencyProperty.Register("IsRunCancellable",
          typeof(bool), typeof(RunWindow),
              new PropertyMetadata(false));
+
+        public static readonly DependencyProperty IsRunClerableDependencyProperty =
+   DependencyProperty.Register("IsRunClearable",
+       typeof(bool), typeof(RunWindow),
+           new PropertyMetadata(false));
+
+
+        public bool IsRunClearable
+        {
+            get
+            {
+                if (_isActive) return false;
+
+                return (bool)GetValue(IsRunClerableDependencyProperty);
+            }
+            set
+            {
+                SetValue(IsRunClerableDependencyProperty, value);
+            }
+
+        }
 
         public bool IsRunCancellable
         {
@@ -129,21 +150,28 @@ namespace XTMF.Gui.UserControls
                         var reader = new StreamReader(_memoryStream, Encoding.Unicode);
                         while (true)
                         {
+
                             Thread.Sleep(60);
                             _writer.Flush();
                             var currentPosition = _writer.BaseStream.Position;
                             if (currentPosition > lastPosition)
                             {
+
                                 var buff = new char[(currentPosition - lastPosition) / sizeof(char)];
                                 _memoryStream.Position = lastPosition;
                                 var length = reader.ReadBlock(buff, 0, buff.Length);
                                 lastPosition = currentPosition;
                                 if (length > 0)
+
                                 {
-                                    page.Dispatcher.Invoke(() => { page._oldCaret = page.ConsoleOutput.CaretIndex; });
-                                    ConsoleOutput = ConsoleOutput + new string(buff, 0, length);
-                                    var e = PropertyChanged;
-                                    e?.Invoke(this, new PropertyChangedEventArgs("ConsoleOutput"));
+                                    page.Dispatcher.BeginInvoke(new Action(() =>
+                                    {
+                                        page.Dispatcher.Invoke(() => { page._oldCaret = page.ConsoleOutput.CaretIndex; });
+                                        ConsoleOutput = ConsoleOutput + new string(buff, 0, length);
+                                        var e = PropertyChanged;
+                                        e?.Invoke(this, new PropertyChangedEventArgs("ConsoleOutput"));
+
+                                    }));
                                 }
                             }
                             if (Done)
@@ -181,6 +209,8 @@ namespace XTMF.Gui.UserControls
 
         private int _consoleLength;
         private int _oldCaret;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private void ConsoleOutput_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -231,6 +261,7 @@ namespace XTMF.Gui.UserControls
             {
 
                 RunNameLabel.Text = runName;
+                IsRunClearable = false;
             }));
             _progressReports = _run.Configuration.ProgressReports;
             _progressReports.ListChanged += ProgressReports_ListChanged;
@@ -435,27 +466,34 @@ namespace XTMF.Gui.UserControls
                 });
             }
             _isFinished = true;
-            ContinueButton.IsEnabled = true;
 
-            Dispatcher.BeginInvoke((Action) (() =>
-            {
-                CancelButton.IsEnabled = false;
 
-            }));
-           
-            StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
-            ProgressBar.Finished = true;
-            MainWindow.Us.UpdateStatusDisplay("Ready");
-            MainWindow.Us.HideStatusLink();
+            Dispatcher.BeginInvoke((Action)(() =>
+           {
+               IsRunClearable = true;
+               ProgressBar.Finished = true;
+               ContinueButton.IsEnabled = true;
+               ProgressBar.Value = ProgressBar.Maximum;
+               CancelButton.IsEnabled = false;
+               StatusLabel.Text = _wasCanceled ? "Run Canceled" : "Run Complete";
+               ProgressBar.Finished = true;
+               MainWindow.Us.UpdateStatusDisplay("Ready");
+               MainWindow.Us.HideStatusLink();
+
+           }));
+
+
 
         }
 
         private void Run_RunStarted()
         {
             _isActive = true;
+
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 CancelButton.IsEnabled = true;
+                IsRunClearable = false;
 
             }));
         }
@@ -510,10 +548,22 @@ namespace XTMF.Gui.UserControls
             {
                 if (_run != null)
                 {
+
+                    _run.ActiveMSTExitRequest();
+
                     _wasCanceled = _run.ExitRequest();
+                   
+
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+
+                        MainWindow.Us.UpdateStatusDisplay("Ready");
+                        MainWindow.Us.HideStatusLink();
+                    }));
                 }
-                MainWindow.Us.UpdateStatusDisplay("Ready");
-                MainWindow.Us.HideStatusLink();
+
+              
+
             }
         }
 
@@ -623,6 +673,26 @@ namespace XTMF.Gui.UserControls
                 }
             }
             return false;
+        }
+
+        private void ClearRunButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            Dispatcher.BeginInvoke(new Action(() =>
+
+            {
+                StatusLabel.Text = string.Empty;
+                ProgressBar.Finished = false;
+                ProgressBar.Value = ProgressBar.Minimum;
+                IsRunClearable = false;
+                IsRunCancellable = false;
+                ElapsedTimeLabel.Content = string.Empty;
+                StartTimeLabel.Content = string.Empty;
+                ConsoleOutput.Clear();
+            }
+
+            ));
+
         }
     }
 }

@@ -58,6 +58,17 @@
                     </userControls:FlatToolButton.IconPath>
                 </userControls:FlatToolButton>
 
+                <userControls:FlatToolButton IsEnabled="{Binding Path=IsRunClearable,
+    RelativeSource={RelativeSource AncestorType={x:Type userControls:RunWindow}}}"
+                    Click="ClearRunButton_Click" x:Name="ClearRunButton"  ToolText="Clear Run">
+
+                    <userControls:FlatToolButton.IconPath  >
+                        <Path Data="{DynamicResource ClearIconPathGeometry}" Stretch="Uniform" >
+
+                        </Path>
+                    </userControls:FlatToolButton.IconPath>
+                </userControls:FlatToolButton>
+
                 <userControls:FlatToolButton x:Name="ContinueButton" Visibility="Hidden"  ToolText="Continue to Project">
 
                     <userControls:FlatToolButton.IconPath  >

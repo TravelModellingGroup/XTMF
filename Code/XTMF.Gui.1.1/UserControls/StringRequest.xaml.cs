@@ -128,6 +128,15 @@ namespace XTMF.Gui.UserControls
             CloseSuccessfully();
         }
 
+        private void AnswerBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
 
+        }
+
+        private void AnswerBox_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            Validation(Answer);
+            Answer = AnswerBox.Text;
+        }
     }
 }
