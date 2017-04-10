@@ -552,7 +552,8 @@ namespace XTMF.Gui.UserControls
                     _run.DeepExitRequest();
 
                     _wasCanceled = _run.ExitRequest();
-                   
+
+                    _wasCanceled = true;
 
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
