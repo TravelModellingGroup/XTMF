@@ -562,9 +562,6 @@ namespace XTMF.Gui.UserControls
                         MainWindow.Us.HideStatusLink();
                     }));
                 }
-
-              
-
             }
         }
 

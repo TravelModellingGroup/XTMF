@@ -60,10 +60,10 @@
 
                 <userControls:FlatToolButton IsEnabled="{Binding Path=IsRunClearable,
     RelativeSource={RelativeSource AncestorType={x:Type userControls:RunWindow}}}"
-                    Click="ClearRunButton_Click" x:Name="ClearRunButton"  ToolText="Clear Run">
+                    Click="ClearRunButton_Click" x:Name="ClearRunButton"  ToolText="Clear Run Display">
 
                     <userControls:FlatToolButton.IconPath  >
-                        <Path Data="{DynamicResource ClearIconPathGeometry}" Stretch="Uniform" >
+                        <Path  Data="{DynamicResource ClearIconPathGeometry}" Stretch="Uniform" >
 
                         </Path>
                     </userControls:FlatToolButton.IconPath>

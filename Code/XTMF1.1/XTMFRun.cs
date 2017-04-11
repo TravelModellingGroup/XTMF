@@ -455,6 +455,7 @@ namespace XTMF
                 }
                 else
                 {
+                    
                     SendRunComplete();
                 }
                 Directory.SetCurrentDirectory(cwd);

@@ -192,7 +192,8 @@ namespace XTMF.Gui.UserControls
         private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText, bool parentExpanded = true, bool parentVisible = false, bool parentPassed = false)
         {
             var children = module.Children;
-            var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0 || (module.Type != null && module.Type.FullName.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0);
+
             var childrenPassed = false;
             if (children != null)
             {
