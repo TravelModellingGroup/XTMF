@@ -34,18 +34,22 @@
             <StackPanel Orientation="Vertical">
                 
                 <Label Name="DescriptionLabel" Content="{Binding Description}" Foreground="{DynamicResource ThemeTextColorBrush}" Opacity="0.8"></Label>
-        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
-            
-            
-            
-            <TextBox   Margin="0,0,0,0" Name="StringInput" KeyDown="StringInput_OnKeyDown"
+        
+
+                    <StackPanel Orientation="Vertical">
+                    <Label Foreground="{DynamicResource ThemeTextColorBrush}" Opacity="0.8" Name="ExtraInfoLabel" Content="{Binding ExtraInfo}" Visibility="Collapsed" Margin="0,-4,0,0"></Label>
+                    <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                       
+                        <TextBox   Margin="0,0,0,0" Name="StringInput" KeyDown="StringInput_OnKeyDown"
                 Width="250" Height="25" VerticalContentAlignment="Center" Foreground="{DynamicResource ThemeTextColorBrush}" Background="{DynamicResource WindowBackgroundBrush1}">
                 
             </TextBox>
+                        <local:FlatButton Width="30" VerticalAlignment="Stretch"   ToolText="OK" Click="FlatButton_OnClick">
 
-            <local:FlatButton Width="30" VerticalAlignment="Stretch"   ToolText="OK" Click="FlatButton_OnClick">
+                        </local:FlatButton>
+                    </StackPanel>
 
-            </local:FlatButton>
+                 
         </StackPanel>
             </StackPanel>
         </Border>

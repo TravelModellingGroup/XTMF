@@ -665,7 +665,15 @@ namespace XTMF.Gui.UserControls
                             }
                             e.Handled = true;
                             break;
+
+                        case Key.R:
+                            ParameterTabControl.SelectedIndex = 2;
+                           //Mo.Focus();
+                           // Keyboard.Focus(ParameterFilterBox);
+                            e.Handled = true;
+                            break;
                         case Key.P:
+                            ParameterTabControl.SelectedIndex = 1;
                             ModuleParameterTab.Focus();
                             Keyboard.Focus(ParameterFilterBox);
                             e.Handled = true;
@@ -788,6 +796,16 @@ namespace XTMF.Gui.UserControls
 
 
             StringRequestOverlay.Visibility = Visibility.Visible;
+
+            if (DisabledModules.Count > 0)
+            {
+                StringRequestOverlay.ExtraInfo = $"There are currently {DisabledModules.Count} disabled module(s).";
+            }
+            else
+            {
+                StringRequestOverlay.ExtraInfo = string.Empty;
+            }
+
             StringRequestOverlay.StringEntryComplete = (sender, args) =>
             {
 
@@ -832,7 +850,7 @@ namespace XTMF.Gui.UserControls
             QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
             Dispatcher.BeginInvoke(new Action(() =>
            {
-               ParameterTabControl.SelectedIndex = 1;
+               ParameterTabControl.SelectedIndex = 0;
                QuickParameterFilterBox.Focus();
                Keyboard.Focus(QuickParameterFilterBox);
            }));

@@ -60,6 +60,11 @@ namespace XTMF.Gui.UserControls
                 typeof(string), typeof(StringRequestOverlay),
                 new PropertyMetadata(null));
 
+        public static readonly DependencyProperty ExtraInfoDependencyProperty =
+          DependencyProperty.Register("ExtraInfo",
+              typeof(string), typeof(StringRequestOverlay),
+              new PropertyMetadata(null));
+
         public StringRequestOverlay()
         {
             InitializeComponent();
@@ -83,6 +88,27 @@ namespace XTMF.Gui.UserControls
             get { return StringInput.Text; }
 
             set { SetValue(StringEntryValueDependencyProperty, value); }
+        }
+
+        public String ExtraInfo
+        {
+            get
+            {
+                return (string)GetValue(ExtraInfoDependencyProperty);
+            }
+            set
+            {
+                if(!string.IsNullOrEmpty(value))
+                {
+                    ExtraInfoLabel.Visibility = Visibility.Visible;
+                    ExtraInfoLabel.Content = value;
+                }
+                else
+                {
+                    ExtraInfoLabel.Visibility = Visibility.Collapsed;
+                }
+                SetValue(ExtraInfoDependencyProperty, value);
+            }
         }
 
         public string Description

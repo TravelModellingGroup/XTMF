@@ -606,6 +606,9 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                                     </ControlTemplate>
                                                 </Setter.Value>
                                             </Setter>
+
+
+                                           
                                         </Style>
                                     </ListView.ItemContainerStyle>
                                     <ListView.ItemTemplate>
@@ -618,7 +621,7 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                                     <ColumnDefinition Width="1*"></ColumnDefinition>
                                                 </Grid.ColumnDefinitions>
                                                 <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"></Label>
-                                                <Label Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
+                                                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
                                             </Grid>
                                          
                                         </ItemContainerTemplate>
