@@ -90,8 +90,6 @@ namespace XTMF.Gui
         }
 
 
-        
-
         public RunWindow RunWindow
         {
             get { return (RunWindow)ModelRunPane.Content; }
@@ -99,13 +97,13 @@ namespace XTMF.Gui
 
         public ActiveEditingSessionDisplayModel EditingDisplayModel
         {
-            get {
-
+            get
+            {
 
                 return (ActiveEditingSessionDisplayModel)GetValue(EditingDisplayModelProperty);
             }
-            set {
-
+            set
+            {
                 SetValue(EditingDisplayModelProperty, value);
             }
         }
@@ -146,7 +144,7 @@ namespace XTMF.Gui
                   "XTMF", "Configuration.xml"))
               : System.IO.Path.GetDirectoryName(_configurationFilePath));
 
-          
+
 
             InitializeComponent();
             ModelRunPane.Hide();
@@ -161,8 +159,8 @@ namespace XTMF.Gui
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, this.Minimize_Click, this.OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, this.OnRestoreWindow, this.OnCanResizeWindow));
 
-          
-     
+
+
         }
 
 
@@ -374,7 +372,7 @@ namespace XTMF.Gui
                         return true;
                     }
                 }
-                
+
             }
 
             EditorController.Runtime.ProjectController.ClearEditingSessions();
@@ -502,20 +500,20 @@ namespace XTMF.Gui
         public void SetStatusLink(string text, Action clickAction)
         {
 
-            Dispatcher.Invoke( ()=>
-           {
-               StatusLinkLabel.Visibility = Visibility.Visible;
+            Dispatcher.Invoke(() =>
+          {
+              StatusLinkLabel.Visibility = Visibility.Visible;
 
-               MouseButtonEventHandler handler = new MouseButtonEventHandler((e, a) => { clickAction.BeginInvoke(null, null); });
+              MouseButtonEventHandler handler = new MouseButtonEventHandler((e, a) => { clickAction.BeginInvoke(null, null); });
 
-               if (lastAdded != null)
-               {
-                   StatusLinkLabel.MouseDown -= lastAdded;
-               }
-               StatusLinkLabel.MouseDown += handler;
-               StatusLinkLabel.Content = text;
-               lastAdded = handler;
-           });
+              if (lastAdded != null)
+              {
+                  StatusLinkLabel.MouseDown -= lastAdded;
+              }
+              StatusLinkLabel.MouseDown += handler;
+              StatusLinkLabel.Content = text;
+              lastAdded = handler;
+          });
         }
 
         public void HideStatusLink()
@@ -586,7 +584,7 @@ namespace XTMF.Gui
                         display.Model.Unload();
                         projectSession.NameChanged -= onRename;
                     };
-               
+
                     SetStatusText("Ready");
                 }
                 ));
@@ -611,7 +609,7 @@ namespace XTMF.Gui
         private List<LayoutDocument> OpenPages = new List<LayoutDocument>();
 
         internal LayoutDocument AddNewWindow(string name, UIElement content, Type typeOfController, Action onClose = null, string
-            contentGuid = null,object k = null)
+            contentGuid = null, object k = null)
         {
             var document = new LayoutDocument()
             {
@@ -620,8 +618,8 @@ namespace XTMF.Gui
                 ContentId = contentGuid
 
             };
-          
-            if(k != null)
+
+            if (k != null)
             {
                 DisplaysForLayout.TryAdd(document, (ActiveEditingSessionDisplayModel)k);
             }
@@ -791,7 +789,7 @@ namespace XTMF.Gui
 
         }
 
-      
+
 
         public void NewModelSystem()
         {
@@ -843,8 +841,8 @@ namespace XTMF.Gui
                 var titleBarName = titleBar == null ? modelSystemSession.EditingProject ?
                      modelSystemSession.ProjectEditingSession.Name + " - " + modelSystemSession.ModelSystemModel.Name
                     : "Model System - " + modelSystemSession.ModelSystemModel.Name : titleBar;
-                var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel),null,
-                    display.ContentGuid,displayModel);
+                var doc = AddNewWindow(titleBarName, display, typeof(ModelSystemEditingSessionDisplayModel), null,
+                    display.ContentGuid, displayModel);
 
                 //DisplaysForLayout.TryAdd(doc, displayModel);
                 PropertyChangedEventHandler onRename = (o, e) =>
@@ -1008,7 +1006,7 @@ namespace XTMF.Gui
             try
             {
                 string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                
+
                 Process.Start(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), DocumentationName));
             }
             catch
@@ -1183,7 +1181,8 @@ namespace XTMF.Gui
         public void LoadPage(string title)
         {
 
-            Dispatcher.BeginInvoke((MethodInvoker)delegate {
+            Dispatcher.BeginInvoke((MethodInvoker)delegate
+            {
 
                 var item = OpenPages.Find(doc => doc.Title == title);
                 if (item != null)
@@ -1192,7 +1191,7 @@ namespace XTMF.Gui
 
                 }
             });
-           
+
         }
 
         private void LaunchSettingsPage()
@@ -1266,7 +1265,7 @@ namespace XTMF.Gui
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-     
+
             if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
             {
                 if (e.GetPosition(this).Y < 90)
@@ -1287,19 +1286,19 @@ namespace XTMF.Gui
         {
             if (this.WindowState == WindowState.Maximized)
             {
-                
+
                 SystemCommands.RestoreWindow(this);
             }
             else if (this.WindowState == WindowState.Normal)
             {
-                
+
                 ExternalGrid.Margin = new Thickness()
                 {
                     Left = 0,
                     Top = 0,
                     Right = 0,
-                   Bottom = 0,
-                  };
+                    Bottom = 0,
+                };
                 SystemCommands.MaximizeWindow(this);
 
 
@@ -1388,7 +1387,7 @@ namespace XTMF.Gui
 
             EditingDisplayModel =
 
-                DisplaysForLayout.ContainsKey((LayoutDocument)DockManager.Layout.ActiveContent)?
+                DisplaysForLayout.ContainsKey((LayoutDocument)DockManager.Layout.ActiveContent) ?
                 DisplaysForLayout[(LayoutDocument)DockManager.Layout.ActiveContent] : NullEditingDisplayModel;
 
         }

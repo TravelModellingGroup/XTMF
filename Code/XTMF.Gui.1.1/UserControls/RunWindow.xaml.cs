@@ -126,6 +126,25 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
 
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
+
+         
+        }
+
+        private void MainWindowClosing(object sender, CancelEventArgs e)
+        {
+            if(_isActive)
+            {
+
+                MessageBoxResult result = MessageBox.Show("A run is currently active. Are you sure you wish to close XTMF?", "Run Currently Active", MessageBoxButton.YesNoCancel);
+                if (result == MessageBoxResult.Yes)
+                {
+                    e.Cancel = false;
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
+            }
         }
 
         public class ConsoleOutputController : INotifyPropertyChanged, IDisposable
@@ -256,6 +275,8 @@ namespace XTMF.Gui.UserControls
         private void StartRun(XTMFRun run, string runName)
         {
             _run = run;
+
+            MainWindow.Us.Closing += MainWindowClosing;
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -467,7 +488,7 @@ namespace XTMF.Gui.UserControls
             }
             _isFinished = true;
 
-
+            MainWindow.Us.Closing -= MainWindowClosing;
             Dispatcher.BeginInvoke((Action)(() =>
            {
                IsRunClearable = true;
