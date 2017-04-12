@@ -1377,9 +1377,9 @@ namespace XTMF.Gui.UserControls
             if (module != null)
             {
                 RefreshParameters();
-                if (ParameterTabControl.SelectedIndex != 0)
+                if (ParameterTabControl.SelectedIndex != 1)
                 {
-                    ParameterTabControl.SelectedIndex = 0;
+                    ParameterTabControl.SelectedIndex = 1;
                 }
             }
         }
