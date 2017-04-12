@@ -1315,7 +1315,6 @@ namespace XTMF.Gui
             if (e.ChangedButton == MouseButton.Left)
             {
 
-
                 if (e.GetPosition(this).Y < 90)
                 {
                     e.Handled = true;

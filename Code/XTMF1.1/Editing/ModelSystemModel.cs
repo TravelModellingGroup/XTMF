@@ -49,15 +49,36 @@ namespace XTMF
 
         private int ModelSystemIndex;
 
+        private List<IModelSystemStructure> _disabledModules;
+
         public ModelSystemModel(ModelSystemEditingSession session, ModelSystem modelSystem)
         {
             ModelSystem = modelSystem;
+
+          
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
             List<ILinkedParameter> editingLinkedParameters;
             Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out editingLinkedParameters) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+            EnumerateDisabledModules(modelSystem.ModelSystemStructure);
         }
+
+        private void EnumerateDisabledModules(IModelSystemStructure element)
+        {
+            if (((ModelSystemStructure)element).IsDisabled)
+            {
+                _disabledModules.Add(element);
+            }
+            foreach (var module in element.Children)
+            {
+               
+                EnumerateDisabledModules(module);
+            }
+        }
+        
+       
+
 
         internal ParameterModel GetParameterModel(IModuleParameter moduleParameter)
         {

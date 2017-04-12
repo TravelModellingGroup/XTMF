@@ -261,6 +261,10 @@ namespace XTMF.Gui.UserControls
             AllowMultiSelection(ModuleDisplay);
             Loaded += ModelSystemDisplay_Loaded;
             ModuleDisplay.SelectedItemChanged += ModuleDisplay_SelectedItemChanged;
+
+            DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
+
+            DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
            {
                var module = o as ModelSystemStructureDisplayModel;
@@ -345,7 +349,10 @@ namespace XTMF.Gui.UserControls
                 MainWindow.Us.PreviewKeyDown += UsOnPreviewKeyDown;
                 FilterBox.Focus();
             }));
+            UpdateQuickParameters();
         }
+
+
 
         private void ModelSystemDisplay_ParametersChanged(object arg1, ParametersModel parameters)
         {
@@ -594,7 +601,10 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-
+        public ObservableCollection<ModelSystemStructureDisplayModel> DisabledModules
+        {
+            get;set;
+        }
 
         private ObservableCollection<ModelSystemStructureDisplayModel> CreateDisplayModel(ModelSystemStructureModel root)
         {
@@ -769,6 +779,8 @@ namespace XTMF.Gui.UserControls
         private void ExecuteRun()
         {
 
+
+            
             var runName = String.Empty;
             string error = null;
             StringRequestOverlay.Description = "Please enter a run name.";
@@ -1398,6 +1410,17 @@ namespace XTMF.Gui.UserControls
                         {
                             return;
                         }
+                        else
+                        {
+                            if (sel.IsDisabled)
+                            {
+                                DisabledModules.Add(sel);
+                            }
+                            else
+                            {
+                                DisabledModules.Remove(sel);
+                            }
+                        }
                     }
                 });
                 if (error != null)
@@ -1675,6 +1698,17 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void LoadModelSystemInformation()
+        {
+            /* Load disabled module information from the model system */
+
+            var root = ModelSystem.Root;
+
+            foreach(var child in root.Children)
+            {
+
+            }
+        }
 
         private void RenameParameter()
         {
@@ -1953,10 +1987,14 @@ namespace XTMF.Gui.UserControls
 
         private void UpdateQuickParameters()
         {
-            QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
-            QuickParameterFilterBox.Display = QuickParameterDisplay;
-            QuickParameterFilterBox.Filter = FilterParameters;
-            QuickParameterFilterBox.RefreshFilter();
+          
+            if (QuickParameterDisplay != null)
+            {
+                QuickParameterDisplay.ItemsSource = ParameterDisplayModel.CreateParameters(Session.ModelSystemModel.GetQuickParameters().OrderBy(n => n.Name));
+                QuickParameterFilterBox.Display = QuickParameterDisplay;
+                QuickParameterFilterBox.Filter = FilterParameters;
+                QuickParameterFilterBox.RefreshFilter();
+            }
         }
 
         private void OnPreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -2388,12 +2426,24 @@ namespace XTMF.Gui.UserControls
 
         private void ExpandAllMenuItem_Click(object sender, RoutedEventArgs e)
         {
-
             if (ModuleDisplay.Items.Count > 0)
             {
                 ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.Items.GetItemAt(0));
             }
 
+        }
+
+        private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+            var module = ((System.Windows.Controls.Label)sender).Tag as ModelSystemStructureDisplayModel;
+            if (module != null)
+            {
+                string error = string.Empty;
+                DisabledModules.Remove(module);
+                module.SetDisabled(false, ref error);
+            }
+          
         }
     }
 }

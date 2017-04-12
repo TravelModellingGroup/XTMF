@@ -50,7 +50,7 @@
 
     <Color x:Key="ControlTextColour">#FFFFFF</Color>
 
-    <Color x:Key="ControlColour">#728599</Color>
+    <Color x:Key="ControlColour">#FF7A90A7</Color>
     <Color x:Key="ControlColourUnselected">#696D73</Color>
     <Color x:Key="ControlHighlightColour">#FF2970A9</Color>
 
