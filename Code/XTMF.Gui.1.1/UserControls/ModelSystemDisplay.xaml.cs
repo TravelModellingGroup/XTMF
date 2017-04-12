@@ -811,11 +811,17 @@ namespace XTMF.Gui.UserControls
 
                 runName = StringRequestOverlay.StringEntryValue;
 
-
-                if (!Session.RunNameExists(runName) || MessageBox.Show("This run name has been previously used.  Continue?", "Continue?",
-                        MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                var runQuestion = MessageBoxResult.Yes;
+                if(Session.RunNameExists(runName))
                 {
-                    var run = Session.Run(runName, ref error);
+                    runQuestion = MessageBox.Show("This run name has been previously used. Do you wish to delete the previous output?",
+                    "Run Name Already Exists", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning,MessageBoxResult.No);
+                }
+                
+
+               if(runQuestion == MessageBoxResult.Yes || runQuestion == MessageBoxResult.No)
+                {
+                    var run = Session.Run(runName, ref error, runQuestion == MessageBoxResult.Yes ? true : false);
                     if (run != null)
                     {
                         MainWindow.Us.UpdateStatusDisplay("Running Model System ");

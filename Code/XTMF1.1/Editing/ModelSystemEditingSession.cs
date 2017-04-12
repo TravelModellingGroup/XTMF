@@ -212,7 +212,7 @@ namespace XTMF
         /// <param name="runName"></param>
         /// <param name="error">A message in case of error</param>
         /// <returns></returns>
-        public XTMFRun Run(string runName, ref string error)
+        public XTMFRun Run(string runName, ref string error, bool overwrite = false)
         {
             // this needs to block as if a command is running
             lock (SessionLock)
@@ -236,11 +236,11 @@ namespace XTMF
                         cloneProject.ModelSystemStructure[ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
                         cloneProject.ModelSystemDescriptions[ModelSystemIndex] = ModelSystemModel.Description;
                         cloneProject.LinkedParameters[ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-                        run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName);
+                        run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName,overwrite);
                     }
                     else
                     {
-                        run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName);
+                        run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName,overwrite);
                     }
                     _Run.Add(run);
                     AnyRunning = true;

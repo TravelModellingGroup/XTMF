@@ -126,7 +126,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
 
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
-
+            OpenDirectoryButton.IsEnabled = false;
 
         }
 
@@ -277,7 +277,7 @@ namespace XTMF.Gui.UserControls
             _run = run;
 
             MainWindow.Us.Closing += MainWindowClosing;
-
+            OpenDirectoryButton.IsEnabled = true;
             Dispatcher.BeginInvoke(new Action(() =>
             {
 
@@ -705,6 +705,9 @@ namespace XTMF.Gui.UserControls
                 IsRunCancellable = false;
                 ElapsedTimeLabel.Content = string.Empty;
                 StartTimeLabel.Content = string.Empty;
+                _runDirectory = string.Empty;
+
+                OpenDirectoryButton.IsEnabled = false;
                 ConsoleOutput.Clear();
             }
 

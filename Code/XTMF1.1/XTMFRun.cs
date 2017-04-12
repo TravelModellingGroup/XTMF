@@ -63,7 +63,7 @@ namespace XTMF
 
         public string RunDirectory { get; private set; }
 
-        public XTMFRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName)
+        public XTMFRun(Project project, int modelSystemIndex, ModelSystemModel root, Configuration config, string runName, bool overwrite = false)
         {
             Project = project;
             ModelSystemStructureModelRoot = root.Root;
@@ -75,11 +75,13 @@ namespace XTMF
             Project.LinkedParameters[ModelSystemIndex] = root.LinkedParameters.GetRealLinkedParameters();
 
 
-            //throw new Exception(RunDirectory);
-            ClearFolder(RunDirectory);
+            if (overwrite)
+            {
+                ClearFolder(RunDirectory);
+            }
         }
 
-        public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName)
+        public XTMFRun(Project project, ModelSystemStructureModel root, Configuration configuration, string runName, bool overwrite = false)
         {
             // we don't make a clone for this type of run
             Project = project;
@@ -90,7 +92,10 @@ namespace XTMF
             RunName = runName;
             RunDirectory = Path.Combine(Configuration.ProjectDirectory, Project.Name, RunName);
 
-            ClearFolder(RunDirectory);
+            if (overwrite)
+            {
+                ClearFolder(RunDirectory);
+            }
         }
 
         public void ClearFolder(string path)
