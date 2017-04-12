@@ -111,10 +111,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Tasha\Tasha.csproj">
-      <Project>{7DD20E37-8F3F-4BF6-953E-47453F611094}</Project>
-      <Name>Tasha</Name>
-    </ProjectReference>
     <ProjectReference Include="..\XTMFInterfaces\XTMFInterfaces.csproj">
       <Project>{5a7c8449-be6f-4cbb-ad7f-b38560dae637}</Project>
       <Name>XTMFInterfaces</Name>
