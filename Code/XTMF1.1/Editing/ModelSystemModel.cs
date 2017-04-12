@@ -37,6 +37,14 @@ namespace XTMF
         /// </summary>
         public LinkedParametersModel LinkedParameters { get; private set; }
 
+        public List<ModelSystemStructureModel> DisabledModules
+        {
+            get
+            {
+                return new List<ModelSystemStructureModel>();
+            }
+        }
+
         public event EventHandler ModelSystemStructureChanged;
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -868,6 +868,8 @@ namespace XTMF.Gui.UserControls
             string error = null;
             Session.Undo(ref error);
             UpdateParameters();
+
+    
         }
 
         public void Close()

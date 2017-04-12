@@ -127,12 +127,12 @@ namespace XTMF.Gui.UserControls
 
             ConsoleOutput.DataContext = new ConsoleOutputController(this);
 
-         
+
         }
 
         private void MainWindowClosing(object sender, CancelEventArgs e)
         {
-            if(_isActive)
+            if (_isActive)
             {
 
                 MessageBoxResult result = MessageBox.Show("A run is currently active. Are you sure you wish to close XTMF?", "Run Currently Active", MessageBoxButton.YesNoCancel);
@@ -502,8 +502,6 @@ namespace XTMF.Gui.UserControls
                MainWindow.Us.HideStatusLink();
 
            }));
-
-
 
         }
 

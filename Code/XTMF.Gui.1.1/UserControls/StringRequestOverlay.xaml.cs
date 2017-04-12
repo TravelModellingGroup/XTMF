@@ -49,7 +49,6 @@ namespace XTMF.Gui.UserControls
                 typeof(RoutedEventHandler), typeof(StringRequestOverlay),
                 new PropertyMetadata(null));
 
-
         public static readonly DependencyProperty StringEntryValueDependencyProperty =
             DependencyProperty.Register("EntryValue",
                 typeof(string), typeof(StringRequestOverlay),
@@ -98,7 +97,7 @@ namespace XTMF.Gui.UserControls
             }
             set
             {
-                if(!string.IsNullOrEmpty(value))
+                if (!string.IsNullOrEmpty(value))
                 {
                     ExtraInfoLabel.Visibility = Visibility.Visible;
                     ExtraInfoLabel.Content = value;
