@@ -142,7 +142,7 @@ namespace XTMF.Gui.UserControls
                         {
                             
                             
-                            if(ms.Type == null && ms.Required)
+                            if(ms.Type == null && ms.Required && ms.Required)
                             {
                                 _IsMissingModules = true;
                             }

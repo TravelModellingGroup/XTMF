@@ -65,18 +65,24 @@
             </ListView.ContextMenu>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <my:VirtualizingWrapPanel Orientation="Horizontal" VirtualizingPanel.IsVirtualizing="True" />
+                    <VirtualizingStackPanel></VirtualizingStackPanel>
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate DataType="{x:Type xtmf:ModelSystem}">
-                    <my:BorderIconButton Margin="5" Header="{Binding Name}" Text="{Binding Description}"
-                                             Icon="/XTMF.Gui;component/Resources/ic_developer_board_24px.png" Width="300px"
-                                             DoubleClicked="ModelSystem_DoubleClicked" >
-                        <my:BorderIconButton.Background>
-                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlDarkColorKey}}"/>
-                        </my:BorderIconButton.Background>
-                    </my:BorderIconButton>
+
+                    <local:ListViewControl Height="50" TitleText="{Binding Name}" SubText="{Binding Description}" MouseDoubleClick="ListViewControl_MouseDoubleClick" >
+
+                        <local:ListViewControl.IconPath>
+
+
+
+                            <Path Data="{DynamicResource ModelSystemIconPath}">
+                            </Path>
+                        </local:ListViewControl.IconPath>
+
+                    </local:ListViewControl>
+
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

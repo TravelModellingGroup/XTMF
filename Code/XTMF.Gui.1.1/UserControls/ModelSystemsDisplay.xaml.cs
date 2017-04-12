@@ -350,5 +350,10 @@ namespace XTMF.Gui.UserControls
         {
             MainWindow.Us.ImportModelSystem();
         }
+
+        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            LoadCurrentModelSystem();
+        }
     }
 }
