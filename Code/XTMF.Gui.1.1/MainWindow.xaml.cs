@@ -238,16 +238,12 @@ namespace XTMF.Gui
                 }
             }
 
-
-
-
         }
 
         public List<string> RecentProjects
         {
             get
             {
-
                 return EditorController.Runtime.Configuration.RecentProjects;
             }
             set { }
@@ -257,7 +253,6 @@ namespace XTMF.Gui
         {
             get
             {
-
                 return EditorController.Runtime != null;
             }
             set { }
@@ -288,8 +283,6 @@ namespace XTMF.Gui
 
                 }
 
-
-
                 RecentProjectsUpdated?.Invoke(this, new System.EventArgs());
             });
         }
@@ -309,7 +302,6 @@ namespace XTMF.Gui
         {
             if (!ClosePages())
             {
-
 
                 IsEnabled = false;
                 StatusDisplay.Text = "Loading XTMF";
@@ -436,8 +428,6 @@ namespace XTMF.Gui
 
         public void LoadProject(Project project)
         {
-
-            // EditorController.Runtime.ProjectController.Edi
 
             OperationProgressing progressing = new OperationProgressing()
             {
@@ -788,8 +778,6 @@ namespace XTMF.Gui
             NewModelSystem();
 
         }
-
-
 
         public void NewModelSystem()
         {
@@ -1265,7 +1253,6 @@ namespace XTMF.Gui
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-
             if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed)
             {
                 if (e.GetPosition(this).Y < 90)
@@ -1277,7 +1264,6 @@ namespace XTMF.Gui
                 }
 
             }
-
 
         }
 
@@ -1301,13 +1287,11 @@ namespace XTMF.Gui
                 };
                 SystemCommands.MaximizeWindow(this);
 
-
             }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-
 
             SystemCommands.CloseWindow(this);
         }
