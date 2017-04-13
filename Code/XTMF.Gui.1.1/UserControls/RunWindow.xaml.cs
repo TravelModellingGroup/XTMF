@@ -567,7 +567,6 @@ namespace XTMF.Gui.UserControls
             {
                 if (_run != null)
                 {
-
                     _run.DeepExitRequest();
 
                     _wasCanceled = _run.ExitRequest();
@@ -696,7 +695,6 @@ namespace XTMF.Gui.UserControls
         {
 
             Dispatcher.BeginInvoke(new Action(() =>
-
             {
                 StatusLabel.Text = string.Empty;
                 ProgressBar.Finished = false;

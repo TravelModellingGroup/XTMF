@@ -2246,11 +2246,11 @@ namespace XTMF.Gui.UserControls
                             {
                                 if (treeViewItem.BackingModel.BaseModel.IsDisabled)
                                 {
-                                    menuItem.Header = "Enable Module (Shift + D)";
+                                    menuItem.Header = "Enable Module (Ctrl + D)";
                                 }
                                 else
                                 {
-                                    menuItem.Header = "Disable Module (Shift + D)";
+                                    menuItem.Header = "Disable Module (Ctrl + D)";
                                 }
                             }
                             else
