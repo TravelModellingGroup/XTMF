@@ -26,6 +26,7 @@
              xmlns:models="clr-namespace:XTMF.Gui.Models"
              xmlns:my="clr-namespace:XTMF.Gui" Margin="0"
              xmlns:this="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:this2="clr-namespace:XTMF.Gui.UserControls"
              KeyboardNavigation.IsTabStop="True"
              FocusManager.FocusedElement="{Binding Source={x:Reference Name=FilterBox}}"
              mc:Ignorable="d" Name="MDisplay"
@@ -40,7 +41,40 @@
         </VisualBrush>
 
 
-        <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
+        <DataTemplate x:Key="ModuleDisabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
+            <Grid Background="Transparent" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="30"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"></Label>
+                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
+             
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ModuleEnabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
+            <Grid Background="Transparent" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="30"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"></Label>
+                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Disable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
+                <Border ToolTip="Remove module from list" Cursor="Hand"  Tag="{Binding Path=.}" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}" MouseDown="Path_MouseDown">
+                    <Path IsHitTestVisible="False" Tag="{Binding Path=.}"  Data="{DynamicResource CancelIconPath}" Fill="{DynamicResource ThemeTextColorBrush}" Opacity="0.5"  ></Path>
+                 </Border>
+            </Grid>
+        </DataTemplate>
+
+        <models:ModelSystemInfoTemplateSelector  x:Key="ModelSystemInfoTemplateSelector"  ModuleDisabled="{StaticResource ModuleDisabledTemplate}"
+                                                ModuleEnabled="{StaticResource ModuleEnabledTemplate}"></models:ModelSystemInfoTemplateSelector>
+        
+
+
+            <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
             <Border  MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                               Name="b"  BorderThickness="0"  HorizontalAlignment="Stretch">
@@ -588,7 +622,7 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                     <Label Foreground="{DynamicResource ThemeTextColorBrush}"  Grid.Column="0" Content="Module Name"></Label>
                                     <Label Foreground="{DynamicResource ThemeTextColorBrush}"  Grid.Column="1" Content="Action"></Label>
                                 </Grid>
-                                <ListView Background="Transparent" BorderBrush="{x:Null}" Focusable="False"  x:Name="DisabledModulesList" SelectionMode="Single" >
+                                <ListView ItemTemplateSelector="{StaticResource ModelSystemInfoTemplateSelector}" Background="Transparent" BorderBrush="{x:Null}" Focusable="False"  x:Name="DisabledModulesList" SelectionMode="Single" >
 
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
@@ -605,25 +639,19 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                                 </Setter.Value>
                                             </Setter>
 
-
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsDisabled}" Value="True">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource ModuleDisabledTemplate}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=IsDisabled}" Value="False">
+                                                    <Setter Property="ContentTemplate" Value="{StaticResource ModuleEnabledTemplate}" />
+                                                </DataTrigger>
+                                                <!--  your other Status' here -->
+                                            </Style.Triggers>
 
                                         </Style>
                                     </ListView.ItemContainerStyle>
-                                    <ListView.ItemTemplate>
-
-                                        <ItemContainerTemplate>
-
-                                            <Grid Background="Transparent" HorizontalAlignment="Stretch">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="1*"></ColumnDefinition>
-                                                    <ColumnDefinition Width="1*"></ColumnDefinition>
-                                                </Grid.ColumnDefinitions>
-                                                <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"></Label>
-                                                <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
-                                            </Grid>
-
-                                        </ItemContainerTemplate>
-                                    </ListView.ItemTemplate>
+                                
                                 </ListView>
                             </StackPanel>
 

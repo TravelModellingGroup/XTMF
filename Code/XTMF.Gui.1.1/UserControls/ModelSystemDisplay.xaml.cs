@@ -264,6 +264,7 @@ namespace XTMF.Gui.UserControls
 
             DisabledModules = new ObservableCollection<ModelSystemStructureDisplayModel>();
 
+            
             DisabledModulesList.ItemsSource = DisabledModules;
             FilterBox.Filter = (o, text) =>
            {
@@ -350,6 +351,27 @@ namespace XTMF.Gui.UserControls
                 FilterBox.Focus();
             }));
             UpdateQuickParameters();
+
+       
+
+           EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
+   
+        }
+
+        private void EnumerateDisabled(ModelSystemStructureDisplayModel model)
+        {
+            if (model.IsDisabled)
+            {
+                
+                DisabledModules.Add(model);
+            }
+            if (model.Children != null)
+            {
+                foreach (var child in model.Children)
+                {
+                    EnumerateDisabled(child);
+                }
+            }
         }
 
 
@@ -424,7 +446,6 @@ namespace XTMF.Gui.UserControls
 
         private void ShowLinkedParameterDialog(bool assign = false)
         {
-
             LinkedParameterDisplayOverlay.LinkedParametersModel = ModelSystem.LinkedParameters;
 
             LinkedParameterDisplayOverlay.ShowLinkedParameterDisplay(assign);
@@ -1440,12 +1461,12 @@ namespace XTMF.Gui.UserControls
                         {
                             if (sel.IsDisabled)
                             {
-                                DisabledModules.Add(sel);
+                                if (!DisabledModules.Contains(sel))
+                                {
+                                    DisabledModules.Add(sel);
+                                }
                             }
-                            else
-                            {
-                                DisabledModules.Remove(sel);
-                            }
+                           
                         }
                     }
                 });
@@ -2466,10 +2487,28 @@ namespace XTMF.Gui.UserControls
             if (module != null)
             {
                 string error = string.Empty;
-                DisabledModules.Remove(module);
-                module.SetDisabled(false, ref error);
+        
+                module.SetDisabled(!module.IsDisabled, ref error);
+
+
+                DisabledModulesList.InvalidateArrange();
+                
+              
+                
             }
           
         }
+
+        private void Path_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var module = ((Border) sender).Tag as ModelSystemStructureDisplayModel;
+            if (module != null)
+            {
+                DisabledModules.Remove(module);
+            }
+        }
     }
+
+
+   
 }

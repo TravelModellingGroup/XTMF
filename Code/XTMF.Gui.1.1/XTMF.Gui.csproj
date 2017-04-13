@@ -161,6 +161,7 @@
     <Compile Include="Models\CommandDisplayModel.cs" />
     <Compile Include="Models\LinkedParameterDisplayModel.cs" />
     <Compile Include="Models\ModelSystemEditingSessionDisplayModel.cs" />
+    <Compile Include="Models\ModelSystemInfoTemplateSelector.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
     <Compile Include="Resources\ForestTheme.cs" />
