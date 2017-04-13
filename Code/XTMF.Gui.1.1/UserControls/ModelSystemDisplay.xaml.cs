@@ -2312,7 +2312,7 @@ namespace XTMF.Gui.UserControls
             {
                 try
                 {
-                    if (item.IsExpanded)
+                    if (item.IsExpanded && item.Children.Count > 0)
                     {
 
                         item.Children.First().IsSelected = true;
@@ -2321,6 +2321,31 @@ namespace XTMF.Gui.UserControls
                  
                     else if (item.Parent != null && (item.Index == item.Parent.Children.Count - 1))
                     {
+                        /* Loop until parent with expanded item */
+
+                        var searchItem = item.Parent;
+
+                        
+                        while (true)
+                        {
+                            if (searchItem.Parent != null)
+                            {
+                                if (searchItem.Parent.Children.Count <= searchItem.Index + 1)
+                                {
+                                    searchItem = searchItem.Parent;
+                                }
+                                else
+                                {
+                                    searchItem.Parent.Children[searchItem.Index + 1].IsSelected = true;
+                                    break;
+                                }
+                              
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
                         if (item.Parent.Parent != null)
                         {
                             if (item.Parent.Index + 1 < item.Parent.Parent.Children.Count)
@@ -2339,8 +2364,9 @@ namespace XTMF.Gui.UserControls
                     }
                     e.Handled = true;
                 }
-                catch
+                catch(Exception exc)
                 {
+                    Console.WriteLine(exc);
                 }
             }
             if (e.Key != Key.Up)
@@ -2363,9 +2389,16 @@ namespace XTMF.Gui.UserControls
 
                     while (true)
                     {
-                        if (upItem.IsExpanded)
+                        if (upItem.IsExpanded && upItem.Children.Count >= 0 )
                         {
-                            upItem = upItem.Children[upItem.Children.Count - 1];
+                            if (upItem.Index > 0)
+                            {
+                                upItem = upItem.Children[upItem.Index - 1];
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                         else
                         {
