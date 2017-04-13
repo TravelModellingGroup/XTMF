@@ -2494,9 +2494,7 @@ namespace XTMF.Gui.UserControls
 
         private void ExpandModule(ModelSystemStructureDisplayModel module)
         {
-
             module.IsExpanded = true;
-
             foreach (ModelSystemStructureDisplayModel child in module.Children)
             {
                 ExpandModule(child);

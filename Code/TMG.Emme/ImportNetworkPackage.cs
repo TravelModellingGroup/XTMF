@@ -38,7 +38,7 @@ namespace TMG.Emme
 
         [RunParameter("Function Conflict Option", FunctionConflictOption.RAISE, "Option to deal with function definition conflicts. For example, if "
             + "FT1 is defined as 'length / speed * 60' in the current Emmebank, but defined as 'length / us1 * 60' in the NWP's functions file."
-            + "One of RAISE, PRESERVE, or OVERWRITE. RAISE (default) raises an error if "
+            + "One of RAISE, PRESERVE or OVERWRITE. RAISE (default) raises an error if "
             + "any conflict is detected. PRESERVE keeps the definitions that already exist in the Emmebank (no modification). OVERWRITE modifies "
             + "the definitions to match what is given in the NWP file.")]
         public FunctionConflictOption ConflictOption;
@@ -49,6 +49,10 @@ namespace TMG.Emme
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
         private const string _ToolName = "tmg.input_output.import_network_package";
 
+
+        [RunParameter("Add Functions", true, "Flag to specify whether non-conflicting functions should be added on import.")]
+        public bool AddFunctions;
+
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
@@ -56,7 +60,7 @@ namespace TMG.Emme
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
             var args = string.Join(" ", "\""+Path.GetFullPath(NetworkPackage.GetFilePath())+"\"",
-                                    ScenarioId, ConflictOption.ToString());
+                                    ScenarioId, ConflictOption.ToString(),AddFunctions.ToString());
 
             Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
 
