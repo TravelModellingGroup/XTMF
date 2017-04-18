@@ -56,11 +56,11 @@ namespace TMG.Emme
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if(mc == null)
+            if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", "\""+Path.GetFullPath(NetworkPackage.GetFilePath())+"\"",
-                                    ScenarioId, ConflictOption.ToString(),AddFunctions.ToString());
+            var args = string.Join(" ", "\"" + Path.GetFullPath(NetworkPackage.GetFilePath()) + "\"",
+                                    ScenarioId, ConflictOption.ToString(), AddFunctions.ToString());
 
             Console.WriteLine("Importing network into scenario " + ScenarioId.ToString() + " from file " + Path.GetFullPath(NetworkPackage.GetFilePath()));
 

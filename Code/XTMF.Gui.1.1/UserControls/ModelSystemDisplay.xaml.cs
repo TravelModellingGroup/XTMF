@@ -765,10 +765,18 @@ namespace XTMF.Gui.UserControls
                 }
                 else
                 {
-                    switch (e.SystemKey)
+                    switch (e.Key)
                     {
                         case Key.F2:
-                            RenameParameter();
+                            if (EditorController.IsShiftDown())
+                            {
+                                RenameDescription();
+                            }
+                            else
+                            {
+                                RenameParameter();
+                            }
+           
                             break;
                     }
                     switch (e.Key)

@@ -562,7 +562,7 @@ namespace XTMF.Gui.UserControls
         private void CancelButton_Clicked(object sender, RoutedEventArgs e)
         {
             //Are you sure?
-            if (MessageBox.Show(GetWindow(this), "Are you sure you want to cancel this run?", "Cancel run?",
+            if (MessageBox.Show(MainWindow.Us, "Are you sure you want to cancel this run?", "Cancel run?",
                     MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No) == MessageBoxResult.Yes)
             {
                 if (_run != null)
