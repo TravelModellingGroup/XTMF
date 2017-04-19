@@ -41,7 +41,7 @@
                     <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
                        
                         <TextBox   Margin="0,0,0,0" Name="StringInput" KeyDown="StringInput_OnKeyDown"
-                Width="250" Height="25" VerticalContentAlignment="Center" Foreground="{DynamicResource ThemeTextColorBrush}" Background="{DynamicResource WindowBackgroundBrush1}">
+                Width="500" Height="25" VerticalContentAlignment="Center" Foreground="{DynamicResource ThemeTextColorBrush}" Background="{DynamicResource WindowBackgroundBrush1}">
                 
             </TextBox>
                         <local:FlatButton Width="30" VerticalAlignment="Stretch"   ToolText="OK" Click="FlatButton_OnClick">
