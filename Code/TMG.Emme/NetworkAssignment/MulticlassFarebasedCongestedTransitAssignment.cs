@@ -173,7 +173,6 @@ namespace TMG.Emme.NetworkAssignment
                                         ApplyCongestion
                                        );
 
-            Console.WriteLine(args);
             var result = "";
             return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
