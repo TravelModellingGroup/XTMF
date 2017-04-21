@@ -173,7 +173,6 @@ namespace TMG.Emme.NetworkAssignment
                                         ApplyCongestion
                                        );
 
-            Console.WriteLine(args);
             var result = "";
             return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
@@ -262,9 +261,9 @@ namespace TMG.Emme.NetworkAssignment
 
                 public bool RuntimeValidation(ref string error)
                 {
-                    if (WalkValue <= 0)
+                    if (WalkValue < 0)
                     {
-                        error = "In '" + Name + "' walk perception value must be greater than 0.";
+                        error = "In '" + Name + "' walk perception value must be greater than or equal 0.";
                         return false;
                     }
                     return true;
