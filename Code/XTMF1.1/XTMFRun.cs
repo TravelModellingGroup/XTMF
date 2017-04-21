@@ -108,7 +108,16 @@ namespace XTMF
             foreach (System.IO.FileInfo file in directory.GetFiles())
             {
 
-                file.Delete();
+                try
+                {
+                    file.Delete();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                
+                }
+            
 
             }
 
