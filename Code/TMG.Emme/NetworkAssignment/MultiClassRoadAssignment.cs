@@ -80,7 +80,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("Toll Matrix", 0, "The matrix to save the toll costs into.")]
             public int TollMatrix;
 
-            [RunParameter("VolumeAttribute", "@classVolume", "The name of the attribute to save the volumes into")]
+            [RunParameter("VolumeAttribute", "@classVolume", "The name of the attribute to save the volumes into (or none for no saving).")]
             public string VolumeAttribute;
 
             [RunParameter("TollAttributeID", "@toll", "The attribute containing the road tolls for this class of vehicle.")]
