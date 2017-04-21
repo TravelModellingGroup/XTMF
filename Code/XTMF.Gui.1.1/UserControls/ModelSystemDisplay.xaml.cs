@@ -297,7 +297,6 @@ namespace XTMF.Gui.UserControls
             }));
             UpdateQuickParameters();
 
-
             EnumerateDisabled(ModuleDisplay.Items.GetItemAt(0) as ModelSystemStructureDisplayModel);
         }
 
@@ -367,7 +366,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public BindingList<LinkedParameterDisplayModel> RecentLinkedParameters =
+        private BindingList<LinkedParameterDisplayModel> RecentLinkedParameters =
             new BindingList<LinkedParameterDisplayModel>();
 
         private void RecentLinkedParameter_Click(object sender, RoutedEventArgs e)

@@ -624,6 +624,8 @@ namespace XTMF.Gui.UserControls
             using (var modelSystemSession = openMS.OpenModelSystem(xtmf))
             {
                 var loading = openMS.LoadTask;
+
+         
                 if (loading != null)
                 {
                     loading.Wait();

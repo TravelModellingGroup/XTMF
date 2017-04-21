@@ -232,7 +232,11 @@ namespace XTMF.Gui.UserControls
                     }
                     else
                     {
-                        ModelSystemSession = _msEditSession = Runtime.ModelSystemController.EditModelSystem(result as ModelSystem);
+
+                        ModelSystem a = result as ModelSystem;
+                        _msEditSession = Runtime.ModelSystemController.EditModelSystem(result as ModelSystem);
+
+                        ModelSystemSession = _msEditSession;
                     }
                 });
             Close();

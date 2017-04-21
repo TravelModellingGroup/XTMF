@@ -63,13 +63,17 @@ namespace XTMF
         {
             ModelSystem = modelSystem;
 
-          
+          _disabledModules = new List<IModelSystemStructure>();
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
             List<ILinkedParameter> editingLinkedParameters;
             Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out editingLinkedParameters) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
-            EnumerateDisabledModules(modelSystem.ModelSystemStructure);
+
+            if (modelSystem.ModelSystemStructure != null)
+            {
+                EnumerateDisabledModules(modelSystem.ModelSystemStructure);
+            }
         }
 
         private void EnumerateDisabledModules(IModelSystemStructure element)
@@ -78,10 +82,13 @@ namespace XTMF
             {
                 _disabledModules.Add(element);
             }
-            foreach (var module in element.Children)
+            if (element.Children != null)
             {
-               
-                EnumerateDisabledModules(module);
+                foreach (var module in element.Children)
+                {
+
+                    EnumerateDisabledModules(module);
+                }
             }
         }
         
