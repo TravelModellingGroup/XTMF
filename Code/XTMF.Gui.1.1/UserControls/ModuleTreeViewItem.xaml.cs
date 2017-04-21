@@ -229,18 +229,21 @@ DependencyProperty.Register("BackingModel",
             if (propertyChangedEventArgs.PropertyName == "IsDisabled")
             {
 
-                if (BackingModel.BaseModel.IsDisabled)
+                if (BackingModel != null)
                 {
+                    if (BackingModel.BaseModel.IsDisabled)
+                    {
 
-                    SubTextLabel.Opacity = 0.4;
-                    Title.Opacity = 0.4;
-                    IconPath.Opacity = 0.4;
-                }
-                else
-                {
-                    SubTextLabel.Opacity = 1.0;
-                    Title.Opacity = 1.0;
-                    IconPath.Opacity = 1.0;
+                        SubTextLabel.Opacity = 0.4;
+                        Title.Opacity = 0.4;
+                        IconPath.Opacity = 0.4;
+                    }
+                    else
+                    {
+                        SubTextLabel.Opacity = 1.0;
+                        Title.Opacity = 1.0;
+                        IconPath.Opacity = 1.0;
+                    }
                 }
             }
             this.Dispatcher.Invoke(() =>
