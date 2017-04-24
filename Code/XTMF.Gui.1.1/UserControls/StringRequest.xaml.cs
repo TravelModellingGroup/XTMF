@@ -81,6 +81,12 @@ namespace XTMF.Gui.UserControls
 
         private void AnswerBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+
+       
+            if (Validation != null)
+            {
+                ValidationLabel.Visibility = Validation(Answer) ? Visibility.Hidden : Visibility.Visible;
+            }
             if (e.Key == Key.Enter)
             {
                 e.Handled = true;
