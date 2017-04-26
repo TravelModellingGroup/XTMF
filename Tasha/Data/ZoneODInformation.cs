@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.Windows.Forms;
 using Datastructure;
 using XTMF;
 using TMG;
@@ -82,6 +83,12 @@ Data outside of the zones that are defined is trimmed off. Both the Origin and D
 
         public bool RuntimeValidation(ref string error)
         {
+
+            if (Root.ZoneSystem == null)
+            {
+                error = $"No Zone OD data specified or loaded in root demand model {Root}.";
+                return false;
+            }
             return true;
         }
     }
