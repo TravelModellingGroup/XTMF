@@ -690,7 +690,7 @@ For specification about the language, and extensibility please consult the TMG F
         private void ImportMultiRunFile(XmlNode command)
         {
             var path = GetAttributeOrError(command, "Path", "The multirun's file path was not given!\r\n" + command.OuterXml);
-            ExecutionStack.Push(GetRootOfDocument(path));
+            ExecutionStack.Push(GetRootOfDocument(Path.Combine(Path.GetDirectoryName(BatchRunFile.GetFilePath()), path)));
         }
 
         private KeyValuePair<string, string>[] GetParameters(XmlAttributeCollection attributes)
