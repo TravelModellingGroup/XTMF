@@ -1599,7 +1599,7 @@ namespace XTMF.Gui.UserControls
                             /* Re order the children from parent node */
 
                             /* Remove the module from selected items */
-                            CurrentlySelected.Remove(selected);
+                            //CurrentlySelected.Remove(selected);
 
                             UpdateParameters();
                             Keyboard.Focus(ModuleDisplay);
@@ -1641,6 +1641,8 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                 });
+
+            
         }
 
         private void CleanUpParameters()
