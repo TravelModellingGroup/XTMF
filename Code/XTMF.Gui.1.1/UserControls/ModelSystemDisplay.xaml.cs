@@ -757,7 +757,7 @@ namespace XTMF.Gui.UserControls
             return Project.ValidateProjectName(name);
         }
 
-        private void ExecuteRun()
+        public void ExecuteRun()
         {
             var runName = string.Empty;
             string error = null;
