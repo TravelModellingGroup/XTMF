@@ -1024,56 +1024,10 @@ namespace XTMF.Gui
             var modelSystem = document.Content as ModelSystemDisplay;
             if (modelSystem != null)
             {
-                var session = modelSystem.Session;
-                var runName = "Run Name";
-                var req = new StringRequest("Run Name", ValidateName);
-                var trueWindow = GetWindow(document.Content as DependencyObject);
-                var testWindow = GetWindow(document.Content as DependencyObject);
-                var vis = document.Content as UserControl;
-                if (vis != null && testWindow != trueWindow)
-                {
-                    var topLeft = vis.PointToScreen(new Point());
-                    // Since the string request dialog isn't shown yet we need to use some defaults as width and height are not available.
-                    req.Left = topLeft.X + (vis.ActualWidth - StringRequest.DefaultWidth) / 2;
-                    req.Top = topLeft.Y + (vis.ActualHeight - StringRequest.DefaultHeight) / 2;
-                }
-                else
-                {
-                    req.Owner = trueWindow;
-                }
-                if (req.ShowDialog() == true)
-                {
-                    runName = req.Answer;
-                    string error = null;
-                    if (!RunAlreadyExists(runName, session) ||
-                        MessageBox.Show("This run name has been previously used.  Continue?", "Continue?",
-                            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) ==
-                        MessageBoxResult.Yes)
-                    {
-                        var run = session.Run(runName, ref error);
-                        if (run != null)
-                        {
-                            var window = new RunWindow(session, run, runName);
-                            var doc = AddNewWindow("New Run", window, typeof(ActiveEditingSessionDisplayModel));
-                            doc.Closing += (o, e) =>
-                            {
-                                if (!window.CloseRequested())
-                                {
-                                    e.Cancel = true;
-                                    return;
-                                }
-                            };
-                            doc.CanClose = true;
-                            doc.IsSelected = true;
-                            Keyboard.Focus(window);
-                            window.Focus();
-                        }
-                        else
-                        {
-                            MessageBox.Show(this, error, "Unable to run", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }
-                }
+                modelSystem.ExecuteRun();
+
+                
+                
             }
         }
 
