@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using XTMF;
 namespace TMG.Functions
@@ -128,7 +129,7 @@ namespace TMG.Functions
                 + "' in order to assign parameters!\r\nFull Path:'" + fullPath + "'");
         }
 
-        public static bool AssignValue(IModelSystemStructure root, string parameterName, string value, ref string error)
+        public static bool AssignValue(IConfiguration config, IModelSystemStructure root, string parameterName, string value, ref string error)
         {
             string[] parts = SplitNameToParts(parameterName);
             var parameter = FindParameter(root, 0, parts, parameterName);
@@ -137,11 +138,11 @@ namespace TMG.Functions
                 error = $"Unable to find parameter {parameterName}";
                 return false;
             }
-            AssignValue(parameter, value);
+            AssignValue(config, parameter, value);
             return true;
         }
 
-        public static void AssignValue(IModuleParameter parameter, string value)
+        public static void AssignValue(IConfiguration config, IModuleParameter parameter, string value)
         {
             string error = null;
             object trueValue;
@@ -151,7 +152,7 @@ namespace TMG.Functions
             }
             if ((trueValue = ArbitraryParameterParser.ArbitraryParameterParse(parameter.Type, value, ref error)) != null)
             {
-                AssignValueNoTypeCheck(parameter, trueValue);
+                AssignValueNoTypeCheck(config, parameter, trueValue);
             }
             else
             {
@@ -159,24 +160,31 @@ namespace TMG.Functions
             }
         }
 
-        public static void AssignValue<T>(IModuleParameter parameter, T t)
+        public static void AssignValue<T>(IConfiguration config, IModuleParameter parameter, T t)
         {
             if (parameter.Type != typeof(T))
             {
                 throw new XTMFRuntimeException("The parameter " + parameter.Name + " was not of type " + typeof(T).FullName + "!");
             }
-            AssignValueNoTypeCheck(parameter, t);
+            AssignValueNoTypeCheck(config, parameter, t);
         }
 
-        private static void AssignValueNoTypeCheck<T>(IModuleParameter parameter, T t)
+        private static void AssignValueNoTypeCheck<T>(IConfiguration config, IModuleParameter parameter, T t)
         {
             var currentStructure = parameter.BelongsTo;
+            
             if (currentStructure == null)
             {
                 throw new XTMFRuntimeException("The parameter doesn't belong to any module!");
             }
             if (currentStructure.Module == null)
             {
+                // If any ancestors of the model system structure were disabled ignore this
+                if (BuildModelStructureChain(config, currentStructure)
+                    .Any(mss => mss is IModelSystemStructure2 mss2 && mss2.IsDisabled))
+                {
+                    return;
+                }
                 throw new XTMFRuntimeException("The currentstructure.Module was null!");
             }
             parameter.Value = t;
@@ -193,7 +201,7 @@ namespace TMG.Functions
             }
         }
 
-        public static void AssignValueRunOnly<T>(IModuleParameter parameter, T t)
+        public static void AssignValueRunOnly<T>(IConfiguration config, IModuleParameter parameter, T t)
         {
             if (parameter.Type != typeof(T))
             {
@@ -206,6 +214,12 @@ namespace TMG.Functions
             }
             if (currentStructure.Module == null)
             {
+                // If any ancestors of the model system structure were disabled ignore this
+                if (BuildModelStructureChain(config, currentStructure)
+                    .Any(mss => mss is IModelSystemStructure2 mss2 && mss2.IsDisabled))
+                {
+                    return;
+                }
                 throw new XTMFRuntimeException("The currentstructure.Module was null!");
             }
             // Don't execute 'parameter.Value = t;'
@@ -354,6 +368,25 @@ namespace TMG.Functions
         }
 
         /// <summary>
+        /// Get the ancestry of a model system structure in the currently running project
+        /// </summary>
+        /// <param name="config">The XTMF runtime configuration</param>
+        /// <param name="toFind">The model system structure to find</param>
+        /// <returns></returns>
+        private static List<IModelSystemStructure> BuildModelStructureChain(IConfiguration config, IModelSystemStructure toFind)
+        {
+            List<IModelSystemStructure> chain = new List<IModelSystemStructure>();
+            foreach (var ms in config.ProjectRepository.ActiveProject.ModelSystemStructure)
+            {
+                if (BuildModelStructureChain(ms, toFind, chain))
+                {
+                    break;
+                }
+            }
+            return chain;
+        }
+
+        /// <summary>
         /// Gets the ancestry of a module from the given root.
         /// </summary>
         /// <param name="root">The first node to look at.</param>
@@ -363,6 +396,35 @@ namespace TMG.Functions
         public static bool BuildModelStructureChain(IModelSystemStructure root, IModule toFind, List<IModelSystemStructure> chain)
         {
             if (root.Module == toFind)
+            {
+                chain.Add(root);
+                return true;
+            }
+            if (root.Children != null)
+            {
+                foreach (var child in root.Children)
+                {
+                    if (BuildModelStructureChain(child, toFind, chain))
+                    {
+                        chain.Insert(0, root);
+                        return true;
+                    }
+                }
+            }
+            // Then we didn't find it in this tree
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the ancestry of a module from the given root.
+        /// </summary>
+        /// <param name="root">The first node to look at.</param>
+        /// <param name="toFind">The module to find</param>
+        /// <param name="chain">The chain to store the results into.</param>
+        /// <returns>True if we found the module, false otherwise</returns>
+        public static bool BuildModelStructureChain(IModelSystemStructure root, IModelSystemStructure toFind, List<IModelSystemStructure> chain)
+        {
+            if (root == toFind)
             {
                 chain.Add(root);
                 return true;

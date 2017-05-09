@@ -135,7 +135,7 @@ namespace TMG.Estimation
                 for ( int j = 0; j < Parameters[i].Names.Length; j++ )
                 {
                     if (
-                        !Functions.ModelSystemReflection.AssignValue(ClientStructure, Parameters[i].Names[j],
+                        !Functions.ModelSystemReflection.AssignValue(XtmfConfig, ClientStructure, Parameters[i].Names[j],
                             task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
                     {
                         throw new XTMFRuntimeException($"In '{Name}' we were unable to assign a parameter!\r\n{error}");
@@ -187,10 +187,12 @@ namespace TMG.Estimation
             ToHost.RegisterCustomReceiver( RequestJobChannel, (stream) =>
                 {
                     BinaryReader reader = new BinaryReader( stream );
-                    ClientTask newTask = new ClientTask();
-                    newTask.Generation = reader.ReadInt32();
-                    newTask.Index = reader.ReadInt32();
-                    newTask.ParameterValues = new float[reader.ReadInt32()];
+                    ClientTask newTask = new ClientTask()
+                    {
+                        Generation = reader.ReadInt32(),
+                        Index = reader.ReadInt32(),
+                        ParameterValues = new float[reader.ReadInt32()]
+                    };
                     for ( int i = 0; i < newTask.ParameterValues.Length; i++ )
                     {
                         newTask.ParameterValues[i] = reader.ReadSingle();
