@@ -231,6 +231,18 @@ namespace TMG.Emme.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
+            foreach(var c in Classes)
+            {
+                foreach(var at in c.AdditionalAttributesToAggregate)
+                {
+
+                    if (!at.RuntimeValidation(ref error))
+                    {
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
     }
