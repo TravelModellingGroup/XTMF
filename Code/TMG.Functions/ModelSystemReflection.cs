@@ -36,6 +36,8 @@ namespace TMG.Functions
             return null;
         }
 
+
+
         /// <summary>
         /// Find the closest ancestor of the given module that implements
         /// the given type.

@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -29,6 +30,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
 using System.Windows.Threading;
+using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
@@ -265,12 +267,32 @@ namespace XTMF.Gui.UserControls
             StartRun(run, runName);
         }
 
+        public System.Collections.Generic.List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
+        {
+            return _run.CollectRuntimeValidationErrors();
+        }
+
+       
+
+
+ 
+
+        public System.Collections.Generic.List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
+        {
+
+            return _run.CollectValidationErrors();
+        }
+
         public void StartRun(ModelSystemEditingSession session, XTMFRun run, string runName)
         {
             Session = session;
             session.SessionClosed += Session_SessionClosed;
             StartRun(run, runName);
         }
+
+        public Action<List<Tuple<IModelSystemStructure, Queue<int>, string>>> ValidationError;
+
+        public Action<List<Tuple<IModelSystemStructure, Queue<int>, string>>> RuntimeValidationError;
 
         private void StartRun(XTMFRun run, string runName)
         {
@@ -433,6 +455,13 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished();
                 ShowErrorMessage("Validation Error", obj);
+
+                var errors = MainWindow.Us.RunWindow.CollectValidationErrors();
+
+                ValidationError?.Invoke(errors);
+
+                
+
             });
         }
 
@@ -460,6 +489,10 @@ namespace XTMF.Gui.UserControls
             {
                 SetRunFinished();
                 ShowErrorMessage(string.Empty, errorMessage);
+
+                var errors = CollectRuntimeValidationErrors();
+
+                RuntimeValidationError?.Invoke(errors);
             });
         }
 

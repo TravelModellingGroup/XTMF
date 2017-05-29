@@ -40,6 +40,13 @@
             </VisualBrush.Visual>
         </VisualBrush>
 
+        <DataTemplate x:Key="ModuleValidationErrorTemplate" x:Name="ModuleValidationErrorTemplate"  DataType="{x:Type models:ValidationErrorDisplayModel}">
+
+            <this:ValidationErrorListControl Tag="{Binding DisplayModule}" Height="80" MouseDoubleClick="ValidationListModuleNameMouseDown"  >
+
+            </this:ValidationErrorListControl>
+   
+        </DataTemplate>
 
         <DataTemplate x:Key="ModuleDisabledTemplate" DataType="{x:Type models:ModelSystemStructureDisplayModel}">
             <Grid Background="Transparent" HorizontalAlignment="Stretch">
@@ -50,7 +57,7 @@
                 </Grid.ColumnDefinitions>
                 <Label Foreground="{DynamicResource ThemeTextColorBrush}" Grid.Column="0" Content="{Binding Name}"></Label>
                 <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Enable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
-             
+
             </Grid>
         </DataTemplate>
 
@@ -65,16 +72,16 @@
                 <Label  Name="EnableDisableLabel" Grid.Column="1" Style="{DynamicResource HoverLabel}" Tag="{Binding Path=.}" Content="Disable Module" MouseDown="ModelSystemInformation_EnableModuleMouseDown"></Label>
                 <Border ToolTip="Remove module from list" Cursor="Hand"  Tag="{Binding Path=.}" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}" MouseDown="Path_MouseDown">
                     <Path IsHitTestVisible="False" Tag="{Binding Path=.}"  Data="{DynamicResource CancelIconPath}" Fill="{DynamicResource ThemeTextColorBrush}" Opacity="0.5"  ></Path>
-                 </Border>
+                </Border>
             </Grid>
         </DataTemplate>
 
         <models:ModelSystemInfoTemplateSelector  x:Key="ModelSystemInfoTemplateSelector"  ModuleDisabled="{StaticResource ModuleDisabledTemplate}"
                                                 ModuleEnabled="{StaticResource ModuleEnabledTemplate}"></models:ModelSystemInfoTemplateSelector>
-        
 
 
-            <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
+
+        <DataTemplate x:Key="StandardParameterTemplate" DataType="{x:Type models:ParameterDisplayModel}">
             <Border  MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor,
                                                     AncestorType=this:ModelSystemDisplay}, Path=ParameterWidth}"
                               Name="b"  BorderThickness="0"  HorizontalAlignment="Stretch">
@@ -320,6 +327,8 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type models:ModelSystemStructureDisplayModel}" ItemsSource="{Binding Path=Children, Mode=OneWay}">
 
+                                  
+                                        
                                     <this:ModuleTreeViewItem BorderThickness="0" TitleText="{Binding Name, Mode=OneWay}"
                                               SubText="{Binding Description, Mode=OneWay}"
                                                  BackingModel="{Binding BackingDisplayModel}" PreviewKeyDown="ModuleDisplay_PreviewKeyDown"
@@ -330,6 +339,7 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                               >
 
                                     </this:ModuleTreeViewItem>
+                                  
 
 
 
@@ -343,7 +353,7 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
 
             </Grid>
             <GridSplitter Grid.Row="1" Grid.Column="1" Width="3" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
-            <TabControl Grid.Row="1" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged">
+            <TabControl Grid.Row="1" BorderThickness="0" Margin="0" TabStripPlacement="Right" x:Name="ParameterTabControl" Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}"  SelectionChanged="TabControl_SelectionChanged" SizeChanged="ParameterTabControl_SizeChanged">
 
                 <TabItem IsSelected="True" Style="{DynamicResource XtmfTabItem}" Header="Quick Parameters" x:Name="QuickParameterTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
                     <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
@@ -589,11 +599,15 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
 
 
                 <TabItem Style="{DynamicResource XtmfTabItem}" Header="Model System Information" x:Name="ModelSystemInformationTab" FontSize="14"  Foreground="{DynamicResource ControlTextColourBrush}">
+
+                    <ScrollViewer>
                     <Grid Grid.Column="2" HorizontalAlignment="Stretch" Background="{DynamicResource WindowBackgroundBrush2}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="AUTO" />
                             <RowDefinition Height="AUTO" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="AUTO" />
+                            <RowDefinition Height="AUTO" />
+                            <RowDefinition Height="AUTO" />
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush2}" BorderThickness="0" Margin="0.2cm,2,0.2cm,5" Padding="5">
                             <Grid>
@@ -651,13 +665,43 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
 
                                         </Style>
                                     </ListView.ItemContainerStyle>
+
+                                </ListView>
+                            </StackPanel>
+
+                        </Border>
+
+                        <Border Grid.Row="3">
+
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
+
+                                <Grid Height="Auto">
+                                <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}" Name="ModuleValidationErrorListView" LostFocus="ModuleValidationErrorListView_LostFocus">
+
+
+                                </ListView>
+                                </Grid>
+                            </StackPanel>
+
+                        </Border>
+
+                        <Border Grid.Row="4">
+
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="Runtime Validation Errors" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="16" FontWeight="Bold" Margin="0,15,0,5" />
+
                                 
+                                <ListView BorderThickness="0" SizeChanged="ValidationErrorDisplay_SizeChanged" Background="{DynamicResource WindowBackgroundBrush2}" ItemTemplate="{StaticResource ModuleValidationErrorTemplate}" Name="ModuleRuntimeValidationErrorListView" LostFocus="ModuleRuntimeValidationErrorListView_LostFocus">
+
+
                                 </ListView>
                             </StackPanel>
 
                         </Border>
 
                     </Grid>
+                    </ScrollViewer>
                 </TabItem>
 
             </TabControl>

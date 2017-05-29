@@ -524,6 +524,49 @@ namespace XTMF
             return Name != null ? Name : "No Name";
         }
 
+        public bool ValidateSelf(ref string error, IModelSystemStructure parent = null)
+        {
+            if (Required)
+            {
+                if (IsCollection)
+                {
+                    if (Children == null || !Children.Any(c => !(c is ModelSystemStructure) || !((ModelSystemStructure)c).IsDisabled))
+                    {
+                        error = "The collection '" + Name + "' in module '" + parent?.Name + "'requires at least one module for the list!\r\nPlease remove this model system from your project and edit the model system.";
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (Type == null)
+                    {
+                        error = "In '" + Name + "' a type for a required field is not selected for.\r\nPlease remove this model system from your project and edit the model system.";
+                        return false;
+                    }
+                    if (IsDisabled)
+                    {
+                        error = "In '" + Name + "' a type for a required field is disabled!\r\nPlease remove this model system from your project and edit the model system.";
+                        return false;
+                    }
+                }
+            }
+
+            if (ParentFieldType == null)
+            {
+                error = "There is an error where a parent's field type was not loaded properly!\nPlease contact the TMG to resolve "
+                    + "\r\nError for module '" + Name + "' of type '" + Type.FullName + "'";
+                return false;
+            }
+
+            if (Type != null && !ParentFieldType.IsAssignableFrom(Type))
+            {
+                error = String.Format("In {2} the type {0} selected can not be assigned to its parent's field of type {1}!", Type, ParentFieldType, Name);
+                return false;
+            }
+
+            return true;
+        }
+
         public bool Validate(ref string error, IModelSystemStructure parent = null)
         {
             if (Required)
