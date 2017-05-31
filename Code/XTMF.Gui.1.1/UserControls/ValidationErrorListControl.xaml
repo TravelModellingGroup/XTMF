@@ -38,6 +38,7 @@
 
                     <MultiDataTrigger.Setters>
                         <Setter Property="Background" Value="{DynamicResource FocusBrushHover2}"></Setter>
+                        <Setter Property="Foreground" Value="White"></Setter>
                     </MultiDataTrigger.Setters>
 
                 </MultiDataTrigger>
@@ -84,8 +85,8 @@
                 <ColumnDefinition Width="150"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label Name="ModuleNameLabel" HorizontalAlignment="Left" Tag="{Binding DisplayModule}" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}" VerticalAlignment="Center"  Grid.Column="0"  >
-                <TextBlock TextWrapping="WrapWithOverflow" TextDecorations="Underline"  Text="{Binding ModuleName}"></TextBlock>
+            <Label Name="ModuleNameLabel" Style="{DynamicResource HoverLabel}" HorizontalAlignment="Left" Tag="{Binding DisplayModule}" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}" VerticalAlignment="Center"  Grid.Column="0"  >
+                <TextBlock Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}" TextWrapping="WrapWithOverflow" TextDecorations="Underline"  Text="{Binding ModuleName}"></TextBlock>
             </Label>
  
             <TextBlock VerticalAlignment="Center" Name="ErrorStringTextBlock" TextWrapping="WrapWithOverflow"   Grid.Column="2" Foreground="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:ValidationErrorListControl},Path=Foreground,Mode=TwoWay}"  Text="{Binding ErrorString}"></TextBlock>
