@@ -2539,17 +2539,23 @@ namespace XTMF.Gui.UserControls
 
         private void ExpandAllMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (ModuleDisplay.Items.Count > 0)
+            if (ModuleDisplay.SelectedItem != null)
             {
-                ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.Items.GetItemAt(0));
+                if (ModuleDisplay.Items.Count > 0)
+                {
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem);
+                }
             }
         }
 
         private void CollapseAllMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (ModuleDisplay.Items.Count > 0)
+            if (ModuleDisplay.SelectedItem != null)
             {
-                ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.Items.GetItemAt(0),false);
+                if (ModuleDisplay.Items.Count > 0)
+                {
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem, false);
+                }
             }
         }
 
