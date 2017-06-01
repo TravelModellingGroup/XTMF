@@ -320,6 +320,9 @@ AncestorType={x:Type this:ModelSystemDisplay}}, Path=CanRunModelSystem}"
                                     <MenuItem Header="Expand all Modules" Click="ExpandAllMenuItem_Click">
 
                                     </MenuItem>
+                                    <MenuItem Header="Colapse all Modules" Click="CollapseAllMenuItem_Click">
+
+                                    </MenuItem>
                                 </ContextMenu>
                             </TreeView.ContextMenu>
 

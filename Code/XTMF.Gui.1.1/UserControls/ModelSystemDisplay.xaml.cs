@@ -2527,9 +2527,9 @@ namespace XTMF.Gui.UserControls
 
 
 
-        private void ExpandModule(ModelSystemStructureDisplayModel module)
+        private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse=true)
         {
-            module.IsExpanded = true;
+            module.IsExpanded = collapse;
             foreach (var child in module.Children)
             {
                 ExpandModule(child);
@@ -2542,6 +2542,14 @@ namespace XTMF.Gui.UserControls
             if (ModuleDisplay.Items.Count > 0)
             {
                 ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.Items.GetItemAt(0));
+            }
+        }
+
+        private void CollapseAllMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (ModuleDisplay.Items.Count > 0)
+            {
+                ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.Items.GetItemAt(0),false);
             }
         }
 

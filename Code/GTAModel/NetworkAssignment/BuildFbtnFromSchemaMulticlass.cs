@@ -75,7 +75,7 @@ namespace TMG.GTAModel.NetworkAssignment
             using (JsonWriter writer = new JsonTextWriter(sw))
             {
 
-                
+                writer.Formatting = Formatting.None;
                 writer.WriteStartObject();
                 writer.WritePropertyName("FareClasses");
                 writer.WriteStartArray();
@@ -85,7 +85,7 @@ namespace TMG.GTAModel.NetworkAssignment
                     writer.WriteStartObject();
 
                     writer.WritePropertyName("SchemaFile");
-                    writer.WriteValue(fareClass.SchemaFile);
+                    writer.WriteValue(fareClass.SchemaFile.GetFilePath());
 
                     writer.WritePropertyName("SegmentFareAttribute");
                     writer.WriteValue(fareClass.SegmentFareAttribute);
@@ -100,14 +100,16 @@ namespace TMG.GTAModel.NetworkAssignment
                 writer.WriteEndObject();
             }
 
-            var args = string.Join(" ", "\"" + BaseSchemaFile.GetFilePath() + "\"",
-                                    BaseScenarioNumber,
-                                    NewScenarioNumber,
-                                    TransferModeId,
-                                    VirtualNodeDomain,
-                                    StationConnectorFlag,
-                                    sb.ToString().Replace("\"", "\\\"")
-                                        );
+             var args = string.Join(" ", "\"" + BaseSchemaFile.GetFilePath() + "\"",
+                                     BaseScenarioNumber,
+                                     NewScenarioNumber,
+                                     TransferModeId,
+                                     VirtualNodeDomain,
+                                     StationConnectorFlag,
+                                     "\"" + sb.ToString().Replace("\"", "'") + "\""
+                                         ); 
+
+    
             var result = "";
             return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
