@@ -30,7 +30,7 @@ namespace XTMF.Update
         [STAThread]
         private static void Main(string[] args)
         {
-            int processID = 0;
+            int processID;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             if (args.Length >= 2 && int.TryParse(args[0], out processID))
@@ -38,16 +38,16 @@ namespace XTMF.Update
                 try
                 {
                     var p = Process.GetProcessById(processID);
-                    Application.Run(new Form1() { ParentProcess = p, LaunchPoint = args[1] });
+                    Application.Run(new XTMFUpdateForm() { ParentProcess = p, LaunchPoint = args[1] });
                 }
                 catch
                 {
-                    Application.Run(new Form1());
+                    Application.Run(new XTMFUpdateForm());
                 }
             }
             else
             {
-                Application.Run(new Form1());
+                Application.Run(new XTMFUpdateForm());
             }
         }
 

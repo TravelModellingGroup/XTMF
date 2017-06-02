@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,22 +64,22 @@ namespace TMG.GTAModel.Input
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
             // First create the data space
             List<int> zoneNumbers = new List<int>();
-            var sparseLength = this.SparseSpace.Count;
+            var sparseLength = SparseSpace.Count;
             List<float>[] dataColumns = new List<float>[sparseLength];
             LoadInData( zoneNumbers, sparseLength, dataColumns );
-            this.Data = CreateSparseData( zoneNumbers, sparseLength, dataColumns );
+            Data = CreateSparseData( zoneNumbers, sparseLength, dataColumns );
         }
 
         public bool RuntimeValidation(ref string error)
@@ -88,7 +89,7 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         protected string GetInputFileName(string localPath)
@@ -96,7 +97,7 @@ namespace TMG.GTAModel.Input
             var fullPath = localPath;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
@@ -116,7 +117,7 @@ namespace TMG.GTAModel.Input
                 for ( int k = 0; k < sparseLength; k++ )
                 {
                     first[pos] = zoneNumber;
-                    second[pos] = this.SparseSpace[k];
+                    second[pos] = SparseSpace[k];
                     data[pos] = dataRow[k];
                     pos++;
                 }
@@ -126,12 +127,11 @@ namespace TMG.GTAModel.Input
 
         private void LoadInData(List<int> zoneNumbers, int sparseLength, List<float>[] dataColumns)
         {
-            float[] data = new float[sparseLength];
             // now that we have the data to load into, open up the file
-            using ( CsvReader reader = new CsvReader( this.GetInputFileName( this.FileName ) ) )
+            using ( CsvReader reader = new CsvReader( GetInputFileName( FileName ) ) )
             {
                 // burn all of the header lines
-                for ( int headerLine = 0; headerLine < this.HeaderLines; headerLine++ )
+                for ( int headerLine = 0; headerLine < HeaderLines; headerLine++ )
                 {
                     reader.LoadLine();
                 }

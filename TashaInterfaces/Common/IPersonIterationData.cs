@@ -53,7 +53,6 @@ namespace Tasha.Common
         /// Populates this data with the given persons trip data
         /// </summary>
         /// <param name="person"></param>
-        /// <param name="hIteration"></param>
         void PopulateData(ITashaPerson person);
 
         /// <summary>

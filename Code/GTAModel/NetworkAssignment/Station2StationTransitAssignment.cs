@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,8 +35,8 @@ namespace TMG.GTAModel.NetworkAssignment
                              matrices as outputs." )]
     public class Station2StationTransitAssignment : IEmmeTool
     {
-        private const string _ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
-        private const string _OldImportToolName = "TMG2.XTMF.ImportMatrix";
+        private const string ImportToolName = "tmg.XTMF_internal.import_matrix_batch_file";
+        private const string OldImportToolName = "TMG2.XTMF.ImportMatrix";
 
         [RunParameter( "Demand File Name", "", "Optional file name for saving tally exports for debugging. Leave blank to disable this feature." )]
         public string DemandFileName;
@@ -106,7 +107,7 @@ namespace TMG.GTAModel.NetworkAssignment
             if ( mc == null )
                 throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
 
-            if ( this.DemandMatrixNumber != 0 )
+            if ( DemandMatrixNumber != 0 )
             {
                 PassMatrixIntoEmme( mc );
             }
@@ -115,10 +116,10 @@ namespace TMG.GTAModel.NetworkAssignment
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
                 ScenarioNumber, DemandMatrixNumber, WaitTimeMatrixNumber, InVehicleTimesMatrixNumber,
-                convertStationsToEmmeSelectorString(), ModeString, WaitFactor, WaitPerception,
+                ConvertStationsToEmmeSelectorString(), ModeString, WaitFactor, WaitPerception,
                 WalkPerception, UseAdditiveDemand, UseEm4Options );
             string result = null;
-            return mc.Run("tmg.assignment.transit.V2_line_haul", sb.ToString(), ( p => this.Progress = p ), ref result );
+            return mc.Run("tmg.assignment.transit.V2_line_haul", sb.ToString(), ( p => Progress = p ), ref result );
 
             /*
              * ScenarioNumber, DemandMatrixNumber, WaitTimeMatrixNumber, InVehicleTimeMatrixNumber, \
@@ -132,7 +133,7 @@ namespace TMG.GTAModel.NetworkAssignment
             return true;
         }
 
-        private string convertStationsToEmmeSelectorString()
+        private string ConvertStationsToEmmeSelectorString()
         {
             //Convert the Stations RangeSet into a string argument which Emme can interpret as zone selector
             StringBuilder stationExpressionBuilder = new StringBuilder();
@@ -147,11 +148,11 @@ namespace TMG.GTAModel.NetworkAssignment
 
         private void PassMatrixIntoEmme(ModellerController mc)
         {
-            var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
             // Load the data from the flows and save it to our temporary file
-            var useTempFile = String.IsNullOrWhiteSpace( this.DemandFileName );
-            string outputFileName = useTempFile ? Path.GetTempFileName() : this.DemandFileName;
+            var useTempFile = String.IsNullOrWhiteSpace( DemandFileName );
+            string outputFileName = useTempFile ? Path.GetTempFileName() : DemandFileName;
             float[][] tally = new float[numberOfZones][];
             for ( int i = 0; i < numberOfZones; i++ )
             {
@@ -168,7 +169,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
             using ( StreamWriter writer = new StreamWriter( outputFileName ) )
             {
-                writer.WriteLine( "t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", this.DemandMatrixNumber );
+                writer.WriteLine( "t matrices\r\na matrix=mf{0} name=drvtot default=0 descr=generated", DemandMatrixNumber );
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
                 Parallel.For( 0, numberOfZones, delegate(int o)
                 {
@@ -177,8 +178,8 @@ namespace TMG.GTAModel.NetworkAssignment
                     var convertedO = flatZones[o].ZoneNumber;
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        this.ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        Controller.ToEmmeFloat(tally[o][d], strBuilder);
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }
                 } );
@@ -190,13 +191,13 @@ namespace TMG.GTAModel.NetworkAssignment
 
             try
             {
-                if(mc.CheckToolExists(_ImportToolName))
+                if(mc.CheckToolExists(ImportToolName))
                 {
-                    mc.Run(_ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(ImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
                 else
                 {
-                    mc.Run(_OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
+                    mc.Run(OldImportToolName, "\"" + Path.GetFullPath(outputFileName) + "\" " + ScenarioNumber);
                 }
             }
             finally
@@ -204,33 +205,6 @@ namespace TMG.GTAModel.NetworkAssignment
                 if ( useTempFile )
                 {
                     File.Delete( outputFileName );
-                }
-            }
-        }
-
-        /// <summary>
-        /// Process floats to work with emme
-        /// </summary>
-        /// <param name="number">The float you want to send</param>
-        /// <returns>A limited precision non scientific number in a string</returns>
-        private void ToEmmeFloat(float number, StringBuilder builder)
-        {
-            builder.Clear();
-            builder.Append( (int)number );
-            number = number - (int)number;
-            if ( number > 0 )
-            {
-                var integerSize = builder.Length;
-                builder.Append( '.' );
-                for ( int i = integerSize; i < 4; i++ )
-                {
-                    number = number * 10;
-                    builder.Append( (int)number );
-                    number = number - (int)number;
-                    if ( number == 0 )
-                    {
-                        break;
-                    }
                 }
             }
         }

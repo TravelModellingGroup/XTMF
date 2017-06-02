@@ -18,10 +18,6 @@
 */
 using Datastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Functions;
 using XTMF;
 
@@ -44,7 +40,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             AvgRows,
             AvgColumns,
             E,
-            PI,
+            Pi,
             Length,
             LengthColumns,
             LengthRows,
@@ -64,11 +60,11 @@ namespace TMG.Frameworks.Data.Processing.AST
             Type = call;
         }
 
-        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        internal override bool OptimizeAst(ref Expression ex, ref string error)
         {
             for (int i = 0; i < Parameters.Length; i++)
             {
-                if(!Parameters[i].OptimizeAST(ref Parameters[i], ref error))
+                if(!Parameters[i].OptimizeAst(ref Parameters[i], ref error))
                 {
                     return false;
                 }
@@ -129,7 +125,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     type = FunctionType.E;
                     return true;
                 case "pi":
-                    type = FunctionType.PI;
+                    type = FunctionType.Pi;
                     return true;
                 case "length":
                     type = FunctionType.Length;
@@ -215,9 +211,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             return new ComputationResult("The parameter to Transpose at position " + Start + " was executed against a scalar!");
                         }
-                        if (values[0].IsODResult)
+                        if (values[0].IsOdResult)
                         {
-                            return TransposeOD(values[0]);
+                            return TransposeOd(values[0]);
                         }
                         return new ComputationResult("Unsupported data type for Transpose at position " + Start + ".");
                     }
@@ -226,7 +222,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         return new ComputationResult("SumRows was executed with the wrong number of parameters!");
                     }
-                    if (!values[0].IsODResult)
+                    if (!values[0].IsOdResult)
                     {
                         return new ComputationResult("SumRows was executed with a parameter that was not a matrix!");
                     }
@@ -236,7 +232,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         return new ComputationResult("SumColumns was executed with the wrong number of parameters!");
                     }
-                    if (!values[0].IsODResult)
+                    if (!values[0].IsOdResult)
                     {
                         return new ComputationResult("SumColumns was executed with a parameter that was not a matrix!");
                     }
@@ -246,7 +242,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         return new ComputationResult("AvgRows was executed with the wrong number of parameters!");
                     }
-                    if (!values[0].IsODResult)
+                    if (!values[0].IsOdResult)
                     {
                         return new ComputationResult("AvgRows was executed with a parameter that was not a matrix!");
                     }
@@ -256,7 +252,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         return new ComputationResult("AvgColumns was executed with the wrong number of parameters!");
                     }
-                    if (!values[0].IsODResult)
+                    if (!values[0].IsOdResult)
                     {
                         return new ComputationResult("AvgColumns was executed with a parameter that was not a matrix!");
                     }
@@ -289,7 +285,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     return Avg(values[0]);
                 case FunctionType.E:
                     return new ComputationResult((float)Math.E);
-                case FunctionType.PI:
+                case FunctionType.Pi:
                     return new ComputationResult((float)Math.PI);
                 case FunctionType.Length:
                     if (values.Length != 1)
@@ -306,7 +302,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         return new ComputationResult("LengthColumns was executed with the wrong number of parameters!");
                     }
-                    if (values[0].IsODResult)
+                    if (values[0].IsOdResult)
                     {
                         return new ComputationResult("LengthColumns must be applied to a Matrix!");
                     }
@@ -316,7 +312,7 @@ namespace TMG.Frameworks.Data.Processing.AST
                     {
                         return new ComputationResult("LengthRows was executed with the wrong number of parameters!");
                     }
-                    if (values[0].IsODResult)
+                    if (values[0].IsOdResult)
                     {
                         return new ComputationResult("LengthRows must be applied to a Matrix!");
                     }
@@ -377,7 +373,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             }
             else
             {
-                SparseTwinIndex<float> saveTo = values[0].Accumulator ? values[0].ODData : values[0].ODData.CreateSimilarArray<float>();
+                SparseTwinIndex<float> saveTo = values[0].Accumulator ? values[0].OdData : values[0].OdData.CreateSimilarArray<float>();
                 var flat = saveTo.GetFlatData();
                 for (int i = 0; i < flat.Length; i++)
                 {
@@ -397,7 +393,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             }
             else
             {
-                var matrix = computationResult.ODData;
+                var matrix = computationResult.OdData;
                 ret = matrix.CreateSimilarArray<float>();
             }
             var flatRet = ret.GetFlatData();
@@ -444,7 +440,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             }
             else
             {
-                return new ComputationResult(values[0].ODData.CreateSimilarArray<float>(), true);
+                return new ComputationResult(values[0].OdData.CreateSimilarArray<float>(), true);
             }
         }
 
@@ -457,7 +453,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             }
             else
             {
-                var flat = computationResult.ODData.GetFlatData();
+                var flat = computationResult.OdData.GetFlatData();
                 var total = 0.0f;
                 var count = 0;
                 for (int i = 0; i < flat.Length; i++)
@@ -484,9 +480,9 @@ namespace TMG.Frameworks.Data.Processing.AST
             }
             else
             {
-                var retMatrix = computationResult.Accumulator ? computationResult.ODData : computationResult.ODData.CreateSimilarArray<float>();
+                var retMatrix = computationResult.Accumulator ? computationResult.OdData : computationResult.OdData.CreateSimilarArray<float>();
                 var flat = retMatrix.GetFlatData();
-                VectorHelper.Abs(flat, computationResult.ODData.GetFlatData());
+                VectorHelper.Abs(flat, computationResult.OdData.GetFlatData());
                 return new ComputationResult(retMatrix, true);
             }
         }
@@ -497,10 +493,10 @@ namespace TMG.Frameworks.Data.Processing.AST
             {
                 return new ComputationResult(VectorHelper.Sum(computationResult.VectorData.GetFlatData(), 0, computationResult.VectorData.GetFlatData().Length));
             }
-            else if (computationResult.IsODResult)
+            else if (computationResult.IsOdResult)
             {
                 float total = 0.0f;
-                var data = computationResult.ODData.GetFlatData();
+                var data = computationResult.OdData.GetFlatData();
                 for (int i = 0; i < data.Length; i++)
                 {
                     total += VectorHelper.Sum(data[i], 0, data[i].Length);
@@ -510,11 +506,11 @@ namespace TMG.Frameworks.Data.Processing.AST
             return new ComputationResult("Unknown data type to sum!");
         }
 
-        private ComputationResult TransposeOD(ComputationResult computationResult)
+        private ComputationResult TransposeOd(ComputationResult computationResult)
         {
-            var ret = computationResult.Accumulator ? computationResult.ODData : computationResult.ODData.CreateSimilarArray<float>();
+            var ret = computationResult.Accumulator ? computationResult.OdData : computationResult.OdData.CreateSimilarArray<float>();
             var flatRet = ret.GetFlatData();
-            var flatOrigin = computationResult.ODData.GetFlatData();
+            var flatOrigin = computationResult.OdData.GetFlatData();
             for (int i = 0; i < flatOrigin.Length; i++)
             {
                 for (int j = i + 1; j < flatOrigin[i].Length; j++)
@@ -537,7 +533,7 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult SumColumns(ComputationResult computationResult)
         {
-            var data = computationResult.ODData;
+            var data = computationResult.OdData;
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
@@ -550,7 +546,7 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult SumRows(ComputationResult computationResult)
         {
-            var data = computationResult.ODData;
+            var data = computationResult.OdData;
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
@@ -563,7 +559,7 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult AvgColumns(ComputationResult computationResult)
         {
-            var data = computationResult.ODData;
+            var data = computationResult.OdData;
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
@@ -577,7 +573,7 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult AvgRows(ComputationResult computationResult)
         {
-            var data = computationResult.ODData;
+            var data = computationResult.OdData;
             var ret = new SparseArray<float>(data.Indexes);
             var flatRet = ret.GetFlatData();
             var flatData = data.GetFlatData();
@@ -590,22 +586,22 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult Length(ComputationResult computationResult)
         {
-            if (computationResult.IsODResult)
+            if (computationResult.IsOdResult)
             {
-                return new ComputationResult((float)computationResult.ODData.Count);
+                return new ComputationResult(computationResult.OdData.Count);
             }
             if (computationResult.IsVectorResult)
             {
-                return new ComputationResult((float)computationResult.VectorData.Count);
+                return new ComputationResult(computationResult.VectorData.Count);
             }
             return new ComputationResult("An unknown data type was processed through Length!");
         }
 
         private ComputationResult LengthRows(ComputationResult computationResult)
         {
-            if (computationResult.IsODResult)
+            if (computationResult.IsOdResult)
             {
-                var data = computationResult.ODData;
+                var data = computationResult.OdData;
                 var ret = new SparseArray<float>(data.Indexes);
                 var flatRet = ret.GetFlatData();
                 var flatData = data.GetFlatData();
@@ -620,9 +616,9 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         private ComputationResult LengthColumns(ComputationResult computationResult)
         {
-            if (computationResult.IsODResult)
+            if (computationResult.IsOdResult)
             {
-                var data = computationResult.ODData;
+                var data = computationResult.OdData;
                 var ret = new SparseArray<float>(data.Indexes);
                 var flatRet = ret.GetFlatData();
                 var flatData = data.GetFlatData();

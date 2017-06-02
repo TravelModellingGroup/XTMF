@@ -33,29 +33,33 @@ namespace XTMF.ConsoleUpdate
 
         public UpdateController()
         {
-            this.LoadConfiguration();
+            LoadConfiguration();
         }
 
         public string XTMFUpdateServerLocation { get; set; }
 
         public int XTMFUpdateServerPort { get; set; }
 
-        public void UpdateAll(bool force32, bool force64, Action<float> Update = null, Action<string> status = null)
+        public void UpdateAll(bool force32, bool force64, Action<float> update = null, Action<string> status = null)
         {
             bool x64 = Environment.Is64BitOperatingSystem;
             if ( force32 )
             {
                 x64 = false;
             }
-            else if ( force32 )
+            else if ( force64 )
             {
                 x64 = true;
             }
-            this.WriteConfigFile();
+            WriteConfigFile();
             WriteIfNotNull( status, "Updating XTMF Core" );
             var appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var containingDirectory = Path.GetDirectoryName( appPath );
-            var excludedPaths = new string[]
+            if (appPath == null)
+            {
+                throw new Exception($"Unable to get the containing directory from the assembly!");
+            }
+            var excludedPaths = new[]
             {
                 appPath,
                 Path.Combine(containingDirectory, String.Concat(Path.GetFileNameWithoutExtension(appPath),".pdb")),
@@ -64,11 +68,11 @@ namespace XTMF.ConsoleUpdate
             };
             try
             {
-                var ourNewAssemblyPath = UpdateCore( x64, excludedPaths, Update );
+                var ourNewAssemblyPath = UpdateCore( x64, excludedPaths, update );
                 WriteIfNotNull( status, "Updating XTMF Modules" );
-                UpdateModules( x64, Update );
+                UpdateModules( x64, update );
                 WriteIfNotNull( status, "Update Complete" );
-                this.RebootAndCopyBase( ourNewAssemblyPath, excludedPaths );
+                RebootAndCopyBase( ourNewAssemblyPath, excludedPaths );
             }
             catch ( Exception e )
             {
@@ -90,6 +94,10 @@ namespace XTMF.ConsoleUpdate
         {
             var appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var containingDirectory = Path.GetDirectoryName( appPath );
+            if (containingDirectory == null)
+            {
+                throw new Exception($"Unable to get the containing directory from the binary!");
+            }
             var dir = Path.Combine( containingDirectory, "Modules" );
             if ( !Directory.Exists( dir ) )
             {
@@ -155,10 +163,10 @@ namespace XTMF.ConsoleUpdate
             {
                 redirectedPaths = new string[redirectPaths.Length];
             }
-            if ( this.UseWebservices )
+            if ( UseWebservices )
             {
                 byte[] data;
-                using ( XTMF.ConsoleUpdate.TMG.WebUpdate.XTMFUpdateWebservice webservice = new XTMF.ConsoleUpdate.TMG.WebUpdate.XTMFUpdateWebservice() )
+                using ( TMG.WebUpdate.XTMFUpdateWebservice webservice = new TMG.WebUpdate.XTMFUpdateWebservice() )
                 {
                     var address = XTMFUpdateServerLocation;
                     if ( !address.StartsWith( "http://", StringComparison.InvariantCultureIgnoreCase ) )
@@ -200,16 +208,12 @@ namespace XTMF.ConsoleUpdate
                     {
                         // since we have our reader we no longer need our link to the stream
                         stream = null;
-                        errors = SaveFiles( directory, redirectPaths, redirectedPaths, update, errors, reader );
+                        errors = SaveFiles( directory, redirectPaths, redirectedPaths, update, ref errors, reader );
                     }
                 }
                 finally
                 {
-                    if ( stream != null )
-                    {
-                        stream.Dispose();
-                        stream = null;
-                    }
+                    stream?.Dispose();
                 }
             }
             else
@@ -221,7 +225,7 @@ namespace XTMF.ConsoleUpdate
                     BinaryReader reader = new BinaryReader( stream );
                     writer.Write( type );
                     stream.Flush();
-                    errors = SaveFiles( directory, redirectPaths, redirectedPaths, update, errors, reader );
+                    errors = SaveFiles( directory, redirectPaths, redirectedPaths, update, ref errors, reader );
                     writer.Write( 0 );
                     writer.Flush();
                 }
@@ -232,36 +236,41 @@ namespace XTMF.ConsoleUpdate
         private void LoadConfigFile()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load( this.ConfigFile );
+            doc.Load( ConfigFile );
             var root = doc["Root"];
-            this.XTMFUpdateServerLocation = root["XTMFUpdateServerLocation"].InnerText;
-            this.XTMFUpdateServerPort = int.Parse( root["XTMFUpdateServerPort"].InnerText );
+            if (root == null)
+            {
+                throw new Exception("Invalid configuration file, there is no Root element.");
+            }
+            var port = root["XTMFUpdateServerPort"]?.InnerText;
+            XTMFUpdateServerLocation = root["XTMFUpdateServerLocation"]?.InnerText;
+            XTMFUpdateServerPort = port == null ? 1448 : int.Parse( port );
             var webserviceNode = root["UseWebservices"];
             if ( webserviceNode != null )
             {
-                bool.TryParse( webserviceNode.InnerText, out this.UseWebservices );
+                bool.TryParse( webserviceNode.InnerText, out UseWebservices );
             }
         }
 
         private void LoadConfiguration()
         {
             // The Default
-            this.XTMFUpdateServerLocation = "tmg.utoronto.ca";
-            this.XTMFUpdateServerPort = 1448;
-            this.UseWebservices = false;
+            XTMFUpdateServerLocation = "tmg.utoronto.ca";
+            XTMFUpdateServerPort = 1448;
+            UseWebservices = false;
 
             // try to read from file
             var directory = Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create ),
                 "XTMF" );
-            this.ConfigFile = Path.Combine( directory, "UpdateConfig.xml" );
+            ConfigFile = Path.Combine( directory, "UpdateConfig.xml" );
             try
             {
-                if ( File.Exists( this.ConfigFile ) )
+                if ( File.Exists( ConfigFile ) )
                 {
                     LoadConfigFile();
                 }
             }
-            catch
+            catch(IOException)
             {
             }
         }
@@ -270,6 +279,10 @@ namespace XTMF.ConsoleUpdate
         {
             var appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var containingDirectory = Path.GetDirectoryName( appPath );
+            if (containingDirectory == null)
+            {
+                throw new Exception("We were unable to get the continaing directory from the assembly!");
+            }
             try
             {
                 // Launch the process that will update this program
@@ -287,7 +300,7 @@ namespace XTMF.ConsoleUpdate
             }
         }
 
-        private List<string> SaveFiles(string directory, string[] redirectPaths, string[] redirectedPaths, Action<float> update, List<string> errors, BinaryReader reader)
+        private List<string> SaveFiles(string directory, string[] redirectPaths, string[] redirectedPaths, Action<float> update, ref List<string> errors, BinaryReader reader)
         {
             int numberOfFiles = reader.ReadInt32();
             for ( int i = 0; i < numberOfFiles; i++ )
@@ -328,26 +341,30 @@ namespace XTMF.ConsoleUpdate
 
         private void WriteConfigFile()
         {
-            var dirName = Path.GetDirectoryName( this.ConfigFile );
+            var dirName = Path.GetDirectoryName( ConfigFile );
+            if (dirName == null)
+            {
+                throw new Exception($"We were unable get the directory name from the configuration file location: '{ConfigFile}'!");
+            }
             if ( !Directory.Exists( dirName ) )
             {
                 Directory.CreateDirectory( dirName );
             }
-            using ( XmlWriter writer = XmlTextWriter.Create( this.ConfigFile, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true } ) )
+            using ( XmlWriter writer = XmlWriter.Create( ConfigFile, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true } ) )
             {
                 writer.WriteStartDocument();
                 writer.WriteStartElement( "Root" );
 
                 writer.WriteStartElement( "XTMFUpdateServerLocation" );
-                writer.WriteString( this.XTMFUpdateServerLocation );
+                writer.WriteString( XTMFUpdateServerLocation );
                 writer.WriteEndElement();
 
                 writer.WriteStartElement( "XTMFUpdateServerPort" );
-                writer.WriteString( this.XTMFUpdateServerPort.ToString() );
+                writer.WriteString( XTMFUpdateServerPort.ToString() );
                 writer.WriteEndElement();
 
                 writer.WriteStartElement( "UseWebservices" );
-                writer.WriteString( this.UseWebservices.ToString() );
+                writer.WriteString( UseWebservices.ToString() );
                 writer.WriteEndElement();
 
                 writer.WriteEndElement();

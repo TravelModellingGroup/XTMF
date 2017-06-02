@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +26,7 @@ using XTMF;
 
 namespace TMG.NetworkEstimation
 {
-    public class NetworkAI : INetworkEstimationAI
+    public class NetworkAi : INetworkEstimationAI
     {
         [SubModelInformation( Description = "The things to use for calculating the error.", Required = false )]
         public List<IErrorTally> ErrorTallies;
@@ -40,7 +41,7 @@ namespace TMG.NetworkEstimation
         public int IterationsFromBest;
 
         [RunParameter( "MABS Weight", 1f, "The weight applied to the mean absolute error in the evaluation function" )]
-        public float MABSWeight;
+        public float MabsWeight;
 
         [RunParameter( "Momentum Residual", 0.1f, "The amount of momentum that continues on from the previous iteration." )]
         public float MomentumResidule;
@@ -58,13 +59,13 @@ namespace TMG.NetworkEstimation
         public bool RerunFromLastRunParameters;
 
         [RunParameter( "RMSE Weight", 1f, "The weight applied to the root mean square error in the evaluation function" )]
-        public float RMSEWeight;
+        public float RmseWeight;
 
         [RunParameter( "Step Weight", 0.01f, "The amount that we will move our focus in each parameter dimension per iteration (multiplied against the gradient)." )]
         public float StepWeight;
 
         [RunParameter( "Total Error Weight", 1f, "The weight applied to the total error in the evaluation function" )]
-        public float TErrorWeight;
+        public float ErrorWeight;
 
         [RunParameter( "Total Iterations", 25, "The number of iterations to process." )]
         public int TotalIterations;
@@ -75,13 +76,13 @@ namespace TMG.NetworkEstimation
         [RunParameter( "Whisker Length", 0.1f, "The amount that we will search out to find orientation in each parameter dimension." )]
         public float WhiskerLength;
 
-        private static char[] Comma = new char[] { ',' };
+        private static char[] Comma = { ',' };
 
         private float BestRunError = float.MaxValue;
 
         private int CurrentIteration;
 
-        private volatile bool Exit = false;
+        private volatile bool Exit;
 
         private ParameterSetting[] Kernel;
 
@@ -94,12 +95,6 @@ namespace TMG.NetworkEstimation
         private float[] ParameterVolatility;
 
         private float[] PreviousMoveChoice;
-
-        private float[] PreviousVolatility;
-
-        public NetworkAI()
-        {
-        }
 
         public string Name
         {
@@ -123,7 +118,7 @@ namespace TMG.NetworkEstimation
 
         public void CancelExploration()
         {
-            this.Exit = true;
+            Exit = true;
         }
 
         public float ComplexErrorFunction(ParameterSetting[] parameters, TransitLine[] transitLine, TransitLine[] predicted, float[] aggToTruth)
@@ -131,7 +126,7 @@ namespace TMG.NetworkEstimation
             float sum = 0;
             //var regionError = this.ComputeRegionError( transitLine, predicted );
             //var lineByLine = this.ComputeLineError( transitLine, aggToTruth );
-            foreach ( var tally in this.ErrorTallies )
+            foreach ( var tally in ErrorTallies )
             {
                 sum += tally.ComputeError( parameters, transitLine, predicted );
             }
@@ -141,23 +136,22 @@ namespace TMG.NetworkEstimation
         public float ErrorCombinationFunction(double rmse, double mabs, double terror)
         {
             return (float)( (
-                this.RMSEWeight * rmse
-                + this.MABSWeight * mabs
-                + this.TErrorWeight * terror ) );
+                RmseWeight * rmse
+                + MabsWeight * mabs
+                + ErrorWeight * terror ) );
         }
 
-        public void Explore(ParameterSetting[] parameters, Action UpdateProgress, Func<ParameterSetting[], float> evaluationfunction)
+        public void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction)
         {
-            this.Progress = 0;
-            Random rand = new Random( ( ++this.NumberOfExplorations ) * ( this.RandomSeed ) );
+            Progress = 0;
+            Random rand = new Random( ( ++NumberOfExplorations ) * ( RandomSeed ) );
             var numberOfParameters = parameters.Length;
-            this.Kernel = parameters.Clone() as ParameterSetting[];
-            this.ParameterVolatility = new float[numberOfParameters];
-            this.PreviousVolatility = new float[numberOfParameters];
-            this.Momentum = new float[numberOfParameters];
-            this.MoveChoice = new float[numberOfParameters];
-            this.PreviousMoveChoice = new float[numberOfParameters];
-            this.GenerateRandomSeed( rand );
+            Kernel = parameters.Clone() as ParameterSetting[];
+            ParameterVolatility = new float[numberOfParameters];
+            Momentum = new float[numberOfParameters];
+            MoveChoice = new float[numberOfParameters];
+            PreviousMoveChoice = new float[numberOfParameters];
+            GenerateRandomSeed( rand );
             float[,] explorationErrors = new float[numberOfParameters, 4];
             float[,] explorationGradients = new float[numberOfParameters, 4];
             ParameterSetting[,][] explorationPoints = new ParameterSetting[numberOfParameters, 4][];
@@ -173,31 +167,31 @@ namespace TMG.NetworkEstimation
             }
 
             // Explore it for all of the pre-defined iterations
-            for ( int iteration = 0; iteration < this.TotalIterations; iteration++ )
+            for ( int iteration = 0; iteration < TotalIterations; iteration++ )
             {
-                this.CurrentIteration = iteration;
-                this.Progress = (float)iteration / this.TotalIterations;
-                UpdateProgress();
+                CurrentIteration = iteration;
+                Progress = (float)iteration / TotalIterations;
+                updateProgress();
                 // figure out how good our point is
-                if ( this.Exit )
+                if ( Exit )
                 {
                     break;
                 }
-                var kernelError = evaluationfunction( this.Kernel );
+                var kernelError = evaluationfunction( Kernel );
                 if ( kernelError < bestSoFar )
                 {
                     bestSoFar = kernelError;
                     numberOfIterationSinceBest = 0;
                 }
-                else if ( ( ++numberOfIterationSinceBest ) > this.IterationsFromBest )
+                else if ( ( ++numberOfIterationSinceBest ) > IterationsFromBest )
                 {
                     break;
                 }
                 // Calculate all of the errors
-                GenerateExplorationPoints( numberOfParameters, this.Kernel, explorationPoints, explorationErrors, evaluationfunction, UpdateProgress );
+                GenerateExplorationPoints( numberOfParameters, Kernel, explorationPoints, explorationErrors, evaluationfunction, updateProgress );
                 // Calculate the gradients from the errors
                 ComputeGradients( numberOfParameters, explorationErrors, explorationGradients, kernelError );
-                ComputeVolatility( explorationGradients, kernelError );
+                ComputeVolatility( explorationGradients );
                 if ( EarlyTermination() )
                 {
                     break;
@@ -207,17 +201,17 @@ namespace TMG.NetworkEstimation
                 PreviousMoveChoice = MoveChoice;
                 MoveChoice = moveChoiceTemp;
             }
-            this.Progress = 1;
+            Progress = 1;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.MomentumResidule >= 1 )
+            if ( MomentumResidule >= 1 )
             {
                 error = "The momentum residule should be less than 1!";
                 return false;
             }
-            else if ( this.MomentumResidule < 0 )
+            if ( MomentumResidule < 0 )
             {
                 error = "The momentum residule can not be less than 0!";
                 return false;
@@ -236,9 +230,9 @@ namespace TMG.NetworkEstimation
             }
         }
 
-        private void ComputeVolatility(float[,] explorationGradients, float kernelError)
+        private void ComputeVolatility(float[,] explorationGradients)
         {
-            var dimensions = this.Kernel.Length;
+            var dimensions = Kernel.Length;
 
             for ( int i = 0; i < dimensions; i++ )
             {
@@ -253,15 +247,15 @@ namespace TMG.NetworkEstimation
                 absmeandiff += Math.Abs( explorationGradients[i, 1] - average );
                 absmeandiff += Math.Abs( explorationGradients[i, 2] - average );
                 absmeandiff += Math.Abs( explorationGradients[i, 3] - average );
-                this.ParameterVolatility[i] = absmeandiff;
+                ParameterVolatility[i] = absmeandiff;
             }
             using ( StreamWriter writer = new StreamWriter( "Volatility.csv", true ) )
             {
-                writer.Write( this.ParameterVolatility[0] );
+                writer.Write( ParameterVolatility[0] );
                 for ( int i = 1; i < dimensions; i++ )
                 {
                     writer.Write( ',' );
-                    writer.Write( this.ParameterVolatility[i] );
+                    writer.Write( ParameterVolatility[i] );
                 }
                 writer.WriteLine();
             }
@@ -272,17 +266,17 @@ namespace TMG.NetworkEstimation
             // check to see if we should be terminating early
             float totalVolaility = 0;
             float totalMomentum = 0;
-            var dimensions = this.Kernel.Length;
+            var dimensions = Kernel.Length;
             for ( int i = 0; i < dimensions; i++ )
             {
-                totalVolaility += this.ParameterVolatility[i];
-                totalMomentum += Math.Abs( this.Momentum[i] );
+                totalVolaility += ParameterVolatility[i];
+                totalMomentum += Math.Abs( Momentum[i] );
             }
-            return totalVolaility < this.VolatilityThreshhold && totalMomentum < this.MomentumThreshhold;
+            return totalVolaility < VolatilityThreshhold && totalMomentum < MomentumThreshhold;
         }
 
         private void GenerateExplorationPoints(int numberOfParameters, ParameterSetting[] kernel, ParameterSetting[,][] explorationPoints
-            , float[,] explorationErrors, Func<ParameterSetting[], float> evaluationfunction, Action UpdateProgress)
+            , float[,] explorationErrors, Func<ParameterSetting[], float> evaluationfunction, Action updateProgress)
         {
             for ( int i = 0; i < numberOfParameters; i++ )
             {
@@ -303,19 +297,19 @@ namespace TMG.NetworkEstimation
                             switch ( k )
                             {
                                 case 0:
-                                    currentWhisker = this.WhiskerLength * -2;
+                                    currentWhisker = WhiskerLength * -2;
                                     break;
 
                                 case 1:
-                                    currentWhisker = -this.WhiskerLength;
+                                    currentWhisker = -WhiskerLength;
                                     break;
 
                                 case 2:
-                                    currentWhisker = this.WhiskerLength;
+                                    currentWhisker = WhiskerLength;
                                     break;
 
                                 default:
-                                    currentWhisker = this.WhiskerLength * 2;
+                                    currentWhisker = WhiskerLength * 2;
                                     break;
                             }
                             explorationPoints[i, k][j].Current = kernel[j].Current + ( kernel[j].Stop - kernel[j].Start ) * currentWhisker;
@@ -332,26 +326,26 @@ namespace TMG.NetworkEstimation
                 }
                 for ( int k = 0; k < 4; k++ )
                 {
-                    if ( this.Exit )
+                    if ( Exit )
                     {
                         break;
                     }
                     explorationErrors[i, k] = evaluationfunction( explorationPoints[i, k] );
-                    this.Progress = (float)( (float)this.CurrentIteration / this.TotalIterations )
-                        + ( 1.0f / this.TotalIterations ) * ( ( i * 4 + k ) / (float)( numberOfParameters * 4 ) );
-                    UpdateProgress();
+                    Progress = (float)CurrentIteration / TotalIterations
+                        + ( 1.0f / TotalIterations ) * ( ( i * 4 + k ) / (float)( numberOfParameters * 4 ) );
+                    updateProgress();
                 }
             }
         }
 
         private void GenerateRandomSeed(Random rand)
         {
-            var dimensions = this.Kernel.Length;
+            var dimensions = Kernel.Length;
 
-            if ( RerunFromLastRunParameters && File.Exists( this.EvaluationFile ) )
+            if ( RerunFromLastRunParameters && File.Exists( EvaluationFile ) )
             {
                 // store the best values in the kernel
-                using ( StreamReader reader = new StreamReader( this.EvaluationFile ) )
+                using ( StreamReader reader = new StreamReader( EvaluationFile ) )
                 {
                     string line;
                     // Burn the header
@@ -360,94 +354,102 @@ namespace TMG.NetworkEstimation
                     {
                         string[] split = line.Split( Comma );
                         // make sure our 3 metrics are here
-                        if ( split != null && split.Length == dimensions + 4 )
+                        if ( split.Length == dimensions + 4 )
                         {
                             int offset = split.Length - 3;
-                            float RMSE = float.Parse( split[offset + 0] );
-                            float MSE = float.Parse( split[offset + 1] );
-                            float TError = float.Parse( split[offset + 2] );
-                            float value = this.ErrorCombinationFunction( RMSE, MSE, TError );
-                            if ( value < this.BestRunError )
+                            float rmse = float.Parse( split[offset + 0] );
+                            float mse = float.Parse( split[offset + 1] );
+                            float error = float.Parse( split[offset + 2] );
+                            float value = ErrorCombinationFunction( rmse, mse, error );
+                            if ( value < BestRunError )
                             {
-                                this.BestRunError = value;
-                                for ( int i = 0; i < this.Kernel.Length; i++ )
+                                BestRunError = value;
+                                for ( int i = 0; i < Kernel.Length; i++ )
                                 {
-                                    this.Kernel[i].Current = float.Parse( split[i] );
+                                    Kernel[i].Current = float.Parse( split[i] );
                                 }
                             }
                         }
                     }
                 }
             }
-            else if ( this.InitialParameterFile == null || this.InitialParameterFile == String.Empty || !File.Exists( this.InitialParameterFile ) )
+            else if ( InitialParameterFile == null || InitialParameterFile == string.Empty || !File.Exists( InitialParameterFile ) )
             {
                 for ( int i = 0; i < dimensions; i++ )
                 {
-                    var value = ( rand.NextDouble() * ( this.Kernel[i].Stop - this.Kernel[i].Start ) ) + this.Kernel[i].Start;
-                    this.Kernel[i].Current = (float)value;
+                    var value = ( rand.NextDouble() * ( Kernel[i].Stop - Kernel[i].Start ) ) + Kernel[i].Start;
+                    Kernel[i].Current = (float)value;
                 }
             }
             else
             {
                 XmlDocument doc = new XmlDocument();
-                doc.Load( this.InitialParameterFile );
-
-                foreach ( XmlNode child in doc["Root"].ChildNodes )
+                doc.Load( InitialParameterFile );
+                var childNodes = doc["Root"]?.ChildNodes;
+                if (childNodes != null)
                 {
-                    if ( child.Name == "Parameter" )
+                    foreach (XmlNode child in  childNodes)
                     {
-                        var pName = child.Attributes["Name"].InnerText;
-                        for ( int i = 0; i < this.Kernel.Length; i++ )
+                        if (child.Name == "Parameter")
                         {
-                            if ( this.Kernel[i].ParameterName == pName )
+                            var attributes = child.Attributes;
+                            if (attributes != null)
                             {
-                                this.Kernel[i].Current = float.Parse( child.Attributes["Value"].InnerText );
-                                break;
+                                var pName = attributes["Name"].InnerText;
+                                for (int i = 0; i < Kernel.Length; i++)
+                                {
+                                    if (Kernel[i].ParameterName == pName)
+                                    {
+
+                                        Kernel[i].Current = float.Parse(attributes["Value"].InnerText);
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
             // Reset the best run error so we properly add in the new value (boarding file output from the macro)
-            this.BestRunError = float.MaxValue;
+            BestRunError = float.MaxValue;
         }
 
         private void MoveKernel(float[,] explorationGradients, Random r)
         {
-            var dimensions = this.Kernel.Length;
-            var randomWeight = (float)r.NextDouble() * this.StepWeight;
+            var dimensions = Kernel.Length;
+            var randomWeight = (float)r.NextDouble() * StepWeight;
             for ( int i = 0; i < dimensions; i++ )
             {
                 var increasing = ( explorationGradients[i, 3] + explorationGradients[i, 2] ) / 2;
                 var decreasing = ( explorationGradients[i, 1] + explorationGradients[i, 0] ) / 2;
                 float change = randomWeight * ( increasing < decreasing ? Math.Abs( increasing ) : -Math.Abs( decreasing ) );
-                change += ( this.Momentum[i] * this.MomentumResidule );
+                change += ( Momentum[i] * MomentumResidule );
                 if ( change < 0 )
                 {
-                    if ( change > -this.PercentageStepCap )
+                    if ( change > -PercentageStepCap )
                     {
-                        change = -this.PercentageStepCap;
+                        change = -PercentageStepCap;
                     }
                 }
                 else if ( change > 0 )
                 {
-                    if ( change > this.PercentageStepCap )
+                    if ( change > PercentageStepCap )
                     {
-                        change = this.PercentageStepCap;
+                        change = PercentageStepCap;
                     }
                 }
-                this.Momentum[i] = change;
-                this.Kernel[i].Current += change;
+                Momentum[i] = change;
+                Kernel[i].Current += change;
                 // bind it to the min/max
-                if ( this.Kernel[i].Current < this.Kernel[i].Start )
+                if ( Kernel[i].Current < Kernel[i].Start )
                 {
-                    this.Kernel[i].Current = this.Kernel[i].Start;
-                    this.Momentum[i] = 0;
+                    Kernel[i].Current = Kernel[i].Start;
+                    Momentum[i] = 0;
                 }
-                else if ( this.Kernel[i].Current > this.Kernel[i].Stop )
+                else if ( Kernel[i].Current > Kernel[i].Stop )
                 {
-                    this.Kernel[i].Current = this.Kernel[i].Stop;
-                    this.Momentum[i] = 0;
+                    Kernel[i].Current = Kernel[i].Stop;
+                    Momentum[i] = 0;
                 }
             }
         }

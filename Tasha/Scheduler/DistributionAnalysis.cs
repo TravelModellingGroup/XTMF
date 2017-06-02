@@ -115,13 +115,11 @@ namespace Tasha.Scheduler
                 Writer = new StreamWriter( Distributions1 );
             }
 
-            this.SimulateScheduler();
+            SimulateScheduler();
             Distribution.InitializeDistributions();
             var distributionData = Distribution.Distributions.GetFlatData();
-            var adultData = Distribution.AdultDistributions.GetFlatData();
-
             GraphTripPurpose( distributionData );
-            this.Dispose( true );
+            Dispose( true );
         }
 
         public override string ToString()
@@ -129,11 +127,11 @@ namespace Tasha.Scheduler
             return "Analysing Distribution Data";
         }
 
-        private static void LoadDistributioNumbers(TashaPerson person, List<int> primaryWork, Occupation[] Occupations)
+        private static void LoadDistributioNumbers(TashaPerson person, List<int> primaryWork, Occupation[] occupations)
         {
-            foreach ( Occupation Current in Occupations )
+            foreach ( Occupation current in occupations )
             {
-                person.Occupation = Current;
+                person.Occupation = current;
                 for ( person.Age = 11; person.Age < 100; person.Age++ )
                 {
                     if ( person.Age >= 16 && person.Licence == false )
@@ -143,7 +141,6 @@ namespace Tasha.Scheduler
 
                     if ( primaryWork.Contains( Distribution.GetDistributionID( person, Activity.PrimaryWork ) ) )
                     {
-                        continue;
                     }
 
                     else
@@ -167,7 +164,7 @@ namespace Tasha.Scheduler
                         series.ChartType = SeriesChartType.Bar;
                         for ( int i = 0; i < values.Length; i++ )
                         {
-                            series.Points.Add( new DataPoint( i, values[i] ) { AxisLabel = ( Time.FromMinutes( ( 60 * 4 ) + i * ( 1440 / this.StartTimeQuantums ) ) ).ToString() } );
+                            series.Points.Add( new DataPoint( i, values[i] ) { AxisLabel = ( Time.FromMinutes( ( 60 * 4 ) + i * ( 1440 / StartTimeQuantums ) ) ).ToString() } );
                         }
                         area.AxisX.Title = xAxisName;// "Start Time ";
                         area.AxisY.Title = yAxisName;// "#Episodes";
@@ -181,48 +178,39 @@ namespace Tasha.Scheduler
             }
         }
 
-        private int GetBucketIndex(Time time)
-        {
-            // find the time in minutes starting from 4 AM
-            var minutes = (int)time.ToMinutes() - ( 60 * 4 );
-            // 1440 is the number of minutes in 24 hours
-            return minutes / ( 1440 / this.StartTimeQuantums );
-        }
-
         private string GetFullPath(string localPath)
         {
-            if ( !System.IO.Path.IsPathRooted( localPath ) )
+            if ( !Path.IsPathRooted( localPath ) )
             {
-                return System.IO.Path.Combine( this.InputBaseDirectory, localPath );
+                return Path.Combine( InputBaseDirectory, localPath );
             }
             return localPath;
         }
 
         private void GraphTripPurpose(Distribution.DistributionInformation[] distributionData)
         {
-            TashaHousehold Household = new TashaHousehold();
+            TashaHousehold household = new TashaHousehold();
             TashaPerson person = new TashaPerson();
             List<int> primaryWork = new List<int>();
             person.Licence = false;
             person.Male = GenderLocal;
 
-            SchedulerHousehold.CreateHouseholdProjects( Household );
+            SchedulerHousehold.CreateHouseholdProjects( household );
             SchedulerPerson.InitializePersonalProjects( person );
             SchedulerPerson.GenerateWorkSchoolSchedule( person, null );
             SchedulerTripChain.GetTripChain( person );
-            var trip = SchedulerTrip.GetTrip(0);
 
-            Occupation[] Occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
+            Occupation[] occupations = { Occupation.Professional, Occupation.Manufacturing, Occupation.Retail, Occupation.Office, Occupation.Unknown, Occupation.NotEmployed };
 
-            LoadDistributioNumbers( person, primaryWork, Occupations );
+            LoadDistributioNumbers( person, primaryWork, occupations );
 
-            float[] data = new float[this.StartTimeQuantums];
-            foreach ( int ID in primaryWork )
+            float[] data = new float[StartTimeQuantums];
+            foreach ( int id in primaryWork )
             {
-                var table = distributionData[ID].StartTimeFrequency;
-                for ( int i = 0; i < this.StartTimeQuantums; i++ )
+                var table = distributionData[id].StartTimeFrequency;
+                for ( int i = 0; i < StartTimeQuantums; i++ )
                 {
-                    for ( int j = 0; j < this.MaxFrequencyLocal; j++ )
+                    for ( int j = 0; j < MaxFrequencyLocal; j++ )
                     {
                         data[i] += table[i][j];
                     }
@@ -235,35 +223,35 @@ namespace Tasha.Scheduler
             for ( int number = 0; number < data.Length; number++ )
             {
                 data[number] = data[number] / sum * 100;
-                Writer.WriteLine( "{0}, {1}", ( Time.FromMinutes( ( 60 * 4 ) + number * ( 1440 / this.StartTimeQuantums ) ) ), data[number] );
+                Writer.WriteLine( "{0}, {1}", ( Time.FromMinutes( ( 60 * 4 ) + number * ( 1440 / StartTimeQuantums ) ) ), data[number] );
             }
 
-            GenerateChart( String.Format( "OfficeDur.png" ), data, "Time of Day", "Probability" );
+            GenerateChart( "OfficeDur.png", data, "Time of Day", "Probability" );
         }
 
         private void SimulateScheduler()
         {
-            Scheduler.MaxFrequency = this.MaxFrequencyLocal;
-            Scheduler.NumberOfAdultDistributions = this.NumberOfAdultDistributionsLocal;
-            Scheduler.NumberOfAdultFrequencies = this.NumberOfAdultFrequenciesLocal;
-            Scheduler.NumberOfDistributions = this.NumberOfDistributionsLocal;
-            Scheduler.StartTimeQuanta = this.StartTimeQuantums;
-            Scheduler.FrequencyDistributionsFile = this.GetFullPath( this.FrequencyDistributionsFileLocal );
-            Scheduler.AdultDistributionsFile = this.GetFullPath( this.AdultDistributionsFileLocal );
+            Scheduler.MaxFrequency = MaxFrequencyLocal;
+            Scheduler.NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
+            Scheduler.NumberOfAdultFrequencies = NumberOfAdultFrequenciesLocal;
+            Scheduler.NumberOfDistributions = NumberOfDistributionsLocal;
+            Scheduler.StartTimeQuanta = StartTimeQuantums;
+            Scheduler.FrequencyDistributionsFile = GetFullPath( FrequencyDistributionsFileLocal );
+            Scheduler.AdultDistributionsFile = GetFullPath( AdultDistributionsFileLocal );
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
             GC.SuppressFinalize( this );
         }
 
         protected virtual void Dispose(bool all)
         {
-            if ( this.Writer != null )
+            if ( Writer != null )
             {
-                this.Writer.Dispose();
-                this.Writer = null;
+                Writer.Dispose();
+                Writer = null;
             }
         }
     }

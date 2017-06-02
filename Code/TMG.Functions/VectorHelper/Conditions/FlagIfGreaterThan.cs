@@ -17,11 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TMG.Functions
@@ -114,7 +110,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfGreaterThan(float[][] dest, float[][] data, float literalValue)
         {
-            Parallel.For(0, dest.Length, (int i) =>
+            Parallel.For(0, dest.Length, i =>
             {
                 FlagIfGreaterThan(dest[i], data[i], literalValue);
             });
@@ -133,7 +129,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfGreaterThan(float[][] dest, float[][] lhs, float[][] rhs)
         {
-            Parallel.For(0, dest.Length, (int i) =>
+            Parallel.For(0, dest.Length, i =>
             {
                 FlagIfGreaterThan(dest[i], 0, lhs[i], 0, rhs[i], 0, dest.Length);
             });
@@ -144,7 +140,7 @@ namespace TMG.Functions
         /// </summary>
         public static void FlagIfGreaterThan(float[][] dest, float literalValue, float[][] data)
         {
-            Parallel.For(0, dest.Length, (int i) =>
+            Parallel.For(0, dest.Length, i =>
             {
                 FlagIfGreaterThan(dest[i], literalValue, data[i]);
             });

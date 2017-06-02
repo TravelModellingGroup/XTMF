@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Tasha.Common;
 using XTMF;
 using TMG;
@@ -167,7 +165,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     break;
             }
             v += GetPlanningDistrictConstant(trip.TripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
-            return (double)v;
+            return v;
         }
 
         private void GetPersonVariables(ITashaPerson person, out float constant, out float perceivedTime, out float cost)
@@ -254,7 +252,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var o = ZoneArray.GetFlatIndex(originalZone.ZoneNumber);
             IZone destinationZone = trip.DestinationZone;
             var d = ZoneArray.GetFlatIndex(destinationZone.ZoneNumber);
-            return Network.ValidOD(o, d, trip.TripStartTime);
+            return Network.ValidOd(o, d, trip.TripStartTime);
         }
 
         public bool Feasible(ITripChain tripChain)
@@ -349,8 +347,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             {
                 TimePeriodConstants[i].BuildMatrix();
             }
-            ZonalDensityForActivitiesArray = ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
-            ZonalDensityForHomeArray = ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
+            ZonalDensityForActivitiesArray = (float[]) ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
+            ZonalDensityForHomeArray = (float[]) ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
             for (int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
             {
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
@@ -370,7 +368,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             var ret = costFactor * timeFactor;
             if (ret > 0)
             {
-                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret.ToString() + "'");
+                throw new XTMFRuntimeException("In '" + Name + "' we ended up with a beta to apply to cost that was greater than 0! The value was '" + ret + "'");
             }
             return ret;
         }

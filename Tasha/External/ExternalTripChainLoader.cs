@@ -19,12 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Tasha.Common;
 using XTMF;
 using TMG;
 using TMG.Input;
 using Datastructure;
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable MemberHidesStaticFromOuterClass
 namespace Tasha.External
 {
 
@@ -40,7 +41,7 @@ namespace Tasha.External
 
         public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); } }
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         [SubModelInformation(Required = true, Description = "The location of the trip chain file.")]
         public FileLocation TripChainFile;
@@ -60,7 +61,7 @@ namespace Tasha.External
             public float ExpansionFactor { get; set; }
 
 
-            public HouseholdType hhType { get { return default(HouseholdType); } }
+            public HouseholdType HhType => default(HouseholdType);
 
 
             public IZone HomeZone { get; set; }
@@ -68,15 +69,15 @@ namespace Tasha.External
 
             public int HouseholdId { get; set; }
 
-            public Dictionary<int, List<ITripChain>> JointTours { get { return null; } }
+            public Dictionary<int, List<ITripChain>> JointTours => null;
 
-            public int NumberOfAdults { get { return 0; } }
+            public int NumberOfAdults => 0;
 
-            public int NumberOfChildren { get { return 0; } }
+            public int NumberOfChildren => 0;
 
             public ITashaPerson[] Persons { get { return null; } set { } }
 
-            public IVehicle[] Vehicles { get { return null; } set { } }
+            public IVehicle[] Vehicles => null;
 
             public ITashaHousehold Clone()
             {
@@ -116,21 +117,20 @@ namespace Tasha.External
 
             public float ExpansionFactor { get; set; }
 
-            public bool Female { get { return false; } }
+            public bool Female => false;
 
-            public bool FreeParking { get { return false; } }
+            public bool FreeParking => false;
 
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public ITashaHousehold Household { get; set; }
 
-            public int Id { get { return 0; } }
+            public int Id => 0;
 
-            public bool Licence { get { return false; } }
+            public bool Licence => false;
 
-            public bool Male { get { return false; } }
+            public bool Male => false;
 
             public Occupation Occupation { get { throw new NotImplementedException(); } }
-
-            public IList<IPersonIterationData> PersonIterationData { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
             public IZone SchoolZone { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
 
@@ -140,40 +140,42 @@ namespace Tasha.External
 
             public List<ITripChain> TripChains { get; set; }
 
-            public bool YoungAdult { get { return false; } }
+            public bool YoungAdult => false;
 
-            public bool Youth { get { return false; } }
+            public bool Youth => false;
 
             public ITashaPerson Clone() { throw new NotImplementedException(); }
-
-            public void PopulateData() { throw new NotImplementedException(); }
 
             public void Recycle() { throw new NotImplementedException(); }
         }
 
         private sealed class TripChain : Attachable, ITripChain
         {
-            public Time EndTime { get { return Trips.Last().TripStartTime; } }
+            public Time EndTime => Trips.Last().TripStartTime;
 
-            public ITripChain GetRepTripChain { get { return null; } }
+            public ITripChain GetRepTripChain => null;
 
-            public bool JointTrip { get { return false; } }
+            public bool JointTrip => false;
 
-            public List<ITripChain> JointTripChains { get { return null; } }
+            public List<ITripChain> JointTripChains => null;
 
-            public int JointTripID { get { return 0; } }
+            public int JointTripID => 0;
 
-            public bool JointTripRep { get { return false; } }
+            public bool JointTripRep => false;
 
-            public List<ITashaPerson> passengers { get { return null; } }
+            public List<ITashaPerson> Passengers => null;
 
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public ITashaPerson Person { get; set; }
 
-            public List<IVehicleType> requiresVehicle { get { return null; } }
+            public List<IVehicleType> RequiresVehicle => null;
 
-            public Time StartTime { get { return Trips[0].TripStartTime; } set { } }
+            public Time StartTime
+            {
+                get { return Trips[0].TripStartTime; }
+            }
 
-            public bool TripChainRequiresPV { get { return false; } }
+            public bool TripChainRequiresPV => false;
 
             public List<ITrip> Trips { get; set; }
 
@@ -186,7 +188,7 @@ namespace Tasha.External
 
         private sealed class Trip : Attachable, ITrip
         {
-            public Time ActivityStartTime { get { return Time.Zero; } }
+            public Time ActivityStartTime => Time.Zero;
 
             public IZone DestinationZone { get; set; }
 
@@ -194,7 +196,7 @@ namespace Tasha.External
 
             public ITashaMode Mode { get; set; }
 
-            public ITashaMode[] ModesChosen { get { return null; } }
+            public ITashaMode[] ModesChosen => null;
 
             public IZone OriginalZone { get; set; }
 
@@ -204,11 +206,11 @@ namespace Tasha.External
 
             public ITashaPerson SharedModeDriver { get { return null; } set { } }
 
-            public Time TravelTime { get { return Time.Zero; } }
+            public Time TravelTime => Time.Zero;
 
             public ITripChain TripChain { get; set; }
 
-            public int TripNumber { get { return 0; } }
+            public int TripNumber => 0;
 
             public Time TripStartTime { get; set; }
 
@@ -219,58 +221,57 @@ namespace Tasha.External
 
         public void LoadData()
         {
-            if ( !Loaded )
+            if (!Loaded)
             {
-                using (CsvReader reader = new CsvReader( TripChainFile ))
+                using (CsvReader reader = new CsvReader(TripChainFile))
                 {
-                    var zoneSystem = this.Root.ZoneSystem.ZoneArray;
+                    var zoneSystem = Root.ZoneSystem.ZoneArray;
                     var zones = zoneSystem.GetFlatData();
                     var chains = new List<ITripChain>();
-                    var modes = this.Root.AllModes;
-                    Household[] households = CreateHouseholds( zones );
+                    Household[] households = CreateHouseholds(zones);
                     int columns;
-                    reader.LoadLine( out columns );
+                    reader.LoadLine(out columns);
                     int previousPerson = -1;
-                    Person currentPerson = null;
+                    Person currentPerson;
                     TripChain currentChain = null;
-                    while ( reader.LoadLine( out columns ) )
+                    while (reader.LoadLine(out columns))
                     {
-                        if ( columns < 7 )
+                        if (columns < 7)
                         {
                             continue;
                         }
                         int personNumber, homeZone, origin, destination, startTime;
                         float expFactor;
                         char modeCode;
-                        reader.Get( out personNumber, 0 );
-                        reader.Get( out expFactor, 1 );
-                        reader.Get( out homeZone, 2 );
-                        reader.Get( out origin, 3 );
-                        reader.Get( out destination, 4 );
-                        reader.Get( out startTime, 5 );
-                        reader.Get( out  modeCode, 6 );
+                        reader.Get(out personNumber, 0);
+                        reader.Get(out expFactor, 1);
+                        reader.Get(out homeZone, 2);
+                        reader.Get(out origin, 3);
+                        reader.Get(out destination, 4);
+                        reader.Get(out startTime, 5);
+                        reader.Get(out modeCode, 6);
                         // check for the start of a new person
-                        if ( personNumber != previousPerson )
+                        if (personNumber != previousPerson)
                         {
                             currentPerson = new Person()
                             {
-                                Household = households[zoneSystem.GetFlatIndex( homeZone )],
+                                Household = households[zoneSystem.GetFlatIndex(homeZone)],
                                 ExpansionFactor = expFactor
                             };
                             currentChain = new TripChain()
                             {
                                 Person = currentPerson
                             };
-                            currentChain.Trips = new List<ITrip>( 4 );
-                            chains.Add( currentChain );
+                            currentChain.Trips = new List<ITrip>(4);
+                            chains.Add(currentChain);
                         }
-                        currentChain.Trips.Add( new Trip()
+                        currentChain?.Trips.Add(new Trip()
                         {
                             OriginalZone = zoneSystem[origin],
                             DestinationZone = zoneSystem[destination],
-                            TripStartTime = ConvertStartTime( startTime ),
-                            Mode = ConvertMode( modeCode, modes )
-                        } );
+                            TripStartTime = ConvertStartTime(startTime),
+                            Mode = ConvertMode(modeCode)
+                        });
                     }
                     // done
                     Data = chains;
@@ -282,7 +283,7 @@ namespace Tasha.External
         [SubModelInformation(Description = "A lookup to convert between mode character codes and the mode in Tasha.")]
         public ModeLookup[] ModeLinks;
 
-        public class ModeLookup : XTMF.IModule
+        public class ModeLookup : IModule
         {
             [RootModule]
             public ITashaRuntime Root;
@@ -304,19 +305,19 @@ namespace Tasha.External
 
             public float Progress { get; set; }
 
-            public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>( 50, 150, 50 ); } }
+            public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
             public bool RuntimeValidation(ref string error)
             {
-                foreach ( var mode in this.Root.AllModes )
+                foreach (var mode in Root.AllModes)
                 {
-                    if ( mode.ModeName == ModeName )
+                    if (mode.ModeName == ModeName)
                     {
                         Mode = mode;
                         break;
                     }
                 }
-                if ( Mode == null )
+                if (Mode == null)
                 {
                     error = "In '" + Name + "' the mode named '" + ModeName + "' could not be found!";
                     return false;
@@ -326,25 +327,25 @@ namespace Tasha.External
         }
 
 
-        private ITashaMode ConvertMode(char modeCode, List<ITashaMode> modes)
+        private ITashaMode ConvertMode(char modeCode)
         {
-            return ( from link in this.ModeLinks
-                     where link.ModeCode == modeCode
-                     select link.GetMode() ).FirstOrDefault();
+            return (from link in ModeLinks
+                    where link.ModeCode == modeCode
+                    select link.GetMode()).FirstOrDefault();
         }
 
         private Time ConvertStartTime(int startTime)
         {
-            return Time.FromMinutes( ( startTime / 100 ) * 60 + ( startTime % 100 ) );
+            return Time.FromMinutes((startTime / 100) * 60 + (startTime % 100));
         }
 
         private Household[] CreateHouseholds(IZone[] zones)
         {
-            return ( from zone in zones
-                     select new Household()
-                     {
-                         HomeZone = zone
-                     } ).ToArray();
+            return (from zone in zones
+                    select new Household()
+                    {
+                        HomeZone = zone
+                    }).ToArray();
         }
 
         public bool RuntimeValidation(ref string error)

@@ -22,15 +22,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:my="clr-namespace:XTMF.Gui"
+             xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
              mc:Ignorable="d" Name="Self" Focusable="True">
     <Border Name="BorderOutline" CornerRadius="5" BorderBrush="White" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Border.Background>
-            <SolidColorBrush Color="{StaticResource ControlBackgroundColour}" />
+            <SolidColorBrush Color="#FF252526" />
         </Border.Background>
         <StackPanel Margin="5,5,5,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Label Name="HeaderContent" Foreground="White" FontWeight="Bold"
                        Content="{Binding ElementName=Self, Path=HeaderText}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-            <my:HintedTextBox x:Name="InputTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextChanged="InputTextBox_TextChanged" />
+            <userControls:HintedTextBox x:Name="InputTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextChanged="InputTextBox_TextChanged" />
         </StackPanel>
     </Border>
 </UserControl>

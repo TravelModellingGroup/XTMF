@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,9 +26,12 @@ using System.Threading.Tasks;
 using Datastructure;
 using TMG.Input;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Generation
 {
+    // ReSharper disable once InconsistentNaming
+    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
     public class PoRPoWGeneration : DemographicCategoryGeneration
     {
         [RunParameter("All Ages", "2-8", typeof(RangeSet), "All of the working ages in the model system.")]
@@ -161,7 +166,6 @@ namespace TMG.GTAModel.Generation
                         {
                             Parallel.For(0, numberOfZones, delegate (int i)
                             {
-                                int pd = zones[i].PlanningDistrict;
                                 var temp = flatEmploymentRates[i][emp][occ];
                                 temp *= flatJobTypes[i][emp];
                                 temp *= zones[i].Employment;
@@ -193,7 +197,7 @@ namespace TMG.GTAModel.Generation
             int numberOfZones = flatProduction.Length;
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             WorkAtHomeTotal = 0;
-            Parallel.For(0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate (int i)
             {
                 int zonePopulation = zones[i].Population;
@@ -274,13 +278,13 @@ namespace TMG.GTAModel.Generation
             bool first = !File.Exists(AttractionFileName.GetFileName());
             StringBuilder buildInside = new StringBuilder();
             buildInside.Append(',');
-            buildInside.Append(AgeCategoryRange.ToString());
+            buildInside.Append(AgeCategoryRange);
             buildInside.Append(',');
-            buildInside.Append(EmploymentStatusCategory.ToString());
+            buildInside.Append(EmploymentStatusCategory);
             buildInside.Append(',');
-            buildInside.Append(OccupationCategory.ToString());
+            buildInside.Append(OccupationCategory);
             buildInside.Append(',');
-            buildInside.Append(Mobility.ToString());
+            buildInside.Append(Mobility);
             buildInside.Append(',');
             string categoryData = buildInside.ToString();
             using (StreamWriter writer = new StreamWriter(AttractionFileName.GetFileName(), true))

@@ -1,5 +1,5 @@
 ﻿'''
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -451,6 +451,7 @@ class XTMFBridge:
                 expectedParameterNames = inspect.getargspec(tool.__call__)[0][1:]
                 if not self.ReorderParametersToMatch(macroName, expectedParameterNames, sentParameterNames, parameterList):
                     return
+                parameterString = str.join(',', ['{%s:%s}' %(sentParameterNames[p], parameterList[p]) for p in range(0, numberOfParameters)])
             else:
                 parameterString = self.ReadString()
                 parameterList = self.BreakIntoParametersStrings(parameterString)

@@ -27,9 +27,9 @@ namespace TMG.Input
     {
         public string Name { get; set; }
 
-        public float Progress { get { return 0f; } }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public abstract string GetFilePath();
 
@@ -60,7 +60,7 @@ namespace TMG.Input
 
         public override string GetFilePath()
         {
-            var directoryName = this.DirectoryName.GetFileName(this.Root.InputBaseDirectory);
+            var directoryName = DirectoryName.GetFileName(Root.InputBaseDirectory);
             if(String.IsNullOrEmpty(directoryName))
             {
                 return FileName;
@@ -86,7 +86,7 @@ namespace TMG.Input
 
         public override string GetFilePath()
         {
-            return this.FileName.GetFileName(this.Root.InputBaseDirectory);
+            return FileName.GetFileName(Root.InputBaseDirectory);
         }
     }
 
@@ -129,16 +129,18 @@ Description = "This module provides the ability to specify a file path relative 
 
         public override string GetFilePath()
         {
-            return this.FileName.GetFileName();
+            return FileName.GetFileName();
         }
     }
 
     [ModuleInformation(
 Description = "This module provides the ability to specify a file path relative to the directory that contains XTMF unless a full path is given."
 )]
+    // ReSharper disable once InconsistentNaming
     public class FilePathFromXTMFDirectory : FileLocation
     {
         [RunParameter("File From XTMF Installation", "Filename.type", typeof(FileFromOutputDirectory), "A path relative to the installation directory of XTMF.")]
+        // ReSharper disable once InconsistentNaming
         public FileFromOutputDirectory PathFromXTMFInstall;
 
         public override string GetFilePath()

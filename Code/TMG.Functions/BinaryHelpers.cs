@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 namespace TMG.Functions
 {
@@ -30,20 +27,16 @@ namespace TMG.Functions
             Stream file = null;
             try
             {
-                file = File.OpenWrite( fileName );
-                using ( var writer = new BinaryWriter( file ) )
+                file = File.OpenWrite(fileName);
+                using (var writer = new BinaryWriter(file))
                 {
                     file = null;
-                    toRun( writer );
+                    toRun(writer);
                 }
             }
             finally
             {
-                if ( file != null )
-                {
-                    file.Dispose();
-                    file = null;
-                }
+                file?.Dispose();
             }
         }
 
@@ -52,20 +45,16 @@ namespace TMG.Functions
             Stream file = null;
             try
             {
-                file = File.OpenRead( fileName );
-                using ( var reader = new BinaryReader( file ) )
+                file = File.OpenRead(fileName);
+                using (var reader = new BinaryReader(file))
                 {
                     file = null;
-                    toRun( reader );
+                    toRun(reader);
                 }
             }
             finally
             {
-                if ( file != null )
-                {
-                    file.Dispose();
-                    file = null;
-                }
+                file?.Dispose();
             }
         }
     }

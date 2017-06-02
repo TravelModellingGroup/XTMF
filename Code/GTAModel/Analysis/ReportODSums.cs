@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,26 +48,20 @@ namespace TMG.GTAModel.Analysis
             set;
         }
 
-        public float Progress
-        {
-            get { return 0; }
-        }
+        public float Progress => 0;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.DataSources.Count == 0 )
+            if ( DataSources.Count == 0 )
             {
                 return true;
             }
-            this.SplitNames = this.DataNames.Split( ',' );
-            if ( this.SplitNames.Length != this.DataSources.Count )
+            SplitNames = DataNames.Split( ',' );
+            if ( SplitNames.Length != DataSources.Count )
             {
-                error = "In '" + this.Name + "' the number of data sources does not match the number of tags to label the data sources!";
+                error = "In '" + Name + "' the number of data sources does not match the number of tags to label the data sources!";
                 return false;
             }
             return true;
@@ -79,12 +74,12 @@ namespace TMG.GTAModel.Analysis
             {
                 double globalIntrazonals = 0.0;
                 double globalSum = 0.0;
-                double globalIE = 0.0;
-                double globalEI = 0.0;
+                double globalInternalExternal = 0.0;
+                double globalExternalInternal = 0.0;
                 writer.WriteLine( "DataTag,Total,Intrazonals,Interzonals,InnerToExternal,ExternalToInner" );
-                for ( int i = 0; i < this.DataSources.Count; i++ )
+                for ( int i = 0; i < DataSources.Count; i++ )
                 {
-                    ProcessDataSource( SplitNames[i], this.DataSources[i], writer, ref globalIntrazonals, ref globalSum, ref globalIE, ref globalEI );
+                    ProcessDataSource( SplitNames[i], DataSources[i], writer, ref globalIntrazonals, ref globalSum, ref globalInternalExternal, ref globalExternalInternal );
                 }
                 writer.Write( "Totals:," );
                 writer.Write( globalSum );
@@ -93,14 +88,14 @@ namespace TMG.GTAModel.Analysis
                 writer.Write( ',' );
                 writer.Write( globalSum - globalIntrazonals );
                 writer.Write( ',' );
-                writer.Write( globalIE );
+                writer.Write( globalInternalExternal );
                 writer.Write( ',' );
-                writer.WriteLine( globalEI );
+                writer.WriteLine( globalExternalInternal );
             }
         }
 
         private void ProcessDataSource(string dataTag, IDataSource<SparseTwinIndex<float>> dataSource, StreamWriter writer,
-            ref double globalIntrazonals, ref double globalSum, ref double globalIE, ref double globalEI)
+            ref double globalIntrazonals, ref double globalSum, ref double globalInternalExternal, ref double globalExternalInternal)
         {
             dataSource.LoadData();
             float intrazonals;
@@ -122,8 +117,8 @@ namespace TMG.GTAModel.Analysis
             writer.WriteLine( ei );
             globalIntrazonals += intrazonals;
             globalSum += total;
-            globalIE += ie;
-            globalEI += ei;
+            globalInternalExternal += ie;
+            globalExternalInternal += ei;
         }
 
         private void Sum(float[][] p, out float total, out float intrazonals, out float ie, out float ei)
@@ -132,7 +127,7 @@ namespace TMG.GTAModel.Analysis
             var sumie = 0.0;
             var sumei = 0.0;
             var localIntrazonals = 0.0;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             for ( int i = 0; i < p.Length; i++ )
             {
                 var local = 0.0;

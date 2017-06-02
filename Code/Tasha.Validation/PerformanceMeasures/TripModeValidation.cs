@@ -19,18 +19,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Datastructure;
 using Tasha.Common;
 using TMG.Input;
-using TMG;
 using XTMF;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
     public class TripModeValidation : IPostHouseholdIteration
     {
-        bool Calculate = false;
+        bool Calculate;
 
         Dictionary<string, float> AMModeDictionary = new Dictionary<string, float>();
         Dictionary<string, float> MDModeDictionary = new Dictionary<string, float>();

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using System.IO;
 using Datastructure;
@@ -44,35 +45,35 @@ This module requires the root module of the model system to be an ‘I4StepModel
 
         public override float Progress
         {
-            get { return ( (float)this.CurrentCategory / this.NumberOfCategories ) + ( this.ModeSplit.Progress / this.NumberOfCategories ); }
+            get { return ( (float)CurrentCategory / NumberOfCategories ) + ( ModeSplit.Progress / NumberOfCategories ); }
         }
 
         public override void Run()
         {
             // For Each Demographic Category
-            var modeSplit = this.ModeSplit.ModeSplit( EnumerateDistributions(), NumberOfCategories );
-            if ( this.SaveModeChoiceOutput )
+            var modeSplit = ModeSplit.ModeSplit( EnumerateDistributions(), NumberOfCategories );
+            if ( SaveModeChoiceOutput )
             {
-                if ( !Directory.Exists( this.PurposeName ) )
+                if ( !Directory.Exists( PurposeName ) )
                 {
-                    Directory.CreateDirectory( this.PurposeName );
+                    Directory.CreateDirectory( PurposeName );
                 }
                 for ( int i = 0; i < modeSplit.Count; i++ )
                 {
-                    this.WriteModeSplit( modeSplit[i], this.Root.Modes[i], this.PurposeName );
+                    WriteModeSplit( modeSplit[i], Root.Modes[i], PurposeName );
                 }
             }
-            this.Flows = modeSplit;
+            Flows = modeSplit;
         }
 
         private IEnumerable<SparseTwinIndex<float>> EnumerateDistributions()
         {
-            this.CurrentCategory = 0;
-            foreach ( var demographic in this.AssignmentDistribution.Assign() )
+            CurrentCategory = 0;
+            foreach ( var demographic in AssignmentDistribution.Assign() )
             {
                 // let it setup the modes so we can compute friction
                 yield return demographic;
-                this.CurrentCategory++;
+                CurrentCategory++;
             }
         }
     }

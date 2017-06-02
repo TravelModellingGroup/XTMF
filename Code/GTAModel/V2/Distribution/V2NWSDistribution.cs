@@ -16,10 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Datastructure;
+using TMG.Functions;
 using XTMF;
 
 namespace TMG.GTAModel.V2.Distribution
@@ -60,19 +63,19 @@ namespace TMG.GTAModel.V2.Distribution
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
             // This computation ignores all of the productions and attractions
-            var ret = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            this.BaseYearObservations.LoadData();
+            var ret = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            BaseYearObservations.LoadData();
             var o = new float[zones.Length];
             var d = new float[zones.Length];
             ApplyBaseRates( zones, o, d );
             // make O and D equal to the same thing, averaged in the middle of the two
             Balance( o, d );
-            TMG.Functions.Fratar.Run( ret.GetFlatData(), o, d, BaseYearObservations.GiveData().GetFlatData(), MaximumError, MaxIterations );
-            this.BaseYearObservations.UnloadData();
+            Fratar.Run( ret.GetFlatData(), o, d, BaseYearObservations.GiveData().GetFlatData(), MaximumError, MaxIterations );
+            BaseYearObservations.UnloadData();
             if ( !String.IsNullOrWhiteSpace( SaveDistribution ) )
             {
-                TMG.Functions.SaveData.SaveMatrix( ret, System.IO.Path.Combine( this.SaveDistribution, "NWSDistribution.csv" ) );
+                SaveData.SaveMatrix( ret, Path.Combine( SaveDistribution, "NWSDistribution.csv" ) );
             }
             yield return ret;
         }

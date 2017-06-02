@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using TMG.DataUtility;
 
@@ -52,7 +49,7 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
         }
 
 
-        public sealed class BoardingPenalty : XTMF.IModule
+        public sealed class BoardingPenalty : IModule
         {
             public string Name { get; set; }
 
@@ -73,6 +70,7 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
             public float Penalty;
 
             [RunParameter("In Vehicle Time Perception", 1.0f, "The perceived time ratio compared to true time.")]
+            // ReSharper disable once InconsistentNaming
             public float IVTTPerception;
 
             internal string ReturnFilter(ModellerController controller)
@@ -81,8 +79,8 @@ namespace TMG.Emme.NetworkAssignment.PreProcessing
                     + (!String.IsNullOrWhiteSpace(LineFilter) ? "line=" + LineFilter.Replace('"', '\'') : "")
                     + (!String.IsNullOrWhiteSpace(LineFilter) && !String.IsNullOrWhiteSpace(ModeFilter) ? " and " : "")
                     + (!String.IsNullOrWhiteSpace(ModeFilter) ? "mode=" + (ModeFilter == "\"" ? "'" : ModeFilter) : "")
-                    + ": " + controller.ToEmmeFloat(Penalty).ToString()
-                    + ": " + controller.ToEmmeFloat(IVTTPerception).ToString();
+                    + ": " + Controller.ToEmmeFloat(Penalty)
+                    + ": " + Controller.ToEmmeFloat(IVTTPerception);
             }
 
             public bool RuntimeValidation(ref string error)

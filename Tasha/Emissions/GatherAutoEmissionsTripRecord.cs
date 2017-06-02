@@ -19,12 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tasha.Common;
 using System.IO;
 using TMG;
-using Datastructure;
 using XTMF;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -89,17 +86,9 @@ namespace Tasha.Emissions
 
         private SpinLock WriteLock = new SpinLock(false);
 
-        private int GetFlatIndex(IZone zone)
-        {
-            return ZoneSystem.GetFlatIndex(zone.ZoneNumber);
-        }
-
-        private int HouseholdIterations = 1;
-
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
         {
             // Gather the number of household iterations
-            HouseholdIterations = totalHouseholdIterations;
             var homeZone = household.HomeZone;
             // now execute
             var persons = household.Persons;
@@ -110,7 +99,6 @@ namespace Tasha.Emissions
 
                 for (int j = 0; j < tripChains.Count; j++)
                 {
-                    var jointTour = tripChains[j].JointTrip;
                     if (tripChains[j].JointTrip && !tripChains[j].JointTripRep)
                     {
                         continue;
@@ -121,36 +109,36 @@ namespace Tasha.Emissions
                     for (int k = 0; k < trips.Count; k++)
                     {
                         var startTime = trips[k].TripStartTime;
-                        int accessModeIndex = -1;
+                        int accessModeIndex;
                         var modeChosen = trips[k].Mode;
                         if (Passenger.Mode == modeChosen)
                         {
-
                             var driversTrip = trips[k]["Driver"] as ITrip;
                             // driver originData
-                            var driverOrigin = driversTrip.OriginalZone;
-                            var passengerOrigin = trips[k].OriginalZone;
-                            var passengerDestination = trips[k].DestinationZone;
-                            var driverDestination = driversTrip.DestinationZone;
-
-                            var driverTripChain = driversTrip.TripChain;
-                            var driverOnJoint = driverTripChain.JointTrip;
-                            float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
-                            // subtract out the old data
-                            if (IsDriverAlreadyOnRoad(driversTrip))
+                            var driverOrigin = driversTrip?.OriginalZone;
+                            var passengerOrigin = trips[k]?.OriginalZone;
+                            var passengerDestination = trips[k]?.DestinationZone;
+                            var driverDestination = driversTrip?.DestinationZone;
+                            var driverTripChain = driversTrip?.TripChain;
+                            if (driverTripChain != null)
                             {
-                                AddToMatrix(startTime, -driverExpansionFactor, driverOrigin, driverDestination, homeZone);
-                            }
-                            // add in our 3 trip leg data
-                            if (driverOrigin != passengerOrigin)
-                            {
-                                // this really is driver on joint
-                                AddToMatrix(startTime, driverExpansionFactor, driverOrigin, passengerOrigin, homeZone);
-                            }
-                            AddToMatrix(startTime, driverExpansionFactor, passengerOrigin, passengerDestination, homeZone);
-                            if (passengerDestination != driverDestination)
-                            {
-                                AddToMatrix(startTime, driverExpansionFactor, passengerDestination, driverDestination, homeZone);
+                                float driverExpansionFactor = driverTripChain.Person.ExpansionFactor;
+                                // subtract out the old data
+                                if (IsDriverAlreadyOnRoad(driversTrip))
+                                {
+                                    AddToMatrix(startTime, -driverExpansionFactor, driverOrigin, driverDestination, homeZone);
+                                }
+                                // add in our 3 trip leg data
+                                if (driverOrigin != passengerOrigin)
+                                {
+                                    // this really is driver on joint
+                                    AddToMatrix(startTime, driverExpansionFactor, driverOrigin, passengerOrigin, homeZone);
+                                }
+                                AddToMatrix(startTime, driverExpansionFactor, passengerOrigin, passengerDestination, homeZone);
+                                if (passengerDestination != driverDestination)
+                                {
+                                    AddToMatrix(startTime, driverExpansionFactor, passengerDestination, driverDestination, homeZone);
+                                }
                             }
                         }
                         else if ((accessModeIndex = UsesAccessMode(modeChosen)) >= 0)
@@ -232,7 +220,7 @@ namespace Tasha.Emissions
             [RunParameter("Mode Name", "DAT", "The name of the mode")]
             public string ModeName;
 
-            [RunParameter("Count Access", true, "True to count for access, false to count for egress.")]
+            [RunParameter("Count Access", true, "True to _Count for access, false to _Count for egress.")]
             public bool CountAccess;
 
             [RunParameter("Access Tag Name", "AccessStation", "The tag used for storing the zone used for access.")]
@@ -255,12 +243,9 @@ namespace Tasha.Emissions
                     destination = chain[AccessZoneTagName] as IZone;
                     return destination != null;
                 }
-                else
-                {
-                    origin = chain[AccessZoneTagName] as IZone;
-                    destination = trip.DestinationZone;
-                    return origin != null;
-                }
+                origin = chain[AccessZoneTagName] as IZone;
+                destination = trip.DestinationZone;
+                return origin != null;
             }
 
             public bool RuntimeValidation(ref string error)
@@ -290,7 +275,6 @@ namespace Tasha.Emissions
         /// <summary>
         /// check to see if the mode being used for this trip is one that we are interested in.
         /// </summary>
-        /// <param name="trip"></param>
         /// <returns></returns>
         private bool IsThisModeOneWeShouldCount(ITashaMode mode)
         {
@@ -316,14 +300,9 @@ namespace Tasha.Emissions
             return -1;
         }
 
-        private SparseArray<IZone> ZoneSystem;
-        private int NumberOfZones;
-
         public void IterationStarting(int iteration, int totalIterations)
         {
             // get the newest zone system
-            ZoneSystem = Root.ZoneSystem.ZoneArray;
-            NumberOfZones = ZoneSystem.Count;
             Data = new Dictionary<Index, float>();
         }
 

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TMG.Emme;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.NetworkAssignment
 {
@@ -30,8 +32,8 @@ namespace TMG.GTAModel.NetworkAssignment
         Description = "Executes a transit assignment which can accumulate fares. " )]
     public class FareBasedEmmeTransitAssignment : IEmmeTool
     {
-        private const string _ToolName = "tmg.assignment.road.tolled.toll_attribute_transit_background";
-        private const string _OldToolName = "TMG2.Assignment.RoadAssignment.GTAModelTollBasedRoadAssignment";
+        private const string ToolName = "tmg.assignment.road.tolled.toll_attribute_transit_background";
+        private const string OldToolName = "TMG2.Assignment.RoadAssignment.GTAModelTollBasedRoadAssignment";
 
         [RunParameter( "Boarding Perception", 1.0f, "The perception factor for boarding time." )]
         public float BoardingPerception;
@@ -86,7 +88,7 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("V3 Boardings Switch", true, "The switch for using 'Version 3' boardings (different values by agency and mode).")]
         public bool UseV3Boardings;
         */
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
 
         public string Name
         {
@@ -102,7 +104,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool Execute(Controller controller)
@@ -120,14 +122,11 @@ namespace TMG.GTAModel.NetworkAssignment
                 this.TollMatrixNumber, this.Factor, this.GasCost, this.TollUnitCost, this.TollPerceptionFactor,
                 this.MaxIterations, this.RelativeGap, this.BestRelativeGap, this.NormalizedGap);
             */
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, sb.ToString());
+                return mc.Run(ToolName, sb.ToString());
             }
-            else
-            {
-                return mc.Run(_OldToolName, sb.ToString());
-            }
+            return mc.Run(OldToolName, sb.ToString());
         }
 
         public bool RuntimeValidation(ref string error)
@@ -135,30 +134,9 @@ namespace TMG.GTAModel.NetworkAssignment
             return true;
         }
 
-        private float[][] GetResult(TreeData<float[][]> node, int modeIndex, ref int current)
-        {
-            if ( modeIndex == current )
-            {
-                return node.Result;
-            }
-            current++;
-            if ( node.Children != null )
-            {
-                for ( int i = 0; i < node.Children.Length; i++ )
-                {
-                    float[][] temp = GetResult( node.Children[i], modeIndex, ref current );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
-                }
-            }
-            return null;
-        }
-
         private void PassMatrixIntoEmme(ModellerController mc)
         {
-            var flatZones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var flatZones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = flatZones.Length;
             // Load the data from the flows and save it to our temporary file
             string outputFileName = Path.GetTempFileName();
@@ -173,7 +151,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
             using ( StreamWriter writer = new StreamWriter( outputFileName ) )
             {
-                writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=0 descr=generated", this.DemandMatrixNumber );
+                writer.WriteLine( "t matrices\r\nd matrix=mf{0}\r\na matrix=mf{0} name=drvtot default=0 descr=generated", DemandMatrixNumber );
                 StringBuilder[] builders = new StringBuilder[numberOfZones];
                 Parallel.For( 0, numberOfZones, delegate(int o)
                 {
@@ -182,8 +160,8 @@ namespace TMG.GTAModel.NetworkAssignment
                     var convertedO = flatZones[o].ZoneNumber;
                     for ( int d = 0; d < numberOfZones; d++ )
                     {
-                        this.ToEmmeFloat( tally[o][d], strBuilder );
-                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2,-4:G}\r\n",
+                        Controller.ToEmmeFloat( tally[o][d], strBuilder );
+                        build.AppendFormat( "{0,-4:G} {1,-4:G} {2}\r\n",
                             convertedO, flatZones[d].ZoneNumber, strBuilder );
                     }
                 } );
@@ -200,33 +178,6 @@ namespace TMG.GTAModel.NetworkAssignment
             finally
             {
                 File.Delete( outputFileName );
-            }
-        }
-
-        /// <summary>
-        /// Process floats to work with emme
-        /// </summary>
-        /// <param name="number">The float you want to send</param>
-        /// <returns>A limited precision non scientific number in a string</returns>
-        private void ToEmmeFloat(float number, StringBuilder builder)
-        {
-            builder.Clear();
-            builder.Append( (int)number );
-            number = number - (int)number;
-            if ( number > 0 )
-            {
-                var integerSize = builder.Length;
-                builder.Append( '.' );
-                for ( int i = integerSize; i < 4; i++ )
-                {
-                    number = number * 10;
-                    builder.Append( (int)number );
-                    number = number - (int)number;
-                    if ( number == 0 )
-                    {
-                        break;
-                    }
-                }
             }
         }
     }

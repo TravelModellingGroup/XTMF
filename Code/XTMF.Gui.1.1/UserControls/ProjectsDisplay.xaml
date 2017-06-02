@@ -25,85 +25,76 @@
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="AUTO" />
             <RowDefinition Height="*" />
             <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search... (Ctrl+E)" />
-        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      Background="{StaticResource WindowBackgroundBrush}">
+        <ListView ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" x:Name="Display" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource WindowBackgroundBrush2}" BorderBrush="{x:Null}">
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="_Rename Project (F2)" Click="Rename_Click">
                         <MenuItem.Icon>
-                            <Image>
-                                <Image.Source>
-                                    <BitmapImage UriSource="/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                </Image.Source>
-                            </Image>
+                            <ContentControl Template="{DynamicResource RefreshIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Change _Description (Shift+F2)" Click="ChangeDescription_Click">
                         <MenuItem.Icon>
-                            <Image>
-                                <Image.Source>
-                                    <BitmapImage UriSource="/XTMF.Gui;component/Resources/base_cog_32.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                </Image.Source>
-                            </Image>
+                            <ContentControl Template="{DynamicResource EditIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />
                     <MenuItem Header="_New Project (Ctrl+N)" Click="NewProject_Click">
                         <MenuItem.Icon>
-                            <Image>
-                                <Image.Source>
-                                    <BitmapImage UriSource="/XTMF.Gui;component/Resources/Plus.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                </Image.Source>
-                            </Image>
+                            <ContentControl Template="{DynamicResource NewIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_Clone Project (Ctrl+C)" Click="Clone_Click">
                         <MenuItem.Icon>
-                            <Image>
-                                <Image.Source>
-                                    <BitmapImage UriSource="/XTMF.Gui;component/Images/CopyFolderHSx64.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                </Image.Source>
-                            </Image>
+                            <ContentControl Template="{DynamicResource CopyIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="_Delete Project (Del)" Click="Delete_Click">
                         <MenuItem.Icon>
-                            <Image>
-                                <Image.Source>
-                                    <BitmapImage UriSource="pack://application:,,,/XTMF.Gui;component/Images/delete.png" DecodePixelWidth="16" DecodePixelHeight="16" />
-                                </Image.Source>
-                            </Image>
+                            <ContentControl Template="{DynamicResource CancelIcon}" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <my:VirtualizingWrapPanel Orientation="Horizontal" />
+                    <VirtualizingStackPanel></VirtualizingStackPanel>
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <my:BorderIconButton Margin="4" Header="{Binding Name}" Text="{Binding Description}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px" DoubleClicked="Project_DoubleClicked" />
+                    
+                    <local:ListViewControl MinHeight="50" TitleText="{Binding Name}" SubText="{Binding Description}" MouseDoubleClick="Control_OnMouseDoubleClick">
+
+                        <local:ListViewControl.IconPath>
+
+
+
+                            <Path Data="{DynamicResource FolderOpenIconPath}">
+
+                            </Path>
+                        </local:ListViewControl.IconPath>
+
+                    </local:ListViewControl>
+                    
+                 
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Border BorderThickness="2" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
-            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <my:BorderIconButton Margin="0,0,0,0" Header="New Project" Width="170" Text="Create a new Project." Icon="/XTMF.Gui;component/Resources/Plus.png" Clicked="NewProject_Clicked"/>
-                <my:BorderIconButton x:Name="RenameProject" Margin="0,0,0,0" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/base_cog_32.png" Clicked="RenameProject_Clicked"/>
-                <my:BorderIconButton x:Name="CloneProject"  Margin="0,0,0,0" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Images/CopyFolderHSx64.png" Clicked="CloneProject_Clicked"/>
-
-                <my:BorderIconButton x:Name="DeleteProject" Margin="0,0,0,0" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Images/Delete.png"
-                                     HighlightColour="{StaticResource WarningRed}" Clicked="DeleteProject_Clicked"/>
+        <Border BorderThickness="0" BorderBrush="DarkGray" Grid.Row="2" HorizontalAlignment="Stretch" Background="{StaticResource ControlHeaderBrush}">
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0"  Background="{DynamicResource WindowBackgroundBrush3}">
+                <my:BorderIconButton BorderThickness="0" Margin="5,12,5,12"  Header="New Project" Width="170" Text="Create a new Project." Icon="/XTMF.Gui;component/Resources/ic_create_new_folder_white_18dp.png" Clicked="NewProject_Clicked"/>
+                <my:BorderIconButton x:Name="RenameProject" BorderThickness="0" Margin="5,12,5,12" Header="Rename Project" Width="170" Text="Change the name of the project." Icon="/XTMF.Gui;component/Resources/ic_refresh_white_18dp.png" Clicked="RenameProject_Clicked"/>
+                <my:BorderIconButton x:Name="CloneProject"  BorderThickness="0" Margin="5,12,5,12" Header="Clone Project" Width="170" Text="Create a copy of the project." Icon="/XTMF.Gui;component/Resources/ic_content_copy_white_2x.png" Clicked="CloneProject_Clicked"/>
+                <my:BorderIconButton x:Name="DeleteProject" BorderThickness="0" Margin="5,12,5,12" Header="Delete" Width="170" Text="Delete project" Icon="/XTMF.Gui;component/Resources/ic_cancel_white_18pt_2x.png"
+                                  Clicked="DeleteProject_Clicked"/>
             </WrapPanel>
         </Border>
     </Grid>

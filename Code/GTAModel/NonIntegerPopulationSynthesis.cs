@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,20 +30,20 @@ namespace TMG.GTAModel
 {
     public class NonIntegerPopulationSynthesis : ITravelDemandModel
     {
-        [SubModelInformation( Description = "The model used for getting the demographics information", Required = true )]
+        [SubModelInformation(Description = "The model used for getting the demographics information", Required = true)]
         public IDemographicsData Demographics;
 
-        [SubModelInformation( Description = "The model used for saving the population", Required = true )]
+        [SubModelInformation(Description = "The model used for saving the population", Required = true)]
         public IPopulation Population;
 
-        [RunParameter( "Unemployed Status", 0, "The index of the unemployed Employment Status" )]
+        [RunParameter("Unemployed Status", 0, "The index of the unemployed Employment Status")]
         public int UnemployedOccupation;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>( 100, 200, 100 );
+        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(100, 200, 100);
 
         private int[] ValidAges;
 
-        [RunParameter( "Input Directory", "../../Input", "The directory that stores the input for this model system." )]
+        [RunParameter("Input Directory", "../../Input", "The directory that stores the input for this model system.")]
         public string InputBaseDirectory
         {
             get;
@@ -66,7 +67,7 @@ namespace TMG.GTAModel
 
         public float Progress
         {
-            get { return this.Population.Progress; }
+            get { return Population.Progress; }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -74,7 +75,7 @@ namespace TMG.GTAModel
             get { return Colour; }
         }
 
-        [SubModelInformation( Description = "The model used for handelling the zone system", Required = true )]
+        [SubModelInformation(Description = "The model used for handelling the zone system", Required = true)]
         public IZoneSystem ZoneSystem { get; set; }
 
         public bool ExitRequest()
@@ -89,69 +90,54 @@ namespace TMG.GTAModel
 
         public void Start()
         {
-            this.ProducePopulation();
+            ProducePopulation();
         }
 
-        private static void NormalizeExpansionFactors(int pop, Person[] people)
-        {
-            var total = 0.0;
-            for ( int k = 0; k < people.Length; k++ )
-            {
-                total += people[k].ExpansionFactor;
-            }
-            float factor = (float)( pop / total );
-            for ( int k = 0; k < people.Length; k++ )
-            {
-                people[k].ExpansionFactor *= factor;
-            }
-        }
-
-        private void BuildPeople(int zoneIndex, int pop, int numberOfCarCategories, Household[] Households, int numberOfAgeCategories,
+        private void BuildPeople(int zoneIndex, int pop, int numberOfCarCategories, Household[] households, int numberOfAgeCategories,
             int driversLicenceCatrogies, int numberOfEmploymentCategories, int numberOfOccupations, float[][] employmentData, int numberOfStudentCategories, Person[] people)
         {
             int personNumber = 0;
-            var ageNumberData = this.Demographics.AgeCategories.GetFlatData();
-            var ageData = this.Demographics.AgeRates.GetFlatData()[zoneIndex];
-            var occData = this.Demographics.OccupationRates.GetFlatData()[zoneIndex].GetFlatData();
-            var dlicData = this.Demographics.DriversLicenseRates.GetFlatData()[zoneIndex].GetFlatData();
-            var workerVehicleRates = this.Demographics.WorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
-            var nonworkerVehicleRates = this.Demographics.NonWorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
-            var schoolData = this.Demographics.SchoolRates.GetFlatData()[zoneIndex].GetFlatData();
+            var ageNumberData = Demographics.AgeCategories.GetFlatData();
+            var ageData = Demographics.AgeRates.GetFlatData()[zoneIndex];
+            var occData = Demographics.OccupationRates.GetFlatData()[zoneIndex].GetFlatData();
+            var dlicData = Demographics.DriversLicenseRates.GetFlatData()[zoneIndex].GetFlatData();
+            var workerVehicleRates = Demographics.WorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
+            var nonworkerVehicleRates = Demographics.NonWorkerVehicleRates.GetFlatData()[zoneIndex].GetFlatData();
+            var schoolData = Demographics.SchoolRates.GetFlatData()[zoneIndex].GetFlatData();
             // do age == 0 here
-            var numberOfNonAgeCategories = driversLicenceCatrogies * numberOfEmploymentCategories * numberOfOccupations * numberOfStudentCategories;
-            for ( int age = 0; age < numberOfAgeCategories; age++ )
+            for (int age = 0; age < numberOfAgeCategories; age++)
             {
                 var ageProbability = ageData[age];
-                for ( int emp = 0; emp < numberOfEmploymentCategories; emp++ )
+                for (int emp = 0; emp < numberOfEmploymentCategories; emp++)
                 {
                     var employmentProbability = employmentData[age][emp];
                     var dlicProbability = dlicData[age][emp];
-                    for ( int occ = 0; occ < numberOfOccupations; occ++ )
+                    for (int occ = 0; occ < numberOfOccupations; occ++)
                     {
-                        var occupationProbability = ( emp == 0 ? ( occ == this.UnemployedOccupation ? 1f : 0f ) : occData[age][emp - 1][occ] );
-                        for ( int dlic = 0; dlic < driversLicenceCatrogies; dlic++ )
+                        var occupationProbability = (emp == 0 ? (occ == UnemployedOccupation ? 1f : 0f) : occData[age][emp - 1][occ]);
+                        for (int dlic = 0; dlic < driversLicenceCatrogies; dlic++)
                         {
-                            for ( int cars = 0; cars < numberOfCarCategories; cars++ )
+                            for (int cars = 0; cars < numberOfCarCategories; cars++)
                             {
                                 var carsProbability =
-                                     ( emp == 0 ?
-                                        nonworkerVehicleRates[dlic][( age == 0 ? 1 : age )][cars]
+                                     (emp == 0 ?
+                                        nonworkerVehicleRates[dlic][(age == 0 ? 1 : age)][cars]
                                      : workerVehicleRates[dlic][occ][cars]
                                      );
-                                for ( int student = 0; student < numberOfStudentCategories; student++ )
+                                for (int student = 0; student < numberOfStudentCategories; student++)
                                 {
                                     var probabilityStudent = schoolData[age][emp];
                                     people[personNumber].Age = ageNumberData[age].Stop;
                                     people[personNumber].DriversLicense = dlic > 0;
                                     people[personNumber].EmploymentStatus = emp;
                                     people[personNumber].Occupation = occ;
-                                    people[personNumber].Household = Households[cars];
+                                    people[personNumber].Household = households[cars];
                                     people[personNumber].StudentStatus = student;
 
                                     people[personNumber].ExpansionFactor =
                                             pop * ageProbability * employmentProbability *
-                                            occupationProbability * ( dlic == 0 ? ( 1 - dlicProbability ) : dlicProbability ) *
-                                            carsProbability * ( student == 0 ? 1 - probabilityStudent : probabilityStudent );
+                                            occupationProbability * (dlic == 0 ? (1 - dlicProbability) : dlicProbability) *
+                                            carsProbability * (student == 0 ? 1 - probabilityStudent : probabilityStudent);
 
                                     personNumber++;
                                 }
@@ -165,97 +151,83 @@ namespace TMG.GTAModel
         private void GenerateZone(SparseArray<IPerson[]> population, int zoneIndex, int pop)
         {
             var numberOfCarCategories = 3;
-            Household[] Households = new Household[numberOfCarCategories];
-            for ( int i = 0; i < numberOfCarCategories; i++ )
+            Household[] households = new Household[numberOfCarCategories];
+            for (int i = 0; i < numberOfCarCategories; i++)
             {
-                Households[i] = new Household() { Zone = this.ZoneSystem.ZoneArray[zoneIndex], Cars = i };
+                households[i] = new Household { Zone = ZoneSystem.ZoneArray[zoneIndex], Cars = i };
             }
-            var numberOfAgeCategories = this.ValidAges.Length;
+            var numberOfAgeCategories = ValidAges.Length;
             var driversLicenceCatrogies = 2;
-            var numberOfEmploymentCategories = this.Demographics.EmploymentStatus.GetFlatData().Length;
-            var numberOfOccupations = this.Demographics.OccupationCategories.GetFlatData().Length;
-            var employmentData = this.Demographics.EmploymentStatusRates.GetFlatData()[zoneIndex].GetFlatData();
+            var numberOfEmploymentCategories = Demographics.EmploymentStatus.GetFlatData().Length;
+            var numberOfOccupations = Demographics.OccupationCategories.GetFlatData().Length;
+            var employmentData = Demographics.EmploymentStatusRates.GetFlatData()[zoneIndex].GetFlatData();
             var numberOfStudentCategories = 2;
             var numberOfCategories = numberOfAgeCategories * numberOfOccupations * numberOfEmploymentCategories
                 * driversLicenceCatrogies * numberOfCarCategories * numberOfStudentCategories;
             Person[] people = new Person[numberOfCategories];
-            for ( int k = 0; k < numberOfCategories; k++ )
+            for (int k = 0; k < numberOfCategories; k++)
             {
                 people[k] = new Person();
             }
-            BuildPeople( zoneIndex, pop, numberOfCarCategories, Households, numberOfAgeCategories,
+            BuildPeople(zoneIndex, pop, numberOfCarCategories, households, numberOfAgeCategories,
                 driversLicenceCatrogies, numberOfEmploymentCategories, numberOfOccupations,
-                employmentData, numberOfStudentCategories, people );
-            List<Person> nonZeroPeople = new List<Person>( numberOfCategories );
-            for ( int i = 0; i < people.Length; i++ )
+                employmentData, numberOfStudentCategories, people);
+            List<Person> nonZeroPeople = new List<Person>(numberOfCategories);
+            for (int i = 0; i < people.Length; i++)
             {
-                if ( people[i].ExpansionFactor > 0 )
+                if (people[i].ExpansionFactor > 0)
                 {
-                    nonZeroPeople.Add( people[i] );
+                    nonZeroPeople.Add(people[i]);
                 }
             }
-            population.GetFlatData()[zoneIndex] = nonZeroPeople.ToArray();
+            population.GetFlatData()[zoneIndex] = nonZeroPeople.ToArray<IPerson>();
         }
 
-        private void Generation(SparseArray<IZone> zoneArray, int[] validZones, int numberOfZones, SparseArray<IPerson[]> population, int i)
+        private void Generation(SparseArray<IZone> zoneArray, int numberOfZones, SparseArray<IPerson[]> population, int i)
         {
-            for ( int j = 0; j < 100 && j + i * 100 < numberOfZones; j++ )
+            for (int j = 0; j < 100 && j + i * 100 < numberOfZones; j++)
             {
                 var zoneIndex = i * 100 + j;
                 var zone = zoneArray.GetFlatData()[zoneIndex];
                 var pop = zone.Population;
-                if ( pop == 0 ) continue;
-                GenerateZone( population, zoneIndex, pop );
+                if (pop == 0) continue;
+                GenerateZone(population, zoneIndex, pop);
             }
         }
 
         private void ProducePopulation()
         {
-            using ( StreamWriter performance = new StreamWriter( "Performance.txt" ) )
+            using (StreamWriter performance = new StreamWriter("Performance.txt"))
             {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
-                this.ZoneSystem.LoadData();
+                ZoneSystem.LoadData();
                 watch.Stop();
-                performance.WriteLine( "Loading Zones :" + watch.ElapsedMilliseconds + "ms" );
+                performance.WriteLine("Loading Zones :" + watch.ElapsedMilliseconds + "ms");
                 watch.Restart();
-                this.Demographics.LoadData();
-                this.ValidAges = this.Demographics.AgeCategories.ValidIndexies().ToArray();
+                Demographics.LoadData();
+                ValidAges = Demographics.AgeCategories.ValidIndexies().ToArray();
                 watch.Stop();
-                performance.WriteLine( "Loading Demographics :" + watch.ElapsedMilliseconds + "ms" );
-                var zoneArray = this.ZoneSystem.ZoneArray;
+                performance.WriteLine("Loading Demographics :" + watch.ElapsedMilliseconds + "ms");
+                var zoneArray = ZoneSystem.ZoneArray;
                 var validZones = zoneArray.ValidIndexArray();
                 var numberOfZones = validZones.Length;
                 SparseArray<IPerson[]> population = zoneArray.CreateSimilarArray<IPerson[]>();
                 watch.Restart();
-                try
+                Parallel.For(0, (int)Math.Ceiling((float)numberOfZones / 100), delegate (int i)
+                //for ( int i = 0; i < (int)Math.Ceiling( (float)numberOfZones / 100 ); i++ )
                 {
-                    Parallel.For( 0, (int)Math.Ceiling( (float)numberOfZones / 100 ), delegate(int i)
-                    //for ( int i = 0; i < (int)Math.Ceiling( (float)numberOfZones / 100 ); i++ )
-                    {
-                        Generation( zoneArray, validZones, numberOfZones, population, i );
-                    } );
-                }
-                catch ( AggregateException e )
-                {
-                    if ( e.InnerException is XTMFRuntimeException )
-                    {
-                        throw e.InnerException;
-                    }
-                    else
-                    {
-                        throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                    }
-                }
+                    Generation(zoneArray, numberOfZones, population, i);
+                });
                 watch.Stop();
-                performance.WriteLine( "Generation Time: " + watch.ElapsedMilliseconds + "ms" );
+                performance.WriteLine("Generation Time: " + watch.ElapsedMilliseconds + "ms");
                 watch.Restart();
-                this.Population.Population = population;
-                this.Population.Save();
+                Population.Population = population;
+                Population.Save();
                 watch.Stop();
-                performance.WriteLine( "Output Time: " + watch.ElapsedMilliseconds + "ms" );
-                this.Demographics.UnloadData();
-                this.ZoneSystem.UnloadData();
+                performance.WriteLine("Output Time: " + watch.ElapsedMilliseconds + "ms");
+                Demographics.UnloadData();
+                ZoneSystem.UnloadData();
             }
         }
     }

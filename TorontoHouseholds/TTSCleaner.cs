@@ -43,7 +43,7 @@ namespace TMG.Tasha
         [RunParameter( "Exclude External Trips", false, "Exclude the households that have trips that end up in external zones." )]
         public bool ExcludeExternalTrips;
 
-        [RunParameter( "External Ranges", "", typeof( RangeSet ), "The ranges of zones to count as external and exclude." )]
+        [RunParameter( "External Ranges", "", typeof( RangeSet ), "The ranges of zones to _Count as external and exclude." )]
         public RangeSet ExternalRanges;
 
         [RunParameter( "First Trip in Trip Chain", 1, "What number represents the first trip in a trip chain in your records" )]
@@ -151,8 +151,8 @@ namespace TMG.Tasha
         public void Start()
         {
             ZoneSystem.LoadData();
-            Dictionary<int, int> BadHouseholds = new Dictionary<int, int>();
-            SortedList<int, int> hhlds = null;
+            Dictionary<int, int> badHouseholds = new Dictionary<int, int>();
+            SortedList<int, int> hhlds;
             try
             {
                 using ( IDbConnection connection = GetConnection() )
@@ -163,18 +163,18 @@ namespace TMG.Tasha
                     }
                     using ( var command = connection.CreateCommand() )
                     {
-                        this.Status = "Removing Bad HHLD Zones";
-                        hhlds = RemoveBadHHLDZones( BadHouseholds, command );
-                        this.Status = "Removing Unknown Person Attributes";
-                        RemoveBadPersonAttributes( BadHouseholds, command );
-                        this.Status = "Removing Bad Destinations";
-                        RemoveBadDestinationOrigins( BadHouseholds, command );
-                        this.Status = "Removing Bad Work Zones";
-                        RemoveBadEmploymentSchoolZones( BadHouseholds, command );
-                        this.Status = "Removing No Return Trip";
-                        RemoveNoReturnTrips( BadHouseholds, command, hhlds );
-                        this.Status = "Removing Bad Purpose Origins";
-                        RemoveBadPurposeOrigins( BadHouseholds, command );
+                        Status = "Removing Bad HHLD Zones";
+                        hhlds = RemoveBadHHLDZones( badHouseholds, command );
+                        Status = "Removing Unknown Person Attributes";
+                        RemoveBadPersonAttributes( badHouseholds, command );
+                        Status = "Removing Bad Destinations";
+                        RemoveBadDestinationOrigins( badHouseholds, command );
+                        Status = "Removing Bad Work Zones";
+                        RemoveBadEmploymentSchoolZones( badHouseholds, command );
+                        Status = "Removing No Return Trip";
+                        RemoveNoReturnTrips( badHouseholds, command, hhlds );
+                        Status = "Removing Bad Purpose Origins";
+                        RemoveBadPurposeOrigins( badHouseholds, command );
                     }
                 }
             }
@@ -193,22 +193,22 @@ namespace TMG.Tasha
             {
                 throw new XTMFRuntimeException( e.Message );
             }
-            this.Status = "Saving Good HHLDs";
-            this.Progress = 0;
+            Status = "Saving Good HHLDs";
+            Progress = 0;
             try
             {
-                using ( StreamWriter writer = new StreamWriter( this.OutputName ) )
+                using ( StreamWriter writer = new StreamWriter( OutputName ) )
                 {
                     writer.WriteLine( "Hhld_id" );
                     var length = (float)hhlds.Count;
                     int count = 0;
                     foreach ( var id in hhlds.Keys )
                     {
-                        if ( !BadHouseholds.ContainsKey( id ) )
+                        if ( !badHouseholds.ContainsKey( id ) )
                         {
                             writer.WriteLine( id );
                         }
-                        this.Progress = count++ / length;
+                        Progress = count++ / length;
                     }
                 }
             }
@@ -220,26 +220,26 @@ namespace TMG.Tasha
 
         private IDbConnection GetConnection()
         {
-            if ( String.IsNullOrWhiteSpace( this.DataBaseFile ) )
+            if ( String.IsNullOrWhiteSpace( DataBaseFile ) )
             {
-                return new System.Data.SqlClient.SqlConnection( this.SQLConnectionString );
+                return new System.Data.SqlClient.SqlConnection( SQLConnectionString );
             }
             else
             {
-                return new OleDbConnection( "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Path.GetFullPath( this.GetFullPath( DataBaseFile ) ) + ";Persist Security Info=False;" );
+                return new OleDbConnection( "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + Path.GetFullPath( GetFullPath( DataBaseFile ) ) + ";Persist Security Info=False;" );
             }
         }
 
         public override string ToString()
         {
-            return this.Status;
+            return Status;
         }
 
-        private static void AddBadHousehold(Dictionary<int, int> BadHouseholds, int Hhld)
+        private static void AddBadHousehold(Dictionary<int, int> badHouseholds, int hhld)
         {
-            if ( !BadHouseholds.ContainsKey( Hhld ) )
+            if ( !badHouseholds.ContainsKey( hhld ) )
             {
-                BadHouseholds.Add( Hhld, Hhld );
+                badHouseholds.Add( hhld, hhld );
             }
         }
 
@@ -281,7 +281,7 @@ namespace TMG.Tasha
             var fullPath = localPath;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
@@ -294,34 +294,34 @@ namespace TMG.Tasha
             param.DbType = type;
         }
 
-        private void RemoveBadPersonAttributes(Dictionary<int, int> BadHouseholds, IDbCommand command)
+        private void RemoveBadPersonAttributes(Dictionary<int, int> badHouseholds, IDbCommand command)
         {
-            this.Progress = 0;
-            float total = 0;
+            Progress = 0;
+            float total;
             command.CommandText = "SELECT COUNT(*) FROM @PersonTable;";
-            AddParameters( command, "@PersonTable", this.PersTable, DbType.String );
+            AddParameters( command, "@PersonTable", PersTable, DbType.String );
             total = (int)command.ExecuteScalar();
 
             command.CommandText = @"SELECT [@PersonTable].[@HouseholdColumn], [@PersonTable].[@PersonColumn],
 [@PersonTable].[@EmploymentStatusColumn], [@PersonTable].[@StudentStatusColumn], [@PersonTable].[@OccupationColumn] FROM [@PersonTable];";
-            AddParameters( command, "@HouseholdColumn", this.HhldColumn, DbType.String );
-            AddParameters( command, "@PersonColumn", this.PersonColumn, DbType.String );
-            AddParameters( command, "@EmploymentStatusColumn", this.EmploymentStatusColumn, DbType.String );
-            AddParameters( command, "@StudentStatusColumn", this.StudentStatusColumn, DbType.String );
-            AddParameters( command, "@OccupationColumn", this.OccupationColumn, DbType.String );
+            AddParameters( command, "@HouseholdColumn", HhldColumn, DbType.String );
+            AddParameters( command, "@PersonColumn", PersonColumn, DbType.String );
+            AddParameters( command, "@EmploymentStatusColumn", EmploymentStatusColumn, DbType.String );
+            AddParameters( command, "@StudentStatusColumn", StudentStatusColumn, DbType.String );
+            AddParameters( command, "@OccupationColumn", OccupationColumn, DbType.String );
             using ( var reader = command.ExecuteReader() )
             {
                 int current = 0;
                 while ( reader.Read() )
                 {
 
-                    var Hhld = reader.GetInt32( 0 );
+                    var hhld = reader.GetInt32( 0 );
                     var employmentStatus = (TTSEmploymentStatus)( reader.GetString( 2 )[0] );
                     var studentStatus = (StudentStatus)( reader.GetString( 3 )[0] );
                     var occuation = (Occupation)( reader.GetString( 4 )[0] );
                     if ( employmentStatus == TTSEmploymentStatus.Unknown | studentStatus == StudentStatus.Unknown | occuation == Occupation.Unknown )
                     {
-                        AddBadHousehold( BadHouseholds, Hhld );
+                        AddBadHousehold( badHouseholds, hhld );
                     }
                     Progress = current++ / total;
                 }
@@ -329,10 +329,10 @@ namespace TMG.Tasha
             command.Parameters.Clear();
         }
 
-        private void RemoveBadDestinationOrigins(Dictionary<int, int> BadHouseholds, IDbCommand command)
+        private void RemoveBadDestinationOrigins(Dictionary<int, int> badHouseholds, IDbCommand command)
         {
-            this.Progress = 0;
-            float total = 0;
+            Progress = 0;
+            float total;
             command.CommandText = "SELECT COUNT(*) FROM [@TripsTable];";
             AddParameters( command, "@TripsTable", TripsTable, DbType.String );
             total = (int)command.ExecuteScalar();
@@ -346,14 +346,14 @@ namespace TMG.Tasha
                 int current = 0;
                 while ( reader.Read() )
                 {
-                    var Hhld = reader.GetInt32( 0 );
-                    int Orig = Read32( 1, reader );
-                    int Dest = Read32( 2, reader );
+                    var hhld = reader.GetInt32( 0 );
+                    int orig = Read32( 1, reader );
+                    int dest = Read32( 2, reader );
 
-                    if ( !( ZoneSystem.ZoneArray.ContainsIndex( Orig ) && ZoneSystem.ZoneArray.ContainsIndex( Dest ) )
-                        || ( this.ExcludeExternalTrips & this.ExternalRanges.Contains( Dest ) ) )
+                    if ( !( ZoneSystem.ZoneArray.ContainsIndex( orig ) && ZoneSystem.ZoneArray.ContainsIndex( dest ) )
+                        || ( ExcludeExternalTrips & ExternalRanges.Contains( dest ) ) )
                     {
-                        AddBadHousehold( BadHouseholds, Hhld );
+                        AddBadHousehold( badHouseholds, hhld );
                     }
                     Progress = current++ / total;
                 }
@@ -361,9 +361,9 @@ namespace TMG.Tasha
             command.Parameters.Clear();
         }
 
-        private void RemoveBadEmploymentSchoolZones(Dictionary<int, int> BadHouseholds, IDbCommand command)
+        private void RemoveBadEmploymentSchoolZones(Dictionary<int, int> badHouseholds, IDbCommand command)
         {
-            this.Progress = 0;
+            Progress = 0;
             command.CommandText = "SELECT COUNT(*) FROM [@PersTable";
             AddParameters( command, "@PersTable", PersTable, DbType.String );
             float total = (int)command.ExecuteScalar();
@@ -378,17 +378,17 @@ namespace TMG.Tasha
                 int current = 0;
                 while ( reader.Read() )
                 {
-                    var Hhld = reader.GetInt32( 0 );
-                    var Emp = reader.GetInt32( 1 );
-                    var Sch = reader.GetInt32( 2 );
+                    var hhld = reader.GetInt32( 0 );
+                    var emp = reader.GetInt32( 1 );
+                    var sch = reader.GetInt32( 2 );
 
-                    if ( ( ( Emp != 0 && Emp != this.AssumeHomeZone && Emp != this.ZoneSystem.RoamingZoneNumber )
-                        && !ZoneSystem.ZoneArray.ContainsIndex( Emp ) )
-                            || ( ( Sch != 0 && Sch != this.AssumeHomeZone && Sch != this.ZoneSystem.RoamingZoneNumber )
-                            && !ZoneSystem.ZoneArray.ContainsIndex( Sch ) )
+                    if ( ( ( emp != 0 && emp != AssumeHomeZone && emp != ZoneSystem.RoamingZoneNumber )
+                        && !ZoneSystem.ZoneArray.ContainsIndex( emp ) )
+                            || ( ( sch != 0 && sch != AssumeHomeZone && sch != ZoneSystem.RoamingZoneNumber )
+                            && !ZoneSystem.ZoneArray.ContainsIndex( sch ) )
                         )
                     {
-                        AddBadHousehold( BadHouseholds, Hhld );
+                        AddBadHousehold( badHouseholds, hhld );
                     }
                     Progress = current++ / total;
                 }
@@ -396,11 +396,11 @@ namespace TMG.Tasha
             command.Parameters.Clear();
         }
 
-        private SortedList<int, int> RemoveBadHHLDZones(Dictionary<int, int> BadHouseholds, IDbCommand command)
+        private SortedList<int, int> RemoveBadHHLDZones(Dictionary<int, int> badHouseholds, IDbCommand command)
         {
             var ret = new SortedList<int, int>();
-            this.Progress = 0;
-            float total = 0;
+            Progress = 0;
+            float total;
             command.CommandText = "SELECT COUNT(*) FROM @HhldTable;";
             AddParameters( command, "@HhldTable", HhldTable, DbType.String );
             total = (int)command.ExecuteScalar();
@@ -412,14 +412,14 @@ namespace TMG.Tasha
             {
                 while ( reader.Read() )
                 {
-                    var Hhld = reader.GetInt32( 0 );
+                    var hhld = reader.GetInt32( 0 );
                     int zone = Read32( 1, reader );
 
                     if ( !ZoneSystem.ZoneArray.ContainsIndex( zone ) )
                     {
-                        BadHouseholds.Add( Hhld, Hhld );
+                        badHouseholds.Add( hhld, hhld );
                     }
-                    ret.Add( Hhld, zone );
+                    ret.Add( hhld, zone );
                     Progress = current++ / total;
                 }
             }
@@ -427,10 +427,10 @@ namespace TMG.Tasha
             return ret;
         }
 
-        private void RemoveBadPurposeOrigins(Dictionary<int, int> BadHouseholds, IDbCommand command)
+        private void RemoveBadPurposeOrigins(Dictionary<int, int> badHouseholds, IDbCommand command)
         {
-            this.Progress = 0;
-            float total = 0;
+            Progress = 0;
+            float total;
             command.CommandText = "SELECT COUNT(*) FROM [@TripsTable];";
             AddParameters( command, "@TripsTable", TripsTable, DbType.String );
             total = (int)command.ExecuteScalar();
@@ -445,18 +445,18 @@ namespace TMG.Tasha
                 int current = 0;
                 while ( reader.Read() )
                 {
-                    var Hhld = reader.GetInt32( 0 );
-                    int TripNumber = Read32( 1, reader );
+                    var hhld = reader.GetInt32( 0 );
+                    int tripNumber = Read32( 1, reader );
 
-                    var PurpOrig = reader.GetString( 2 );
-                    var PurpDest = reader.GetString( 3 );
-                    if ( TripNumber == 1 && PurpOrig != HomePurpose )
+                    var purpOrig = reader.GetString( 2 );
+                    var purpDest = reader.GetString( 3 );
+                    if ( tripNumber == 1 && purpOrig != HomePurpose )
                     {
-                        AddBadHousehold( BadHouseholds, Hhld );
+                        AddBadHousehold( badHouseholds, hhld );
                     }
-                    else if ( PurpOrig == HomePurpose && PurpDest == HomePurpose )
+                    else if ( purpOrig == HomePurpose && purpDest == HomePurpose )
                     {
-                        AddBadHousehold( BadHouseholds, Hhld );
+                        AddBadHousehold( badHouseholds, hhld );
                     }
                     Progress = current++ / total;
                 }
@@ -464,10 +464,10 @@ namespace TMG.Tasha
             command.Parameters.Clear();
         }
 
-        private void RemoveNoReturnTrips(Dictionary<int, int> BadHouseholds, IDbCommand command, SortedList<int, int> hhlds)
+        private void RemoveNoReturnTrips(Dictionary<int, int> badHouseholds, IDbCommand command, SortedList<int, int> hhlds)
         {
-            this.Progress = 0;
-            float total = 0;
+            Progress = 0;
+            float total;
             command.CommandText = "SELECT COUNT(*) FROM [@TripsTable]";
             AddParameters( command, "@TripsTable", TripsTable, DbType.String );
             total = (int)command.ExecuteScalar();
@@ -484,52 +484,51 @@ ORDER BY [@TripsTable].[@HhldColumn], [@TripsTable].[@PersonColumn], [@TripsTabl
             using ( var reader = command.ExecuteReader() )
             {
                 int current = 0;
-                int LastHhld = -1;
-                int LastPers = -1;
-                int LastDest = -1;
+                int lastHhld = -1;
+                int lastPers = -1;
+                int lastDest = -1;
                 int prevHhldZone = -1;
-                int PrevTripNum = -1;
+                int prevTripNum = -1;
                 string prevPurposeDest = null;
-                var zoneArray = ZoneSystem.ZoneArray;
                 while ( reader.Read() )
                 {
-                    var Hhld = reader.GetInt32( 0 );
-                    var CurrentPers = Read32( 1, reader );
+                    var hhld = reader.GetInt32( 0 );
+                    var currentPers = Read32( 1, reader );
 
-                    var CurrentTripNum = Read32( 2, reader );
+                    var currentTripNum = Read32( 2, reader );
                     var origin = Read32( 3, reader );
-                    var Dest = Read32( 4, reader );
-                    var hhldZone = hhlds[Hhld];
-                    var PurpDest = reader.GetString( 5 );
-                    if ( LastHhld != -1 )
+                    var dest = Read32( 4, reader );
+                    var hhldZone = hhlds[hhld];
+                    var purpDest = reader.GetString( 5 );
+                    if ( lastHhld != -1 )
                     {
-                        if ( ( LastHhld != Hhld ) | ( LastPers != CurrentPers ) )
+                        if ( ( lastHhld != hhld ) | ( lastPers != currentPers ) )
                         {
-                            if ( prevHhldZone != LastDest || PrevTripNum == FirstTrip || prevPurposeDest != HomePurpose )
+                            if ( prevHhldZone != lastDest || prevTripNum == FirstTrip || prevPurposeDest != HomePurpose )
                             {
-                                AddBadHousehold( BadHouseholds, LastHhld );
+                                AddBadHousehold( badHouseholds, lastHhld );
                             }
                         }
                     }
-                    if ( ( LastHhld != Hhld ) | ( LastPers != CurrentPers ) )
+                    if ( ( lastHhld != hhld ) | ( lastPers != currentPers ) )
                     {
                         if ( hhldZone != origin )
                         {
-                            AddBadHousehold( BadHouseholds, Hhld );
+                            AddBadHousehold( badHouseholds, hhld );
                         }
                     }
                     prevHhldZone = hhldZone;
-                    PrevTripNum = CurrentTripNum;
-                    LastHhld = Hhld;
-                    LastPers = CurrentPers;
-                    LastDest = Dest;
-                    prevPurposeDest = PurpDest;
+                    prevTripNum = currentTripNum;
+                    lastHhld = hhld;
+                    lastPers = currentPers;
+                    lastDest = dest;
+                    prevPurposeDest = purpDest;
                     Progress = current++ / total;
                 }
 
-                if ( !ZoneSystem.ZoneArray.ContainsIndex( LastDest ) || prevHhldZone != LastDest || prevPurposeDest != HomePurpose )
+                if ( !ZoneSystem.ZoneArray.ContainsIndex( lastDest ) || prevHhldZone != lastDest || prevPurposeDest != HomePurpose )
                 {
-                    AddBadHousehold( BadHouseholds, LastHhld );
+                    AddBadHousehold( badHouseholds, lastHhld );
                 }
             }
             command.Parameters.Clear();

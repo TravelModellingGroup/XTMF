@@ -17,12 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
-using Datastructure;
 using TMG.Frameworks.Data.Processing.AST;
 namespace TMG.Frameworks.Data.Processing
 {
@@ -98,16 +94,16 @@ You can also use brackets () to order the operations.  Math using literals will 
 
         public bool RuntimeValidation(ref string error)
         {
-            if (!CompileAST(ref error))
+            if (!CompileAst(ref error))
             {
                 return false;
             }
             return true;
         }
 
-        private AST.Expression ExpressionToExecute;
+        private Expression ExpressionToExecute;
 
-        private bool CompileAST(ref string error)
+        private bool CompileAst(ref string error)
         {
             return Compiler.Compile(Expression, out ExpressionToExecute, ref error);
         }

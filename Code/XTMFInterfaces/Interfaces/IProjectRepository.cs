@@ -45,7 +45,6 @@ namespace XTMF
         /// <summary>
         /// Remove the selected project
         /// </summary>
-        /// <param name="iProject">The project to remove</param>
         bool Remove(IProject project);
 
         /// <summary>
@@ -69,6 +68,7 @@ namespace XTMF
         /// </summary>
         /// <param name="project">The project to change</param>
         /// <param name="newDescription">The description to set it to.</param>
+        /// <param name="error"></param>
         /// <returns>True if the operation completes successfully, false otherwise.</returns>
         bool SetDescription(IProject project, string newDescription, ref string error);
     }

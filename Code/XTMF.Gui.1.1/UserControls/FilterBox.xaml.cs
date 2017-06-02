@@ -16,22 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui
 {
@@ -40,7 +35,7 @@ namespace XTMF.Gui
     /// </summary>
     public partial class FilterBox : UserControl
     {
-        private ICollectionView ItemsSource;
+        private ICollectionView _itemsSource;
         public FilterBox()
         {
             UseItemSourceFilter = true;
@@ -63,7 +58,7 @@ namespace XTMF.Gui
         public bool UseItemSourceFilter { get; set; }
 
         private Action Refresh;
-        private Func<object, string, bool> _Filter;
+        private Func<object, string, bool> _filter;
 
         public event EventHandler EnterPressed;
 
@@ -72,46 +67,50 @@ namespace XTMF.Gui
         {
             get
             {
-                return _Filter;
+                return _filter;
             }
             set
             {
-                _Filter = value;
-                if (_Display != null && ItemsSource != null)
+                _filter = value;
+                if (_display != null && _itemsSource != null)
                 {
                     if (UseItemSourceFilter)
                     {
-                        if (!ItemsSource.CanFilter)
+                        if (!_itemsSource.CanFilter)
                         {
-                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " + ItemsSource.SourceCollection.GetType().FullName);
+                            throw new NotSupportedException("The FilterBox is unable to filter data  of type " + _itemsSource.SourceCollection.GetType().FullName);
                         }
-                        ItemsSource.Filter = new Predicate<object>((o) => _Filter(o, CurrentBoxText));
+                        _itemsSource.Filter = o => _filter(o, _currentBoxText);
                     }
                 }
             }
         }
 
-        private ItemsControl _Display;
+        private ItemsControl _display;
         public ItemsControl Display
         {
+            get
+            {
+                return _display;
+            }
             set
             {
-                _Display = value;
-                ItemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
-                if (_Filter != null)
+                _display = value;
+                _itemsSource = CollectionViewSource.GetDefaultView(value.ItemsSource);
+                if (_filter != null)
                 {
-                    Filter = _Filter;
+                    Filter = _filter;
                 }
                 Refresh = () =>
                 {
                     if (UseItemSourceFilter)
                     {
-                        ItemsSource.Refresh();
+                        _itemsSource.Refresh();
                     }
                     else
                     {
-                        var items = ItemsSource.GetEnumerator();
-                        using (var differ = ItemsSource.DeferRefresh())
+                        var items = _itemsSource.GetEnumerator();
+                        using (var differ = _itemsSource.DeferRefresh())
                         {
                             while (items.MoveNext())
                             {
@@ -144,7 +143,7 @@ namespace XTMF.Gui
                 }
 
             }
-            base.OnKeyDown(e);
+            OnKeyDown(e);
         }
 
         private bool HandleEnterPress()
@@ -168,16 +167,16 @@ namespace XTMF.Gui
             return false;
         }
 
-        private void ClearFilter_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void ClearFilter_Click(object sender, RoutedEventArgs e)
         {
             ClearFilter();
         }
 
-        private string CurrentBoxText = String.Empty;
+        private string _currentBoxText = String.Empty;
 
         private void Box_TextChanged(object sender, TextChangedEventArgs e)
         {
-            CurrentBoxText = Box.Text;
+            _currentBoxText = Box.Text;
             RefreshFilter();
             ClearFilterButton.Visibility = !string.IsNullOrWhiteSpace(Box.Text) ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -187,6 +186,25 @@ namespace XTMF.Gui
             if (Refresh != null)
             {
                 Dispatcher.BeginInvoke(Refresh, DispatcherPriority.Input);
+            }
+        }
+
+        private void Box_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void Box_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+
+            if (e.Key == Key.Down)
+            {
+                TraversalRequest tRequest = new TraversalRequest(FocusNavigationDirection.Next);
+                UIElement keyboardFocus = Keyboard.FocusedElement as UIElement;
+
+                keyboardFocus?.MoveFocus(tRequest);
+
+                e.Handled = true;
             }
         }
     }

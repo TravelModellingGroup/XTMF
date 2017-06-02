@@ -23,7 +23,7 @@
         Title="Error" Height="AUTO" Width="500"
         Background="{StaticResource ResourceKey=ControlHeaderBrush}" WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
-    <Grid>
+    <Grid Background="{DynamicResource WindowBackgroundBrush2}">
         <Grid.RowDefinitions>
             <RowDefinition Height="20px" />
             <RowDefinition Height="*" />
@@ -42,17 +42,19 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="White" FontSize="20" Margin="5px,5px,5px,5px">Error Message</TextBlock>
-                    <Image Grid.Column="1" Grid.Row="0" Width="32" Margin="5,5,5,5" VerticalAlignment="Top" Source="/XTMF.Gui;component/Images/delete.png" />
+                    <TextBlock Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" Margin="5px,5px,5px,5px">Error Message</TextBlock>
+
+                    <Path Margin="6,6,6,6" Data="{DynamicResource ErrorIconPath}" Fill="Red" Stretch="Uniform" Width="32"></Path>
+
                 </StackPanel>
-                <ScrollViewer MaxHeight="150" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Style="{DynamicResource XTMFScrollViewer}">
-                    <TextBox x:Name="MessageBox" Margin="5" TextWrapping="Wrap" IsReadOnly="True" Foreground="White" FontSize="12" Background="{StaticResource ResourceKey=ControlBackgroundBrush}" />
+                <ScrollViewer MaxHeight="150" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                    <TextBox x:Name="MessageBox" Margin="5" TextWrapping="Wrap" IsReadOnly="True" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Background="{DynamicResource WindowBackgroundBrush1}" />
                 </ScrollViewer>
             </StackPanel>
             <StackPanel Grid.Row="1">
-                <TextBlock Foreground="White" FontSize="20" Margin="5px,5px,5px,5px">Stack Trace (For Debugging)</TextBlock>
-                <ScrollViewer MaxHeight="150" Margin="5" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True" Style="{DynamicResource XTMFScrollViewer}">
-                    <TextBox x:Name="StackTraceBox" TextWrapping="Wrap" IsReadOnly="True" Foreground="White" FontSize="12" Background="{StaticResource ResourceKey=ControlBackgroundBrush}" />
+                <TextBlock Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="20" Margin="5px,5px,5px,5px">Stack Trace (For Debugging)</TextBlock>
+                <ScrollViewer MaxHeight="150" Margin="5" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" CanContentScroll="True">
+                    <TextBox x:Name="StackTraceBox" TextWrapping="Wrap" IsReadOnly="True" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="12" Background="{DynamicResource WindowBackgroundBrush1}" />
                 </ScrollViewer>
             </StackPanel>
         </Grid>
@@ -61,8 +63,8 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <my:BorderIconButton Margin="5" Grid.Column="0" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Images/delete.png" Header="Continue" Text="Continue on" Clicked="Continue" />
-            <my:BorderIconButton Margin="5" Grid.Column="1" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Images/copyHS.png" Header="Copy" Text="Copy Error to Clipboard" Clicked="Copy" />
+            <my:BorderIconButton Margin="5" Grid.Column="0" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Resources/ic_arrow_forward_white_36dp.png" Header="Continue" Text="Continue on" Clicked="Continue" />
+            <my:BorderIconButton Margin="5" Grid.Column="1" HorizontalAlignment="Stretch" Icon="/XTMF.Gui;component/Resources/ic_content_copy_white_2x.png" Header="Copy" Text="Copy Error to Clipboard" Clicked="Copy" />
         </Grid>
     </Grid>
 </Window>

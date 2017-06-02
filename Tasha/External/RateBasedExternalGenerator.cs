@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using Tasha.Common;
 using TMG;
@@ -134,7 +132,6 @@ namespace Tasha.External
                                 if (originExternal && destinationExternal)
                                 {
                                     // if the transit trip is external ignore it since we don't model the service
-                                    continue;
                                 }
                                 else
                                 {
@@ -195,7 +192,7 @@ namespace Tasha.External
         private void BuildData(IZone[] zones)
         {
             var temp = new int[zones.Length];
-            Parallel.For(0, temp.Length, (int i) =>
+            Parallel.For(0, temp.Length, i =>
             {
                 var origin = zones[i];
                 int bestIndex = 0;
@@ -229,16 +226,16 @@ namespace Tasha.External
         {
             if (!BaseYearTrips.CheckResourceType<List<ITripChain>>())
             {
-                error = "In '" + this.Name + "' the resource for Base Year Trips was not of type List<ITripChain>!";
+                error = "In '" + Name + "' the resource for Base Year Trips was not of type List<ITripChain>!";
                 return false;
             }
             if (!BaseYearPopulation.CheckResourceType<SparseArray<float>>())
             {
-                error = "In '" + this.Name + "' the resource for Base Year Population was not of type SparseArray<float>!";
+                error = "In '" + Name + "' the resource for Base Year Population was not of type SparseArray<float>!";
                 return false;
             }
             ExternalTransit = new HashSet<ITashaMode>();
-            foreach (var mode in this.Root.AllModes)
+            foreach (var mode in Root.AllModes)
             {
                 var modeName = mode.ModeName;
                 if (ModeName == modeName)
@@ -252,7 +249,7 @@ namespace Tasha.External
             }
             if (PrimaryMode == null)
             {
-                error = "In '" + this.Name + "' we were unable to find a mode with the name '" + ModeName + "'!";
+                error = "In '" + Name + "' we were unable to find a mode with the name '" + ModeName + "'!";
                 return false;
             }
             return true;

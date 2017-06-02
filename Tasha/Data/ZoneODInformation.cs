@@ -17,9 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Windows.Forms;
 using Datastructure;
 using XTMF;
 using TMG;
@@ -42,20 +40,20 @@ Data outside of the zones that are defined is trimmed off. Both the Origin and D
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            var data = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            if ( this.Reader != null )
+            var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            if ( Reader != null )
             {
-                foreach ( var point in this.Reader.Read() )
+                foreach ( var point in Reader.Read() )
                 {
                     if ( data.ContainsIndex( point.O, point.D ) )
                     {
@@ -63,12 +61,12 @@ Data outside of the zones that are defined is trimmed off. Both the Origin and D
                     }
                 }
             }
-            this.Data = data;
+            Data = data;
         }
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         public string Name { get; set; }
@@ -85,6 +83,12 @@ Data outside of the zones that are defined is trimmed off. Both the Origin and D
 
         public bool RuntimeValidation(ref string error)
         {
+
+            if (Root.ZoneSystem == null)
+            {
+                error = $"No Zone OD data specified or loaded in root demand model {Root}.";
+                return false;
+            }
             return true;
         }
     }

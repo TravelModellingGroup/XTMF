@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using XTMF;
@@ -53,7 +54,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
 
         public bool ProduceResult(Pair<IZone, IZone> data)
         {
-            return this.NetworkData.WalkTime( data.First, data.Second, this.TripTime ) > Time.Zero;
+            return NetworkData.WalkTime( data.First, data.Second, TripTime ) > Time.Zero;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -71,24 +72,21 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
         /// </summary>
         private bool LoadNetworkData(ref string error)
         {
-            foreach ( var dataSource in this.Root.NetworkData )
+            foreach ( var dataSource in Root.NetworkData )
             {
-                if ( dataSource.NetworkType == this.NetworkType )
+                if ( dataSource.NetworkType == NetworkType )
                 {
                     ITripComponentData advancedData = dataSource as ITripComponentData;
                     if ( advancedData != null )
                     {
-                        this.NetworkData = advancedData;
+                        NetworkData = advancedData;
                         return true;
                     }
-                    else
-                    {
-                        error = "In '" + this.Name + "' the given network data '" + this.NetworkType + "' is not ITripComponentData compliant!";
-                        return false;
-                    }
+                    error = "In '" + Name + "' the given network data '" + NetworkType + "' is not ITripComponentData compliant!";
+                    return false;
                 }
             }
-            error = "In '" + this.Name + "' we were unable to find any network data with the name '" + this.NetworkType + "'!";
+            error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";
             return false;
         }
     }

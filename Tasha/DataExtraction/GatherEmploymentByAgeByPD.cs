@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using XTMF;
 using TMG;
@@ -80,23 +77,23 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var zones = this.ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
+            var zones = ZoneSystem.AcquireResource<IZoneSystem>().ZoneArray;
             var numberOfZones = zones.GetFlatData().Length;
-            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
-            float[][][] populationByAge = null;
+            var connection = DatabaseConnection.AcquireResource<IDbConnection>();
+            float[][][] populationByAge;
             using ( var command = connection.CreateCommand() )
             {
-                populationByAge = new float[this.AgeSets.Count][][];
+                populationByAge = new float[AgeSets.Count][][];
                 FillInPopulationByZone( zones, numberOfZones, command, populationByAge );
             }
-            WriteOutData( populationByAge, zones, numberOfZones );
+            WriteOutData( populationByAge, zones );
         }
 
-        private void WriteOutData(float[][][] populationByAge, SparseArray<IZone> zones, int numberOfZones)
+        private void WriteOutData(float[][][] populationByAge, SparseArray<IZone> zones)
         {
             for ( int i = 0; i < populationByAge.Length; i++ )
             {
-                var pdData = new SparseArray<float>[this.EmploymentStatusString.Length];
+                var pdData = new SparseArray<float>[EmploymentStatusString.Length];
                 BuildPlanningDistrictData( populationByAge[i], zones, pdData );
                 NormalizeData( pdData );
                 SaveData( pdData, i );
@@ -106,7 +103,7 @@ namespace Tasha.DataExtraction
         private void SaveData(SparseArray<float>[] pdData, int ageCat)
         {
             var pdIndexes = pdData[0].ValidIndexArray();
-            using ( var writer = new StreamWriter( this.OutputFileName.GetFilePath(), ageCat != 0 ) )
+            using ( var writer = new StreamWriter( OutputFileName.GetFilePath(), ageCat != 0 ) )
             {
                 if ( ageCat == 0 )
                 {
@@ -131,7 +128,7 @@ namespace Tasha.DataExtraction
 
         private static void BuildPlanningDistrictData(float[][] populationByAge, SparseArray<IZone> zones, SparseArray<float>[] pdData)
         {
-            pdData[0] = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>( zones );
+            pdData[0] = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>( zones );
             for ( int i = 1; i < pdData.Length; i++ )
             {
                 pdData[i] = pdData[0].CreateSimilarArray<float>();
@@ -171,21 +168,12 @@ namespace Tasha.DataExtraction
             }
         }
 
-        private void Clear(SparseArray<float> pdArray)
-        {
-            var data = pdArray.GetFlatData();
-            for ( int i = 0; i < data.Length; i++ )
-            {
-                data[i] = 0f;
-            }
-        }
-
         private void FillInPopulationByZone(SparseArray<IZone> zones, int numberOfZones, IDbCommand command, float[][][] populationByAge)
         {
-            for ( int j = 0; j < this.AgeSets.Count; j++ )
+            for ( int j = 0; j < AgeSets.Count; j++ )
             {
-                populationByAge[j] = new float[this.EmploymentStatusString.Length][];
-                for ( int i = 0; i < this.EmploymentStatusString.Length; i++ )
+                populationByAge[j] = new float[EmploymentStatusString.Length][];
+                for ( int i = 0; i < EmploymentStatusString.Length; i++ )
                 {
                     populationByAge[j][i] = new float[numberOfZones];
                     command.CommandText =
@@ -216,9 +204,9 @@ GROUP BY [{3}].[{0}];",
                         //9
                             AgeColumn,
                         //10
-                            this.AgeSets[j].Start,
+                            AgeSets[j].Start,
                         //11
-                            this.AgeSets[j].Stop,
+                            AgeSets[j].Stop,
                         //12
                             EmploymentStatusString[i],
                         //13
@@ -253,16 +241,16 @@ GROUP BY [{3}].[{0}];",
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.DatabaseConnection.CheckResourceType<IDbConnection>() )
+            if ( !DatabaseConnection.CheckResourceType<IDbConnection>() )
             {
-                error = "In '" + this.Name + "' the database connection resource does not contain a database connection!\r\n"
-                    + " Instead it contains '" + this.DatabaseConnection.GetResourceType() + "'!";
+                error = "In '" + Name + "' the database connection resource does not contain a database connection!\r\n"
+                    + " Instead it contains '" + DatabaseConnection.GetResourceType() + "'!";
                 return false;
             }
-            if ( !this.ZoneSystem.CheckResourceType<IZoneSystem>() )
+            if ( !ZoneSystem.CheckResourceType<IZoneSystem>() )
             {
-                error = "In '" + this.Name + "' the zone system resource does not contain a zone system!\r\n"
-                    + " Instead it contains '" + this.ZoneSystem.GetResourceType() + "'!";
+                error = "In '" + Name + "' the zone system resource does not contain a zone system!\r\n"
+                    + " Instead it contains '" + ZoneSystem.GetResourceType() + "'!";
                 return false;
             }
             return true;

@@ -27,19 +27,19 @@ namespace Tasha.Analysis
 {
     public class BuildODTable : IPostHousehold
     {
-        [RunParameter( "End Time", "28:00", typeof( Time ), "The ending time of this collection." )]
+        [RunParameter("End Time", "28:00", typeof(Time), "The ending time of this collection.")]
         public Time EndTime;
 
-        [RunParameter( "Mode Names", "Auto", "The name of the modes that we will extract" )]
+        [RunParameter("Mode Names", "Auto", "The name of the modes that we will extract")]
         public string ModeNames;
 
-        [RunParameter( "Output File Name", "Matrix.csv", "The name of the output file for this ODTable." )]
+        [RunParameter("Output File Name", "Matrix.csv", "The name of the output file for this ODTable.")]
         public FileFromOutputDirectory OutputFileName;
 
         [RootModule]
         public ITashaRuntime Root;
 
-        [RunParameter( "Start Time", "4:00", typeof( Time ), "The starting time of this collection." )]
+        [RunParameter("Start Time", "4:00", typeof(Time), "The starting time of this collection.")]
         public Time StartTime;
 
         private float[][] Data;
@@ -62,35 +62,34 @@ namespace Tasha.Analysis
             get { return null; }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity" )]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2002:DoNotLockOnObjectsWithWeakIdentity")]
         public void Execute(ITashaHousehold household, int iteration)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             var persons = household.Persons;
             var expFactor = household.ExpansionFactor;
-            for ( int personIndex = 0; personIndex < persons.Length; personIndex++ )
+            for (int personIndex = 0; personIndex < persons.Length; personIndex++)
             {
                 var tripChains = persons[personIndex].TripChains;
-                for ( int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++ )
+                for (int tcIndex = 0; tcIndex < tripChains.Count; tcIndex++)
                 {
                     var tripChain = tripChains[tcIndex].Trips;
-                    for ( int trip = 0; trip < tripChain.Count; trip++ )
+                    for (int trip = 0; trip < tripChain.Count; trip++)
                     {
                         var t = tripChain[trip];
-                        if ( !( t.TripStartTime >= this.StartTime && t.TripStartTime <= this.EndTime ) )
+                        if (!(t.TripStartTime >= StartTime && t.TripStartTime <= EndTime))
                         {
                             continue;
                         }
-                        var origin = zones.GetFlatIndex( t.OriginalZone.ZoneNumber );
-                        var destination = zones.GetFlatIndex( t.DestinationZone.ZoneNumber );
-                        foreach ( var chosenMode in t.ModesChosen )
+                        var origin = zones.GetFlatIndex(t.OriginalZone.ZoneNumber);
+                        var destination = zones.GetFlatIndex(t.DestinationZone.ZoneNumber);
+                        foreach (var chosenMode in t.ModesChosen)
                         {
-                            int index;
-                            if ( ( index = IndexOf( this.Modes, chosenMode ) ) >= 0 )
+                            if ((IndexOf(Modes, chosenMode)) >= 0)
                             {
-                                lock ( this.Data[origin] )
+                                lock (Data[origin])
                                 {
-                                    this.Data[origin][destination] += expFactor;
+                                    Data[origin][destination] += expFactor;
                                 }
                             }
                         }
@@ -101,40 +100,40 @@ namespace Tasha.Analysis
 
         public void IterationFinished(int iteration)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            SaveData.SaveMatrix( zones, this.Data, this.OutputFileName.GetFileName() );
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            SaveData.SaveMatrix(zones, Data, OutputFileName.GetFileName());
         }
 
         public void Load(int maxIterations)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            this.Data = new float[zones.Length][];
-            for ( int i = 0; i < this.Data.Length; i++ )
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            Data = new float[zones.Length][];
+            for (int i = 0; i < Data.Length; i++)
             {
-                this.Data[i] = new float[zones.Length];
+                Data[i] = new float[zones.Length];
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            var modes = this.Root.AllModes;
-            var modeNames = this.ModeNames.Split( ',' );
-            this.Modes = new IMode[modeNames.Length];
-            foreach ( var mode in modes )
+            var modes = Root.AllModes;
+            var modeNames = ModeNames.Split(',');
+            Modes = new IMode[modeNames.Length];
+            foreach (var mode in modes)
             {
-                for ( int i = 0; i < modeNames.Length; i++ )
+                for (int i = 0; i < modeNames.Length; i++)
                 {
-                    if ( mode.ModeName == modeNames[i] )
+                    if (mode.ModeName == modeNames[i])
                     {
-                        this.Modes[i] = mode;
+                        Modes[i] = mode;
                     }
                 }
             }
-            for ( int i = 0; i < this.Modes.Length; i++ )
+            for (int i = 0; i < Modes.Length; i++)
             {
-                if ( this.Modes[i] == null )
+                if (Modes[i] == null)
                 {
-                    error = "In '" + this.Name
+                    error = "In '" + Name
                         + "' we were unable to find a mode called '" + modeNames[i] + "'";
                     return false;
                 }
@@ -144,17 +143,17 @@ namespace Tasha.Analysis
 
         public void IterationStarting(int iteration)
         {
-            for ( int i = 0; i < this.Data.Length; i++ )
+            for (int i = 0; i < Data.Length; i++)
             {
-                Array.Clear( this.Data[i], 0, this.Data[i].Length );
+                Array.Clear(Data[i], 0, Data[i].Length);
             }
         }
 
-        private static int IndexOf<K>(K[] array, K data) where K : class
+        private static int IndexOf<TData>(TData[] array, TData data) where TData : class
         {
-            for ( int i = 0; i < array.Length; i++ )
+            for (int i = 0; i < array.Length; i++)
             {
-                if ( data == array[i] )
+                if (data == array[i])
                 {
                     return i;
                 }

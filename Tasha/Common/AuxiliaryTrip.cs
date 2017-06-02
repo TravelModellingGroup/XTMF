@@ -17,7 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TMG;
 using XTMF;
@@ -32,16 +31,6 @@ namespace Tasha.Common
     /// </summary>
     public class AuxiliaryTrip : Attachable, ITrip
     {
-        /// <summary>
-        ///
-        /// </summary>
-        private static ConcurrentBag<AuxiliaryTrip> Trips = new ConcurrentBag<AuxiliaryTrip>();
-
-        public char cPurpose
-        {
-            get { return (char)this.Purpose; }
-        }
-
         /// <summary>
         ///
         /// </summary>
@@ -124,7 +113,7 @@ namespace Tasha.Common
         /// <param name="startTime"></param>
         public static AuxiliaryTrip MakeAuxiliaryTrip(IZone origin, IZone destination, ITashaMode modeChoice, Time startTime)
         {
-            AuxiliaryTrip aux = null;
+            AuxiliaryTrip aux;
             //if ( !AuxiliaryTrip.Trips.TryTake( out aux ) )
             //{
             aux = new AuxiliaryTrip();
@@ -134,7 +123,6 @@ namespace Tasha.Common
             aux.DestinationZone = destination;
             aux.Mode = modeChoice;
             aux.ActivityStartTime = startTime;
-            aux.fActivityStartTime = startTime.ToFloat();
             return aux;
         }
 
@@ -159,7 +147,7 @@ namespace Tasha.Common
 
         public int TripNumber
         {
-            get { return this.TripChain.Trips.IndexOf( this ); }
+            get { return TripChain.Trips.IndexOf( this ); }
         }
 
         #endregion ITrip Members
@@ -167,12 +155,6 @@ namespace Tasha.Common
         #region ITrip Members
 
         public Time ActivityStartTime
-        {
-            get;
-            internal set;
-        }
-
-        public float fActivityStartTime
         {
             get;
             internal set;
@@ -187,14 +169,11 @@ namespace Tasha.Common
         {
             get
             {
-                if ( this.Mode != null )
+                if ( Mode != null )
                 {
-                    return this.ActivityStartTime - this.Mode.TravelTime( this.OriginalZone, this.DestinationZone, this.ActivityStartTime );
+                    return ActivityStartTime - Mode.TravelTime( OriginalZone, DestinationZone, ActivityStartTime );
                 }
-                else
-                {
-                    return this.ActivityStartTime;
-                }
+                return ActivityStartTime;
             }
         }
 
@@ -202,8 +181,8 @@ namespace Tasha.Common
 
         public void ReleaseTrip()
         {
-            this.Release();
-            this.Mode = null;
+            Release();
+            Mode = null;
         }
     }
 }

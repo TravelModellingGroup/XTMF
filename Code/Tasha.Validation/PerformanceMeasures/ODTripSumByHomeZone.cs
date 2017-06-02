@@ -21,11 +21,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using TMG.Input;
-using Datastructure;
-using TMG;
 using Tasha.Common;
 using XTMF;
 using Tasha.XTMFModeChoice;
@@ -37,10 +34,11 @@ namespace Tasha.Validation.PerformanceMeasures
     public sealed class ODTripSumByHomeZone : IPostHousehold
     {
         [SubModelInformation(Required = true, Description = "Where do you want to save the Purpose Results. Must be in .CSV format.")]
+        // ReSharper disable once InconsistentNaming
         public FileLocation VKT_Output;
 
-        [SubModelInformation(Required = true, Description = "Which modes do you want to count the VKTs for?")]
-        public Tasha.EMME.CreateEmmeBinaryMatrix.ModeLink[] AnalyzeModes;
+        [SubModelInformation(Required = true, Description = "Which modes do you want to _Count the VKTs for?")]
+        public EMME.CreateEmmeBinaryMatrix.ModeLink[] AnalyzeModes;
 
         [RunParameter("Start Time", "6:00", typeof(Time), "The start time for this scenario")]
         public Time StartTime;
@@ -81,8 +79,6 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 lock (this)
                 {
-                    var resource = household["ResourceAllocator"] as HouseholdResourceAllocator;
-                    var modes = this.Root.AllModes;
                     var homeZone = household.HomeZone.ZoneNumber;
 
                     if (household.Vehicles.Length > 0)
@@ -132,7 +128,6 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             if (iteration == Root.TotalIterations - 1)
             {
-                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 lock (this)
                 {
                     var writeHeader = !File.Exists(VKT_Output);
@@ -149,11 +144,10 @@ namespace Tasha.Validation.PerformanceMeasures
                         {
                             var zonalData = from data in RecordedTrips[homeZone]
                                             orderby data.O, data.D
-                                            group data by new { O = data.O, D = data.D } into gd
+                                            group data by new {data.O, data.D } into gd
                                             select new
                                             {
-                                                O = gd.Key.O,
-                                                D = gd.Key.D,
+                                                gd.Key.O, gd.Key.D,
                                                 SumOfExpandedTrips = gd.Sum(element => element.Data)
                                             };
 

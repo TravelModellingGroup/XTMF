@@ -16,10 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Emme;
 using XTMF;
 
@@ -37,7 +35,7 @@ namespace TMG.GTAModel.NetworkAnalysis
         [RunParameter("Result Matrix Number", 1, "The number of the full matrix in which to store the results.")]
         public int MatrixNumber;
 
-        private const string _ToolName = "TMG2.Analysis.Transit.Strategies.ExtractRawIvttMatrix";
+        private const string ToolName = "TMG2.Analysis.Transit.Strategies.ExtractRawIvttMatrix";
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
@@ -47,10 +45,10 @@ namespace TMG.GTAModel.NetworkAnalysis
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.ScenarioNumber, "mf" + this.MatrixNumber);
+            var args = string.Join(" ", ScenarioNumber, "mf" + MatrixNumber);
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using TMG.Emme;
 using XTMF;
@@ -54,8 +55,8 @@ namespace TMG.NetworkEstimation
 
         public float ComputeError(ParameterSetting[] parameters, TransitLine[] truth, TransitLine[] predicted)
         {
-            var first = this.FirstTally.ComputeError( parameters, truth, predicted );
-            var second = this.SecondTally.ComputeError( parameters, truth, predicted );
+            var first = FirstTally.ComputeError( parameters, truth, predicted );
+            var second = SecondTally.ComputeError( parameters, truth, predicted );
             return ( first * FirstWeight ) + ( second * SecondWeight );
         }
 

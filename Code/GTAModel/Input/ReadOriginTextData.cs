@@ -16,7 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.IO;
+using TMG.Input;
 using XTMF;
+
 namespace TMG.GTAModel.Input
 {
     [ModuleInformation(Description=
@@ -27,7 +31,7 @@ ReadODTextData module).  What makes this module different from the ReadODTextDat
 the destination data. Instead the first column will be the origin and the second column will be the data." )]
     public class ReadOriginTextData : ReadODTextData
     {
-        protected override bool ReadDataLine(System.IO.BinaryReader reader, out TMG.Input.ODData<float> data)
+        protected override bool ReadDataLine(BinaryReader reader, out ODData<float> data)
         {
             char c = '\0';
             data.Data = 0;

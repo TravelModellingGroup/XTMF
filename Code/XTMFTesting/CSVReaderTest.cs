@@ -26,12 +26,12 @@ namespace XTMF.Testing
     [TestClass]
     public class CSVReaderTest
     {
-        private string[] TestCSVFileNames = new string[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv" };
+        private string[] TestCSVFileNames = new[] { "CSVTest1.csv", "CSVTest2.csv", "CSVTest3.csv", "CSVTest4.csv" };
 
         [TestInitialize]
         public void CreateTestEnvironment()
         {
-            if ( !this.IsEnvironmentLoaded() )
+            if ( !IsEnvironmentLoaded() )
             {
                 using ( StreamWriter writer = new StreamWriter( TestCSVFileNames[0] ) )
                 {

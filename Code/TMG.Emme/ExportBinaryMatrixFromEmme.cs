@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
 
@@ -42,8 +39,8 @@ namespace TMG.Emme
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "tmg.input_output.export_binary_matrix";
-        private const string _OldToolName = "TMG2.IO.ExportBinaryMatrix";
+        private const string ToolName = "tmg.input_output.export_binary_matrix";
+        private const string OldToolName = "TMG2.IO.ExportBinaryMatrix";
 
         public bool Execute(Controller controller)
         {
@@ -51,7 +48,7 @@ namespace TMG.Emme
             if(mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.MatrixType, this.MatrixNumber, "\"" + Path.GetFullPath(this.Filepath.GetFilePath()) + "\"", this.ScenarioNumber);
+            var args = string.Join(" ", MatrixType, MatrixNumber, "\"" + Path.GetFullPath(Filepath.GetFilePath()) + "\"", ScenarioNumber);
 
             /*
             
@@ -59,13 +56,13 @@ namespace TMG.Emme
             */
 
             var result = "";
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+                return mc.Run(ToolName, args, (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
+                return mc.Run(OldToolName, args, (p => Progress = p), ref result);
             }
         }
 
@@ -88,9 +85,9 @@ namespace TMG.Emme
 
         public bool RuntimeValidation(ref string error)
         {
-            if(this.MatrixType > 4 & this.MatrixType < 1)
+            if(MatrixType > 4 & MatrixType < 1)
             {
-                error = "Matrix type " + this.MatrixType.ToString() + " is not a valid matrix type." +
+                error = "Matrix type " + MatrixType.ToString() + " is not a valid matrix type." +
                     " Valid types are 1 for SCALAR, 2 for ORIGIN, 3 for DESTINATION, and 4 for FULL matrices.";
                 return false;
             }

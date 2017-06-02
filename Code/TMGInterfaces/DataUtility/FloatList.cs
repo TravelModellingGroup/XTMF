@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,26 +26,20 @@ namespace TMG.DataUtility
     {
         private float[] Values;
 
-        public int Count
-        {
-            get { return this.Values.Length; }
-        }
+        public int Count => Values.Length;
 
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         public float this[int index]
         {
             get
             {
-                return this.Values[index];
+                return Values[index];
             }
 
             set
             {
-                this.Values[index] = value;
+                Values[index] = value;
             }
         }
 
@@ -64,7 +58,7 @@ namespace TMG.DataUtility
             var length = input.Length;
             while ( i < length )
             {
-                float p = 0;
+                float p;
                 char c = input[i];
                 bool exponential = false;
                 bool negative = false;
@@ -159,27 +153,28 @@ namespace TMG.DataUtility
 
         public bool Contains(float item)
         {
-            return this.IndexOf( item ) != -1;
+            return IndexOf( item ) != -1;
         }
 
         public void CopyTo(float[] array, int arrayIndex)
         {
-            Array.Copy( this.Values, 0, array, arrayIndex, this.Values.Length );
+            Array.Copy( Values, 0, array, arrayIndex, Values.Length );
         }
 
         public IEnumerator<float> GetEnumerator()
         {
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                yield return this.Values[i];
+                yield return Values[i];
             }
         }
 
         public int IndexOf(float item)
         {
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                if ( item == this.Values[i] )
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if ( item == Values[i] )
                 {
                     return i;
                 }
@@ -204,15 +199,15 @@ namespace TMG.DataUtility
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return this.Values.GetEnumerator();
+            return Values.GetEnumerator();
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( int i = 0; i < Values.Length; i++ )
             {
-                builder.Append( this.Values[i] );
+                builder.Append( Values[i] );
                 builder.Append( ',' );
             }
             return builder.ToString( 0, builder.Length - 1 );
@@ -223,7 +218,7 @@ namespace TMG.DataUtility
             while ( i < input.Length && WhiteSpace( input[i] ) )
             {
                 i++;
-            };
+            }
         }
 
         private static bool WhiteSpace(char p)

@@ -19,9 +19,6 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 namespace TMG.Frameworks.Data.Loading
@@ -29,6 +26,7 @@ namespace TMG.Frameworks.Data.Loading
     [ModuleInformation(Description =
 @"This module will stream ODData<float> from a CSV file.  If there are two columns of data it will store it as Origin,Data.  If there three or more it
  will be stored as Origin,Destination,Data.")]
+    // ReSharper disable once InconsistentNaming
     public class LoadODDataFromCSV : IReadODData<float>
     {
         [SubModelInformation(Required = true, Description = "The location to read the data from.")]

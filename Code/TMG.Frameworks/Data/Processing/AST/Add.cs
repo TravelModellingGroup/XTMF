@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,11 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using TMG.Functions;
 
 namespace TMG.Frameworks.Data.Processing.AST
@@ -32,24 +28,24 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         }
 
-        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        internal override bool OptimizeAst(ref Expression ex, ref string error)
         {
-            if(!base.OptimizeAST(ref ex, ref error))
+            if(!base.OptimizeAst(ref ex, ref error))
             {
                 return false;
             }
-            if(!OptimizeFusedMultiplyAdd(ref ex, ref error)
-                || !OptimizeLiterals(ref ex, ref error))
+            if(!OptimizeFusedMultiplyAdd(ref ex)
+                || !OptimizeLiterals(ref ex))
             {
                 return false;
             }
             return true;
         }
 
-        private bool OptimizeLiterals(ref Expression ex, ref string error)
+        private bool OptimizeLiterals(ref Expression ex)
         {
-            var lhs = LHS as Literal;
-            var rhs = RHS as Literal;
+            var lhs = Lhs as Literal;
+            var rhs = Rhs as Literal;
             if(lhs != null && rhs != null)
             {
                 ex = new Literal(Start, lhs.Value + rhs.Value);
@@ -57,26 +53,26 @@ namespace TMG.Frameworks.Data.Processing.AST
             return true;
         }
 
-        private bool OptimizeFusedMultiplyAdd(ref Expression ex, ref string error)
+        private bool OptimizeFusedMultiplyAdd(ref Expression ex)
         {
-            var lhsMul = LHS as Multiply;
-            var rhsMul = RHS as Multiply;
+            var lhsMul = Lhs as Multiply;
+            var rhsMul = Rhs as Multiply;
             if (lhsMul != null)
             {
                 ex = new FusedMultiplyAdd(Start)
                 {
-                    MulLHS = lhsMul.LHS,
-                    MulRHS = lhsMul.RHS,
-                    Add = RHS
+                    MulLhs = lhsMul.Lhs,
+                    MulRhs = lhsMul.Rhs,
+                    Add = Rhs
                 };
             }
             else if (rhsMul != null)
             {
                 ex = new FusedMultiplyAdd(Start)
                 {
-                    MulLHS = rhsMul.LHS,
-                    MulRHS = rhsMul.RHS,
-                    Add = LHS
+                    MulLhs = rhsMul.Lhs,
+                    MulRhs = rhsMul.Rhs,
+                    Add = Lhs
                 };
             }
             return true;
@@ -101,8 +97,8 @@ namespace TMG.Frameworks.Data.Processing.AST
                 }
                 else
                 {
-                    var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Add(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.ODData.GetFlatData());
+                    var retMatrix = rhs.Accumulator ? rhs.OdData : rhs.OdData.CreateSimilarArray<float>();
+                    VectorHelper.Add(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.OdData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -118,8 +114,8 @@ namespace TMG.Frameworks.Data.Processing.AST
                 else
                 {
                     // matrix / float
-                    var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Add(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.LiteralValue);
+                    var retMatrix = lhs.Accumulator ? lhs.OdData : lhs.OdData.CreateSimilarArray<float>();
+                    VectorHelper.Add(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -135,61 +131,61 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                     else if (lhs.IsVectorResult)
                     {
-                        var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
+                        var retMatrix = rhs.Accumulator ? rhs.OdData : rhs.OdData.CreateSimilarArray<float>();
                         var flatRet = retMatrix.GetFlatData();
-                        var flatRHS = rhs.ODData.GetFlatData();
-                        var flatLHS = lhs.VectorData.GetFlatData();
+                        var flatRhs = rhs.OdData.GetFlatData();
+                        var flatLhs = lhs.VectorData.GetFlatData();
                         if (lhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Add(flatRet[i], flatRHS[i], flatLHS[i]);
+                                VectorHelper.Add(flatRet[i], flatRhs[i], flatLhs[i]);
                             });
                         }
                         else if (lhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Add(flatRet[i], 0, flatLHS, 0, flatRHS[i], 0, flatRet[i].Length);
+                                VectorHelper.Add(flatRet[i], 0, flatLhs, 0, flatRhs[i], 0, flatRet[i].Length);
                             });
                         }
                         else
                         {
-                            return new ComputationResult("Unable to add vector without directionality starting at position " + LHS.Start + "!");
+                            return new ComputationResult("Unable to add vector without directionality starting at position " + Lhs.Start + "!");
                         }
                         return new ComputationResult(retMatrix, true);
                     }
                     else
                     {
-                        var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
+                        var retMatrix = lhs.Accumulator ? lhs.OdData : lhs.OdData.CreateSimilarArray<float>();
                         var flatRet = retMatrix.GetFlatData();
-                        var flatLHS = lhs.ODData.GetFlatData();
-                        var flatRHS = rhs.VectorData.GetFlatData();
+                        var flatLhs = lhs.OdData.GetFlatData();
+                        var flatRhs = rhs.VectorData.GetFlatData();
                         if (rhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Add(flatRet[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Add(flatRet[i], flatLhs[i], flatRhs[i]);
                             });
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Add(flatRet[i], 0, flatRHS, 0, flatLHS[i], 0, flatRet[i].Length);
+                                VectorHelper.Add(flatRet[i], 0, flatRhs, 0, flatLhs[i], 0, flatRet[i].Length);
                             });
                         }
                         else
                         {
-                            return new ComputationResult("Unable to add vector without directionality starting at position " + LHS.Start + "!");
+                            return new ComputationResult("Unable to add vector without directionality starting at position " + Lhs.Start + "!");
                         }
                         return new ComputationResult(retMatrix, true);
                     }
                 }
                 else
                 {
-                    var retMatrix = lhs.Accumulator ? lhs.ODData : (rhs.Accumulator ? rhs.ODData : lhs.ODData.CreateSimilarArray<float>());
-                    VectorHelper.Add(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.ODData.GetFlatData());
+                    var retMatrix = lhs.Accumulator ? lhs.OdData : (rhs.Accumulator ? rhs.OdData : lhs.OdData.CreateSimilarArray<float>());
+                    VectorHelper.Add(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.OdData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }

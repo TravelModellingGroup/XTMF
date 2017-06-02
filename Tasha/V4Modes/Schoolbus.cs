@@ -90,7 +90,7 @@ namespace Tasha.V4Modes
         public double CalculateV(ITrip trip)
         {
             float v;
-            var zoneSystem = this.Root.ZoneSystem;
+            var zoneSystem = Root.ZoneSystem;
             var zones = zoneSystem.ZoneArray;
             var o = zones.GetFlatIndex( trip.OriginalZone.ZoneNumber );
             var d = zones.GetFlatIndex( trip.DestinationZone.ZoneNumber );
@@ -99,22 +99,22 @@ namespace Tasha.V4Modes
             // if intrazonal
             if ( o == d )
             {
-                v = this.IntrazonalConstant;
+                v = IntrazonalConstant;
             }
             else
             {
-                v = this.Constant;
+                v = Constant;
             }
-            v += this.DistanceFactor * distance;
+            v += DistanceFactor * distance;
             var p = trip.TripChain.Person;
             if ( p.Licence )
             {
-                v += this.DriversLicenceFlag;
+                v += DriversLicenceFlag;
             }
-            v += this.AgeFactor * (float)Math.Log(p.Age + 1);
+            v += AgeFactor * (float)Math.Log(p.Age + 1);
             v += RegionConstants[trip.OriginalZone.RegionNumber, trip.DestinationZone.RegionNumber];
             v += GetPlanningDistrictConstant(trip.ActivityStartTime, trip.OriginalZone.PlanningDistrict, trip.DestinationZone.PlanningDistrict);
-            return (double)v;
+            return v;
         }
 
         public float GetPlanningDistrictConstant(Time startTime, int pdO, int pdD)
@@ -136,7 +136,7 @@ namespace Tasha.V4Modes
 
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            return this.Network.TravelCost( origin, destination, time );
+            return Network.TravelCost( origin, destination, time );
         }
 
         public bool Feasible(ITrip trip)
@@ -180,7 +180,7 @@ namespace Tasha.V4Modes
         public SpatialConstant[] SpatialConstants;
 
         private SparseTwinIndex<float> RegionConstants;
-
+         
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
             //build the region constants
@@ -205,7 +205,7 @@ namespace Tasha.V4Modes
         {
             for(int i = 0; i < SpatialConstants.Length; i++)
             {
-                if(SpatialConstants[i].Origins.Contains(originRegion) && SpatialConstants[i].Destinations.Contains(originRegion))
+                if(SpatialConstants[i].Origins.Contains(originRegion) && SpatialConstants[i].Destinations.Contains(destinationRegion))
                 {
                     return SpatialConstants[i].Constant;
                 }
@@ -215,11 +215,11 @@ namespace Tasha.V4Modes
 
         public bool RuntimeValidation(ref string error)
         {
-            var networks = this.Root.NetworkData;
+            var networks = Root.NetworkData;
 
-            if ( String.IsNullOrWhiteSpace( this.NetworkType ) )
+            if ( String.IsNullOrWhiteSpace( NetworkType ) )
             {
-                error = "There was no network type selected for the " + ( String.IsNullOrWhiteSpace( this.ModeName ) ? "Auto" : this.ModeName ) + " mode!";
+                error = "There was no network type selected for the " + ( String.IsNullOrWhiteSpace( ModeName ) ? "Auto" : ModeName ) + " mode!";
                 return false;
             }
             if ( networks == null )
@@ -229,7 +229,7 @@ namespace Tasha.V4Modes
             }
             if ( !AssignNetwork( networks ) )
             {
-                error = "We were unable to find the network data with the name \"" + this.NetworkType + "\" in this Model System!";
+                error = "We were unable to find the network data with the name \"" + NetworkType + "\" in this Model System!";
                 return false;
             }
             return true;
@@ -237,16 +237,16 @@ namespace Tasha.V4Modes
 
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.Network.TravelTime( origin, destination, time );
+            return Network.TravelTime( origin, destination, time );
         }
 
         private bool AssignNetwork(IList<INetworkData> networks)
         {
             foreach ( var network in networks )
             {
-                if ( network.NetworkType == this.NetworkType )
+                if ( network.NetworkType == NetworkType )
                 {
-                    this.Network = network;
+                    Network = network;
                     return true;
                 }
             }

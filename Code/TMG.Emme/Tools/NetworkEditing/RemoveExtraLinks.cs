@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Emme.Tools.NetworkEditing
@@ -67,7 +63,7 @@ namespace TMG.Emme.Tools.NetworkEditing
 
         private string AddQuotes(string name)
         {
-            return $"\"{Name.Replace('"', '\'')}\"";
+            return $"\"{name.Replace('"', '\'')}\"";
         }
 
         public bool RuntimeValidation(ref string error)

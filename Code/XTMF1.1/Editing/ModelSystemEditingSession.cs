@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using XTMF.Editing;
 
 namespace XTMF
@@ -56,6 +57,11 @@ namespace XTMF
         {
             return RedoStack.ToList();
         }
+
+        private string _previousRunName;
+
+        private Semaphore _saveSemaphor;
+    
 
         /// <summary>
         /// This event fires when the project containing this model system
@@ -101,6 +107,17 @@ namespace XTMF
             get { return _IsRunning; }
         }
 
+
+        public bool SaveWait()
+        {
+            return _saveSemaphor.WaitOne();
+        }
+
+        public void SaveRelease()
+        {
+            _saveSemaphor.Release(1);
+        }
+
         /// <summary>
         /// Create a new session to edit a model system
         /// </summary>
@@ -111,6 +128,7 @@ namespace XTMF
             ModelSystem = modelSystem;
             ModelSystemModel = new ModelSystemModel(this, modelSystem);
             ModelSystemModel.PropertyChanged += ModelSystemModel_PropertyChanged;
+            _saveSemaphor = new Semaphore(1, 1);
         }
 
         private void ModelSystemModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -136,6 +154,7 @@ namespace XTMF
             this.ProjectEditingSession = ProjectEditingSession;
             ModelSystemIndex = modelSystemIndex;
             Reload();
+            _saveSemaphor = new Semaphore(1, 1);
         }
 
         /// <summary>
@@ -193,7 +212,7 @@ namespace XTMF
         /// <param name="runName"></param>
         /// <param name="error">A message in case of error</param>
         /// <returns></returns>
-        public XTMFRun Run(string runName, ref string error)
+        public XTMFRun Run(string runName, ref string error, bool overwrite = false)
         {
             // this needs to block as if a command is running
             lock (SessionLock)
@@ -217,11 +236,11 @@ namespace XTMF
                         cloneProject.ModelSystemStructure[ModelSystemIndex] = ModelSystemModel.Root.RealModelSystemStructure;
                         cloneProject.ModelSystemDescriptions[ModelSystemIndex] = ModelSystemModel.Description;
                         cloneProject.LinkedParameters[ModelSystemIndex] = ModelSystemModel.LinkedParameters.GetRealLinkedParameters();
-                        run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName);
+                        run = new XTMFRun(cloneProject, ModelSystemIndex, ModelSystemModel, Runtime.Configuration, runName,overwrite);
                     }
                     else
                     {
-                        run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName);
+                        run = new XTMFRun(ProjectEditingSession.Project, ModelSystemModel.Root, Runtime.Configuration, runName,overwrite);
                     }
                     _Run.Add(run);
                     AnyRunning = true;
@@ -229,6 +248,7 @@ namespace XTMF
                     run.RunComplete += () => TerminateRun(run);
                     run.ValidationError += (e) => TerminateRun(run);
                     run.RuntimeValidationError += (e) => TerminateRun(run);
+                    run.RuntimeError += (msg,stack) => TerminateRun(run);
                     return run;
                 }
             }
@@ -481,6 +501,19 @@ namespace XTMF
 
         public bool CanUndo { get { lock (SessionLock) { return UndoStack.Count > 0; } } }
         public bool CanRedo { get { lock (SessionLock) { return RedoStack.Count > 0; } } }
+
+        public string PreviousRunName
+        {
+            get
+            {
+                return _previousRunName;
+            }
+
+            set
+            {
+                _previousRunName = value;
+            }
+        }
 
         /// <summary>
         /// This event occurs whenever a command is executed, undone, or redone

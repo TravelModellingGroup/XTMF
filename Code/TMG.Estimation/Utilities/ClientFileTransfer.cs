@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using TMG.Input;
 using XTMF.Networking;
@@ -47,7 +44,7 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
         [RunParameter("From Host", true, "Are we receiving a file from the host (true) or sending the file to the host?")]
         public bool FromHost;
 
-        private bool Loaded = false;
+        private bool Loaded;
         // This is used to make sure the file is received before we continue
         private volatile bool FileTransmitted;
         private byte[] Data;
@@ -59,23 +56,27 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                 if ( !Loaded )
                 {
 
-                    this.Client.RegisterCustomReceiver( this.DataChannel, (stream) =>
+                    Client.RegisterCustomReceiver( DataChannel, (stream) =>
                     {
                         var data = new byte[stream.Length];
                         stream.Read( data, 0, data.Length );
                         return data;
                     } );
-                    this.Client.RegisterCustomMessageHandler( this.DataChannel, (obj) =>
+                    Client.RegisterCustomMessageHandler( DataChannel, (obj) =>
                     {
                         var data = obj as byte[];
+                        if (data == null)
+                        {
+                            throw new XTMFRuntimeException($"In {Name} we recieved something besides a byte array when gathering a file to send across the network.");
+                        }
                         System.Threading.Tasks.Task.Factory.StartNew( () =>
                         {
                             try
                             {
-                                var path = this.FileLocation.GetFilePath();
+                                var path = FileLocation.GetFilePath();
                                 File.WriteAllBytes( path, data );
                                 Thread.MemoryBarrier();
-                                this.FileTransmitted = true;
+                                FileTransmitted = true;
                             }
                             catch (Exception e)
                             {
@@ -83,16 +84,16 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                             }
                         } );
                     } );
-                    this.Client.RegisterCustomSender( this.DataChannel, (data, stream) =>
+                    Client.RegisterCustomSender( DataChannel, (data, stream) =>
                     {
                         // do nothing, no data is needed to trigger the send
                     } );
                 }
                 if ( !Loaded | !OnceOnly )
                 {
-                    this.FileTransmitted = false;
-                    this.Client.SendCustomMessage( null, this.DataChannel );
-                    while ( this.FileTransmitted == false )
+                    FileTransmitted = false;
+                    Client.SendCustomMessage( null, DataChannel );
+                    while ( FileTransmitted == false )
                     {
                         Thread.Sleep( 1 );
                         Thread.MemoryBarrier();
@@ -104,32 +105,32 @@ TMG.Estimation framework however it should also work with anything using XTMF.Ne
                 if ( !Loaded )
                 {
                     // register the sender
-                    this.Client.RegisterCustomReceiver( this.DataChannel, (stream) =>
+                    Client.RegisterCustomReceiver( DataChannel, (stream) =>
                     {
                         return null;
                     } );
-                        this.Client.RegisterCustomMessageHandler( this.DataChannel, (_) =>
+                        Client.RegisterCustomMessageHandler( DataChannel, (_) =>
                     {
                         // do nothing
                     } );
-                        this.Client.RegisterCustomSender( this.DataChannel, (_, stream) =>
+                        Client.RegisterCustomSender( DataChannel, (_, stream) =>
                     {
-                        stream.Write( this.Data, 0, this.Data.Length );
+                        stream.Write( Data, 0, Data.Length );
                         FileTransmitted = true;
                     } );
                 }
-                this.Data = File.ReadAllBytes(this.FileLocation.GetFilePath());
+                Data = File.ReadAllBytes(FileLocation.GetFilePath());
                 if ( !FileTransmitted | !OnceOnly )
                 {
                     FileTransmitted = false;
                     Thread.MemoryBarrier();
-                    this.Client.SendCustomMessage( null, this.DataChannel );
+                    Client.SendCustomMessage( null, DataChannel );
                     while ( !FileTransmitted ) Thread.Sleep( 0 );
                 }
                 // unload the data once it has been sent
-                this.Data = null;
+                Data = null;
             }
-            this.Loaded = true;
+            Loaded = true;
         }
 
         public string Name { get; set; }

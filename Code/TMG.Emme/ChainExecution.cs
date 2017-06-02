@@ -59,7 +59,7 @@ The goal of this module was for testing multiple executions of the EMME/3 Modell
 
         public float Progress
         {
-            get { return this._Progress(); }
+            get { return _Progress(); }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -81,11 +81,12 @@ The goal of this module was for testing multiple executions of the EMME/3 Modell
         {
             if(Execute)
             {
-                var incrment = 1.0f / this.ToExecute.Count;
+                var incrment = 1.0f / ToExecute.Count;
                 var soFar = 0.0f;
-                foreach(var module in this.ToExecute)
+                foreach(var module in ToExecute)
                 {
-                    _Progress = () => soFar + incrment * module.Progress;
+                    var localSoFar = soFar;
+                    _Progress = () => localSoFar + incrment * module.Progress;
                     module.Start();
                     soFar += incrment;
                 }

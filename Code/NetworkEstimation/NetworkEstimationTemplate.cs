@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,44 +32,44 @@ namespace TMG.NetworkEstimation
     {
         public IClient Client;
 
-        [RunParameter( "EMME To TTS", @"../../Input/TTSToEMME.csv", "CSV file to link EMME Lines to the TTS data." )]
-        public string EMMEToTTSFile;
+        [RunParameter("EMME To TTS", @"../../Input/TTSToEMME.csv", "CSV file to link EMME Lines to the TTS data.")]
+        public string EmmetoTtsFile;
 
-        [SubModelInformation( Description = "The AI to use for estimation", Required = true )]
-        public INetworkEstimationAI EstimationAI;
+        [SubModelInformation(Description = "The AI to use for estimation", Required = true)]
+        public INetworkEstimationAI EstimationAi;
 
-        [RunParameter( "Evaluation File", @"../ParameterEvaluation.csv", "The file where the parameters and their evaluated fitness are stored." )]
+        [RunParameter("Evaluation File", @"../ParameterEvaluation.csv", "The file where the parameters and their evaluated fitness are stored.")]
         public string EvaluationFile;
 
-        [RunParameter( "Emme Input Output", @"C:\Users\James\Documents\Project\scalars.311", "The name of the file the macro Loads" )]
+        [RunParameter("Emme Input Output", @"C:\Users\James\Documents\Project\scalars.311", "The name of the file the macro Loads")]
         public string MacroInputFile;
 
-        [RunParameter( "Emme Macro Output", @"C:\Users\James\Documents\Project\output.621", "The name of the file the macro creates" )]
+        [RunParameter("Emme Macro Output", @"C:\Users\James\Documents\Project\output.621", "The name of the file the macro creates")]
         public string MacroOutputFile;
 
-        [RunParameter( "Number Of Runs", 80, "The Number of runs to do." )]
+        [RunParameter("Number Of Runs", 80, "The Number of runs to do.")]
         public int NumberOfRuns;
 
-        [RunParameter( "Parameter Instructions", "../../Input/ParameterInstructions.xml", "Describes which and how the parameters will be estimated." )]
+        [RunParameter("Parameter Instructions", "../../Input/ParameterInstructions.xml", "Describes which and how the parameters will be estimated.")]
         public string ParameterInstructions;
 
-        [RunParameter( "ResultPort", 12345, "The Custom Port to use for sending back the results" )]
+        [RunParameter("ResultPort", 12345, "The Custom Port to use for sending back the results")]
         public int ResultPort;
 
-        [RunParameter( "TruthFile", @"../../Input/TransitLineTruth.csv", "The file that contains the boardings on transit lines." )]
+        [RunParameter("TruthFile", @"../../Input/TransitLineTruth.csv", "The file that contains the boardings on transit lines.")]
         public string TruthFile;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>( 100, 200, 100 );
+        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(100, 200, 100);
 
-        private static char[] Comma = new char[] { ',' };
+        private static char[] Comma = { ',' };
 
-        private static int SummeryNumber = 0;
+        private static int SummeryNumber;
 
         private float BestRunError = float.MaxValue;
 
-        private volatile bool Exit = false;
+        private volatile bool Exit;
 
-        private bool FirstRun = false;
+        private bool FirstRun;
 
         private ParameterSetting[] Parameters;
 
@@ -99,7 +100,7 @@ namespace TMG.NetworkEstimation
             set;
         }
 
-        [SubModelInformation( Description = "The network model that we want to estimate", Required = true )]
+        [SubModelInformation(Description = "The network model that we want to estimate", Required = true)]
         public INetworkAssignment NetworkAssignment { get; set; }
 
         [DoNotAutomate]
@@ -144,16 +145,16 @@ namespace TMG.NetworkEstimation
 
         public bool ExitRequest()
         {
-            this.Exit = true;
-            this.EstimationAI.CancelExploration();
+            Exit = true;
+            EstimationAi.CancelExploration();
             return true;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !File.Exists( this.ParameterInstructions ) )
+            if (!File.Exists(ParameterInstructions))
             {
-                error = "The file \"" + this.ParameterInstructions + "\" was not found!";
+                error = "The file \"" + ParameterInstructions + "\" was not found!";
                 return false;
             }
             return true;
@@ -163,38 +164,37 @@ namespace TMG.NetworkEstimation
         {
             InitializeAssignment();
             LoadParameterInstructions();
-            this.FirstRun = true;
-            if ( this.Client != null )
+            FirstRun = true;
+            if (Client != null)
             {
-                this.Client.RegisterCustomSender( this.ResultPort, new Action<object, Stream>( delegate(object o, Stream s)
-                    {
-                        var results = o as float[];
-                        if ( results == null ) return;
-                        var length = results.Length;
-                        BinaryWriter writer = new System.IO.BinaryWriter( s );
-                        for ( int i = 0; i < length; i++ )
-                        {
-                            writer.Write( results[i] );
-                        }
-                        writer = null;
-                    } ) );
+                Client.RegisterCustomSender(ResultPort, delegate (object o, Stream s)
+               {
+                   var results = o as float[];
+                   if (results == null) return;
+                   var length = results.Length;
+                   BinaryWriter writer = new BinaryWriter(s);
+                   for (int i = 0; i < length; i++)
+                   {
+                       writer.Write(results[i]);
+                   }
+               });
             }
-            for ( int run = 0; run < this.NumberOfRuns; run++ )
+            for (int run = 0; run < NumberOfRuns; run++)
             {
-                float currentPoint = (float)run / this.NumberOfRuns;
-                float inverse = 1f / this.NumberOfRuns;
-                this.Progress = 0;
-                this.EstimationAI.Explore( this.Parameters, () => this.Progress = currentPoint + ( inverse * this.EstimationAI.Progress ), this.EvaluteParameters );
-                this.Progress = currentPoint + inverse;
-                if ( this.Exit ) break;
+                float currentPoint = (float)run / NumberOfRuns;
+                float inverse = 1f / NumberOfRuns;
+                Progress = 0;
+                EstimationAi.Explore(Parameters, () => Progress = currentPoint + (inverse * EstimationAi.Progress), EvaluteParameters);
+                Progress = currentPoint + inverse;
+                if (Exit) break;
             }
         }
 
         private float EvaluteParameters(ParameterSetting[] parameters)
         {
-            SetupInputFiles( parameters );
-            this.NetworkAssignment.RunNetworkAssignment();
-            return ProcessResults( parameters );
+            SetupInputFiles(parameters);
+            NetworkAssignment.RunNetworkAssignment();
+            return ProcessResults(parameters);
         }
 
         private void InitializeAssignment()
@@ -202,17 +202,17 @@ namespace TMG.NetworkEstimation
             // Get all of the initial ground truth data
             List<TransitLine> truthList = new List<TransitLine>();
             // On the first pass go through all of the data and store the records of the TTS boardings
-            using ( StreamReader reader = new StreamReader( this.TruthFile ) )
+            using (StreamReader reader = new StreamReader(TruthFile))
             {
                 string line;
-                while ( ( line = reader.ReadLine() ) != null )
+                while ((line = reader.ReadLine()) != null)
                 {
-                    var split = line.Split( Comma, StringSplitOptions.RemoveEmptyEntries );
+                    var split = line.Split(Comma, StringSplitOptions.RemoveEmptyEntries);
                     TransitLine current = new TransitLine();
                     string currentName;
-                    current.ID = new string[] { ( currentName = split[1] ) };
-                    current.Bordings = float.Parse( split[0] );
-                    if ( split.Length > 2 )
+                    current.Id = new[] { (currentName = split[1]) };
+                    current.Bordings = float.Parse(split[0]);
+                    if (split.Length > 2)
                     {
                         current.Mode = split[2][0];
                     }
@@ -222,185 +222,190 @@ namespace TMG.NetworkEstimation
                     }
                     // Check to make sure that there isn't another ID with this name already
                     int count = truthList.Count;
-                    for ( int j = 0; j < count; j++ )
+                    for (int j = 0; j < count; j++)
                     {
-                        if ( truthList[j].ID[0] == currentName )
+                        if (truthList[j].Id[0] == currentName)
                         {
-                            throw new XTMFRuntimeException( String.Format( "The TTS record {0} at line {1} has a duplicate entry on line {2}", currentName, j + 1, count + 1 ) );
+                            throw new XTMFRuntimeException(
+                                $"The TTS record {currentName} at line {j + 1} has a duplicate entry on line {count + 1}");
                         }
                     }
-                    truthList.Add( current );
+                    truthList.Add(current);
                 }
             }
             // now on the second pass go through and find all of the EMME Links that connect to the TTS data
             var truthEntries = truthList.Count;
             List<string>[] nameLinks = new List<string>[truthEntries];
-            using ( StreamReader reader = new StreamReader( this.EMMEToTTSFile ) )
+            using (StreamReader reader = new StreamReader(EmmetoTtsFile))
             {
                 string line;
-                while ( ( line = reader.ReadLine() ) != null )
+                while ((line = reader.ReadLine()) != null)
                 {
-                    var split = line.Split( Comma, StringSplitOptions.RemoveEmptyEntries );
+                    var split = line.Split(Comma, StringSplitOptions.RemoveEmptyEntries);
                     string ttsName = split[0];
                     string emmeName = split[1];
-                    for ( int i = 0; i < truthEntries; i++ )
+                    for (int i = 0; i < truthEntries; i++)
                     {
-                        if ( truthList[i].ID[0] == ttsName )
+                        if (truthList[i].Id[0] == ttsName)
                         {
                             List<string> ourList;
-                            if ( ( ourList = nameLinks[i] ) == null )
+                            if ((ourList = nameLinks[i]) == null)
                             {
                                 nameLinks[i] = ourList = new List<string>();
                             }
-                            ourList.Add( emmeName );
+                            ourList.Add(emmeName);
                             break;
                         }
                     }
                 }
             }
             // Now on the third pass we go through and apply all of the EMME ID's
-            for ( int i = 0; i < truthEntries; i++ )
+            for (int i = 0; i < truthEntries; i++)
             {
                 List<string> nameList;
-                if ( ( nameList = nameLinks[i] ) == null )
+                if ((nameList = nameLinks[i]) == null)
                 {
-                    throw new XTMFRuntimeException( String.Format( "The TTS record {0} has no EMME Links associated with it.  Aborting.", truthList[i].ID[0] ) );
+                    throw new XTMFRuntimeException(
+                        $"The TTS record {truthList[i].Id[0]} has no EMME Links associated with it.  Aborting.");
                 }
-                else
-                {
-                    var temp = truthList[i];
-                    temp.ID = nameList.ToArray();
-                    truthList[i] = temp;
-                }
+                var temp = truthList[i];
+                temp.Id = nameList.ToArray();
+                truthList[i] = temp;
             }
-            this.Truth = truthList.ToArray();
-            truthList = null;
+            Truth = truthList.ToArray();
         }
 
         private void LoadParameterInstructions()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load( this.ParameterInstructions );
+            doc.Load(ParameterInstructions);
             List<ParameterSetting> parameters = new List<ParameterSetting>();
-            foreach ( XmlNode child in doc["Root"].ChildNodes )
+            var children = doc["Root"]?.ChildNodes;
+            if (children != null)
             {
-                if ( child.Name == "Parameter" )
+                foreach (XmlNode child in children)
                 {
-                    ParameterSetting current = new ParameterSetting();
-                    current.ParameterName = child.Attributes["Name"].InnerText;
-                    current.MSNumber = int.Parse( child.Attributes["MS"].InnerText );
-                    current.Start = float.Parse( child.Attributes["Start"].InnerText );
-                    current.Stop = float.Parse( child.Attributes["Stop"].InnerText );
-                    current.Current = current.Start;
-                    parameters.Add( current );
+                    if (child.Name == "Parameter")
+                    {
+                        var attributes = child.Attributes;
+                        if (attributes != null)
+                        {
+                            ParameterSetting current = new ParameterSetting();
+
+                            current.ParameterName = attributes["Name"].InnerText;
+                            current.MsNumber = int.Parse(attributes["MS"].InnerText);
+                            current.Start = float.Parse(attributes["Start"].InnerText);
+                            current.Stop = float.Parse(attributes["Stop"].InnerText);
+                            current.Current = current.Start;
+                            parameters.Add(current);
+                        }
+                    }
                 }
             }
-            this.Parameters = parameters.ToArray();
+            Parameters = parameters.ToArray();
         }
 
-        private void PrintSummery(float[] aggToTruth, List<KeyValuePair<string, float>> Orphans)
+        private void PrintSummery(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
         {
-            using ( StreamWriter writer = new StreamWriter( "LineSummery" + ( SummeryNumber++ ) + ".csv" ) )
+            using (StreamWriter writer = new StreamWriter("LineSummery" + (SummeryNumber++) + ".csv"))
             {
-                writer.WriteLine( "Truth,Predicted,Error,Error^2,EmmeLines" );
-                for ( int i = 0; i < aggToTruth.Length; i++ )
+                writer.WriteLine("Truth,Predicted,Error,Error^2,EmmeLines");
+                for (int i = 0; i < aggToTruth.Length; i++)
                 {
-                    float error = aggToTruth[i] - this.Truth[i].Bordings;
-                    writer.Write( this.Truth[i].Bordings );
-                    writer.Write( ',' );
-                    writer.Write( aggToTruth[i] );
-                    writer.Write( ',' );
-                    writer.Write( error );
-                    writer.Write( ',' );
-                    writer.Write( error * error );
-                    for ( int j = 0; j < this.Truth[i].ID.Length; j++ )
+                    float error = aggToTruth[i] - Truth[i].Bordings;
+                    writer.Write(Truth[i].Bordings);
+                    writer.Write(',');
+                    writer.Write(aggToTruth[i]);
+                    writer.Write(',');
+                    writer.Write(error);
+                    writer.Write(',');
+                    writer.Write(error * error);
+                    for (int j = 0; j < Truth[i].Id.Length; j++)
                     {
-                        writer.Write( ',' );
-                        writer.Write( this.Truth[i].ID[j] );
+                        writer.Write(',');
+                        writer.Write(Truth[i].Id[j]);
                     }
                     writer.WriteLine();
                 }
                 writer.WriteLine();
                 writer.WriteLine();
-                writer.WriteLine( "Orphans" );
-                foreach ( var orphan in Orphans )
+                writer.WriteLine("Orphans");
+                foreach (var orphan in orphans)
                 {
-                    writer.Write( orphan.Value );
-                    writer.Write( ',' );
-                    writer.WriteLine( orphan.Key );
+                    writer.Write(orphan.Value);
+                    writer.Write(',');
+                    writer.WriteLine(orphan.Key);
                 }
             }
         }
 
         private float ProcessResults(ParameterSetting[] param)
         {
-            TransitLines currentLines = new TransitLines( this.MacroOutputFile );
+            TransitLines currentLines = new TransitLines(MacroOutputFile);
             var predicted = currentLines.Lines;
             var numberOfLines = predicted.Length;
             double rmse = 0;
             double mabs = 0;
             double terror = 0;
-            float[] aggToTruth = new float[this.Truth.Length];
-            List<KeyValuePair<string, float>> Orphans = new List<KeyValuePair<string, float>>();
-            for ( int i = 0; i < numberOfLines; i++ )
+            float[] aggToTruth = new float[Truth.Length];
+            List<KeyValuePair<string, float>> orphans = new List<KeyValuePair<string, float>>();
+            for (int i = 0; i < numberOfLines; i++)
             {
-                int index = -1;
                 bool orphan = true;
-                for ( int j = 0; j < this.Truth.Length; j++ )
+                for (int j = 0; j < Truth.Length; j++)
                 {
                     bool found = false;
-                    foreach ( var line in predicted[i].ID )
+                    foreach (var line in predicted[i].Id)
                     {
-                        if ( this.Truth[j].ID.Contains( line ) )
+                        if (Truth[j].Id.Contains(line))
                         {
-                            index = j;
                             found = true;
                             break;
                         }
                     }
-                    if ( found )
+                    if (found)
                     {
                         orphan = false;
                         aggToTruth[j] += predicted[i].Bordings;
                         break;
                     }
                 }
-                if ( orphan )
+                if (orphan)
                 {
-                    Orphans.Add( new KeyValuePair<string, float>( predicted[i].ID[0], predicted[i].Bordings ) );
+                    orphans.Add(new KeyValuePair<string, float>(predicted[i].Id[0], predicted[i].Bordings));
                 }
             }
 
-            for ( int i = 0; i < this.Truth.Length; i++ )
+            for (int i = 0; i < Truth.Length; i++)
             {
-                var error = aggToTruth[i] - this.Truth[i].Bordings;
+                var error = aggToTruth[i] - Truth[i].Bordings;
                 rmse += error * error;
-                mabs += Math.Abs( error );
+                mabs += Math.Abs(error);
                 terror += error;
             }
-            var value = this.EstimationAI.UseComplexErrorFunction ? this.EstimationAI.ComplexErrorFunction( this.Parameters, this.Truth, predicted, aggToTruth ) : this.EstimationAI.ErrorCombinationFunction( rmse, mabs, terror );
-            if ( value < this.BestRunError )
+            var value = EstimationAi.UseComplexErrorFunction ? EstimationAi.ComplexErrorFunction(Parameters, Truth, predicted, aggToTruth) : EstimationAi.ErrorCombinationFunction(rmse, mabs, terror);
+            if (value < BestRunError)
             {
-                SaveBordingData( aggToTruth, Orphans );
-                this.BestRunError = value;
+                SaveBordingData(aggToTruth, orphans);
+                BestRunError = value;
             }
-            SaveEvaluation( param, value, rmse, mabs, terror );
+            SaveEvaluation(param, value, rmse, mabs, terror);
             return value;
         }
 
-        private void SaveBordingData(float[] aggToTruth, List<KeyValuePair<string, float>> Orphans)
+        private void SaveBordingData(float[] aggToTruth, List<KeyValuePair<string, float>> orphans)
         {
-            File.Copy( this.MacroOutputFile, "Best-" + Path.GetFileName( this.MacroOutputFile ), true );
-            PrintSummery( aggToTruth, Orphans );
+            File.Copy(MacroOutputFile, "Best-" + Path.GetFileName(MacroOutputFile), true);
+            PrintSummery(aggToTruth, orphans);
         }
 
         private void SaveEvaluation(ParameterSetting[] param, float value, double rmse, double mabs, double terror)
         {
-            if ( this.Client != null )
+            if (Client != null)
             {
                 var paramLength = param.Length;
                 float[] results = new float[paramLength + 4];
-                for ( int i = 0; i < paramLength; i++ )
+                for (int i = 0; i < paramLength; i++)
                 {
                     results[i] = param[i].Current;
                 }
@@ -408,48 +413,47 @@ namespace TMG.NetworkEstimation
                 results[paramLength + 1] = (float)rmse;
                 results[paramLength + 2] = (float)mabs;
                 results[paramLength + 3] = (float)terror;
-                this.Client.SendCustomMessage( results, this.ResultPort );
-                results = null;
+                Client.SendCustomMessage(results, ResultPort);
             }
-            bool exists = File.Exists( this.EvaluationFile );
-            using ( StreamWriter writer = new StreamWriter( this.EvaluationFile, true ) )
+            bool exists = File.Exists(EvaluationFile);
+            using (StreamWriter writer = new StreamWriter(EvaluationFile, true))
             {
-                if ( !exists )
+                if (!exists)
                 {
-                    writer.Write( param[0].ParameterName );
-                    for ( int i = 1; i < param.Length; i++ )
+                    writer.Write(param[0].ParameterName);
+                    for (int i = 1; i < param.Length; i++)
                     {
-                        writer.Write( ',' );
-                        writer.Write( param[i].ParameterName );
+                        writer.Write(',');
+                        writer.Write(param[i].ParameterName);
                     }
-                    writer.Write( ',' );
-                    writer.Write( "Value" );
-                    writer.Write( ',' );
-                    writer.Write( "rmse" );
-                    writer.Write( ',' );
-                    writer.Write( "mabs" );
-                    writer.Write( ',' );
-                    writer.WriteLine( "terror" );
+                    writer.Write(',');
+                    writer.Write("Value");
+                    writer.Write(',');
+                    writer.Write("rmse");
+                    writer.Write(',');
+                    writer.Write("mabs");
+                    writer.Write(',');
+                    writer.WriteLine("terror");
                 }
-                if ( this.FirstRun && exists )
+                if (FirstRun && exists)
                 {
                     writer.WriteLine();
                 }
-                this.FirstRun = false;
-                writer.Write( param[0].Current );
-                for ( int i = 1; i < param.Length; i++ )
+                FirstRun = false;
+                writer.Write(param[0].Current);
+                for (int i = 1; i < param.Length; i++)
                 {
-                    writer.Write( ',' );
-                    writer.Write( param[i].Current );
+                    writer.Write(',');
+                    writer.Write(param[i].Current);
                 }
-                writer.Write( ',' );
-                writer.Write( value );
-                writer.Write( ',' );
-                writer.Write( rmse );
-                writer.Write( ',' );
-                writer.Write( mabs );
-                writer.Write( ',' );
-                writer.WriteLine( terror );
+                writer.Write(',');
+                writer.Write(value);
+                writer.Write(',');
+                writer.Write(rmse);
+                writer.Write(',');
+                writer.Write(mabs);
+                writer.Write(',');
+                writer.WriteLine(terror);
             }
         }
 
@@ -460,13 +464,13 @@ namespace TMG.NetworkEstimation
              * m ms[MS:##] [NAME]
              *  all all: [VALUE]
              */
-            using ( StreamWriter writer = new StreamWriter( this.MacroInputFile ) )
+            using (StreamWriter writer = new StreamWriter(MacroInputFile))
             {
-                writer.WriteLine( "t matrices" );
-                foreach ( var p in param )
+                writer.WriteLine("t matrices");
+                foreach (var p in param)
                 {
-                    writer.WriteLine( String.Format( "m ms{0} {1}", p.MSNumber, p.ParameterName ) );
-                    writer.WriteLine( String.Format( " all all: {0}", p.Current ) );
+                    writer.WriteLine($"m ms{p.MsNumber} {p.ParameterName}");
+                    writer.WriteLine($" all all: {p.Current}");
                 }
             }
         }

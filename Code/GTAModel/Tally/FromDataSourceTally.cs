@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Threading.Tasks;
 using Datastructure;
@@ -49,11 +50,11 @@ namespace TMG.GTAModel.Tally
 
         public void IncludeTally(float[][] currentTally)
         {
-            this.Source.LoadData();
-            var data = this.Source.GiveData().GetFlatData();
-            this.Source.UnloadData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            Parallel.For( 0, zones.Length, (int i) =>
+            Source.LoadData();
+            var data = Source.GiveData().GetFlatData();
+            Source.UnloadData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            Parallel.For( 0, zones.Length, i =>
                 {
                     var row = currentTally[i];
                     var dataRow = data[i];

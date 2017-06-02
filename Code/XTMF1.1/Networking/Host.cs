@@ -61,9 +61,9 @@ namespace XTMF.Networking
 
         public Host(IConfiguration configuration)
         {
-            this.IsShutdown = false;
-            this.Configuration = configuration;
-            this.ConnectedClients = new List<IRemoteXTMF>();
+            IsShutdown = false;
+            Configuration = configuration;
+            ConnectedClients = new List<IRemoteXTMF>();
             Thread hostThread = new Thread( HostMain );
             Thread taskDistributionThread = new Thread( DistributeTasks );
             taskDistributionThread.IsBackground = true;
@@ -90,7 +90,7 @@ namespace XTMF.Networking
         {
             get
             {
-                return this.ConnectedClients.Count - this.AvailableClients.Count;
+                return ConnectedClients.Count - AvailableClients.Count;
             }
         }
 
@@ -110,7 +110,7 @@ namespace XTMF.Networking
 
         public IModelSystemStructure CreateModelSystem(string name, ref string error)
         {
-            foreach ( var ms in this.Configuration.ModelSystemRepository )
+            foreach ( var ms in Configuration.ModelSystemRepository )
             {
                 if ( ms.Name == name )
                 {
@@ -130,19 +130,19 @@ namespace XTMF.Networking
 
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
         }
 
         public void ExecuteModelSystemAsync(IModelSystemStructure structure)
         {
-            this.ExecutionTasks.Add( structure );
+            ExecutionTasks.Add( structure );
         }
 
         public void ExecuteModelSystemAsync(ICollection<IModelSystemStructure> structure)
         {
             foreach ( var mss in structure )
             {
-                this.ExecutionTasks.Add( mss );
+                ExecutionTasks.Add( mss );
             }
         }
 
@@ -162,7 +162,7 @@ namespace XTMF.Networking
 
         public void RegisterCustomReceiver(int customMessageNumber, Func<Stream, IRemoteXTMF, object> converter)
         {
-            if ( !this.CustomReceivers.TryAdd( customMessageNumber, converter ) )
+            if ( !CustomReceivers.TryAdd( customMessageNumber, converter ) )
             {
                 throw new XTMFRuntimeException( "The Custom Receiver port " + customMessageNumber + " was attempted to be registered twice!" );
             }
@@ -170,7 +170,7 @@ namespace XTMF.Networking
 
         public void RegisterCustomSender(int customMessageNumber, Action<object, IRemoteXTMF, Stream> converter)
         {
-            if ( !this.CustomSenders.TryAdd( customMessageNumber, converter ) )
+            if ( !CustomSenders.TryAdd( customMessageNumber, converter ) )
             {
                 throw new XTMFRuntimeException( "The Custom Sender port " + customMessageNumber + " was attempted to be registered twice!" );
             }
@@ -178,26 +178,26 @@ namespace XTMF.Networking
 
         public void Shutdown()
         {
-            this.Exit = true;
-            while ( this.HostActive )
+            Exit = true;
+            while ( HostActive )
             {
                 Thread.Sleep( 0 );
                 Thread.MemoryBarrier();
             }
-            this.IsShutdown = true;
+            IsShutdown = true;
         }
 
         protected virtual void Dispose(bool includeManaged)
         {
-            if ( this.AvailableClients != null )
+            if ( AvailableClients != null )
             {
-                this.AvailableClients.Dispose();
-                this.AvailableClients = null;
+                AvailableClients.Dispose();
+                AvailableClients = null;
             }
-            if ( this.ExecutionTasks != null )
+            if ( ExecutionTasks != null )
             {
-                this.ExecutionTasks.Dispose();
-                this.ExecutionTasks = null;
+                ExecutionTasks.Dispose();
+                ExecutionTasks = null;
             }
         }
 
@@ -276,15 +276,15 @@ namespace XTMF.Networking
                 // Step 1) Accept the Client
                 var clientStream = client.GetStream();
                 GenerateUniqueName( ourRemoteClient );
-                this.AvailableClients.Add( ourRemoteClient );
+                AvailableClients.Add( ourRemoteClient );
                 lock ( this )
                 {
                     try
                     {
-                        this.ConnectedClients.Add( ourRemoteClient );
-                        if ( this.NewClientConnected != null )
+                        ConnectedClients.Add( ourRemoteClient );
+                        if ( NewClientConnected != null )
                         {
-                            this.NewClientConnected( ourRemoteClient );
+                            NewClientConnected( ourRemoteClient );
                         }
                     }
                     catch
@@ -294,7 +294,7 @@ namespace XTMF.Networking
                 // Start up the thread to process the messages coming from the remote xtmf
                 new Thread( delegate()
                     {
-                        while ( !done && !this.Exit )
+                        while ( !done && !Exit )
                         {
                             // cycle every 500ms ~ 1/2 second
                             try
@@ -302,7 +302,7 @@ namespace XTMF.Networking
                                 clientStream.ReadTimeout = Timeout.Infinite;
                                 BinaryReader reader = new BinaryReader( clientStream );
                                 BinaryFormatter readingConverter = new BinaryFormatter();
-                                while ( !done && !this.Exit )
+                                while ( !done && !Exit )
                                 {
                                     var messageType = (MessageType)reader.ReadInt32();
                                     var clientMessage = new Message( messageType );
@@ -395,7 +395,7 @@ namespace XTMF.Networking
                 BinaryWriter writer = new BinaryWriter( clientStream );
                 BinaryFormatter converter = new BinaryFormatter();
                 clientStream.WriteTimeout = 10000;
-                while ( !done && !this.Exit )
+                while ( !done && !Exit )
                 {
                     Message message = ourRemoteClient.Messages.GetMessageOrTimeout( 200 );
                     if ( message == null )
@@ -433,10 +433,10 @@ namespace XTMF.Networking
                         }
                         lock ( this )
                         {
-                            this.ConnectedClients.Remove( ourRemoteClient );
-                            if ( this.ClientDisconnected != null )
+                            ConnectedClients.Remove( ourRemoteClient );
+                            if ( ClientDisconnected != null )
                             {
-                                this.ClientDisconnected( ourRemoteClient );
+                                ClientDisconnected( ourRemoteClient );
                             }
                         }
                     }
@@ -453,9 +453,9 @@ namespace XTMF.Networking
             {
                 try
                 {
-                    if ( this.ClientRunComplete != null )
+                    if ( ClientRunComplete != null )
                     {
-                        this.ClientRunComplete( ourRemoteClient, status, error );
+                        ClientRunComplete( ourRemoteClient, status, error );
                     }
                 }
                 catch
@@ -464,19 +464,19 @@ namespace XTMF.Networking
             }
             ourRemoteClient.Progress = 0;
 
-            this.AvailableClients.Add( ourRemoteClient );
+            AvailableClients.Add( ourRemoteClient );
         }
 
         private void DistributeTasks()
         {
-            while ( !this.Exit )
+            while ( !Exit )
             {
                 var client = AvailableClients.GetMessageOrTimeout( 200 );
                 try
                 {
                     if ( client != null )
                     {
-                        var modelSystemStructure = this.ExecutionTasks.GetMessageOrTimeout( 200 );
+                        var modelSystemStructure = ExecutionTasks.GetMessageOrTimeout( 200 );
                         if ( modelSystemStructure != null )
                         {
                             try
@@ -502,7 +502,7 @@ namespace XTMF.Networking
 
         private void GenerateUniqueName(RemoteXTMF ourRemoteClient)
         {
-            int uniqueID = Interlocked.Increment( ref this.UniqueID );
+            int uniqueID = Interlocked.Increment( ref UniqueID );
             ourRemoteClient.UniqueID = String.Format( "Client:{0}", uniqueID );
         }
 
@@ -547,9 +547,9 @@ namespace XTMF.Networking
                 }
                 TcpListener listener = new TcpListener( IPAddress.Any, hostPort);
                 listener.Start( 20 );
-                this.SetupComplete = true;
-                this.HostActive = true;
-                while ( !this.Exit )
+                SetupComplete = true;
+                HostActive = true;
+                while ( !Exit )
                 {
                     try
                     {
@@ -576,9 +576,9 @@ namespace XTMF.Networking
             finally
             {
                 // make sure no matter what, that this gets set
-                this.SetupComplete = true;
-                this.Exit = true;
-                this.HostActive = false;
+                SetupComplete = true;
+                Exit = true;
+                HostActive = false;
             }
         }
 
@@ -608,7 +608,7 @@ namespace XTMF.Networking
                             object data;
                             writer.Write( (Int32)MessageType.ReturningResource );
                             writer.Write( name );
-                            if ( this.Resources.TryGetValue( name, out data ) )
+                            if ( Resources.TryGetValue( name, out data ) )
                             {
                                 writer.Write( true );
                                 converter.Serialize( writer.BaseStream, data );
@@ -623,7 +623,7 @@ namespace XTMF.Networking
 
                     case MessageType.PostComplete:
                         {
-                            this.CompletedTask( ourRemoteClient, 0, String.Empty );
+                            CompletedTask( ourRemoteClient, 0, String.Empty );
                         }
                         break;
 
@@ -644,9 +644,9 @@ namespace XTMF.Networking
                             {
                                 try
                                 {
-                                    if ( this.ProgressUpdated != null )
+                                    if ( ProgressUpdated != null )
                                     {
-                                        this.ProgressUpdated( ourRemoteClient, progress );
+                                        ProgressUpdated( ourRemoteClient, progress );
                                     }
                                 }
                                 catch
@@ -659,7 +659,7 @@ namespace XTMF.Networking
                     case MessageType.PostResource:
                         {
                             var data = (ResourcePost)message.Data;
-                            this.Resources[data.Name] = data.Data;
+                            Resources[data.Name] = data.Data;
                         }
                         break;
 
@@ -695,7 +695,7 @@ namespace XTMF.Networking
                             var failed = false;
                             byte[] buffer = null;
                             Action<object, IRemoteXTMF, Stream> customConverter;
-                            if ( this.CustomSenders.TryGetValue( msgNumber, out customConverter ) )
+                            if ( CustomSenders.TryGetValue( msgNumber, out customConverter ) )
                             {
                                 using ( MemoryStream mem = new MemoryStream( 0x100 ) )
                                 {
@@ -728,7 +728,7 @@ namespace XTMF.Networking
                             var msg = message.Data as ReceiveCustomMessageMessage;
                             var customNumber = msg.CustomMessageNumber;
                             Func<Stream, IRemoteXTMF, object> customConverter;
-                            if ( this.CustomReceivers.TryGetValue( customNumber, out customConverter ) )
+                            if ( CustomReceivers.TryGetValue( customNumber, out customConverter ) )
                             {
                                 using ( var stream = msg.Stream )
                                 {
@@ -736,7 +736,7 @@ namespace XTMF.Networking
                                     {
                                         object output = customConverter( stream, ourRemoteClient );
                                         List<Action<object, IRemoteXTMF>> handlers;
-                                        if ( this.CustomHandlers.TryGetValue( msg.CustomMessageNumber, out handlers ) )
+                                        if ( CustomHandlers.TryGetValue( msg.CustomMessageNumber, out handlers ) )
                                         {
                                             foreach ( var handler in handlers )
                                             {
@@ -777,7 +777,7 @@ namespace XTMF.Networking
                     var del = NewClientConnected.GetInvocationList();
                     for ( int i = 0; i < del.Length; i++ )
                     {
-                        this.NewClientConnected -= del[i] as Action<IRemoteXTMF>;
+                        NewClientConnected -= del[i] as Action<IRemoteXTMF>;
                     }
                 }
 
@@ -786,7 +786,7 @@ namespace XTMF.Networking
                     var del = NewClientConnected.GetInvocationList();
                     for ( int i = 0; i < del.Length; i++ )
                     {
-                        this.NewClientConnected -= del[i] as Action<IRemoteXTMF>;
+                        NewClientConnected -= del[i] as Action<IRemoteXTMF>;
                     }
                 }
 
@@ -795,7 +795,7 @@ namespace XTMF.Networking
                     var del = ClientDisconnected.GetInvocationList();
                     for ( int i = 0; i < del.Length; i++ )
                     {
-                        this.ClientDisconnected -= del[i] as Action<IRemoteXTMF>;
+                        ClientDisconnected -= del[i] as Action<IRemoteXTMF>;
                     }
                 }
 
@@ -804,7 +804,7 @@ namespace XTMF.Networking
                     var del = ProgressUpdated.GetInvocationList();
                     for ( int i = 0; i < del.Length; i++ )
                     {
-                        this.ProgressUpdated -= del[i] as Action<IRemoteXTMF, float>;
+                        ProgressUpdated -= del[i] as Action<IRemoteXTMF, float>;
                     }
                 }
 
@@ -813,7 +813,7 @@ namespace XTMF.Networking
                     var del = ClientRunComplete.GetInvocationList();
                     for ( int i = 0; i < del.Length; i++ )
                     {
-                        this.ClientRunComplete -= del[i] as Action<IRemoteXTMF, int, string>;
+                        ClientRunComplete -= del[i] as Action<IRemoteXTMF, int, string>;
                     }
                 }
 
@@ -822,13 +822,13 @@ namespace XTMF.Networking
                     var del = AllModelSystemRunsComplete.GetInvocationList();
                     for ( int i = 0; i < del.Length; i++ )
                     {
-                        this.AllModelSystemRunsComplete -= del[i] as Action;
+                        AllModelSystemRunsComplete -= del[i] as Action;
                     }
                 }
 
-                RemoveAll( this.CustomHandlers );
-                RemoveAll( this.CustomReceivers );
-                RemoveAll( this.CustomSenders );
+                RemoveAll( CustomHandlers );
+                RemoveAll( CustomReceivers );
+                RemoveAll( CustomSenders );
             }
         }
 
@@ -843,7 +843,7 @@ namespace XTMF.Networking
 
         internal void ReleaseRegisteredHandlers()
         {
-            this.RemoveAllEventHandels();
+            RemoveAllEventHandels();
         }
     }
 }

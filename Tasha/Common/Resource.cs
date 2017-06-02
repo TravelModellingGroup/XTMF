@@ -18,7 +18,6 @@
 */
 using System;
 using XTMF;
-using System.Text;
 
 namespace Tasha.Common
 {
@@ -26,7 +25,7 @@ namespace Tasha.Common
     {
         public IDataSource DataSource;
 
-        private volatile bool Loaded = false;
+        private volatile bool Loaded;
 
         public string Name { get; set; }
 
@@ -97,7 +96,7 @@ namespace Tasha.Common
                     }
                 }
             }
-            var genericArguments = dataSourceInterface.GetGenericArguments();
+            var genericArguments = dataSourceInterface?.GetGenericArguments();
             if(genericArguments == null || genericArguments.Length != 1)
             {
                 return null;

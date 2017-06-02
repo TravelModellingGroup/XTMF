@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -46,7 +47,7 @@ This module requires the root module of the model system to be of type ‘IDemog
         [RootModule]
         public IDemographicsModelSystemTemplate Root;
 
-        private IRead<IZone, IPerson> getDest = null;
+        private IRead<IZone, IPerson> GetDest;
 
         public string Name
         {
@@ -68,9 +69,9 @@ This module requires the root module of the model system to be of type ‘IDemog
 
         public IEnumerable<SparseTwinIndex<float>> Assign()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var zoneSystem = zoneArray.GetFlatData();
-            var population = this.Root.Population.Population.GetFlatData();
+            var population = Root.Population.Population.GetFlatData();
             var numberOfZones = zoneSystem.Length;
             foreach ( var cat in Categories )
             {
@@ -85,14 +86,14 @@ This module requires the root module of the model system to be of type ‘IDemog
                         if ( localPop != null && ( popLength = localPop.Length ) > 0 )
                         {
                             var iArray = flatRet[i];
-                            EnsureGetDest( ref getDest, localPop[0] );
+                            EnsureGetDest( ref GetDest, localPop[0] );
                             for ( int j = 0; j < popLength; j++ )
                             {
                                 IZone destZone;
                                 var person = localPop[j];
                                 if ( cat.IsContained( person ) )
                                 {
-                                    getDest.Read( person, out destZone );
+                                    GetDest.Read( person, out destZone );
                                     if ( destZone != null )
                                     {
                                         iArray[zoneArray.GetFlatIndex( destZone.ZoneNumber )] += Probability;
@@ -119,7 +120,7 @@ This module requires the root module of the model system to be of type ‘IDemog
                     Thread.MemoryBarrier();
                     if ( getDest == null )
                     {
-                        getDest = UniversalRead<IZone>.CreateReader( reference, this.LookUpString );
+                        getDest = UniversalRead<IZone>.CreateReader( reference, LookUpString );
                         Thread.MemoryBarrier();
                     }
                 }

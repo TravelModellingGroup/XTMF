@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -18,6 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Datastructure;
 using Tasha.Common;
 using Tasha.Scheduler;
@@ -61,11 +62,6 @@ namespace Tasha.XTMFScheduler
         /// </summary>
         private SparseArray<SparseTriIndex<float>> GenerationProbability;
 
-        /// <summary>
-        /// PD, [EmploymentStatus,Occupation,Duration / 15 minutes]
-        /// </summary>
-        private SparseArray<SparseTriIndex<float>> StartTimeProbability;
-
         public bool IsHouseholdProject { get { return false; } }
 
         public string Name { get; set; }
@@ -79,10 +75,10 @@ namespace Tasha.XTMFScheduler
             switch ( episode.Purpose )
             {
                 case Activity.PrimaryWork:
-                    return PrimaryWorkStartTime( person, personIndex, schedule, episode, rand );
+                    return PrimaryWorkStartTime(person, personIndex, schedule, episode, rand );
 
                 default:
-                    throw new XTMFRuntimeException( "In '" + this.Name + "' we received an episode of purpose '" + episode.Purpose.ToString() + "'" );
+                    throw new XTMFRuntimeException( "In '" + Name + "' we received an episode of purpose '" + episode.Purpose + "'" );
             }
         }
 
@@ -93,54 +89,56 @@ namespace Tasha.XTMFScheduler
             {
                 return;
             }
-            var flatPd = this.GenerationProbability.GetFlatIndex( household.HomeZone.PlanningDistrict );
+            var flatPd = GenerationProbability.GetFlatIndex( household.HomeZone.PlanningDistrict );
             var occupation = person.Occupation;
-            var probability = GenerationProbability.GetFlatData()[flatPd][this.Ages.IndexOf( person.Age ), (int)empStatus, (int)occupation];
+            var probability = GenerationProbability.GetFlatData()[flatPd][Ages.IndexOf( person.Age ), (int)empStatus, (int)occupation];
             var pop = rand.NextDouble();
             // If the random number is less than the probability then
             if ( pop <= probability )
             {
                 //then generate an activity
+                // ReSharper disable once UnusedVariable
                 var data = DurationProbability.GetFlatData()[flatPd];
             }
         }
 
         public void IterationComplete(int currentIteration, int totalIterations)
         {
-            this.GenerationProbability = null;
-            this.Ages = null;
+            GenerationProbability = null;
+            Ages = null;
         }
 
         public void IterationStart(int currentIteration, int totalIterations)
         {
-            this.GenerationProbability = this.AgeEmpStatOccProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
-            this.DurationProbability = this.EmpStatOccDurationProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
-            this.Ages = this.AgeResource.AcquireResource<IndexedRangeSet>();
+            GenerationProbability = AgeEmpStatOccProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            DurationProbability = EmpStatOccDurationProbability.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            Ages = AgeResource.AcquireResource<IndexedRangeSet>();
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.AgeEmpStatOccProbability.CheckResourceType( typeof( XTMF.IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
+            if ( AgeEmpStatOccProbability.CheckResourceType( typeof( IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
             {
-                error = "In '" + this.Name + "', the resource '" + AgeEmpStatOccProbability.ResourceName
+                error = "In '" + Name + "', the resource '" + AgeEmpStatOccProbability.ResourceName
                     + "' does not contain an IDataSource<SparseTriIndex<float>> for worker generation probabilities!";
                 return false;
             }
-            if ( this.EmpStatOccDurationProbability.CheckResourceType( typeof( XTMF.IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
+            if ( EmpStatOccDurationProbability.CheckResourceType( typeof( IDataSource<SparseArray<SparseTriIndex<float>>> ) ) )
             {
-                error = "In '" + this.Name + "', the resource '" + EmpStatOccDurationProbability.ResourceName
+                error = "In '" + Name + "', the resource '" + EmpStatOccDurationProbability.ResourceName
                     + "' does not contain an IDataSource<SparseTriIndex<float>> for full time worker duration probabilities!";
                 return false;
             }
-            if ( this.AgeResource.CheckResourceType( typeof( IndexedRangeSet ) ) )
+            if ( AgeResource.CheckResourceType( typeof( IndexedRangeSet ) ) )
             {
-                error = "In '" + this.Name + "', the resource '" + this.AgeResource.ResourceName + "' for age categories does not contain an IndexedRangeSet!";
+                error = "In '" + Name + "', the resource '" + AgeResource.ResourceName + "' for age categories does not contain an IndexedRangeSet!";
                 return false;
             }
             return true;
         }
 
-        private bool GiveStartTimeForPrimaryWork(List<TimeWindow> timeWindows, IActivityEpisode episode)
+        [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+        private bool GiveStartTimeForPrimaryWork(ITashaPerson worker, List<TimeWindow> timeWindows, IActivityEpisode episode, Random rand)
         {
             throw new NotImplementedException();
         }
@@ -154,46 +152,43 @@ namespace Tasha.XTMFScheduler
             //If there are no episodes in the schedule, then we can place it anywhere
             if ( episodeList.Length == 0 || episodeList[0] == null )
             {
-                timeWindows.Add( new TimeWindow() { StartTime = this.StartOfDay, EndTime = this.EndOfDay } );
-                return GiveStartTimeForPrimaryWork( timeWindows, episode );
+                timeWindows.Add( new TimeWindow() { StartTime = StartOfDay, EndTime = EndOfDay } );
+                return GiveStartTimeForPrimaryWork( person, timeWindows, episode, rand);
             }
-            else
+            //Check before the first episode
             {
-                //Check before the first episode
+                //Check after the last episode
+                var firstStartTime = episodeList[0].StartTime;
+                if ( firstStartTime - StartOfDay >= episodeDuration )
                 {
-                    //Check after the last episode
-                    var firstStartTime = episodeList[0].StartTime;
-                    if ( firstStartTime - this.StartOfDay >= episodeDuration )
-                    {
-                        timeWindows.Add( new TimeWindow() { StartTime = this.StartOfDay, EndTime = firstStartTime} );
-                    }
-                }
-                //Check between each episode
-                for ( int i = 0; i < episodeList.Length - 1; i++ )
-                {
-                    var e = episodeList[i + 1];
-                    if ( e == null )
-                    {
-                        break;
-                    }
-                    var endTime = episodeList[i].EndTime;
-                    var startTime = episodeList[i + 1].StartTime;
-                    if ( endTime - startTime >= episodeDuration )
-                    {
-                        timeWindows.Add( new TimeWindow() { StartTime = startTime, EndTime = endTime } );
-                    }
-                }
-                if ( episodeList.Length > 1 )
-                {
-                    //Check after the last episode
-                    var lastEpisodeEndTime = episodeList[episodeList.Length - 1].EndTime;
-                    if ( this.EndOfDay - lastEpisodeEndTime >= episodeDuration )
-                    {
-                        timeWindows.Add( new TimeWindow() { StartTime = lastEpisodeEndTime, EndTime = this.EndOfDay } );
-                    }
+                    timeWindows.Add( new TimeWindow() { StartTime = StartOfDay, EndTime = firstStartTime} );
                 }
             }
-            return GiveStartTimeForPrimaryWork( timeWindows, episode );
+            //Check between each episode
+            for ( int i = 0; i < episodeList.Length - 1; i++ )
+            {
+                var e = episodeList[i + 1];
+                if ( e == null )
+                {
+                    break;
+                }
+                var endTime = episodeList[i].EndTime;
+                var startTime = episodeList[i + 1].StartTime;
+                if ( endTime - startTime >= episodeDuration )
+                {
+                    timeWindows.Add( new TimeWindow() { StartTime = startTime, EndTime = endTime } );
+                }
+            }
+            if ( episodeList.Length > 1 )
+            {
+                //Check after the last episode
+                var lastEpisodeEndTime = episodeList[episodeList.Length - 1].EndTime;
+                if ( EndOfDay - lastEpisodeEndTime >= episodeDuration )
+                {
+                    timeWindows.Add( new TimeWindow() { StartTime = lastEpisodeEndTime, EndTime = EndOfDay } );
+                }
+            }
+            return GiveStartTimeForPrimaryWork(person, timeWindows, episode, rand );
         }
     }
 }

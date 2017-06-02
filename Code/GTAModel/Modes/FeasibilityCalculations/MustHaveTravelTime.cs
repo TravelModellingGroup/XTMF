@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using XTMF;
@@ -53,7 +54,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
 
         public bool ProduceResult(Pair<IZone, IZone> data)
         {
-            return this.NetworkData.TravelTime( data.First, data.Second, this.SimulationTime ) > Time.Zero;
+            return NetworkData.TravelTime( data.First, data.Second, SimulationTime ) > Time.Zero;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -71,24 +72,16 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
         /// </summary>
         private bool LoadNetworkData(ref string error)
         {
-            foreach ( var dataSource in this.Root.NetworkData )
+            foreach ( var dataSource in Root.NetworkData )
             {
-                if ( dataSource.NetworkType == this.NetworkType )
+                if ( dataSource.NetworkType == NetworkType )
                 {
-                    INetworkData advancedData = dataSource as INetworkData;
-                    if ( advancedData != null )
-                    {
-                        this.NetworkData = advancedData;
-                        return true;
-                    }
-                    else
-                    {
-                        error = "In '" + this.Name + "' the given network data '" + this.NetworkType + "' is not INetworkData compliant!";
-                        return false;
-                    }
+                    INetworkData advancedData = dataSource;
+                    NetworkData = advancedData;
+                    return true;
                 }
             }
-            error = "In '" + this.Name + "' we were unable to find any network data with the name '" + this.NetworkType + "'!";
+            error = "In '" + Name + "' we were unable to find any network data with the name '" + NetworkType + "'!";
             return false;
         }
     }

@@ -16,18 +16,18 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Datastructure;
 using TMG.Emme;
 using TMG.Estimation;
 using TMG.Input;
 using XTMF;
-using Datastructure;
 
 namespace TMG.NetworkEstimation
 {
+    // ReSharper disable once InconsistentNaming
     public class CalcRMSEofBoardingsAM : IEmmeTool
     {
 
@@ -46,7 +46,7 @@ namespace TMG.NetworkEstimation
         [RunParameter("Check Aggregation File", true, "Flag to report differences between the aggregation file and the network.")]
         public bool CheckAggregationFile;
 
-        private const string _ToolName = "TMG2.XTMF.returnBoardings";
+        private const string ToolName = "TMG2.XTMF.returnBoardings";
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public bool Execute(Controller controller)
@@ -57,14 +57,14 @@ namespace TMG.NetworkEstimation
                 throw new XTMFRuntimeException("Controller is not a ModellerController");
             }
 
-            var args = string.Join(" ", this.ScenarioNumber, this.LineAggregationFile.GetFilePath(), this.CheckAggregationFile);
+            var args = string.Join(" ", ScenarioNumber, LineAggregationFile.GetFilePath(), CheckAggregationFile);
             string result = "";
-            mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            mc.Run(ToolName, args, (p => Progress = p), ref result);
 
-            var modelResults = this.ParseResults(result);
-            var observations = this.LoadObservedBoardingsFile();
+            var modelResults = ParseResults(result);
+            var observations = LoadObservedBoardingsFile();
 
-            this.CalcFitness(observations, modelResults);
+            CalcFitness(observations, modelResults);
 
             return true;
         }
@@ -89,23 +89,23 @@ namespace TMG.NetworkEstimation
         {
             var result = new Dictionary<string, float>();
 
-            using (CsvReader reader = new CsvReader(this.ObservedBoardingsFile.GetFilePath()))
+            using (CsvReader reader = new CsvReader(ObservedBoardingsFile.GetFilePath()))
             {
                 reader.LoadLine(); //Skip the first line                
-                int numCol = 2;
+                int numCol;
                 while (reader.LoadLine(out numCol))
                 {
-                    string lineId = "";
+                    string lineId;
                     reader.Get(out lineId, 0);
 
                     if (string.IsNullOrWhiteSpace(lineId))
                         continue; //Skip over blank lines
 
                     if (numCol < 2)
-                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol.ToString() + ")");
+                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
 
                     
-                    float amBoardings = 0.0f;
+                    float amBoardings;
                     reader.Get(out amBoardings, 1);
 
                     result[lineId] = amBoardings;
@@ -146,7 +146,7 @@ namespace TMG.NetworkEstimation
 
             }
 
-            this.Root.RetrieveValue = (() => (float)( Math.Sqrt(squaredErrorSum / numberOfLines)));
+            Root.RetrieveValue = (() => (float)( Math.Sqrt(squaredErrorSum / numberOfLines)));
         }
 
         public string Name

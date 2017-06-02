@@ -29,10 +29,7 @@ namespace XTMF
     {
         public static void PropertyChanged(PropertyChangedEventHandler ev, object source, string propertyName)
         {
-            if ( ev != null )
-            {
-                ev( source, new PropertyChangedEventArgs( propertyName ) );
-            }
+            ev?.Invoke( source, new PropertyChangedEventArgs( propertyName ) );
         }
 
         public static ObservableCollection<T> ToObservableCollection<T>(this List<T> us)

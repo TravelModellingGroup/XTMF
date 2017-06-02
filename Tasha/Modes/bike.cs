@@ -32,10 +32,10 @@ namespace Tasha.Modes
         public float CBike;
 
         [RunParameter( "dpurp_oth_drive", 0f, "The weight for the cost of doing an other drive (ITashaRuntime only)" )]
-        public float dpurp_oth_drive;
+        public float DpurpOthDrive;
 
         [RunParameter( "dpurp_shop_drive", 0f, "The weight for the cost of doing a shopping drive (ITashaRuntime only)" )]
-        public float dpurp_shop_drive;
+        public float DpurpShopDrive;
 
         [RunParameter( "Intrazonal", 0f, "The factor applied for being an intrazonal trip" )]
         public float Intrazonal;
@@ -46,8 +46,8 @@ namespace Tasha.Modes
         [RunParameter( "Max Travel Distance", 12000, "The largest distance a person is allowed to bike (meters)" )]
         public int MaxTravelDistance;
 
-        [RunParameter( "travelTime", 0f, "The factor applied for the travel time" )]
-        public float travelTime;
+        [RunParameter( "TravelTimeBeta", 0f, "The factor applied for the travel time" )]
+        public float TravelTimeBeta;
 
         [DoNotAutomate]
         public IVehicleType VehicleType = null;
@@ -61,13 +61,6 @@ namespace Tasha.Modes
         private float AvgTravelSpeed;
 
         /// <summary>
-        ///
-        /// </summary>
-        public Bike()
-        {
-        }
-
-        /// <summary>
         /// Avg speed of riding a bike
         /// </summary>
         [RunParameter( "Average Speed", 15.0f, "The average travel speed in KM/H" )]
@@ -75,12 +68,12 @@ namespace Tasha.Modes
         {
             get
             {
-                return this.AvgTravelSpeed / 1000 * 60; //now m/min
+                return AvgTravelSpeed / 1000 * 60; //now m/min
             }
 
             set
             {
-                this.AvgTravelSpeed = value * 1000 / 60; //now m/min
+                AvgTravelSpeed = value * 1000 / 60; //now m/min
             }
         }
 
@@ -140,9 +133,6 @@ namespace Tasha.Modes
         }
 
         [DoNotAutomate]
-        /// <summary>
-        ///
-        /// </summary>
         public IVehicleType RequiresVehicle
         {
             get { return VehicleType; }
@@ -162,22 +152,22 @@ namespace Tasha.Modes
         /// <returns>The V for this trip</returns>
         public double CalculateV(ITrip trip)
         {
-            double V = 0;
-            V += this.CBike;
-            V += this.travelTime * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes();
+            double v = 0;
+            v += CBike;
+            v += TravelTimeBeta * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime ).ToMinutes();
             if ( trip.TripChain.Person.Youth )
             {
-                V += this.Youth;
+                v += Youth;
             }
             if ( trip.TripChain.Person.YoungAdult )
             {
-                V += this.YoungAdult;
+                v += YoungAdult;
             }
             if ( trip.OriginalZone == trip.DestinationZone )
             {
-                V += this.Intrazonal;
+                v += Intrazonal;
             }
-            return V;
+            return v;
         }
 
         /// <summary>
@@ -190,14 +180,14 @@ namespace Tasha.Modes
         /// <returns>The number of minutes it takes</returns>
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            float V = 0;
-            V += this.CBike;
-            V += this.travelTime * TravelTime( origin, destination, time ).ToMinutes();
+            float v = 0;
+            v += CBike;
+            v += TravelTimeBeta * TravelTime( origin, destination, time ).ToMinutes();
             if ( origin.ZoneNumber == destination.ZoneNumber )
             {
-                V += this.Intrazonal;
+                v += Intrazonal;
             }
-            return V;
+            return v;
         }
 
         /// <summary>
@@ -205,6 +195,7 @@ namespace Tasha.Modes
         /// </summary>
         /// <param name="origin">The origin zone</param>
         /// <param name="destination">The destination zone</param>
+        /// <param name="time"></param>
         /// <returns>the cost</returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
@@ -213,7 +204,7 @@ namespace Tasha.Modes
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
         {
-            return CurrentlyFeasible > 0 && origin.Distance( destination ) <= this.MaxTravelDistance;
+            return CurrentlyFeasible > 0 && origin.Distance( destination ) <= MaxTravelDistance;
         }
 
         /// <summary>
@@ -223,7 +214,7 @@ namespace Tasha.Modes
         /// <returns>is it Feasible?</returns>
         public bool Feasible(ITrip trip)
         {
-            return this.Feasible( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
+            return Feasible( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
         }
 
         /// <summary>
@@ -268,7 +259,7 @@ namespace Tasha.Modes
         /// <returns></returns>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>

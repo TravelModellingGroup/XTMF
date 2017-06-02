@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using TMG.Emme;
@@ -65,7 +66,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
             string filepath = Path.GetFullPath( FileName.GetFileName( Root.InputBaseDirectory ) );
 
-            return mc.Run("tmg.XTMF_internal.export_matrix_batch_file", this.MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
+            return mc.Run("tmg.XTMF_internal.export_matrix_batch_file", MatrixNumber + " \"" + filepath + "\"" + ScenarioNumber );
         }
 
         public bool RuntimeValidation(ref string error)

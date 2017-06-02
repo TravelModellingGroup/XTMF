@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Frameworks.Data
@@ -67,7 +63,7 @@ namespace TMG.Frameworks.Data
 
         public void SetData(T newValue)
         {
-            (Linked.GetDataSource() as ISetableDataSource<T>).SetData(newValue);
+            (Linked.GetDataSource() as ISetableDataSource<T>)?.SetData(newValue);
         }
 
 
@@ -78,7 +74,7 @@ namespace TMG.Frameworks.Data
 
         private IResource Link(string resourceName)
         {
-            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+            var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
             for (int i = ancestry.Count - 1; i >= 0; i--)
             {
                 var source = ancestry[i]?.Module as IResourceSource;
@@ -86,7 +82,7 @@ namespace TMG.Frameworks.Data
                 {
                     foreach (var resource in source.Resources)
                     {
-                        if (resource.ResourceName == ResourceName)
+                        if (resource.ResourceName == resourceName)
                         {
                             return resource;
                         }
@@ -105,7 +101,7 @@ namespace TMG.Frameworks.Data
             }
             if (!linked.CheckResourceType<T>())
             {
-                error = "In '" + Name + "' the resource was not of type '" + typeof(T).GetType().Name
+                error = "In '" + Name + "' the resource was not of type '" + typeof(T).Name
                     + "' instead of was of type '" + linked.GetResourceType().Name + "'!";
                 return false;
             }

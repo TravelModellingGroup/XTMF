@@ -20,6 +20,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:my="clr-namespace:XTMF.Gui"
+        xmlns:userControls="clr-namespace:XTMF.Gui.UserControls"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterOwner"
         Title="Select Module" Height="500" Width="400">
@@ -29,18 +30,24 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <my:FilterBox Grid.Row="0" x:Name="FilterBox" EnterPressed="FilterBox_EnterPressed" FilterWatermark="Search Modules... (Ctrl+E)" />
-        <ListView x:Name="Display" Background="{StaticResource ControlBackgroundBrush}"  
-                      Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListView x:Name="Display"  
+                      Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{DynamicResource WindowBackgroundBrush2}" Foreground="{DynamicResource ThemeTextColorBrush}" BorderBrush="{x:Null}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <my:VirtualizingWrapPanel Orientation="Horizontal" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" />
+                    <VirtualizingStackPanel></VirtualizingStackPanel>
+
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <my:BorderIconButton Margin="5" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
-                                             Text="{Binding Text}" Icon="/XTMF.Gui;component/Resources/Settings.png" Width="300px"
-                                             DoubleClicked="BorderIconButton_Clicked" />
+
+                    <userControls:ListViewControl TitleText="{Binding Name}" MouseDoubleClick="Control_OnMouseDoubleClick"
+                                             SubText="{Binding Text}">
+                        
+                        
+                    </userControls:ListViewControl>
+                        
+                   
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

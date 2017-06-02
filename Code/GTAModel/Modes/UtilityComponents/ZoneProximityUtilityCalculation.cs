@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -74,7 +75,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
                     }
                 }
             }
-            return ProximityCache[Origin ? origin.ZoneNumber : destination.ZoneNumber] ? this.Constant : 0f;
+            return ProximityCache[Origin ? origin.ZoneNumber : destination.ZoneNumber] ? Constant : 0f;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -82,33 +83,16 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             return true;
         }
 
-        private float CheckOWS(IZone origin)
-        {
-            if ( ProximityCache == null )
-            {
-                lock ( this )
-                {
-                    Thread.MemoryBarrier();
-                    if ( ProximityCache == null )
-                    {
-                        LoadCache();
-                        Thread.MemoryBarrier();
-                    }
-                }
-            }
-            return ProximityCache[origin.ZoneNumber] ? Constant : 0f;
-        }
-
         private void FindCloseZonesToTargets(IZone[] flatZones, bool[] flatData, List<int> targetedZones)
         {
-            var distances = this.Root.ZoneSystem.Distances.GetFlatData();
+            var distances = Root.ZoneSystem.Distances.GetFlatData();
             var numberOfSubwayZones = targetedZones.Count;
             for ( int i = 0; i < flatZones.Length; i++ )
             {
                 bool any = false;
                 for ( int j = 0; j < numberOfSubwayZones; j++ )
                 {
-                    if ( distances[i][targetedZones[j]] < this.MaxDistance )
+                    if ( distances[i][targetedZones[j]] < MaxDistance )
                     {
                         any = true;
                         break;
@@ -123,7 +107,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
             List<int> targetedZones = new List<int>( flatData.Length );
             for ( int i = 0; i < flatZones.Length; i++ )
             {
-                if ( this.TargetedZones.Contains( flatZones[i].ZoneNumber ) )
+                if ( TargetedZones.Contains( flatZones[i].ZoneNumber ) )
                 {
                     targetedZones.Add( i );
                 }
@@ -133,13 +117,13 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         private void LoadCache()
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var flatZones = zoneArray.GetFlatData();
             var temp = zoneArray.CreateSimilarArray<bool>();
             var flatData = temp.GetFlatData();
             var subwayZones = GetTargetedZones( flatZones, flatData );
             FindCloseZonesToTargets( flatZones, flatData, subwayZones );
-            this.ProximityCache = temp;
+            ProximityCache = temp;
         }
     }
 }

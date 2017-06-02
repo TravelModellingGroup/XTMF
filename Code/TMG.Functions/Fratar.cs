@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -27,7 +27,7 @@ namespace TMG.Functions
         public static void Run(float[][] ret, float[] o, float[] d, float[][] baseYearObservations, float maximumError, int maxIterations)
         {
             float[] dStar = new float[o.Length];
-            float[][] originalNormalizedProbabilities = NormalizeObservations( baseYearObservations, d );
+            float[][] originalNormalizedProbabilities = NormalizeObservations( baseYearObservations );
             for ( int i = 0; i < dStar.Length; i++ )
             {
                 dStar[i] = 1f;
@@ -44,7 +44,7 @@ namespace TMG.Functions
 
         private static void Apply(float[][] ret, float[] o, float[] dStar, float[][] obsProb)
         {
-            Parallel.For( 0, o.Length, (int i) =>
+            Parallel.For( 0, o.Length, i =>
                 {
                     if ( o[i] <= 0 )
                     {
@@ -70,7 +70,7 @@ namespace TMG.Functions
         private static bool CheckError(float[][] ret, float[] d, float[] dStar, float maximumError)
         {
             bool nonePastMaxError = true;
-            Parallel.For( 0, d.Length, (int j) =>
+            Parallel.For( 0, d.Length, j =>
                 {
                     if ( d[j] <= 0 ) return;
                     var total = 0.0;
@@ -92,10 +92,10 @@ namespace TMG.Functions
             return nonePastMaxError;
         }
 
-        private static float[][] NormalizeObservations(float[][] baseYearObservations, float[] d)
+        private static float[][] NormalizeObservations(float[][] baseYearObservations)
         {
             var ret = new float[baseYearObservations.Length][];
-            Parallel.For( 0, baseYearObservations.Length, (int i) =>
+            Parallel.For( 0, baseYearObservations.Length, i =>
             {
                 ret[i] = new float[baseYearObservations.Length];
                 var total = baseYearObservations[i].Sum();

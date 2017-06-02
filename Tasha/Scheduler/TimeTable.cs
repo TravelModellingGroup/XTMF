@@ -35,6 +35,8 @@ namespace Tasha.Scheduler
         /// </summary>
         /// <param name="person">The person</param>
         /// <param name="activity">The activity</param>
+        /// <param name="random"></param>
+        /// <param name="startTime"></param>
         /// <returns></returns>
         internal static bool GetStartTime(ITashaPerson person, Activity activity, Random random, out Time startTime)
         {
@@ -56,6 +58,8 @@ namespace Tasha.Scheduler
         /// <param name="frequency"></param>
         /// <param name="startTime"></param>
         /// <param name="endTime"></param>
+        /// <param name="random"></param>
+        /// <param name="returnTime"></param>
         /// <returns></returns>
         internal static bool GetStartTime(ITashaPerson person, Activity activity, int frequency, Time startTime, Time endTime, Random random, out Time returnTime)
         {
@@ -96,6 +100,8 @@ namespace Tasha.Scheduler
         /// <param name="person"></param>
         /// <param name="activity"></param>
         /// <param name="startTime"></param>
+        /// <param name="random"></param>
+        /// <param name="duration"></param>
         /// <returns></returns>
         internal static bool GetDuration(ITashaPerson person, Activity activity, Time startTime, Random random, out Time duration)
         {
@@ -111,6 +117,8 @@ namespace Tasha.Scheduler
         /// <param name="activity"></param>
         /// <param name="startTime"></param>
         /// <param name="maxDuration"></param>
+        /// <param name="random"></param>
+        /// <param name="returnStartTime"></param>
         /// <returns></returns>
         internal static bool GetDuration(ITashaPerson person, Activity activity, Time startTime, Time maxDuration, Random random, out Time returnStartTime)
         {
@@ -141,27 +149,19 @@ namespace Tasha.Scheduler
 
         public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
         {
-            int freq = 0;
+            int freq;
             var distID = Distribution.GetDistributionID(person, activity);
             if (distID < 0)
             {
-                throw new XTMFRuntimeException("We were unable to get the distribution ID number for a person doing a '" + activity.ToString()
+                throw new XTMFRuntimeException("We were unable to get the distribution ID number for a person doing a '" + activity
                     + "' episode The person's householdID was " + person.Household.HouseholdId + ", personID was " + person.Id + ", was " + person.Age +
-                    " years old, with employment status '" + person.EmploymentStatus.ToString() + "' occupation '" + person.Occupation.ToString() + "' Student Status '"
-                    + person.StudentStatus.ToString() + "'.  Their work zone is '" + (person.EmploymentZone != null ? person.EmploymentZone.ZoneNumber.ToString() : "None")
+                    " years old, with employment status '" + person.EmploymentStatus + "' occupation '" + person.Occupation + "' Student Status '"
+                    + person.StudentStatus + "'.  Their work zone is '" + (person.EmploymentZone != null ? person.EmploymentZone.ZoneNumber.ToString() : "None")
                     + "' and their school zone is '"
                     + (person.SchoolZone != null ? person.SchoolZone.ZoneNumber.ToString() : "None") + "'.");
             }
             freq = Distribution.GetRandomFrequencyValue(
                 0, Distribution.NumberOfFrequencies - 1, random, distID, householdPD, workPD, generationAdjustments);
-            return freq;
-        }
-
-        public static int GetFrequency(ITashaPerson person, Activity activity, Random random, int maxFrequency, int householdPD, int workPD, GenerationAdjustment[] generationAdjustments)
-        {
-            int freq = 0;
-            freq = Distribution.GetRandomFrequencyValue(
-                0, maxFrequency, random, Distribution.GetDistributionID(person, activity), householdPD, workPD, generationAdjustments);
             return freq;
         }
 

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,11 +57,11 @@ namespace TMG.GTAModel.Output
 
         public void Start()
         {
-            for ( int i = 0; i < this.Files.Count; i++ )
+            for ( int i = 0; i < Files.Count; i++ )
             {
                 try
                 {
-                    var path = this.Files[i].GetFilePath();
+                    var path = Files[i].GetFilePath();
                     if ( Directory.Exists( path ) )
                     {
                         Directory.Delete( path, true );
@@ -72,9 +73,9 @@ namespace TMG.GTAModel.Output
                 }
                 catch ( IOException )
                 {
-                    if ( !this.IgnoreErrors )
+                    if ( !IgnoreErrors )
                     {
-                        throw new XTMFRuntimeException( "The file '" + this.Files[i].GetFilePath() + "' was unable to be deleted." );
+                        throw new XTMFRuntimeException( "The file '" + Files[i].GetFilePath() + "' was unable to be deleted." );
                     }
                 }
             }

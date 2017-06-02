@@ -16,18 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace XTMF.Gui.UserControls
 {
@@ -52,13 +46,22 @@ namespace XTMF.Gui.UserControls
         {
             InitializeComponent();
             AnswerBox.PreviewKeyDown += AnswerBox_PreviewKeyDown;
+
+
+            if (Owner == null)
+            {
+                var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+                Owner = window;
+            }
         }
 
         protected override void OnActivated(EventArgs e)
         {
-            base.OnActivated( e );
+            base.OnActivated(e);
             AnswerBox.Focus();
         }
+
+
 
         public StringRequest(string question, Func<string, bool> validation)
             : this()
@@ -67,13 +70,24 @@ namespace XTMF.Gui.UserControls
             Validation = validation;
             if (validation != null)
             {
-                ValidationLabel.Visibility = validation( Answer ) ? Visibility.Hidden : Visibility.Visible;
+                ValidationLabel.Visibility = validation(Answer) ? Visibility.Hidden : Visibility.Visible;
             }
+
+            var window = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+            Owner = window;
         }
+
+
 
         private void AnswerBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if ( e.Key == Key.Enter )
+
+       
+            if (Validation != null)
+            {
+                ValidationLabel.Visibility = Validation(Answer) ? Visibility.Hidden : Visibility.Visible;
+            }
+            if (e.Key == Key.Enter)
             {
                 e.Handled = true;
                 CloseSuccessfully();
@@ -82,12 +96,14 @@ namespace XTMF.Gui.UserControls
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnKeyDown( e );
+            base.OnKeyDown(e);
             if (e.Handled == false)
             {
                 if (e.Key == Key.Escape)
                 {
                     e.Handled = true;
+                    Visibility = Visibility.Hidden;
+
                     Close();
                 }
             }
@@ -96,45 +112,37 @@ namespace XTMF.Gui.UserControls
         private void CloseSuccessfully()
         {
             var ev = Validation;
-            if ( ev != null )
+            if (ev != null)
             {
-                if ( !ev( Answer ) )
+                if (!ev(Answer))
                 {
                     DialogResult = false;
                     return;
                 }
             }
             DialogResult = true;
+            //this.Visibility = Visibility.Hidden;
             Close();
         }
 
         public string Answer { get; private set; }
 
-        private void AnswerBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string text = AnswerBox.Text;
-            if ( text != null )
-            {
-                var ev = Validation;
-                if ( text.IndexOf( '\b' ) >= 0 )
-                {
-                    text = text.Replace( "\b", "" );
-                }
-                if ( ev == null || ev( text ) )
-                {
-                    Answer = text;
-                    ValidationLabel.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    ValidationLabel.Visibility = Visibility.Visible;
-                }
-            }
-        }
+       
 
         private void EnterButton_Click(object sender, RoutedEventArgs e)
         {
             CloseSuccessfully();
+        }
+
+        private void AnswerBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void AnswerBox_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            Validation(Answer);
+            Answer = AnswerBox.Text;
         }
     }
 }

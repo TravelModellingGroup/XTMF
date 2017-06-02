@@ -35,7 +35,7 @@ namespace TMG.Functions
                     for ( int j = 0; j < node.Children.Length; j++ )
                     {
                         node.Children[j] = new TreeData<T>();
-                        CreateMirroredTree<T>( node.Children[j], asCat.Children[j] );
+                        CreateMirroredTree( node.Children[j], asCat.Children[j] );
                     }
                 }
                 ret.Add( node );
@@ -52,7 +52,7 @@ namespace TMG.Functions
                 for ( int j = 0; j < node.Children.Length; j++ )
                 {
                     node.Children[j] = new TreeData<T>();
-                    CreateMirroredTree<T>( node.Children[j], asCat.Children[j] );
+                    CreateMirroredTree( node.Children[j], asCat.Children[j] );
                 }
             }
         }

@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.IO;
 using XTMF;
@@ -60,7 +59,7 @@ namespace TMG.Distributed.Modules
         }
 
 
-        public sealed class Task : XTMF.IModule
+        public sealed class Task : IModule
         {
             [SubModelInformation(Required = true, Description = "The definition of the task")]
             public IModelSystemTemplate TaskModelSystem;
@@ -90,7 +89,7 @@ namespace TMG.Distributed.Modules
             return true;
         }
 
-        public volatile bool Exit = false;
+        public volatile bool Exit;
 
         public bool RuntimeValidation(ref string error)
         {
@@ -165,7 +164,6 @@ namespace TMG.Distributed.Modules
                         }
                         break;
                 }
-                reader = null;
                 return null;
             });
             Client.RegisterCustomSender(DistributionDataChannel, (data, stream) =>
@@ -196,7 +194,6 @@ namespace TMG.Distributed.Modules
                     writer.Write(message);
                 }
                 writer.Flush();
-                writer = null;
             });
             
         }

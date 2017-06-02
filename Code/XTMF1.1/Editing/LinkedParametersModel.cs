@@ -21,7 +21,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using XTMF.Annotations;
 using XTMF.Editing;
 
 namespace XTMF
@@ -71,7 +73,7 @@ namespace XTMF
         public bool NewLinkedParameter(string name, ref string error)
         {
             var lp = new LinkedParameterChange();
-            return this.Session.RunCommand(
+            return Session.RunCommand(
                 XTMFCommand.CreateCommand("New Linked Parameter",(ref string e) =>
                 {
                     LinkedParameter linkedParameter = new LinkedParameter(name);
@@ -79,7 +81,7 @@ namespace XTMF
                     RealLinkedParameters.Add(linkedParameter);
                     LinkedParameters.Add(newModel);
                     lp.Model = newModel;
-                    lp.Index = this.LinkedParameters.Count - 1;
+                    lp.Index = LinkedParameters.Count - 1;
                     return true;
                 },
                 (ref string e) =>
@@ -101,7 +103,7 @@ namespace XTMF
 
         public LinkedParameterModel GetContained(ParameterModel parameterModel)
         {
-            return this.LinkedParameters.FirstOrDefault((model) => model.Contains(parameterModel));
+            return LinkedParameters.FirstOrDefault((model) => model.Contains(parameterModel));
         }
 
 
@@ -114,17 +116,17 @@ namespace XTMF
         public bool RemoveLinkedParameter(LinkedParameterModel linkedParameter, ref string error)
         {
             var lp = new LinkedParameterChange();
-            return this.Session.RunCommand(
+            return Session.RunCommand(
                 XTMFCommand.CreateCommand(
                     "Remove Linked Parameter",
                     (ref string e) =>
                 {
-                    if ((lp.Index = this.LinkedParameters.IndexOf(linkedParameter)) < 0)
+                    if ((lp.Index = LinkedParameters.IndexOf(linkedParameter)) < 0)
                     {
                         e = "The linked parameter was not found!";
                         return false;
                     }
-                    lp.Model = this.LinkedParameters[lp.Index];
+                    lp.Model = LinkedParameters[lp.Index];
                     LinkedParameters.RemoveAt(lp.Index);
                     RealLinkedParameters.RemoveAt(lp.Index);
                     InvokeRemoved(lp);
@@ -173,14 +175,14 @@ namespace XTMF
         /// <returns>A list of the linked parameters</returns>
         public ObservableCollection<LinkedParameterModel> GetLinkedParameters()
         {
-            return this.LinkedParameters;
+            return LinkedParameters;
         }
 
         /// <summary>
         /// The number of linked parameters in the mode.
         /// </summary>
         /// <returns>Number of Linked parameters</returns>
-        public int Count { get { return this.LinkedParameters.Count; } }
+        public int Count { get { return LinkedParameters.Count; } }
 
         /// <summary>
         /// Add a new linked parameter without a command.  Only do this in another
@@ -214,5 +216,13 @@ namespace XTMF
                 RealLinkedParameters.RemoveAt(index);
             }
         }
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+ 
     }
 }

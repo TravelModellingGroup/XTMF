@@ -21,6 +21,7 @@ using XTMF;
 
 namespace TMG.Input
 {
+    // ReSharper disable once InconsistentNaming
     public interface ISaveODData<T> : IModule
     {
         void SaveMatrix(SparseTwinIndex<T> matrix, string fileName);

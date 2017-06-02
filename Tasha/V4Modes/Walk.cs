@@ -17,7 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using Datastructure;
 using Tasha.Common;
 using TMG;
 using XTMF;
@@ -127,10 +126,10 @@ namespace Tasha.V4Modes
             set;
         }
 
-        [DoNotAutomate]
         /// <summary>
         /// Does not require any kind of vehicle
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
             get { return null; }
@@ -144,15 +143,15 @@ namespace Tasha.V4Modes
         public double CalculateV(ITrip trip)
         {
             double v = 0;
-            ITashaPerson Person = trip.TripChain.Person;
+            ITashaPerson person = trip.TripChain.Person;
             float constant, walkBeta;
-            GetPersonVariables(Person, out constant, out walkBeta);
+            GetPersonVariables(person, out constant, out walkBeta);
             v += constant;
 
             //if person has a license
-            if ( Person.Licence )
+            if ( person.Licence )
             {
-                v += this.DriversLicenseFlag;
+                v += DriversLicenseFlag;
             }
 
             IZone origin = trip.OriginalZone;
@@ -162,15 +161,15 @@ namespace Tasha.V4Modes
 
 
             //checking if child
-            if ( Person.Youth )
+            if ( person.Youth )
             {
                 v += YouthFlag;
             }
-            else if ( Person.YoungAdult )
+            else if ( person.YoungAdult )
             {
                 v += YoungAdultFlag;
             }
-            else if ( Person.Child )
+            else if ( person.Child )
             {
                 v += ChildFlag;
             }
@@ -178,11 +177,11 @@ namespace Tasha.V4Modes
             //if intrazonal trip
             if (origin == destination)
             {
-                v += this.IntrazonalConstant;
+                v += IntrazonalConstant;
             }
 
             //if no vehicles
-            if ( Person.Household.Vehicles.Length == 0 )
+            if ( person.Household.Vehicles.Length == 0 )
             {
                 v += NoVehicleFlag;
             }
@@ -190,16 +189,16 @@ namespace Tasha.V4Modes
             {
                 case Activity.Market:
                 case Activity.JointMarket:
-                    v += this.MarketFlag;
+                    v += MarketFlag;
                     break;
 
                 case Activity.JointOther:
                 case Activity.IndividualOther:
-                    v += this.OtherFlag;
+                    v += OtherFlag;
                     break;
 
                 case Activity.School:
-                    v += this.SchoolFlag;
+                    v += SchoolFlag;
                     break;
             }
             return v + GetPlanningDistrictConstant(startTime, origin.PlanningDistrict, destination.PlanningDistrict);
@@ -273,7 +272,6 @@ namespace Tasha.V4Modes
             }
             constant = NonWorkerStudentConstant;
             walk = NonWorkerStudentWalk;
-            return;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
@@ -288,7 +286,7 @@ namespace Tasha.V4Modes
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
         {
-            return this.Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber]
+            return Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber]
                 <= MaxWalkDistance;
         }
 
@@ -299,7 +297,7 @@ namespace Tasha.V4Modes
         /// <returns>true if the Trip is feasible for walking</returns>
         public bool Feasible(ITrip trip)
         {
-            return this.Feasible( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
+            return Feasible( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
         }
 
         public bool Feasible(ITripChain tripChain)
@@ -318,8 +316,8 @@ namespace Tasha.V4Modes
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
             double distance = origin == destination ? origin.InternalDistance
-                : this.Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber];
-            Time ret = Time.FromMinutes( (float)( distance / this.AvgWalkSpeed ) );
+                : Root.ZoneSystem.Distances[origin.ZoneNumber, destination.ZoneNumber];
+            Time ret = Time.FromMinutes( (float)( distance / AvgWalkSpeed ) );
             return ret;
         }
 
@@ -349,7 +347,7 @@ namespace Tasha.V4Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            this.AvgWalkSpeed = this.AvgWalkSpeedInKmPerHour * 1000f / 60f;
+            AvgWalkSpeed = AvgWalkSpeedInKmPerHour * 1000f / 60f;
             return true;
         }
 

@@ -17,11 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 
@@ -56,7 +52,7 @@ by the Line Aggregation File.  It will be saved into the Save To Directory/[clas
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
             }
             return mc.Run("tmg.XTMF_internal.return_boardings_multiclass",
-                new ModellerControllerParameter[] 
+                new[] 
                 {
                     new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
                     new ModellerControllerParameter("xtmf_LineAggregationFile", Path.GetFullPath(LineAggregationFile.GetFilePath())),

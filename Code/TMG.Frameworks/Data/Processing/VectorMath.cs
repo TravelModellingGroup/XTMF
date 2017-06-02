@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using Datastructure;
 using TMG.Frameworks.Data.Processing.AST;
@@ -123,10 +120,10 @@ of the matrix will match the zone system otherwise the size of the vector are lo
 
         private void FindRoot()
         {
-            var ancestry = TMG.Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
+            var ancestry = Functions.ModelSystemReflection.BuildModelStructureChain(Config, this);
             for (int i = ancestry.Count - 1; i >= 0; i--)
             {
-                var tdm = ancestry[i] as ITravelDemandModel;
+                var tdm = ancestry[i].Module as ITravelDemandModel;
                 if(tdm != null)
                 {
                     Root = tdm;
@@ -138,16 +135,16 @@ of the matrix will match the zone system otherwise the size of the vector are lo
         public bool RuntimeValidation(ref string error)
         {
             FindRoot();
-            if (!CompileAST(ref error))
+            if (!CompileAst(ref error))
             {
                 return false;
             }
             return true;
         }
 
-        private AST.Expression ExpressionToExecute;
+        private Expression ExpressionToExecute;
 
-        private bool CompileAST(ref string error)
+        private bool CompileAst(ref string error)
         {
             return Compiler.Compile(Expression, out ExpressionToExecute, ref error);
         }

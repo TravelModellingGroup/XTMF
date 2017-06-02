@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -25,24 +26,24 @@ namespace Datastructure
     /// <summary>
     /// A generic Key->Data Hashtable
     /// </summary>
-    /// <typeparam name="K">The Identifier</typeparam>
-    /// <typeparam name="D">What to store</typeparam>
-    public class Hashtable<K, D> where K : IComparable<K>
+    /// <typeparam name="TK">The Identifier</typeparam>
+    /// <typeparam name="TD">What to store</typeparam>
+    public class Hashtable<TK, TD> where TK : IComparable<TK>
     {
         /// <summary>
         /// How many items we currently have
         /// </summary>
-        protected int count = 0;
+        protected int _Count;
 
         /// <summary>
         /// The table of starting nodes
         /// </summary>
-        protected Node[] Table = null;
+        protected readonly Node[] Table;
 
         /// <summary>
         /// The locks for each cell of the table
         /// </summary>
-        protected GatewayLock[] TableLocks = null;
+        protected readonly GatewayLock[] TableLocks;
 
         /// <summary>
         /// Create a new Hashtable
@@ -58,40 +59,41 @@ namespace Datastructure
         /// <param name="capacity"></param>
         public Hashtable(int capacity)
         {
-            this.Table = new Node[capacity];
-            this.TableLocks = new GatewayLock[capacity];
-            for ( int i = 0; i < capacity; i++ )
+            Table = new Node[capacity];
+            TableLocks = new GatewayLock[capacity];
+            for ( var i = 0; i < capacity; i++ )
             {
-                this.TableLocks[i] = new GatewayLock();
+                TableLocks[i] = new GatewayLock();
             }
         }
 
         /// <summary>
         /// Learn how many items we have
         /// </summary>
-        public int Count { get { return count; } }
+        public int Count => _Count;
 
         /// <summary>
         /// The data stored in the hashtable
         /// </summary>
-        public IEnumerable<D> Data
+        public IEnumerable<TD> Data
         {
             get
             {
-                List<D> dataList = new List<D>( Table.Length );
-                for ( int i = 0; i < this.Table.Length; i++ )
+                var dataList = new List<TD>( Table.Length );
+                for ( var i = 0; i < Table.Length; i++ )
                 {
                     dataList.Clear();
-                    this.TableLocks[i].PassThrough( delegate()
+                    var localI = i;
+                    TableLocks[i].PassThrough( ()=>
                     {
-                        Node current = this.Table[i];
+                        var current = Table[localI];
                         while ( current != null )
                         {
                             dataList.Add( current.Storage );
                             current = current.Next;
                         }
                     } );
-                    foreach ( D d in dataList )
+                    foreach ( var d in dataList )
                     {
                         yield return d;
                     }
@@ -102,24 +104,25 @@ namespace Datastructure
         /// <summary>
         /// The keys stored in the hash table
         /// </summary>
-        public IEnumerable<K> Keys
+        public IEnumerable<TK> Keys
         {
             get
             {
-                List<K> keysList = new List<K>( Table.Length );
-                for ( int i = 0; i < this.Table.Length; i++ )
+                var keysList = new List<TK>( Table.Length );
+                for ( var i = 0; i < Table.Length; i++ )
                 {
                     keysList.Clear();
-                    this.TableLocks[i].PassThrough( delegate()
+                    var localI = i;
+                    TableLocks[i].PassThrough( ()=>
                     {
-                        Node current = this.Table[i];
+                        var current = Table[localI];
                         while ( current != null )
                         {
                             keysList.Add( current.Key );
                             current = current.Next;
                         }
                     } );
-                    foreach ( K k in keysList )
+                    foreach ( var k in keysList )
                     {
                         yield return k;
                     }
@@ -132,13 +135,13 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">The identifier for this data</param>
         /// <returns></returns>
-        public D this[K key]
+        public TD this[TK key]
         {
             get
             {
-                int place = Math.Abs( key.GetHashCode() % Table.Length );
+                var place = Math.Abs( key.GetHashCode() % Table.Length );
                 Node current = null;
-                this.TableLocks[place].PassThrough( delegate()
+                TableLocks[place].PassThrough( ()=>
                 {
                     current = Table[place];
                     while ( current != null )
@@ -147,7 +150,7 @@ namespace Datastructure
                         current = current.Next;
                     }
                 } );
-                return current != null ? current.Storage : default( D );
+                return current != null ? current.Storage : default( TD );
             }
         }
 
@@ -156,17 +159,17 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What the key for this data is</param>
         /// <param name="data">What data to store with this key</param>
-        public virtual void Add(K key, D data)
+        public virtual void Add(TK key, TD data)
         {
-            int place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node n = new Node();
+            var place = Math.Abs( key.GetHashCode() % Table.Length );
+            var n = new Node();
             n.Key = key;
             n.Storage = data;
-            this.TableLocks[place].Lock( delegate()
+            TableLocks[place].Lock( ()=>
             {
-                n.Next = this.Table[place];
-                this.Table[place] = n;
-                Interlocked.Increment( ref count );
+                n.Next = Table[place];
+                Table[place] = n;
+                Interlocked.Increment( ref _Count );
             } );
         }
 
@@ -175,12 +178,12 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What key to look for</param>
         /// <returns>True if it was found</returns>
-        public bool Contains(K key)
+        public bool Contains(TK key)
         {
-            int place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node current = null;
-            bool found = false;
-            this.TableLocks[place].PassThrough( delegate()
+            var place = Math.Abs( key.GetHashCode() % Table.Length );
+            Node current;
+            var found = false;
+            TableLocks[place].PassThrough( ()=>
             {
                 current = Table[place];
                 while ( current != null )
@@ -201,12 +204,12 @@ namespace Datastructure
         /// </summary>
         /// <param name="data">What data to look for</param>
         /// <returns>True if it was found</returns>
-        public bool Contains(D data)
+        public bool Contains(TD data)
         {
-            int place = Math.Abs( data.GetHashCode() % Table.Length );
-            Node current = null;
-            bool found = false;
-            this.TableLocks[place].PassThrough( delegate()
+            var place = Math.Abs( data.GetHashCode() % Table.Length );
+            Node current;
+            var found = false;
+            TableLocks[place].PassThrough( delegate
             {
                 current = Table[place];
                 while ( current != null )
@@ -227,7 +230,7 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What key to remove</param>
         /// <returns>True, if something was removed</returns>
-        public virtual bool Remove(K key)
+        public virtual bool Remove(TK key)
         {
             throw new NotImplementedException( "Don't remove things quite yet" );
         }
@@ -237,17 +240,17 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">What key to test for uniqueness and to store</param>
         /// <param name="data">What to store</param>
-        public virtual void UniqueAdd(K key, D data)
+        public virtual void UniqueAdd(TK key, TD data)
         {
-            int place = Math.Abs( key.GetHashCode() % Table.Length );
-            Node n = new Node();
+            var place = Math.Abs( key.GetHashCode() % Table.Length );
+            var n = new Node();
             n.Key = key;
             n.Storage = data;
-            this.TableLocks[place].Lock( delegate()
+            TableLocks[place].Lock( delegate
             {
-                n.Next = this.Table[place];
-                Node current = this.Table[place];
-                bool add = true;
+                n.Next = Table[place];
+                var current = Table[place];
+                var add = true;
                 while ( current != null )
                 {
                     if ( current.Key.CompareTo( key ) == 0 )
@@ -259,8 +262,8 @@ namespace Datastructure
                 }
                 if ( add )
                 {
-                    this.Table[place] = n;
-                    Interlocked.Increment( ref count );
+                    Table[place] = n;
+                    Interlocked.Increment( ref _Count );
                 }
             } );
         }
@@ -270,9 +273,9 @@ namespace Datastructure
         /// </summary>
         protected class Node
         {
-            public K Key;
+            public TK Key;
             public Node Next;
-            public D Storage;
+            public TD Storage;
         }
     }
 }

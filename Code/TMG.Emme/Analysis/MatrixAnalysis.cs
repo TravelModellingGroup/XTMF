@@ -19,8 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using TMG.Input;
 using XTMF;
@@ -120,7 +118,7 @@ namespace TMG.Emme.Analysis
                         zone = zoneSystem.GetFlatIndex(zone);
                         if(zone >= 0)
                         {
-                            var index = GetAggIndex(agg, headers); ;
+                            var index = GetAggIndex(agg, headers);
                             var prev = map[zone];
                             if(prev == null)
                             {
@@ -150,7 +148,7 @@ namespace TMG.Emme.Analysis
         public Aggregation AggregationToApply;
 
 
-        public abstract class Aggregation : XTMF.IModule
+        public abstract class Aggregation : IModule
         {
             public abstract float[][] ApplyAggregation(float[][] data, List<int>[] zoneToHeaderMap, string[] headers);
 
@@ -266,7 +264,7 @@ namespace TMG.Emme.Analysis
                                     }
                                 }
                             }
-                            ret[i][j] = totalTime / (float)indexes;
+                            ret[i][j] = totalTime / indexes;
                         }
                     }
                 }

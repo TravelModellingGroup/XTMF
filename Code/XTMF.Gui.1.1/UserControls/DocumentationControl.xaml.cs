@@ -16,20 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using XTMF.Gui.Annotations;
 
 namespace XTMF.Gui.UserControls
 {
@@ -191,7 +188,7 @@ namespace XTMF.Gui.UserControls
             Parameter[] ret = new Parameter[length];
             for(int i = 0; i < length; i++)
             {
-                ret[i] = new Parameter()
+                ret[i] = new Parameter
                 {
                     Type = list.Parameters[i].Type == null ? "No Type" : ConvertTypeName(list.Parameters[i].Type),
                     Name = list.Parameters[i].Name,
@@ -208,22 +205,10 @@ namespace XTMF.Gui.UserControls
             foreach(var f in fields)
             {
                 var attributes = f.GetCustomAttributes(true);
-                if(attributes != null)
+                submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
                 {
-                    foreach(var a in attributes)
-                    {
-                        var param = a as XTMF.SubModelInformation;
-                        if(param != null)
-                        {
-                            submodules.Add(new SubModule()
-                            {
-                                Name = f.Name,
-                                Description = param.Description,
-                                Type = ConvertTypeName(f.FieldType)
-                            });
-                        }
-                    }
-                }
+                    Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.FieldType)
+                }));
             }
             var properties = type.GetProperties();
             foreach(var f in properties)
@@ -231,19 +216,10 @@ namespace XTMF.Gui.UserControls
                 var attributes = f.GetCustomAttributes(true);
                 if(attributes != null)
                 {
-                    foreach(var a in attributes)
+                    submodules.AddRange(attributes.OfType<SubModelInformation>().Select(param => new SubModule
                     {
-                        var param = a as XTMF.SubModelInformation;
-                        if(param != null)
-                        {
-                            submodules.Add(new SubModule()
-                            {
-                                Name = f.Name,
-                                Description = param.Description,
-                                Type = ConvertTypeName(f.PropertyType)
-                            });
-                        }
-                    }
+                        Name = f.Name, Description = param.Description, Type = ConvertTypeName(f.PropertyType)
+                    }));
                 }
             }
             return submodules.ToArray();
@@ -255,25 +231,22 @@ namespace XTMF.Gui.UserControls
             {
                 return type.Name;
             }
-            else
+            StringBuilder builder = new StringBuilder();
+            builder.Append(type.Name, 0, type.Name.IndexOf('`'));
+            builder.Append('<');
+            var inside = type.GetGenericArguments();
+            var first = true;
+            foreach(var t in inside)
             {
-                StringBuilder builder = new StringBuilder();
-                builder.Append(type.Name, 0, type.Name.IndexOf('`'));
-                builder.Append('<');
-                var inside = type.GetGenericArguments();
-                bool first = true;
-                foreach(var t in inside)
+                if(!first)
                 {
-                    if(!first)
-                    {
-                        builder.Append(',');
-                    }
-                    first = false;
-                    builder.Append(t.Name);
+                    builder.Append(',');
                 }
-                builder.Append('>');
-                return builder.ToString();
+                first = false;
+                builder.Append(t.Name);
             }
+            builder.Append('>');
+            return builder.ToString();
         }
 
 
@@ -288,7 +261,7 @@ namespace XTMF.Gui.UserControls
             SubModule[] ret = new SubModule[length];
             for(int i = 0; i < length; i++)
             {
-                ret[i] = new SubModule()
+                ret[i] = new SubModule
                 {
                     Type = list[i].ParentFieldType == null ? "Unknown" : ConvertTypeName(list[i].ParentFieldType),
                     Name = list[i].ParentFieldName,
@@ -309,6 +282,12 @@ namespace XTMF.Gui.UserControls
         public string Type { get; internal set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public class SubModule : INotifyPropertyChanged
@@ -322,5 +301,11 @@ namespace XTMF.Gui.UserControls
         public string Type { get; internal set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

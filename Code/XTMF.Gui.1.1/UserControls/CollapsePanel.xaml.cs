@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,9 +29,9 @@ namespace XTMF.Gui
     /// </summary>
     public partial class CollapsePanel : Expander
     {
-        private double _InternalHeight;
+        private double _internalHeight;
 
-        private bool Collapsing = false;
+        private bool _collapsing;
 
         public CollapsePanel()
         {
@@ -41,12 +42,12 @@ namespace XTMF.Gui
         {
             get
             {
-                return this._InternalHeight;
+                return _internalHeight;
             }
 
             set
             {
-                this.InnerContentContainer.Height = this._InternalHeight = value;
+                InnerContentContainer.Height = _internalHeight = value;
             }
         }
 
@@ -54,7 +55,7 @@ namespace XTMF.Gui
         {
             lock ( this )
             {
-                this.InnerContents.Children.Add( element );
+                InnerContents.Children.Add( element );
             }
         }
 
@@ -62,51 +63,51 @@ namespace XTMF.Gui
         {
             lock ( this )
             {
-                this.InnerContents.Children.Remove( element );
+                InnerContents.Children.Remove( element );
             }
         }
 
         protected override void OnCollapsed()
         {
-            if ( !this.Collapsing )
+            if ( !_collapsing )
             {
-                this.Collapsing = true;
-                this.IsExpanded = true;
-                double startingHeight = this._InternalHeight;
-                DoubleAnimation hide = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
-                hide.Completed += new EventHandler( delegate(object o, EventArgs e)
-                    {
-                        DoubleAnimation shrink = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
-                        shrink.RemoveRequested += new EventHandler( AnimationStopped );
-                        shrink.Completed += new EventHandler( AnimationStopped );
-                        this.InnerContentContainer.BeginAnimation( ScrollViewer.HeightProperty, shrink );
-                    } );
-                hide.RemoveRequested += new EventHandler( AnimationStopped );
-                this.InnerContentContainer.BeginAnimation( ScrollViewer.OpacityProperty, hide );
+                _collapsing = true;
+                IsExpanded = true;
+                double startingHeight = _internalHeight;
+                var hide = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
+                hide.Completed += delegate
+                {
+                    var shrink = new DoubleAnimation( 0, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
+                    shrink.RemoveRequested += AnimationStopped;
+                    shrink.Completed += AnimationStopped;
+                    InnerContentContainer.BeginAnimation( HeightProperty, shrink );
+                };
+                hide.RemoveRequested += AnimationStopped;
+                InnerContentContainer.BeginAnimation( OpacityProperty, hide );
             }
         }
 
         protected override void OnExpanded()
         {
-            if ( !this.Collapsing )
+            if ( !_collapsing )
             {
-                this.InnerContentContainer.Opacity = 0;
-                DoubleAnimation expand = new DoubleAnimation( 0, this._InternalHeight, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
-                expand.Completed += new EventHandler( delegate(object o, EventArgs e)
-                    {
-                        DoubleAnimation show = new DoubleAnimation( 1, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
-                        this.InnerContentContainer.BeginAnimation( ScrollViewer.OpacityProperty, show );
-                    } );
-                this.InnerContentContainer.BeginAnimation( ScrollViewer.HeightProperty, expand );
+                InnerContentContainer.Opacity = 0;
+                DoubleAnimation expand = new DoubleAnimation( 0, _internalHeight, new Duration( TimeSpan.FromMilliseconds( 225 ) ) );
+                expand.Completed += delegate
+                {
+                    DoubleAnimation show = new DoubleAnimation( 1, new Duration( TimeSpan.FromMilliseconds( 150 ) ) );
+                    InnerContentContainer.BeginAnimation( OpacityProperty, show );
+                };
+                InnerContentContainer.BeginAnimation( HeightProperty, expand );
                 base.OnExpanded();
             }
         }
 
         private void AnimationStopped(object sending, EventArgs e)
         {
-            this.IsExpanded = false;
-            this.Collapsing = false;
-            this.InnerContentContainer.Opacity = 1;
+            IsExpanded = false;
+            _collapsing = false;
+            InnerContentContainer.Opacity = 1;
             base.OnCollapsed();
         }
     }

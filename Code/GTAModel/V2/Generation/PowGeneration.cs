@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Threading.Tasks;
 using Datastructure;
 
@@ -30,13 +31,13 @@ namespace TMG.GTAModel.V2.Generation
             // Do nothing, the distribution needs to do it all anyways
             // The only thing this generation needs is the ability to setup the mode choice properly
             var flatProduction = production.GetFlatData();
-            var ageRates = this.Root.Demographics.AgeRates;
-            var empRates = this.Root.Demographics.EmploymentStatusRates.GetFlatData();
-            var occRates = this.Root.Demographics.OccupationRates.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            var age = this.AgeCategoryRange[0].Start;
-            var occ = this.OccupationCategory[0].Start;
-            Parallel.For( 0, flatProduction.Length, (int i) =>
+            var ageRates = Root.Demographics.AgeRates;
+            var empRates = Root.Demographics.EmploymentStatusRates.GetFlatData();
+            var occRates = Root.Demographics.OccupationRates.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            var age = AgeCategoryRange[0].Start;
+            var occ = OccupationCategory[0].Start;
+            Parallel.For( 0, flatProduction.Length, i =>
             {
                 float total = 0;
                 var zoneNumber = zones[i].ZoneNumber;
@@ -48,7 +49,7 @@ namespace TMG.GTAModel.V2.Generation
                 }
                 else
                 {
-                    foreach ( var set in this.AllAges )
+                    foreach ( var set in AllAges )
                     {
                         for ( int a = set.Start; a <= set.Stop; a++ )
                         {
@@ -66,13 +67,12 @@ namespace TMG.GTAModel.V2.Generation
         public override void InitializeDemographicCategory()
         {
             // first learn what demographic category we should be in
-            this.DemographicParameterSetIndex = this.GetDemographicIndex( this.AgeCategoryRange[0].Start,
-                this.EmploymentStatusCategory[0].Start, this.Mobility[0].Start );
+            DemographicParameterSetIndex = GetDemographicIndex( AgeCategoryRange[0].Start, Mobility[0].Start );
             // now we can generate
             base.InitializeDemographicCategory();
         }
 
-        private int GetDemographicIndex(int age, int employmentStatus, int mobility)
+        private int GetDemographicIndex(int age, int mobility)
         {
             return ( age - 2 ) * 5 + mobility;
         }

@@ -41,13 +41,13 @@ namespace XTMF.Networking
         public void Add(T message)
         {
             // we need to enqueue it before we add an extra count
-            this.Messages.Enqueue( message );
+            Messages.Enqueue( message );
             Sem.Release();
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
         }
 
         /// <summary>
@@ -57,10 +57,10 @@ namespace XTMF.Networking
         /// <returns>The next message</returns>
         public T GetMessage()
         {
-            this.Sem.Wait();
+            Sem.Wait();
             T ret;
             // this should always succeed
-            if ( !this.Messages.TryDequeue( out ret ) )
+            if ( !Messages.TryDequeue( out ret ) )
             {
                 return default(T);
             }
@@ -74,10 +74,10 @@ namespace XTMF.Networking
         /// <returns>The next message, if the timeout occurs the default value</returns>
         public T GetMessageOrTimeout(int timeout)
         {
-            if ( this.Sem.Wait( timeout ) )
+            if ( Sem.Wait( timeout ) )
             {
                 T ret;
-                if ( !this.Messages.TryDequeue( out ret ) )
+                if ( !Messages.TryDequeue( out ret ) )
                 {
                     return default(T);
                 }
@@ -93,14 +93,14 @@ namespace XTMF.Networking
         {
             get
             {
-                return this.Messages.Count;
+                return Messages.Count;
             }
         }
 
         protected virtual void Dispose(bool includeManaged)
         {
-            this.Sem.Dispose();
-            this.Sem = null;
+            Sem.Dispose();
+            Sem = null;
         }
     }
 }

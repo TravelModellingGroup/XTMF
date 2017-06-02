@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Modes
 {
@@ -45,10 +47,10 @@ utility of at the nested level." )]
             var originFactor = 1f / ( 1000f / origin.InternalArea );
             var destinationFactor = 1f / ( 1000f / destination.InternalArea );
             return (float)(
-                ( this.OriginPopulationDensity != 0 ? Math.Log( origin.Population * originFactor + 1 ) * OriginPopulationDensity : 0f )
-                + ( this.DestinationPopulationDensity != 0 ? Math.Log( destination.Population * destinationFactor + 1 ) * DestinationPopulationDensity : 0 )
-                + ( this.OriginEmploymentDensity != 0 ? Math.Log( origin.Employment * originFactor + 1 ) * OriginEmploymentDensity : 0 )
-                + ( this.DestinationEmploymentDensity != 0 ? Math.Log( destination.Employment * destinationFactor + 1 ) * DestinationEmploymentDensity : 0 )
+                ( OriginPopulationDensity != 0 ? Math.Log( origin.Population * originFactor + 1 ) * OriginPopulationDensity : 0f )
+                + ( DestinationPopulationDensity != 0 ? Math.Log( destination.Population * destinationFactor + 1 ) * DestinationPopulationDensity : 0 )
+                + ( OriginEmploymentDensity != 0 ? Math.Log( origin.Employment * originFactor + 1 ) * OriginEmploymentDensity : 0 )
+                + ( DestinationEmploymentDensity != 0 ? Math.Log( destination.Employment * destinationFactor + 1 ) * DestinationEmploymentDensity : 0 )
                 );
         }
     }

@@ -90,7 +90,7 @@ namespace Tasha.Scheduler
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -275,19 +275,17 @@ namespace Tasha.Scheduler
             return Status;
         }
 
-        private static void AddWorkTrip(ITashaPerson person, int[] eventCount, bool[] addZero, ref Time workStartTime, ref Time workEndTime)
+        private static void AddWorkTrip(ITashaPerson person, int[] eventCount, bool[] addZero, ref Time workStartTime)
         {
             var id = Distribution.GetDistributionID(person, Activity.PrimaryWork);
             if(id != -1)
             {
                 if(workStartTime == Time.Zero)
                 {
-                    CheckForZero(person, id, Activity.PrimaryWork);
                     addZero[id] = true;
                 }
                 else
                 {
-                    CheckForZero(person, id, Activity.PrimaryWork);
                     eventCount[id]++;
                 }
             }
@@ -298,7 +296,7 @@ namespace Tasha.Scheduler
             // Non-Joint
             foreach(Activity activity in Enum.GetValues(typeof(Activity)))
             {
-                var id = -1;
+                int id;
                 if(IsNonPrimaryWorkEpisodeWithoutPrimary(activity, workStartTime)
                     || (activity == Activity.ReturnFromWork && lunches == 0 && workStartTime != Time.Zero)
                     || (activity != Activity.PrimaryWork && activity != Activity.ReturnFromWork))
@@ -306,7 +304,6 @@ namespace Tasha.Scheduler
                     id = Distribution.GetDistributionID(person, activity);
                     if(id != -1 && eventCount[id] == 0)
                     {
-                        CheckForZero(person, id, activity);
                         addZero[id] = true;
                     }
                 }
@@ -317,29 +314,14 @@ namespace Tasha.Scheduler
                 var id = Distribution.GetDistributionID(person.Household, Activity.JointOther);
                 if(id != -1 && eventCount[id] == 0)
                 {
-                    CheckForZero(person, id, Activity.JointOther);
                     addZero[id] = true;
                 }
                 id = Distribution.GetDistributionID(person.Household, Activity.JointMarket);
                 if(id != -1 && eventCount[id] == 0)
                 {
-                    CheckForZero(person, id, Activity.JointMarket);
                     addZero[id] = true;
                 }
             }
-        }
-
-        private static void CheckForZero(ITashaPerson person, int id, Activity activity)
-        {
-            if(id == 0)
-            {
-                //throw new XTMFRuntimeException(GetPersonString(person, activity));
-            }
-        }
-
-        private static string GetPersonString(ITashaPerson person, Activity activity)
-        {
-            return person.Household.HouseholdId.ToString() + ":" + person.Id.ToString() + "'" + (char)person.Occupation + ":" + (char)person.EmploymentStatus + "\r\n" + Enum.GetName(typeof(Activity), activity)+"\r\n" + person.Age.ToString();
         }
 
         private static bool IsNonPrimaryWorkEpisodeWithoutPrimary(Activity activity, Time workStartTime)
@@ -359,56 +341,56 @@ namespace Tasha.Scheduler
 
         private void AssignWorkSchoolEpisodes(ITashaPerson person, out Time workStartTime, out Time workEndTime, Random random)
         {
-            var PersonData = person["SData"] as SchedulerPersonData;
+            var personData = (SchedulerPersonData)person["SData"];
             var primaryVehicle = PrimaryMode.RequiresVehicle;
             workStartTime = Time.Zero;
             workEndTime = Time.Zero;
-            foreach(var TripChain in person.TripChains)
+            foreach(var tripChain in person.TripChains)
             {
                 bool usePrimary = SecondaryMode == null || primaryVehicle == null || primaryVehicle.CanUse(person);
                 // ignore the last trip because by definition it must be to home
-                for(int j = 0; j < (TripChain.Trips.Count - 1); j++)
+                for(int j = 0; j < (tripChain.Trips.Count - 1); j++)
                 {
-                    var ThisTrip = TripChain.Trips[j];
-                    var NextTrip = TripChain.Trips[j + 1];
-                    ThisTrip.Mode = NextTrip.Mode = usePrimary ? PrimaryMode : SecondaryMode;
+                    var thisTrip = tripChain.Trips[j];
+                    var nextTrip = tripChain.Trips[j + 1];
+                    thisTrip.Mode = nextTrip.Mode = usePrimary ? PrimaryMode : SecondaryMode;
 
-                    var startTime = ThisTrip.DestinationZone == null || ThisTrip.OriginalZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
-                    var endTime = NextTrip.TripStartTime;
+                    var startTime = thisTrip.DestinationZone == null || thisTrip.OriginalZone == null ? thisTrip.TripStartTime : thisTrip.ActivityStartTime;
+                    var endTime = nextTrip.TripStartTime;
                     if(endTime < startTime)
                     {
                         endTime = Time.EndOfDay;
                     }
                     if(endTime < startTime)
                     {
-                        startTime = ThisTrip.TripStartTime;
+                        startTime = thisTrip.TripStartTime;
                     }
 
-                    if(ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.SecondaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
+                    if(thisTrip.Purpose == Activity.PrimaryWork || thisTrip.Purpose == Activity.SecondaryWork || thisTrip.Purpose == Activity.WorkBasedBusiness)
                     {
-                        var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, TripChain.Person);
-                        NewEpisode.Zone = ThisTrip.DestinationZone;
-                        if(workStartTime == Time.Zero || NewEpisode.StartTime < workStartTime)
+                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, tripChain.Person);
+                        newEpisode.Zone = thisTrip.DestinationZone;
+                        if(workStartTime == Time.Zero || newEpisode.StartTime < workStartTime)
                         {
-                            workStartTime = NewEpisode.StartTime;
+                            workStartTime = newEpisode.StartTime;
                         }
-                        if(workEndTime == Time.Zero || NewEpisode.EndTime > workEndTime)
+                        if(workEndTime == Time.Zero || newEpisode.EndTime > workEndTime)
                         {
-                            workEndTime = NewEpisode.EndTime;
+                            workEndTime = newEpisode.EndTime;
                         }
-                        PersonData.WorkSchedule.Schedule.Insert(NewEpisode, random);
+                        personData.WorkSchedule.Schedule.Insert(newEpisode, random);
                     }
-                    else if(ThisTrip.Purpose == Activity.School)
+                    else if(thisTrip.Purpose == Activity.School)
                     {
-                        var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, TripChain.Person);
-                        NewEpisode.Zone = ThisTrip.DestinationZone;
-                        PersonData.SchoolSchedule.Schedule.Insert(NewEpisode, random);
+                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, tripChain.Person);
+                        newEpisode.Zone = thisTrip.DestinationZone;
+                        personData.SchoolSchedule.Schedule.Insert(newEpisode, random);
                     }
                 }
             }
         }
 
-        private void FirstPass(ITashaPerson person, IVehicleType primaryVehicle, int[] eventCount)
+        private void FirstPass(ITashaPerson person, int[] eventCount)
         {
             foreach(var tripChain in person.TripChains)
             {
@@ -427,7 +409,6 @@ namespace Tasha.Scheduler
                         }
                         if(id != -1)
                         {
-                            CheckForZero(person, id, trip.Purpose);
                             eventCount[id]++;
                         }
                     }
@@ -441,7 +422,6 @@ namespace Tasha.Scheduler
                             var id = Distribution.GetDistributionID(person, trip.Purpose);
                             if(id != -1)
                             {
-                                CheckForZero(person, id, trip.Purpose);
                                 eventCount[id]++;
                             }
                         }
@@ -491,9 +471,9 @@ namespace Tasha.Scheduler
         {
             Status = "Writing Distribution Frequency File";
             Progress = 0;
-            using (StreamWriter Writer = new StreamWriter(OutputResults))
+            using (StreamWriter writer = new StreamWriter(OutputResults))
             {
-                Writer.WriteLine("DistID, Freq, ExpPersons");
+                writer.WriteLine("DistID, Freq, ExpPersons");
 
                 for(int i = 0; i < ResultsArray.Length; i++)
                 {
@@ -501,43 +481,43 @@ namespace Tasha.Scheduler
                     {
                         if(i < 32)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j]);
+                            writer.WriteLine("{0},{1},{2}", i, j, ResultsArray[i][j]);
                         }
                         else if(i >= 32 && i < 40)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * SecondaryWorkInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * SecondaryWorkInflation);
                         }
                         else if(i >= 40 && i < 72)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkBusinessInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkBusinessInflation);
                         }
                         else if(i >= 72 && i < 84)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkAtHomeInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * WorkAtHomeInflation);
                         }
                         else if(i >= 84 && i < 94)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j]);
+                            writer.WriteLine("{0},{1},{2}", i, j, ResultsArray[i][j]);
                         }
                         else if(i >= 94 && i < 102)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * ReturnFromWorkInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * ReturnFromWorkInflation);
                         }
                         else if(i >= 102 && i < 158)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * OtherInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * OtherInflation);
                         }
                         else if(i >= 158 && i < 182)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointOtherInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointOtherInflation);
                         }
                         else if(i >= 182 && i < 238)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * MarketInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * MarketInflation);
                         }
                         else if(i >= 238 && i < 262)
                         {
-                            Writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointMarketInflation);
+                            writer.WriteLine("{0},{1},{2}", i, j, j == 0 ? ResultsArray[i][j] : ResultsArray[i][j] * JointMarketInflation);
                         }
                     }
                     Progress = (float)i / ResultsArray.Length;
@@ -545,7 +525,7 @@ namespace Tasha.Scheduler
             }
         }
 
-        private void Run(int iteration, ITashaHousehold household)
+        private void Run(ITashaHousehold household)
         {
             var persons = household.Persons;
             var eventCount = new int[NumberOfDistributionsLocal];
@@ -561,15 +541,14 @@ namespace Tasha.Scheduler
                 Time workEndTime;
                 ITashaPerson person = household.Persons[i];
                 AssignWorkSchoolEpisodes(persons[i], out workStartTime, out workEndTime, null);
-                var primaryVehicle = PrimaryMode.RequiresVehicle;
                 for(int j = 0; j < addZero.Length; j++)
                 {
                     eventCount[j] = 0;
                     addZero[j] = false;
                 }
-                FirstPass(person, primaryVehicle, eventCount);
+                FirstPass(person, eventCount);
                 int lunches = LunchPass(person, eventCount, ref workStartTime, ref workEndTime);
-                AddWorkTrip(person, eventCount, addZero, ref workStartTime, ref workEndTime);
+                AddWorkTrip(person, eventCount, addZero, ref workStartTime);
                 ProcessZeroes(person, workStartTime, eventCount, addZero, lunches);
                 // while adding the results back we need to do this in serial
                 StoreResults(person.ExpansionFactor, eventCount, addZero);
@@ -602,7 +581,7 @@ namespace Tasha.Scheduler
                 }
             }
 
-            RunSerial(i);
+            RunSerial();
 
             if(NetworkData != null)
             {
@@ -630,7 +609,7 @@ namespace Tasha.Scheduler
             HouseholdLoader.Reset();
         }
 
-        private void RunSerial(int iteration)
+        private void RunSerial()
         {
             Status = "Calculating Distributions...";
             Progress = 0;
@@ -638,7 +617,7 @@ namespace Tasha.Scheduler
             for(int i = 0; i < households.Length; i++)
             {
                 ITashaHousehold household = households[i];
-                Run(iteration, household);
+                Run(household);
                 Progress = (float)i / households.Length;
             }
             ModifyResults();
@@ -648,7 +627,7 @@ namespace Tasha.Scheduler
         public DistributionFactor[] ModificationFactors;
 
 
-        public sealed class DistributionFactor : XTMF.IModule
+        public sealed class DistributionFactor : IModule
         {
             [RunParameter("ID Range", "", typeof(RangeSet), "The range of distributions to apply this factor to non zero frequencies.")]
             public RangeSet IDRange;
@@ -685,24 +664,6 @@ namespace Tasha.Scheduler
                     }
                 }
             }
-        }
-
-        private void SimulateScheduler()
-        {
-            Scheduler.MaxFrequency = MaxFrequencyLocal;
-            Scheduler.NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
-            Scheduler.NumberOfAdultFrequencies = NumberOfAdultFrequenciesLocal;
-            Scheduler.NumberOfDistributions = NumberOfDistributionsLocal;
-            Scheduler.StartTimeQuanta = StartTimeQuantums;
-            Scheduler.FullTimeActivity = FullTimeActivityDateTime;
-            Scheduler.MaxPrimeWorkStartTimeForReturnHomeFromWork = MaxPrimeWorkStartTimeForReturnHomeFromWorkDateTime;
-            Scheduler.MinPrimaryWorkDurationForReturnHomeFromWork = MinPrimaryWorkDurationForReturnHomeFromWorkDateTime;
-            Scheduler.ReturnHomeFromWorkMaxEndTime = ReturnHomeFromWorkMaxEndTimeDateTime;
-            Scheduler.SecondaryWorkThreshold = SecondaryWorkThresholdDateTime;
-            Scheduler.SecondaryWorkMinStartTime = SecondaryWorkMinStartTimeDateTime;
-            Time.OneQuantum = Time.FromMinutes(15);
-            Time.StartOfDay = new Time() { Hours = 4 };
-            Time.EndOfDay = new Time() { Hours = 28 };
         }
 
         private void StoreResults(float expansionFactor, int[] eventCount, bool[] addZero)

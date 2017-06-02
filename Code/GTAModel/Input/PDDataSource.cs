@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using Datastructure;
@@ -52,25 +53,25 @@ namespace TMG.GTAModel.Input
 
         public SparseArray<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
             var temp = CreatePDArray().CreateSimilarArray<float>();
-            foreach ( var point in this.Reader.Read() )
+            foreach ( var point in Reader.Read() )
             {
                 if ( temp.ContainsIndex( point.O ) )
                 {
                     temp[point.O] = point.Data;
                 }
             }
-            this.Data = temp;
+            Data = temp;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -80,12 +81,12 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         private SparseArray<int> CreatePDArray()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             List<int> pdNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {

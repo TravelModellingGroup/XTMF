@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,16 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Datastructure;
 using XTMF;
 
 namespace TMG.Frameworks.Data.Synthesis.Gibbs
 {
+    // ReSharper disable once InconsistentNaming
     public sealed class ConditionalByPD : Conditional
     {
         public override bool RequiresReloadingPerZone
@@ -59,7 +56,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
             else
             {
                 IModelSystemStructure tdm;
-                if (TMG.Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
+                if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
                 {
                     ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
                     if (ZoneSystem != null && !ZoneSystem.Loaded)
@@ -122,7 +119,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                     }
                 }
             }
-            CDF = ConvertToCDF(prob);
+            Cdf = ConvertToCdf(prob);
             if (!any)
             {
                 throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  

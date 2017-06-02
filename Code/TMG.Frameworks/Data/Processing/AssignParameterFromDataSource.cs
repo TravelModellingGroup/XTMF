@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Frameworks.Data.Processing
@@ -53,7 +49,7 @@ namespace TMG.Frameworks.Data.Processing
 
         public bool RuntimeValidation(ref string error)
         {
-            Parameter = TMG.Functions.ModelSystemReflection.FindParameter(Config, this, ParameterPath);
+            Parameter = Functions.ModelSystemReflection.FindParameter(Config, this, ParameterPath);
             if (Parameter == null)
             {
                 error = "In '" + Name + "' we were unable to find a parameter with the path '" + ParameterPath + "'!";
@@ -70,11 +66,11 @@ namespace TMG.Frameworks.Data.Processing
             }
             if (RuntimeOnly)
             {
-                TMG.Functions.ModelSystemReflection.AssignValueRunOnly(Parameter, AssignFrom.GiveData());
+                Functions.ModelSystemReflection.AssignValueRunOnly(Config, Parameter, AssignFrom.GiveData());
             }
             else
             {
-                TMG.Functions.ModelSystemReflection.AssignValue(Parameter, AssignFrom.GiveData());
+                Functions.ModelSystemReflection.AssignValue(Config, Parameter, AssignFrom.GiveData());
             }
         }
     }

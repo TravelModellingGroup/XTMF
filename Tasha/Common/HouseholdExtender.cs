@@ -79,7 +79,7 @@ namespace Tasha.Common
             {
                 foreach ( var tc in p.TripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( vehicle ) )
+                    if ( tc.RequiresVehicle.Contains( vehicle ) )
                     {
                         trips.Add( tc );
                     }
@@ -104,14 +104,14 @@ namespace Tasha.Common
             {
                 foreach ( var tc in p.TripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( vehicle ) )
+                    if ( tc.RequiresVehicle.Contains( vehicle ) )
                     {
                         trips.Add( tc );
                     }
                 }
                 foreach ( var tc in p.AuxTripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( vehicle ) )
+                    if ( tc.RequiresVehicle.Contains( vehicle ) )
                     {
                         trips.Add( tc );
                     }
@@ -148,17 +148,17 @@ namespace Tasha.Common
                 TashaRuntime.EndOfDay ), vehiclesAvailable );
                 return availabilities;
             }
-            List<Pair<Time, int>> TripStartAndEndTimes = new List<Pair<Time, int>>();
+            List<Pair<Time, int>> tripStartAndEndTimes = new List<Pair<Time, int>>();
             foreach ( var tripChain in tc )
             {
                 Pair<Time, int> startTime = new Pair<Time, int>( tripChain.StartTime, -1 );
                 Pair<Time, int> endTime = new Pair<Time, int>( tripChain.EndTime, 1 );
 
-                TripStartAndEndTimes.Add( startTime );
-                TripStartAndEndTimes.Add( endTime );
+                tripStartAndEndTimes.Add( startTime );
+                tripStartAndEndTimes.Add( endTime );
             }
 
-            TripStartAndEndTimes.Sort( delegate(Pair<Time, int> p1, Pair<Time, int> p2)
+            tripStartAndEndTimes.Sort( delegate(Pair<Time, int> p1, Pair<Time, int> p2)
             {
                 var first = p1.First;
                 var second = p2.First;
@@ -167,14 +167,14 @@ namespace Tasha.Common
                 return 0;
             } );
 
-            for ( int i = -1; i < TripStartAndEndTimes.Count; i++ )
+            for ( int i = -1; i < tripStartAndEndTimes.Count; i++ )
             {
                 TashaTimeSpan span;
                 //from last trip to end of day
-                if ( i == TripStartAndEndTimes.Count - 1 )
+                if ( i == tripStartAndEndTimes.Count - 1 )
                 {
-                    span = new TashaTimeSpan( TripStartAndEndTimes[i].First, Time.EndOfDay );
-                    vehiclesAvailable += TripStartAndEndTimes[i].Second;
+                    span = new TashaTimeSpan( tripStartAndEndTimes[i].First, Time.EndOfDay );
+                    vehiclesAvailable += tripStartAndEndTimes[i].Second;
                     if ( availabilities.ContainsKey( span ) )
                     {
                         availabilities[span] += availabilities[span];
@@ -186,7 +186,7 @@ namespace Tasha.Common
                 }
                 else if ( i == -1 )//from start of day to first trip
                 {
-                    span = new TashaTimeSpan( Time.StartOfDay, TripStartAndEndTimes[i + 1].First );
+                    span = new TashaTimeSpan( Time.StartOfDay, tripStartAndEndTimes[i + 1].First );
                     if ( availabilities.ContainsKey( span ) )
                     {
                         availabilities[span] += availabilities[span];
@@ -198,8 +198,8 @@ namespace Tasha.Common
                 }
                 else //trips in between
                 {
-                    vehiclesAvailable += TripStartAndEndTimes[i].Second;
-                    span = new TashaTimeSpan( TripStartAndEndTimes[i].First, TripStartAndEndTimes[i + 1].First );
+                    vehiclesAvailable += tripStartAndEndTimes[i].Second;
+                    span = new TashaTimeSpan( tripStartAndEndTimes[i].First, tripStartAndEndTimes[i + 1].First );
                     if ( availabilities.ContainsKey( span ) )
                     {
                         availabilities[span] += availabilities[span];
@@ -218,6 +218,7 @@ namespace Tasha.Common
         /// </summary>
         /// <param name="h"></param>
         /// <param name="vehicleType"></param>
+        /// <param name="includeAuxTripChains"></param>
         /// <returns></returns>
         public static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilites(this ITashaHousehold h, IVehicleType vehicleType, bool includeAuxTripChains)
         {
@@ -242,8 +243,6 @@ namespace Tasha.Common
             {
                 ITrip connectingTripChain = auxTripChain["ConnectingChain"] as ITrip;
                 Activity purpose = (Activity)auxTripChain["Purpose"];
-                ITrip facilitatedTrip = auxTripChain["FacilitateTrip"] as ITrip;
-                ISharedMode facilitatedTripMode = auxTripChain["SharedMode"] as ISharedMode;
                 if ( connectingTripChain == null )
                 {
                     allTripChains.Add( auxTripChain );
@@ -378,7 +377,6 @@ namespace Tasha.Common
         /// <returns></returns>
         private static Dictionary<TashaTimeSpan, int> FindVehicleAvailabilitesHelper(ITashaHousehold h, IVehicleType vehicleType, bool aux)
         {
-            Dictionary<TashaTimeSpan, int> availabilities = new Dictionary<TashaTimeSpan, int>();
             List<ITripChain> allTripChains;
             if ( aux )
             {

@@ -32,8 +32,6 @@ namespace Tasha.Common
         public static int HouseholdsMade;
         private static ConcurrentBag<Household> Households = new ConcurrentBag<Household>();
 
-        private static ConcurrentBag<Vehicle> VehiclePool = new ConcurrentBag<Vehicle>();
-
         private int _NumberOfAdults = -1;
 
         /// <summary>
@@ -189,7 +187,9 @@ namespace Tasha.Common
             Household notUsed;
             try
             {
-                while (Households.TryTake(out notUsed)) ;
+                while (Households.TryTake(out notUsed))
+                {
+                }
             }
             catch (ObjectDisposedException)
             {
@@ -202,7 +202,7 @@ namespace Tasha.Common
         {
             get
             {
-                Dictionary<int, List<ITripChain>> JointTours = new Dictionary<int, List<ITripChain>>();
+                Dictionary<int, List<ITripChain>> jointTours = new Dictionary<int, List<ITripChain>>();
 
                 foreach (var person in Persons)
                 {
@@ -214,7 +214,7 @@ namespace Tasha.Common
                         foreach (var jtc in tc.JointTripChains)
                         {
                             List<ITripChain> jointTour;
-                            if (JointTours.TryGetValue(jtc.JointTripID, out jointTour))
+                            if (jointTours.TryGetValue(jtc.JointTripID, out jointTour))
                             {
                                 if (!jointTour.Contains(jtc))
                                 {
@@ -225,12 +225,12 @@ namespace Tasha.Common
                             {
                                 jointTour = new List<ITripChain>(4 );
                                 jointTour.Add(jtc);
-                                JointTours.Add(jtc.JointTripID, jointTour);
+                                jointTours.Add(jtc.JointTripID, jointTour);
                             }
                         }
                     }
                 }
-                return JointTours;
+                return jointTours;
             }
         }
 
@@ -238,7 +238,7 @@ namespace Tasha.Common
 
         #region IHousehold Members
 
-        public HouseholdType hhType
+        public HouseholdType HhType
         {
             get;
             set;
@@ -251,7 +251,7 @@ namespace Tasha.Common
         public ITashaHousehold Clone()
         {
             Household newH = (Household)MemberwiseClone();
-            newH.variables = new SortedList<string, object>();
+            newH.Variables = new SortedList<string, object>();
             newH.Attach("Maintainer", this["Maintainer"] );
             newH.Persons = new ITashaPerson[Persons.Length];
             for ( int i = 0; i < Persons.Length; i++)

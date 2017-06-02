@@ -54,19 +54,19 @@ namespace XTMF.Networking
 
         public Client(string address, int port, IConfiguration configuration)
         {
-            this.Configuration = configuration;
-            this.Address = address;
-            this.Port = port;
+            Configuration = configuration;
+            Address = address;
+            Port = port;
             new Thread( ClientMain ).Start();
             Thread progressThread = new Thread( delegate()
             {
-                while ( !this.Exit )
+                while ( !Exit )
                 {
                     Thread.Sleep( 100 );
                     try
                     {
-                        this.Progress = this.CurrentRunningModelSystem.Progress;
-                        this.NotifyProgress();
+                        Progress = CurrentRunningModelSystem.Progress;
+                        NotifyProgress();
                     }
                     catch
                     {
@@ -89,7 +89,7 @@ namespace XTMF.Networking
             bool done = false;
             try
             {
-                connection = new TcpClient( this.Address, this.Port );
+                connection = new TcpClient( Address, Port );
                 var networkStream = connection.GetStream();
                 new Thread( delegate()
                     {
@@ -99,7 +99,7 @@ namespace XTMF.Networking
                             BinaryFormatter inputFormat = new BinaryFormatter();
                             // we need some connection every 60 minutes, the host should be trying to request progress
                             networkStream.ReadTimeout = Timeout.Infinite;
-                            while ( !done || this.Exit )
+                            while ( !done || Exit )
                             {
                                 var msg = new Message( (MessageType)reader.ReadInt32() );
                                 switch ( msg.Type )
@@ -107,7 +107,7 @@ namespace XTMF.Networking
                                     case MessageType.RequestProgress:
                                         {
                                             msg.Type = MessageType.PostProgess;
-                                            this.Messages.Add( msg );
+                                            Messages.Add( msg );
                                         }
                                         break;
 
@@ -122,13 +122,13 @@ namespace XTMF.Networking
                                             }
                                             Result res = new Result() { Name = name, Data = data };
                                             msg.Data = res;
-                                            this.Messages.Add( msg );
+                                            Messages.Add( msg );
                                         }
                                         break;
 
                                     case MessageType.PostCancel:
                                         {
-                                            this.Messages.Add( msg );
+                                            Messages.Add( msg );
                                         }
                                         break;
 
@@ -142,14 +142,14 @@ namespace XTMF.Networking
                                                 soFar += reader.Read( data, soFar, length - soFar );
                                             }
                                             msg.Data = data;
-                                            this.Messages.Add( msg );
+                                            Messages.Add( msg );
                                         }
                                         break;
 
                                     case MessageType.Quit:
                                         {
                                             done = true;
-                                            this.Exit = true;
+                                            Exit = true;
                                             Console.WriteLine( "Exiting." );
                                         }
                                         break;
@@ -166,7 +166,7 @@ namespace XTMF.Networking
                                             {
                                                 soFar += reader.Read( buff, soFar, length - soFar );
                                             }
-                                            this.Messages.Add( new Message( MessageType.ReceiveCustomMessage,
+                                            Messages.Add( new Message( MessageType.ReceiveCustomMessage,
                                                 new ReceiveCustomMessageMessage()
                                                 {
                                                     CustomMessageNumber = number,
@@ -179,7 +179,7 @@ namespace XTMF.Networking
                                         {
                                             // We don't know how to deal with this
                                             done = true;
-                                            this.Exit = true;
+                                            Exit = true;
                                             Console.WriteLine( "Came across a message number " + msg.Type + " not sure what to do with it.  Exiting." );
                                         }
                                         break;
@@ -191,7 +191,7 @@ namespace XTMF.Networking
                         {
                             done = true;
                             Thread.MemoryBarrier();
-                            this.Exit = true;
+                            Exit = true;
                             Console.WriteLine( "Host has disconnected Client" );
                             Environment.Exit( 0 );
                         }
@@ -207,16 +207,16 @@ namespace XTMF.Networking
                             Console.WriteLine("Client reader has exited.");
                             connection.Close();
                             done = true;
-                            this.Exit = true;
+                            Exit = true;
                             Thread.MemoryBarrier();
                         }
                     } ).Start();
                 BinaryWriter writer = new BinaryWriter( networkStream );
                 BinaryFormatter outputFormat = new BinaryFormatter();
                 networkStream.WriteTimeout = 20000;
-                while ( !done && !this.Exit )
+                while ( !done && !Exit )
                 {
-                    var message = this.Messages.GetMessageOrTimeout( 200 );
+                    var message = Messages.GetMessageOrTimeout( 200 );
                     Thread.MemoryBarrier();
                     if ( !done && message != null )
                     {
@@ -242,22 +242,22 @@ namespace XTMF.Networking
                 done = true;
             }
             done = true;
-            this.Exit = true;
+            Exit = true;
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
         }
 
         public void NotifyComplete(int status = 0, string error = null)
         {
-            this.Messages.Add( new Message( MessageType.PostComplete ) );
+            Messages.Add( new Message( MessageType.PostComplete ) );
         }
 
         public void NotifyProgress()
         {
-            this.Messages.Add( new Message( MessageType.PostProgess ) );
+            Messages.Add( new Message( MessageType.PostProgess ) );
         }
 
         public void RegisterCustomMessageHandler(int customMessageNumber, Action<object> handler)
@@ -276,7 +276,7 @@ namespace XTMF.Networking
 
         public void RegisterCustomReceiver(int customMessageNumber, Func<Stream, object> converter)
         {
-            if ( !this.CustomReceivers.TryAdd( customMessageNumber, converter ) )
+            if ( !CustomReceivers.TryAdd( customMessageNumber, converter ) )
             {
                 throw new XTMFRuntimeException( "The Custom Receiver port " + customMessageNumber + " was attempted to be registered twice!" );
             }
@@ -284,7 +284,7 @@ namespace XTMF.Networking
 
         public void RegisterCustomSender(int customMessageNumber, Action<object, Stream> converter)
         {
-            if ( !this.CustomSenders.TryAdd( customMessageNumber, converter ) )
+            if ( !CustomSenders.TryAdd( customMessageNumber, converter ) )
             {
                 throw new XTMFRuntimeException( "The Custom Sender port " + customMessageNumber + " was attempted to be registered twice!" );
             }
@@ -293,7 +293,7 @@ namespace XTMF.Networking
         public object RetriveResource(string name, Type t)
         {
             DelayedResult result = new DelayedResult() { Name = name };
-            this.Messages.Add( new Message( MessageType.RequestResource, result ) );
+            Messages.Add( new Message( MessageType.RequestResource, result ) );
             result.Lock.Wait();
             result.Lock.Dispose();
             return result.Data;
@@ -301,23 +301,23 @@ namespace XTMF.Networking
 
         public void SendCustomMessage(object data, int customMessageNumber)
         {
-            this.Messages.Add( new Message( MessageType.SendCustomMessage,
+            Messages.Add( new Message( MessageType.SendCustomMessage,
                 new SendCustomMessageMessage() { CustomMessageNumber = customMessageNumber, Data = data } ) );
         }
 
         public bool SetResource(string name, object o)
         {
             Result data = new Result() { Name = name, Data = o };
-            this.Messages.Add( new Message( MessageType.PostResource, data ) );
+            Messages.Add( new Message( MessageType.PostResource, data ) );
             return true;
         }
 
         protected virtual void Dispose(bool includeManaged)
         {
-            if ( this.Messages != null )
+            if ( Messages != null )
             {
-                this.Messages.Dispose();
-                this.Messages = null;
+                Messages.Dispose();
+                Messages = null;
             }
         }
 
@@ -325,10 +325,10 @@ namespace XTMF.Networking
         {
             string error = null;
             var mss = modelSystemStructure as IModelSystemStructure;
-            var project = this.Configuration.ProjectRepository.ActiveProject;
+            var project = Configuration.ProjectRepository.ActiveProject;
             if ( project == null )
             {
-                project = new Project( "Remote", this.Configuration, true );
+                project = new Project( "Remote", Configuration, true );
             }
             if ( project.ModelSystemStructure.Count == 0 )
             {
@@ -338,23 +338,23 @@ namespace XTMF.Networking
             {
                 project.ModelSystemStructure[0] = mss;
             }
-            ( (ProjectRepository)this.Configuration.ProjectRepository ).SetActiveProject( project );
+            ( (ProjectRepository)Configuration.ProjectRepository ).SetActiveProject( project );
             var modelSystem = project.CreateModelSystem( ref error, 0 );
             var now = DateTime.Now;
-            var runDirectory = Path.GetFullPath( System.IO.Path.Combine( this.Configuration.ProjectDirectory,
+            var runDirectory = Path.GetFullPath( Path.Combine( Configuration.ProjectDirectory,
                 project.Name, String.Format( "{0:##}.{1:##}.{2:##}-{3}", now.Hour, now.Minute, now.Second, Guid.NewGuid() ) ) );
             bool crashed = false;
             if ( !Directory.Exists( runDirectory ) )
             {
                 Directory.CreateDirectory( runDirectory );
             }
-            System.IO.Directory.SetCurrentDirectory( runDirectory );
-            project.Save( System.IO.Path.GetFullPath( "RunParameters.xml" ), ref error );
+            Directory.SetCurrentDirectory( runDirectory );
+            project.Save( Path.GetFullPath( "RunParameters.xml" ), ref error );
             try
             {
                 if ( RunTimeValidation( ref error, mss ) )
                 {
-                    this.CurrentRunningModelSystem = modelSystem;
+                    CurrentRunningModelSystem = modelSystem;
                     modelSystem.Start();
                 }
             }
@@ -364,12 +364,12 @@ namespace XTMF.Networking
                 Console.WriteLine( e.Message );
                 Console.WriteLine( e.StackTrace );
             }
-            this.CleanUp( mss );
-            this.CurrentRunningModelSystem = null;
-            this.NotifyComplete();
+            CleanUp( mss );
+            CurrentRunningModelSystem = null;
+            NotifyComplete();
             if ( crashed )
             {
-                this.Exit = true;
+                Exit = true;
                 Thread.MemoryBarrier();
             }
         }
@@ -415,7 +415,7 @@ namespace XTMF.Networking
                 case MessageType.PostProgess:
                     {
                         writer.Write( (Int32)MessageType.PostProgess );
-                        writer.Write( this.Progress );
+                        writer.Write( Progress );
                         writer.Flush();
                     }
                     break;
@@ -423,7 +423,7 @@ namespace XTMF.Networking
                 case MessageType.RequestResource:
                     {
                         var dr = message.Data as DelayedResult;
-                        this.ResourceRequests.AddLast( dr );
+                        ResourceRequests.AddLast( dr );
                         writer.Write( (Int32)MessageType.RequestResource );
                         writer.Write( dr.Name );
                         writer.Flush();
@@ -434,7 +434,7 @@ namespace XTMF.Networking
                     {
                         var result = message.Data as Result;
                         DelayedResult toRemove = null;
-                        foreach ( var delayed in this.ResourceRequests )
+                        foreach ( var delayed in ResourceRequests )
                         {
                             if ( delayed.Name == result.Name )
                             {
@@ -453,7 +453,7 @@ namespace XTMF.Networking
 
                 case MessageType.PostCancel:
                     {
-                        var ms = this.CurrentRunningModelSystem;
+                        var ms = CurrentRunningModelSystem;
                         // if we don't have a model system then we are done
                         if ( ms == null ) break;
                         try
@@ -477,14 +477,14 @@ namespace XTMF.Networking
                             {
                                 memory.Write( mssBuff, 0, mssBuff.Length );
                                 memory.Position = 0;
-                                mss = ModelSystemStructure.Load( memory, this.Configuration );
+                                mss = ModelSystemStructure.Load( memory, Configuration );
                             }
 
-                            if ( this.ModelSystemThread != null && this.ModelSystemThread.IsAlive )
+                            if ( ModelSystemThread != null && ModelSystemThread.IsAlive )
                             {
                                 try
                                 {
-                                    this.ModelSystemThread.Abort();
+                                    ModelSystemThread.Abort();
                                 }
                                 catch
                                 {
@@ -493,7 +493,7 @@ namespace XTMF.Networking
                             // now that the other thread is going to end
                             // we can now go and start generating ourselves
                             // in another run thread
-                            ( this.ModelSystemThread =
+                            ( ModelSystemThread =
                                 new Thread( ModelSystemStartup ) ).Start( mss );
                         }
                         catch ( Exception e )
@@ -515,7 +515,7 @@ namespace XTMF.Networking
                         bool getConverter = false;
                         lock ( this )
                         {
-                            getConverter = this.CustomSenders.TryGetValue( msgNumber, out customConverter );
+                            getConverter = CustomSenders.TryGetValue( msgNumber, out customConverter );
                         }
                         if ( getConverter )
                         {
@@ -553,7 +553,7 @@ namespace XTMF.Networking
                         bool getConverted = false;
                         lock ( this )
                         {
-                            getConverted = this.CustomReceivers.TryGetValue( customNumber, out customConverter );
+                            getConverted = CustomReceivers.TryGetValue( customNumber, out customConverter );
                         }
                         if ( getConverted )
                         {
@@ -563,7 +563,7 @@ namespace XTMF.Networking
                                 {
                                     object output = customConverter( stream );
                                     List<Action<object>> handlers;
-                                    if ( this.CustomHandlers.TryGetValue( msg.CustomMessageNumber, out handlers ) )
+                                    if ( CustomHandlers.TryGetValue( msg.CustomMessageNumber, out handlers ) )
                                     {
                                         foreach ( var handler in handlers )
                                         {
@@ -619,7 +619,7 @@ namespace XTMF.Networking
                 {
                     foreach ( var module in currentPoint.Children )
                     {
-                        if ( !this.RunTimeValidation( ref error, module ) )
+                        if ( !RunTimeValidation( ref error, module ) )
                         {
                             Console.WriteLine( "Validation error in module " + module.Name + "\r\n" + error );
                             return false;

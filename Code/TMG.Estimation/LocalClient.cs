@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,9 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using XTMF;
 
 namespace TMG.Estimation
@@ -60,13 +59,7 @@ namespace TMG.Estimation
         public bool SaveParameters;
 
 
-        public float Progress
-        {
-            get
-            {
-                return this.MainClient.Progress;
-            }
-        }
+        public float Progress => MainClient.Progress;
 
         public Tuple<byte, byte, byte> ProgressColour
         {
@@ -80,11 +73,18 @@ namespace TMG.Estimation
 
         private void InitializeParameters(ClientTask task)
         {
-            for(int i = 0; i < task.ParameterValues.Length && i < this.Parameters.Length; i++)
+            string error = null;
+            for (int i = 0; i < task.ParameterValues.Length && i < Parameters.Length; i++)
             {
-                for(int j = 0; j < this.Parameters[i].Names.Length; j++)
+                for(int j = 0; j < Parameters[i].Names.Length; j++)
                 {
-                    AssignValue(this.Parameters[i].Names[j], task.ParameterValues[i]);
+                    
+                    if (
+                        !Functions.ModelSystemReflection.AssignValue(XtmfConfig, ClientStructure, Parameters[i].Names[j],
+                            task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
+                    {
+                        throw new XTMFRuntimeException($"In '{Name}' we encountered an error when trying to assign parameters.\r\n{error}");
+                    }
                 }
             }
             SaveParametersIfNeeded();
@@ -102,161 +102,17 @@ namespace TMG.Estimation
             }
         }
 
-        private void AssignValue(string parameterName, float value)
-        {
-            string[] parts = SplitNameToParts(parameterName);
-            AssignValue(parts, 0, this.ClientStructure, value);
-        }
-
-        private void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, float value)
-        {
-            if(currentIndex == parts.Length - 1)
-            {
-                AssignValue(parts[currentIndex], currentStructure, value);
-                return;
-            }
-            if(currentStructure.Children != null)
-            {
-                for(int i = 0; i < currentStructure.Children.Count; i++)
-                {
-                    if(currentStructure.Children[i].Name == parts[currentIndex])
-                    {
-                        AssignValue(parts, currentIndex + 1, currentStructure.Children[i], value);
-                        return;
-                    }
-                }
-            }
-            throw new XTMFRuntimeException("Unable to find a child module in '" + parts[currentIndex] + "' named '" + parts[currentIndex + 1]
-                + "' in order to assign parameters!");
-        }
-
-        private void AssignValue(string variableName, IModelSystemStructure currentStructure, float value)
-        {
-            if(currentStructure == null)
-            {
-                throw new XTMFRuntimeException("Unable to assign '" + variableName + "', the module is null!");
-            }
-            var p = currentStructure.Parameters;
-            if(p == null)
-            {
-                throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
-            }
-            var parameters = p.Parameters;
-            bool any = false;
-            if(parameters != null)
-            {
-                for(int i = 0; i < parameters.Count; i++)
-                {
-                    if(parameters[i].Name == variableName)
-                    {
-                        parameters[i].Value = value;
-                        var type = currentStructure.Module.GetType();
-                        if(parameters[i].OnField)
-                        {
-                            var field = type.GetField(parameters[i].VariableName);
-                            field.SetValue(currentStructure.Module, value);
-                            any = true;
-                        }
-                        else
-                        {
-                            var field = type.GetProperty(parameters[i].VariableName);
-                            field.SetValue(currentStructure.Module, value, null);
-                            any = true;
-                        }
-                    }
-                }
-            }
-            if(!any)
-            {
-                throw new XTMFRuntimeException("Unable to find a parameter named '" + variableName
-                    + "' for module '" + currentStructure.Name + "' in order to assign it a parameter!");
-            }
-        }
-
-        private string[] SplitNameToParts(string parameterName)
-        {
-            List<string> parts = new List<string>();
-            var stringLength = parameterName.Length;
-            StringBuilder builder = new StringBuilder();
-            for(int i = 0; i < stringLength; i++)
-            {
-                switch(parameterName[i])
-                {
-                case '.':
-                    parts.Add(builder.ToString());
-                    builder.Clear();
-                    break;
-                case '\\':
-                    if(i + 1 < stringLength)
-                    {
-                        if(parameterName[i + 1] == '.')
-                        {
-                            builder.Append('.');
-                            i += 2;
-                        }
-                        else if(parameterName[i + 1] == '\\')
-                        {
-                            builder.Append('\\');
-                        }
-                    }
-                    break;
-                default:
-                    builder.Append(parameterName[i]);
-                    break;
-                }
-            }
-            parts.Add(builder.ToString());
-            return parts.ToArray();
-        }
-
         public bool ExitRequest()
         {
-            this.Exit = true;
-            return false;
-        }
-
-        private bool FindUs(IModelSystemStructure mst, ref IModelSystemStructure modelSystemStructure)
-        {
-            if(mst.Module == this)
-            {
-                modelSystemStructure = mst;
-                return true;
-            }
-            if(mst.Children != null)
-            {
-                foreach(var child in mst.Children)
-                {
-                    if(FindUs(child, ref modelSystemStructure))
-                    {
-                        return true;
-                    }
-                }
-            }
-            // Then we didn't find it in this tree
+            Exit = true;
             return false;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            IModelSystemStructure ourStructure = null;
-            foreach(var mst in this.XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure)
+            if (!Functions.ModelSystemReflection.FindModuleStructure(XtmfConfig, MainClient, ref ClientStructure))
             {
-                if(FindUs(mst, ref ourStructure))
-                {
-                    foreach(var child in ourStructure.Children)
-                    {
-                        if(child.ParentFieldName == "MainClient")
-                        {
-                            this.ClientStructure = child;
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-            if(ClientStructure == null)
-            {
-                error = "In '" + this.Name + "' we were unable to find the Client Model System!";
+                error = "In '" + Name + "' we were unable to find the Client Model System!";
                 return false;
             }
             return true;
@@ -264,22 +120,22 @@ namespace TMG.Estimation
 
         public void Start()
         {
-            this.Exit = false;
-            this.Parameters = this.Root.Parameters.ToArray();
+            Exit = false;
+            Parameters = Root.Parameters.ToArray();
             Job job;
-            while(this.Exit != true && (job = this.Root.GiveJob()) != null)
+            while(Exit != true && (job = Root.GiveJob()) != null)
             {
                 CreateClientTask(job);
-                this.InitializeParameters(this.CurrentTask);
-                this.MainClient.Start();
+                InitializeParameters(CurrentTask);
+                MainClient.Start();
                 ReportResult();
             }
-            this.Exit = true;
+            Exit = true;
         }
 
         private void CreateClientTask(Job job)
         {
-            this.CurrentTask = new ClientTask()
+            CurrentTask = new ClientTask()
             {
                 Generation = -1,
                 Index = -1,
@@ -291,8 +147,8 @@ namespace TMG.Estimation
 
         private void ReportResult()
         {
-            var result = this.RetrieveValue == null ? float.NaN : this.RetrieveValue();
-            this.Root.SaveResult(result);
+            var result = RetrieveValue == null ? float.NaN : RetrieveValue();
+            Root.SaveResult(result);
         }
     }
 }

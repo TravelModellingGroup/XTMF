@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using TMG.Emme;
@@ -23,48 +24,43 @@ using XTMF;
 
 namespace TMG.GTAModel
 {
-    [ModuleInformation( Description = @"This module executes a list of Emme Tools in sequence, at four different points of the Model System
+    [ModuleInformation(Description = @"This module executes a list of Emme Tools in sequence, at four different points of the Model System
                              execution: <ul>
                                 <li><b>ModelSystem Setup:</b> These tools are executed before any zonal information is loaded.
                                 <li><b>Initial Run:</b> These tools are executed prior to the first outer-loop iteration but after the zonal data has been loaded.</li>
                                 <li><b>Iteration:</b> These tools are executed once per iteration as the last step.</li>
                                 <li><b>Final Iteration:</b> These tools are executed after all of the iterations have been completed.</li>
-                            </ul>" )]
+                            </ul>")]
     public sealed class AdvancedEmmeNetworkAssignment : INetworkAssignment, IDisposable
     {
-        [RunParameter( "Execute", true, "Flag for enabling/disabling execution. If set to 'false', Emme will not be launched. Used for debugging." )]
+        [RunParameter("Execute", true, "Flag for enabling/disabling execution. If set to 'false', Emme will not be launched. Used for debugging.")]
         public bool Execute;
 
-        [SubModelInformation( Description = "Emme Tools executed posterior to the last outer-loop iteration", Required = false )]
+        [SubModelInformation(Description = "Emme Tools executed posterior to the last outer-loop iteration", Required = false)]
         public List<IEmmeTool> FinalIteration;
 
-        [SubModelInformation( Description = "Emme Tools executed prior to the first outer-loop iteration", Required = false )]
+        [SubModelInformation(Description = "Emme Tools executed prior to the first outer-loop iteration", Required = false)]
         public List<IEmmeTool> InitialRun;
 
-        [SubModelInformation( Description = "Emme Tools executed during each outer-loop iteration.", Required = false )]
+        [SubModelInformation(Description = "Emme Tools executed during each outer-loop iteration.", Required = false)]
         public List<IEmmeTool> IterationRuns;
 
-        [SubModelInformation( Description = "Emme Tools executed before any zonal information is loaded.", Required = false )]
+        [SubModelInformation(Description = "Emme Tools executed before any zonal information is loaded.", Required = false)]
         public List<IEmmeTool> ModelSystemSetup;
 
-        [RunParameter( "Performance Analysis", false, "Flag for logging the performance (runtime) of this module" )]
+        [RunParameter("Performance Analysis", false, "Flag for logging the performance (runtime) of this module")]
         public bool PerformanceAnalysis;
 
-        [RunParameter( "Emme Project File", "*.emp", "The path to the Emme project file (.emp)" )]
+        [RunParameter("Emme Project File", "*.emp", "The path to the Emme project file (.emp)")]
         public string EmmeProjectFile;
 
-        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 255, 173, 28 );
+        private Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(255, 173, 28);
         private ModellerController Controller;
 
-        private float currentProgress = 0.0f;
-        private string currentToolStatus = "";
-        private Func<float> getToolProgress = ( () => 0.0f );
-        private float progressIncrement = 0.0f;
-
-        ~AdvancedEmmeNetworkAssignment()
-        {
-            this.Dispose( true );
-        }
+        private float CurrentProgress;
+        private string CurrentToolStatus = "";
+        private Func<float> GetToolProgress = (() => 0.0f);
+        private float ProgressIncrement;
 
         public string Name
         {
@@ -72,41 +68,32 @@ namespace TMG.GTAModel
             set;
         }
 
-        public float Progress
-        {
-            get
-            {
-                return this.currentProgress + this.progressIncrement * this.getToolProgress();
-            }
-        }
+        public float Progress => CurrentProgress + ProgressIncrement * GetToolProgress();
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return _progressColour; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => _progressColour;
 
         public void RunInitialAssignments()
         {
-            this.ExecuteToolList( this.InitialRun );
+            ExecuteToolList(InitialRun);
         }
 
         public void RunModelSystemSetup()
         {
-            this.ExecuteToolList( this.ModelSystemSetup );
+            ExecuteToolList(ModelSystemSetup);
         }
 
         public void RunNetworkAssignment()
         {
-            this.ExecuteToolList( this.IterationRuns );
+            ExecuteToolList(IterationRuns);
         }
 
         public void RunPostAssignments()
         {
-            this.ExecuteToolList( this.FinalIteration );
-            if ( this.Controller != null )
+            ExecuteToolList(FinalIteration);
+            if (Controller != null)
             {
-                this.Controller.Dispose();
-                this.Controller = null;
+                Controller.Dispose();
+                Controller = null;
             }
         }
 
@@ -117,43 +104,48 @@ namespace TMG.GTAModel
 
         public override string ToString()
         {
-            return this.currentToolStatus;
+            return CurrentToolStatus;
         }
 
         private void ExecuteToolList(List<IEmmeTool> tools)
         {
-            if ( this.Execute )
+            if (Execute)
             {
-                if ( this.Controller == null )
+                if (Controller == null)
                 {
-                    this.Controller = new ModellerController( this.EmmeProjectFile, this.PerformanceAnalysis );
+                    Controller = new ModellerController(EmmeProjectFile, PerformanceAnalysis);
                 }
-                this.currentProgress = 0.0f;
-                this.progressIncrement = 1.0f / tools.Count;
-                foreach ( var tool in tools )
+                CurrentProgress = 0.0f;
+                ProgressIncrement = 1.0f / tools.Count;
+                foreach (var tool in tools)
                 {
-                    this.currentToolStatus = tool.Name;
-                    getToolProgress = ( () => tool.Progress );
-                    tool.Execute( this.Controller );
-                    currentProgress += progressIncrement;
-                    getToolProgress = ( () => 0.0f );
+                    CurrentToolStatus = tool.Name;
+                    GetToolProgress = (() => tool.Progress);
+                    tool.Execute(Controller);
+                    CurrentProgress += ProgressIncrement;
+                    GetToolProgress = (() => 0.0f);
                 }
             }
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( true );
+            Dispose(true);
+        }
+
+        ~AdvancedEmmeNetworkAssignment()
+        {
+            Dispose(false);
         }
 
         private void Dispose(bool all)
         {
-            if ( this.Controller != null )
+            if (all)
             {
-                this.Controller.Dispose();
-                this.Controller = null;
+                GC.SuppressFinalize(this);
             }
+            Controller?.Dispose();
+            Controller = null;
         }
     }
 }

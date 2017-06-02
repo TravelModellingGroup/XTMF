@@ -101,12 +101,12 @@ namespace Tasha.Validation
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.CharWidth <= 0 )
+            if ( CharWidth <= 0 )
             {
                 error = "The chart's width must be greater than 0!";
                 return false;
             }
-            if ( this.CharHeight <= 0 )
+            if ( CharHeight <= 0 )
             {
                 error = "The chart's height must be greater than 0!";
                 return false;
@@ -119,7 +119,7 @@ namespace Tasha.Validation
             float[] first = ReadFile( FirstFile );
             float[] second = ReadFile( SecondFile );
 
-            this.GenerateChart( OutputFile, first, second, "Start Time", "Percent of 24hr Frequency" );
+            GenerateChart( OutputFile, first, second, "Start Time", "Percent of 24hr Frequency" );
         }
 
         private static void AddData(float[] data, Chart chart, Series secondSeries)
@@ -135,8 +135,8 @@ namespace Tasha.Validation
         {
             using ( Chart chart = new Chart() )
             {
-                chart.Width = this.CharWidth;
-                chart.Height = this.CharHeight;
+                chart.Width = CharWidth;
+                chart.Height = CharHeight;
 
                 using ( ChartArea area = new ChartArea( "Start Times" ) )
                 {
@@ -171,26 +171,26 @@ namespace Tasha.Validation
 
         private float[] ReadFile(string fileName)
         {
-            int currentTime = 0;
-            float currentPercent = 0;
+            int currentTime;
+            float currentPercent;
             float[] ret = new float[29];
-            using ( CsvReader Reader = new CsvReader( System.IO.Path.Combine( this.InputBaseDirectory, fileName ) ) )
+            using ( CsvReader reader = new CsvReader( System.IO.Path.Combine( InputBaseDirectory, fileName ) ) )
             {
                 if ( FirstHeader )
                 {
-                    Reader.LoadLine();
+                    reader.LoadLine();
                 }
 
-                while ( !Reader.EndOfFile )
+                while ( !reader.EndOfFile )
                 {
-                    if ( Reader.LoadLine() < 2 )
+                    if ( reader.LoadLine() < 2 )
                     {
                         continue;
                     }
-                    Reader.Get( out currentTime, FirstColumn );
+                    reader.Get( out currentTime, FirstColumn );
                     if ( currentTime < 29 && currentTime >= 0 )
                     {
-                        Reader.Get( out currentPercent, SecondColumn );
+                        reader.Get( out currentPercent, SecondColumn );
                         ret[currentTime] += currentPercent;
                     }
                 }

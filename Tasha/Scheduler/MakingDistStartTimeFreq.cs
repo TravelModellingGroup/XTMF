@@ -88,7 +88,7 @@ namespace Tasha.Scheduler
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -127,7 +127,7 @@ namespace Tasha.Scheduler
         }
 
         [SubModelInformation(Description = "Network Data", Required = false)]
-        public IList<TMG.INetworkData> NetworkData { get; set; }
+        public IList<INetworkData> NetworkData { get; set; }
 
         [DoNotAutomate]
         public List<ITashaMode> NonSharedModes { get; set; }
@@ -188,9 +188,9 @@ namespace Tasha.Scheduler
         public List<IVehicleType> VehicleTypes { get; set; }
 
         [SubModelInformation(Description = "Zone System", Required = true)]
-        public TMG.IZoneSystem ZoneSystem { get; set; }
+        public IZoneSystem ZoneSystem { get; set; }
 
-        public ITrip CreateTrip(ITripChain chain, TMG.IZone originalZone, TMG.IZone destinationZone, Activity purpose, Time startTime)
+        public ITrip CreateTrip(ITripChain chain, IZone originalZone, IZone destinationZone, Activity purpose, Time startTime)
         {
             throw new NotImplementedException();
         }
@@ -213,46 +213,46 @@ namespace Tasha.Scheduler
 
         public void Start()
         {
-            this.ResultsArray = new float[this.NumberOfDistributionsLocal][][];
+            ResultsArray = new float[NumberOfDistributionsLocal][][];
             for(int i = 0; i < ResultsArray.Length; i++)
             {
-                this.ResultsArray[i] = new float[this.MaxFrequencyLocal + 1][];
+                ResultsArray[i] = new float[MaxFrequencyLocal + 1][];
                 for(int j = 0; j < ResultsArray[i].Length; j++)
                 {
-                    this.ResultsArray[i][j] = new float[this.StartTimeQuantums];
+                    ResultsArray[i][j] = new float[StartTimeQuantums];
                 }
             }
 
-            this.Status = "Loading Data";
+            Status = "Loading Data";
 
-            this.ZoneSystem.LoadData();
+            ZoneSystem.LoadData();
 
-            if(this.PostHousehold != null)
+            if(PostHousehold != null)
             {
-                foreach(var module in this.PostHousehold)
+                foreach(var module in PostHousehold)
                 {
-                    module.Load(this.TotalIterations);
+                    module.Load(TotalIterations);
                 }
             }
 
-            this.IterationPercentage = 1f / this.TotalIterations;
+            IterationPercentage = 1f / TotalIterations;
 
-            for(int i = 0; i < this.TotalIterations; i++)
+            for(int i = 0; i < TotalIterations; i++)
             {
-                this.CurrentHousehold = 0;
-                this.CompletedIterationPercentage = i * this.IterationPercentage;
-                this.HouseholdLoader.LoadData();
+                CurrentHousehold = 0;
+                CompletedIterationPercentage = i * IterationPercentage;
+                HouseholdLoader.LoadData();
                 RunIteration(i);
             }
 
-            if(this.PostRun != null)
+            if(PostRun != null)
             {
-                foreach(var module in this.PostRun)
+                foreach(var module in PostRun)
                 {
                     module.Start();
                 }
             }
-            this.ZoneSystem.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         public override string ToString()
@@ -270,9 +270,9 @@ namespace Tasha.Scheduler
             int startTime = (int)Math.Round((tripTime.ToMinutes() / 15) - 16, 0);
             if(startTime < 0)
             {
-                startTime += this.StartTimeQuantums;
+                startTime += StartTimeQuantums;
             }
-            if(startTime >= this.StartTimeQuantums)
+            if(startTime >= StartTimeQuantums)
             {
                 return false;
             }
@@ -283,7 +283,7 @@ namespace Tasha.Scheduler
                     Thread.MemoryBarrier();
                     if(startTimeCount[id] == null)
                     {
-                        startTimeCount[id] = new int[this.StartTimeQuantums];
+                        startTimeCount[id] = new int[StartTimeQuantums];
                     }
                     Thread.MemoryBarrier();
                 }
@@ -295,18 +295,18 @@ namespace Tasha.Scheduler
         private void AssignEpisodes(ITashaPerson person, ref Time workStartTime, ref Time workEndTime, Random random)
         {
             person.InitializePersonalProjects();
-            var PersonData = person["SData"] as SchedulerPersonData;
+            var personData = (SchedulerPersonData)person["SData"];
 
-            foreach(var TripChain in person.TripChains)
+            foreach(var tripChain in person.TripChains)
             {
-                for(int j = 0; j < (TripChain.Trips.Count - 1); j++)
+                for(int j = 0; j < (tripChain.Trips.Count - 1); j++)
                 {
-                    var ThisTrip = TripChain.Trips[j];
-                    var NextTrip = TripChain.Trips[j + 1];
-                    ThisTrip.Mode = ThisTrip[ObservedMode] as ITashaMode;
-                    NextTrip.Mode = NextTrip[ObservedMode] as ITashaMode;
-                    var startTime = ThisTrip.OriginalZone == null || ThisTrip.DestinationZone == null ? ThisTrip.TripStartTime : ThisTrip.ActivityStartTime;
-                    var endTime = NextTrip.TripStartTime;
+                    var thisTrip = tripChain.Trips[j];
+                    var nextTrip = tripChain.Trips[j + 1];
+                    thisTrip.Mode = thisTrip[ObservedMode] as ITashaMode;
+                    nextTrip.Mode = nextTrip[ObservedMode] as ITashaMode;
+                    var startTime = thisTrip.OriginalZone == null || thisTrip.DestinationZone == null ? thisTrip.TripStartTime : thisTrip.ActivityStartTime;
+                    var endTime = nextTrip.TripStartTime;
                     var duration = endTime - startTime;
                     if(duration < Time.Zero)
                     {
@@ -314,31 +314,31 @@ namespace Tasha.Scheduler
                     }
                     if(endTime < startTime)
                     {
-                        startTime = ThisTrip.TripStartTime;
+                        startTime = thisTrip.TripStartTime;
                     }
 
-                    if(ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.SecondaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
+                    if(thisTrip.Purpose == Activity.PrimaryWork || thisTrip.Purpose == Activity.SecondaryWork || thisTrip.Purpose == Activity.WorkBasedBusiness)
                     {
-                        var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, person);
-                        NewEpisode.Zone = ThisTrip.DestinationZone;
-                        if(ThisTrip.Purpose == Activity.PrimaryWork || ThisTrip.Purpose == Activity.WorkBasedBusiness)
+                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, person);
+                        newEpisode.Zone = thisTrip.DestinationZone;
+                        if(thisTrip.Purpose == Activity.PrimaryWork || thisTrip.Purpose == Activity.WorkBasedBusiness)
                         {
-                            if(workStartTime == Time.Zero || NewEpisode.StartTime < workStartTime)
+                            if(workStartTime == Time.Zero || newEpisode.StartTime < workStartTime)
                             {
-                                workStartTime = NewEpisode.StartTime;
+                                workStartTime = newEpisode.StartTime;
                             }
-                            if(workEndTime == Time.Zero || NewEpisode.EndTime > workEndTime)
+                            if(workEndTime == Time.Zero || newEpisode.EndTime > workEndTime)
                             {
-                                workEndTime = NewEpisode.EndTime;
+                                workEndTime = newEpisode.EndTime;
                             }
                         }
-                        PersonData.WorkSchedule.Schedule.Insert(NewEpisode, random);
+                        personData.WorkSchedule.Schedule.Insert(newEpisode, random);
                     }
-                    if(ThisTrip.Purpose == Activity.School)
+                    if(thisTrip.Purpose == Activity.School)
                     {
-                        var NewEpisode = new ActivityEpisode(0, new TimeWindow(startTime, endTime), ThisTrip.Purpose, person);
-                        NewEpisode.Zone = ThisTrip.DestinationZone;
-                        PersonData.SchoolSchedule.Schedule.Insert(NewEpisode, random);
+                        var newEpisode = new ActivityEpisode(new TimeWindow(startTime, endTime), thisTrip.Purpose, person);
+                        newEpisode.Zone = thisTrip.DestinationZone;
+                        personData.SchoolSchedule.Schedule.Insert(newEpisode, random);
                     }
                 }
             }
@@ -367,9 +367,8 @@ namespace Tasha.Scheduler
                 ((trip.Purpose == Activity.JointOther) | (trip.Purpose == Activity.JointMarket));
         }
 
-        private int LunchPass(ITashaPerson person, int[] eventCount, int[][] startTimeCount, ref Time workStartTime, ref Time workEndTime)
+        private void LunchPass(ITashaPerson person, int[] eventCount, int[][] startTimeCount, ref Time workStartTime, ref Time workEndTime)
         {
-            int lunchCount = 0;
             // Lunch pass
             foreach(var tripChain in person.TripChains)
             {
@@ -385,39 +384,37 @@ namespace Tasha.Scheduler
                             {
                                 eventCount[id]++;
                                 AddStartTime(startTimeCount, id, trip);
-                                lunchCount++;
                             }
                         }
                     }
                 }
             }
-            return lunchCount;
         }
 
         private void PrintResults()
         {
-            this.Status = "Writing Start Time Distribution File...";
-            this.Progress = 0;
+            Status = "Writing Start Time Distribution File...";
+            Progress = 0;
 
-            using (StreamWriter Writer = new StreamWriter(OutputResults))
+            using (StreamWriter writer = new StreamWriter(OutputResults))
             {
-                Writer.WriteLine("DistID, Freq, StartTime, ExpPersons");
+                writer.WriteLine("DistID, Freq, StartTime, ExpPersons");
 
                 for(int i = 0; i < ResultsArray.Length; i++)
                 {
-                    for(int j = 0; j < this.MaxFrequencyLocal + 1; j++)
+                    for(int j = 0; j < MaxFrequencyLocal + 1; j++)
                     {
-                        for(int t = 0; t < this.StartTimeQuantums; t++)
+                        for(int t = 0; t < StartTimeQuantums; t++)
                         {
-                            Writer.WriteLine("{0},{1},{2},{3}", i, j, t, ResultsArray[i][j][t]);
+                            writer.WriteLine("{0},{1},{2},{3}", i, j, t, ResultsArray[i][j][t]);
                         }
                     }
-                    this.Progress = (float)i / ResultsArray.Length;
+                    Progress = (float)i / ResultsArray.Length;
                 }
             }
         }
 
-        private void Run(int i, ITashaHousehold household)
+        private void Run(ITashaHousehold household)
         {
             var persons = household.Persons;
             Time[] workStartTimes = new Time[persons.Length];
@@ -432,8 +429,8 @@ namespace Tasha.Scheduler
                 Time workStartTime = workStartTimes[personNumber];
                 Time workEndTime = workEndTimes[personNumber];
                 bool invalidPerson = false;
-                var eventCount = new int[this.NumberOfDistributionsLocal];
-                var startTimeCount = new int[this.NumberOfDistributionsLocal][];
+                var eventCount = new int[NumberOfDistributionsLocal];
+                var startTimeCount = new int[NumberOfDistributionsLocal][];
                 foreach(var tripChain in person.TripChains)
                 {
                     List<ITrip> trips = tripChain.Trips;
@@ -454,7 +451,7 @@ namespace Tasha.Scheduler
                         AddStartTime(startTimeCount, workID, workStartTime);
                     }
                 }
-                int lunches = LunchPass(person, eventCount, startTimeCount, ref workStartTime, ref workEndTime);
+                LunchPass(person, eventCount, startTimeCount, ref workStartTime, ref workEndTime);
                 // if this person is invalid skip adding the data back to the final results
                 if(invalidPerson)
                 {
@@ -462,76 +459,76 @@ namespace Tasha.Scheduler
                 }
                 StoreResults(person.ExpansionFactor, eventCount, startTimeCount);
             });
-            System.Threading.Interlocked.Increment(ref this.CurrentHousehold);
-            this.Progress = ((float)this.CurrentHousehold / this.NumberOfHouseholds) / this.TotalIterations + this.CompletedIterationPercentage;
+            Interlocked.Increment(ref CurrentHousehold);
+            Progress = ((float)CurrentHousehold / NumberOfHouseholds) / TotalIterations + CompletedIterationPercentage;
             household.Recycle();
         }
 
         private void RunIteration(int i)
         {
-            if(this.NetworkData != null)
+            if(NetworkData != null)
             {
-                System.Threading.Tasks.Parallel.ForEach(this.NetworkData,
+                System.Threading.Tasks.Parallel.ForEach(NetworkData,
                     delegate (INetworkData network)
                 {
                     network.LoadData();
                 });
             }
 
-            if(this.PostScheduler != null)
+            if(PostScheduler != null)
             {
-                foreach(var module in this.PostScheduler)
+                foreach(var module in PostScheduler)
                 {
                     module.IterationStarting(i);
                 }
             }
 
-            if(this.PostHousehold != null)
+            if(PostHousehold != null)
             {
-                foreach(var module in this.PostHousehold)
+                foreach(var module in PostHousehold)
                 {
                     module.IterationStarting(i);
                 }
             }
 
-            RunSerial(i);
+            RunSerial();
 
-            if(this.NetworkData != null)
+            if(NetworkData != null)
             {
-                foreach(var network in this.NetworkData)
+                foreach(var network in NetworkData)
                 {
                     network.UnloadData();
                 }
             }
 
-            if(this.PostScheduler != null)
+            if(PostScheduler != null)
             {
-                foreach(var module in this.PostScheduler)
+                foreach(var module in PostScheduler)
                 {
                     module.IterationFinished(i);
                 }
             }
 
-            if(this.PostHousehold != null)
+            if(PostHousehold != null)
             {
-                foreach(var module in this.PostHousehold)
+                foreach(var module in PostHousehold)
                 {
                     module.IterationFinished(i);
                 }
             }
-            this.HouseholdLoader.Reset();
+            HouseholdLoader.Reset();
         }
 
-        private void RunSerial(int iteration)
+        private void RunSerial()
         {
-            this.Status = "Calculating Start Time Distributions";
-            this.Progress = 0;
-            var households = this.HouseholdLoader.ToArray();
+            Status = "Calculating Start Time Distributions";
+            Progress = 0;
+            var households = HouseholdLoader.ToArray();
             for(int i = 0; i < households.Length; i++)
             {
                 ITashaHousehold household = households[i];
-                this.Run(iteration, household);
-                this.Progress = (float)i / households.Length;
+                Run(household);
+                Progress = (float)i / households.Length;
             }
             ModifyStartTimes();
             PrintResults();
@@ -565,7 +562,7 @@ namespace Tasha.Scheduler
         }
 
 
-        public sealed class DistributionFactor : XTMF.IModule
+        public sealed class DistributionFactor : IModule
         {
             [RunParameter("ID Range", "", typeof(RangeSet), "The range of distributions to apply this factor to.")]
             public RangeSet IDRange;
@@ -589,38 +586,23 @@ namespace Tasha.Scheduler
         }
 
 
-        private void SimulateScheduler()
-        {
-            Scheduler.MaxFrequency = this.MaxFrequencyLocal;
-            Scheduler.NumberOfAdultDistributions = this.NumberOfAdultDistributionsLocal;
-            Scheduler.NumberOfAdultFrequencies = this.NumberOfAdultFrequenciesLocal;
-            Scheduler.NumberOfDistributions = this.NumberOfDistributionsLocal;
-            Scheduler.StartTimeQuanta = this.StartTimeQuantums;
-            Scheduler.FullTimeActivity = this.FullTimeActivityDateTime;
-            Scheduler.MaxPrimeWorkStartTimeForReturnHomeFromWork = this.MaxPrimeWorkStartTimeForReturnHomeFromWorkDateTime;
-            Scheduler.MinPrimaryWorkDurationForReturnHomeFromWork = this.MinPrimaryWorkDurationForReturnHomeFromWorkDateTime;
-            Scheduler.ReturnHomeFromWorkMaxEndTime = this.ReturnHomeFromWorkMaxEndTimeDateTime;
-            Scheduler.SecondaryWorkThreshold = this.SecondaryWorkThresholdDateTime;
-            Scheduler.SecondaryWorkMinStartTime = this.SecondaryWorkMinStartTimeDateTime;
-        }
-
         private void StoreResults(float expFactor, int[] eventCount, int[][] startTimeCount)
         {
             lock (ResultsArray)
             {
                 for(int id = 0; id < eventCount.Length; id++)
                 {
-                    var freq = eventCount[id] >= this.MaxFrequencyLocal ? this.MaxFrequencyLocal : eventCount[id];
+                    var freq = eventCount[id] >= MaxFrequencyLocal ? MaxFrequencyLocal : eventCount[id];
                     if(startTimeCount[id] == null) continue;
                     var startTimeArray = startTimeCount[id];
                     var resultRow = ResultsArray[id][freq];
-                    if(Smooth == true)
+                    if(Smooth)
                     {
                         for(int startTime = 0; startTime < resultRow.Length; startTime++)
                         {
                             resultRow[startTime] += expFactor * startTimeArray[startTime] / 2.0f;
-                            resultRow[startTime + 1 < this.StartTimeQuantums ? startTime + 1 : this.StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 6.0f;
-                            resultRow[startTime + 2 < this.StartTimeQuantums ? startTime + 2 : this.StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 12.0f;
+                            resultRow[startTime + 1 < StartTimeQuantums ? startTime + 1 : StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 6.0f;
+                            resultRow[startTime + 2 < StartTimeQuantums ? startTime + 2 : StartTimeQuantums - 1] += expFactor * startTimeArray[startTime] / 12.0f;
                             resultRow[startTime - 1 > 0 ? startTime - 1 : 0] += expFactor * startTimeArray[startTime] / 6.0f;
                             resultRow[startTime - 2 > 0 ? startTime - 2 : 0] += expFactor * startTimeArray[startTime] / 12.0f;
                         }

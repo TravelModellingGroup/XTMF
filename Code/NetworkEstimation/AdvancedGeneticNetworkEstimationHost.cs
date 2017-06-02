@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using XTMF;
 
@@ -32,14 +33,9 @@ namespace TMG.NetworkEstimation
         [RunParameter( "Percent Distance", false, "Use the percent of difference between parameters instead of raw values." )]
         public bool PercentDistance;
 
-        protected override void GenerateInitialPopulation()
-        {
-            base.GenerateInitialPopulation();
-        }
-
         protected override void GenerateNextGeneration()
         {
-            this.Clearing();
+            Clearing();
             base.GenerateNextGeneration();
         }
 
@@ -53,27 +49,27 @@ namespace TMG.NetworkEstimation
         /// </summary>
         private void Clearing()
         {
-            int populationSize = this.PopulationSize;
+            int populationSize = PopulationSize;
             // sort the population
-            Array.Sort( this.Population, new CompareParameterSet() );
+            Array.Sort( Population, new CompareParameterSet() );
             for ( int i = 0; i < populationSize; i++ )
             {
                 int win = 0;
-                if ( this.Population[i].Value < float.MaxValue )
+                if ( Population[i].Value < float.MaxValue )
                 {
                     win = 1;
                 }
                 for ( int j = i + 1; j < populationSize; j++ )
                 {
-                    if ( ( this.Population[j].Value < float.MaxValue ) && this.ComputeDistance( i, j ) <= this.Distance )
+                    if ( ( Population[j].Value < float.MaxValue ) && ComputeDistance( i, j ) <= Distance )
                     {
-                        if ( win < this.NicheCapacity )
+                        if ( win < NicheCapacity )
                         {
                             win++;
                         }
                         else
                         {
-                            this.Population[j].Value = float.MaxValue;
+                            Population[j].Value = float.MaxValue;
                         }
                     }
                 }
@@ -83,13 +79,13 @@ namespace TMG.NetworkEstimation
         private float ComputeDistance(int first, int second)
         {
             double distance = 0;
-            var firstParameters = this.Population[first].Parameters;
-            var secondParameters = this.Population[second].Parameters;
+            var firstParameters = Population[first].Parameters;
+            var secondParameters = Population[second].Parameters;
             var numberOfParameters = firstParameters.Length;
             for ( int i = 0; i < numberOfParameters; i++ )
             {
                 float unit;
-                if ( this.PercentDistance )
+                if ( PercentDistance )
                 {
                     unit = ( firstParameters[i].Current - secondParameters[i].Current ) / ( firstParameters[i].Stop - firstParameters[i].Start );
                 }

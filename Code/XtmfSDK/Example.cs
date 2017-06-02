@@ -16,8 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using XTMF;
+
+// ReSharper disable UnusedParameter.Local
 
 namespace YourLibraryNameHere
 {
@@ -57,8 +60,9 @@ namespace YourLibraryNameHere
         /// Your parameters will not have been loaded at this point yet so please do not
         /// try to use them yet.
         /// </summary>
-        public AnExampleModel()
+        public AnExampleModel(float progress)
         {
+            Progress = progress;
         }
 
         /// <summary>
@@ -69,6 +73,7 @@ namespace YourLibraryNameHere
         /// <param name="xtmfConfigurationObject">An object that provides all of the configuration information of the XTMF installation</param>
         public AnExampleModel(IConfiguration xtmfConfigurationObject)
         {
+            
         }
 
         /// <summary>
@@ -103,7 +108,7 @@ namespace YourLibraryNameHere
         /// XTMF Gui's can use this to show the progress of your model.
         /// Values range from 0 to 1.
         /// </summary>
-        public float Progress { get; private set; }
+        public float Progress { get; }
 
         /// <summary>
         /// This will let an XTMF Gui to find what colour to use for your model's progress bar.
@@ -113,7 +118,7 @@ namespace YourLibraryNameHere
         /// </summary>
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return this._ProgressColour; }
+            get { return _ProgressColour; }
         }
 
         /// <summary>

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using Datastructure;
 using XTMF;
@@ -61,18 +62,18 @@ namespace TMG.GTAModel.Generation
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, Range age, int employmentStatus, int mobility)
         {
             PoRPoSGeneration gen = new PoRPoSGeneration();
-            gen.Root = this.Root;
+            gen.Root = Root;
             gen.LoadData = false;
-            gen.UsesPlanningDistricts = this.UsePlanningDistricts;
-            gen.OccupationCategory = this.OccupationCategory;
+            gen.UsesPlanningDistricts = UsePlanningDistricts;
+            gen.OccupationCategory = OccupationCategory;
             gen.AgeCategoryRange = CreateRangeSet( age );
             gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
             gen.Mobility = CreateRangeSet( mobility );
-            gen.ModeChoiceParameterSetIndex = this.ModeChoiceParameterSetIndex;
+            gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
             gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-            gen.TimeOfDayRates = this.TimeOfDayRates;
-            gen.DailyRates = this.DailyRates;
-            gen.GenerationOutputFileName = this.GenerationOutputFileName;
+            gen.TimeOfDayRates = TimeOfDayRates;
+            gen.DailyRates = DailyRates;
+            gen.GenerationOutputFileName = GenerationOutputFileName;
             list.Add( gen );
         }
 
@@ -86,8 +87,6 @@ namespace TMG.GTAModel.Generation
                 case 1:
                 case 2:
                     return 1;
-                case 4:
-                case 5:
                 default:
                     return 2;
             }
@@ -96,7 +95,7 @@ namespace TMG.GTAModel.Generation
         private RangeSet CreateRangeSet(int occ)
         {
             var set = new List<Range>();
-            set.Add( new Range() { Start = occ, Stop = occ } );
+            set.Add( new Range(occ, occ));
             return new RangeSet( set );
         }
 
@@ -110,16 +109,16 @@ namespace TMG.GTAModel.Generation
         private void GenerateChildren()
         {
             // we need to generate our children here
-            var list = this.Parent.Categories;
+            var list = Parent.Categories;
             list.Remove( this );
             //Then generate all of the separate generation modules
-            foreach ( var mobilitySet in this.Mobility )
+            foreach ( var mobilitySet in Mobility )
             {
                 for ( int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++ )
                 {
-                    foreach ( var ageSet in this.AgeCategoryRange )
+                    foreach ( var ageSet in AgeCategoryRange )
                     {
-                        foreach ( var empSet in this.EmploymentStatusCategory )
+                        foreach ( var empSet in EmploymentStatusCategory )
                         {
                             for ( int employmentStatus = empSet.Start; employmentStatus <= empSet.Stop; employmentStatus++ )
                             {
@@ -150,19 +149,12 @@ namespace TMG.GTAModel.Generation
                                 empOffset = 0;
                                 break;
 
-                            case 1:
                             default:
                                 empOffset = 3;
                                 break;
                         }
                         return ChildAgeIndex( mobility ) + 3 + empOffset;
                     }
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
                 default:
                     int ageOffset = ( ( age < 6 ? age : 6 ) - 3 ) * 12;
                     int employmentOffset = ( employmentStatus == 1 ? 3 : 0 );
@@ -173,12 +165,12 @@ namespace TMG.GTAModel.Generation
 
         private void LoadData()
         {
-            this.LoadDailyRates.LoadData();
-            this.LoadTimeOfDayRates.LoadData();
-            this.DailyRates = this.LoadDailyRates.GiveData();
-            this.TimeOfDayRates = this.LoadTimeOfDayRates.GiveData();
-            this.LoadDailyRates.UnloadData();
-            this.LoadTimeOfDayRates.UnloadData();
+            LoadDailyRates.LoadData();
+            LoadTimeOfDayRates.LoadData();
+            DailyRates = LoadDailyRates.GiveData();
+            TimeOfDayRates = LoadTimeOfDayRates.GiveData();
+            LoadDailyRates.UnloadData();
+            LoadTimeOfDayRates.UnloadData();
         }
     }
 }

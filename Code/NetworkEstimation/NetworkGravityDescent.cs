@@ -16,62 +16,60 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Xml;
+using TMG.Emme;
 using XTMF;
 
 namespace TMG.NetworkEstimation
 {
     public class NetworkGravityDescent : INetworkEstimationAI
     {
-        [RunParameter( "Evaluation File", @"../ParameterEvaluation.csv", "The name of the file the macro creates" )]
+        [RunParameter("Evaluation File", @"../ParameterEvaluation.csv", "The name of the file the macro creates")]
         public string EvaluationFile;
 
-        [RunParameter( "Initial Parameters", "", "Leave this empty if you don't want to set the initial Parameters, otherwise the file name for the parameters" )]
+        [RunParameter("Initial Parameters", "", "Leave this empty if you don't want to set the initial Parameters, otherwise the file name for the parameters")]
         public string InitialParameterFile;
 
-        [RunParameter( "MABS Weight", 1f, "The weight applied to the mean absolute error in the evaluation function" )]
-        public float MABSWeight;
+        [RunParameter("MABS Weight", 1f, "The weight applied to the mean absolute error in the evaluation function")]
+        public float MabsWeight;
 
-        [RunParameter( "Parameter Instructions", "../../Input/ParameterInstructions.xml", "Describes which and how the parameters will be estimated." )]
+        [RunParameter("Parameter Instructions", "../../Input/ParameterInstructions.xml", "Describes which and how the parameters will be estimated.")]
         public string ParameterInstructions;
 
-        [RunParameter( "Random Seed", 12345, "The random seed to use for this estimation." )]
+        [RunParameter("Random Seed", 12345, "The random seed to use for this estimation.")]
         public int RandomSeed;
 
-        [RunParameter( "Continue From Best", false, "Should we attempt to load the old values and find the one with the lowest error and continue from there?" )]
+        [RunParameter("Continue From Best", false, "Should we attempt to load the old values and find the one with the lowest error and continue from there?")]
         public bool RerunFromLastRunParameters;
 
-        [RunParameter( "RMSE Weight", 1f, "The weight applied to the root mean square error in the evaluation function" )]
-        public float RMSEWeight;
+        [RunParameter("RMSE Weight", 1f, "The weight applied to the root mean square error in the evaluation function")]
+        public float RmseWeight;
 
-        [RunParameter( "StepWeight", 0.01f, "The ammount that we will move our focus in each parameter dimension per iteration (multiplied against the gradient)." )]
+        [RunParameter("StepWeight", 0.01f, "The ammount that we will move our focus in each parameter dimension per iteration (multiplied against the gradient).")]
         public float StepWeight;
 
-        [RunParameter( "TotalError Weight", 1f, "The weight applied to the total error in the evaluation function" )]
-        public float TErrorWeight;
+        [RunParameter("TotalError Weight", 1f, "The weight applied to the total error in the evaluation function")]
+        public float ErrorWeight;
 
-        [RunParameter( "Total Iterations", 25, "The random seed to use for this estimation." )]
+        [RunParameter("Total Iterations", 25, "The random seed to use for this estimation.")]
         public int TotalIterations;
 
-        [RunParameter( "Whisker Length", 0.1f, "The ammount that we will search out to find orientation in each parameter dimension." )]
+        [RunParameter("Whisker Length", 0.1f, "The ammount that we will search out to find orientation in each parameter dimension.")]
         public float WhiskerLength;
 
-        private static char[] Comma = new char[] { ',' };
+        private static char[] Comma = { ',' };
         private float BestRunError = float.MaxValue;
 
         private int CurrentIteration;
 
-        private volatile bool Exit = false;
+        private volatile bool Exit;
 
         private ParameterSetting[] Kernel;
 
         private int NumberOfExplorations;
-
-        public NetworkGravityDescent()
-        {
-        }
 
         public string Name
         {
@@ -97,61 +95,61 @@ namespace TMG.NetworkEstimation
 
         public void CancelExploration()
         {
-            this.Exit = true;
+            Exit = true;
         }
 
-        public float ComplexErrorFunction(ParameterSetting[] parameters, Emme.TransitLine[] transitLine, Emme.TransitLine[] predicted, float[] aggToTruth)
+        public float ComplexErrorFunction(ParameterSetting[] parameters, TransitLine[] transitLine, TransitLine[] predicted, float[] aggToTruth)
         {
             throw new NotImplementedException();
         }
 
         public float ErrorCombinationFunction(double rmse, double mabs, double terror)
         {
-            return (float)( (
-                this.RMSEWeight * rmse
-                + this.MABSWeight * mabs
-                + this.TErrorWeight * terror )
-                / 3 );
+            return (float)((
+                RmseWeight * rmse
+                + MabsWeight * mabs
+                + ErrorWeight * terror)
+                / 3);
         }
 
-        public void Explore(ParameterSetting[] parameters, Action UpdateProgress, Func<ParameterSetting[], float> evaluationfunction)
+        public void Explore(ParameterSetting[] parameters, Action updateProgress, Func<ParameterSetting[], float> evaluationfunction)
         {
-            this.Progress = 0;
-            Random rand = new Random( ( ++this.NumberOfExplorations ) * ( this.RandomSeed ) );
+            Progress = 0;
+            Random rand = new Random((++NumberOfExplorations) * (RandomSeed));
             var numberOfParameters = parameters.Length;
-            this.Kernel = parameters.Clone() as ParameterSetting[];
-            this.GenerateRandomSeed( rand );
+            Kernel = parameters.Clone() as ParameterSetting[];
+            GenerateRandomSeed(rand);
             float[,] explorationErrors = new float[numberOfParameters, 2];
             float[,] explorationGradients = new float[numberOfParameters, 2];
             ParameterSetting[,][] explorationPoints = new ParameterSetting[numberOfParameters, 2][];
 
-            for ( int i = 0; i < numberOfParameters; i++ )
+            for (int i = 0; i < numberOfParameters; i++)
             {
-                for ( int j = 0; j < 2; j++ )
+                for (int j = 0; j < 2; j++)
                 {
                     explorationPoints[i, j] = parameters.Clone() as ParameterSetting[];
                 }
             }
 
             // Explore it for all of the pre-defined iterations
-            for ( int iteration = 0; iteration < this.TotalIterations; iteration++ )
+            for (int iteration = 0; iteration < TotalIterations; iteration++)
             {
-                this.CurrentIteration = iteration;
-                this.Progress = (float)iteration / this.TotalIterations;
-                UpdateProgress();
+                CurrentIteration = iteration;
+                Progress = (float)iteration / TotalIterations;
+                updateProgress();
                 // figure out how good our point is
-                if ( this.Exit )
+                if (Exit)
                 {
                     break;
                 }
-                var kernelError = evaluationfunction( this.Kernel );
+                var kernelError = evaluationfunction(Kernel);
                 // Calculate all of the errors
-                GenerateExplorationPoints( numberOfParameters, this.Kernel, explorationPoints, explorationErrors, evaluationfunction, UpdateProgress );
+                GenerateExplorationPoints(numberOfParameters, Kernel, explorationPoints, explorationErrors, evaluationfunction, updateProgress);
                 // Calculate the gradients from the errors
-                ComputeGradients( numberOfParameters, explorationErrors, explorationGradients, kernelError );
-                MoveKernel( explorationGradients, rand );
+                ComputeGradients(numberOfParameters, explorationErrors, explorationGradients, kernelError);
+                MoveKernel(explorationGradients, rand);
             }
-            this.Progress = 1;
+            Progress = 1;
         }
 
         public bool RuntimeValidation(ref string error)
@@ -161,7 +159,7 @@ namespace TMG.NetworkEstimation
 
         private static void ComputeGradients(int numberOfParameters, float[,] explorationErrors, float[,] explorationGradients, float kernelError)
         {
-            for ( int i = 0; i < numberOfParameters; i++ )
+            for (int i = 0; i < numberOfParameters; i++)
             {
                 explorationGradients[i, 0] = explorationErrors[i, 0] - kernelError;
                 explorationGradients[i, 1] = explorationErrors[i, 1] - kernelError;
@@ -169,138 +167,145 @@ namespace TMG.NetworkEstimation
         }
 
         private void GenerateExplorationPoints(int numberOfParameters, ParameterSetting[] kernel, ParameterSetting[,][] explorationPoints
-            , float[,] explorationErrors, Func<ParameterSetting[], float> evaluationfunction, Action UpdateProgress)
+            , float[,] explorationErrors, Func<ParameterSetting[], float> evaluationfunction, Action updateProgress)
         {
-            for ( int i = 0; i < numberOfParameters; i++ )
+            for (int i = 0; i < numberOfParameters; i++)
             {
-                for ( int j = 0; j < numberOfParameters; j++ )
+                for (int j = 0; j < numberOfParameters; j++)
                 {
-                    if ( i != j )
+                    if (i != j)
                     {
                         explorationPoints[i, 0][j].Current = kernel[j].Current;
                         explorationPoints[i, 1][j].Current = kernel[j].Current;
                     }
                     else
                     {
-                        for ( int k = 0; k < 2; k++ )
+                        for (int k = 0; k < 2; k++)
                         {
-                            explorationPoints[i, k][j].Current = kernel[j].Current + ( kernel[j].Stop - kernel[j].Start ) * ( k == 0 ? -this.WhiskerLength : this.WhiskerLength );
-                            if ( explorationPoints[i, k][j].Current < explorationPoints[i, k][j].Start )
+                            explorationPoints[i, k][j].Current = kernel[j].Current + (kernel[j].Stop - kernel[j].Start) * (k == 0 ? -WhiskerLength : WhiskerLength);
+                            if (explorationPoints[i, k][j].Current < explorationPoints[i, k][j].Start)
                             {
                                 explorationPoints[i, k][j].Current = explorationPoints[i, k][j].Start;
                             }
-                            else if ( explorationPoints[i, k][j].Current > explorationPoints[i, k][j].Stop )
+                            else if (explorationPoints[i, k][j].Current > explorationPoints[i, k][j].Stop)
                             {
                                 explorationPoints[i, k][j].Current = explorationPoints[i, k][j].Stop;
                             }
                         }
                     }
                 }
-                for ( int k = 0; k < 2; k++ )
+                for (int k = 0; k < 2; k++)
                 {
-                    if ( this.Exit )
+                    if (Exit)
                     {
                         break;
                     }
-                    explorationErrors[i, k] = evaluationfunction( explorationPoints[i, k] );
-                    this.Progress = (float)( (float)this.CurrentIteration / this.TotalIterations )
-                        + ( 1.0f / this.TotalIterations ) * ( ( i * 2 + k ) / (float)( numberOfParameters * 2 ) );
-                    UpdateProgress();
+                    explorationErrors[i, k] = evaluationfunction(explorationPoints[i, k]);
+                    Progress = (float)CurrentIteration / TotalIterations
+                        + (1.0f / TotalIterations) * ((i * 2 + k) / (float)(numberOfParameters * 2));
+                    updateProgress();
                 }
             }
         }
 
         private void GenerateRandomSeed(Random rand)
         {
-            var dimensions = this.Kernel.Length;
+            var dimensions = Kernel.Length;
 
-            if ( RerunFromLastRunParameters && File.Exists( this.EvaluationFile ) )
+            if (RerunFromLastRunParameters && File.Exists(EvaluationFile))
             {
                 // store the best values in the kernel
-                using ( StreamReader reader = new StreamReader( this.EvaluationFile ) )
+                using (StreamReader reader = new StreamReader(EvaluationFile))
                 {
                     string line;
                     // Burn the header
                     reader.ReadLine();
-                    while ( ( line = reader.ReadLine() ) != null )
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        string[] split = line.Split( Comma );
+                        string[] split = line.Split(Comma);
                         // make sure our 3 metrics are here
-                        if ( split != null && split.Length == dimensions + 4 )
+                        if (split.Length == dimensions + 4)
                         {
                             int offset = split.Length - 3;
-                            float RMSE = float.Parse( split[offset + 0] );
-                            float MSE = float.Parse( split[offset + 1] );
-                            float TError = float.Parse( split[offset + 2] );
-                            float value = this.ErrorCombinationFunction( RMSE, MSE, TError );
-                            if ( value < this.BestRunError )
+                            float rmse = float.Parse(split[offset + 0]);
+                            float mse = float.Parse(split[offset + 1]);
+                            float error = float.Parse(split[offset + 2]);
+                            float value = ErrorCombinationFunction(rmse, mse, error);
+                            if (value < BestRunError)
                             {
-                                this.BestRunError = value;
-                                for ( int i = 0; i < this.Kernel.Length; i++ )
+                                BestRunError = value;
+                                for (int i = 0; i < Kernel.Length; i++)
                                 {
-                                    this.Kernel[i].Current = float.Parse( split[i] );
+                                    Kernel[i].Current = float.Parse(split[i]);
                                 }
                             }
                         }
                     }
                 }
             }
-            else if ( this.InitialParameterFile == null || this.InitialParameterFile == String.Empty || !File.Exists( this.InitialParameterFile ) )
+            else if (InitialParameterFile == null || InitialParameterFile == string.Empty || !File.Exists(InitialParameterFile))
             {
-                for ( int i = 0; i < dimensions; i++ )
+                for (int i = 0; i < dimensions; i++)
                 {
-                    var value = ( rand.NextDouble() * ( this.Kernel[i].Stop - this.Kernel[i].Start ) ) + this.Kernel[i].Start;
-                    this.Kernel[i].Current = (float)value;
+                    var value = (rand.NextDouble() * (Kernel[i].Stop - Kernel[i].Start)) + Kernel[i].Start;
+                    Kernel[i].Current = (float)value;
                 }
             }
             else
             {
                 XmlDocument doc = new XmlDocument();
-                doc.Load( this.ParameterInstructions );
-
-                foreach ( XmlNode child in doc["Root"].ChildNodes )
+                doc.Load(ParameterInstructions);
+                var children = doc["Root"]?.ChildNodes;
+                if (children != null)
                 {
-                    if ( child.Name == "Parameter" )
+                    foreach (XmlNode child in doc["Root"].ChildNodes)
                     {
-                        var pName = child.Attributes["Name"].InnerText;
-                        for ( int i = 0; i < this.Kernel.Length; i++ )
+                        if (child.Name == "Parameter")
                         {
-                            if ( this.Kernel[i].ParameterName == pName )
+                            var attributes = child.Attributes;
+                            if (attributes != null)
                             {
-                                this.Kernel[i].Current = float.Parse( child.Attributes["Value"].InnerText );
-                                break;
+                                var pName = attributes["Name"].InnerText;
+                                for (int i = 0; i < Kernel.Length; i++)
+                                {
+                                    if (Kernel[i].ParameterName == pName)
+                                    {
+                                        Kernel[i].Current = float.Parse(attributes["Value"].InnerText);
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
             // Reset the best run error so we properly add in the new value (boarding file output from the macro)
-            this.BestRunError = float.MaxValue;
+            BestRunError = float.MaxValue;
         }
 
         private void MoveKernel(float[,] explorationGradients, Random r)
         {
-            var dimensions = this.Kernel.Length;
-            var randomWeight = (float)r.NextDouble() * this.StepWeight;
-            for ( int i = 0; i < dimensions; i++ )
+            var dimensions = Kernel.Length;
+            var randomWeight = (float)r.NextDouble() * StepWeight;
+            for (int i = 0; i < dimensions; i++)
             {
                 int direction = explorationGradients[i, 1] < explorationGradients[i, 0] ? 1 : 0;
-                if ( direction == 0 )
+                if (direction == 0)
                 {
-                    this.Kernel[i].Current += randomWeight * explorationGradients[i, 0];
+                    Kernel[i].Current += randomWeight * explorationGradients[i, 0];
                 }
                 else
                 {
-                    this.Kernel[i].Current -= randomWeight * explorationGradients[i, 1];
+                    Kernel[i].Current -= randomWeight * explorationGradients[i, 1];
                 }
                 // bind it to the min/max
-                if ( this.Kernel[i].Current < this.Kernel[i].Start )
+                if (Kernel[i].Current < Kernel[i].Start)
                 {
-                    this.Kernel[i].Current = this.Kernel[i].Start;
+                    Kernel[i].Current = Kernel[i].Start;
                 }
-                else if ( this.Kernel[i].Current > this.Kernel[i].Stop )
+                else if (Kernel[i].Current > Kernel[i].Stop)
                 {
-                    this.Kernel[i].Current = this.Kernel[i].Stop;
+                    Kernel[i].Current = Kernel[i].Stop;
                 }
             }
         }

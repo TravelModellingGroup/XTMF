@@ -24,6 +24,8 @@ using Tasha.Common;
 using TMG;
 using TMG.Input;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable NotAccessedField.Local
 
 namespace Tasha.Validation
 {
@@ -62,14 +64,9 @@ namespace Tasha.Validation
         [RunParameter( "Walk Time", 0f, "The factor to apply to the general time of travel." )]
         public float WalkTime;
 
-        private ConcurrentDictionary<int, KeyValuePair<int, float>> AgressToDestintion = new ConcurrentDictionary<int, KeyValuePair<int, float>>();
         private Time AM = new Time( "7:00:00" );
         private ConcurrentDictionary<int, EgressZoneChoice> EgressUtils = new ConcurrentDictionary<int, EgressZoneChoice>();
-        private Time FF = new Time( "12:00:00" );
-        private Time PM = new Time( "17:00:00" );
         private IList<Station> Stations = new List<Station>();
-
-        private IList<Time> timeList = new List<Time>();
 
         public string Name
         {
@@ -91,16 +88,14 @@ namespace Tasha.Validation
 
         public void Execute(int iterationNumber, int totalIterations)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             var flatData = zones.GetFlatData();
-            timeList.Add( AM ); timeList.Add( PM ); timeList.Add( FF );
-
-            foreach ( var record in this.StationInformationReader.Read() )
+            foreach ( var record in StationInformationReader.Read() )
             {
                 Station currentStation = new Station();
-                currentStation.zoneNumber = record.O;
-                currentStation.parkingSpots = record.D;
-                currentStation.numberOfTrains = record.Data;
+                currentStation.ZoneNumber = record.O;
+                currentStation.ParkingSpots = record.D;
+                currentStation.NumberOfTrains = record.Data;
                 Stations.Add( currentStation );
             }
 
@@ -116,17 +111,17 @@ namespace Tasha.Validation
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach ( var network in this.Root.NetworkData )
+            foreach ( var network in Root.NetworkData )
             {
                 if ( network.NetworkType == Auto )
                 {
-                    this.AutoData = network;
+                    AutoData = network;
                 }
 
                 else if ( network.NetworkType == Transit )
                 {
                     var temp = network as ITripComponentData;
-                    this.TransitData = temp == null ? this.TransitData : temp;
+                    TransitData = temp == null ? TransitData : temp;
                 }
             }
             return true;
@@ -135,7 +130,7 @@ namespace Tasha.Validation
         internal bool GetEgressUtility(int egressStation, int destinationZone, Time time, out float egressUtility)
         {
             // Make sure that we can get from the egress station to the destination zone at that current point in the day
-            if ( !TransitData.ValidOD( egressStation, destinationZone, time ) )
+            if ( !TransitData.ValidOd( egressStation, destinationZone, time ) )
             {
                 egressUtility = float.MinValue;
                 return false;
@@ -145,7 +140,7 @@ namespace Tasha.Validation
             float cost;
 
             TransitData.GetAllData( egressStation, destinationZone, time, out ivtt, out walk, out wait, out boarding, out cost );
-            egressUtility = ivtt.ToMinutes() + this.WaitTime * wait.ToMinutes() + this.WalkTime * walk.ToMinutes();
+            egressUtility = ivtt.ToMinutes() + WaitTime * wait.ToMinutes() + WalkTime * walk.ToMinutes();
 
             return egressUtility != float.MaxValue;
         }
@@ -164,19 +159,19 @@ namespace Tasha.Validation
 
         private float CalculateEgressUtility(int egress, int destination, Time time)
         {
-            return ComputeV( TransitData, egress, destination, time, this.InVehicleTravelTime, this.WalkTime, this.WaitTime, this.BoardingTime, this.CostFactor );
+            return ComputeV( TransitData, egress, destination, time, InVehicleTravelTime, WalkTime, WaitTime, BoardingTime, CostFactor );
         }
 
         // private SparseArray<EgressZoneChoice> EgressChoiceCache;
         private void EgressStation(int flatDest, SparseArray<IZone> zones)
         {
             float bestTime = float.MaxValue;
-            Station bestEgress = new Station();
+            Station bestEgress = null;
             float travelTime;
 
-            foreach ( var station in this.Stations )
+            foreach ( var station in Stations )
             {
-                if ( EgressTravelTime( station.zoneNumber, flatDest, AM, bestTime, out travelTime ) )
+                if ( EgressTravelTime( station.ZoneNumber, flatDest, AM, bestTime, out travelTime ) )
                 {
                     bestTime = travelTime;
                     bestEgress = station;
@@ -184,11 +179,11 @@ namespace Tasha.Validation
             }
             if ( bestEgress == null )
             {
-                EgressUtils.TryAdd( flatDest, new EgressZoneChoice() { egressZone = null, EgressUtility = float.NaN } );
+                EgressUtils.TryAdd( flatDest, new EgressZoneChoice() { EgressZone = null, EgressUtility = float.NaN } );
             }
             else
             {
-                EgressUtils.TryAdd( flatDest, new EgressZoneChoice() { egressZone = zones.GetFlatData()[bestEgress.zoneNumber], EgressUtility = CalculateEgressUtility( bestEgress.zoneNumber, flatDest, AM ) } );
+                EgressUtils.TryAdd( flatDest, new EgressZoneChoice() { EgressZone = zones.GetFlatData()[bestEgress.ZoneNumber], EgressUtility = CalculateEgressUtility( bestEgress.ZoneNumber, flatDest, AM ) } );
             }
         }
 
@@ -213,17 +208,19 @@ namespace Tasha.Validation
             return true;
         }
 
+#pragma warning disable 414
         private sealed class EgressZoneChoice
         {
             internal float EgressUtility;
-            internal IZone egressZone;
+            internal IZone EgressZone;
         }
 
         private sealed class Station
         {
-            internal float numberOfTrains;
-            internal int parkingSpots;
-            internal int zoneNumber;
+            internal float NumberOfTrains;
+            internal int ParkingSpots;
+            internal int ZoneNumber;
         }
+#pragma warning restore 414
     }
 }

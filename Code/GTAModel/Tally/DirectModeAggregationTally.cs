@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -68,15 +69,15 @@ Leaving any of the options blank will select all of the given type (purposes or 
 
         public virtual void IncludeTally(float[][] currentTally)
         {
-            var purposes = this.Root.Purpose;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var purposes = Root.Purpose;
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
-            for ( int purp = 0; purp < this.PurposeIndexes.Length; purp++ )
+            for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
             {
-                var purpose = purposes[this.PurposeIndexes[purp]];
-                for ( int m = 0; m < this.ModeIndexes.Length; m++ )
+                var purpose = purposes[PurposeIndexes[purp]];
+                for ( int m = 0; m < ModeIndexes.Length; m++ )
                 {
-                    var data = GetResult( purpose.Flows, this.ModeIndexes[m] );
+                    var data = GetResult( purpose.Flows, ModeIndexes[m] );
                     // if there is no data continue on to the next mode
                     if ( data == null ) continue;
                     Parallel.For( 0, numberOfZones, delegate(int o)
@@ -93,11 +94,11 @@ Leaving any of the options blank will select all of the given type (purposes or 
 
         public virtual bool RuntimeValidation(ref string error)
         {
-            if ( !this.ProcessModeNames( ref error ) )
+            if ( !ProcessModeNames( ref error ) )
             {
                 return false;
             }
-            if ( !this.ProcessPurposeNames( ref error ) )
+            if ( !ProcessPurposeNames( ref error ) )
             {
                 return false;
             }
@@ -106,7 +107,7 @@ Leaving any of the options blank will select all of the given type (purposes or 
 
         protected IModeChoiceNode GetMode(int index)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var length = modes.Count;
             int current = 0;
             for ( int i = 0; i < length; i++ )
@@ -181,7 +182,7 @@ Leaving any of the options blank will select all of the given type (purposes or 
 
         private int GetModeIndex(string trimmed)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var length = modes.Count;
             int index = 0;
             for ( int i = 0; i < length; i++ )
@@ -219,33 +220,28 @@ Leaving any of the options blank will select all of the given type (purposes or 
         private bool ProcessModeNames(ref string error)
         {
             List<int> care = new List<int>();
-            if ( String.IsNullOrWhiteSpace( this.ModeNames ) )
+            if ( String.IsNullOrWhiteSpace( ModeNames ) )
             {
                 // if nothing is given return the top level
-                var length = this.Root.Modes.Count;
+                var length = Root.Modes.Count;
                 for ( int i = 0; i < length; i++ )
                 {
-                    care.Add( GetModeIndex( this.Root.Modes[i].ModeName ) );
+                    care.Add( GetModeIndex( Root.Modes[i].ModeName ) );
                 }
                 return true;
             }
-            else
+            string[] parts = ModeNames.Split( ',' );
+            foreach ( var part in parts )
             {
-                string[] parts = this.ModeNames.Split( ',' );
-                var modes = this.Root.Modes;
-                var numberOfModes = modes.Count;
-                foreach ( var part in parts )
-                {
-                    var trimmed = part.Trim();
-                    int index = GetModeIndex( trimmed );
+                var trimmed = part.Trim();
+                int index = GetModeIndex( trimmed );
 
-                    if ( index == -1 )
-                    {
-                        error = "In " + this.Name + "We were unable to find a mode with the name \"" + trimmed + "\"!";
-                        return false;
-                    }
-                    care.Add( index );
+                if ( index == -1 )
+                {
+                    error = "In " + Name + "We were unable to find a mode with the name \"" + trimmed + "\"!";
+                    return false;
                 }
+                care.Add( index );
             }
             ModeIndexes = care.ToArray();
             return true;
@@ -253,21 +249,20 @@ Leaving any of the options blank will select all of the given type (purposes or 
 
         private bool ProcessPurposeNames(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.PurposeNames ) )
+            if ( String.IsNullOrWhiteSpace( PurposeNames ) )
             {
-                List<IPurpose> contained;
-                var length = ( contained = this.Root.Purpose ).Count;
-                this.PurposeIndexes = new int[length];
+                var length = Root.Purpose.Count;
+                PurposeIndexes = new int[length];
                 for ( int i = 0; i < length; i++ )
                 {
-                    this.PurposeIndexes[i] = i;
+                    PurposeIndexes[i] = i;
                 }
             }
             else
             {
-                string[] parts = this.PurposeNames.Split( ',' );
+                string[] parts = PurposeNames.Split( ',' );
                 List<int> care = new List<int>();
-                var purposes = this.Root.Purpose;
+                var purposes = Root.Purpose;
                 var numberOfPurposes = purposes.Count;
                 foreach ( var part in parts )
                 {
@@ -288,7 +283,7 @@ Leaving any of the options blank will select all of the given type (purposes or 
                         return false;
                     }
                 }
-                this.PurposeIndexes = care.ToArray();
+                PurposeIndexes = care.ToArray();
             }
             return true;
         }

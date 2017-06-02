@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Threading;
@@ -27,17 +28,17 @@ namespace Datastructure
     {
         internal char[] LineBuffer = new char[512];
 
-        internal int LinePosition = 0;
+        internal int LinePosition;
 
         /// <summary>
         /// The reader we use to get the IO data
         /// </summary>
-        internal BinaryReader Reader;
+        private BinaryReader Reader;
 
         /// <summary>
         /// The segments set when we read in a line
         /// </summary>
-        private CSVPartition[] Data = new CSVPartition[50];
+        private CsvPartition[] Data = new CsvPartition[50];
 
         private char[] DataBuffer = new char[0x4000];
         private char[] DataBuffer2;
@@ -46,23 +47,21 @@ namespace Datastructure
 
         private int DataBufferPosition;
 
-        private bool LoadedFromStream;
+        private readonly bool LoadedFromStream;
 
-        private long StreamLength;
-
-        private readonly bool SpacesAsSeperator = false;
+        private readonly bool SpacesAsSeperator;
 
         /// <summary>
         /// Create a link to a CSV file
         /// </summary>
         /// <param name="fileName"></param>
+        /// <param name="spacesAsSeperator">If true, spaces outside of spaces will denote breaks for columns</param>
         public CsvReader(string fileName, bool spacesAsSeperator = false)
         {
             FileName = fileName;
             Reader = new BinaryReader(File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
             BaseStream = Reader.BaseStream;
             LoadedFromStream = false;
-            StreamLength = BaseStream.Length;
             DataBufferLength = -1;
             SpacesAsSeperator = spacesAsSeperator;
         }
@@ -80,16 +79,9 @@ namespace Datastructure
         public Stream BaseStream
         {
             get;
-            private set;
         }
 
-        public bool EndOfFile
-        {
-            get
-            {
-                return DataBufferLength == 0;
-            }
-        }
+        public bool EndOfFile => DataBufferLength == 0;
 
         /// <summary>
         /// The file name
@@ -164,7 +156,7 @@ namespace Datastructure
         /// <returns>True if data was read. (Not end of file)</returns>
         public bool LoadLine(out int columns)
         {
-            int numberOfColumns = 0;
+            var numberOfColumns = 0;
             LinePosition = 0;
             if (Reader == null) throw new IOException("No file has been loaded!");
             if (FastEndOfFile())
@@ -172,11 +164,11 @@ namespace Datastructure
                 columns = 0;
                 return false;
             }
-            int prevEnd = -1;
-            bool addOne = false;
-            int i = 0;
-            char prevC = '\0';
-            bool quote = false;
+            var prevEnd = -1;
+            var addOne = false;
+            var i = 0;
+            var prevC = '\0';
+            var quote = false;
             if (SpacesAsSeperator)
             {
                 while (true)
@@ -192,7 +184,7 @@ namespace Datastructure
                             if (addOne)
                             {
                                 Data[numberOfColumns].Start = prevEnd + 1;
-                                Data[numberOfColumns++].End = prevEnd = i;
+                                Data[numberOfColumns++].End = i;
                             }
                             columns = numberOfColumns;
                             return true;
@@ -207,24 +199,19 @@ namespace Datastructure
                             {
                                 ExpandDataSections();
                             }
-                            quote = false;
                             Data[numberOfColumns].Start = prevEnd + 1;
-                            Data[numberOfColumns++].End = prevEnd = i;
-                        }
-                        else
-                        {
-                            prevEnd = i;
+                            Data[numberOfColumns++].End = i;
                         }
                         break;
                     }
-                    else if ((c == '"'))
+                    if ((c == '"'))
                     {
                         if (prevEnd == i - 1)
                         {
                             quote = true;
                             continue;
                         }
-                        else if (quote)
+                        if (quote)
                         {
                             quote = false;
                             continue;
@@ -271,7 +258,7 @@ namespace Datastructure
                             if (addOne)
                             {
                                 Data[numberOfColumns].Start = prevEnd + 1;
-                                Data[numberOfColumns++].End = prevEnd = i - 1;
+                                Data[numberOfColumns++].End = i - 1;
                             }
                             columns = numberOfColumns;
                             return true;
@@ -286,24 +273,19 @@ namespace Datastructure
                             {
                                 ExpandDataSections();
                             }
-                            quote = false;
                             Data[numberOfColumns].Start = prevEnd + 1;
-                            Data[numberOfColumns++].End = prevEnd = i;
-                        }
-                        else
-                        {
-                            prevEnd = i;
+                            Data[numberOfColumns++].End = i;
                         }
                         break;
                     }
-                    else if ((c == '"'))
+                    if ((c == '"'))
                     {
                         if (prevEnd == i - 1)
                         {
                             quote = true;
                             continue;
                         }
-                        else if (quote)
+                        if (quote)
                         {
                             quote = false;
                             continue;
@@ -352,21 +334,8 @@ namespace Datastructure
         /// </summary>
         public void Reset()
         {
-            if (Reader.BaseStream == null)
-            {
-                if (!LoadedFromStream)
-                {
-                    Reader.Dispose();
-                }
-                Reader = new BinaryReader(File.OpenRead(FileName));
-                BaseStream = Reader.BaseStream;
-                LoadInData();
-            }
-            else
-            {
-                Reader.BaseStream.Seek(0, SeekOrigin.Begin);
-                DataBuffer2 = null;
-            }
+            Reader.BaseStream.Seek(0, SeekOrigin.Begin);
+            DataBuffer2 = null;
             DataBufferLength = -1;
         }
 
@@ -380,8 +349,8 @@ namespace Datastructure
             return DataBufferLength == 0;
         }
 
-        private volatile bool NextDataReady = false;
-        private volatile int NextDataBufferLength = 0;
+        private volatile bool NextDataReady;
+        private volatile int NextDataBufferLength;
 
         private void LoadInData()
         {
@@ -392,7 +361,9 @@ namespace Datastructure
                 NextDataReady = true;
             }
             // spin-wait on this being ready until the data is ready
-            while (!NextDataReady) ;
+            while (!NextDataReady)
+            {
+            }
             DataBufferPosition = 0;
             var temp = DataBuffer;
             DataBuffer = DataBuffer2;
@@ -408,7 +379,7 @@ namespace Datastructure
             });
         }
 
-        private struct CSVPartition
+        private struct CsvPartition
         {
             public int End;
             public int Start;
@@ -416,7 +387,7 @@ namespace Datastructure
 
         #region IDisposable Members
 
-        public void Dispose(bool gcCalled)
+        private void Dispose(bool gcCalled)
         {
             if (!gcCalled)
             {
@@ -424,8 +395,13 @@ namespace Datastructure
             }
             if (!LoadedFromStream)
             {
-                Reader.Close();
+                Reader?.Close();
             }
+        }
+
+        ~CsvReader()
+        {
+            Dispose(true);
         }
 
         public void Dispose()

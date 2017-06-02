@@ -25,6 +25,7 @@ using System.IO;
 
 namespace TMG.Emme.Tools
 {
+    // ReSharper disable InconsistentNaming
     public enum NamedPaperSizes
     {
         A0, A1, A3, A4, A5, A6, A7, A8, A9, B0,
@@ -101,7 +102,7 @@ namespace TMG.Emme.Tools
             var args = string.Join(" ", ScenarioNumber,
                                    "\"" + Path.GetFullPath(WorksheetFile.GetFilePath()) + "\"",
                                     "\"" + Path.GetFullPath(OutputFile.GetFilePath()) + "\"",
-                                    "\"" + builder.ToString() + "\""
+                                    "\"" + builder + "\""
                                     );
 
             return mc.Run(_ToolName, args);

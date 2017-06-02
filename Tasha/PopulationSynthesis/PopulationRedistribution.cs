@@ -28,7 +28,6 @@ using TMG.Functions;
 using TMG.Input;
 using System.IO;
 using TMG;
-using System.Threading;
 
 namespace Tasha.PopulationSynthesis
 {
@@ -122,7 +121,7 @@ where you still want the same demographics."
             }
             Console.WriteLine("Starting Pass 2");
             //Step 2 do intra-regional redistribution
-            Parallel.For(0, remainingHouseholds.Length, (int regionIndex) =>
+            Parallel.For(0, remainingHouseholds.Length, regionIndex =>
             {
                 if (regionIndex != 0)
                 {
@@ -165,7 +164,7 @@ where you still want the same demographics."
             SparseArray<List<int>> householdsByZoneIndexToRegion = zoneArray.CreateSimilarArray<List<int>>();
             SetupSpatialListByElement(householdsByZoneIndexToRegion.GetFlatData());
             Console.WriteLine("Preparing household Index");
-            Parallel.For(0, HouseholdsByZone.Count, (int i) =>
+            Parallel.For(0, HouseholdsByZone.Count, i =>
             {
                 var list = householdsByZoneIndexToRegion.GetFlatData()[i];
                 var total = HouseholdsByZone.GetFlatData()[i].Count;
@@ -175,7 +174,7 @@ where you still want the same demographics."
                 }
             });
             Console.WriteLine("Building household index");
-            Parallel.For(0, HouseholdsByRegion.Count, (int flatRegionIndex) =>
+            Parallel.For(0, HouseholdsByRegion.Count, flatRegionIndex =>
             {
                 if (flatRegionIndex == 0)
                 {
@@ -195,7 +194,7 @@ where you still want the same demographics."
                 }
             });
             Console.WriteLine("Starting Pass 1");
-            Parallel.For(0, HouseholdsByRegion.Count, (int flatRegionIndex) =>
+            Parallel.For(0, HouseholdsByRegion.Count, flatRegionIndex =>
             {
                 if (flatRegionIndex == 0)
                 {
@@ -203,7 +202,6 @@ where you still want the same demographics."
                 }
                 var regionNumber = HouseholdsByRegion.GetSparseIndex(flatRegionIndex);
                 var zonesToProcess = zones.Where(z => z.RegionNumber == regionNumber).ToArray();
-                var regionLookup = HouseholdsByRegion.GetFlatData()[flatRegionIndex];
                 var remaining = remainingHouseholds[flatRegionIndex];
                 var resultsForRegion = results[flatRegionIndex];
                 for (int z = 0; z < zonesToProcess.Length; z++)
@@ -274,7 +272,7 @@ where you still want the same demographics."
                 seeds[i] = randomSeedGenerator.Next();
             }
             //now that we have our seeds shuffle each position once for each region
-            Parallel.For(0, numberOfRegions, (int flatRegionIndex) =>
+            Parallel.For(0, numberOfRegions, flatRegionIndex =>
             {
                 Random r = new Random(seeds[flatRegionIndex]);
                 var list = HouseholdsByRegion.GetFlatData()[flatRegionIndex];
@@ -319,8 +317,8 @@ where you still want the same demographics."
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => z.ZoneNumber).ToArray();
             int totalPerson = 0;
-            var householdID = SaveHouseholds(results, pds, zones);
-            householdID = SavePersons(results, pds, ref totalPerson);
+            SaveHouseholds(results, pds, zones);
+            var householdID = SavePersons(results, pds, ref totalPerson);
             SaveSummeryFile(totalPerson, householdID);
         }
 
@@ -665,7 +663,7 @@ where you still want the same demographics."
             return employmentZone != null && ExternalZones.Contains(employmentZone.ZoneNumber);
         }
 
-        private int SaveHouseholds(List<KeyValuePair<int, int>>[] results, List<ITashaHousehold>[] householdsByRegion, int[] zones)
+        private void SaveHouseholds(List<KeyValuePair<int, int>>[] results, List<ITashaHousehold>[] householdsByRegion, int[] zones)
         {
             int householdID = 1;
             using (var writer = new StreamWriter(HouseholdFile))
@@ -692,8 +690,6 @@ where you still want the same demographics."
                     }
                 }
             }
-
-            return householdID;
         }
 
         public void Load(int maxIterations)

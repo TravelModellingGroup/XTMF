@@ -47,7 +47,6 @@ namespace Tasha.Validation
 
         private static Activity[] MarketActivities = new Activity[] { Activity.Market, Activity.JointMarket };
         private static Activity[] OtherActivities = new Activity[] { Activity.IndividualOther, Activity.JointOther };
-        private static Activity[] SchoolActivities = new Activity[] { Activity.School, Activity.ReturnFromSchool };
         private static Activity[] WorkActivities = new Activity[] { Activity.PrimaryWork, Activity.SecondaryWork, Activity.WorkBasedBusiness, Activity.ReturnFromWork };
         private int[] MarketPersons;
         private int[] OtherPersons;
@@ -78,31 +77,31 @@ namespace Tasha.Validation
                 if ( data != null )
                 {
                     var sched = data.Schedule;
-                    this.CalculateWorkingPersons( sched, this.WorkingPersons, WorkActivities, true );
-                    this.CalculateWorkingPersons( sched, this.MarketPersons, MarketActivities, true );
-                    this.CalculateWorkingPersons( sched, this.OtherPersons, OtherActivities, true );
+                    CalculateWorkingPersons( sched, WorkingPersons, WorkActivities, true );
+                    CalculateWorkingPersons( sched, MarketPersons, MarketActivities, true );
+                    CalculateWorkingPersons( sched, OtherPersons, OtherActivities, true );
                 }
             }
         }
 
         public void IterationFinished(int iterationNumber)
         {
-            this.GenerateChart( this.WorkPersonsFile, this.WorkingPersons, "Time of Day", "#Working People" );
-            this.GenerateChart( this.MarketPersonsFile, this.MarketPersons, "Time of Day", "#Working People" );
-            this.GenerateChart( this.OtherPersonsFile, this.OtherPersons, "Time of Day", "#Working People" );
+            GenerateChart( WorkPersonsFile, WorkingPersons, "Time of Day", "#Working People" );
+            GenerateChart( MarketPersonsFile, MarketPersons, "Time of Day", "#Working People" );
+            GenerateChart( OtherPersonsFile, OtherPersons, "Time of Day", "#Working People" );
         }
 
         public void Load(int iteration)
         {
-            var numberOfBuckets = ( 60 * 24 ) / this.MinutesPerBucket;
-            this.WorkingPersons = new int[numberOfBuckets];
-            this.MarketPersons = new int[numberOfBuckets];
-            this.OtherPersons = new int[numberOfBuckets];
+            var numberOfBuckets = ( 60 * 24 ) / MinutesPerBucket;
+            WorkingPersons = new int[numberOfBuckets];
+            MarketPersons = new int[numberOfBuckets];
+            OtherPersons = new int[numberOfBuckets];
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.MinutesPerBucket <= 0 )
+            if ( MinutesPerBucket <= 0 )
             {
                 error = "The bucket size must be greater than zero";
                 return false;
@@ -112,9 +111,9 @@ namespace Tasha.Validation
 
         public void IterationStarting(int iterationNumber)
         {
-            for ( int i = 0; i < this.WorkingPersons.Length; i++ )
+            for ( int i = 0; i < WorkingPersons.Length; i++ )
             {
-                this.WorkingPersons[i] = 0;
+                WorkingPersons[i] = 0;
             }
         }
 
@@ -125,46 +124,14 @@ namespace Tasha.Validation
             {
                 if ( episodes[i] != null && ( ( ( !include ) ^ filter.Contains( episodes[i].ActivityType ) ) ) )
                 {
-                    int start = this.GetBucketIndex( episodes[i].StartTime );
-                    int end = this.GetBucketIndex( episodes[i].EndTime );
+                    int start = GetBucketIndex( episodes[i].StartTime );
+                    int end = GetBucketIndex( episodes[i].EndTime );
                     for ( int j = start; j < end; j++ )
                     {
                         if ( j >= 0 && j < data.Length )
                         {
                             System.Threading.Interlocked.Increment( ref data[j] );
                         }
-                    }
-                }
-            }
-        }
-
-        private void GatherData(Schedule sched, int[] data, bool startTime)
-        {
-            var episodes = sched.Episodes;
-            for ( int i = 0; i < sched.EpisodeCount; i++ )
-            {
-                if ( episodes[i] != null )
-                {
-                    int index = this.GetBucketIndex( startTime ? episodes[i].StartTime : episodes[i].EndTime );
-                    if ( index >= 0 && index < this.WorkingPersons.Length )
-                    {
-                        System.Threading.Interlocked.Increment( ref data[index] );
-                    }
-                }
-            }
-        }
-
-        private void GatherDuration(Schedule sched, int[] data, bool original)
-        {
-            var episodes = sched.Episodes;
-            for ( int i = 0; i < sched.EpisodeCount; i++ )
-            {
-                if ( episodes[i] != null )
-                {
-                    int index = this.GetBucketIndex( original ? episodes[i].OriginalDuration : episodes[i].Duration );
-                    if ( index >= 0 && index < this.WorkingPersons.Length )
-                    {
-                        System.Threading.Interlocked.Increment( ref data[index] );
                     }
                 }
             }
@@ -183,7 +150,7 @@ namespace Tasha.Validation
                         series.ChartType = SeriesChartType.Column;
                         for ( int i = 0; i < values.Length; i++ )
                         {
-                            series.Points.Add( new DataPoint( i, values[i] ) { AxisLabel = ( Time.FromMinutes( ( 60 * 4 ) + i * this.MinutesPerBucket ) ).ToString() } );
+                            series.Points.Add( new DataPoint( i, values[i] ) { AxisLabel = ( Time.FromMinutes( ( 60 * 4 ) + i * MinutesPerBucket ) ).ToString() } );
                         }
                         series.BorderColor = System.Drawing.Color.Black;
                         area.AxisX.Title = xAxisName;// "Start Time";
@@ -204,7 +171,7 @@ namespace Tasha.Validation
         {
             // find the time in minutes starting from 4 AM
             var minutes = (int)time.ToMinutes() - ( 60 * 4 );
-            return minutes / this.MinutesPerBucket;
+            return minutes / MinutesPerBucket;
         }
     }
 }

@@ -16,150 +16,286 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<Window x:Class="XTMF.Gui.UserControls.LinkedParameterDisplay"
+<UserControl x:Class="XTMF.Gui.UserControls.LinkedParameterDisplay"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:my="clr-namespace:XTMF.Gui"
-                WindowStyle="ToolWindow"
-                WindowStartupLocation="CenterOwner"
-                Title="Linked Parameter Editor" Height="480" Width="750">
-    <Grid Background="{StaticResource WindowBackgroundBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Margin="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <my:HintedTextBox Grid.Column="0" Margin="5" x:Name="LinkedParameterValue" HintText="Linked Parameter Value" Width="250" Height="Auto"/>
-            <my:BorderIconButton HorizontalAlignment="Right" Grid.Column="1" Header="New"  HighlightColour="{StaticResource AddingYellow}" Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
-                                 Icon="/XTMF.Gui;component/Resources/Plus.png" Margin="2"/>
+             xmlns:xtmfgui="clr-namespace:XTMF.Gui.UserControls"
+             xmlns:my="clr-namespace:XTMF.Gui" MouseDown="UserControl_MouseDown" 
+              KeyDown="Window_KeyDown" PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown">
+
+
+    <Grid x:Name="LayoutRoot">
+
+        <Grid x:Name="Overlay" Panel.ZIndex="1000" Visibility="Collapsed">
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity=".6"/>
+            </Grid.Background>
+
+            <!-- Add controls as needed -->
+
+         
+            
+            <xtmfgui:StringRequestOverlay  Visibility="Collapsed" x:Name="StringRequestOverlay"  ></xtmfgui:StringRequestOverlay>
+
+
         </Grid>
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="325" />
-                <ColumnDefinition Width="AUTO" />
-                <ColumnDefinition Width="2*" MinWidth="200"/>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="AUTO" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
-                <ListView Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
-                          Background="{StaticResource WindowBackgroundBrush}" KeyDown="LinkedParameterValue_PreviewKeyDown">
-                    <ListView.Resources>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
-                        </Style>
-                    </ListView.Resources>
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <my:BorderIconButton IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="4" Header="{Binding Name}" ShadowColour="{StaticResource ControlHeaderColour}"
-                                             Icon="/XTMF.Gui;component/Resources/Settings.png" DoubleClicked="BorderIconButton_DoubleClicked" Width="300px"  >
-                                <my:BorderIconButton.Style>
-                                    <Style TargetType="my:BorderIconButton">
-                                     <!--   <Setter Property="Selected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
-                                    </Style>
-                                </my:BorderIconButton.Style>
-                            </my:BorderIconButton>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Rename (F2)" Click="Rename_Click">
-                                <MenuItem.Icon>
-                                    <Image Source="/XTMF.Gui;component/Resources/base_cog_32.png" Width="16" Height="16" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
-                                <MenuItem.Icon>
-                                    <Image Source="/XTMF.Gui;component/Images/Delete.png" Width="16" Height="16" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </ContextMenu>
-                    </ListView.ContextMenu>
-                </ListView>
+
+        <Grid MinWidth="800" MinHeight="500" MaxHeight="500" VerticalAlignment="Center" HorizontalAlignment="Center" >
+
+
+            <Grid.RowDefinitions>
+
+                <RowDefinition Height="20"></RowDefinition>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush1}"
+                MouseDown="Window_MouseDown">
+                <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,0,0">
+                    <Border DockPanel.Dock="Left">
+                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                           
+                       
+                        </StackPanel>
+                    </Border>
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+
+                      
+                       
+                        <Border HorizontalAlignment="Right" Width="20" Margin="0,0,0,0">
+
+
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Button Click="Button_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}"
+                                BorderBrush="{x:Null}">
+                                <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Width="20"
+                                    Height="20"
+                                    Visibility="Visible"
+                                    Margin="0,0,0,0"
+                                    BorderThickness="0">
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0"
+                                                         EndPoint="0,1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStopCollection>
+                                                    <GradientStop Color="{DynamicResource ThemeTextColor}"
+                                                              Offset="0.0"  />
+                                                    <GradientStop Color="{DynamicResource ThemeTextColor}"
+                                                              Offset="1.0" />
+                                                </GradientStopCollection>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+
+                                    </Border.BorderBrush>
+
+                                    <Path x:Name="CheckMark"
+
+                                      Visibility="Visible"
+                                      SnapsToDevicePixels="False"
+                                      Margin="5,5,5,5"
+                                      StrokeThickness="2" Stretch="Fill"
+
+                                      Data="M 0 0 L 7 7 M 0 7 L 7 0">
+                                        <Path.Stroke>
+                                            <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
+                                        </Path.Stroke>
+                                    </Path>
+                                </Border>
+                            </Button>
+
+                        </Border>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <Grid Grid.Row="2" Margin="0" Background="{DynamicResource WindowBackgroundBrush1}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <!--<my:HintedTextBox Grid.Column="0" Margin="5" x:Name="LinkedParameterValue" HintText="Linked Parameter Value" Width="250" Height="Auto"/>-->
+                <my:BorderIconButton BorderThickness="0" HorizontalAlignment="Left" Grid.Column="0" Header="New"   Text="Create new Linked Parameter" Clicked="NewLinkedParameter_Clicked"
+                                 Icon="/XTMF.Gui;component/Resources/ic_create_white_48dp.png" Margin="2"/>
+
+                <DockPanel Grid.Column="1"/>
             </Grid>
-            <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="White" ShowsPreview="True" />
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="AUTO" />
-                    <!--<RowDefinition Height="AUTO" />
-                    <RowDefinition Height="*" /> -->
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" />
-                
-                <!--
-                <StackPanel Grid.Row="1">
-                    <Label Content="Parameter Value" Foreground="White"></Label>
-                    
-                    <my:HintedTextBox Margin="5,1,5,5" />
-                </StackPanel>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="325" />
+                    <ColumnDefinition Width="AUTO" />
+                    <ColumnDefinition Width="*" MinWidth="50"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="AUTO" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <my:FilterBox Grid.Row="0" x:Name="LinkedParameterFilterBox" KeyDown="LinkedParameterFilterBox_KeyDown" />
+                    <ListView HorizontalAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" x:Name="Display"
+                          Background="{DynamicResource WindowBackgroundBrush2}" KeyDown="LinkedParameterValue_PreviewKeyDown" BorderThickness="0">
 
-                <StackPanel Grid.Row="2" Margin="5,1,5,1">
-                    <DataGrid x:Name="DataGridParameterDisplay" AutoGenerateColumns="False">
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Name" Width="SizeToCells" IsReadOnly="True">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Label ></Label>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel Orientation="Vertical" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+
+                                <xtmfgui:ListViewControl PreviewKeyDown="LinkedParameterValue_PreviewKeyDown" IsTabStop="True" MouseRightButtonDown="BorderIconButton_MouseRightButtonDown" Margin="0" TitleText="{Binding Name}" 
+                                             MouseDoubleClick="Control_OnMouseDoubleClick" VerticalAlignment="Center">
+
+
+                                    <xtmfgui:ListViewControl.IconPath>
+                                        <Path Data="{DynamicResource LinkIconPath}" Fill="{DynamicResource ThemeTextColorBrush}"></Path>
+                                    </xtmfgui:ListViewControl.IconPath>
+
+                                </xtmfgui:ListViewControl>
+
+
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Rename (F2)" Click="Rename_Click">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource RefreshIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="Delete" Click="RemoveLinkedParameter_Click">
+                                    <MenuItem.Icon>
+                                        <ContentControl Template="{DynamicResource CancelIcon}" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
+                </Grid>
+                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" IsTabStop="False" Background="{DynamicResource WindowBackgroundBrush1}" ShowsPreview="True" />
+                <Grid Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush2}">
+                    <Grid.RowDefinitions>
+
+                        <RowDefinition Height="AUTO" />
+                        <RowDefinition Height="*" />
+
+                    </Grid.RowDefinitions>
+                    <!-- <my:FilterBox Grid.Row="0" x:Name="ContainedParameterFilterBox" /> -->
+
+                    <Border Grid.Row="0" BorderThickness="1" Margin="5,5,5,0" BorderBrush="{DynamicResource WindowBackgroundBrush1}" Background="{DynamicResource WindowBackgroundBrush1}">
+                        <StackPanel >
+
+                            <Label Content="Parameter Properties" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
+
+                            <DockPanel FlowDirection="LeftToRight" >
+                                <Label Content="Name" Width="50" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"></Label>
+
+                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterName" DockPanel.Dock="Right"/>
+                            </DockPanel>
+
+                            <DockPanel FlowDirection="LeftToRight" >
+                                <Label Content="Value" Width="50"  Foreground="{DynamicResource ThemeTextColorBrush}" Margin="5,5,35,5" Padding="0" DockPanel.Dock="Left"/>
+
+                                <xtmfgui:HintedTextBox Margin="5,5,5,8"  x:Name="LinkedParameterValue" DockPanel.Dock="Right"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </Border>
+
+
+                    <Border Grid.Row="1" BorderThickness="0" Margin="5,5,5,5" BorderBrush="{DynamicResource WindowBackgroundBrush1}">
+                        <StackPanel Background="{DynamicResource WindowBackgroundBrush1}" >
+
+                            <Label Content="Linked Parameters" Foreground="{DynamicResource ThemeTextColorBrush}" Margin="0,0,0,10" Background="{DynamicResource WindowBackgroundBrush3}"/>
+                            <ListView PreviewKeyDown="ContainedParameterDisplay_PreviewKeyDown"  KeyDown="ContainedParameterDisplay_KeyDown" BorderThickness="0"  ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                               x:Name="ContainedParameterDisplay" Focusable="False"
+                     HorizontalContentAlignment="Stretch" BorderBrush="{x:Null}" Background="{x:Null}">
+                                <ListView.Resources>
+                                    <Style TargetType="{x:Type ListViewItem}">
+
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="BorderBrush" Value="Transparent" />
+                                                <Setter Property="BorderThickness" Value="0" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+
+                                        </StackPanel>
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type xtmfgui:LinkedParameterDisplay+ParameterDisplay}">
+                                        <Border BorderBrush="Transparent" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
+                                            <Grid HorizontalAlignment="Stretch">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="50" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="AUTO">
+                                                    </RowDefinition>
+                                                    <RowDefinition Height="AUTO" />
+                                                </Grid.RowDefinitions>
+
+
+                                                <Label Tag="{Binding ParameterName}" MouseDown="Unlink_MouseDown" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center" Cursor="Hand" >
+                                                    <Label.Foreground>
+                                                        <SolidColorBrush Color="#FF0078D7"/>
+                                                    </Label.Foreground>
+                                                    <TextBlock TextDecorations="Underline">Unlink</TextBlock>
+                                                </Label>
+
+
+                                                <TextBlock Grid.Column="1" Margin="2" Grid.Row="0" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="10" Text="Module Name" Opacity="0.995" />
+                                                <TextBlock Grid.Column="1" Margin="2" Grid.Row="1" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
+
+                                                <TextBlock Grid.Column="2" Margin="2" Grid.Row="0" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="10" Text="Parameter Name" Opacity="0.995" />
+                                                <TextBlock Grid.Column="2" Grid.Row="1" Margin="2" Foreground="{DynamicResource ThemeTextColorBrush}" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
+                                            </Grid>
+                                        </Border>
                                     </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
 
-                    </DataGrid>
-                </StackPanel>
-                -->
-                <ListView  Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                               x:Name="ContainedParameterDisplay"  Background="{StaticResource WindowBackgroundBrush}"
-                     HorizontalContentAlignment="Stretch">
-                    <ListView.Resources>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <!--<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
-                        </Style>
-                    </ListView.Resources>
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 
-                            </StackPanel>
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="White" BorderThickness="0" Margin="2" HorizontalAlignment="Stretch">
-                                <Grid HorizontalAlignment="Stretch">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="AUTO" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="AUTO" />
-                                        <RowDefinition Height="AUTO" />
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding KeepAttached}"
-                                                  ToolTip="Uncheck to remove this parameter from the linked parameter."/>
-                                    <TextBlock Grid.Column="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ModuleName, Mode=OneTime}" />
-                                    <TextBlock Grid.Column="1" Grid.Row="1" Margin="2" Foreground="White" FontSize="14" Text="{Binding ParameterName, Mode=OneTime}" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
-</Window>
+   
+        
+</UserControl>
+
+
+

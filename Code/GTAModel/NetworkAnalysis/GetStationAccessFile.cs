@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Text;
@@ -79,8 +80,8 @@ namespace TMG.GTAModel.NetworkAnalysis
                 throw new XTMFRuntimeException( "Controller is not a modeller controller!" );
 
             var sb = new StringBuilder();
-            sb.AppendFormat( "{0} {1} {2} \"{3}\"", this.ScenarioNumber, this.SearchRadius, this.GoStationSelectorExpression,
-                Path.GetFullPath( this.ExportFile.GetFileName( Root.InputBaseDirectory ) ) );
+            sb.AppendFormat( "{0} {1} {2} \"{3}\"", ScenarioNumber, SearchRadius, GoStationSelectorExpression,
+                Path.GetFullPath( ExportFile.GetFileName( Root.InputBaseDirectory ) ) );
             string result = null;
 
             var toolName = ToolName;
@@ -89,7 +90,7 @@ namespace TMG.GTAModel.NetworkAnalysis
                 toolName = AlternateToolName;
             }
 
-            return mc.Run(toolName, sb.ToString(), (p => this.Progress = p), ref result);
+            return mc.Run(toolName, sb.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

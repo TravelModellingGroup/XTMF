@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Tasha.Common;
 using TMG.Input;
@@ -53,7 +52,7 @@ namespace Tasha.Validation.ModeChoice
             }
         }
 
-        public class TimePeriod : XTMF.IModule
+        public class TimePeriod : IModule
         {
             [ParentModel]
             public TimePeriodModeSplit Parent;
@@ -69,7 +68,6 @@ namespace Tasha.Validation.ModeChoice
 
             public bool Execute(Time tripStart, int modeIndex, float expansionFactor, Activity activity)
             {
-                var modes = Parent.Modes;
                 if(StartTime <= tripStart && tripStart < EndTime)
                 {
                     bool taken = false;

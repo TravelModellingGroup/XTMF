@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,69 +16,88 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Threading;
 using XTMF.Gui.Models;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
-    /// Interaction logic for LinkedParameterDisplay.xaml
+    ///     Interaction logic for LinkedParameterDisplay.xaml
     /// </summary>
-    public partial class LinkedParameterDisplay : Window
+    public partial class LinkedParameterDisplay : UserControl
     {
-        ObservableCollection<LinkedParameterDisplayModel> Items;
-        LinkedParametersModel LinkedParameters;
+        private ObservableCollection<LinkedParameterDisplayModel> Items;
+        private  LinkedParametersModel _linkedParametersModel;
 
-        private bool AssignMode;
-        public LinkedParameterDisplay(LinkedParametersModel linkedParameters, bool assignLinkedParameter = false)
+
+        public LinkedParametersModel LinkedParametersModel
+            {
+
+            get
+            {
+                return _linkedParametersModel;
+            }
+            set
+            {
+                _linkedParametersModel = value;
+                SetupLinkedParameters(_linkedParametersModel);
+            }
+
+            }
+
+        private  bool _assignMode;
+
+        public LinkedParameterDisplay(LinkedParametersModel linkedParameters)
         {
             InitializeComponent();
             ChangesMade = false;
-            LinkedParameters = linkedParameters;
+            _linkedParametersModel = linkedParameters;
             SetupLinkedParameters(linkedParameters);
-            LinkedParameterFilterBox.Display = Display;
-            LinkedParameterFilterBox.Filter = (o, text) =>
-            {
-                var model = o as LinkedParameterDisplayModel;
-                return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
-            };
-            AssignMode = assignLinkedParameter;
-            Display.SelectionChanged += Display_SelectionChanged;
-            Loaded += LinkedParameterDisplay_Loaded;
+
+        }
+
+        public Action OnCloseDisplay;
+
+        public void ShowLinkedParameterDisplay(bool assignLinkedParameter = false)
+        {
+            _assignMode = assignLinkedParameter;
+
+        }
+    
+
+        public LinkedParameterDisplay()
+        {
+
+            InitializeComponent();
+            ChangesMade = false;
             LinkedParameterValue.PreviewKeyDown += LinkedParameterValue_PreviewKeyDown;
 
-          
         }
+
+
 
         private void LinkedParameterValue_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-          
             if (!e.Handled && e.Key == Key.Delete)
             {
                 if (Display.IsKeyboardFocusWithin)
                 {
-
                     var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
-                    MessageBoxResult messageBoxResult = 
-                        System.Windows.MessageBox.Show("Are you sure you wish to delete the selected linked parameter?", 
-                        "Delete Confirmation [" + selectedLinkedParameter.Name + "]", System.Windows.MessageBoxButton.YesNoCancel);
+                    var messageBoxResult =
+                        MessageBox.Show("Are you sure you wish to delete the selected linked parameter?",
+                            "Delete Confirmation [" + selectedLinkedParameter?.Name + "]", MessageBoxButton.YesNoCancel);
 
-                   
+
                     if (messageBoxResult == MessageBoxResult.Yes)
                     {
                         RemoveCurrentlySelectedParameter(sender, e);
@@ -88,19 +107,17 @@ namespace XTMF.Gui.UserControls
             else if (!e.Handled && e.Key == Key.Enter)
             {
                 e.Handled = true;
+
+                AssignCurrentlySelected();
+                ChangesMade = true;
                 CleanupSelectedParameters();
+                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                Visibility = Visibility.Collapsed;
+                OnCloseDisplay.BeginInvoke(null, null);
             }
         }
 
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            CleanupSelectedParameters();
-            foreach(var item in Items)
-            {
-                item.Dispose();
-            }
-            base.OnClosing(e);
-        }
+     
 
         private void LinkedParameterDisplay_Loaded(object sender, RoutedEventArgs e)
         {
@@ -108,7 +125,7 @@ namespace XTMF.Gui.UserControls
             Keyboard.Focus(LinkedParameterFilterBox);
         }
 
-        class ParameterDisplay
+        public class ParameterDisplay
         {
             public string ParameterName { get; set; }
             public string ModuleName { get; set; }
@@ -117,69 +134,83 @@ namespace XTMF.Gui.UserControls
             public ParameterModel Parameter { get; set; }
         }
 
-        private LinkedParameterDisplayModel CurrentlySelected = null;
-        private List<ParameterDisplay> CurrentParameters = null;
+
+        private class BlankParameterDisplay : ParameterDisplay
+        {
+        }
+
+        private LinkedParameterDisplayModel _currentlySelected;
+        private List<ParameterDisplay> _currentParameters;
 
         /// <summary>
-        /// This will be set to true if there were any changes made to linked parameters when invoked
+        ///     This will be set to true if there were any changes made to linked parameters when invoked
         /// </summary>
         public bool ChangesMade { get; private set; }
 
         private void Display_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CleanupSelectedParameters();
-            var selectedLinkedParameter = CurrentlySelected = Display.SelectedItem as LinkedParameterDisplayModel;
+            var selectedLinkedParameter = _currentlySelected = Display.SelectedItem as LinkedParameterDisplayModel;
             if (selectedLinkedParameter != null)
             {
                 LinkedParameterValue.Text = selectedLinkedParameter.LinkedParameter.GetValue();
-                var containedParameters = CurrentParameters = (from parameter in selectedLinkedParameter.LinkedParameter.GetParameters()
-                                                               select new ParameterDisplay()
-                                                               {
-                                                                   ParameterName = parameter.Name,
-                                                                   ModuleName = parameter.BelongsTo.Name,
-                                                                   Parameter = parameter,
-                                                                   KeepAttached = true
-                                                               }).ToList();
+                var containedParameters =
+                    _currentParameters = (from parameter in selectedLinkedParameter.LinkedParameter.GetParameters()
+                        select new ParameterDisplay
+                        {
+                            ParameterName = parameter.Name,
+                            ModuleName = parameter.BelongsTo.Name,
+                            Parameter = parameter,
+                            KeepAttached = true
+                        }).ToList();
                 ContainedParameterDisplay.ItemsSource = new ObservableCollection<ParameterDisplay>(containedParameters);
 
+
+                LinkedParameterName.Text = selectedLinkedParameter.LinkedParameter.Name;
             }
         }
 
         /// <summary>
-        /// Call this function to make sure that parameters that have been requested to be removed are.
+        ///     Call this function to make sure that parameters that have been requested to be removed are.
         /// </summary>
         private void CleanupSelectedParameters()
         {
-            if (CurrentlySelected != null && CurrentParameters != null)
+            if (_currentlySelected != null && _currentParameters != null)
             {
                 // save the value for the linked parameter
                 AssignLinkedParameterValue(LinkedParameterValue.Text);
                 // save the parameters
-                foreach (var parameter in CurrentParameters)
+                foreach (var parameter in _currentParameters)
                 {
                     if (!parameter.KeepAttached)
                     {
                         string error = null;
-                        if (!CurrentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error))
+                        if (!_currentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error))
                         {
-                            MessageBox.Show("There was an error trying to remove a parameter from a linked parameter!\r\n" + error, "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show(
+                                "There was an error trying to remove a parameter from a linked parameter!\r\n" + error,
+                                "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                         ChangesMade = true;
                     }
                 }
             }
+
+            return;
         }
 
         private void AssignLinkedParameterValue(string text)
         {
-            if (CurrentlySelected != null)
+            if (_currentlySelected != null)
             {
                 string error = null;
-                if (CurrentlySelected.LinkedParameter.GetValue() != text)
+                if (_currentlySelected.LinkedParameter.GetValue() != text)
                 {
-                    if (!CurrentlySelected.LinkedParameter.SetValue(text, ref error))
+                    if (!_currentlySelected.LinkedParameter.SetValue(text, ref error))
                     {
-                        MessageBox.Show("There was an error assigning the value '" + text + "' to the linked parameter!\r\n" + error, "Error setting value", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(
+                            "There was an error assigning the value '" + text + "' to the linked parameter!\r\n" + error,
+                            "Error setting value", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     ChangesMade = true;
                 }
@@ -191,23 +222,20 @@ namespace XTMF.Gui.UserControls
             var items = LinkedParameterDisplayModel.CreateDisplayModel(linkedParameters.GetLinkedParameters());
             Display.ItemsSource = items;
             Items = items;
+
+            LinkedParameterFilterBox.Display = Display;
+            LinkedParameterFilterBox.Filter = (o, text) =>
+            {
+                var model = o as LinkedParameterDisplayModel;
+                return model.Name.IndexOf(text, StringComparison.CurrentCultureIgnoreCase) >= 0;
+            };
+
+            Display.SelectionChanged += Display_SelectionChanged;
         }
 
         internal LinkedParameterModel SelectedLinkParameter { get; set; }
 
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
-        {
-            if (AssignMode && !Renaming)
-            {
-                switch (e.Key)
-                {
-                    case Key.Enter:
-                        AssignCurrentlySelected();
-                        break;
-                }
-            }
-            base.OnPreviewKeyDown(e);
-        }
+        
 
         private void AssignCurrentlySelected()
         {
@@ -220,35 +248,21 @@ namespace XTMF.Gui.UserControls
 
         private void Select(LinkedParameterDisplayModel selected, bool cleanup)
         {
-            CurrentlySelected = selected;
+            _currentlySelected = selected;
             if (cleanup)
             {
                 CleanupSelectedParameters();
             }
             SelectedLinkParameter = selected.LinkedParameter;
-            DialogResult = true;
+            //DialogResult = true;
             ChangesMade = true;
-            Close();
+           // Close();
         }
 
-        bool Renaming = false;
+        private bool _renaming;
 
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Handled == false)
-            {
-                switch (e.Key)
-                {
-                    case Key.F2:
-                        {
-                            Rename();
-                        }
-                        e.Handled = true;
-                        break;
-                }
-            }
-            base.OnKeyDown(e);
-        }
+
+       
 
         private void Rename_Click(object sender, RoutedEventArgs e)
         {
@@ -262,11 +276,9 @@ namespace XTMF.Gui.UserControls
             {
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
-                Renaming = true;
-                var adorn = new TextboxAdorner("Rename", (result) =>
-                {
-                    selected.Name = result;
-                }, selectedModuleControl, selected.Name);
+                _renaming = true;
+                var adorn = new TextboxAdorner("Rename", result => { selected.Name = result; }, selectedModuleControl,
+                    selected.Name);
                 adorn.Unloaded += Adorn_Unloaded;
                 layer.Add(adorn);
                 adorn.Focus();
@@ -275,7 +287,7 @@ namespace XTMF.Gui.UserControls
 
         private void Adorn_Unloaded(object sender, RoutedEventArgs e)
         {
-            Renaming = false;
+            _renaming = false;
         }
 
         private UIElement GetCurrentlySelectedControl()
@@ -285,50 +297,66 @@ namespace XTMF.Gui.UserControls
 
         private void NewLinkedParameter_Clicked(object obj)
         {
-            var request = new StringRequest("Name the new Linked Parameter", (s) => true);
-            request.Owner = this;
-            request.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            if (request.ShowDialog() == true)
+
+            StringRequestOverlay.Description = "Name of new linked parameter:";
+            Overlay.Visibility = Visibility.Visible;
+
+            StringRequestOverlay.Visibility = Visibility.Visible;
+        
+            StringRequestOverlay.StringEntryComplete = (sender, args) =>
             {
+                var name  = StringRequestOverlay.StringEntryValue;
                 string error = null;
-                if (!LinkedParameters.NewLinkedParameter(request.Answer, ref error))
+                if (name == string.Empty || name == null)
                 {
-                    MessageBox.Show(MainWindow.Us, error, "Failed to create new Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(MainWindow.Us, "Linked Paramter must have a name.", "Failed to create new Linked Parameter", MessageBoxButton.OK,
+                   MessageBoxImage.Error);
                     return;
                 }
-                SetupLinkedParameters(LinkedParameters);
+                if (!_linkedParametersModel.NewLinkedParameter(name, ref error))
+                {
+                    MessageBox.Show(MainWindow.Us, error, "Failed to create new Linked Parameter", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
+                SetupLinkedParameters(_linkedParametersModel);
                 ChangesMade = true;
-            }
+                StringRequestOverlay.Reset();
+            };
+
+          
         }
 
         private void RemoveCurrentlySelectedParameter(object sender, RoutedEventArgs e)
         {
             var selectedLinkedParameter = Display.SelectedItem as LinkedParameterDisplayModel;
 
-       
-            if (selectedLinkedParameter != null)
+
+            if (selectedLinkedParameter == null)
             {
-                string error = null;
-                var index = LinkedParameters.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
-                if (!LinkedParameters.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
-                {
-                    MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
-                items.Remove(selectedLinkedParameter);
-                ChangesMade = true;
+                return;
             }
+            string error = null;
+            var index = _linkedParametersModel.GetLinkedParameters().IndexOf(selectedLinkedParameter.LinkedParameter);
+            if (!_linkedParametersModel.RemoveLinkedParameter(selectedLinkedParameter.LinkedParameter, ref error))
+            {
+                MessageBox.Show(MainWindow.Us, error, "Failed to remove Linked Parameter", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+            var items = Display.ItemsSource as ObservableCollection<LinkedParameterDisplayModel>;
+            items?.Remove(selectedLinkedParameter);
+            ChangesMade = true;
         }
 
         private void RemoveLinkedParameter_Click(object sender, RoutedEventArgs e)
         {
-            RemoveCurrentlySelectedParameter(sender,e);
+            RemoveCurrentlySelectedParameter(sender, e);
         }
 
         private void BorderIconButton_DoubleClicked(object obj)
         {
-            if (AssignMode)
+            if (_assignMode)
             {
                 AssignCurrentlySelected();
             }
@@ -345,7 +373,7 @@ namespace XTMF.Gui.UserControls
 
         private void LinkedParameterFilterBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if(!e.Handled)
+            if (!e.Handled)
             {
                 if (e.Key == Key.Enter)
                 {
@@ -361,9 +389,180 @@ namespace XTMF.Gui.UserControls
 
         private void BorderIconButton_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            
+
         }
 
-     
+        private void UnlinkParameter(string parameterName)
+        {
+            foreach (var parameter in _currentParameters)
+            {
+                if (parameter.ParameterName == parameterName)
+                {
+                    string error = null;
+
+
+                    if (ConfirmUnlinkParameterMessageBox(parameter) == MessageBoxResult.Cancel)
+                    {
+                        return;
+                    }
+
+                    if (!_currentlySelected.LinkedParameter.RemoveParameter(parameter.Parameter, ref error))
+                    {
+                        MessageBox.Show(
+                            "There was an error trying to remove a parameter from a linked parameter!\r\n" + error,
+                            "Error removing parameter", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    ChangesMade = true;
+
+                    var containedParameters =
+                        _currentParameters = (from parameter2 in _currentlySelected.LinkedParameter.GetParameters()
+                            select new ParameterDisplay
+                            {
+                                ParameterName = parameter2.Name,
+                                ModuleName = parameter2.BelongsTo.Name,
+                                Parameter = parameter2,
+                                KeepAttached = true
+                            }).ToList();
+
+                    ContainedParameterDisplay.ItemsSource =
+                        new ObservableCollection<ParameterDisplay>(containedParameters);
+                    break;
+                }
+            }
+        }
+
+        private void Unlink_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var label = sender as Label;
+
+            var parameterName = label.Tag;
+
+            UnlinkParameter(parameterName.ToString());
+        }
+
+        private void ContainedParameterDisplay_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                var listView = sender as ListView;
+
+                var parameterDisplay = listView.SelectedItem as ParameterDisplay;
+
+                UnlinkParameter(parameterDisplay.ParameterName);
+            }
+          
+        }
+
+        private MessageBoxResult ConfirmUnlinkParameterMessageBox(ParameterDisplay parameterDisplay)
+        {
+            var result = MessageBox.Show(MainWindow.Us, "Are you sure you wish to unlink the selected parameter?",
+                "Confirm Unlink [" + parameterDisplay.ParameterName + "]",
+                MessageBoxButton.OKCancel);
+
+            return result;
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape && !e.Handled)
+            {
+                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+        
+        }
+
+        public void Show()
+        {
+            ((FrameworkElement)Parent).Visibility = Visibility.Visible;
+            Visibility = Visibility.Visible;
+
+
+            this.Dispatcher.BeginInvoke((Action)delegate
+            {
+                Keyboard.Focus(LinkedParameterFilterBox);
+            }, DispatcherPriority.Render);
+        }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+         
+        }
+
+        private void MaxNorm_OnClick(object sender, RoutedEventArgs e)
+        {
+           
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+    
+        }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (_assignMode)
+            {
+                AssignCurrentlySelected();
+                ChangesMade = true;
+                CleanupSelectedParameters();
+                ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+                Visibility = Visibility.Collapsed;
+                OnCloseDisplay.BeginInvoke(null, null);
+            }
+        }
+
+        private void UserControl_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+           
+        }
+
+        private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+            Display.Focus();
+       
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ((FrameworkElement)Parent).Visibility = Visibility.Collapsed;
+            Visibility = Visibility.Collapsed;
+        }
+
+        private void ListViewControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Handled == false)
+            {
+                switch (e.Key)
+                {
+                    case Key.F2:
+                        {
+                            Rename();
+                        }
+                        e.Handled = true;
+                        break;
+                }
+            }
+            base.OnKeyDown(e);
+        }
+
+        private void ContainedParameterDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+             if (e.Key == Key.F2)
+            {
+                Rename();
+            }
+        }
+       
+    }
+
+    public class ParameterDatatemplateSelector : DataTemplateSelector
+    {
     }
 }

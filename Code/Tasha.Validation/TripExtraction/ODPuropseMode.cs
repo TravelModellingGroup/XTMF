@@ -19,8 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using Datastructure;
 using TMG;
@@ -38,7 +36,7 @@ namespace Tasha.Validation.TripExtraction
         public FileLocation SaveTo;
 
         [SubModelInformation(Required = true, Description = "Which modes do you want to capture?")]
-        public Tasha.EMME.CreateEmmeBinaryMatrix.ModeLink[] AnalyzeModes;
+        public EMME.CreateEmmeBinaryMatrix.ModeLink[] AnalyzeModes;
 
         [SubModelInformation(Required = true, Description = "The activities to capture and store")]
         public ActivityLink[] ActivitiesToCapture;
@@ -114,7 +112,6 @@ namespace Tasha.Validation.TripExtraction
                 }
                 lock (this)
                 {
-                    var modes = this.Root.AllModes;
                     for (int i = 0; i < household.Persons.Length; i++)
                     {
                         if (household.Persons[i].Age < MinimumAge)
@@ -155,31 +152,33 @@ namespace Tasha.Validation.TripExtraction
         {
         }
 
-        private int Iteration = 0;
+        private int Iteration;
 
         public void IterationStarting(int iteration, int totalIterations)
         {
             Iteration = iteration;
-            ZoneSystem = Root.ZoneSystem.ZoneArray;
-            if (RecordedData == null)
+            lock (this)
             {
-                RecordedData = ZoneSystem.CreateSquareTwinArray<float>().GetFlatData();
-            }
-            else
-            {
-                for (int i = 0; i < RecordedData.Length; i++)
+                ZoneSystem = Root.ZoneSystem.ZoneArray;
+
+                if (RecordedData == null)
                 {
-                    Array.Clear(RecordedData[i], 0, RecordedData[i].Length);
+                    RecordedData = ZoneSystem.CreateSquareTwinArray<float>().GetFlatData();
                 }
+                else
+                {
+                    for (int i = 0; i < RecordedData.Length; i++)
+                    {
+                        Array.Clear(RecordedData[i], 0, RecordedData[i].Length);
+                    }
+                }
+
+                for (int i = 0; i < AnalyzeModes.Length; i++)
+                {
+                    ValidModeNames.Add(AnalyzeModes[i].ModeName);
+                }
+                Activities = ActivitiesToCapture.Select(a => a.Activity).ToArray();
             }
-
-            for (int i = 0; i < AnalyzeModes.Length; i++)
-            {
-                ValidModeNames.Add(AnalyzeModes[i].ModeName);
-            }
-
-            Activities = ActivitiesToCapture.Select(a => a.Activity).ToArray();
-
         }
 
         public void IterationFinished(int iteration, int totalIterations)
@@ -205,7 +204,7 @@ namespace Tasha.Validation.TripExtraction
             }
         }
 
-        public class ActivityLink : XTMF.IModule
+        public class ActivityLink : IModule
         {
             [RunParameter("Activity", "IndividualOther", typeof(Activity), "The activity to filter for.")]
             public Activity Activity;

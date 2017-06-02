@@ -1,20 +1,29 @@
-﻿using System;
+﻿/*
+    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+*/
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace XTMF.Gui.UserControls
 {
@@ -58,14 +67,14 @@ namespace XTMF.Gui.UserControls
         private async void FreeVariableEntry_Loaded(object sender, RoutedEventArgs e)
         {
             var temp = await Model.CreateModel(Session.GetValidGenericVariableTypes(Conditions));
-            Display.ItemsSource = (AvailableModules = temp);
+            Display.ItemsSource = (_availableModules = temp);
             FilterBox.Filter = CheckAgainstFilter;
             FilterBox.Display = Display;
         }
 
         public Type SelectedType { get; private set; }
 
-        private ObservableCollection<Model> AvailableModules;
+        private ObservableCollection<Model> _availableModules;
 
         private bool CheckAgainstFilter(object o, string text)
         {
@@ -155,7 +164,6 @@ namespace XTMF.Gui.UserControls
                 SelectedType = model.type;
                 if (SelectedType == null)
                 {
-                    return;
                 }
                 else
                 {
@@ -202,11 +210,16 @@ namespace XTMF.Gui.UserControls
             return selectedType.IsGenericType && selectedType.GetGenericArguments().Any(t => t.IsGenericParameter);
         }
 
-        int TimesLoaded = 0;
+        int TimesLoaded;
 
         private void BorderIconButton_Loaded(object sender, RoutedEventArgs e)
         {
             TimesLoaded++;
+        }
+
+        private void Control_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Select();
         }
     }
 }

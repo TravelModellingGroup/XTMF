@@ -39,24 +39,6 @@ namespace Tasha.Scheduler
             ModesChosen = new ITashaMode[householdIterations];
         }
 
-        private SchedulerTrip(TravelEpisode episode)
-        {
-            ActivityStartTime = episode.EndTime;
-            DestinationZone = episode.Destination;
-            IntermediateZone = null;
-            Mode = null;
-            OriginalZone = episode.Origin;
-            if(episode.People == null)
-            {
-                Passengers = null;
-            }
-            else
-            {
-                Passengers = new List<ITashaPerson>(episode.People);
-            }
-            Purpose = episode.ActivityType;
-        }
-
         private Time _ActivityStartTime;
         /// <summary>
         /// What time does this trip start at?
@@ -74,19 +56,7 @@ namespace Tasha.Scheduler
             }
         }
 
-        public char cPurpose
-        {
-            get;
-            internal set;
-        }
-
         public IZone DestinationZone
-        {
-            get;
-            internal set;
-        }
-
-        public float fActivityStartTime
         {
             get;
             internal set;
@@ -194,7 +164,6 @@ namespace Tasha.Scheduler
                 TripChain = null;
                 OriginalZone = null;
                 DestinationZone = null;
-                fActivityStartTime = 0;
                 ActivityStartTime = Time.Zero;
                 TripNumber = -1;
                 Array.Clear(ModesChosen, 0, ModesChosen.Length);

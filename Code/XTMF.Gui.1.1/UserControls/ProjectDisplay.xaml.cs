@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,32 +16,35 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using XTMF;
-
-using Path = System.IO.Path;
+using XTMF.Gui.Annotations;
+using XTMF.Gui.Controllers;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MenuItem = System.Windows.Controls.MenuItem;
+using MessageBox = System.Windows.MessageBox;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
     /// Interaction logic for ProjectDisplay.xaml
     /// </summary>
-    public partial class ProjectDisplay : UserControl
+    public partial class ProjectDisplay : UserControl, INotifyPropertyChanged
     {
         public static readonly DependencyProperty ProjectProperty = DependencyProperty.Register("Project", typeof(Project), typeof(ProjectDisplay),
     new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnProjectChanged));
@@ -51,21 +54,61 @@ namespace XTMF.Gui.UserControls
 
         public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
 
+
+
+
+
+
         public class ProjectModel : INotifyPropertyChanged
         {
             public class ContainedModelSystemModel : INotifyPropertyChanged
             {
                 private IModelSystemStructure Root;
 
+                private ProjectEditingSession _session;
+
+                public IModelSystemStructure ModelSystemStructure
+                {
+                    get { return Root; }
+                }
+
                 public event PropertyChangedEventHandler PropertyChanged;
 
                 public string Name { get { return Root.Name; } }
 
+                public string StatusText
+                {
+                    get
+                    {
+
+                        if (!_IsMissingModules)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return "This module requires additional setup, or a required module is not present.";
+                        }
+                    }
+                }
+
                 public string Description { get { return Root.Description; } }
+
+                public bool IsMissingModules
+                {
+                    get
+                    {
+                        return _IsMissingModules;
+                    }
+
+                }
 
                 public int RealIndex { get; private set; }
 
-                private bool _IsSelected = false;
+                private bool _IsMissingModules = false;
+
+                private IProject _project;
+                private bool _IsSelected;
                 public bool IsSelected
                 {
                     get
@@ -82,10 +125,50 @@ namespace XTMF.Gui.UserControls
                     }
                 }
 
-                public ContainedModelSystemModel(IModelSystemStructure ms, IProject project)
+                public ContainedModelSystemModel(ProjectEditingSession session, IModelSystemStructure ms, IProject project)
                 {
                     Root = ms;
                     RealIndex = project.ModelSystemStructure.IndexOf(ms);
+                    this._project = project;
+                    _session = session;
+
+
+                    FindMissingModules(ms);
+                }
+
+                private void FindMissingModules(IModelSystemStructure ms)
+                {
+                    var loadTask = Task.Run(() =>
+                    {
+                        try
+                        {
+
+
+                            if (ms.Type == null && ms.Required && !ms.IsCollection)
+                            {
+                                _IsMissingModules = true;
+                            }
+                            else
+                            {
+
+                            }
+
+
+                        }
+                        catch (Exception error)
+                        {
+
+                        }
+                    });
+
+                    if (ms.Children != null)
+                    {
+                        foreach (var subModule in ms.Children)
+                        {
+                            FindMissingModules(subModule);
+                        }
+                    }
+
                 }
 
                 internal bool SetName(ProjectEditingSession session, string newName, ref string error)
@@ -105,6 +188,8 @@ namespace XTMF.Gui.UserControls
                     return session.CloneModelSystemToProjectAs(Root, name, ref error);
                 }
 
+
+
                 internal bool ExportModelSystem(ProjectEditingSession session, string fileName, ref string error)
                 {
                     return session.ExportModelSystem(RealIndex, fileName, ref error);
@@ -115,14 +200,21 @@ namespace XTMF.Gui.UserControls
             {
                 public string Name { get; internal set; }
                 public string Path { get; internal set; }
-                public string TimeStamp { get; internal set; }
+                internal DateTime Time { get; set; }
+                public string TimeStamp => Time.ToString(CultureInfo.InvariantCulture);
 
                 public event PropertyChangedEventHandler PropertyChanged;
+
+                [NotifyPropertyChangedInvocator]
+                protected virtual void OnPropertyChanged1([CallerMemberName] string propertyName = null)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                }
             }
 
             public List<ContainedModelSystemModel> ContainedModelSystems;
 
-            public List<PreviousRun> PreviousRuns;
+            public List<PreviousRun> PreviousRuns = new List<PreviousRun>();
 
             private IProject Project;
 
@@ -148,33 +240,31 @@ namespace XTMF.Gui.UserControls
 
             public void RefreshPastRuns(ProjectEditingSession session)
             {
-
-                if (PreviousRuns == null)
-                {
-                    PreviousRuns = new List<PreviousRun>();
-                }
-                else
+                lock (PreviousRuns)
                 {
                     PreviousRuns.Clear();
                 }
                 Task.Factory.StartNew(() =>
                 {
 
-                    var list = new List<PreviousRun>();
-                    PreviousRuns.Clear();
-                    foreach (var pastRun in session.GetPreviousRuns())
-                    {
-                        DirectoryInfo info = new DirectoryInfo(pastRun);
-                        list.Add(new PreviousRun()
-                        {
-                            Name = info.Name,
-                            Path = pastRun,
-                            TimeStamp = info.CreationTime.ToString()
-                        });
-                    }
                     lock (PreviousRuns)
                     {
-                        PreviousRuns.AddRange(list);
+                        var list = new List<PreviousRun>();
+                        PreviousRuns.Clear();
+                        foreach (var pastRun in session.GetPreviousRuns())
+                        {
+                            var info = new DirectoryInfo(pastRun);
+                            var fileInfo = new FileInfo(Path.Combine(pastRun, "RunParameters.xml"));
+                            list.Add(new PreviousRun
+                            {
+                                Name = info.Name,
+                                Path = pastRun,
+                                Time = fileInfo.LastWriteTime
+                            });
+                        }
+                        PreviousRuns.AddRange(from entry in list
+                                              orderby entry.Time descending
+                                              select entry);
                     }
                     ModelHelper.PropertyChanged(PropertyChanged, this, "PreviousRuns");
                 });
@@ -184,16 +274,23 @@ namespace XTMF.Gui.UserControls
             {
                 if (ContainedModelSystems == null)
                 {
+
+
                     ContainedModelSystems = new List<ContainedModelSystemModel>();
+
                 }
                 else
                 {
-                    ContainedModelSystems.Clear();
+                    lock (ContainedModelSystems)
+                    {
+                        ContainedModelSystems.Clear();
+                    }
                 }
                 Task.Factory.StartNew(() =>
                 {
                     var modelSystems = (from ms in Project.ModelSystemStructure
-                                        select new ContainedModelSystemModel(ms, Project)).OrderBy(x => x.Name);
+                                        orderby ms.Name ascending
+                                        select new ContainedModelSystemModel(Session, ms, Project));
                     lock (ContainedModelSystems)
                     {
                         ContainedModelSystems.AddRange(modelSystems);
@@ -208,7 +305,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        public Project Project
+        private Project Project
         {
             get
             {
@@ -220,18 +317,18 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private ProjectEditingSession _Session;
+        private ProjectEditingSession _session;
 
         public ProjectEditingSession Session
         {
             get
             {
-                return _Session;
+                return _session;
             }
             set
             {
-                _Session = value;
-                Project = _Session.Project;
+                _session = value;
+                Project = _session.Project;
             }
         }
 
@@ -247,10 +344,13 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+
         public ProjectDisplay()
         {
             InitializeComponent();
             Loaded += ProjectDisplay_Loaded;
+            ContextMenu.PlacementTarget = ModelSystemDisplay;
         }
 
         private void ProjectDisplay_Loaded(object sender, RoutedEventArgs e)
@@ -291,13 +391,13 @@ namespace XTMF.Gui.UserControls
 
         private bool FilterMS(object e, string text)
         {
-            var element = e as ProjectDisplay.ProjectModel.ContainedModelSystemModel;
+            var element = e as ProjectModel.ContainedModelSystemModel;
             return CheckString(element.Name, text) | CheckString(element.Description, text);
         }
 
         private bool FilterRuns(object e, string text)
         {
-            var element = e as ProjectDisplay.ProjectModel.PreviousRun;
+            var element = e as ProjectModel.PreviousRun;
             return CheckString(element.Name, text) | CheckString(element.TimeStamp, text);
         }
 
@@ -351,7 +451,7 @@ namespace XTMF.Gui.UserControls
                 switch (e.Key)
                 {
                     case Key.W:
-                        if (Controllers.EditorController.IsControlDown())
+                        if (EditorController.IsControlDown())
                         {
                             Close();
                             e.Handled = true;
@@ -365,7 +465,7 @@ namespace XTMF.Gui.UserControls
                         }
                         break;
                     case Key.O:
-                        if(Controllers.EditorController.IsControlDown())
+                        if (EditorController.IsControlDown())
                         {
                             OpenProjectFolder();
                             e.Handled = true;
@@ -404,6 +504,14 @@ namespace XTMF.Gui.UserControls
                             SaveCurrentAsModelSystem(true);
                         }
                         break;
+
+                    case Key.V:
+                        if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+                        {
+                            PasteModelSystem_OnClick(null, null);
+                            e.Handled = true;
+                        }
+                        break;
                 }
             }
         }
@@ -425,31 +533,12 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void ModelSystemButton_Clicked(object obj)
-        {
-            var button = obj as BorderIconButton;
-            if (button != null)
-            {
-                LoadModelSystem();
-            }
-        }
 
-        private void DisplayButton_RightClicked(object obj)
-        {
-            var button = obj as BorderIconButton;
-            if (button != null)
-            {
-                var contextMenu = button.ContextMenu;
-                if (contextMenu != null)
-                {
-                    contextMenu.PlacementTarget = button;
-                    contextMenu.IsOpen = true;
-                }
-            }
-        }
 
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+
+            var s = ModelSystemDisplay.SelectedItem;
 
         }
 
@@ -473,32 +562,6 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void PastRunDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
-            if (selected != null)
-            {
-                var invoke = InitiateModelSystemEditingSession;
-                if (invoke != null)
-                {
-                    string error = null;
-                    ModelSystemEditingSession newSession;
-                    if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
-                    {
-                        if (newSession != null)
-                        {
-                            invoke(newSession);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                PastRunDisplay.SelectedItem = null;
-            }
-        }
-
         private void RefreshPreviousRuns_Clicked(object obj)
         {
             Model.RefreshPastRuns(Session);
@@ -509,14 +572,34 @@ namespace XTMF.Gui.UserControls
             OpenProjectFolder();
         }
 
+        private void OpenPreviousRun_Click(object sender, RoutedEventArgs e)
+        {
+            var previousRun = (ProjectModel.PreviousRun)PastRunDisplay.SelectedItem;
+            if (previousRun != null)
+            {
+                var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name, previousRun.Name);
+                try
+                {
+                    if (Project != null && Directory.Exists(directoryName))
+                    {
+                        Process.Start(directoryName);
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show(MainWindow.Us, "We were unable to open the run directory '" + directoryName + "'!", "Unable to Open");
+                }
+            }
+        }
+
         private void OpenProjectFolder()
         {
-            var directoryName = System.IO.Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
+            var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name);
             try
             {
-                if (Project != null && System.IO.Directory.Exists(directoryName))
+                if (Project != null && Directory.Exists(directoryName))
                 {
-                    System.Diagnostics.Process.Start(directoryName);
+                    Process.Start(directoryName);
                 }
             }
             catch
@@ -543,6 +626,8 @@ namespace XTMF.Gui.UserControls
             using (var modelSystemSession = openMS.OpenModelSystem(xtmf))
             {
                 var loading = openMS.LoadTask;
+
+
                 if (loading != null)
                 {
                     loading.Wait();
@@ -553,7 +638,7 @@ namespace XTMF.Gui.UserControls
                             return;
                         }
                         string error = null;
-                        StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
+                        StringRequest sr = new StringRequest("Save Model System As?", newName =>
                         {
                             return Session.ValidateModelSystemName(newName);
                         });
@@ -599,6 +684,28 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+        private void DeletePreviousRun_Click(object sender, RoutedEventArgs e)
+        {
+            var previousRun = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
+            if (previousRun != null)
+            {
+                try
+                {
+                    var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name, previousRun.Name);
+                    DirectoryInfo dir = new DirectoryInfo(directoryName);
+                    if (dir.Exists)
+                    {
+                        dir.Delete(true);
+                    }
+                    Model.RefreshPastRuns(Session);
+                }
+                catch (IOException error)
+                {
+                    MessageBox.Show(error.Message, "Unable to Delete Previous Run", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private void RenameCurrentModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
@@ -606,7 +713,7 @@ namespace XTMF.Gui.UserControls
             {
                 var container = ModelSystemDisplay.ItemContainerGenerator.ContainerFromItem(selected) as ListBoxItem;
                 var layer = AdornerLayer.GetAdornerLayer(container);
-                var adorn = new TextboxAdorner("Rename", (result) =>
+                var adorn = new TextboxAdorner("Rename", result =>
                 {
                     string error = null;
                     if (!selected.SetName(Session, result, ref error))
@@ -642,7 +749,7 @@ namespace XTMF.Gui.UserControls
                 if (exportToFile)
                 {
                     // save as a model system in an external file
-                    string fileName = MainWindow.OpenFile(selected.Name, new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                    string fileName = MainWindow.OpenFile(selected.Name, new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
                     if (!String.IsNullOrWhiteSpace(fileName))
                     {
                         string error = null;
@@ -655,7 +762,7 @@ namespace XTMF.Gui.UserControls
                 else
                 {
                     // save as a model system within XTMF
-                    StringRequest sr = new StringRequest("Save Model System As?", (newName) =>
+                    StringRequest sr = new StringRequest("Save Model System As?", newName =>
                     {
                         return Session.ValidateModelSystemName(newName);
                     });
@@ -673,33 +780,26 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-        private void CloneModelSystem_Click(object sender, RoutedEventArgs e)
+        private void CopyModelSystem_Click(object sender, RoutedEventArgs e)
         {
+            // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
+            ModelSystemDisplay.IsCanPasteModelSystem = true;
+
             CloneCurrentModelSystem();
         }
 
         private void CloneCurrentModelSystem()
         {
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
+
+
+
             if (selected != null)
             {
-                StringRequest sr = new StringRequest("Cloned Model System's Name?", (newName) =>
-                {
-                    return Session.ValidateModelSystemName(newName);
-                });
-                sr.Owner = GetWindow();
-                if (sr.ShowDialog() == true)
-                {
-                    string error = null;
-                    if (!selected.CloneModelSystemToProject(Session, sr.Answer, ref error))
-                    {
-                        MessageBox.Show(error, "Unable to Clone Model System", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        Model.RefreshModelSystems();
-                    }
-                }
+                var error = string.Empty;
+                MainWindow.Us.ClipboardModel = selected;
+
+
             }
         }
 
@@ -715,11 +815,16 @@ namespace XTMF.Gui.UserControls
 
         private void CreateNewModelSystem()
         {
-            StringRequest sr = new StringRequest("New Model System's Name?", (newName) =>
+            StringRequest sr = new StringRequest("New Model System's Name?", newName =>
             {
                 return Session.ValidateModelSystemName(newName);
             });
-            sr.Owner = GetWindow();
+
+
+
+
+            sr.Owner = Window.GetWindow(this);
+
             if (sr.ShowDialog() == true)
             {
                 string error = null;
@@ -751,6 +856,131 @@ namespace XTMF.Gui.UserControls
                 selected = GetFirstItem();
             }
             LoadModelSystem(selected);
+        }
+
+
+        private void PastRuns_MouseButton(object sender, MouseButtonEventArgs e)
+        {
+            var selected = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
+
+
+            if (selected != null)
+            {
+                var invoke = InitiateModelSystemEditingSession;
+                if (invoke != null)
+                {
+                    string error = null;
+                    ModelSystemEditingSession newSession;
+
+
+
+                    if (Session.LoadPreviousRun(selected.Path, ref error, out newSession))
+                    {
+                        if (newSession != null)
+                        {
+                            newSession.PreviousRunName = selected.Name;
+                            invoke(newSession);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(error, "Unable to Open Model System", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                PastRunDisplay.SelectedItem = null;
+            }
+
+        }
+
+        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            LoadModelSystem();
+        }
+
+        private void ImportModelSystemFromFile_OnClicked(object obj)
+        {
+            var fileDialog = new System.Windows.Forms.OpenFileDialog();
+            var result = fileDialog.ShowDialog();
+
+            switch (result)
+            {
+                case System.Windows.Forms.DialogResult.OK:
+                    string error = null;
+
+                    try
+                    {
+                        ModelSystem modelSystem = ModelSystem.LoadDetachedModelSystem(fileDialog.OpenFile(), EditorController.Runtime.Configuration,
+                       ref error);
+
+
+                        StringRequest sr = new StringRequest("Save Model System As?", newName => Session.ValidateModelSystemName(newName));
+                        sr.Owner = GetWindow();
+                        if (sr.ShowDialog() == true)
+                        {
+                            if (!Session.AddModelSystem(modelSystem, sr.Answer, ref error))
+                            {
+                                MessageBox.Show(GetWindow(), error, "Unable to Import Model System", MessageBoxButton.OK,
+                                    MessageBoxImage.Error, MessageBoxResult.OK);
+                                return;
+                            }
+                            Model.RefreshModelSystems();
+                        }
+
+                    }
+                    catch
+                    {
+                        MessageBox.Show(GetWindow(), "There was an error importing the model system.", "Unable to Import Model System", MessageBoxButton.OK,
+                                    MessageBoxImage.Error, MessageBoxResult.OK);
+                    }
+
+
+                    break;
+                case System.Windows.Forms.DialogResult.Cancel:
+                default:
+                    break;
+            }
+        }
+
+        private void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
+        {
+
+            string error = null;
+            if (MainWindow.Us.ClipboardModel != null)
+            {
+
+                ModelSystem cloned = Session.CloneModelSystem(MainWindow.Us.ClipboardModel.ModelSystemStructure, ref error);
+                StringRequest sr = new StringRequest("Paste: Model System's Name?", newName =>
+                {
+                    return Session.ValidateModelSystemName(newName);
+                });
+                sr.Owner = GetWindow();
+                if (sr.ShowDialog() == true)
+                {
+
+
+                    if (
+                        !Session.AddExternalModelSystem(cloned, sr.Answer,
+                            ref error))
+                    {
+                        MessageBox.Show(error, "Unable to Paste Model System", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        Model.RefreshModelSystems();
+                    }
+
+                }
+            }
+
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [XTMF.Annotations.NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

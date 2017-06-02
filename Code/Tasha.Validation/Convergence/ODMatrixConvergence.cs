@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using TMG.Functions;
 using System.IO;
@@ -30,7 +27,7 @@ using Datastructure;
 namespace Tasha.Validation.Convergence
 {
 
-    public sealed class ODMatrixConvergence : IPostIteration, IDisposable
+    public sealed class ODMatrixConvergence : IPostIteration, ISelfContainedModule, IDisposable
     {
 
         public string Name { get; set; }
@@ -65,16 +62,16 @@ namespace Tasha.Validation.Convergence
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool managed)
         {
-            if (Writer != null)
+            if (managed)
             {
-                Writer.Dispose();
-                Writer = null;
+                GC.SuppressFinalize(this);
             }
+            Writer?.Dispose();
+            Writer = null;
         }
 
         ~ODMatrixConvergence()
@@ -87,17 +84,35 @@ namespace Tasha.Validation.Convergence
             if (Writer == null)
             {
                 Writer = new StreamWriter(ReportFile);
-                switch (AnalysisToRun)
-                {
-                    case AnalysisType.Average:
-                        Writer.Write("Iteration,Average");
-                        break;
-                    case AnalysisType.Max:
-                        Writer.Write("Iteration,Max");
-                        break;
-                }
-                Writer.WriteLine(SumFirst ? ",SumOfFirst" : "");
+                WriteHeader();
             }
+            RecordData(iterationNumber);
+            // if this is the last iteration dispose
+            if (iterationNumber >= totalIterations - 1)
+            {
+                Writer.Dispose();
+                Writer = null;
+            }
+        }
+
+        private void WriteHeader()
+        {
+            switch (AnalysisToRun)
+            {
+                case AnalysisType.Average:
+                    Writer.Write("Iteration,Average");
+                    break;
+                case AnalysisType.Max:
+                    Writer.Write("Iteration,Max");
+                    break;
+                default:
+                    break;
+            }
+            Writer.WriteLine(SumFirst ? ",SumOfFirst" : "");
+        }
+
+        private void RecordData(int iterationNumber)
+        {
             var first = FirstMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             var second = SecondMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
             float value = 0.0f;
@@ -124,13 +139,22 @@ namespace Tasha.Validation.Convergence
                 Writer.Write(sum);
             }
             Writer.WriteLine();
-            // if this is the last iteration dispose
-            if (iterationNumber >= totalIterations - 1)
+        }
+
+        public void Start()
+        {
+            bool exists = new FileInfo(ReportFile).Exists;
+            using (Writer = new StreamWriter(ReportFile, true))
             {
-                Writer.Dispose();
-                Writer = null;
+                if(!exists)
+                {
+                    WriteHeader();
+                }
+                RecordData(Iteration++);
             }
         }
+
+        private int Iteration;
 
         private float GetAverage(float[][] first, float[][] second)
         {

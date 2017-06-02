@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Threading;
 using Datastructure;
@@ -62,14 +63,14 @@ namespace TMG.GTAModel.Input
         public float GetDataFrom(int origin, int destination, int reason = 0)
         {
             EnsureDataIsLoaded();
-            reason += this.ReasonOffset;
-            if ( this.UsePlanningDistricts )
+            reason += ReasonOffset;
+            if ( UsePlanningDistricts )
             {
                 ConvertToPlanningDistricts( ref origin, ref destination );
             }
             if ( !Data.ContainsIndex( origin, destination, reason ) )
             {
-                return this.DefaultValue;
+                return DefaultValue;
             }
             var res = Data[origin, destination, reason];
             return res;
@@ -82,7 +83,7 @@ namespace TMG.GTAModel.Input
 
         private void ConvertToPlanningDistricts(ref int origin, ref int destination)
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             origin = GetPlanningDistrict( zoneArray, origin );
             destination = GetPlanningDistrict( zoneArray, destination );
         }
@@ -108,16 +109,16 @@ namespace TMG.GTAModel.Input
             var zone = zoneArray[zoneNumber];
             if ( zone == null )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a zone with the zone number '" + zoneNumber + "'. Please make sure that this zone exists!" );
             }
             return zone.PlanningDistrict;
         }
 
         private void LoadData()
         {
-            this.DataSource.LoadData();
-            this.Data = this.DataSource.GiveData();
-            this.DataSource.UnloadData();
+            DataSource.LoadData();
+            Data = DataSource.GiveData();
+            DataSource.UnloadData();
         }
     }
 }

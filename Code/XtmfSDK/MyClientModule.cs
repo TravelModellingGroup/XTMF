@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.IO;
 using XTMF;
 using XTMF.Networking;
 
@@ -61,7 +63,7 @@ namespace XtmfSDK
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.Client == null )
+            if ( Client == null )
             {
                 error = "MyClientModule requires an XTMF that supports XTMF.Networking.IClient";
                 return false;
@@ -72,26 +74,28 @@ namespace XtmfSDK
         public void Start()
         {
             // Your Code goes here
+            InitializeCustomMessages();
         }
 
         private void CustomMessageHandler(object data)
         {
         }
 
-        private object CustomMessageReceiver(System.IO.Stream inputStream)
+        private object CustomMessageReceiver(Stream inputStream)
         {
             return null;
         }
 
-        private void CustomMessageSender(object data, System.IO.Stream outputStream)
+        private void CustomMessageSender(object data, Stream outputStream)
         {
+
         }
 
         private void InitializeCustomMessages()
         {
-            this.Client.RegisterCustomSender( 2, CustomMessageSender );
-            this.Client.RegisterCustomReceiver( 1, CustomMessageReceiver );
-            this.Client.RegisterCustomMessageHandler( 1, CustomMessageHandler );
+            Client.RegisterCustomSender( 2, CustomMessageSender );
+            Client.RegisterCustomReceiver( 1, CustomMessageReceiver );
+            Client.RegisterCustomMessageHandler( 1, CustomMessageHandler );
         }
     }
 }

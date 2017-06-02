@@ -18,11 +18,11 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
+// ReSharper disable once CheckNamespace
 namespace TMG.Estimation
 {
+    // ReSharper disable once InconsistentNaming
     public class GradientAI : IEstimationAI
     {
         [RootModule]
@@ -54,7 +54,7 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
 
         public List<Job> CreateJobsForIteration()
         {
-            if ( this.Root.CurrentIteration == 0 )
+            if ( Root.CurrentIteration == 0 )
             {
                 CreateMomentum();
                 return CreateInitialJobs();
@@ -64,21 +64,21 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
 
         private void CreateMomentum()
         {
-            var numberOfParameters = this.Root.Parameters.Count;
-            var momentum = new float[this.NumberOfKernels][];
+            var numberOfParameters = Root.Parameters.Count;
+            var momentum = new float[NumberOfKernels][];
             for ( int i = 0; i < momentum.Length; i++ )
             {
                 momentum[i] = new float[numberOfParameters];
             }
-            this.KernelMomentum = momentum;
+            KernelMomentum = momentum;
         }
 
         private List<Job> MoveKernels()
         {
             var ret = new List<Job>();
-            var parameters = this.Root.Parameters;
-            var oldJobs = this.Root.CurrentJobs;
-            for ( int i = 0; i < this.NumberOfKernels; i++ )
+            var parameters = Root.Parameters;
+            var oldJobs = Root.CurrentJobs;
+            for ( int i = 0; i < NumberOfKernels; i++ )
             {
                 var kernelIndex = i * ( parameters.Count * 2 + 1 );
                 var kernel = Clone( oldJobs[kernelIndex] );
@@ -94,7 +94,7 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
         private void ApplyMomentum(List<ParameterSetting> parameters, Job kernel, int kernelNumber)
         {
             var kernelParameters = kernel.Parameters;
-            var momentum = this.KernelMomentum[kernelNumber];
+            var momentum = KernelMomentum[kernelNumber];
             for ( int i = 0; i < parameters.Count; i++ )
             {
                 kernelParameters[i].Current += momentum[i] * ( kernelParameters[i].Maximum - kernelParameters[i].Minimum );
@@ -120,14 +120,14 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
             for ( int j = 0; j < parameters.Count; j++ )
             {
                 var gradient = oldJobs[kernelIndex + 2 * j + 1].Value - oldJobs[kernelIndex + 2 * j].Value;
-                gradient *= this.ErrorFactor;
+                gradient *= ErrorFactor;
                 // if we want to minimize, go backwards
-                if ( this.Maximize )
+                if ( Maximize )
                 {
                     gradient = -gradient;
                 }
-                this.KernelMomentum[i][j] = gradient * ( 1f - this.MomentumFactor )
-                                            + this.KernelMomentum[i][j] * this.MomentumFactor;
+                KernelMomentum[i][j] = gradient * ( 1f - MomentumFactor )
+                                            + KernelMomentum[i][j] * MomentumFactor;
             }
         }
 
@@ -155,17 +155,17 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
             for ( int j = 0; j < parameters.Count; j++ )
             {
                 var delta = ( kernel.Parameters[j].Maximum - kernel.Parameters[j].Minimum )
-                    * this.WhiskerSize;
-                ret.Add( AddWisker( parameters, kernel, j, -delta ) );
-                ret.Add( AddWisker( parameters, kernel, j, delta ) );
+                    * WhiskerSize;
+                ret.Add( AddWisker(kernel, j, -delta ) );
+                ret.Add( AddWisker(kernel, j, delta ) );
             }
         }
 
         private List<Job> CreateInitialJobs()
         {
             var ret = new List<Job>();
-            var parameters = this.Root.Parameters;
-            for ( int i = 0; i < this.NumberOfKernels; i++ )
+            var parameters = Root.Parameters;
+            for ( int i = 0; i < NumberOfKernels; i++ )
             {
                 var kernel = GenerateRandomJob( parameters );
                 ret.Add( kernel );
@@ -174,7 +174,7 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
             return ret;
         }
 
-        private Job AddWisker(List<ParameterSetting> parameters, Job kernel, int j, float delta)
+        private Job AddWisker(Job kernel, int j, float delta)
         {
             var whisker = Clone( kernel );
             whisker.Parameters[j].Current = kernel.Parameters[j].Current + delta;
@@ -191,7 +191,7 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
             for ( int i = 0; i < ret.Parameters.Length; i++ )
             {
                 ret.Parameters[i].Current =
-                    ( ( ret.Parameters[i].Maximum - ret.Parameters[i].Minimum ) * ( (float)this.Random.NextDouble() ) )
+                    ( ( ret.Parameters[i].Maximum - ret.Parameters[i].Minimum ) * ( (float)Random.NextDouble() ) )
                     + ret.Parameters[i].Minimum;
             }
             return ret;
@@ -236,7 +236,7 @@ The total points explored will be the number of kernels*(#parameters * 2 + 1)." 
 
         public bool RuntimeValidation(ref string error)
         {
-            this.Random = new Random( this.RandomSeed );
+            Random = new Random( RandomSeed );
             return true;
         }
     }

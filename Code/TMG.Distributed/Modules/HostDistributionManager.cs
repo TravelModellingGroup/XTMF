@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.IO;
 using XTMF;
@@ -45,8 +44,6 @@ namespace TMG.Distributed.Modules
 
         [RunParameter("Prefer Previous Client", true, "Assign tasks to clients that have previously executed the task if available.")]
         public bool PreferPreviousClient;
-
-        private volatile bool Exit = false;
 
         /// <summary>
         /// The link into XTMF Networking
@@ -95,7 +92,6 @@ namespace TMG.Distributed.Modules
         {
             if(MainModelSystem.ExitRequest())
             {
-                Exit = true;
                 return true;
             }
             return false;
@@ -180,7 +176,6 @@ namespace TMG.Distributed.Modules
                     switch((CommunicationProtocol)reader.ReadInt32())
                     {
                         case CommunicationProtocol.ClientActivated:
-                            Clients.Add(client);
                             AvailableClients.Push(client);
                             break;
                         case CommunicationProtocol.TaskComplete:
@@ -203,18 +198,20 @@ namespace TMG.Distributed.Modules
                 }
                 UpdateTaskAssignments();
                 // we don't actually bother storing an object
-                reader = null;
                 return null;
             });
             Host.RegisterCustomSender(DistributionDataChannel, (task, client, stream) =>
             {
                 BinaryWriter writer = new BinaryWriter(stream);
                 var t = task as ExecutingTask;
+                if (t == null)
+                {
+                    throw new XTMFRuntimeException($"In {Name} we were sent an object for task processing that was not a task!");
+                }
                 writer.Write((Int32)CommunicationProtocol.RunTask);
                 writer.Write(t.TaskNumber);
                 writer.Write(t.TaskName);
                 writer.Flush();
-                writer = null;
             });
         }
 
@@ -227,7 +224,7 @@ namespace TMG.Distributed.Modules
                     if(AvailableClients.Count > 0)
                     {
                         var task = PendingTasks[0];
-                        IRemoteXTMF previousHost = null;
+                        IRemoteXTMF previousHost;
                         if(PreferPreviousClient && PreviousTaskAssignments.TryGetValue(task.TaskName, out previousHost)
                             && AvailableClients.Contains(previousHost))
                         {
@@ -254,7 +251,7 @@ namespace TMG.Distributed.Modules
             }
         }
 
-        private long TaskNumberHolder = 0;
+        private long TaskNumberHolder;
         private ulong GetTaskNumber()
         {
             return (ulong)Interlocked.Increment(ref TaskNumberHolder);
@@ -279,11 +276,6 @@ namespace TMG.Distributed.Modules
         List<ExecutingTask> ExecutingTasks = new List<ExecutingTask>();
 
         /// <summary>
-        /// The list of all clients
-        /// </summary>
-        List<IRemoteXTMF> Clients = new List<IRemoteXTMF>();
-
-        /// <summary>
         /// The clients that are not currently executing
         /// </summary>
         Stack<IRemoteXTMF> AvailableClients = new Stack<IRemoteXTMF>();
@@ -302,7 +294,6 @@ namespace TMG.Distributed.Modules
             {
                 var unfinishedTasks = ExecutingTasks.Where(task => task.Client == disconnectingClient && task.Complete == false);
                 RemoveClient(disconnectingClient);
-                Clients.Remove(disconnectingClient);
                 foreach(var unfinishedTask in unfinishedTasks)
                 {
                     unfinishedTask.Client = null;

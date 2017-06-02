@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Globalization;
 using System.Windows;
@@ -24,7 +25,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace XTMF.Gui
+namespace XTMF.Gui.UserControls
 {
     public class HintedTextBox : TextBox
     {
@@ -34,72 +35,53 @@ namespace XTMF.Gui
 
         static HintedTextBox()
         {
+
+           
             var contextMenu = new ContextMenu();
             // copy
-            contextMenu.Items.Add( new MenuItem()
+            contextMenu.Items.Add(new MenuItem
             {
                 Header = "Copy",
                 Command = ApplicationCommands.Copy,
-                Icon = new Image()
-                {
-                    Source = new BitmapImage( new Uri( "pack://application:,,,/XTMF.Gui;component/Images/CopyHS.png" ) ),
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
-                    Width = 20,
-                    Height = 20
-                }
-            } );
+                
+            });
             // cut
-            contextMenu.Items.Add( new MenuItem()
+            contextMenu.Items.Add(new MenuItem
             {
                 Header = "Cut",
                 Command = ApplicationCommands.Cut,
-                Icon = new Image()
-                {
-                    Source = new BitmapImage( new Uri( "pack://application:,,,/XTMF.Gui;component/Images/CutHS.png" ) )
-                    ,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
-                    Width = 20,
-                    Height = 20
-                }
-            } );
+               
+            });
             // paste
-            contextMenu.Items.Add( new MenuItem()
+            contextMenu.Items.Add(new MenuItem
             {
                 Header = "Paste",
                 Command = ApplicationCommands.Paste,
-                Icon = new Image()
-                {
-                    Source = new BitmapImage( new Uri( "pack://application:,,,/XTMF.Gui;component/Images/PasteHS.png" ) ),
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
-                    Width = 20,
-                    Height = 20
-                }
-            } );
+                
+            });
             _LocalContextMenu = contextMenu;
         }
 
         public HintedTextBox()
         {
-            this.ClipToBounds = true;
-            this.ContextMenu = _LocalContextMenu;
+            ClipToBounds = true;
+            ContextMenu = _LocalContextMenu;
+            Padding = new Thickness(5, 5, 5, 5);
         }
 
         public string HintText
         {
             get
             {
-                return this.hintText;
+                return hintText;
             }
 
             set
             {
                 hintText = value;
-                if ( !String.IsNullOrEmpty(hintText)  )
+                if (!String.IsNullOrEmpty(hintText))
                 {
-                    this.Background = Brushes.Transparent;
+                    Background = Brushes.Transparent;
                 }
                 RebuildFont();
             }
@@ -107,17 +89,17 @@ namespace XTMF.Gui
 
         protected override void OnRender(DrawingContext dc)
         {
-            if ( this.ClipToBounds )
+            if (ClipToBounds)
             {
-                dc.PushClip( new RectangleGeometry( new Rect( 0, 0, this.ActualWidth, this.ActualHeight ) ) );
+                dc.PushClip(new RectangleGeometry(new Rect(0, 0, ActualWidth, ActualHeight)));
             }
-            dc.DrawRectangle( Brushes.White, new Pen(), new Rect( 0, 0, this.ActualWidth, this.ActualHeight ) );
-            base.OnRender( dc );
-            if ( this.Text == String.Empty && this.HintTextImage != null )
+            dc.DrawRectangle(Brushes.White, new Pen(), new Rect(0, 0, ActualWidth, ActualHeight));
+            base.OnRender(dc);
+            if (Text == String.Empty && HintTextImage != null)
             {
-                dc.DrawText( this.HintTextImage, new Point( 4, ( this.ActualHeight - this.HintTextImage.Height ) / 2 ) );
+                dc.DrawText(HintTextImage, new Point(4, (ActualHeight - HintTextImage.Height) / 2));
             }
-            if ( this.ClipToBounds )
+            if (ClipToBounds)
             {
                 // pop the clip that we added
                 dc.Pop();
@@ -126,30 +108,30 @@ namespace XTMF.Gui
 
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
-            base.OnTextChanged( e );
-            this.InvalidateVisual();
+            base.OnTextChanged(e);
+            InvalidateVisual();
         }
 
         private void RebuildFont()
         {
-            if ( this.hintText == null )
+            if (hintText == null)
             {
-                this.HintTextImage = null;
+                HintTextImage = null;
             }
             else
             {
-                this.HintTextImage = new FormattedText( this.hintText, CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight,
-                    new Typeface( this.FontFamily, this.FontStyle, this.FontWeight, this.FontStretch ), this.FontSize, Brushes.Gray );
+                HintTextImage = new FormattedText(hintText, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                    new Typeface(FontFamily, FontStyle, FontWeight, FontStretch), FontSize, Brushes.Gray);
                 int constantBorder = 8;
-                if ( this.ActualWidth > 0 )
+                if (ActualWidth > 0)
                 {
-                    if ( this.HintTextImage.Width + constantBorder > this.ActualWidth )
+                    if (HintTextImage.Width + constantBorder > ActualWidth)
                     {
-                        this.Width = this.HintTextImage.Width + constantBorder;
+                        Width = HintTextImage.Width + constantBorder;
                     }
                 }
             }
-            this.InvalidateVisual();
+            InvalidateVisual();
         }
     }
 }

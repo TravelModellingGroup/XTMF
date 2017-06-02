@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Collections.Generic;
 using Tasha.Common;
 using XTMF;
@@ -25,18 +25,16 @@ namespace Tasha.XTMFModeChoice
 {
     internal class PurePassengerTripChain : Attachable, ITripChain
     {
-        private List<ITrip> trips;
-
         public PurePassengerTripChain()
         {
-            trips = new List<ITrip>( 1 );
+            Trips = new List<ITrip>( 1 );
         }
 
         public Time EndTime
         {
             get
             {
-                return this.Trips[0].ActivityStartTime;
+                return Trips[0].ActivityStartTime;
             }
         }
 
@@ -65,7 +63,7 @@ namespace Tasha.XTMFModeChoice
             get { return false; }
         }
 
-        public List<ITashaPerson> passengers
+        public List<ITashaPerson> Passengers
         {
             get { return null; }
         }
@@ -76,7 +74,7 @@ namespace Tasha.XTMFModeChoice
             set;
         }
 
-        public List<IVehicleType> requiresVehicle
+        public List<IVehicleType> RequiresVehicle
         {
             get { return null; }
         }
@@ -85,7 +83,7 @@ namespace Tasha.XTMFModeChoice
         {
             get
             {
-                return this.Trips[0].TripStartTime;
+                return Trips[0].TripStartTime;
             }
         }
 
@@ -94,18 +92,7 @@ namespace Tasha.XTMFModeChoice
             get { return false; }
         }
 
-        public List<ITrip> Trips
-        {
-            get
-            {
-                return trips;
-            }
-
-            set
-            {
-                trips = value;
-            }
-        }
+        public List<ITrip> Trips { get; set; }
 
         public ITripChain Clone()
         {

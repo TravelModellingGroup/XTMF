@@ -19,22 +19,19 @@
 using Datastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 namespace TMG.Frameworks.Data.Synthesis.Gibbs
 {
 
-    public class Aggregation : XTMF.IModule
+    public class Aggregation : IModule
     {
         [RootModule]
         public GibbsSampler Root;
 
-        public sealed class Join : XTMF.IModule
+        public sealed class Join : IModule
         {
             [RootModule]
             public GibbsSampler Root;
@@ -104,7 +101,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                     }
                     writer.WriteLine();
                     var originalData = Parent._PrimaryPool.PoolChoices;
-                    var baseHouseholdID = 1;
+                    var baseHouseholdId = 1;
                     for (int zoneIndex = 0; zoneIndex < originalData.Length; zoneIndex++)
                     {
                         var candidatesByValue = SeperatePoolsToPrimaryAttributeValue(factors, columns, accepted, zoneIndex);
@@ -127,7 +124,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                                     writer.Write(zoneString);
                                     writer.Write(',');
                                 }
-                                writer.Write(baseHouseholdID + i);
+                                writer.Write(baseHouseholdId + i);
                                 for (int j = 0; j < candidate.Length; j++)
                                 {
                                     writer.Write(',');
@@ -136,7 +133,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                                 writer.WriteLine();
                             }
                         }
-                        baseHouseholdID += originalData[zoneIndex].Length;
+                        baseHouseholdId += originalData[zoneIndex].Length;
                     }
                 }
             }
@@ -256,7 +253,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                 else
                 {
                     IModelSystemStructure tdm;
-                    if (TMG.Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
+                    if (Functions.ModelSystemReflection.GetRootOfType(Config, typeof(ITravelDemandModel), this, out tdm))
                     {
                         ZoneSystem = ((ITravelDemandModel)tdm.Module).ZoneSystem;
                         if (ZoneSystem != null && !ZoneSystem.Loaded)

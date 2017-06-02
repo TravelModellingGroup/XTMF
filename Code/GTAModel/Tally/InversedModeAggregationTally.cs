@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Threading.Tasks;
 using XTMF;
+
 namespace TMG.GTAModel
 {
     [ModuleInformation( Description =
@@ -30,15 +32,15 @@ it farther down the list of purposes."
     {
         public override void IncludeTally(float[][] currentTally)
         {
-            var purposes = this.Root.Purpose;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var purposes = Root.Purpose;
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
-            for ( int purp = 0; purp < this.PurposeIndexes.Length; purp++ )
+            for ( int purp = 0; purp < PurposeIndexes.Length; purp++ )
             {
                 var purpose = purposes[purp];
-                for ( int m = 0; m < this.ModeIndexes.Length; m++ )
+                for ( int m = 0; m < ModeIndexes.Length; m++ )
                 {
-                    var data = GetResult( purpose.Flows, this.ModeIndexes[m] );
+                    var data = GetResult( purpose.Flows, ModeIndexes[m] );
                     // if there is no data continue on to the next mode
                     if ( data == null ) continue;
                     Parallel.For( 0, numberOfZones, delegate(int o)

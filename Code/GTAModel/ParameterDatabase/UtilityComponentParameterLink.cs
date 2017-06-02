@@ -16,71 +16,66 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Linq;
 using TMG.Modes;
 using XTMF;
 
 namespace TMG.GTAModel.ParameterDatabase
 {
-    [ModuleInformation( Description = "This module allows for linking to the Utility Components of IUtilityComponentModes."
-    + "  The 'Mode Parameter Name' is the name of the parameter of the Utility component to bind to." )]
+    [ModuleInformation(Description = "This module allows for linking to the Utility Components of IUtilityComponentModes."
+    + "  The 'Mode Parameter Name' is the name of the parameter of the Utility component to bind to.")]
     public sealed class UtilityComponentParameterLink : ParameterLink
     {
-        [RunParameter( "Utility Component Name", "", "The name of the Utility Component to bind to." )]
+        [RunParameter("Utility Component Name", "", "The name of the Utility Component to bind to.")]
         public string UtilityComponentName;
 
         protected override bool LinkModeParameter(ref string error)
         {
             // get the mode
-            var mode = this.Parent.Mode as IUtilityComponentMode;
-            if ( mode == null )
+            var mode = Parent.Mode as IUtilityComponentMode;
+            if (mode == null)
             {
-                error = "In '" + this.Parent.Name + "' it failed to present an IUtilityComponentMode mode for '" + this.Name + "'!";
+                error = "In '" + Parent.Name + "' it failed to present an IUtilityComponentMode mode for '" + Name + "'!";
                 return false;
             }
             // get the Util Component
-            var utilComponent = mode.UtilityComponents.FirstOrDefault( (uc) => uc.UtilityComponentName == this.UtilityComponentName );
-            if ( utilComponent == null )
+            var utilComponent = mode.UtilityComponents.FirstOrDefault(uc => uc.UtilityComponentName == UtilityComponentName);
+            if (utilComponent == null)
             {
-                error = "In '" + mode.ModeName + "' we were unable to find a Utility Component with the Utility Component Name '" + this.UtilityComponentName + "'.";
+                error = "In '" + mode.ModeName + "' we were unable to find a Utility Component with the Utility Component Name '" + UtilityComponentName + "'.";
                 return false;
             }
-            this.AssignTo = utilComponent;
+            AssignTo = utilComponent;
             var moduleType = utilComponent.GetType();
-            var parameterType = typeof( ParameterAttribute );
-            foreach ( var field in moduleType.GetFields() )
+            var parameterType = typeof(ParameterAttribute);
+            foreach (var field in moduleType.GetFields())
             {
-                var attributes = field.GetCustomAttributes( parameterType, true );
-                if ( attributes != null )
+                var attributes = field.GetCustomAttributes(parameterType, true);
+                for (int i = 0; i < attributes.Length; i++)
                 {
-                    for ( int i = 0; i < attributes.Length; i++ )
+                    if (((ParameterAttribute)attributes[i]).Name == ModeParameterName)
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == this.ModeParameterName )
-                        {
-                            this.Field = field;
-                            return true;
-                        }
+                        Field = field;
+                        return true;
                     }
                 }
             }
 
-            foreach ( var field in moduleType.GetProperties() )
+            foreach (var field in moduleType.GetProperties())
             {
-                var attributes = field.GetCustomAttributes( parameterType, true );
-                if ( attributes != null )
+                var attributes = field.GetCustomAttributes(parameterType, true);
+                for (int i = 0; i < attributes.Length; i++)
                 {
-                    for ( int i = 0; i < attributes.Length; i++ )
+                    if (((ParameterAttribute)attributes[i]).Name == ModeParameterName)
                     {
-                        if ( ( attributes[i] as ParameterAttribute ).Name == this.ModeParameterName )
-                        {
-                            this.Property = field;
-                            return true;
-                        }
+                        Property = field;
+                        return true;
                     }
                 }
             }
             error = "We were unable to find a parameter in the mode '" + mode.ModeName + "' in the utility component '" + utilComponent.UtilityComponentName
-                + "' called '" + this.ModeParameterName + "'!";
+                + "' called '" + ModeParameterName + "'!";
             return false;
         }
     }

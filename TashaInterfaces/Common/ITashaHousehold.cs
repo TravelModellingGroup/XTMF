@@ -33,7 +33,7 @@ namespace Tasha.Common
         /// </summary>
         float ExpansionFactor { get; set; }
 
-        HouseholdType hhType { get; }
+        HouseholdType HhType { get; }
 
         /// <summary>
         /// The zone this household is in

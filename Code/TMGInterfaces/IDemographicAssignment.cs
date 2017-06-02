@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -23,6 +23,6 @@ namespace TMG
 {
     public interface IDemographicAssignment : IModule
     {
-        SparseTwinIndex<float> AssignTrips(IDemographicCategory Category);
+        SparseTwinIndex<float> AssignTrips(IDemographicCategory category);
     }
 }

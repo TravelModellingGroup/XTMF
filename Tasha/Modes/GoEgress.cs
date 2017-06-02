@@ -52,7 +52,7 @@ namespace Tasha.Modes
         public float FareCost;
 
         [SubModelInformation( Description = "The go data to use", Required = true )]
-        public IGoData goData;
+        public IGoData GOData;
 
         [RunParameter( "OccGeneralTransit", 0.0f, "The factor applied when their occupation is general." )]
         public float OccGeneralTransit;
@@ -98,13 +98,6 @@ namespace Tasha.Modes
         /// </summary>
         [RunParameter( "WalkTime", 0.0f, "The factor applied to the walk time" )]
         public float WalkTime;
-
-        /// <summary>
-        ///
-        /// </summary>
-        public GoEgress()
-        {
-        }
 
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
@@ -162,13 +155,14 @@ namespace Tasha.Modes
             get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
         }
 
-        [DoNotAutomate]
+
         /// <summary>
         /// does this mode require a vehicle?
         /// </summary>
+        [DoNotAutomate]
         public IVehicleType RequiresVehicle
         {
-            get { return this.TashaRuntime.AutoType; }
+            get { return TashaRuntime.AutoType; }
         }
 
         [RunParameter( "Variance Scale", 1.0f, "The scale for varriance used for variance testing." )]
@@ -189,47 +183,45 @@ namespace Tasha.Modes
             ITrip accessTrip;
 
             int egressStation = LatestAccessStation( trip.TripChain, trip, out accessTrip );
-            int accessStation = goData.GetClosestStations( trip.DestinationZone.ZoneNumber )[0];
+            int accessStation = GOData.GetClosestStations( trip.DestinationZone.ZoneNumber )[0];
 
             trip.Attach( "go-egress-station", accessStation );
 
-            double V = 0.0;
-
+            double v = CDriveEgress;
             if ( trip["Walking"] != null )
             {
                 ITrip intermediateTrip = (ITrip)trip["Walking"];
-                V += this.Walking.CalculateV( intermediateTrip );
+                v += Walking.CalculateV( intermediateTrip );
             }
             else
             {
-                V += TransitTime * goData.GetTransitAccessTime( trip.OriginalZone.ZoneNumber, accessStation );
-                V += WalkTime * goData.GetEgressWalkTime( trip.OriginalZone.ZoneNumber, accessStation );
-                V += WaitTime * goData.GetEgressWaitTime( trip.OriginalZone.ZoneNumber, accessStation );
+                v += TransitTime * GOData.GetTransitAccessTime( trip.OriginalZone.ZoneNumber, accessStation );
+                v += WalkTime * GOData.GetEgressWalkTime( trip.OriginalZone.ZoneNumber, accessStation );
+                v += WaitTime * GOData.GetEgressWaitTime( trip.OriginalZone.ZoneNumber, accessStation );
             }
-            V = this.CDriveEgress;
-            V += AutoTime * goData.GetAutoTime( trip.DestinationZone.ZoneNumber, egressStation );
-            V += AutoCost * goData.GetAutoCost( trip.DestinationZone.ZoneNumber, egressStation );
-            V += TransitRailTime * goData.GetLineHaulTime( accessStation, egressStation );
-            V += FareCost * ( goData.GetGoFair( accessStation, egressStation )
-                                              + goData.GetTransitFair( trip.DestinationZone.ZoneNumber, egressStation ) );
+            v += AutoTime * GOData.GetAutoTime( trip.DestinationZone.ZoneNumber, egressStation );
+            v += AutoCost * GOData.GetAutoCost( trip.DestinationZone.ZoneNumber, egressStation );
+            v += TransitRailTime * GOData.GetLineHaulTime( accessStation, egressStation );
+            v += FareCost * ( GOData.GetGoFair( accessStation, egressStation )
+                                              + GOData.GetTransitFair( trip.DestinationZone.ZoneNumber, egressStation ) );
 
-            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Morning ) ||
-( Common.GetTimePeriod( trip.ActivityStartTime ) == Tasha.Common.TravelTimePeriod.Afternoon ) )
+            if ( ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Morning ) ||
+( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Afternoon ) )
             {
-                V += PeakTrip;
+                v += PeakTrip;
             }
 
             if ( trip.TripChain.Person.Occupation == Occupation.Retail )
             {
-                V += this.OccSalesTransit;
+                v += OccSalesTransit;
             }
 
             if ( trip.TripChain.Person.Occupation == Occupation.Office )
             {
-                V += this.OccGeneralTransit;
+                v += OccGeneralTransit;
             }
 
-            return V;
+            return v;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
@@ -242,26 +234,27 @@ namespace Tasha.Modes
         /// </summary>
         /// <param name="origin">The origin zone</param>
         /// <param name="destination">The destination zone</param>
+        /// <param name="time"></param>
         /// <returns>the minumum cost</returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
-            float MinCost = float.MaxValue;
+            float minCost = float.MaxValue;
 
-            int[] egressStations = goData.GetClosestStations( origin.ZoneNumber );
-            int accessStation = goData.GetClosestStations( destination.ZoneNumber )[0];
+            int[] egressStations = GOData.GetClosestStations( origin.ZoneNumber );
+            int accessStation = GOData.GetClosestStations( destination.ZoneNumber )[0];
 
             foreach ( int egressStation in egressStations )
             {
-                float cost = goData.GetAutoCost( destination.ZoneNumber, egressStation )
-                           + goData.GetGoFair( accessStation, egressStation );
+                float cost = GOData.GetAutoCost( destination.ZoneNumber, egressStation )
+                           + GOData.GetGoFair( accessStation, egressStation );
 
-                if ( cost < MinCost )
+                if ( cost < minCost )
                 {
-                    MinCost = cost;
+                    minCost = cost;
                 }
             }
 
-            return MinCost;
+            return minCost;
         }
 
         public bool Feasible(IZone origin, IZone destination, Time timeOfDay)
@@ -280,9 +273,9 @@ namespace Tasha.Modes
             if ( !trip.TripChain.Person.Licence || trip.TripChain.Person.Household.Vehicles.Length == 0 )
                 return false;
 
-            if ( trip.OriginalZone.Distance( trip.DestinationZone ) < goData.MinDistance ) return false;
+            if ( trip.OriginalZone.Distance( trip.DestinationZone ) < GOData.MinDistance ) return false;
 
-            int[] accessStations = goData.GetClosestStations( trip.OriginalZone.ZoneNumber );
+            int[] accessStations = GOData.GetClosestStations( trip.OriginalZone.ZoneNumber );
             int accessStation = -1;
             ITrip accessTrip;
             int egressStation = LatestAccessStation( trip.TripChain, trip, out accessTrip );
@@ -292,42 +285,42 @@ namespace Tasha.Modes
             Time time = Time.Zero;
             foreach ( int station in accessStations )
             {
-                if ( ( time = new Time( goData.GetTransitAccessTime( trip.OriginalZone.ZoneNumber, station ) ) ) > Time.Zero )
+                if ( ( time = new Time( GOData.GetTransitAccessTime( trip.OriginalZone.ZoneNumber, station ) ) ) > Time.Zero )
                 {
                     accessStation = station;
                 }
             }
 
-            if ( ( accessStation == -1 ) & ( Walking == null ) )
+            if ( ( accessStation == -1 )  )
             {
-                return false;
-            }
-            if ( accessStation == -1 )
-            {
-                //No Feasible access station by Transit so attempt walk trip
-
-                //no feasible accessStation when going by transit, try walking
-                foreach ( var station in accessStations )
+                if (Walking == null)
                 {
-                    ITransitStation transitStation = goData.GetStation( station );
-
-                    if ( transitStation.ClosestZone == -1 ) continue;
-
-                    ITrip intermediateTrip = this.TashaRuntime.CreateTrip( trip.TripChain, trip.OriginalZone, this.TashaRuntime.ZoneSystem.Get( transitStation.ClosestZone ), Activity.Intermediate,
-                        trip.ActivityStartTime );
-
-                    if ( Walking.Feasible( intermediateTrip ) )
+                    return false;
+                }
+                else
+                {
+                    foreach (var station in accessStations)
                     {
-                        time = Walking.TravelTime( intermediateTrip.OriginalZone,
-                                                  intermediateTrip.DestinationZone,
-                                                  intermediateTrip.ActivityStartTime );
+                        ITransitStation transitStation = GOData.GetStation(station);
 
-                        trip.Attach( "Walking", intermediateTrip );
+                        if (transitStation.ClosestZone == -1) continue;
 
-                        accessStation = station;
+                        ITrip intermediateTrip = TashaRuntime.CreateTrip(trip.TripChain, trip.OriginalZone, TashaRuntime.ZoneSystem.Get(transitStation.ClosestZone), Activity.Intermediate,
+                            trip.ActivityStartTime);
 
-                        //found a walking trip no need to look further
-                        break;
+                        if (Walking.Feasible(intermediateTrip))
+                        {
+                            time = Walking.TravelTime(intermediateTrip.OriginalZone,
+                                                      intermediateTrip.DestinationZone,
+                                                      intermediateTrip.ActivityStartTime);
+
+                            trip.Attach("Walking", intermediateTrip);
+
+                            accessStation = station;
+
+                            //found a walking trip no need to look further
+                            break;
+                        }
                     }
                 }
             }
@@ -338,9 +331,10 @@ namespace Tasha.Modes
 
             //if there was an access before this egress
             if ( egressStation == accessStation
-                || goData.GetGoFrequency( accessStation, egressStation, trip.ActivityStartTime.ToFloat() ) == 0
-                || duration + trip.ActivityStartTime < new Time( this.goData.StartTime )
-                || duration + trip.ActivityStartTime > new Time( this.goData.EndTime )
+                 // ReSharper disable once CompareOfFloatsByEqualityOperator
+                || GOData.GetGoFrequency( accessStation, egressStation, trip.ActivityStartTime.ToFloat() ) == 0
+                || duration + trip.ActivityStartTime < new Time( GOData.StartTime )
+                || duration + trip.ActivityStartTime > new Time( GOData.EndTime )
                 )
             {
                 return false;
@@ -402,36 +396,17 @@ namespace Tasha.Modes
         }
 
         /// <summary>
-        /// Calculates the minumum travel time for go egress
+        /// Calculates the minimum travel time for go egress
         ///
         /// </summary>
         ///
         /// <param name="origin">The origin zone</param>
         /// <param name="destination">The destination zone</param>
         /// <param name="time">The time period</param>
-        /// <returns>the minumum travel time</returns>
+        /// <returns>the minimum travel time</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            Time MinTravelTime = Time.EndOfDay;
-
-            int[] egressStations = goData.GetClosestStations( destination.ZoneNumber );
-            int accessStation = goData.GetClosestStations( origin.ZoneNumber )[0];
-
-            foreach ( int egressStation in egressStations )//go through all possible stations
-            {
-                //calculating travel time: time to take transit to station, the go travel time, driving to destination
-                //TODO:figure out why we are taking car when we might leave it at station
-                /*float travelTime = goData.GetAutoTime(destination.ZoneNumber, egressStation) +
-                                    goData.GetLineHaulTime(accessStation, egressStation) +
-                                    goData.GetTotalTransitAccessTime(origin.ZoneNumber, accessStation);*/
-                Time travelTime = Time.Zero;
-                if ( travelTime < MinTravelTime )
-                {
-                    MinTravelTime = travelTime;
-                }
-            }
-
-            return MinTravelTime;
+            return Time.Zero;
         }
 
         /// <summary>
@@ -439,6 +414,7 @@ namespace Tasha.Modes
         /// </summary>
         /// <param name="tripChain">the trip chain of the trip</param>
         /// <param name="trip">the trip</param>
+        /// <param name="accessTrip"></param>
         /// <returns>latest access station or -1 if none</returns>
         private int LatestAccessStation(ITripChain tripChain, ITrip trip, out ITrip accessTrip)
         {

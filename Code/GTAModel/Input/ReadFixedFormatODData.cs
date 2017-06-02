@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -64,10 +65,7 @@ namespace TMG.GTAModel.Input
             get { return 0; }
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public IEnumerable<ODData<float>> Read()
         {
@@ -75,22 +73,18 @@ namespace TMG.GTAModel.Input
             if ( !FixedFormatFile.ContainsFileName() ) yield break;
             // otherwise load in the data
             ODData<float> currentData = new ODData<float>();
-            var zoneArray = Root.ZoneSystem.ZoneArray;
-            var zoneNumbers = zoneArray.ValidIndexArray();
-            var zones = zoneArray.GetFlatData();
-
-            StreamReader reader = null;
+            StreamReader reader;
             try
             {
                 reader = new StreamReader( FixedFormatFile.GetFileName() );
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to open up the file named '" + FixedFormatFile.GetFileName() + "' with the exception '" + e.Message + "'" );
             }
-            // find the ammount of data in the line that we need in order to process anything
-            var dataInLine = Math.Max( this.OriginStart + this.OriginLenth, this.DestinationStart + this.DestinationLenth );
-            dataInLine = Math.Max( dataInLine, this.DataStart + this.DataLenth );
+            // find the amount of data in the line that we need in order to process anything
+            var dataInLine = Math.Max( OriginStart + OriginLenth, DestinationStart + DestinationLenth );
+            dataInLine = Math.Max( dataInLine, DataStart + DataLenth );
             using ( reader )
             {
                 string line;
@@ -98,15 +92,15 @@ namespace TMG.GTAModel.Input
                 {
                     // if there is not enough data just continue
                     if ( line.Length < dataInLine ) continue;
-                    currentData.O = int.Parse( line.Substring( this.OriginStart, this.OriginLenth ) );
-                    currentData.D = int.Parse( line.Substring( this.DestinationStart, this.DestinationLenth ) );
+                    currentData.O = int.Parse( line.Substring( OriginStart, OriginLenth ) );
+                    currentData.D = int.Parse( line.Substring( DestinationStart, DestinationLenth ) );
                     if ( EToTheData )
                     {
-                        currentData.Data = (float)( Math.Exp( double.Parse( line.Substring( this.DataStart, this.DataLenth ) ) ) );
+                        currentData.Data = (float)( Math.Exp( double.Parse( line.Substring( DataStart, DataLenth ) ) ) );
                     }
                     else
                     {
-                        currentData.Data = (float)double.Parse( line.Substring( this.DataStart, this.DataLenth ) );
+                        currentData.Data = (float)double.Parse( line.Substring( DataStart, DataLenth ) );
                     }
                     yield return currentData;
                 }

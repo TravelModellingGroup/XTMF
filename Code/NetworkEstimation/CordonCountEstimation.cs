@@ -16,14 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
-using TMG.Input;
 using Datastructure;
 using TMG.Estimation;
+using TMG.Input;
+using XTMF;
+
 namespace TMG.NetworkEstimation
 {
     public class CordonCountEstimation : IModelSystemTemplate
@@ -72,20 +72,17 @@ namespace TMG.NetworkEstimation
             float absError = 0f;
             if (!EvaluateModelData(ref totalError, ref meanSquareError, ref absError) )
             {
-                this.Root.RetrieveValue = () =>
-                    this.TotalErrorFactor * totalError
-                    + this.MeanSquareErrorFactor * meanSquareError
-                    + this.AbsoluteErrorFactor * absError;
-            }
-            else
-            {
+                Root.RetrieveValue = () =>
+                    TotalErrorFactor * totalError
+                    + MeanSquareErrorFactor * meanSquareError
+                    + AbsoluteErrorFactor * absError;
             }
         }
 
         private bool EvaluateModelData(ref float totalError, ref float meanSquareError, ref float absError)
         {
             // model data needs to be loaded every time
-            using ( var reader = new CsvReader( this.ModelOutputFile.GetFilePath() ) )
+            using ( var reader = new CsvReader( ModelOutputFile.GetFilePath() ) )
             {
                 reader.LoadLine();
                 while ( !reader.EndOfFile )
@@ -97,10 +94,10 @@ namespace TMG.NetworkEstimation
                     float modelStationValue;
                     reader.Get( out modelStationName, 0 );
                     reader.Get( out modelStationValue, 1 );
-                    if ( this.StationNameMap.TryGetValue( modelStationName, out truthName ) )
+                    if ( StationNameMap.TryGetValue( modelStationName, out truthName ) )
                     {
                         float truthValue;
-                        if ( this.TruthValues.TryGetValue( truthName, out truthValue ) )
+                        if ( TruthValues.TryGetValue( truthName, out truthValue ) )
                         {
                             var diff = modelStationValue - truthValue;
                             totalError += diff;
@@ -115,9 +112,9 @@ namespace TMG.NetworkEstimation
 
         private void LoadTruthData()
         {
-            if ( this.TruthValues.Count == 0 )
+            if ( TruthValues.Count == 0 )
             {
-                using ( var reader = new CsvReader( this.TruthFile.GetFilePath() ) )
+                using ( var reader = new CsvReader( TruthFile.GetFilePath() ) )
                 {
                     reader.LoadLine();
                     while ( !reader.EndOfFile )
@@ -131,7 +128,7 @@ namespace TMG.NetworkEstimation
                         float stationValue;
                         reader.Get( out stationName, 0 );
                         reader.Get( out stationValue, 1 );
-                        this.TruthValues.Add( stationName, stationValue );
+                        TruthValues.Add( stationName, stationValue );
                     }
                 }
             }
@@ -139,9 +136,9 @@ namespace TMG.NetworkEstimation
 
         private void LoadStationMap()
         {
-            if ( this.StationNameMap.Count == 0 )
+            if ( StationNameMap.Count == 0 )
             {
-                using ( CsvReader reader = new CsvReader( this.StationNameMapFile.GetFilePath() ) )
+                using ( CsvReader reader = new CsvReader( StationNameMapFile.GetFilePath() ) )
                 {
                     // Burn header
                     reader.LoadLine();
@@ -156,7 +153,7 @@ namespace TMG.NetworkEstimation
                         string truthStationName, modelStationName;
                         reader.Get( out truthStationName, 0 );
                         reader.Get( out modelStationName, 1 );
-                        this.StationNameMap.Add( modelStationName, truthStationName );
+                        StationNameMap.Add( modelStationName, truthStationName );
                     }
                 }
             }

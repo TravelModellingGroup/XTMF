@@ -92,13 +92,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Development Debug\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -196,6 +199,7 @@
     <Compile Include="NetworkAnalysis\ReportScreenlineResults.cs" />
     <Compile Include="NetworkAssignment\AssignV4BoardingPenalty.cs" />
     <Compile Include="NetworkAssignment\BasicTransitAssignment.cs" />
+    <Compile Include="NetworkAssignment\BuildFbtnFromSchemaMulticlass.cs" />
     <Compile Include="NetworkAssignment\BuildFbtnFromSchema.cs" />
     <Compile Include="NetworkAssignment\Calc407Tolls.cs" />
     <Compile Include="NetworkAssignment\CheckScenarioFunctions.cs" />
@@ -352,6 +356,7 @@
     <None Include="ModeSplitModule.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using TMG.Input;
@@ -40,7 +41,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         private Dictionary<int, bool> Data;
 
-        private volatile bool Loaded = false;
+        private volatile bool Loaded;
 
         public string Name
         {
@@ -67,18 +68,18 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( !this.Loaded )
+            if ( !Loaded )
             {
                 lock ( this )
                 {
                     Load();
-                    this.Loaded = true;
+                    Loaded = true;
                 }
             }
             bool station;
-            if ( this.Data.TryGetValue( origin.ZoneNumber, out station ) & station )
+            if ( Data.TryGetValue( origin.ZoneNumber, out station ) & station )
             {
-                return this.Constant;
+                return Constant;
             }
             return 0f;
         }
@@ -91,11 +92,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         private void Load()
         {
             var data = new Dictionary<int, bool>();
-            foreach ( var line in this.DataSource.Read() )
+            foreach ( var line in DataSource.Read() )
             {
-                data[(int)line[this.ZoneIndex]] = ( line[this.StationIndex] > 0 );
+                data[(int)line[ZoneIndex]] = ( line[StationIndex] > 0 );
             }
-            this.Data = data;
+            Data = data;
         }
     }
 }

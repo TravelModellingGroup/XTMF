@@ -71,9 +71,9 @@ namespace Tasha.XTMFModeChoice
         /// <summary>
         /// The list of conflicts for this household iteration
         /// </summary>
-        public List<Conflict> Conflicts = null;
+        public List<Conflict> Conflicts;
 
-        public List<VehicleAllocationWindow> VehicleAvailability = null;
+        public List<VehicleAllocationWindow> VehicleAvailability;
         private float BestConflictUtility = float.NegativeInfinity;
         private ITashaHousehold household;
         private ITashaMode[] Modes;
@@ -83,7 +83,7 @@ namespace Tasha.XTMFModeChoice
         /// </summary>
         private int[][] ResolutionWorkingSet;
 
-        private CurrentPosition[] Scan = null;
+        private CurrentPosition[] Scan;
 
         public HouseholdResourceAllocator(ITashaHousehold household, ITashaMode[] modes)
         {
@@ -115,7 +115,7 @@ namespace Tasha.XTMFModeChoice
             }
             for(int i = 0; i < numberOfPeople; i++)
             {
-                Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains, HasBeenProcessed = false };
+                Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains};
             }
             List<ITripChain> activeTours = new List<ITripChain>(numberOfVehicles);
             var endOfDay = new Time() { Hours = 28 };
@@ -319,7 +319,7 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        private bool CheckPossibleUsers(ModeChoiceHouseholdData householdData, IVehicleType[] vehicleTypes, IVehicle[] vehicles)
+        private bool CheckPossibleUsers(IVehicleType[] vehicleTypes, IVehicle[] vehicles)
         {
             int numberOfUsers = 0;
             var typeZero = vehicleTypes[0];
@@ -333,7 +333,7 @@ namespace Tasha.XTMFModeChoice
             return vehicles.Length >= numberOfUsers;
         }
 
-        private bool CheckPossibleUsersAtTimeOfDay(ModeChoiceHouseholdData householdData, IVehicleType[] vehicleTypes, IVehicle[] vehicles)
+        private bool CheckPossibleUsersAtTimeOfDay(ModeChoiceHouseholdData householdData, IVehicle[] vehicles)
         {
             if(Conflicts == null)
             {
@@ -349,7 +349,7 @@ namespace Tasha.XTMFModeChoice
             }
             for(int i = 0; i < Scan.Length; i++)
             {
-                Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains, HasBeenProcessed = false };
+                Scan[i] = new CurrentPosition() { Position = 0, TripChains = household.Persons[i].TripChains};
             }
             List<ITripChain> activeTours = new List<ITripChain>(vehicles.Length);
             var endOfDay = new Time() { Hours = 28 };
@@ -471,13 +471,13 @@ namespace Tasha.XTMFModeChoice
             var persons = household.Persons;
             var numberOfPeople = persons.Length;
             var numberOfConflicts = Conflicts.Count;
-            List<ITripChain>[] _personConflicts = new List<ITripChain>[numberOfPeople];
-            List<bool>[] _assignResource = new List<bool>[numberOfPeople];
+            List<ITripChain>[] newPersonConflicts = new List<ITripChain>[numberOfPeople];
+            List<bool>[] newAssignResource = new List<bool>[numberOfPeople];
             // initialize our temp data
             for(int i = 0; i < numberOfPeople; i++)
             {
-                _personConflicts[i] = new List<ITripChain>();
-                _assignResource[i] = new List<bool>();
+                newPersonConflicts[i] = new List<ITripChain>();
+                newAssignResource[i] = new List<bool>();
             }
             if(ResolutionWorkingSet == null)
             {
@@ -488,12 +488,12 @@ namespace Tasha.XTMFModeChoice
                 }
             }
             // Load in the data with unique trip chains
-            LoadUniqueTripChainConflicts(persons, numberOfConflicts, _personConflicts, _assignResource);
+            LoadUniqueTripChainConflicts(persons, numberOfConflicts, newPersonConflicts, newAssignResource);
             for(int i = 0; i < numberOfPeople; i++)
             {
-                personConflicts[i] = _personConflicts[i].ToArray();
-                assignResource[i] = _assignResource[i].ToArray();
-                bestAssignment[i] = _assignResource[i].ToArray();
+                personConflicts[i] = newPersonConflicts[i].ToArray();
+                assignResource[i] = newAssignResource[i].ToArray();
+                bestAssignment[i] = newAssignResource[i].ToArray();
             }
         }
 
@@ -558,11 +558,10 @@ namespace Tasha.XTMFModeChoice
             return -1;
         }
 
-        private bool ProcessHardSingleVehicleCase(ModeChoiceHouseholdData householdData, IVehicleType[] vehicleTypes, IVehicle[] vehicles)
+        private bool ProcessHardSingleVehicleCase(ModeChoiceHouseholdData householdData, IVehicle[] vehicles)
         {
             var persons = household.Persons;
             var numberOfPeople = persons.Length;
-            var numberOfConflicts = Conflicts.Count;
             ITripChain[][] personConflicts = new ITripChain[numberOfPeople][];
             bool[][] assignResource = new bool[numberOfPeople][];
             bool[][] bestAssignment = new bool[numberOfPeople][];
@@ -584,7 +583,7 @@ namespace Tasha.XTMFModeChoice
             var numberOfPeople = Resolution.Length;
 
             // See if we have at least the same number of the vehicle type than people that can use it
-            if(activeVehicles >= numberOfPeople || CheckPossibleUsers(householdData, vehicleTypes, vehicles))
+            if(activeVehicles >= numberOfPeople || CheckPossibleUsers(vehicleTypes, vehicles))
             {
                 // Assign to anyone who wants one
                 AssignBestToAll(householdData);
@@ -592,13 +591,13 @@ namespace Tasha.XTMFModeChoice
             }
 
             //Check users at time of day
-            if(CheckPossibleUsersAtTimeOfDay(householdData, vehicleTypes, vehicles))
+            if(CheckPossibleUsersAtTimeOfDay(householdData, vehicles))
             {
                 AssignBestToAll(householdData);
                 return true;
             }
 
-            if(ProcessHardSingleVehicleCase(householdData, vehicleTypes, vehicles))
+            if(ProcessHardSingleVehicleCase(householdData, vehicles))
             {
                 return true;
             }
@@ -623,7 +622,7 @@ namespace Tasha.XTMFModeChoice
                 }
                 return any;
             }
-            else if(assignResource.Length == person + 1)
+            if(assignResource.Length == person + 1)
             {
                 float utility;
                 if(IsValidAssignment(numberOfResource, assignResource, personConflicts, householdData, out utility))
@@ -637,15 +636,11 @@ namespace Tasha.XTMFModeChoice
                 }
                 return false;
             }
-            else
-            {
-                return RecursiveExplore(householdData, numberOfResource, assignResource, bestAssignment, personConflicts, person + 1, 0);
-            }
+            return RecursiveExplore(householdData, numberOfResource, assignResource, bestAssignment, personConflicts, person + 1, 0);
         }
 
         private struct CurrentPosition
         {
-            internal bool HasBeenProcessed;
             internal int Position;
             internal List<ITripChain> TripChains;
         }

@@ -17,12 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using XTMF.Testing.Modules;
 using XTMF.Testing.Modules.Editing;
 
@@ -114,7 +110,6 @@ namespace XTMF.Testing.Editing
         {
             var runtime = TestXTMFCore.CreateRuntime();
             var projectController = runtime.ProjectController;
-            var msController = runtime.ModelSystemController;
             string error = null;
             projectController.DeleteProject("TestProject", ref error);
             Project project;
@@ -143,7 +138,6 @@ namespace XTMF.Testing.Editing
         {
             var runtime = TestXTMFCore.CreateRuntime();
             var projectController = runtime.ProjectController;
-            var msController = runtime.ModelSystemController;
             string error = null;
             projectController.DeleteProject("TestProject", ref error);
             Project project;

@@ -19,6 +19,7 @@
 using System;
 using Tasha.ModeChoice;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha.Common
 {
@@ -94,22 +95,19 @@ namespace Tasha.Common
                 }
                 return success;
             }
-            else
+            //is a joint trip
+            var jointTripChains = trip.TripChain.JointTripChains;
+            for ( int i = 0; i < jointTripChains.Count; i++ )
             {
-                //is a joint trip
-                var jointTripChains = trip.TripChain.JointTripChains;
-                for ( int i = 0; i < jointTripChains.Count; i++ )
+                for ( int j = 0; j < jointTripChains[i].Trips.Count; j++ )
                 {
-                    for ( int j = 0; j < jointTripChains[i].Trips.Count; j++ )
+                    var t = jointTripChains[i].Trips[j];
+                    if ( t.Mode.NonPersonalVehicle == false )
                     {
-                        var t = jointTripChains[i].Trips[j];
-                        if ( t.Mode.NonPersonalVehicle == false )
-                        {
-                            //this is a possible driver
-                            //save the rideshare data
-                            trip.SharedModeDriver = t.TripChain.Person;
-                            return true;
-                        }
+                        //this is a possible driver
+                        //save the rideshare data
+                        trip.SharedModeDriver = t.TripChain.Person;
+                        return true;
                     }
                 }
             }
@@ -131,11 +129,11 @@ namespace Tasha.Common
             //the mode data for the facilitated trip
             ModeData facilitatedTripData = ModeData.Get( facilitatedTrip );
             int indexOfPass = TashaRuntime.GetIndexOfMode( facilitatedTripMode );
-            double UofAuxiliaryTrip = CalculateUofAuxTrip( tripChain );
+            double uofAuxiliaryTrip = CalculateUofAuxTrip( tripChain );
             facilitatedTripData.V[indexOfPass] = facilitatedTripMode.CalculateV( facilitatedTrip );
 
             newU = facilitatedTripData.U( indexOfPass )
-                + UofAuxiliaryTrip;
+                + uofAuxiliaryTrip;
             if ( facilitatedTrip.Mode == null )
             {
                 // if there is no other way
@@ -161,7 +159,7 @@ namespace Tasha.Common
             double sum = 0;
             if ( Rand == null )
             {
-                Rand = new Random( this.RandomSeed );
+                Rand = new Random( RandomSeed );
             }
             for ( int i = 0; i < 12; i++ )
             {
@@ -180,7 +178,7 @@ namespace Tasha.Common
         /// <param name="end"></param>
         /// <param name="hh"></param>
         /// <returns></returns>
-        public int numVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh)
+        public int NumVehiclesAvailable(IVehicleType veqType, Time start, Time end, ITashaHousehold hh)
         {
             return ( hh.NumberOfVehicleAvailable( new TashaTimeSpan( start, end ), veqType, false ) );
         }
@@ -229,7 +227,7 @@ namespace Tasha.Common
                     trip1.Purpose = Activity.FacilitatePassenger;
                     trip2.Purpose = Activity.Home;
                 }
-                else if ( connectingTrip != null )
+                else
                 {
                     auxTripChain.Attach( "Purpose", Activity.Dropoff );
                     auxTripChain.Attach( "OriginalPurpose", connectingTrip.Purpose );
@@ -251,9 +249,8 @@ namespace Tasha.Common
                     trip1.Purpose = Activity.FacilitatePassenger;
                     trip2.Purpose = Activity.Home;
                 }
-                else if ( connectingTrip != null )
+                else
                 {
-                    ///TODO: Look into this again
                     auxTripChain.Attach( "Purpose", Activity.Pickup );
                     auxTripChain.Attach( "OriginalPurpose", connectingTrip.Purpose );
                     trip1.Purpose = Activity.FacilitatePassenger;
@@ -304,7 +301,7 @@ namespace Tasha.Common
                         if ( i == 0 ) // first trip of the day...
                         {
                             //trip uses vehicle needed for specified shared mode
-                            if ( p.TripChains[i].requiresVehicle.Contains( mode.RequiresVehicle ) )
+                            if ( p.TripChains[i].RequiresVehicle.Contains( mode.RequiresVehicle ) )
                             {
                                 originToIntermediatePoint = AuxiliaryTrip.MakeAuxiliaryTrip( h.HomeZone, facilitateTrip.DestinationZone, mode, facilitateTrip.ActivityStartTime );
                                 //travel time from the facilitated trips destination to the trips destination
@@ -380,7 +377,7 @@ namespace Tasha.Common
 
         private bool AssignGoToAndReturnTripChains(ITripChain auxiliaryTripChain, ITashaHousehold household, IVehicleType vehicleType, ITrip trip, ISharedMode mode)
         {
-            if ( numVehiclesAvailable( vehicleType, auxiliaryTripChain.StartTime, auxiliaryTripChain.EndTime, household ) == 0 )
+            if ( NumVehiclesAvailable( vehicleType, auxiliaryTripChain.StartTime, auxiliaryTripChain.EndTime, household ) == 0 )
                 return false;
 
             bool success = false;
@@ -425,7 +422,7 @@ namespace Tasha.Common
                 }
                 foreach ( var tc in p.TripChains )
                 {
-                    if ( tc.requiresVehicle.Contains( mode.RequiresVehicle ) && tc.Trips[tc.Trips.Count - 1].TripStartTime < facilitateTrip.ActivityStartTime )
+                    if ( tc.RequiresVehicle.Contains( mode.RequiresVehicle ) && tc.Trips[tc.Trips.Count - 1].TripStartTime < facilitateTrip.ActivityStartTime )
                     {
                         ITrip lastTrip = tc.Trips[tc.Trips.Count - 1];
                         ITrip originToIntermediatePoint = AuxiliaryTrip.MakeAuxiliaryTrip( lastTrip.OriginalZone,
@@ -472,7 +469,7 @@ namespace Tasha.Common
 
         private double CalculateUofAuxTrip(ITripChain currentTripChain)
         {
-            double U = 0;
+            double utility = 0;
             for ( int i = 0; i < currentTripChain.Trips.Count; i++ )
             {
                 var trip = currentTripChain.Trips[i];
@@ -480,11 +477,11 @@ namespace Tasha.Common
                 md.Store( trip );
                 int indexOfMode = TashaRuntime.GetIndexOfMode( trip.Mode );
                 md.V[indexOfMode] = trip.Mode.CalculateV( trip );
-                md.Error[indexOfMode] = this.GetNormal();
-                U += md.U( indexOfMode );
+                md.Error[indexOfMode] = GetNormal();
+                utility += md.U( indexOfMode );
             }
-            currentTripChain.Attach( "U", U );
-            return U;
+            currentTripChain.Attach( "U", utility );
+            return utility;
         }
 
         private ITrip copyTrip(ITrip trip)
@@ -546,58 +543,6 @@ namespace Tasha.Common
         private bool isPickUpTrip(ITrip trip)
         {
             return ( trip.TripChain.Trips[0] != trip ) && trip.DestinationZone.ZoneNumber == trip.TripChain.Person.Household.HomeZone.ZoneNumber;
-        }
-
-        private bool OffsetActivityStartTime(ITrip driverTrip,
-                        ITrip passengerTrip,
-                        ISharedMode sharedMode,
-                        bool pickUp,
-                        int driverWaitThreshold,
-                        int passengerWaitThreshold,
-                        AdjustmentType adjustmentType,
-                        out Time newDriverStartTime,
-                        out Time newPassengerStartTime)
-        {
-            newPassengerStartTime = Time.Zero;
-            newDriverStartTime = Time.Zero;
-
-            if ( adjustmentType == AdjustmentType.Driver )
-            {
-                Time startTime = passengerTrip.ActivityStartTime;
-                newDriverStartTime = startTime + driverTrip.Mode.TravelTime( passengerTrip.DestinationZone, driverTrip.DestinationZone, driverTrip.TripStartTime );
-                newPassengerStartTime = startTime;
-
-                return WithinWaitThreshold( newDriverStartTime, driverTrip.ActivityStartTime, driverWaitThreshold );
-            }
-            else if ( adjustmentType == AdjustmentType.Passenger )
-            {
-                Time toIntermediatefTime;
-                Time toDestinationfTime;
-                //determining travel times given whether its a pickup or drop-off trip
-                if ( pickUp )
-                {
-                    toIntermediatefTime = driverTrip.Mode.TravelTime( driverTrip.OriginalZone, passengerTrip.OriginalZone, passengerTrip.TripStartTime );
-                    toDestinationfTime = sharedMode.TravelTime( passengerTrip.OriginalZone, passengerTrip.DestinationZone, passengerTrip.TripStartTime );
-                }
-                else
-                {
-                    toIntermediatefTime = sharedMode.TravelTime( driverTrip.OriginalZone, passengerTrip.DestinationZone, passengerTrip.TripStartTime );
-                    toDestinationfTime = driverTrip.Mode.TravelTime( passengerTrip.DestinationZone, driverTrip.DestinationZone, driverTrip.TripStartTime );
-                }
-                Time toIntermediateTime = toIntermediatefTime;
-                Time toDestinationTime = toDestinationfTime;
-
-                newPassengerStartTime = driverTrip.ActivityStartTime - toDestinationTime;
-                newDriverStartTime = driverTrip.ActivityStartTime;
-
-                return WithinWaitThreshold( newPassengerStartTime, passengerTrip.ActivityStartTime, passengerWaitThreshold );
-            }
-            else if ( adjustmentType == AdjustmentType.Compromise )
-            {
-                throw new NotImplementedException( "AdjustmentType.Compromise not implemented" );
-            }
-
-            return false;
         }
 
         private bool WithinWaitThreshold(Time start, Time end, int maxWaitThreshold)

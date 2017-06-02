@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tasha.Common;
 using XTMF;
 
@@ -43,7 +39,7 @@ namespace Tasha.EMME
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        private float[] TripBins;
+        private float[] TripBins = new float[0];
 
         [SubModelInformation(Required = false, Description = "")]
         public ISetableDataSource<float> StoreResultTo;
@@ -69,12 +65,12 @@ namespace Tasha.EMME
             var persons = household.Persons;
             lock (this)
             {
-                foreach(var person in persons)
+                foreach (var person in persons)
                 {
                     var expFactor = person.ExpansionFactor;
-                    foreach(var tripChain in person.TripChains)
+                    foreach (var tripChain in person.TripChains)
                     {
-                        foreach(var trip in tripChain.Trips)
+                        foreach (var trip in tripChain.Trips)
                         {
                             if (UsesModeToCheck(trip.Mode))
                             {
@@ -128,7 +124,7 @@ namespace Tasha.EMME
             var modes = ModesToCheck;
             for (int i = 0; i < modes.Length; i++)
             {
-                if(modes[i].Mode == mode)
+                if (modes[i].Mode == mode)
                 {
                     return true;
                 }
@@ -179,7 +175,7 @@ namespace Tasha.EMME
             {
                 sum += bins[i + 4];
                 window = window - bins[i - 1] + bins[i];
-                if(window > maxValue)
+                if (window > maxValue)
                 {
                     bestIndex = i;
                     maxValue = window;
@@ -193,6 +189,7 @@ namespace Tasha.EMME
         {
             // compute the number of bins that we are going to need
             var minutes = (EndTime - StartTime).ToMinutes();
+            // ReSharper disable once InconsistentlySynchronizedField
             TripBins = new float[(int)Math.Ceiling(minutes / 15.0f)];
         }
 
@@ -204,7 +201,7 @@ namespace Tasha.EMME
                 error = "In '" + Name + "' End time occurs before start time!";
                 return false;
             }
-            else if(minutes < 60)
+            if (minutes < 60)
             {
                 error = "In '" + Name + "' the time slice needs to be over an hour!";
                 return false;

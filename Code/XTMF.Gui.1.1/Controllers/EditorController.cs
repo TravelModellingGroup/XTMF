@@ -33,16 +33,25 @@ namespace XTMF.Gui.Controllers
         static SingleAccess<List<MainWindow>> OpenWindows = new SingleAccess<List<MainWindow>>(new List<MainWindow>());
         public static XTMFRuntime Runtime { get; private set; }
 
-        internal static void Register(MainWindow window, Action OnComplete)
+        internal static void Register(MainWindow window, Action OnComplete, bool loadModules = true)
         {
             Task.Factory.StartNew(
                 () =>
             {
+              
                 OpenWindows.Run((list) =>
                {
                    if (Runtime == null)
                    {
-                       Runtime = new XTMFRuntime();
+                       if (!window.IsNonDefaultConfig)
+                       {
+                           Runtime = new XTMFRuntime();
+                       }
+                       else
+                       {
+                           Configuration configuration = new Configuration(window.ConfigurationFilePath,loadModules: loadModules);
+                           Runtime = new XTMFRuntime(configuration);
+                       }
                        var loadError = ((Configuration)Runtime.Configuration).LoadError;
                        
                            window.Dispatcher.BeginInvoke(new Action(() =>
@@ -71,9 +80,22 @@ namespace XTMF.Gui.Controllers
             });
         }
 
+        public static void FreeRuntime()
+        {
+            if (Runtime != null)
+            {
+                Runtime.Dispose();
+                Runtime = null;
+            }
+        }
+
         internal static void Unregister(MainWindow window)
         {
-            OpenWindows.Run((list) => list.Remove(window));
+            OpenWindows.Run((list) =>
+                {
+                    list.Remove(window);
+                }
+            );
         }
 
         internal static bool IsControlDown()

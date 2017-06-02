@@ -16,12 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
+
 namespace TMG.GTAModel.Input
 {
     public class ReadPurposeData : IReadODData<float>
@@ -35,7 +35,7 @@ namespace TMG.GTAModel.Input
         public IEnumerable<ODData<float>> Read()
         {
             IPurpose purpose = GetPurpose();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             float[] ret = new float[zones.Length * zones.Length];
             LoadData( ret, purpose );
             var odData = new ODData<float>();
@@ -95,15 +95,15 @@ namespace TMG.GTAModel.Input
 
         private IPurpose GetPurpose()
         {
-            var purposes = this.Root.Purpose;
+            var purposes = Root.Purpose;
             for ( int i = 0; i < purposes.Count; i++ )
             {
-                if ( purposes[i].PurposeName == this.Purpose )
+                if ( purposes[i].PurposeName == Purpose )
                 {
                     return purposes[i];
                 }
             }
-            throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to find a purpose named '" + this.Purpose + "'!" );
+            throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find a purpose named '" + Purpose + "'!" );
         }
 
         public string Name { get; set; }

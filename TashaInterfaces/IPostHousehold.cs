@@ -43,7 +43,6 @@ namespace Tasha.Common
         /// Loads the module, with configuration
         /// information
         /// </summary>
-        /// <param name="config">The configuration information</param>
         /// <param name="maxIterations">The number of iterations</param>
         void Load(int maxIterations);
 

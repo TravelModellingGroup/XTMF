@@ -28,27 +28,28 @@ using TMG;
 using XTMF;
 using XTMF.Networking;
 using System.Threading.Tasks;
+// ReSharper disable InconsistentNaming
 
 namespace Tasha.Estimation
 {
-    [ModuleInformation( Description =
+    [ModuleInformation(Description =
     "This module is designed to receive in the data from the estimation host and produce household objects."
         )]
     public class EstimationHouseholdLoader : IDataLoader<ITashaHousehold>
     {
-        [RunParameter( "Household Data Channel", 2, "The custom channel to use to receive the household data from the host." )]
+        [RunParameter("Household Data Channel", 2, "The custom channel to use to receive the household data from the host.")]
         public int HouseholdDataChannel;
 
-        [RunParameter( "Encryption Salt", "This is the salt for the encryption", "The key to use when receiving the household data." )]
+        [RunParameter("Encryption Salt", "This is the salt for the encryption", "The key to use when receiving the household data.")]
         public string IV;
 
-        [RunParameter( "Encryption Key", "Hello World, This is an Encryption Key", "The key to use when receiving the household data." )]
+        [RunParameter("Encryption Key", "Hello World, This is an Encryption Key", "The key to use when receiving the household data.")]
         public string Key;
 
-        [RunParameter( "Observed Mode Name", "ObservedMode", "The name of the attachment for the observed mode." )]
+        [RunParameter("Observed Mode Name", "ObservedMode", "The name of the attachment for the observed mode.")]
         public string ObservedMode;
 
-        public bool Loaded = false;
+        public bool Loaded;
 
         [RootModule]
         public ITashaRuntime Root;
@@ -72,7 +73,7 @@ namespace Tasha.Estimation
 
         public Tuple<byte, byte, byte> ProgressColour { get; set; }
 
-        public object SyncRoot { get; set; }
+        public object SyncRoot { get; } = new object();
 
         public void CopyTo(ITashaHousehold[] array, int index)
         {
@@ -85,92 +86,87 @@ namespace Tasha.Estimation
 
         public IEnumerator<ITashaHousehold> GetEnumerator()
         {
-            return ( (IEnumerable<ITashaHousehold>)this.Households ).GetEnumerator();
+            return ((IEnumerable<ITashaHousehold>)Households).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.Households.GetEnumerator();
+            return Households.GetEnumerator();
         }
 
         public void LoadData()
         {
-            if ( !Loaded )
+            if (!Loaded)
             {
-                lock ( this )
+                lock (this)
                 {
-                    if ( !Loaded )
+                    if (!Loaded)
                     {
                         bool householdsRecieved = false;
-                        this.ToHost.RegisterCustomReceiver( this.HouseholdDataChannel, (stream) =>
-                            {
-                                byte[] key = GetKey()
-                                    , iv = GetIV();
-                                byte[] data = new byte[(int)stream.Length];
-                                stream.Read( data, 0, (int)stream.Length );
-                                Task.Factory.StartNew( () =>
-                                    {
-                                        MemoryStream memStream = null;
-                                        try
-                                        {
-                                            memStream = new MemoryStream( data );
-                                            using ( var fromHost = new CryptoStream( memStream,
-                                                new RijndaelManaged().CreateDecryptor( key, iv ), CryptoStreamMode.Read ) )
-                                            {
-                                                memStream = null;
-                                                var reader = new BinaryReader( fromHost );
-                                                int numberOfHouseholds = reader.ReadInt32();
-                                                int numberOfVehicles = reader.ReadInt32();
-                                                if ( numberOfVehicles != this.Root.VehicleTypes.Count )
-                                                {
-                                                    throw new XTMFRuntimeException( "We were expecting to have '" + this.Root.VehicleTypes.Count + "' different types of vehicles but the host has '" + numberOfVehicles + "'" );
-                                                }
-                                                for ( int i = 0; i < numberOfVehicles; i++ )
-                                                {
-                                                    string temp;
-                                                    if ( this.Root.VehicleTypes[i].VehicleName != ( temp = reader.ReadString() ) )
-                                                    {
-                                                        throw new XTMFRuntimeException( "We were expecting the vehicle type to be named '" + this.Root.VehicleTypes[i].VehicleName + "' and instead found '" + temp + "'" );
-                                                    }
-                                                }
-                                                TashaHousehold[] households = new TashaHousehold[numberOfHouseholds];
-                                                var zoneArray = this.Root.ZoneSystem.ZoneArray;
-                                                for ( int i = 0; i < numberOfHouseholds; i++ )
-                                                {
-                                                    households[i] = LoadHousehold( reader, zoneArray );
-                                                }
-                                                reader = null;
-                                                this.Households = households;
-                                                householdsRecieved = true;
-                                            }
-                                        }
-                                        finally
-                                        {
-                                            if ( memStream != null )
-                                            {
-                                                memStream.Dispose();
-                                                memStream = null;
-                                            }
-                                        }
-                                    } );
-                                return null;
-                            } );
-                        this.ToHost.RegisterCustomSender( this.HouseholdDataChannel, (data, stream) =>
-                            {
+                        ToHost.RegisterCustomReceiver(HouseholdDataChannel, (stream) =>
+                           {
+                               byte[] key = GetKey()
+                                   , iv = GetIV();
+                               byte[] data = new byte[(int)stream.Length];
+                               stream.Read(data, 0, (int)stream.Length);
+                               Task.Factory.StartNew(() =>
+                                   {
+                                       MemoryStream memStream = null;
+                                       try
+                                       {
+                                           memStream = new MemoryStream(data);
+                                           using (var fromHost = new CryptoStream(memStream,
+                                               new RijndaelManaged().CreateDecryptor(key, iv), CryptoStreamMode.Read))
+                                           {
+                                               memStream = null;
+                                               var reader = new BinaryReader(fromHost);
+                                               int numberOfHouseholds = reader.ReadInt32();
+                                               int numberOfVehicles = reader.ReadInt32();
+                                               if (numberOfVehicles != Root.VehicleTypes.Count)
+                                               {
+                                                   throw new XTMFRuntimeException("We were expecting to have '" + Root.VehicleTypes.Count + "' different types of vehicles but the host has '" + numberOfVehicles + "'");
+                                               }
+                                               for (int i = 0; i < numberOfVehicles; i++)
+                                               {
+                                                   string temp;
+                                                   if (Root.VehicleTypes[i].VehicleName != (temp = reader.ReadString()))
+                                                   {
+                                                       throw new XTMFRuntimeException("We were expecting the vehicle type to be named '" + Root.VehicleTypes[i].VehicleName + "' and instead found '" + temp + "'");
+                                                   }
+                                               }
+                                               ITashaHousehold[] households = new ITashaHousehold[numberOfHouseholds];
+                                               var zoneArray = Root.ZoneSystem.ZoneArray;
+                                               for (int i = 0; i < numberOfHouseholds; i++)
+                                               {
+                                                   households[i] = LoadHousehold(reader, zoneArray);
+                                               }
+                                               Households = households;
+                                               householdsRecieved = true;
+                                           }
+                                       }
+                                       finally
+                                       {
+                                           memStream?.Dispose();
+                                       }
+                                   });
+                               return null;
+                           });
+                        ToHost.RegisterCustomSender(HouseholdDataChannel, (data, stream) =>
+                           {
                                 // do nothing
-                            } );
-                        this.ToHost.RegisterCustomMessageHandler( this.HouseholdDataChannel, (householdArray) =>
-                            {
+                            });
+                        ToHost.RegisterCustomMessageHandler(HouseholdDataChannel, (householdArray) =>
+                           {
                                 // do nothing
-                            } );
+                            });
                         // Tell the host that we want our households
-                        this.ToHost.SendCustomMessage( null, this.HouseholdDataChannel );
-                        while ( !householdsRecieved )
+                        ToHost.SendCustomMessage(null, HouseholdDataChannel);
+                        while (!householdsRecieved)
                         {
-                            System.Threading.Thread.Sleep( 0 );
+                            System.Threading.Thread.Sleep(0);
                             System.Threading.Thread.MemoryBarrier();
                         }
-                        this.Loaded = true;
+                        Loaded = true;
                     }
                 }
             }
@@ -187,7 +183,7 @@ namespace Tasha.Estimation
 
         public ITashaHousehold[] ToArray()
         {
-            return this.Households;
+            return Households;
         }
 
         public bool TryAdd(ITashaHousehold item)
@@ -205,7 +201,7 @@ namespace Tasha.Estimation
         {
             var keyChars = baseString.ToCharArray();
             byte[] finalKey = new byte[size];
-            for ( int i = 0; i < keyChars.Length && i < finalKey.Length; i++ )
+            for (int i = 0; i < keyChars.Length && i < finalKey.Length; i++)
             {
                 finalKey[i] = (byte)keyChars[i];
             }
@@ -215,26 +211,23 @@ namespace Tasha.Estimation
         private static void LoadKeys(BinaryReader reader, IAttachable att)
         {
             var numberOfKeys = reader.ReadInt32();
-            for ( int i = 0; i < numberOfKeys; i++ )
+            for (int i = 0; i < numberOfKeys; i++)
             {
                 var name = reader.ReadString();
                 var type = reader.ReadString();
                 var text = reader.ReadString();
-                switch ( type )
+                switch (type)
                 {
                     case "System.String":
-                        att.Attach( name, text );
+                        att.Attach(name, text);
                         break;
 
                     case "System.Single":
-                        att.Attach( name, float.Parse( text ) );
+                        att.Attach(name, float.Parse(text));
                         break;
 
                     case "System.Int32":
-                        att.Attach( name, int.Parse( text ) );
-                        break;
-
-                    default:
+                        att.Attach(name, int.Parse(text));
                         break;
                 }
             }
@@ -242,27 +235,27 @@ namespace Tasha.Estimation
 
         private ITripChain FindRepTripChain(SchedulerTripChain chain, ITashaHousehold tashaHousehold)
         {
-            foreach ( var person in tashaHousehold.Persons )
+            foreach (var person in tashaHousehold.Persons)
             {
-                foreach ( var tc in person.TripChains )
+                foreach (var tc in person.TripChains)
                 {
-                    if ( tc.JointTripID == chain.JointTripID && tc.JointTripRep )
+                    if (tc.JointTripID == chain.JointTripID && tc.JointTripRep)
                     {
                         return tc;
                     }
                 }
             }
-            throw new XTMFRuntimeException( "We were unable to find a joint trip representative's trip chain!" );
+            throw new XTMFRuntimeException("We were unable to find a joint trip representative's trip chain!");
         }
 
         private byte[] GetIV()
         {
-            return ConvertToEncryptionKey( this.IV, 16 );
+            return ConvertToEncryptionKey(IV, 16);
         }
 
         private byte[] GetKey()
         {
-            return ConvertToEncryptionKey( this.Key, 32 );
+            return ConvertToEncryptionKey(Key, 32);
         }
 
         private TashaHousehold LoadHousehold(BinaryReader reader, Datastructure.SparseArray<IZone> zoneArray)
@@ -271,39 +264,39 @@ namespace Tasha.Estimation
             int numberOfPeople;
             household.HouseholdId = reader.ReadInt32();
             // Learn how many people this household has and their number of vehicles
-            household.Persons = new ITashaPerson[( numberOfPeople = reader.ReadInt32() )];
+            household.Persons = new ITashaPerson[(numberOfPeople = reader.ReadInt32())];
             var vehicleList = new List<IVehicle>();
             // Produce the vehicles, all auto since it is the only type of resource we have
-            for ( int i = 0; i < this.Root.VehicleTypes.Count; i++ )
+            for (int i = 0; i < Root.VehicleTypes.Count; i++)
             {
                 var numberOfVehicles = reader.ReadInt32();
-                for ( int j = 0; j < numberOfVehicles; j++ )
+                for (int j = 0; j < numberOfVehicles; j++)
                 {
-                    vehicleList.Add( TashaVehicle.MakeVehicle( this.Root.VehicleTypes[i] ) );
+                    vehicleList.Add(TashaVehicle.MakeVehicle(Root.VehicleTypes[i]));
                 }
             }
             household.Vehicles = vehicleList.ToArray();
             household.HomeZone = zoneArray[reader.ReadInt32()];
-            LoadKeys( reader, household );
+            LoadKeys(reader, household);
             // now we can go and load the people
-            for ( int i = 0; i < numberOfPeople; i++ )
+            for (int i = 0; i < numberOfPeople; i++)
             {
-                household.Persons[i] = LoadPerson( reader, zoneArray, household, i );
+                household.Persons[i] = LoadPerson(reader, zoneArray, household, i);
             }
             // Link in the joint trip chain trip chains
-            foreach ( var person in household.Persons )
+            foreach (var person in household.Persons)
             {
-                foreach ( var tc in person.TripChains )
+                foreach (var tc in person.TripChains)
                 {
-                    if ( tc.JointTrip )
+                    if (tc.JointTrip)
                     {
-                        if ( tc.JointTripRep )
+                        if (tc.JointTripRep)
                         {
-                            ( (SchedulerTripChain)tc ).GetRepTripChain = tc;
+                            ((SchedulerTripChain)tc).GetRepTripChain = tc;
                         }
                         else
                         {
-                            ( (SchedulerTripChain)tc ).GetRepTripChain = FindRepTripChain( (SchedulerTripChain)tc, person.Household );
+                            ((SchedulerTripChain)tc).GetRepTripChain = FindRepTripChain((SchedulerTripChain)tc, person.Household);
                         }
                     }
                 }
@@ -326,11 +319,11 @@ namespace Tasha.Estimation
             person.Licence = reader.ReadBoolean();
             person.FreeParking = reader.ReadBoolean();
             int numberOfTripChains;
-            LoadKeys( reader, person );
-            person.TripChains = new List<ITripChain>( numberOfTripChains = reader.ReadInt32() );
-            for ( int i = 0; i < numberOfTripChains; i++ )
+            LoadKeys(reader, person);
+            person.TripChains = new List<ITripChain>(numberOfTripChains = reader.ReadInt32());
+            for (int i = 0; i < numberOfTripChains; i++)
             {
-                person.TripChains.Add( LoadTripChain( reader, zoneArray, person ) );
+                person.TripChains.Add(LoadTripChain(reader, zoneArray, person));
             }
             return person;
         }
@@ -341,7 +334,7 @@ namespace Tasha.Estimation
         private SchedulerTrip LoadTrip(BinaryReader reader, Datastructure.SparseArray<IZone> zoneArray, SchedulerTripChain chain, int tripNumber)
         {
             SchedulerTrip trip = SchedulerTrip.GetTrip(HouseholdIterations);
-            var allModes = this.Root.AllModes;
+            var allModes = Root.AllModes;
             trip.TripNumber = tripNumber;
             trip.TripChain = chain;
             // figure out where we are going
@@ -357,29 +350,29 @@ namespace Tasha.Estimation
             trip.ActivityStartTime = time;
             // Get the observed mode
             var modeName = reader.ReadString();
-            for ( int i = 0; i < allModes.Count; i++ )
+            for (int i = 0; i < allModes.Count; i++)
             {
-                if ( modeName == allModes[i].ModeName )
+                if (modeName == allModes[i].ModeName)
                 {
-                    trip[this.ObservedMode] = allModes[i];
+                    trip[ObservedMode] = allModes[i];
                 }
             }
-            LoadKeys( reader, trip );
+            LoadKeys(reader, trip);
             return trip;
         }
 
         private SchedulerTripChain LoadTripChain(BinaryReader reader, Datastructure.SparseArray<IZone> zoneArray, TashaPerson person)
         {
-            SchedulerTripChain chain = SchedulerTripChain.GetTripChain( person );
+            SchedulerTripChain chain = SchedulerTripChain.GetTripChain(person);
             chain.JointTripID = reader.ReadInt32();
             chain.JointTripRep = reader.ReadBoolean();
-            LoadKeys( reader, chain );
+            LoadKeys(reader, chain);
             int numberOfTrips = reader.ReadInt32();
-            for ( int i = 0; i < numberOfTrips; i++ )
+            for (int i = 0; i < numberOfTrips; i++)
             {
-                SchedulerTrip trip = LoadTrip( reader, zoneArray, chain, i );
+                SchedulerTrip trip = LoadTrip(reader, zoneArray, chain, i);
                 // Now that we have all of the data that we need, add ourselves to the trip chain
-                chain.Trips.Add( trip );
+                chain.Trips.Add(trip);
             }
             return chain;
         }

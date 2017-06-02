@@ -37,7 +37,6 @@ namespace XTMF
         /// <summary>
         /// Checks to see if the resource is of the given type
         /// </summary>
-        /// <param name="t">The type to check for</param>
         /// <returns></returns>
         bool CheckResourceType(Type dataType);
 

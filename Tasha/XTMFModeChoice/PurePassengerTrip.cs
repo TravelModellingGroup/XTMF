@@ -38,7 +38,7 @@ namespace Tasha.XTMFModeChoice
             set;
         }
 
-        public TMG.IZone IntermediateZone
+        public IZone IntermediateZone
         {
             get;
             set;
@@ -58,7 +58,7 @@ namespace Tasha.XTMFModeChoice
             }
         }
 
-        public TMG.IZone OriginalZone
+        public IZone OriginalZone
         {
             get;
             set;
@@ -106,15 +106,15 @@ namespace Tasha.XTMFModeChoice
             set;
         }
 
-        public static PurePassengerTrip MakeDriverTrip(IZone HomeZone, ITashaMode mode, Time StartTime, Time EndTime)
+        public static PurePassengerTrip MakeDriverTrip(IZone homeZone, ITashaMode mode, Time startTime, Time endTime)
         {
-            PurePassengerTrip DriverTrip = new PurePassengerTrip();
-            DriverTrip.Purpose = Activity.FacilitatePassenger;
-            DriverTrip.OriginalZone = DriverTrip.DestinationZone = HomeZone;
-            DriverTrip.Mode = mode;
-            DriverTrip.ActivityStartTime = EndTime;
-            DriverTrip.TripStartTime = StartTime;
-            return DriverTrip;
+            PurePassengerTrip driverTrip = new PurePassengerTrip();
+            driverTrip.Purpose = Activity.FacilitatePassenger;
+            driverTrip.OriginalZone = driverTrip.DestinationZone = homeZone;
+            driverTrip.Mode = mode;
+            driverTrip.ActivityStartTime = endTime;
+            driverTrip.TripStartTime = startTime;
+            return driverTrip;
         }
 
         public ITrip Clone()

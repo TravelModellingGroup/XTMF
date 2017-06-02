@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ using XTMF;
 
 namespace TMG.GTAModel
 {
-    [ModuleInformation(Description=
+    [ModuleInformation(Description =
         @"This module is designed to distribute out the GTAModel version 3 home based other trips.  It is also compatible with the version 2 of GTAModel by specifying all of the employment parameters to be the same value for the regions.  The equation for the systematic utility is as follows:
 <p>V_ij= (〖TravelTime〗_R 〖AutoTime〗_ij )</p>
 <p>+ (〖PopulationParameter〗_R (ln⁡〖〖Population〗_j 〗 ))</p>
@@ -35,37 +36,37 @@ namespace TMG.GTAModel
 <p>+ (〖SalesParameter〗_R (ln⁡〖〖SalesEmployment〗_j 〗 ))</p>
 <p>+(〖ManufacturingParameter〗_R (ln⁡〖〖Manufacturing〗_j 〗 ))</p>
 <p>Where i is the origin zone and j is the destination zone.  R represents the region of the origin.</p>
-" )]
+")]
     public class HBODistribution : IDemographicDistribution
     {
-        [RunParameter( "Auto Network Name", "Auto", "The name of the auto network." )]
+        [RunParameter("Auto Network Name", "Auto", "The name of the auto network.")]
         public string AutoNetworkName;
 
-        [RunParameter( "Region Auto Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for Auto Times." )]
+        [RunParameter("Region Auto Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for Auto Times.")]
         public FloatList RegionAutoParameter;
 
-        [RunParameter( "Region General Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for the General Employment." )]
+        [RunParameter("Region General Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for the General Employment.")]
         public FloatList RegionEmploymentGeneralParameter;
 
-        [RunParameter( "Region Manufacturing Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for the Manufacturing Employment." )]
+        [RunParameter("Region Manufacturing Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for the Manufacturing Employment.")]
         public FloatList RegionEmploymentManufacturingParameter;
 
-        [RunParameter( "Region Professional Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for the Professional Employment." )]
+        [RunParameter("Region Professional Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for the Professional Employment.")]
         public FloatList RegionEmploymentProfessionalParameter;
 
-        [RunParameter( "Region Sales Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for the Sales Employment." )]
+        [RunParameter("Region Sales Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for the Sales Employment.")]
         public FloatList RegionEmploymentSalesParameter;
 
-        [RunParameter( "Region Numbers", "1,2,3,4,5", typeof( NumberList ), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters." )]
+        [RunParameter("Region Numbers", "1,2,3,4,5", typeof(NumberList), "The space to be reading region parameters in from.\r\nThis is used as an inverse lookup for the parameters.")]
         public NumberList RegionNumbers;
 
-        [RunParameter( "Region Population Parameters", "1,2,3,4,5", typeof( FloatList ), "The region parameters for the Population." )]
+        [RunParameter("Region Population Parameters", "1,2,3,4,5", typeof(FloatList), "The region parameters for the Population.")]
         public FloatList RegionPopulationParameter;
 
         [RootModule]
         public IDemographic4StepModelSystemTemplate Root;
 
-        [RunParameter( "Simulation Time", "7:00AM", typeof( Time ), "The time of day this will be simulating." )]
+        [RunParameter("Simulation Time", "7:00AM", typeof(Time), "The time of day this will be simulating.")]
         public Time SimulationTime;
 
         private INetworkData NetworkData;
@@ -88,57 +89,59 @@ namespace TMG.GTAModel
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            var ep = productions.GetEnumerator();
-            var ec = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            float[] friction = null;
-            while ( ep.MoveNext() && ec.MoveNext() )
+            using (var ep = productions.GetEnumerator())
+            using (var ec = category.GetEnumerator())
             {
-                friction = this.ComputeFriction( zones, ec.Current, friction );
-                yield return SinglyConstrainedGravityModel.Process( ep.Current, friction );
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                float[] friction = null;
+                while (ep.MoveNext() && ec.MoveNext())
+                {
+                    friction = ComputeFriction(zones, ec.Current, friction);
+                    yield return SinglyConstrainedGravityModel.Process(ep.Current, friction);
+                }
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !LoadNetwork() )
+            if (!LoadNetwork())
             {
-                error = "In " + this.Name + " we were unable to find the network data '" + this.AutoNetworkName + "' to use as the auto network!";
+                error = "In " + Name + " we were unable to find the network data '" + AutoNetworkName + "' to use as the auto network!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionAutoParameter ) )
+            if (!CompareParameterCount(RegionAutoParameter))
             {
-                error = "In " + this.Name + " the number of parameters for Auto does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionAutoParameter ) )
+            if (!CompareParameterCount(RegionAutoParameter))
             {
-                error = "In " + this.Name + " the number of parameters for Auto does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Auto does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionPopulationParameter ) )
+            if (!CompareParameterCount(RegionPopulationParameter))
             {
-                error = "In " + this.Name + " the number of parameters for Population does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Population does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentProfessionalParameter ) )
+            if (!CompareParameterCount(RegionEmploymentProfessionalParameter))
             {
-                error = "In " + this.Name + " the number of parameters for Professional Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Professional Employment does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentGeneralParameter ) )
+            if (!CompareParameterCount(RegionEmploymentGeneralParameter))
             {
-                error = "In " + this.Name + " the number of parameters for General Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for General Employment does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentSalesParameter ) )
+            if (!CompareParameterCount(RegionEmploymentSalesParameter))
             {
-                error = "In " + this.Name + " the number of parameters for Sales Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Sales Employment does not match the number of regions!";
                 return false;
             }
-            if ( !CompareParameterCount( this.RegionEmploymentManufacturingParameter ) )
+            if (!CompareParameterCount(RegionEmploymentManufacturingParameter))
             {
-                error = "In " + this.Name + " the number of parameters for Manufacturing Employment does not match the number of regions!";
+                error = "In " + Name + " the number of parameters for Manufacturing Employment does not match the number of regions!";
                 return false;
             }
             return true;
@@ -146,69 +149,59 @@ namespace TMG.GTAModel
 
         private bool CompareParameterCount(FloatList data)
         {
-            return this.RegionNumbers.Count == data.Count;
+            return RegionNumbers.Count == data.Count;
         }
 
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] friction)
         {
             var numberOfZones = zones.Length;
             float[] ret = friction == null ? new float[numberOfZones * numberOfZones] : friction;
-            var rootModes = this.Root.Modes;
-            var numberOfModes = rootModes.Count;
             // let it setup the modes so we can compute friction
             cat.InitializeDemographicCategory();
-            try
-            {
-                Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
-                {
-                    int index = i * numberOfZones;
-                    var origin = zones[i];
-                    int vIndex = i * numberOfZones * numberOfModes;
-                    int regionIndex;
-                    if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
-                    {
-                        for ( int j = 0; j < numberOfZones; j++ )
-                        {
-                            ret[index++] = 0;
-                        }
-                        return;
-                    }
-                    for ( int j = 0; j < numberOfZones; j++ )
-                    {
-                        var destination = zones[j];
-                        var autoTime = this.NetworkData.TravelTime( origin, destination, this.SimulationTime );
-                        var population = destination.Population;
-                        ret[index++] = (float)( this.RegionAutoParameter[regionIndex] * autoTime.ToMinutes()
-                            // population
-                            + this.RegionPopulationParameter[regionIndex] * Math.Log( population + 1 )
-                            // employment
-                            + this.RegionEmploymentProfessionalParameter[regionIndex] * Math.Log( destination.ProfessionalEmployment + 1 )
-                            + this.RegionEmploymentGeneralParameter[regionIndex] * Math.Log( destination.GeneralEmployment + 1 )
-                            + this.RegionEmploymentSalesParameter[regionIndex] * Math.Log( destination.RetailEmployment + 1 )
-                            + this.RegionEmploymentManufacturingParameter[regionIndex] * Math.Log( destination.ManufacturingEmployment + 1 ) );
-                    }
-                } );
-            }
-            catch ( AggregateException e )
-            {
-                throw e.InnerException;
-            }
+            Parallel.For(0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate (int i)
+           {
+               int index = i * numberOfZones;
+               var origin = zones[i];
+               int regionIndex;
+               if (!InverseLookup(zones[i].RegionNumber, out regionIndex))
+               {
+                   for (int j = 0; j < numberOfZones; j++)
+                   {
+                       ret[index++] = 0;
+                   }
+                   return;
+               }
+               for (int j = 0; j < numberOfZones; j++)
+               {
+                   var destination = zones[j];
+                   var autoTime = NetworkData.TravelTime(origin, destination, SimulationTime);
+                   var population = destination.Population;
+                   ret[index++] = (float)(RegionAutoParameter[regionIndex] * autoTime.ToMinutes()
+                       // population
+                       + RegionPopulationParameter[regionIndex] * Math.Log(population + 1)
+                       // employment
+                       + RegionEmploymentProfessionalParameter[regionIndex] * Math.Log(destination.ProfessionalEmployment + 1)
+                       + RegionEmploymentGeneralParameter[regionIndex] * Math.Log(destination.GeneralEmployment + 1)
+                       + RegionEmploymentSalesParameter[regionIndex] * Math.Log(destination.RetailEmployment + 1)
+                       + RegionEmploymentManufacturingParameter[regionIndex] * Math.Log(destination.ManufacturingEmployment + 1));
+               }
+           });
             // Use the Log-Sum from the V's as the impedence function
             return ret;
         }
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = this.RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return (regionIndex = RegionNumbers.IndexOf(regionNumber)) != -1;
         }
 
         private bool LoadNetwork()
         {
-            foreach ( var data in this.Root.NetworkData )
+            foreach (var data in Root.NetworkData)
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if (data.NetworkType == AutoNetworkName)
                 {
-                    this.NetworkData = data;
+                    NetworkData = data;
                     return true;
                 }
             }

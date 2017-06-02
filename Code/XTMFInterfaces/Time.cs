@@ -45,13 +45,13 @@ namespace XTMF
         public Time(float time)
         {
             var hours = (long)time;
-            var minutes = (long)( Math.Round( ( time - (long)time ) * 100 ) );
-            this.InternalTime = ( hours * 3600000L + minutes * 60000L);
+            var minutes = (long)(Math.Round((time - (long)time) * 100));
+            InternalTime = (hours * 3600000L + minutes * 60000L);
         }
 
         public Time(DateTime time)
         {
-            this.InternalTime = ( ( 60 * ( 60 * time.Hour ) + time.Minute ) + time.Second ) * 1000 + time.Millisecond;
+            InternalTime = ((60 * (60 * time.Hour) + time.Minute) + time.Second) * 1000 + time.Millisecond;
         }
 
         /// <summary>
@@ -61,15 +61,15 @@ namespace XTMF
         /// <param name="time"></param>
         public Time(string time)
         {
-            if ( !Time.TryParse( time, out this ) )
+            if (!TryParse(time, out this))
             {
-                throw new XTMFRuntimeException( "Unable to create a XTMF.Time from " + time );
+                throw new XTMFRuntimeException("Unable to create a XTMF.Time from " + time);
             }
         }
 
-        public static Time OneHour { get { return new Time() { Hours = 1 }; } }
+        public static Time OneHour { get; } = new Time() { Hours = 1 };
 
-        public static Time Zero { get { return new Time(); } }
+        public static Time Zero { get; } = new Time();
 
         /// <summary>
         /// The number of Hours this Time Object represents
@@ -78,12 +78,12 @@ namespace XTMF
         {
             get
             {
-                return (int)( this.InternalTime / 3600000L );
+                return (int)(InternalTime / 3600000L);
             }
 
             set
             {
-                this.InternalTime = ( this.InternalTime % 3600000L + ( value * 3600000L ) );
+                InternalTime = (InternalTime % 3600000L + (value * 3600000L));
             }
         }
 
@@ -94,12 +94,12 @@ namespace XTMF
         {
             get
             {
-                return (int)( ( this.InternalTime / 60000L ) % 60L );
+                return (int)((InternalTime / 60000L) % 60L);
             }
 
             set
             {
-                this.InternalTime = this.InternalTime - ( ( this.InternalTime / 60000L ) % 60L ) + ( value * 60000L );
+                InternalTime = InternalTime - ((InternalTime / 60000L) % 60L) + (value * 60000L);
             }
         }
 
@@ -110,13 +110,13 @@ namespace XTMF
         {
             get
             {
-                return (int)( ( this.InternalTime / 1000L ) % 60L );
+                return (int)((InternalTime / 1000L) % 60L);
             }
 
             set
             {
-                var temp = this.InternalTime / 1000L;
-                this.InternalTime = ( ( temp - temp % 60L ) + value ) * 1000L;
+                var temp = InternalTime / 1000L;
+                InternalTime = ((temp - temp % 60L) + value) * 1000L;
             }
         }
 
@@ -127,41 +127,41 @@ namespace XTMF
 
         public static implicit operator DateTime(Time t)
         {
-            return new DateTime( 0, 0, 0, t.Hours, t.Minutes, t.Seconds, 0 );
+            return new DateTime(0, 0, 0, t.Hours, t.Minutes, t.Seconds, 0);
         }
 
         public static implicit operator Time(DateTime t)
         {
-            return new Time( t );
+            return new Time(t);
         }
 
         public static bool Intersection(Time start1, Time end1, Time start2, Time end2)
         {
-            return !( ( end1.InternalTime < start2.InternalTime )
-                | ( end2.InternalTime < start1.InternalTime ) );
+            return !((end1.InternalTime < start2.InternalTime)
+                | (end2.InternalTime < start1.InternalTime));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Intersection(Time start1, Time end1, Time start2, Time end2, out Time intersection)
         {
-            if ( ( end1.InternalTime < start2.InternalTime )
-                | ( end2.InternalTime < start1.InternalTime ) )
+            if ((end1.InternalTime < start2.InternalTime)
+                | (end2.InternalTime < start1.InternalTime))
             {
                 intersection = new Time();
                 return false;
             }
             // passenger is first
-            if ( start1.InternalTime <= start2.InternalTime )
+            if (start1.InternalTime <= start2.InternalTime)
             {
                 intersection.InternalTime =
-                    ( end1.InternalTime >= end2.InternalTime ) ? end2.InternalTime - start2.InternalTime : end1.InternalTime - start2.InternalTime;
+                    (end1.InternalTime >= end2.InternalTime) ? end2.InternalTime - start2.InternalTime : end1.InternalTime - start2.InternalTime;
                 return true;
             }
             else
             {
                 // passenger is second
                 intersection.InternalTime =
-                    ( end1.InternalTime >= end2.InternalTime ) ? end2.InternalTime - start1.InternalTime : end1.InternalTime - start1.InternalTime;
+                    (end1.InternalTime >= end2.InternalTime) ? end2.InternalTime - start1.InternalTime : end1.InternalTime - start1.InternalTime;
                 return true;
             }
         }
@@ -169,25 +169,25 @@ namespace XTMF
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Intersection(Time start1, Time end1, Time start2, Time end2, out Time intersectionStart, out Time intersectionEnd)
         {
-            if ( end1.InternalTime < start2.InternalTime
-                || end2.InternalTime < start1.InternalTime )
+            if (end1.InternalTime < start2.InternalTime
+                || end2.InternalTime < start1.InternalTime)
             {
                 intersectionStart = new Time();
                 intersectionEnd = new Time();
                 return false;
             }
             // passenger is first
-            if ( start1.InternalTime <= start2.InternalTime )
+            if (start1.InternalTime <= start2.InternalTime)
             {
                 intersectionStart.InternalTime = start2.InternalTime;
-                intersectionEnd.InternalTime = ( end1.InternalTime >= end2.InternalTime ) ? end2.InternalTime : end1.InternalTime;
+                intersectionEnd.InternalTime = (end1.InternalTime >= end2.InternalTime) ? end2.InternalTime : end1.InternalTime;
                 return true;
             }
             else
             {
                 // passenger is second
                 intersectionStart.InternalTime = start1.InternalTime;
-                intersectionEnd.InternalTime = ( end1.InternalTime >= end2.InternalTime ) ? end2.InternalTime : end1.InternalTime;
+                intersectionEnd.InternalTime = (end1.InternalTime >= end2.InternalTime) ? end2.InternalTime : end1.InternalTime;
                 return true;
             }
         }
@@ -227,7 +227,7 @@ namespace XTMF
         /// <returns></returns>
         public static Time operator *(float percent, Time time)
         {
-            return new Time() { InternalTime = (long)( Math.Round( percent * time.InternalTime ) ) };
+            return new Time() { InternalTime = (long)(Math.Round(percent * time.InternalTime)) };
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace XTMF
         /// <returns></returns>
         public static float operator /(Time t1, Time t2)
         {
-            if ( t2 == Time.Zero )
+            if (t2 == Zero)
             {
                 throw new DivideByZeroException();
             }
@@ -320,13 +320,13 @@ namespace XTMF
         public static bool TryParse(string timeString, out Time time)
         {
             string error = null;
-            return TryParse( ref error, timeString, out time );
+            return TryParse(ref error, timeString, out time);
         }
 
         public static bool TryParse(ref string error, string timeString, out Time time)
         {
             time = new Time();
-            if ( String.IsNullOrWhiteSpace( timeString ) )
+            if (String.IsNullOrWhiteSpace(timeString))
             {
                 return false;
             }
@@ -334,22 +334,22 @@ namespace XTMF
             int state = 0;
             int currentTime = 0;
             int currentNumber = 0;
-            for ( int i = 0; i < timeString.Length; ++i )
+            for (int i = 0; i < timeString.Length; ++i)
             {
                 char c = timeString[i];
-                if ( Char.IsWhiteSpace( c ) )
+                if (Char.IsWhiteSpace(c))
                 {
                     continue;
                 }
-                switch ( state )
+                switch (state)
                 {
                     // Initial State
                     case 0:
                         {
-                            if ( ( c >= '0' ) & ( c <= '9' ) )
+                            if ((c >= '0') & (c <= '9'))
                             {
                                 currentNumber *= 10;
-                                currentNumber += ( c - '0' );
+                                currentNumber += (c - '0');
                                 state = 1;
                                 continue;
                             }
@@ -362,15 +362,14 @@ namespace XTMF
                     // Collect number
                     case 1:
                         {
-                            if ( ( c >= '0' ) & ( c <= '9' ) )
+                            if ((c >= '0') & (c <= '9'))
                             {
                                 currentNumber *= 10;
-                                currentNumber += ( c - '0' );
-                                continue;
+                                currentNumber += (c - '0');
                             }
-                            else if ( c == ':' )
+                            else if (c == ':')
                             {
-                                switch ( currentTime )
+                                switch (currentTime)
                                 {
                                     case 0:
                                         hours = currentNumber;
@@ -392,9 +391,9 @@ namespace XTMF
                                 currentTime++;
                                 state = 0;
                             }
-                            else if ( ( c == 'h' ) | ( c == 'H' ) )
+                            else if ((c == 'h') | (c == 'H'))
                             {
-                                if ( currentTime <= 0 )
+                                if (currentTime <= 0)
                                 {
                                     hours = currentNumber;
                                     currentTime = 1;
@@ -407,9 +406,9 @@ namespace XTMF
                                     return false;
                                 }
                             }
-                            else if ( ( c == 'm' ) | ( c == 'M' ) )
+                            else if ((c == 'm') | (c == 'M'))
                             {
-                                if ( currentTime <= 1 )
+                                if (currentTime <= 1)
                                 {
                                     minutes = currentNumber;
                                     currentTime = 2;
@@ -422,9 +421,9 @@ namespace XTMF
                                     return false;
                                 }
                             }
-                            else if ( ( c == 's' ) | ( c == 'S' ) )
+                            else if ((c == 's') | (c == 'S'))
                             {
-                                if ( currentTime <= 2 )
+                                if (currentTime <= 2)
                                 {
                                     seconds = currentNumber;
                                     currentTime = 3;
@@ -437,17 +436,17 @@ namespace XTMF
                                     return false;
                                 }
                             }
-                            else if ( ( c == 'a' ) | ( c == 'A' ) )
+                            else if ((c == 'a') | (c == 'A'))
                             {
-                                if ( hours == 12 )
+                                if (hours == 12)
                                 {
                                     hours -= 12;
                                 }
                                 state = 4;
                             }
-                            else if ( ( c == 'p' ) | ( c == 'P' ) )
+                            else if ((c == 'p') | (c == 'P'))
                             {
-                                if ( hours != 12 )
+                                if (hours != 12)
                                 {
                                     hours += 12;
                                 }
@@ -463,23 +462,22 @@ namespace XTMF
 
                     case 2:
                         {
-                            if ( Char.IsLetter( c ) )
+                            if (!Char.IsLetter(c))
                             {
-                                continue;
-                            }
-                            else if ( ( c >= '0' ) & ( c <= '9' ) )
-                            {
-                                currentNumber = ( c - '0' );
-                                state = 1;
+                                if ((c >= '0') & (c <= '9'))
+                                {
+                                    currentNumber = (c - '0');
+                                    state = 1;
+                                }
                             }
                         }
                         break;
                     // We received an A or a P, we need to find an M next or fail
                     case 4:
                         {
-                            if ( ( c == 'm' | c == 'M' ) )
+                            if ((c == 'm' | c == 'M'))
                             {
-                                switch ( currentTime )
+                                switch (currentTime)
                                 {
                                     case 0:
                                         hours = currentNumber;
@@ -495,7 +493,7 @@ namespace XTMF
 
                                     case 3:
                                         // do nothing in this case, we have had all of the data already entered
-                                        if ( currentNumber != 0 )
+                                        if (currentNumber != 0)
                                         {
                                             error = "Too many time entries have been found!";
                                             return false;
@@ -520,9 +518,9 @@ namespace XTMF
                         return false;
                 }
             }
-            if ( state == 1 )
+            if (state == 1)
             {
-                switch ( currentTime )
+                switch (currentTime)
                 {
                     case 0:
                         hours = currentNumber;
@@ -538,7 +536,7 @@ namespace XTMF
 
                     case 3:
                         // do nothing in this case, we have had all of the data already entered
-                        if ( currentNumber != 0 )
+                        if (currentNumber != 0)
                         {
                             error = "Too many time entries have been found!";
                             return false;
@@ -550,26 +548,26 @@ namespace XTMF
                         return false;
                 }
             }
-            time.InternalTime = (long)( hours * 3600 + minutes * 60 + seconds ) * 1000;
+            time.InternalTime = (long)(hours * 3600 + minutes * 60 + seconds) * 1000;
             return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Time other)
         {
-            return this.InternalTime < other.InternalTime ? -1 : ( this.InternalTime == other.InternalTime ? 0 : 1 );
+            return InternalTime < other.InternalTime ? -1 : (InternalTime == other.InternalTime ? 0 : 1);
         }
 
         public override bool Equals(object obj)
         {
-            if ( obj is Time )
+            if (obj is Time)
             {
                 Time other = (Time)obj;
-                return this.InternalTime == other.InternalTime;
+                return InternalTime == other.InternalTime;
             }
             else
             {
-                return base.Equals( obj );
+                return base.Equals(obj);
             }
         }
 
@@ -584,13 +582,13 @@ namespace XTMF
         /// <returns></returns>
         public float ToFloat()
         {
-            return (float)( this.Hours + ( this.Minutes * 0.01f ) + ( this.Seconds * 0.0001f ) );
+            return Hours + (Minutes * 0.01f) + (Seconds * 0.0001f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float ToMinutes()
         {
-            return this.InternalTime * 1.6666666666666666666666666666667e-5f;
+            return InternalTime * 1.6666666666666666666666666666667e-5f;
         }
 
         /// <summary>
@@ -599,13 +597,13 @@ namespace XTMF
         /// <returns></returns>
         override public string ToString()
         {
-            if ( ( this.InternalTime / 1000 ) % 60 == 0 )
+            if ((InternalTime / 1000) % 60 == 0)
             {
-                return String.Format( "{0}:{1:00}", Hours, Minutes );
+                return String.Format("{0}:{1:00}", Hours, Minutes);
             }
             else
             {
-                return String.Format( "{0}:{1:00}:{2:00}", Hours, Minutes, Seconds );
+                return String.Format("{0}:{1:00}:{2:00}", Hours, Minutes, Seconds);
             }
         }
     }

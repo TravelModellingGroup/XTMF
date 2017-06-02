@@ -16,10 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Emme;
 using TMG.Input;
 using XTMF;
@@ -52,10 +50,10 @@ namespace TMG.GTAModel.NetworkAnalysis
                 throw new XTMFRuntimeException("Controller is not a ModellerController");
             }
             
-            string args = this.ScenarioNumber + " " + this.CountpostAttributeId + " " + this.AlternateCountpostAttributeId + " " + this.ExportFile.GetFilePath();
+            string args = ScenarioNumber + " " + CountpostAttributeId + " " + AlternateCountpostAttributeId + " " + ExportFile.GetFilePath();
             string result = "";
 
-            return mc.Run(ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name

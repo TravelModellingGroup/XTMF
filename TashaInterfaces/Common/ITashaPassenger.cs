@@ -25,8 +25,8 @@ namespace Tasha.Common
         /// </summary>
         /// <param name="driverOriginalTrip">The original trip that the driver is taking</param>
         /// <param name="passengerTrip">The original trip tha the passenger is taking</param>
-        /// <param name="V">The systematic utility of the combined sub-tour.</param>
+        /// <param name="v">The systematic utility of the combined sub-tour.</param>
         /// <returns>If passenger is feasible</returns>
-        bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float V);
+        bool CalculateV(ITrip driverOriginalTrip, ITrip passengerTrip, out float v);
     }
 }

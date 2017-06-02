@@ -19,16 +19,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TMG.Emme;
 using XTMF;
 using Tasha.Common;
 using TMG;
 using Datastructure;
 using TMG.Input;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 using TMG.Functions;
 using System.Collections.Concurrent;
 using System.IO;
@@ -61,7 +56,7 @@ namespace Tasha.Validation.ModeChoice
             TTSEmploymentStatus.WorkAtHome_FullTime, TTSEmploymentStatus.WorkAtHome_PartTime, TTSEmploymentStatus.NotEmployed };
 
 
-        public sealed class CatchmentArea : XTMF.IModule
+        public sealed class CatchmentArea : IModule
         {
             /// <summary>
             /// The catchment area for this analysis.

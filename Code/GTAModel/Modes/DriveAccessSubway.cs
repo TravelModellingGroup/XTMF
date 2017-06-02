@@ -16,12 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using Datastructure;
 using TMG.Modes;
 using XTMF;
-using Datastructure;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TMG.GTAModel.Modes
 {
@@ -64,7 +63,7 @@ namespace TMG.GTAModel.Modes
 
         public Tuple<IZone[], IZone[], float[]> GetSubchoiceSplit(IZone origin, IZone destination, Time time)
         {
-            return this.AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
+            return AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
         }
 
         public string NetworkType { get; set; }
@@ -92,12 +91,12 @@ namespace TMG.GTAModel.Modes
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
+            var zoneArray = Root.ZoneSystem.ZoneArray;
             var o = zoneArray.GetFlatIndex( origin.ZoneNumber );
             var d = zoneArray.GetFlatIndex( destination.ZoneNumber );
             // build the constant for this demographic category
-            var v = this.Constant + this.AgeConstant1 + this.AgeConstant2 + this.AgeConstant3 + this.AgeConstant4;
-            var data = this.AccessUtilities.GetFlatData()[o][d];
+            var v = Constant + AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4;
+            var data = AccessUtilities.GetFlatData()[o][d];
             var accessStations = data.Item1;
             var accessUtils = data.Item3;
             var accessUtil = 0f;
@@ -109,26 +108,26 @@ namespace TMG.GTAModel.Modes
             }
             // since the sum was already raised to the e, we can just take the natural log to get the logsum
             var logsum = (float)( Math.Log( accessUtil ) );
-            if ( logsum < this.MinimumAccessStationUtility )
+            if ( logsum < MinimumAccessStationUtility )
             {
                 return float.NaN;
             }
-            v += this.Correlation * logsum;
-            if ( this.Access )
+            v += Correlation * logsum;
+            if ( Access )
             {
-                v += this.DestinationEmploymentDensity * (float)Math.Log( destination.Employment / ( destination.InternalArea / 1000f ) + 1 );
+                v += DestinationEmploymentDensity * (float)Math.Log( destination.Employment / ( destination.InternalArea / 1000f ) + 1 );
             }
             else
             {
-                v += this.DestinationEmploymentDensity * (float)Math.Log( origin.Employment / ( origin.InternalArea / 1000f ) + 1 );
+                v += DestinationEmploymentDensity * (float)Math.Log( origin.Employment / ( origin.InternalArea / 1000f ) + 1 );
             }
             return v;
         }
 
         public bool Feasible(IZone origin, IZone destination, Time time)
         {
-            if ( this.CurrentlyFeasible <= 0 ) return false;
-            var data = this.AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
+            if ( CurrentlyFeasible <= 0 ) return false;
+            var data = AccessUtilities[origin.ZoneNumber, destination.ZoneNumber];
             // make sure that the utilities have been processed
             return !( data == null || data.Item1 == null || data.Item1.Length == 0 );
         }
@@ -147,9 +146,9 @@ namespace TMG.GTAModel.Modes
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.AccessStationUtilities.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
+            if ( !AccessStationUtilities.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
             {
-                error = "In '" + this.Name + "' the resource Access Station Utilities are not of the proper type SparseTwinIndex<Tuple<IZone[], float[]>>!";
+                error = "In '" + Name + "' the resource Access Station Utilities are not of the proper type SparseTwinIndex<Tuple<IZone[], float[]>>!";
                 return false;
             }
             return true;
@@ -163,10 +162,10 @@ namespace TMG.GTAModel.Modes
         {
             if ( iterationNumber > 0 )
             {
-                this.AccessStationUtilities.ReleaseResource();
+                AccessStationUtilities.ReleaseResource();
             }
             // each iteration reload the utilities
-            this.AccessUtilities = this.AccessStationUtilities.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
+            AccessUtilities = AccessStationUtilities.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
         }
     }
 }

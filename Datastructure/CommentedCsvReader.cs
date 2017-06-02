@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -29,33 +29,31 @@ namespace Datastructure
     /// </summary>
     public sealed class CommentedCsvReader : IDisposable
     {
-        private long linesRead;
-        private CsvReader Reader;
+        private long LinesRead;
+        private readonly CsvReader Reader;
 
         /// <summary>
         /// </summary>
-        /// <param name="FileName">The full path to the file.</param>
-        public CommentedCsvReader(string FileName)
+        /// <param name="fileName">The full path to the file.</param>
+        public CommentedCsvReader(string fileName)
         {
-            this.Reader = new CsvReader( FileName );
-            this.linesRead = 0;
-            SetupReader();
-        }
-
-        public CommentedCsvReader(Stream Stream)
-        {
-            this.Reader = new CsvReader( Stream );
-            this.linesRead = 0;
-            SetupReader();
-        }
-
-        public Stream BaseStream
-        {
-            get
+            if (fileName == null)
             {
-                return this.Reader.BaseStream;
+                throw new ArgumentNullException(nameof(fileName));
             }
+            Reader = new CsvReader(fileName);
+            LinesRead = 0;
+            SetupReader();
         }
+
+        public CommentedCsvReader(Stream stream)
+        {
+            Reader = new CsvReader( stream );
+            LinesRead = 0;
+            SetupReader();
+        }
+
+        public Stream BaseStream => Reader.BaseStream;
 
         /// <summary>
         /// The array of column labels.
@@ -77,32 +75,32 @@ namespace Datastructure
 
         public void Close()
         {
-            this.Reader.Dispose();
+            Reader.Dispose();
         }
 
         public void Dispose()
         {
-            this.Reader.Dispose();
+            Reader.Dispose();
         }
 
-        public void Get(out string Item, int Index)
+        public void Get(out string item, int index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
-        public void Get(out char Item, int Index)
+        public void Get(out char item, int index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
-        public void Get(out float Item, int Index)
+        public void Get(out float item, int index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
-        public void Get(out int Item, int Index)
+        public void Get(out int item, int index)
         {
-            this.Reader.Get( out Item, Index );
+            Reader.Get( out item, index );
         }
 
         /// <summary>
@@ -113,7 +111,7 @@ namespace Datastructure
         {
             while ( !Reader.EndOfFile )
             {
-                this.NumberOfCurrentCells = Reader.LoadLine();
+                NumberOfCurrentCells = Reader.LoadLine();
 
                 if ( Reader.LinePosition == 0 ) continue; //Ignore blank lines
                 if ( Reader.LinePosition >= 2 )
@@ -121,12 +119,12 @@ namespace Datastructure
                     if ( Reader.LineBuffer[0] == '/' & Reader.LineBuffer[1] == '/' ) continue; //Skip commented lines
                 }
 
-                this.linesRead++;
-                if ( this.Headers == null ) return true;
-                if ( this.NumberOfCurrentCells != this.Headers.Length )
+                LinesRead++;
+                if (Headers == null ) return true;
+                if (NumberOfCurrentCells != Headers.Length )
                 {
-                    throw new IOException( "Error reading file '" + Reader.FileName + "' at line " + linesRead + ": number of cells in the row (" + this.NumberOfCurrentCells +
-                        ") is not equal to the number of headers defined in the file (" + this.Headers.Length + ")." );
+                    throw new IOException( "Error reading file '" + Reader.FileName + "' at line " + LinesRead + ": number of cells in the row (" + NumberOfCurrentCells +
+                        ") is not equal to the number of headers defined in the file (" + Headers.Length + ")." );
                 }
                 return true;
             }
@@ -140,13 +138,16 @@ namespace Datastructure
         private void SetupReader()
         {
             // iterate here until we are either at the end of the file or a place with a header
-            while ( this.NextLine() && this.NumberOfCurrentCells <= 0 ) ;
-
-            this.Headers = new string[this.NumberOfCurrentCells];
-            string h = "";
-            for ( int i = 0; i < this.NumberOfCurrentCells; i++ )
+            while (NextLine() && NumberOfCurrentCells <= 0)
             {
-                this.Get( out h, i );
+                // iterate until we have found the line containing headers
+            }
+
+            Headers = new string[NumberOfCurrentCells];
+            string h;
+            for ( var i = 0; i < NumberOfCurrentCells; i++ )
+            {
+                Get( out h, i );
                 Headers[i] = h;
             }
         }

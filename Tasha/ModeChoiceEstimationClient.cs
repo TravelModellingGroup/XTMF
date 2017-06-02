@@ -37,7 +37,7 @@ namespace Tasha
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(50, 150, 50);
 
-        private bool Exit = false;
+        private bool Exit;
 
         private float[] HouseholdEvaluation;
 
@@ -45,7 +45,7 @@ namespace Tasha
 
         private TashaHousehold[] Households;
 
-        private int ProcessedSoFar = 0;
+        private int ProcessedSoFar;
 
         private MessageQueue<ParameterInstructions> ServerMessages;
 
@@ -256,9 +256,9 @@ namespace Tasha
         public int GetIndexOfMode(ITashaMode mode)
         {
             var numberOfModes = AllModes.Count;
-            for(int i = 0; i < numberOfModes; i++)
+            for (int i = 0; i < numberOfModes; i++)
             {
-                if(AllModes[i] == mode)
+                if (AllModes[i] == mode)
                 {
                     return i;
                 }
@@ -268,7 +268,7 @@ namespace Tasha
 
         public bool RuntimeValidation(ref string error)
         {
-            if(Client == null)
+            if (Client == null)
             {
                 error = "The ModeChoiceEstimationClient Module requires you to be running in an XTMF environment that supports Client Networking.";
                 return false;
@@ -281,7 +281,7 @@ namespace Tasha
         {
             // Load up our zone system and our modes
             ZoneSystem.LoadData();
-            foreach(var network in NetworkData)
+            foreach (var network in NetworkData)
             {
                 network.LoadData();
             }
@@ -291,7 +291,7 @@ namespace Tasha
                 using (HouseholdMessages = new MessageQueue<TashaHousehold[]>())
                 {
                     InitializeNetworking();
-                    if(LoadHouseholds())
+                    if (LoadHouseholds())
                     {
                         HouseholdEvaluation = new float[Households.Length];
                         ProcessTashaRequests();
@@ -299,7 +299,7 @@ namespace Tasha
                     }
                 }
             }
-            foreach(var network in NetworkData)
+            foreach (var network in NetworkData)
             {
                 network.UnloadData();
             }
@@ -312,16 +312,15 @@ namespace Tasha
             parameter = GetVariableName(mode, parameter);
             Type modeType = mode.GetType();
             var fieldInfo = modeType.GetField(parameter);
-            if(fieldInfo != null)
+            if (fieldInfo != null)
             {
                 fieldInfo.SetValue(mode, value);
                 return;
             }
             var propertyInfo = modeType.GetProperty(parameter);
-            if(propertyInfo != null)
+            if (propertyInfo != null)
             {
                 propertyInfo.SetValue(mode, value, null);
-                return;
             }
         }
 
@@ -329,11 +328,11 @@ namespace Tasha
         {
             double fitness = 0;
             var householdIterations = HouseholdIterations;
-            foreach(var p in household.Persons)
+            foreach (var p in household.Persons)
             {
-                foreach(var chain in p.TripChains)
+                foreach (var chain in p.TripChains)
                 {
-                    foreach(var trip in chain.Trips)
+                    foreach (var trip in chain.Trips)
                     {
                         var value = Math.Log((EvaluateTrip(trip) + 1) / (householdIterations + 1));
                         fitness += value;
@@ -351,24 +350,24 @@ namespace Tasha
         private float EvaluateTrip(ITrip trip)
         {
             int correct = 0;
-            var observedMode = (trip as SchedulerTrip).ObservedMode;
-            foreach(var choice in trip.ModesChosen)
+            var observedMode = ((SchedulerTrip)trip).ObservedMode;
+            foreach (var choice in trip.ModesChosen)
             {
-                if(choice == observedMode)
+                if (choice == observedMode)
                 {
                     correct++;
                 }
             }
-            return (float)correct;
+            return correct;
         }
 
         private ITripChain FindRepTripChain(SchedulerTripChain chain, ITashaHousehold tashaHousehold)
         {
-            foreach(var person in tashaHousehold.Persons)
+            foreach (var person in tashaHousehold.Persons)
             {
-                foreach(var tc in person.TripChains)
+                foreach (var tc in person.TripChains)
                 {
-                    if(tc.JointTripID == chain.JointTripID && tc.JointTripRep)
+                    if (tc.JointTripID == chain.JointTripID && tc.JointTripRep)
                     {
                         return tc;
                     }
@@ -383,12 +382,12 @@ namespace Tasha
             NonSharedModes = new List<ITashaMode>();
             AllModes.Add(AutoMode);
             NonSharedModes.Add(AutoMode);
-            foreach(var mode in OtherModes)
+            foreach (var mode in OtherModes)
             {
                 AllModes.Add(mode);
                 NonSharedModes.Add(mode);
             }
-            foreach(var mode in SharedModes)
+            foreach (var mode in SharedModes)
             {
                 AllModes.Add(mode);
             }
@@ -398,36 +397,36 @@ namespace Tasha
         {
             // Search for a field or property that has an attribute with this name
             var modeType = selectedMode.GetType();
-            foreach(var f in modeType.GetProperties())
+            foreach (var f in modeType.GetProperties())
             {
                 // search the attributes
                 var attributes = f.GetCustomAttributes(true);
-                foreach(var at in attributes)
+                foreach (var at in attributes)
                 {
                     // if we find an attribute from XTMF
                     ParameterAttribute parameter;
-                    if((parameter = ((at as ParameterAttribute))) != null)
+                    if ((parameter = ((at as ParameterAttribute))) != null)
                     {
                         // Check to see if this is our parameter
-                        if(parameter.Name == parameterName)
+                        if (parameter.Name == parameterName)
                         {
                             return f.Name;
                         }
                     }
                 }
             }
-            foreach(var f in modeType.GetFields())
+            foreach (var f in modeType.GetFields())
             {
                 // search the attributes
                 var attributes = f.GetCustomAttributes(true);
-                foreach(var at in attributes)
+                foreach (var at in attributes)
                 {
                     // if we find an attribute from XTMF
                     ParameterAttribute parameter;
-                    if((parameter = ((at as ParameterAttribute))) != null)
+                    if ((parameter = ((at as ParameterAttribute))) != null)
                     {
                         // Check to see if this is our parameter
-                        if(parameter.Name == parameterName)
+                        if (parameter.Name == parameterName)
                         {
                             return f.Name;
                         }
@@ -443,36 +442,22 @@ namespace Tasha
             var numberOfParameters = job.Names.Length;
             var modes = AllModes;
             var numberOfModes = modes.Count;
-            try
+            System.Threading.Tasks.Parallel.For(0, numberOfParameters, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                delegate (int i)
             {
-                System.Threading.Tasks.Parallel.For(0, numberOfParameters, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
-                    delegate (int i)
-                {
-                    int endOfMode;
-                    string mode = job.Names[i].Substring(0, endOfMode = job.Names[i].IndexOf('.'));
-                    string parameter = job.Names[i].Substring(endOfMode + 1);
+                int endOfMode;
+                string mode = job.Names[i].Substring(0, endOfMode = job.Names[i].IndexOf('.'));
+                string parameter = job.Names[i].Substring(endOfMode + 1);
                     // find the matching mode
-                    for(int j = 0; j < numberOfModes; j++)
+                    for (int j = 0; j < numberOfModes; j++)
+                {
+                    if (mode == modes[j].ModeName)
                     {
-                        if(mode == modes[j].ModeName)
-                        {
-                            AssignParameter(modes[j], parameter, job.Values[i]);
-                            break;
-                        }
+                        AssignParameter(modes[j], parameter, job.Values[i]);
+                        break;
                     }
-                });
-            }
-            catch (AggregateException e)
-            {
-                if(e.InnerException is XTMFRuntimeException)
-                {
-                    throw new XTMFRuntimeException(e.InnerException.Message);
                 }
-                else
-                {
-                    throw new XTMFRuntimeException(e.InnerException.Message + "\r\n" + e.InnerException.StackTrace);
-                }
-            }
+            });
         }
 
         private void InitializeNetworking()
@@ -495,10 +480,10 @@ namespace Tasha
             household.Persons = new ITashaPerson[(numberOfPeople = reader.ReadInt32())];
             var vehicleList = new List<IVehicle>();
             // Produce the vehicles, all auto since it is the only type of resource we have
-            for(int i = 0; i < VehicleTypes.Count; i++)
+            for (int i = 0; i < VehicleTypes.Count; i++)
             {
                 var numberOfVehicles = reader.ReadInt32();
-                for(int j = 0; j < numberOfVehicles; j++)
+                for (int j = 0; j < numberOfVehicles; j++)
                 {
                     vehicleList.Add(TashaVehicle.MakeVehicle(VehicleTypes[i]));
                 }
@@ -507,18 +492,18 @@ namespace Tasha
             household.HomeZone = zoneArray[reader.ReadInt32()];
             LoadKeys(reader, household);
             // now we can go and load the people
-            for(int i = 0; i < numberOfPeople; i++)
+            for (int i = 0; i < numberOfPeople; i++)
             {
                 household.Persons[i] = LoadPerson(reader, zoneArray, household, i);
             }
             // Link in the joint trip chain trip chains
-            foreach(var person in household.Persons)
+            foreach (var person in household.Persons)
             {
-                foreach(var tc in person.TripChains)
+                foreach (var tc in person.TripChains)
                 {
-                    if(tc.JointTrip)
+                    if (tc.JointTrip)
                     {
-                        if(tc.JointTripRep)
+                        if (tc.JointTripRep)
                         {
                             ((SchedulerTripChain)tc).GetRepTripChain = tc;
                         }
@@ -536,10 +521,10 @@ namespace Tasha
         {
             // Request the household data
             Client.SendCustomMessage(null, 2);
-            while(!Exit)
+            while (!Exit)
             {
-                var households = HouseholdMessages.GetMessageOrTimeout(200) as TashaHousehold[];
-                if(households != null)
+                var households = HouseholdMessages.GetMessageOrTimeout(200);
+                if (households != null)
                 {
                     Households = households;
                     return true;
@@ -553,12 +538,12 @@ namespace Tasha
         private void LoadKeys(BinaryReader reader, IAttachable att)
         {
             var numberOfKeys = reader.ReadInt32();
-            for(int i = 0; i < numberOfKeys; i++)
+            for (int i = 0; i < numberOfKeys; i++)
             {
                 var name = reader.ReadString();
                 var type = reader.ReadString();
                 var text = reader.ReadString();
-                switch(type)
+                switch (type)
                 {
                     case "System.String":
                         att.Attach(name, text);
@@ -571,9 +556,6 @@ namespace Tasha
                     case "System.Int32":
                         att.Attach(name, int.Parse(text));
                         break;
-
-                    default:
-                        break;
                 }
             }
         }
@@ -584,12 +566,12 @@ namespace Tasha
             NonSharedModes = new List<ITashaMode>();
             AllModes.Add(AutoMode);
             NonSharedModes.Add(AutoMode);
-            foreach(var mode in OtherModes)
+            foreach (var mode in OtherModes)
             {
                 AllModes.Add(mode);
                 NonSharedModes.Add(mode);
             }
-            foreach(var mode in SharedModes)
+            foreach (var mode in SharedModes)
             {
                 AllModes.Add(mode);
             }
@@ -613,7 +595,7 @@ namespace Tasha
             int numberOfTripChains;
             LoadKeys(reader, person);
             person.TripChains = new List<ITripChain>(numberOfTripChains = reader.ReadInt32());
-            for(int i = 0; i < numberOfTripChains; i++)
+            for (int i = 0; i < numberOfTripChains; i++)
             {
                 person.TripChains.Add(LoadTripChain(reader, zoneArray, person));
             }
@@ -638,9 +620,9 @@ namespace Tasha
             trip.ActivityStartTime = time;
             // Get the observed mode
             var modeName = reader.ReadString();
-            for(int i = 0; i < AllModes.Count; i++)
+            for (int i = 0; i < AllModes.Count; i++)
             {
-                if(modeName == AllModes[i].ModeName)
+                if (modeName == AllModes[i].ModeName)
                 {
                     trip.ObservedMode = AllModes[i];
                 }
@@ -656,7 +638,7 @@ namespace Tasha
             chain.JointTripRep = reader.ReadBoolean();
             LoadKeys(reader, chain);
             int numberOfTrips = reader.ReadInt32();
-            for(int i = 0; i < numberOfTrips; i++)
+            for (int i = 0; i < numberOfTrips; i++)
             {
                 SchedulerTrip trip = LoadTrip(reader, zoneArray, chain, i);
                 // Now that we have all of the data that we need, add ourselves to the trip chain
@@ -681,7 +663,7 @@ namespace Tasha
             var numberOfParameters = reader.ReadInt32();
             var names = new string[numberOfParameters];
             var values = new float[numberOfParameters];
-            for(int i = 0; i < numberOfParameters; i++)
+            for (int i = 0; i < numberOfParameters; i++)
             {
                 // Read in the name of the parameter
                 names[i] = reader.ReadString();
@@ -689,7 +671,6 @@ namespace Tasha
                 values[i] = reader.ReadSingle();
             }
             // Make sure to not use the close method or the base stream will also be closed
-            reader = null;
             // Once we have everything create the processing instruction that we will need
             return new ParameterInstructions() { Generation = generation, Index = index, Names = names, Values = values };
         }
@@ -701,15 +682,15 @@ namespace Tasha
             ModeChoice.LoadOneTimeLocalData();
             ModeChoice.IterationStarted(0, 1);
             // now lets wait for some parameters
-            while(!Exit)
+            while (!Exit)
             {
                 var queue = ServerMessages;
-                if(queue == null)
+                if (queue == null)
                 {
                     return;
                 }
                 var job = queue.GetMessageOrTimeout(200);
-                if(job != null)
+                if (job != null)
                 {
                     job.Result = RunJob(job);
                     ReportResult(job);
@@ -726,26 +707,24 @@ namespace Tasha
             var reader = new BinaryReader(fromHost);
             int numberOfHouseholds = reader.ReadInt32();
             int numberOfVehicles = reader.ReadInt32();
-            if(numberOfVehicles != VehicleTypes.Count)
+            if (numberOfVehicles != VehicleTypes.Count)
             {
                 throw new XTMFRuntimeException("We were expecting to have '" + VehicleTypes.Count + "' different types of vehicles but the host has '" + numberOfVehicles + "'");
             }
-            for(int i = 0; i < numberOfVehicles; i++)
+            for (int i = 0; i < numberOfVehicles; i++)
             {
                 string temp;
-                if(VehicleTypes[i].VehicleName != (temp = reader.ReadString()))
+                if (VehicleTypes[i].VehicleName != (temp = reader.ReadString()))
                 {
                     throw new XTMFRuntimeException("We were expecting the vehicle type to be named '" + VehicleTypes[i].VehicleName + "' and instead found '" + temp + "'");
                 }
             }
             TashaHousehold[] households = new TashaHousehold[numberOfHouseholds];
-            var autoType = AutoType;
             var zoneArray = ZoneSystem.ZoneArray;
-            for(int i = 0; i < numberOfHouseholds; i++)
+            for (int i = 0; i < numberOfHouseholds; i++)
             {
                 households[i] = LoadHousehold(reader, zoneArray);
             }
-            reader = null;
             return households;
         }
 
@@ -754,7 +733,7 @@ namespace Tasha
             // queue up these parameters for processing
             var parameters = parametersObject as ParameterInstructions;
             // if they are not actually parameters just return
-            if(parameters == null)
+            if (parameters == null)
             {
                 return;
             }
@@ -771,7 +750,7 @@ namespace Tasha
             InitializedModeParameters(job);
             ProcessedSoFar = 0;
             Thread.MemoryBarrier();
-            if(Parallel)
+            if (Parallel)
             {
                 System.Threading.Tasks.Parallel.For(0, Households.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }
                   , RunTasha);
@@ -780,7 +759,7 @@ namespace Tasha
             }
             else
             {
-                for(int i = 0; i < Households.Length; i++)
+                for (int i = 0; i < Households.Length; i++)
                 {
                     RunTasha(i);
                 }
@@ -794,7 +773,7 @@ namespace Tasha
             var hhld = Households[householdIndex];
             try
             {
-                if(ModeChoice.Run(hhld))
+                if (ModeChoice.Run(hhld))
                 {
                     HouseholdEvaluation[householdIndex] = EvaluateHousehold(hhld);
                 }
@@ -805,7 +784,7 @@ namespace Tasha
             }
             catch (Exception e)
             {
-                if(e is XTMFRuntimeException)
+                if (e is XTMFRuntimeException)
                 {
                     Console.WriteLine(e.Message);
                 }
@@ -832,7 +811,7 @@ namespace Tasha
         private void SendResult(object data, Stream toHost)
         {
             var job = data as ParameterInstructions;
-            if(job == null)
+            if (job == null)
             {
                 return;
             }
@@ -841,18 +820,17 @@ namespace Tasha
             writer.Write(job.Index);
             writer.Write(job.Result);
             writer.Flush();
-            writer = null;
         }
 
         private void SetToMax(int householdIndex, TashaHousehold hhld)
         {
             double fitness = 0;
             var ammount = (float)Math.Log(1.00 / (HouseholdIterations + 1));
-            foreach(var p in hhld.Persons)
+            foreach (var p in hhld.Persons)
             {
-                foreach(var chain in p.TripChains)
+                foreach (var chain in p.TripChains)
                 {
-                    foreach(var trip in chain.Trips)
+                    foreach (var trip in chain.Trips)
                     {
                         fitness += ammount;
                         Array.Clear(trip.ModesChosen, 0, trip.ModesChosen.Length);

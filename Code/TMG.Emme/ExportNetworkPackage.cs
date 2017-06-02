@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
 using TMG.DataUtility;
@@ -39,8 +36,8 @@ namespace TMG.Emme
         public FileLocation ExportFile;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
-        private const string _ToolName = "tmg.input_output.export_network_package";
-        private const string _OldToolName = "TMG2.IO.ExportScenario";
+        private const string ToolName = "tmg.input_output.export_network_package";
+        private const string OldToolName = "TMG2.IO.ExportScenario";
 
         public bool Execute(Controller controller)
         {
@@ -48,25 +45,25 @@ namespace TMG.Emme
             if(mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var s = string.Join(",", this.AttributeIdsToExport.ToArray());
+            var s = string.Join(",", AttributeIdsToExport.ToArray());
 
-            if(string.IsNullOrWhiteSpace(this.AttributeIdsToExport.ToString()))
+            if(string.IsNullOrWhiteSpace(AttributeIdsToExport.ToString()))
                 s += "\"\"";
 
-            var args = string.Join(" ", this.ScenarioNumber,
-                                        "\"" + Path.GetFullPath(this.ExportFile.GetFilePath()) + "\"",
+            var args = string.Join(" ", ScenarioNumber,
+                                        "\"" + Path.GetFullPath(ExportFile.GetFilePath()) + "\"",
                                         s);
 
-            Console.WriteLine("Export network from scenario " + this.ScenarioNumber.ToString() + " to file " + this.ExportFile.GetFilePath());
+            Console.WriteLine("Export network from scenario " + ScenarioNumber.ToString() + " to file " + ExportFile.GetFilePath());
 
             var result = "";
-            if(mc.CheckToolExists(_ToolName))
+            if(mc.CheckToolExists(ToolName))
             {
-                return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+                return mc.Run(ToolName, args, (p => Progress = p), ref result);
             }
             else
             {
-                return mc.Run(_OldToolName, args, (p => this.Progress = p), ref result);
+                return mc.Run(OldToolName, args, (p => Progress = p), ref result);
             }
         }
 

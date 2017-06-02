@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Text;
 using TMG.Emme;
@@ -75,14 +76,14 @@ namespace TMG.GTAModel.NetworkAnalysis
 
             var sb = new StringBuilder();
             sb.AppendFormat( "{0} {1} {2} {3}",
-                this.ScenarioNumber, this.Modes, this.ScreenlineFile, this.ReportFile );
+                ScenarioNumber, Modes, ScreenlineFile, ReportFile );
 
             /*
              * ScrenarioNumner, ModesStr, OpenPath, SavePath
              * */
 
             string result = null;
-            return mc.Run("tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => this.Progress = p ), ref result );
+            return mc.Run("tmg.analysis.traffic.export_screenline_results", sb.ToString(), ( p => Progress = p ), ref result );
         }
 
         public bool RuntimeValidation(ref string error)

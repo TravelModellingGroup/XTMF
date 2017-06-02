@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using Datastructure;
@@ -56,9 +57,9 @@ namespace TMG.GTAModel.V2.Generation
 
         public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
-            var ages = this.Root.Demographics.AgeRates;
-            var studentRates = this.Root.Demographics.SchoolRates.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var ages = Root.Demographics.AgeRates;
+            var studentRates = Root.Demographics.SchoolRates.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var prod = production.GetFlatData();
 
             for ( int i = 0; i < zones.Length; i++ )
@@ -74,8 +75,8 @@ namespace TMG.GTAModel.V2.Generation
                 {
                     // otherwise compute the production
                     var pd = zones[i].PlanningDistrict;
-                    prod[i] = zones[i].Population * ages[zones[i].ZoneNumber, this.Age] * studentRatesForZone[this.Age, 0] *
-                        StudentDailyRates[pd, 0, this.Age] * StudentTimeOfDayRates[pd, 0, this.Age];
+                    prod[i] = zones[i].Population * ages[zones[i].ZoneNumber, Age] * studentRatesForZone[Age, 0] *
+                        StudentDailyRates[pd, 0, Age] * StudentTimeOfDayRates[pd, 0, Age];
                 }
             }
 
@@ -99,10 +100,10 @@ namespace TMG.GTAModel.V2.Generation
 
         private void SaveProductionToDisk(IZone[] zones, float[] prod)
         {
-            if ( this.SaveProduction.ContainsFileName() )
+            if ( SaveProduction.ContainsFileName() )
             {
-                var first = !File.Exists( this.SaveProduction.GetFileName() );
-                using ( StreamWriter writer = new StreamWriter( this.SaveProduction.GetFileName(), true ) )
+                var first = !File.Exists( SaveProduction.GetFileName() );
+                using ( StreamWriter writer = new StreamWriter( SaveProduction.GetFileName(), true ) )
                 {
                     if ( first )
                     {
@@ -111,7 +112,7 @@ namespace TMG.GTAModel.V2.Generation
 
                     for ( int i = 0; i < zones.Length; i++ )
                     {
-                        writer.Write( this.Age );
+                        writer.Write( Age );
                         writer.Write( ',' );
                         writer.Write( zones[i].ZoneNumber );
                         writer.Write( ',' );

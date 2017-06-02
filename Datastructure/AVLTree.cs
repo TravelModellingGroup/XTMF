@@ -31,24 +31,21 @@ namespace Datastructure
     /// Single Writer, Multiple Readers
     /// </summary>
     /// <typeparam name="T">The type of data that we want to store</typeparam>
-    public class AVLTree<T>
+    public class AvlTree<T>
         where T : IComparable<T>
     {
-        protected object WriterLock = new object();
-        private volatile int count = 0;
-        private volatile int readerCount = 0;
-        private volatile Node root;
+        protected readonly object WriterLock = new object();
+        private volatile int _Count;
+        private volatile int ReaderCount;
+        private volatile Node _Root;
 
         /// <summary>
         /// Returns how many elements are currently in the tree
         /// </summary>
-        public int Count
-        {
-            get { return this.count; }
-        }
+        public int Count => _Count;
 
         /// <summary>
-        /// Returns when the root is synchronized
+        /// Returns when the _Root is synchronized
         /// This will deadlock if you hold the SynchRoot and lock it
         /// </summary>
         public bool IsSynchronized
@@ -65,12 +62,9 @@ namespace Datastructure
         /// <summary>
         /// If you hold this, the datastructure will be read-only
         /// </summary>
-        public object SyncRoot
-        {
-            get { return WriterLock; }
-        }
+        public object SyncRoot => WriterLock;
 
-        protected Node Root { get { return root; } set { root = value; } }
+        protected Node Root { get { return _Root; } set { _Root = value; } }
 
         /// <summary>
         /// Adds a new item to the BST
@@ -79,23 +73,23 @@ namespace Datastructure
         /// <returns></returns>
         public bool Add(T item)
         {
-            Stack<Node> visited = new Stack<Node>();
+            var visited = new Stack<Node>();
             Node temp, current;
             // TODO: We need to test the performance difference between making the node here or not
             // Making it here could allow more readers in, making the lag for a write take long?
             // However, if we are parallel writing, doing more work in parallel is better
-            this.MakeNode( item, out temp );
-            lock ( this.WriterLock )
+            MakeNode( item, out temp );
+            lock (WriterLock)
             {
-                current = this.Root;
+                current = Root;
                 // This is the other place to logically make the node
                 //this.MakeNode(item, out temp);
                 // Do as much as we can before waiting for the readers to finish
                 if ( current == null )
                 {
                     WaitForReaders();
-                    this.Root = temp;
-                    this.IncreaseCount();
+                    Root = temp;
+                    IncreaseCount();
                     return true;
                 }
                 while ( current != null )
@@ -129,8 +123,8 @@ namespace Datastructure
                 // We only need to wait for doing this NOW
                 WaitForReaders();
                 //Balance the tree now
-                this.BalanceTree( visited );
-                this.IncreaseCount();
+                BalanceTree( visited );
+                IncreaseCount();
                 // We need to make sure all of the nodes memory it now shared between processors
                 Thread.MemoryBarrier();
             }
@@ -142,10 +136,10 @@ namespace Datastructure
         /// </summary>
         public void Clear()
         {
-            lock ( this.WriterLock )
+            lock (WriterLock)
             {
                 WaitForReaders();
-                this.Root = null;
+                Root = null;
                 // free up all of the memory resources
                 GC.Collect();
             }
@@ -160,10 +154,10 @@ namespace Datastructure
         {
             if ( item == null ) return false;
             IncreaseReaders();
-            Node current = this.Root;
+            var current = Root;
             while ( current != null )
             {
-                int dif = item.CompareTo( current.Data );
+                var dif = item.CompareTo( current.Data );
                 if ( dif < 0 )
                 {
                     current = current.Left;
@@ -183,8 +177,8 @@ namespace Datastructure
 
         public void CopyTo(Array array, int index)
         {
-            int i = 0;
-            foreach ( T t in this )
+            var i = 0;
+            foreach ( var t in this )
             {
                 array.SetValue( t, index + i );
                 i++;
@@ -200,8 +194,8 @@ namespace Datastructure
         public IEnumerator<T> GetEnumerator()
         {
             IncreaseReaders();
-            Stack<Node> stack = new Stack<Node>();
-            for ( Node current = this.Root; current != null || stack.Count > 0; current = current.Right )
+            var stack = new Stack<Node>();
+            for ( var current = Root; current != null || stack.Count > 0; current = current.Right )
             {
                 while ( current != null )
                 {
@@ -231,18 +225,17 @@ namespace Datastructure
         /// <returns>If we removed the element</returns>
         public bool Remove(T item)
         {
-            Stack<Node> visited = new Stack<Node>();
+            var visited = new Stack<Node>();
             if ( default( T ) == null && item == null ) return false;
             // grab the Writer's lock.
             lock ( WriterLock )
             {
-                Node current = this.Root;
                 bool removed;
-                this.Root = this.RecursiveRemove( this.Root, item, visited, out removed );
+                Root = RecursiveRemove(Root, item, visited, out removed );
                 if ( removed )
                 {
                     DecreaseCount();
-                    this.BalanceTree( visited );
+                    BalanceTree( visited );
                     Thread.MemoryBarrier();
                     return true;
                 }
@@ -260,9 +253,9 @@ namespace Datastructure
         public T[] ToArray()
         {
             IncreaseReaders();
-            T[] ret = new T[this.Count];
-            int i = 0;
-            foreach ( T t in this )
+            var ret = new T[Count];
+            var i = 0;
+            foreach ( var t in this )
             {
                 ret[i] = t;
                 i++;
@@ -278,36 +271,41 @@ namespace Datastructure
         protected void BalanceTree(Stack<Node> path)
         {
             // To balance the tree we need to go back up the path and update the balances for each side
-            if ( path.Count == 0 ) return;
+            if (path.Count == 0)
+            {
+                return;
+            }
             while ( path.Count >= 2 )
             {
                 BalanceAndUpdate( path.Pop(), path.Peek() );
             }
-            int difference = ( Root.Left == null ? 0 : Root.Left.Height ) - ( Root.Right == null ? 0 : Root.Right.Height );
+            var difference = (Root.Left?.Height ?? 0) - (Root.Right?.Height ?? 0);
 
             if ( difference <= -2 )
             {
-                Node temp = this.Root.Right;
-                this.Root.Right = temp.Left;
-                temp.Left = this.Root;
-                this.Root = temp;
+                var temp = Root.Right;
+                if (temp == null) throw new InvalidOperationException("A child node was null!");
+                Root.Right = temp.Left;
+                temp.Left = Root;
+                Root = temp;
             }
             else if ( difference >= 2 )
             {
-                Node temp = this.Root.Left;
-                this.Root.Left = temp.Right;
-                temp.Right = this.Root;
-                this.Root = temp;
+                var temp = Root.Left;
+                if (temp == null) throw new InvalidOperationException("A child node was null!");
+                Root.Left = temp.Right;
+                temp.Right = Root;
+                Root = temp;
             }
-            Root.Height = Math.Max( ( Root.Left == null ? 0 : Root.Left.Height ), ( Root.Right == null ? 0 : Root.Right.Height ) ) + 1;
+            Root.Height = Math.Max( Root.Left?.Height ?? 0, Root.Right?.Height ?? 0 ) + 1;
         }
 
         /// <summary>
-        /// Call this instead of accessing the count manually
+        /// Call this instead of accessing the _Count manually
         /// </summary>
         protected void DecreaseCount()
         {
-            Interlocked.Decrement( ref this.count );
+            Interlocked.Decrement( ref _Count);
         }
 
         /// <summary>
@@ -315,7 +313,7 @@ namespace Datastructure
         /// </summary>
         protected void DecreaseReaders()
         {
-            Interlocked.Decrement( ref this.readerCount );
+            Interlocked.Decrement( ref ReaderCount);
         }
 
         /// <summary>
@@ -323,8 +321,8 @@ namespace Datastructure
         /// </summary>
         protected void IncreaseCount()
         {
-            // We need to atomically access count
-            Interlocked.Increment( ref this.count );
+            // We need to atomically access _Count
+            Interlocked.Increment( ref _Count);
         }
 
         /// <summary>
@@ -338,7 +336,7 @@ namespace Datastructure
             {
                 // This is needed to make sure that we know
                 // how many writers we have at any given time
-                Interlocked.Increment( ref this.readerCount );
+                Interlocked.Increment( ref ReaderCount);
             }
         }
 
@@ -348,8 +346,10 @@ namespace Datastructure
         protected void WaitForReaders()
         {
             // spin lock until we can write
-            while ( readerCount != 0 )
-                Thread.Sleep( 0 );
+            while (ReaderCount != 0)
+            {
+                Thread.Sleep(0);
+            }
         }
 
         /// <summary>
@@ -359,16 +359,16 @@ namespace Datastructure
         /// <param name="parent"></param>
         private void BalanceAndUpdate(Node current, Node parent)
         {
-            int difference = ( current.Left == null ? 0 : current.Left.Height ) - ( current.Right == null ? 0 : current.Right.Height );
+            var difference = (current.Left?.Height ?? 0) - (current.Right?.Height ?? 0);
             if ( difference <= -2 )
             {
-                this.RotateLeft( current, parent );
+                RotateLeft( current, parent );
             }
             else if ( difference >= 2 )
             {
-                this.RotateRight( current, parent );
+                RotateRight( current, parent );
             }
-            current.Height = Math.Max( ( current.Left == null ? 0 : current.Left.Height ), ( current.Right == null ? 0 : current.Right.Height ) ) + 1;
+            current.Height = Math.Max( current.Left?.Height ?? 0, current.Right?.Height ?? 0 ) + 1;
         }
 
         /// <summary>
@@ -388,7 +388,10 @@ namespace Datastructure
         /// <summary>
         /// Only call this after you have gotten the writer lock
         /// </summary>
+        /// <param name="current"></param>
         /// <param name="item"></param>
+        /// <param name="visited">Nodes that have been visited</param>
+        /// <param name="removed"></param>
         /// <returns></returns>
         private Node RecursiveRemove(Node current, T item, Stack<Node> visited, out bool removed)
         {
@@ -398,7 +401,7 @@ namespace Datastructure
                 return null;
             }
 
-            int comp = item.CompareTo( current.Data );
+            var comp = item.CompareTo( current.Data );
             if ( comp < 0 )
             {
                 visited.Push( current );
@@ -414,12 +417,12 @@ namespace Datastructure
 
             // We can only get here if we are at the node we want
             WaitForReaders();
-            Node parent = current;
+            var parent = current;
             removed = true;
             // in case there are two children on this node
             if ( current.Left != null && current.Right != null )
             {
-                Node sack = current.Right;
+                var sack = current.Right;
                 while ( sack.Left != null )
                 {
                     visited.Push( parent );
@@ -451,7 +454,7 @@ namespace Datastructure
         /// <param name="parent">The pivot's parent</param>
         private void RotateLeft(Node pivot, Node parent)
         {
-            Node right = pivot.Right;
+            var right = pivot.Right;
             pivot.Right = right.Left;
             if ( parent.Right == pivot )
             {
@@ -471,7 +474,7 @@ namespace Datastructure
         /// <param name="parent">The pivot's parent</param>
         private void RotateRight(Node pivot, Node parent)
         {
-            Node left = pivot.Left;
+            var left = pivot.Left;
             pivot.Left = left.Right;
             if ( parent.Left == pivot )
             {
@@ -488,11 +491,8 @@ namespace Datastructure
         /// Stores the information for each "node" of the
         /// Binary search tree
         /// </summary>
-        /// <typeparam name="T">The type of data that we want to store</typeparam>
         public class Node
         {
-            private int height;
-
             /// <summary>
             /// The payload
             /// </summary>
@@ -501,15 +501,15 @@ namespace Datastructure
             /// <summary>
             /// How many nodes are
             /// </summary>
-            public int Height { get { return height; } set { height = value; } }
+            public int Height { get; set; }
 
             /// <summary>
-            /// Nodes here are less than the root
+            /// Nodes here are less than the _Root
             /// </summary>
             public Node Left { get; set; }
 
             /// <summary>
-            /// Nodes here are greater than the root
+            /// Nodes here are greater than the _Root
             /// </summary>
             public Node Right { get; set; }
         }

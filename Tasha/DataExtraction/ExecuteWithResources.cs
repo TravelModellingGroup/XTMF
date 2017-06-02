@@ -18,10 +18,9 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
+// ReSharper disable AccessToModifiedClosure
 namespace Tasha.DataExtraction
 {
     [ModuleInformation(Description=
@@ -57,18 +56,16 @@ add in the current progress reported by the currently executing module."
 
         public bool ExitRequest()
         {
-            this.Exit = true;
-            for ( int i = 0; i < this.ToRun.Count; i++ )
+            Exit = true;
+            for ( int i = 0; i < ToRun.Count; i++ )
             {
                 // make an attempt to exit early if possible
                 try
                 {
-                    var mst = this.ToRun[i] as IModelSystemTemplate;
-                    if ( mst != null )
-                    {
-                        mst.ExitRequest();
-                    }
+                    var mst = ToRun[i] as IModelSystemTemplate;
+                    mst?.ExitRequest();
                 }
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                 }
@@ -78,7 +75,7 @@ add in the current progress reported by the currently executing module."
 
         public void Start()
         {
-            this.Exit = false;
+            Exit = false;
             ExecuteToRun();
             if(Release)
             {
@@ -88,9 +85,9 @@ add in the current progress reported by the currently executing module."
 
         private void ReleaseResources()
         {
-            for ( int j = 0; j < this.Resources.Count; j++ )
+            for ( int j = 0; j < Resources.Count; j++ )
             {
-                this.Resources[j].ReleaseResource();
+                Resources[j].ReleaseResource();
             }
         }
 
@@ -98,34 +95,31 @@ add in the current progress reported by the currently executing module."
         {
             int i = 0;
             // assign the progress logic
-            this.ProgressLogic = () =>
+            ProgressLogic = () =>
             {
-                if ( i < this.ToRun.Count )
+                if ( i < ToRun.Count )
                 {
-                    return ( ( this.ToRun[i].Progress / this.ToRun.Count ) + (float)i / this.ToRun.Count );
+                    return ( ( ToRun[i].Progress / ToRun.Count ) + (float)i / ToRun.Count );
                 }
                 return 1f;
             };
             // assign the status logic
-            this.StatusLogic = () =>
+            StatusLogic = () =>
             {
-                if ( i < this.ToRun.Count )
+                if ( i < ToRun.Count )
                 {
-                    if ( this.Exit )
+                    if ( Exit )
                     {
-                        return "Exiting after: " + this.ToRun[i].ToString();
+                        return "Exiting after: " + ToRun[i];
                     }
-                    else
-                    {
-                        return this.ToRun[i].ToString();
-                    }
+                    return ToRun[i].ToString();
                 }
                 return "Done";
             };
-            for ( ; i < this.ToRun.Count; i++ )
+            for ( ; i < ToRun.Count; i++ )
             {
-                this.ToRun[i].Start();
-                if ( this.Exit )
+                ToRun[i].Start();
+                if ( Exit )
                 {
                     break;
                 }
@@ -136,7 +130,7 @@ add in the current progress reported by the currently executing module."
 
         public float Progress
         {
-            get { return this.ProgressLogic == null ? 0f : this.ProgressLogic(); }
+            get { return ProgressLogic == null ? 0f : ProgressLogic(); }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
@@ -151,7 +145,7 @@ add in the current progress reported by the currently executing module."
 
         public override string ToString()
         {
-            return this.StatusLogic == null ? "Loading" : this.StatusLogic();
+            return StatusLogic == null ? "Loading" : StatusLogic();
         }
     }
 }

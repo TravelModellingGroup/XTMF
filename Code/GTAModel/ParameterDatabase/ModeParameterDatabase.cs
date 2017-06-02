@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +44,7 @@ its mode when switching context between different demographic categories."
 
         private int _NumberOfParameterSets = -1;
 
-        private bool Loaded = false;
+        private bool Loaded;
 
         /// <summary>
         /// The root for each parameter set
@@ -65,7 +66,7 @@ its mode when switching context between different demographic categories."
                 {
                     Load();
                 }
-                return this._NumberOfParameterSets;
+                return _NumberOfParameterSets;
             }
         }
 
@@ -84,14 +85,14 @@ its mode when switching context between different demographic categories."
             // make sure that we are loaded
             if ( !Loaded )
             {
-                this.Load();
+                Load();
             }
-            if ( parameterSetIndex < 0 || parameterSetIndex >= this._NumberOfParameterSets )
+            if ( parameterSetIndex < 0 || parameterSetIndex >= _NumberOfParameterSets )
             {
                 throw new XTMFRuntimeException( "The parameter set requested does not exist.\r\nRequested:"
-                    + parameterSetIndex + "\r\nTotal Sets:" + this._NumberOfParameterSets );
+                    + parameterSetIndex + "\r\nTotal Sets:" + _NumberOfParameterSets );
             }
-            this.RootNode.Apply( parameterSetIndex );
+            RootNode.Apply( parameterSetIndex );
         }
 
         public void CompleteBlend()
@@ -106,7 +107,7 @@ its mode when switching context between different demographic categories."
 
         public bool RuntimeValidation(ref string error)
         {
-            var dbf = this.GetFullPath( this.DatabaseFile );
+            var dbf = GetFullPath( DatabaseFile );
             if ( !File.Exists( dbf ) )
             {
                 error = "The file '" + dbf + "' does not exist.\r\nPlease include it and try again.";
@@ -146,7 +147,6 @@ its mode when switching context between different demographic categories."
                 string mode;
                 if ( endOfMode == -1 )
                 {
-                    continue;
                 }
                 else
                 {
@@ -168,7 +168,7 @@ its mode when switching context between different demographic categories."
                             Array.Copy( temp, coRespondingStructure.Parameters, temp.Length );
                         }
                         // store the new parameter in our return list and in the recursive structure
-                        ret[i] = coRespondingStructure.Parameters[coRespondingStructure.Parameters.Length - 1] = new Parameter()
+                        ret[i] = coRespondingStructure.Parameters[coRespondingStructure.Parameters.Length - 1] = new Parameter
                         {
                             Field = field,
                             Property = property,
@@ -182,8 +182,8 @@ its mode when switching context between different demographic categories."
 
         private void CreateStructure()
         {
-            var modes = this.Root.Modes;
-            this.RootNode = new ParameterSetStructureRoot()
+            var modes = Root.Modes;
+            RootNode = new ParameterSetStructureRoot
             {
                 Children = CreateStructure( modes )
             };
@@ -212,16 +212,16 @@ its mode when switching context between different demographic categories."
             var fullPath = localPath;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
 
         private ParameterSetStructure GetStructure(string mode)
         {
-            for ( int i = 0; i < this.RootNode.Children.Length; i++ )
+            for ( int i = 0; i < RootNode.Children.Length; i++ )
             {
-                var res = GetStructure( mode, this.RootNode.Children[i] );
+                var res = GetStructure( mode, RootNode.Children[i] );
                 if ( res != null ) return res;
             }
             return null;
@@ -229,15 +229,15 @@ its mode when switching context between different demographic categories."
 
         private void Load()
         {
-            this.Loaded = true;
-            this.CreateStructure();
+            Loaded = true;
+            CreateStructure();
             // read in the file
-            this.ReadInFile();
+            ReadInFile();
         }
 
         private void ReadInFile()
         {
-            var dbf = this.GetFullPath( this.DatabaseFile );
+            var dbf = GetFullPath( DatabaseFile );
             try
             {
                 using ( StreamReader reader = new StreamReader( dbf ) )
@@ -246,11 +246,10 @@ its mode when switching context between different demographic categories."
                     var headerLine = reader.ReadLine();
                     if ( headerLine == null )
                     {
-                        throw new XTMFRuntimeException( "The file \"" + this.DatabaseFile + "\" does not contain any data to load parameters from!" );
+                        throw new XTMFRuntimeException( "The file \"" + DatabaseFile + "\" does not contain any data to load parameters from!" );
                     }
                     string[] header = headerLine.Split( ',' );
                     var numberOfParameters = header.Length;
-                    string[] modeName = new string[numberOfParameters];
                     Parameter[] parameterMapping = CreateParameterMapping( header );
                     string line;
                     int numberOfLines = 0;
@@ -282,7 +281,7 @@ its mode when switching context between different demographic categories."
                             }
                         }
                     }
-                    this._NumberOfParameterSets = numberOfLines;
+                    _NumberOfParameterSets = numberOfLines;
                 }
             }
             catch ( IOException )
@@ -305,7 +304,7 @@ its mode when switching context between different demographic categories."
                 {
                     // if we find an attribute from XTMF
                     ParameterAttribute parameter;
-                    if ( ( parameter = ( at as XTMF.ParameterAttribute ) ) != null )
+                    if ( ( parameter = ( at as ParameterAttribute ) ) != null )
                     {
                         // Check to see if this is our parameter
                         if ( parameter.Name == parameterName )
@@ -324,7 +323,7 @@ its mode when switching context between different demographic categories."
                 {
                     // if we find an attribute from XTMF
                     ParameterAttribute parameter;
-                    if ( ( parameter = ( at as XTMF.ParameterAttribute ) ) != null )
+                    if ( ( parameter = ( at as ParameterAttribute ) ) != null )
                     {
                         // Check to see if this is our parameter
                         if ( parameter.Name == parameterName )
@@ -367,13 +366,13 @@ its mode when switching context between different demographic categories."
 
             internal void Apply(IModeChoiceNode mode, int parameterIndex)
             {
-                if ( this.Field != null )
+                if ( Field != null )
                 {
-                    this.Field.SetValue( mode, Values[parameterIndex] );
+                    Field.SetValue( mode, Values[parameterIndex] );
                 }
                 else
                 {
-                    this.Property.SetValue( mode, Values[parameterIndex], null );
+                    Property.SetValue( mode, Values[parameterIndex], null );
                 }
             }
         }
@@ -386,11 +385,11 @@ its mode when switching context between different demographic categories."
 
             internal void Apply(int parameterIndex)
             {
-                if ( this.Parameters != null )
+                if ( Parameters != null )
                 {
-                    for ( int i = 0; i < this.Parameters.Length; i++ )
+                    for ( int i = 0; i < Parameters.Length; i++ )
                     {
-                        this.Parameters[i].Apply( this.Mode, parameterIndex );
+                        Parameters[i].Apply( Mode, parameterIndex );
                     }
                 }
                 if ( Children != null )

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,24 +17,19 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TMG.Functions
 {
     public static class RandomNumberHelper
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         /// <summary>
         /// 
-        /// Testing an open source method found at
-        /// http://gsl.sourcearchive.com/documentation/1.14plus-pdfsg-1/randist_2gauss_8c-source.html
         /// </summary>
         /// <param name="r"></param>
+        ///<seealso cref="http://gsl.sourcearchive.com/documentation/1.14plus-pdfsg-1/randist_2gauss_8c-source.html"/>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double SampleNormalDistribution(Random r)
         {
             /* Ratio method (Kinderman-Monahan); see Knuth v2, 3rd ed, p130.
@@ -43,7 +38,7 @@ namespace TMG.Functions
              * [Added by Charles Karney] This is an implementation of Leva's
              * modifications to the original K+M method; see:
              * J. L. Leva, ACM Trans Math Software 18 (1992) 449-453 and 454-455. */
-            double u, v, x, y, Q;
+            double u, v, x, y, q;
             const double s = 0.449871;    /* Constants from Leva */
             const double t = -0.386595;
             const double a = 0.19600;
@@ -72,16 +67,16 @@ namespace TMG.Functions
                 /* Compute Leva's quadratic form Q */
                 x = u - s;
                 y = Math.Abs(v) - t;
-                Q = x * x + y * (a * y - b * x);
+                q = x * x + y * (a * y - b * x);
 
                 /* Accept P if Q < r1 (Leva) */
                 /* Reject P if Q > r2 (Leva) */
                 /* Accept if v^2 <= -4 u^2 log(u) (K+M) */
                 /* This final test is executed 0.012 times on average. */
             }
-            while(Q >= r1 && (Q > r2 || v * v > -4 * u * u * Math.Log(u)));
-
-            return (v / u);       /* Return slope */
+            while(q >= r1 && (q > r2 || v * v > -4 * u * u * Math.Log(u)));
+            // Return slope
+            return (v / u);
         }
     }
 }

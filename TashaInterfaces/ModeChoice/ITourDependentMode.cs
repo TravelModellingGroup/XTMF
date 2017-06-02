@@ -17,9 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 namespace Tasha.Common
 {
     public interface ITourDependentMode : ITashaMode
@@ -30,8 +28,8 @@ namespace Tasha.Common
         /// <param name="chain">The trip chain to evaluate</param>
         /// <param name="tripIndex">The index in the chain that we are computing</param>
         /// <param name="dependentUtility">The utility to add to the independent portion of the utility</param>
-        /// <param name="OnSelection">A function that can act on the trip chain.  This will be executed before passenger mode is evaluated.</param>
+        /// <param name="onSelection">A function that can act on the trip chain.  This will be executed before passenger mode is evaluated.</param>
         /// <returns>True if the tour is feasible</returns>
-        bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> OnSelection);
+        bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection);
     }
 }

@@ -16,6 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.Globalization;
 using XTMF.Networking;
 
 namespace TMG.Estimation
@@ -30,7 +32,7 @@ namespace TMG.Estimation
 
         public override string ToString()
         {
-            return this.Value.ToString();
+            return Value.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

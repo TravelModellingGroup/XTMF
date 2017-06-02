@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using XTMF;
 
 namespace TMG.GTAModel.Modes.UtilityComponents
@@ -35,7 +36,7 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             if ( IsContained( origin, destination ) )
             {
-                return this.Cost * this.NetworkData.TravelCost( origin, destination, time );
+                return Cost * NetworkData.TravelCost( origin, destination, time );
             }
             return 0;
         }
@@ -44,9 +45,9 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             // Load in the network data
             LoadNetworkData();
-            if ( this.NetworkData == null )
+            if ( NetworkData == null )
             {
-                error = "In '" + this.Name + "' we were unable to find any network data called '" + this.NetworkType + "'!";
+                error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
                 return false;
             }
             return true;
@@ -57,11 +58,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         /// </summary>
         private void LoadNetworkData()
         {
-            foreach ( var dataSource in this.Root.NetworkData )
+            foreach ( var dataSource in Root.NetworkData )
             {
-                if ( dataSource.NetworkType == this.NetworkType )
+                if ( dataSource.NetworkType == NetworkType )
                 {
-                    this.NetworkData = dataSource;
+                    NetworkData = dataSource;
                     return;
                 }
             }

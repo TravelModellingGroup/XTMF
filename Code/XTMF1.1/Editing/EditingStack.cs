@@ -134,13 +134,13 @@ namespace XTMF.Editing
         {
             if(array == null)
             {
-                throw new ArgumentNullException("array");
+                throw new ArgumentNullException(nameof(array));
             }
             lock (DataLock)
             {
                 if(array.Length - arrayIndex < Count)
                 {
-                    throw new ArgumentOutOfRangeException("arrayIndex");
+                    throw new ArgumentOutOfRangeException(nameof(arrayIndex));
                 }
                 for(int i = 0; i < Count; i++)
                 {
@@ -171,7 +171,7 @@ namespace XTMF.Editing
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
     }
 }

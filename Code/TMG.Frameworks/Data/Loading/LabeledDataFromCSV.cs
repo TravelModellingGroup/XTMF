@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Frameworks.Data.DataTypes;
 using XTMF;
 using Datastructure;
@@ -32,6 +28,7 @@ namespace TMG.Frameworks.Data.Loading
     [ModuleInformation( Description =
 @"This module is designed to load in LabeledData for later processing."
         )]
+    // ReSharper disable once InconsistentNaming
     public class LabeledDataFromCSV<T> : IDataSource<LabeledData<T>>
     {
         [SubModelInformation(Required = true, Description = "")]
@@ -78,7 +75,7 @@ namespace TMG.Frameworks.Data.Loading
             return _Data;
         }
 
-        private void Add<K>(LabeledData<K> set, string label, K data)
+        private void Add<TData>(LabeledData<TData> set, string label, TData data)
         {
             switch(AggregationToApply)
             {
@@ -90,24 +87,26 @@ namespace TMG.Frameworks.Data.Loading
                     set.Add(label, data);
                     break;
                 case Agg.Sum:
-                    if (typeof(K) == typeof(float))
+                    if (typeof(TData) == typeof(float))
                     {
                         // the optimizer should be able to solve this
                         var fData = (float)(object)data;
                         float alreadyContained;
                         var fSet = set as LabeledData<float>;
+                        // ReSharper disable once PossibleNullReferenceException
                         fSet.TryGetValue(label, out alreadyContained);
                         fSet[label] = fData + alreadyContained;
                     }
                     break;
                 case Agg.Multiply:
-                    if (typeof(K) == typeof(float))
+                    if (typeof(TData) == typeof(float))
                     {
                         // the optimizer should be able to solve this
                         var fData = (float)(object)data;
                         float alreadyContained;
                         var fSet = set as LabeledData<float>;
-                        if(!fSet.TryGetValue(label, out alreadyContained))
+                        // ReSharper disable once PossibleNullReferenceException
+                        if (!fSet.TryGetValue(label, out alreadyContained))
                         {
                             alreadyContained = 1.0f;
                         }
@@ -115,10 +114,11 @@ namespace TMG.Frameworks.Data.Loading
                     }
                     break;
                 case Agg.Count:
-                    if (typeof(K) == typeof(float))
+                    if (typeof(TData) == typeof(float))
                     {
                         float alreadyContained;
                         var fSet = set as LabeledData<float>;
+                        // ReSharper disable once PossibleNullReferenceException
                         fSet.TryGetValue(label, out alreadyContained);
                         fSet[label] = 1 + alreadyContained;
                     }

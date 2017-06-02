@@ -17,10 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Datastructure;
 using Tasha.Common;
@@ -54,10 +52,7 @@ namespace Tasha.Validation.PoRPoW
             get; set;
         }
 
-        public float Progress
-        {
-            get; private set;
-        }
+        public float Progress { get; } = 0.0f;
 
         public Tuple<byte, byte, byte> ProgressColour
         {
@@ -73,7 +68,7 @@ namespace Tasha.Validation.PoRPoW
         {
             //Determine the worker category
             int nVehicles = household.Vehicles.Length;
-            int nDrivers = household.Persons.Count((ITashaPerson p) => p.Licence);
+            int nDrivers = household.Persons.Count(p => p.Licence);
 
             int wcat;
             if (nVehicles == 0)
@@ -88,54 +83,54 @@ namespace Tasha.Validation.PoRPoW
             foreach (var person in household.Persons)
             {
                 var empStat = person.EmploymentStatus;
-                if (empStat == TMG.TTSEmploymentStatus.FullTime | empStat == TMG.TTSEmploymentStatus.PartTime) continue; //Skip unemployed persons
+                if (empStat == TTSEmploymentStatus.FullTime | empStat == TTSEmploymentStatus.PartTime) continue; //Skip unemployed persons
                 IZone employmentZone = person.EmploymentZone;
                 if ( employmentZone == null ) continue;
-                var distance = (int) (this._ZoneDistances[household.HomeZone.ZoneNumber, employmentZone.ZoneNumber] * this.CoordinateFactor);
-                int index = this.HistogramBins.IndexOf(distance);
+                var distance = (int) (_ZoneDistances[household.HomeZone.ZoneNumber, employmentZone.ZoneNumber] * CoordinateFactor);
+                int index = HistogramBins.IndexOf(distance);
                 if (index < 0)
                 {
-                    index = this.HistogramBins.Count;
+                    index = HistogramBins.Count;
                 }
                 bool taken = false;
                 WriteLock.Enter(ref taken);
-                this._BinData[index][wcat] += person.ExpansionFactor;
+                _BinData[index][wcat] += person.ExpansionFactor;
                 if (taken) WriteLock.Exit(true);
             }
         }
 
         public void IterationFinished(int iteration)
         {
-            using (var writer = new StreamWriter(this.SaveFile.GetFilePath()))
+            using (var writer = new StreamWriter(SaveFile.GetFilePath()))
             {
                 writer.WriteLine("Distance,WCAT 0,WCAT 1,WCAT 2");
 
-                for (int i = 0; i < this.HistogramBins.Count; i++)
+                for (int i = 0; i < HistogramBins.Count; i++)
                 {
-                    var range = this.HistogramBins[i];
-                    var distances = this._BinData[i];
+                    var range = HistogramBins[i];
+                    var distances = _BinData[i];
                     var line = string.Join(",", range.Start + " - " + range.Stop,
                                             distances[0], distances[1], distances[2]);
                     writer.WriteLine(line);
                 }
 
-                var lastdistances = this._BinData[this.HistogramBins.Count];
-                var lastline = string.Join(",", this.HistogramBins[this.HistogramBins.Count - 1] + "+",
+                var lastdistances = _BinData[HistogramBins.Count];
+                var lastline = string.Join(",", HistogramBins[HistogramBins.Count - 1] + "+",
                                             lastdistances[0], lastdistances[1], lastdistances[2]);
                 writer.WriteLine(lastline);
             }
 
-            Console.WriteLine("Exported PoRPoW linkage distance histogram to " + this.SaveFile.GetFilePath());
+            Console.WriteLine("Exported PoRPoW linkage distance histogram to " + SaveFile.GetFilePath());
         }
 
         public void Load(int maxIterations)
         {
-            this._ZoneDistances = Root.ZoneSystem.Distances;
+            _ZoneDistances = Root.ZoneSystem.Distances;
 
-            this._BinData = new float[1 + this.HistogramBins.Count][]; //Extra bin for outside of the array
-            for (int i = 0; i < this._BinData.Length; i++)
+            _BinData = new float[1 + HistogramBins.Count][]; //Extra bin for outside of the array
+            for (int i = 0; i < _BinData.Length; i++)
             {
-                this._BinData[i] = new float[3]; 
+                _BinData[i] = new float[3]; 
             }
             
         }

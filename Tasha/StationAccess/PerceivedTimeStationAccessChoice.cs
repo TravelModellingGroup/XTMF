@@ -18,15 +18,12 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using XTMF;
 using TMG;
 using Tasha.Common;
 using Datastructure;
 using System.Threading.Tasks;
-using Tasha.ModeChoice;
 using TMG.Input;
 using TMG.Functions;
 
@@ -162,7 +159,7 @@ namespace Tasha.StationAccess
                 var fastTransit = transitNetwork as ITripComponentCompleteData;
                 if (fastAuto != null && fastTransit != null)
                 {
-                    Parallel.For(0, zones.Length, (int zoneIndex) =>
+                    Parallel.For(0, zones.Length, zoneIndex =>
                     {
                         var autoData = fastAuto.GetTimePeriodData(StartTime);
                         var transitData = fastTransit.GetTimePeriodData(StartTime);
@@ -229,7 +226,7 @@ namespace Tasha.StationAccess
                 }
                 else
                 {
-                    Parallel.For(0, zones.Length, (int zoneIndex) =>
+                    Parallel.For(0, zones.Length, zoneIndex =>
                     {
                         var zoneNumber = zones[zoneIndex].ZoneNumber;
                         if (spatialZones.Contains(zoneNumber))
@@ -283,6 +280,7 @@ namespace Tasha.StationAccess
                 return float.NegativeInfinity;
             }
 
+            [SuppressMessage("ReSharper", "UnusedParameter.Local")]
             private void EnsureNetworks(INetworkData autoNetwork, ITripComponentData transitNetwork)
             {
                 if (autoNetwork == null)
@@ -337,7 +335,6 @@ namespace Tasha.StationAccess
         private bool FirstLoad = true;
 
         private IZone[] AccessZones;
-        private IZone[] zones;
         private int[] AccessZoneIndexes;
 
         [RunParameter("Notify Status", false, "Should we identify when we are loading and finishing the caching of station utilities?")]
@@ -352,9 +349,9 @@ namespace Tasha.StationAccess
             {
                 Console.WriteLine("Loading Station Access Choice...");
             }
-            if (ReloadZoneSystem || FirstLoad == true)
+            if (ReloadZoneSystem || FirstLoad)
             {
-                zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                Root.ZoneSystem.ZoneArray.GetFlatData();
                 LoadMode();
                 LoadStationCapacity();
                 GetAccessZones();
@@ -385,7 +382,7 @@ namespace Tasha.StationAccess
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var temp = new int[zones.Length];
-            Parallel.For(0, temp.Length, (int i) =>
+            Parallel.For(0, temp.Length, i =>
             {
                 var origin = zones[i];
                 int bestIndex = 0;
@@ -426,7 +423,7 @@ namespace Tasha.StationAccess
 
         private void LoadTimePeriods()
         {
-            Parallel.For(0, TimePeriods.Length, (int i) =>
+            Parallel.For(0, TimePeriods.Length, i =>
             {
                 TimePeriods[i].Load(StationZoneRanges, SpatialZones, Capacity, ClosestStation);
             });

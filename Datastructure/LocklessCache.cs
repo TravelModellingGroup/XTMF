@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -28,9 +28,9 @@ namespace Datastructure
     ///
     /// Thread Safe
     /// </summary>
-    /// <typeparam name="K">The type for the key</typeparam>
-    /// <typeparam name="D">The type for the data</typeparam>
-    public class LocklessCache<K, D> : LocklessHashtable<K, D> where K : IComparable<K>
+    /// <typeparam name="TK">The type for the key</typeparam>
+    /// <typeparam name="TD">The type for the data</typeparam>
+    public class LocklessCache<TK, TD> : LocklessHashtable<TK, TD> where TK : IComparable<TK>
     {
         /// <summary>
         /// Create a new Cache
@@ -54,23 +54,23 @@ namespace Datastructure
         /// </summary>
         /// <param name="key">The key for this entry</param>
         /// <param name="data">The data contained for this key</param>
-        public override void Add(K key, D data)
+        public override void Add(TK key, TD data)
         {
-            int place = Math.Abs( ( key.GetHashCode() ) % this.Table.Length );
-            if ( this.Table[place] == null )
+            var place = Math.Abs( ( key.GetHashCode() ) % Table.Length );
+            if (Table[place] == null )
             {
-                Node n = new Node();
+                var n = new Node();
                 n.Key = key;
                 n.Storage = data;
                 n.Next = null;
-                this.Table[place] = n;
-                Interlocked.Increment( ref this.count );
+                Table[place] = n;
+                Interlocked.Increment( ref _Count);
             }
             else
             {
-                this.Table[place].Key = key;
-                this.Table[place].Storage = data;
-                this.Table[place].Next = null;
+                Table[place].Key = key;
+                Table[place].Storage = data;
+                Table[place].Next = null;
             }
         }
     }

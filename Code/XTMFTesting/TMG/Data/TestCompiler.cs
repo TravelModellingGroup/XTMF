@@ -18,13 +18,7 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TMG;
-using TMG.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Datastructure;
 using TMG.Frameworks.Data.Processing.AST;
 
@@ -36,6 +30,7 @@ namespace XTMF.Testing.TMG.Data
         /// <summary>
         /// Create a new simple matrix for testing.
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="m11"></param>
         /// <param name="m12"></param>
         /// <param name="m21"></param>
@@ -44,7 +39,7 @@ namespace XTMF.Testing.TMG.Data
         private IDataSource<SparseTwinIndex<float>> CreateData(string name, float m11, float m12, float m21, float m22)
         {
             SparseIndexing indexes = new SparseIndexing();
-            indexes.Indexes = new SparseSet[]
+            indexes.Indexes = new[]
             {
                 new SparseSet()
                 {
@@ -52,12 +47,12 @@ namespace XTMF.Testing.TMG.Data
                     Stop = 2,
                     SubIndex = new SparseIndexing()
                     {
-                        Indexes = new SparseSet[] { new SparseSet() { Start = 1, Stop = 2  } }
+                        Indexes = new[] { new SparseSet() { Start = 1, Stop = 2  } }
                     }
                 }
             };
 
-            float[][] data = new float[][] { new float[] { m11, m12 }, new float[] { m21, m22 } };
+            float[][] data = new[] { new[] { m11, m12 }, new[] { m21, m22 } };
             return new MatrixSource(new SparseTwinIndex<float>(indexes, data)) { Name = name };
         }
 
@@ -71,7 +66,7 @@ namespace XTMF.Testing.TMG.Data
         private IDataSource<SparseArray<float>> CreateData(string name, float m1, float m2)
         {
             SparseIndexing indexes = new SparseIndexing();
-            indexes.Indexes = new SparseSet[]
+            indexes.Indexes = new[]
             {
                 new SparseSet()
                 {
@@ -79,7 +74,7 @@ namespace XTMF.Testing.TMG.Data
                     Stop = 2,
                 }
             };
-            float[] data = new float[] { m1, m2 };
+            float[] data = new[] { m1, m2 };
             return new VectorSource(new SparseArray<float>(indexes, data)) { Name = name };
         }
 
@@ -634,8 +629,8 @@ namespace XTMF.Testing.TMG.Data
             Expression ex;
             Assert.IsTrue(Compiler.Compile(equation, out ex, ref error), $"Unable to compile '{equation}'\r\n{error}");
             var result = ex.Evaluate(data);
-            Assert.IsTrue(result.IsODResult);
-            var flat = result.ODData.GetFlatData();
+            Assert.IsTrue(result.IsOdResult);
+            var flat = result.OdData.GetFlatData();
             Assert.AreEqual(m11, flat[0][0], 0.00001f);
             Assert.AreEqual(m12, flat[0][1], 0.00001f);
             Assert.AreEqual(m21, flat[1][0], 0.00001f);
@@ -651,9 +646,9 @@ namespace XTMF.Testing.TMG.Data
             public string Name { get; set; }
 
 
-            public float Progress { get; set; }
+            public float Progress { get; } = 0f;
 
-            SparseArray<float> Data;
+            readonly SparseArray<float> Data;
 
             public VectorSource(SparseArray<float> vector)
             {
@@ -699,9 +694,9 @@ namespace XTMF.Testing.TMG.Data
             public string Name { get; set; }
 
 
-            public float Progress { get; set; }
+            public float Progress { get; } = 0f;
 
-            SparseTwinIndex<float> Data;
+            readonly SparseTwinIndex<float> Data;
 
             public MatrixSource(SparseTwinIndex<float> matrix)
             {

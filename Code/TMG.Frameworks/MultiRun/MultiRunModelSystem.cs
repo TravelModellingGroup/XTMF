@@ -26,6 +26,7 @@ using TMG.Input;
 using XTMF;
 using TMG.Functions;
 using System.Threading;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.Frameworks.MultiRun
 {
@@ -64,7 +65,7 @@ For specification about the language, and extensibility please consult the TMG F
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        private bool Exit = false;
+        private bool Exit;
 
         [SubModelInformation(Required = true, Description = "The file containing the instructions for this batch run.")]
         public FileLocation BatchRunFile;
@@ -78,10 +79,10 @@ For specification about the language, and extensibility please consult the TMG F
         {
             // we need to initialize the commands here so that our children can add new batch commands during their RuntimeValidation
             InitializeCommands();
-            return LoadChildFromXTMF(ref error);
+            return LoadChildFromXtmf(ref error);
         }
 
-        private bool LoadChildFromXTMF(ref string error)
+        private bool LoadChildFromXtmf(ref string error)
         {
             IModelSystemStructure ourStructure = null;
             if (ModelSystemReflection.FindModuleStructure(Config, this, ref ourStructure))
@@ -144,11 +145,10 @@ For specification about the language, and extensibility please consult the TMG F
             }
         }
 
-        private static System.Exception GetTopRootException(System.Exception value)
+        private static Exception GetTopRootException(Exception value)
         {
             if (value == null) return null;
-            var agg = value as AggregateException;
-            if (agg != null)
+            if (value is AggregateException agg)
             {
                 return GetTopRootException(agg.InnerException);
             }
@@ -157,7 +157,7 @@ For specification about the language, and extensibility please consult the TMG F
 
         public override string ToString()
         {
-            return RunName + " " + Child.ToString();
+            return RunName + " " + Child;
         }
 
         private IConfiguration Config;
@@ -201,8 +201,7 @@ For specification about the language, and extensibility please consult the TMG F
                         if (topLevelCommand.NodeType != XmlNodeType.Comment)
                         {
                             var commandName = topLevelCommand.LocalName;
-                            Action<XmlNode> command;
-                            if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                            if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out Action<XmlNode> command))
                             {
                                 throw new XTMFRuntimeException("We are unable to find a command named '" + commandName
                                     + "' for batch processing.  Please check your batch file!\r\n" + topLevelCommand.OuterXml);
@@ -271,7 +270,7 @@ For specification about the language, and extensibility please consult the TMG F
         /// <returns>The value of the attribute.</returns>
         public string GetAttributeOrError(XmlNode node, string attribute, string errorMessage)
         {
-            var at = node.Attributes[attribute];
+            var at = node.Attributes?[attribute];
             if (at == null)
             {
                 throw new XTMFRuntimeException(errorMessage + "\r\n" + node.OuterXml);
@@ -284,11 +283,10 @@ For specification about the language, and extensibility please consult the TMG F
             var origin = GetAttributeOrError(command, "Origin", "There was a copy command without an 'Origin' attribute!");
             var destination = GetAttributeOrError(command, "Destination", "There was a copy command without an 'Destination' attribute!");
             bool move = false;
-            var moveAt = command.Attributes["Move"];
+            var moveAt = command.Attributes?["Move"];
             if (moveAt != null)
             {
-                bool result = false;
-                if (bool.TryParse(moveAt.InnerText, out result))
+                if (bool.TryParse(moveAt.InnerText, out bool result))
                 {
                     move = result;
                 }
@@ -377,6 +375,7 @@ For specification about the language, and extensibility please consult the TMG F
         private void ChangeParameter(XmlNode command)
         {
             string value = GetAttributeOrError(command, "Value", "The attribute 'Value' was not found!");
+            string error = null;
             if (command.HasChildNodes)
             {
                 foreach (XmlNode child in command)
@@ -384,14 +383,20 @@ For specification about the language, and extensibility please consult the TMG F
                     if (child.LocalName.ToLowerInvariant() == "parameter")
                     {
                         string parameterName = GetAttributeOrError(child, "ParameterPath", "The attribute 'ParameterPath' was not found!");
-                        ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
+                        if (!ModelSystemReflection.AssignValue(Config, ChildStructure, parameterName, value, ref error))
+                        {
+                            throw new XTMFRuntimeException($"In '{Name}' we were unable assign a variable.\r\n{error}");
+                        }
                     }
                 }
             }
             else
             {
                 string parameterName = GetAttributeOrError(command, "ParameterPath", "The attribute 'ParameterPath' was not found!");
-                ModelSystemReflection.AssignValue(ChildStructure, parameterName, value);
+                if (!ModelSystemReflection.AssignValue(Config, ChildStructure, parameterName, value, ref error))
+                {
+                    throw new XTMFRuntimeException($"In '{Name}' we were unable assign a variable.\r\n{error}");
+                }
             }
         }
 
@@ -410,7 +415,7 @@ For specification about the language, and extensibility please consult the TMG F
                     any = true;
                     foreach (var parameter in lp.Parameters)
                     {
-                        ModelSystemReflection.AssignValue(parameter, value);
+                        ModelSystemReflection.AssignValue(Config, parameter, value);
                     }
                 }
             }
@@ -425,7 +430,6 @@ For specification about the language, and extensibility please consult the TMG F
             internal string Name;
             internal XmlNode Node;
             string[] Parameters;
-            internal MultirunTemplate Parent;
 
             public MultirunTemplate(string name, XmlNode node, string[] parameters)
             {
@@ -465,7 +469,7 @@ For specification about the language, and extensibility please consult the TMG F
                     toExecute = null;
                     return false;
                 }
-                toExecute = new MultirunTemplate(Name, newNode, Parameters) { Parent = this };
+                toExecute = new MultirunTemplate(Name, newNode, Parameters);
                 return true;
             }
 
@@ -596,15 +600,14 @@ For specification about the language, and extensibility please consult the TMG F
         private void ExecuteTemplate(XmlNode command)
         {
             var name = GetAttributeOrError(command, "Name", "The template's name was not given!\r\n" + command.OuterXml);
-            MultirunTemplate template, toExecute;
-            if (!Templates.TryGetValue(name, out template))
+            if (!Templates.TryGetValue(name, out MultirunTemplate template))
             {
                 // then no template with this name exists
                 throw new XTMFRuntimeException("No template with the name '" + name + "' exists!");
             }
             KeyValuePair<string, string>[] parameters = GetParameters(command.Attributes);
             string error = null;
-            if (!template.PrepareForExecution(parameters, out toExecute, ref error))
+            if (!template.PrepareForExecution(parameters, out MultirunTemplate toExecute, ref error))
             {
                 throw new XTMFRuntimeException("Unable to execute template\n\r" + error + "\r\n" + template.Node.OuterXml);
             }
@@ -615,8 +618,7 @@ For specification about the language, and extensibility please consult the TMG F
         {
             var name = GetAttributeOrError(command, "Name", "The name of the variable was not given!\r\n" + command.OuterXml);
             var value = GetAttributeOrError(command, "Value", "The value to assign the variable was not given!\r\n" + command.OuterXml);
-            float fValue;
-            if(!float.TryParse(value, out fValue))
+            if (!float.TryParse(value, out float fValue))
             {
                 throw new XTMFRuntimeException($"In '{Name}' we were unable to extract the value of {value} into a number!\r\n{command.OuterXml}");
             }
@@ -625,12 +627,11 @@ For specification about the language, and extensibility please consult the TMG F
 
         private float GetVariableValue(string name, XmlNode command)
         {
-            float value;
-            if(Variables.TryGetValue(name, out value))
+            if (Variables.TryGetValue(name, out float value))
             {
-                return value; 
+                return value;
             }
-            if(float.TryParse(name, out value))
+            if (float.TryParse(name, out value))
             {
                 return value;
             }
@@ -642,7 +643,7 @@ For specification about the language, and extensibility please consult the TMG F
             var lhs = GetVariableValue(GetAttributeOrError(command, "LHS", "The LHS was not defined!\r\n" + command.OuterXml), command);
             var comp = GetAttributeOrError(command, "OP", "The comparison OPerator was not defined!\r\n" + command.OuterXml);
             var rhs = GetVariableValue(GetAttributeOrError(command, "RHS", "The RHS was not defined!\r\n" + command.OuterXml), command);
-            bool isTrue = false;
+            bool isTrue;
             switch(comp.ToLowerInvariant())
             {
                 case "<":
@@ -683,7 +684,7 @@ For specification about the language, and extensibility please consult the TMG F
         private void ImportMultiRunFile(XmlNode command)
         {
             var path = GetAttributeOrError(command, "Path", "The multirun's file path was not given!\r\n" + command.OuterXml);
-            ExecutionStack.Push(GetRootOfDocument(path));
+            ExecutionStack.Push(GetRootOfDocument(Path.Combine(Path.GetDirectoryName(BatchRunFile.GetFilePath()), path)));
         }
 
         private KeyValuePair<string, string>[] GetParameters(XmlAttributeCollection attributes)
@@ -704,7 +705,7 @@ For specification about the language, and extensibility please consult the TMG F
         {
             string path = GetAttributeOrError(command, "Path", "We were unable to find an attribute called 'Path'!");
             bool recursive = false;
-            var attribute = command.Attributes["Recursive"];
+            var attribute = command.Attributes?["Recursive"];
             if (attribute != null)
             {
                 if (!bool.TryParse(attribute.InnerText, out recursive))
@@ -842,11 +843,10 @@ For specification about the language, and extensibility please consult the TMG F
 
         private bool IsRecursiveDelete(XmlNode command)
         {
-            var attribute = command.Attributes["Recursive"];
+            var attribute = command.Attributes?["Recursive"];
             if (attribute != null)
             {
-                bool rec = true;
-                if (bool.TryParse(attribute.InnerText, out rec))
+                if (bool.TryParse(attribute.InnerText, out bool rec))
                 {
                     return rec;
                 }
@@ -863,16 +863,16 @@ For specification about the language, and extensibility please consult the TMG F
             }
         }
 
-        private string OriginalDirectory = null;
+        private string OriginalDirectory;
 
         private void SetupRun(XmlNode run, ref string name)
         {
-            var runName = run.Attributes["Name"];
+            var runName = run.Attributes?["Name"];
             if (runName != null)
             {
                 name = runName.InnerText;
             }
-            var saveAndRunAs = run.Attributes["RunAs"];
+            var saveAndRunAs = run.Attributes?["RunAs"];
             if (saveAndRunAs != null)
             {
                 if (OriginalDirectory == null)
@@ -898,8 +898,7 @@ For specification about the language, and extensibility please consult the TMG F
                     if (runChild.NodeType != XmlNodeType.Comment)
                     {
                         var commandName = runChild.LocalName;
-                        Action<XmlNode> command;
-                        if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out command))
+                        if (!BatchCommands.TryGetValue(commandName.ToLowerInvariant(), out Action<XmlNode> command))
                         {
                             throw new XTMFRuntimeException("We are unable to find a command named '" + commandName + "' for batch processing.  Please check your batch file!\r\n" + runChild.OuterXml);
                         }

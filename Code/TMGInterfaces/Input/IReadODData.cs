@@ -16,14 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using Datastructure;
 
 namespace TMG.Input
 {
+    // ReSharper disable once InconsistentNaming
     public interface IReadODData<T> : IDataLineSource<ODData<T>>
     {
     }
 
+    // ReSharper disable once InconsistentNaming
     public struct ODData<T>
     {
         /// <summary>

@@ -17,13 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
 using TMG.Input;
-using Datastructure;
 using System.Data;
 using System.IO;
 namespace Tasha.DataExtraction
@@ -89,14 +86,14 @@ namespace Tasha.DataExtraction
 
         public void Start()
         {
-            var connection = this.DatabaseConnection.AcquireResource<IDbConnection>();
-            var zones = this.ZoneSystem.AcquireResource<IZoneSystem>();
+            var connection = DatabaseConnection.AcquireResource<IDbConnection>();
+            var zones = ZoneSystem.AcquireResource<IZoneSystem>();
             using ( var command = connection.CreateCommand() )
             {
                 AddParameter( command, "@TTSYear", TTSYear, DbType.Int32 );
                 AddParameter( command, "@ZoneSystemNumber", ZoneSystemNumber, DbType.Int32 );
-                AddParameter( command, "@MinimumAge", this.MinAge, DbType.Int32 );
-                AddParameter( command, "@MaximumAge", this.MaxAge, DbType.Int32 );
+                AddParameter( command, "@MinimumAge", MinAge, DbType.Int32 );
+                AddParameter( command, "@MaximumAge", MaxAge, DbType.Int32 );
 
                 command.CommandText = String.Format(
                     @"SELECT [{0}].[{1}], [{3}].[SchoolZone], SUM([{2}].[{4}])
@@ -111,24 +108,24 @@ WHERE [{2}].[{6}] = @TTSYear AND
 [{2}].[{9}] >= @MinimumAge AND [{2}].[{9}] <= @MaximumAge
 GROUP BY [{0}].[{1}], [{3}].[SchoolZone];",
                     //0
-                                                                                this.HomeZoneTableName,
+                                                                                HomeZoneTableName,
                     //1
-                                                                                this.ZoneNumberColumn,
+                                                                                ZoneNumberColumn,
                     //2
-                                                                                this.PersonsTable,
+                                                                                PersonsTable,
                     //3
-                                                                                this.SchoolZoneTableName,
+                                                                                SchoolZoneTableName,
                     //4
-                                                                                this.ExpansionFactorColumnName,
+                                                                                ExpansionFactorColumnName,
                     //5
-                                                                                this.HouseholdIDColumn,
+                                                                                HouseholdIDColumn,
                     //6
-                                                                                this.TTSYearColumn,
+                                                                                TTSYearColumn,
                     //7
-                                                                                this.ZoneSystemColumn,
-                                                                                this.PersonsIDColumn,
+                                                                                ZoneSystemColumn,
+                                                                                PersonsIDColumn,
                     //9
-                                                                                this.AgeColumn
+                                                                                AgeColumn
                                                                                 );
                 var zoneArray = zones.ZoneArray;
                 var flatZones = zoneArray.GetFlatData();
@@ -147,7 +144,7 @@ GROUP BY [{0}].[{1}], [{3}].[SchoolZone];",
                     }
                 }
                 var flatResult = result.GetFlatData();
-                using ( var writer = new StreamWriter( this.OutputFileName.GetFilePath() ) )
+                using ( var writer = new StreamWriter( OutputFileName.GetFilePath() ) )
                 {
                     writer.WriteLine( "HomeZone,SchoolZone,People" );
                     for ( int i = 0; i < flatZones.Length; i++ )
@@ -207,7 +204,7 @@ GROUP BY [{3}].[{0}];",
                         }
                     }
                 }
-                var pdStudents = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>( zoneArray );
+                var pdStudents = TMG.Functions.ZoneSystemHelper.CreatePdArray<float>( zoneArray );
                 var pdPopulation = pdStudents.CreateSimilarArray<float>();
                 for ( int i = 0; i < flatResult.Length; i++ )
                 {
@@ -215,7 +212,7 @@ GROUP BY [{3}].[{0}];",
                     pdStudents[pd] = pdStudents[pd] + flatResult[i].Sum();
                     pdPopulation[pd] = pdPopulation[pd] + populationInZone[i];
                 }
-                using ( var writer = new StreamWriter( this.StudentRateOutput.GetFilePath() ) )
+                using ( var writer = new StreamWriter( StudentRateOutput.GetFilePath() ) )
                 {
                     var flatPdStudents = pdStudents.GetFlatData();
                     var flatPdPopulation = pdPopulation.GetFlatData();
@@ -262,16 +259,16 @@ GROUP BY [{3}].[{0}];",
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.DatabaseConnection.CheckResourceType<IDbConnection>() )
+            if ( !DatabaseConnection.CheckResourceType<IDbConnection>() )
             {
-                error = "In '" + this.Name + "' the database connection resource does not contain a database connection!\r\n"
-                    + " Instead it contains '" + this.DatabaseConnection.GetResourceType() + "'!";
+                error = "In '" + Name + "' the database connection resource does not contain a database connection!\r\n"
+                    + " Instead it contains '" + DatabaseConnection.GetResourceType() + "'!";
                 return false;
             }
-            if ( !this.ZoneSystem.CheckResourceType<IZoneSystem>() )
+            if ( !ZoneSystem.CheckResourceType<IZoneSystem>() )
             {
-                error = "In '" + this.Name + "' the zone system resource does not contain a zone system!\r\n"
-                    + " Instead it contains '" + this.ZoneSystem.GetResourceType() + "'!";
+                error = "In '" + Name + "' the zone system resource does not contain a zone system!\r\n"
+                    + " Instead it contains '" + ZoneSystem.GetResourceType() + "'!";
                 return false;
             }
             return true;

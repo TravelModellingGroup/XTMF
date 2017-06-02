@@ -96,33 +96,36 @@ namespace Tasha.Validation
 
         public void IterationFinished(int iteration)
         {
-            foreach ( var pair in StartTime )
+            lock (this)
             {
-                string fileName;
-                var sum = pair.Value.Sum();
-                for ( int i = 0; i < pair.Value.Length; i++ )
+                foreach ( var pair in StartTime )
                 {
-                    pair.Value[i] = pair.Value[i] / sum;
-                }
-                if ( RealData )
-                {
-                    fileName = Path.Combine( OutputFile, pair.Key.ToString() + "StartTimesData.csv" );
-                }
-                else
-                {
-                    fileName = Path.Combine( OutputFile, pair.Key.ToString() + "StartTimesTasha.csv" );
-                }
-                var dir = Path.GetDirectoryName( fileName );
-                if ( !Directory.Exists( dir ) )
-                {
-                    Directory.CreateDirectory( dir );
-                }
-                using ( StreamWriter Writer = new StreamWriter( fileName ) )
-                {
-                    Writer.WriteLine( "Start Hour", "Number of Occurances" );
+                    string fileName;
+                    var sum = pair.Value.Sum();
                     for ( int i = 0; i < pair.Value.Length; i++ )
                     {
-                        Writer.WriteLine( "{0}, {1}", i, pair.Value[i] );
+                        pair.Value[i] = pair.Value[i] / sum;
+                    }
+                    if ( RealData )
+                    {
+                        fileName = Path.Combine( OutputFile, pair.Key + "StartTimesData.csv" );
+                    }
+                    else
+                    {
+                        fileName = Path.Combine( OutputFile, pair.Key + "StartTimesTasha.csv" );
+                    }
+                    var dir = Path.GetDirectoryName( fileName );
+                    if ( !Directory.Exists( dir ) )
+                    {
+                        Directory.CreateDirectory( dir );
+                    }
+                    using ( StreamWriter writer = new StreamWriter( fileName ) )
+                    {
+                        writer.WriteLine( "Start Hour, Number of Occurrences" );
+                        for ( int i = 0; i < pair.Value.Length; i++ )
+                        {
+                            writer.WriteLine( "{0}, {1}", i, pair.Value[i] );
+                        }
                     }
                 }
             }

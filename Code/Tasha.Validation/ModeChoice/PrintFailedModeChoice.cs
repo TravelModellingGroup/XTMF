@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using Tasha.Common;
 namespace Tasha.Validation.ModeChoice
@@ -36,8 +33,8 @@ namespace Tasha.Validation.ModeChoice
 
         public void Execute(int iterationNumber, int totalIterations)
         {
-            Console.WriteLine("Number of failed mode choice households: " + Tasha.TashaRuntime.FailedModeChoice);
-            Tasha.TashaRuntime.FailedModeChoice = 0;
+            Console.WriteLine("Number of failed mode choice households: " + TashaRuntime.FailedModeChoice);
+            TashaRuntime.FailedModeChoice = 0;
         }
 
         public void Load(IConfiguration config, int totalIterations)

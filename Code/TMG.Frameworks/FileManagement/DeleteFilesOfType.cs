@@ -17,17 +17,14 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 namespace TMG.Frameworks.FileManagement
 {
     [ModuleInformation(Description = "This module will recursively delete all files from a given directory and its children of a given type.")]
-    public class DeleteFilesOfType : XTMF.ISelfContainedModule
+    public class DeleteFilesOfType : ISelfContainedModule
     {
 
         public string Name { get; set; }

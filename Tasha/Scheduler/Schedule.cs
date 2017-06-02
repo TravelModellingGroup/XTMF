@@ -33,15 +33,15 @@ namespace Tasha.Scheduler
 
         public Schedule()
         {
-            this.Episodes = new Episode[20];
-            this.EpisodeCount = 0;
+            Episodes = new IEpisode[20];
+            EpisodeCount = 0;
         }
 
         internal int NumberOfEpisodes
         {
             get
             {
-                return this.Episodes == null ? 0 : this.EpisodeCount;
+                return Episodes == null ? 0 : EpisodeCount;
             }
         }
 
@@ -64,11 +64,11 @@ namespace Tasha.Scheduler
 
         public void Clear()
         {
-            for ( int i = 0; i < this.EpisodeCount; i++ )
+            for ( int i = 0; i < EpisodeCount; i++ )
             {
-                this.Episodes[i] = null;
+                Episodes[i] = null;
             }
-            this.EpisodeCount = 0;
+            EpisodeCount = 0;
         }
 
         /// <summary>
@@ -80,20 +80,20 @@ namespace Tasha.Scheduler
 
         public Time GetFirstEpisodeStartTime()
         {
-            if ( this.EpisodeCount == 0 || Episodes[0] == null )
+            if ( EpisodeCount == 0 || Episodes[0] == null )
             {
                 return Time.Zero;
             }
-            return this.Episodes[0].StartTime;
+            return Episodes[0].StartTime;
         }
 
         public Time GetLastEpisodeEndTime()
         {
-            if ( this.EpisodeCount == 0 )
+            if ( EpisodeCount == 0 )
             {
                 return Time.Zero;
             }
-            return this.Episodes[this.EpisodeCount - 1].EndTime;
+            return Episodes[EpisodeCount - 1].EndTime;
         }
 
         public abstract bool Insert(Episode ep, Random random);
@@ -102,6 +102,7 @@ namespace Tasha.Scheduler
         /// Add a whole Schedule to this schedule
         /// </summary>
         /// <param name="schedule">The schedule you wish to add</param>
+        /// <param name="random"></param>
         public void Insert(Schedule schedule, Random random)
         {
             for ( int i = 0; i < schedule.EpisodeCount; i++ )
@@ -111,7 +112,7 @@ namespace Tasha.Scheduler
                     var episode = (Episode)schedule.Episodes[i];
                     // take ownership of this episode
                     episode.ContainingSchedule = this;
-                    this.Insert( episode, random );
+                    Insert( episode, random );
                 }
             }
         }
@@ -124,26 +125,26 @@ namespace Tasha.Scheduler
         public void InsertAt(Episode ep, int pos)
         {
             // if we are not adding it to the end
-            if ( ( pos < 0 ) | ( pos > this.EpisodeCount ) )
+            if ( ( pos < 0 ) | ( pos > EpisodeCount ) )
             {
                 throw new XTMFRuntimeException( "Tried to insert into an schedule at position " + pos
-                    + " where there are currently " + this.EpisodeCount + " episodes." );
+                    + " where there are currently " + EpisodeCount + " episodes." );
             }
 
-            if ( this.EpisodeCount + 1 >= this.Episodes.Length )
+            if ( EpisodeCount + 1 >= Episodes.Length )
             {
                 // if we are assigning to the end, but it isn't large enough, expand
                 IncreaseArraySize();
             }
 
-            if ( pos != this.EpisodeCount )
+            if ( pos != EpisodeCount )
             {
-                Array.Copy( this.Episodes, pos, this.Episodes, pos + 1, this.EpisodeCount - pos );
+                Array.Copy( Episodes, pos, Episodes, pos + 1, EpisodeCount - pos );
             }
             // take ownership of the episode
             ep.ContainingSchedule = this;
-            this.Episodes[pos] = ep;
-            this.EpisodeCount++;
+            Episodes[pos] = ep;
+            EpisodeCount++;
 
             CheckEpisodeIntegrity();
         }
@@ -152,39 +153,39 @@ namespace Tasha.Scheduler
         {
             ConflictReport report;
             report.Type = ScheduleConflictType.NoConflict;
-            report.Position = this.EpisodeCount;
+            report.Position = EpisodeCount;
 
-            for ( int i = 0; i < this.EpisodeCount; i++ )
+            for ( int i = 0; i < EpisodeCount; i++ )
             {
-                if ( this.Episodes[i].EndTime + this.Episodes[i].TravelTime < ep.StartTime ) continue;
+                if ( Episodes[i].EndTime + Episodes[i].TravelTime < ep.StartTime ) continue;
                 Time epEnd = ep.EndTime;
-                Time ithEnd = this.Episodes[i].EndTime;
+                Time ithEnd = Episodes[i].EndTime;
                 if ( travelTime )
                 {
-                    ep.TravelTime = ( this.EpisodeCount - 1 > i ) ?
-                        Scheduler.TravelTime( owner, ep.Zone, this.Episodes[i + 1].Zone, ep.EndTime ) : Time.Zero;
+                    ep.TravelTime = ( EpisodeCount - 1 > i ) ?
+                        Scheduler.TravelTime( owner, ep.Zone, Episodes[i + 1].Zone, ep.EndTime ) : Time.Zero;
                     epEnd += ep.TravelTime;
-                    ithEnd += this.Episodes[i].TravelTime;
+                    ithEnd += Episodes[i].TravelTime;
                 }
                 report.Position = i;
                 // Check for Complete overlap of the ith position
-                if ( this.Episodes[i].StartTime >= ep.StartTime && ( epEnd >= ithEnd || ep.EndTime >= this.Episodes[i].EndTime ) )
+                if ( Episodes[i].StartTime >= ep.StartTime && ( epEnd >= ithEnd || ep.EndTime >= Episodes[i].EndTime ) )
                 {
                     report.Type = ScheduleConflictType.CompleteOverlap;
                 }
-                else if ( this.EpisodeCount - 1 > i && this.Episodes[i + 1].StartTime >= ep.StartTime && epEnd >= this.Episodes[i + 1].EndTime )
+                else if ( EpisodeCount - 1 > i && Episodes[i + 1].StartTime >= ep.StartTime && epEnd >= Episodes[i + 1].EndTime )
                 {
                     report.Type = ScheduleConflictType.CompleteOverlap;
                 }
-                else if ( this.Episodes[i].StartTime < ep.StartTime && ep.EndTime < this.Episodes[i].EndTime )
+                else if ( Episodes[i].StartTime < ep.StartTime && ep.EndTime < Episodes[i].EndTime )
                 {
                     report.Type = ScheduleConflictType.Split;
                 }
-                else if ( this.Episodes[i].StartTime >= ep.StartTime && ep.EndTime < this.Episodes[i].EndTime )
+                else if ( Episodes[i].StartTime >= ep.StartTime && ep.EndTime < Episodes[i].EndTime )
                 {
                     report.Type = ScheduleConflictType.Prior;
                 }
-                else if ( this.Episodes[i].StartTime < ep.StartTime && ep.EndTime >= this.Episodes[i].EndTime )
+                else if ( Episodes[i].StartTime < ep.StartTime && ep.EndTime >= Episodes[i].EndTime )
                 {
                     report.Type = ScheduleConflictType.Posterior;
                 }
@@ -199,42 +200,39 @@ namespace Tasha.Scheduler
         {
             Time lastEnd = Time.Zero;
             Time mustEndBefore = Time.EndOfDay + new Time() { Minutes = 5 };
-            for ( int i = 0; i < this.EpisodeCount; i++ )
+            for ( int i = 0; i < EpisodeCount; i++ )
             {
-                if ( lastEnd > this.Episodes[i].StartTime )
+                if ( lastEnd > Episodes[i].StartTime )
                 {
                     throw new XTMFRuntimeException( Dump( this ) );
                 }
-                else if ( this.Episodes[i].StartTime > mustEndBefore | this.Episodes[i].EndTime > mustEndBefore )
+                if ( Episodes[i].StartTime > mustEndBefore | Episodes[i].EndTime > mustEndBefore )
                 {
                     throw new XTMFRuntimeException( Dump( this ) );
                 }
-                else if ( this.Episodes[i].EndTime < this.Episodes[i].StartTime )
+                if ( Episodes[i].EndTime < Episodes[i].StartTime )
                 {
-                    if ( this.Episodes[i].Owner != null )
+                    if ( Episodes[i].Owner != null )
                     {
-                        throw new XTMFRuntimeException( "There is an episode that ends before it starts in household #" + this.Episodes[i].Owner.Household.HouseholdId );
+                        throw new XTMFRuntimeException( "There is an episode that ends before it starts in household #" + Episodes[i].Owner.Household.HouseholdId );
                     }
-                    else
-                    {
-                        throw new XTMFRuntimeException( "There is an episode that ends before it starts and has no owner!"
-                            + "\r\nActivity Type    :" + this.Episodes[i].ActivityType.ToString()
-                            + "\r\nStart Time       :" + this.Episodes[i].StartTime
-                            + "\r\nDuration         :" + this.Episodes[i].Duration
-                            + "\r\nOriginal Duration:" + this.Episodes[i].OriginalDuration
-                            + "\r\nEnd Time         :" + this.Episodes[i].EndTime );
-                    }
+                    throw new XTMFRuntimeException( "There is an episode that ends before it starts and has no owner!"
+                                                    + "\r\nActivity Type    :" + Episodes[i].ActivityType
+                                                    + "\r\nStart Time       :" + Episodes[i].StartTime
+                                                    + "\r\nDuration         :" + Episodes[i].Duration
+                                                    + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
+                                                    + "\r\nEnd Time         :" + Episodes[i].EndTime );
                 }
-                else if ( this.Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * this.Episodes[i].Duration )
+                if ( Episodes[i].OriginalDuration < Tasha.Scheduler.Scheduler.PercentOverlapAllowed * Episodes[i].Duration )
                 {
                     throw new XTMFRuntimeException( "Episode is smaller than the allowed overlap!"
-                        + "\r\nActivity Type    :" + this.Episodes[i].ActivityType.ToString()
-                            + "\r\nStart Time       :" + this.Episodes[i].StartTime
-                            + "\r\nDuration         :" + this.Episodes[i].Duration
-                            + "\r\nOriginal Duration:" + this.Episodes[i].OriginalDuration
-                            + "\r\nEnd Time         :" + this.Episodes[i].EndTime);
+                                                    + "\r\nActivity Type    :" + Episodes[i].ActivityType
+                                                    + "\r\nStart Time       :" + Episodes[i].StartTime
+                                                    + "\r\nDuration         :" + Episodes[i].Duration
+                                                    + "\r\nOriginal Duration:" + Episodes[i].OriginalDuration
+                                                    + "\r\nEnd Time         :" + Episodes[i].EndTime);
                 }
-                lastEnd = this.Episodes[i].EndTime;
+                lastEnd = Episodes[i].EndTime;
             }
         }
 
@@ -258,23 +256,23 @@ namespace Tasha.Scheduler
         private static void StoreEpisode(Episode e, StringBuilder builder)
         {
             builder.Append( "Activity -> " );
-            builder.Append( e.ActivityType.ToString() );
+            builder.Append( e.ActivityType );
             builder.Append( ", Start -> " );
-            builder.Append( e.StartTime.ToString() );
+            builder.Append( e.StartTime );
             builder.Append( ", End -> " );
-            builder.Append( e.EndTime.ToString() );
+            builder.Append( e.EndTime );
             builder.Append( ", TT -> " );
-            builder.Append( e.TravelTime.ToString() );
+            builder.Append( e.TravelTime );
         }
 
         private void IncreaseArraySize()
         {
             // if we don't have room create a new array of 2x the size
-            var temp = new Episode[this.EpisodeCount * 2];
+            IEpisode[] temp = new IEpisode[EpisodeCount * 2];
             // copy all of the old data
-            Array.Copy( this.Episodes, temp, this.EpisodeCount );
+            Array.Copy( Episodes, temp, EpisodeCount );
             // and now use that larger array
-            this.Episodes = temp;
+            Episodes = temp;
         }
 
         public IActivityEpisode[] GenerateScheduledEpisodeList()

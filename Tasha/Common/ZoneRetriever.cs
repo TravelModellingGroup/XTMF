@@ -56,11 +56,6 @@ namespace Tasha.Common
         private SparseArray<IZone> AllZones;
 
         private Pair<int, int>[] EmploymentDataRange;
-        private object LoadingLock = new object();
-
-        public ZoneRetriever()
-        {
-        }
 
         public SparseTwinIndex<float> Distances { get; private set; }
 
@@ -109,13 +104,13 @@ namespace Tasha.Common
         public void Generate()
         {
             SparseZoneCreator creator = new SparseZoneCreator(HighestZoneNumber + 1, 22);
-            creator.LoadCSV(GetFullPath(ZoneFileName), true);
+            creator.LoadCsv(GetFullPath(ZoneFileName), true);
             creator.Save(GetFullPath(ZoneCacheFile));
         }
 
-        public IZone Get(int ZoneNumber)
+        public IZone Get(int zoneNumber)
         {
-            if(ZoneNumber == RoamingZoneNumber)
+            if(zoneNumber == RoamingZoneNumber)
             {
                 if(RoamingZone == null)
                 {
@@ -124,14 +119,14 @@ namespace Tasha.Common
                         System.Threading.Thread.MemoryBarrier();
                         if(RoamingZone == null)
                         {
-                            RoamingZone = new Zone(ZoneNumber);
+                            RoamingZone = new Zone(zoneNumber);
                         }
                         System.Threading.Thread.MemoryBarrier();
                     }
                 }
                 return RoamingZone;
             }
-            return AllZones[ZoneNumber];
+            return AllZones[zoneNumber];
         }
 
         public IZoneSystem GiveData()
@@ -148,7 +143,7 @@ namespace Tasha.Common
         {
             if(!LoadOnce || !Loaded)
             {
-                initEmpDataRange();
+                InitEmpDataRange();
                 var cacheFileName = GetFullPath(ZoneCacheFile);
                 if(CheckIfWeNeedToRegenerateCache(cacheFileName))
                 {
@@ -218,7 +213,7 @@ namespace Tasha.Common
 
         public void UnloadData()
         {
-            Dispose(true);
+            Dispose();
         }
 
         public bool ZoneHasEmploymentData(IZone zone)
@@ -251,13 +246,13 @@ namespace Tasha.Common
         /// <summary>
         /// This is passed into ZoneCache to create a zone from data
         /// </summary>
-        /// <param name="ZoneID">The zone that was asked for</param>
+        /// <param name="zoneID">The zone that was asked for</param>
         /// <param name="data">The raw data from file</param>
         /// <returns>A new zone with this data</returns>
-        private static IZone ConvertToZone(int ZoneID, float[] data)
+        private static IZone ConvertToZone(int zoneID, float[] data)
         {
             // Create this data from the information in the cache file
-            return new Zone(ZoneID, data);
+            return new Zone(zoneID, data);
         }
 
         private void ComputeDistances()
@@ -287,7 +282,7 @@ namespace Tasha.Common
             return localPath;
         }
 
-        private void initEmpDataRange()
+        private void InitEmpDataRange()
         {
             List<Pair<int, int>> empDataRange = new List<Pair<int, int>>();
             string sRange = ZonesWithEmploymentData;
@@ -307,13 +302,18 @@ namespace Tasha.Common
             EmploymentDataRange = empDataRange.ToArray();
         }
 
+        ~ZoneRetriever()
+        {
+            LocalDispose();
+        }
+
         public void Dispose()
         {
-            Dispose(true);
+            LocalDispose();
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool all)
+        private void LocalDispose()
         {
             if(!LoadOnce)
             {

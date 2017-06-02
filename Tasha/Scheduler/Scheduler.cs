@@ -202,9 +202,9 @@ namespace Tasha.Scheduler
         [SubModelInformation(Description = "Adjustments to the generation rates to allow for spatial differences.")]
         public GenerationAdjustment[] GenerationRateAdjustments;
 
-        internal static int SchedulingFail = 0;
+        internal static int SchedulingFail;
 
-        internal static int SchedulingSuccess = 0;
+        internal static int SchedulingSuccess;
 
         public string Name
         {
@@ -231,73 +231,61 @@ namespace Tasha.Scheduler
         /// </summary>
         public void LoadOneTimeLocalData()
         {
-            if (this.AlternativeTravelModeName != null && this.AlternativeTravelModeName != String.Empty)
+            if (AlternativeTravelModeName != null && AlternativeTravelModeName != String.Empty)
             {
-                var allModes = this.TashaRuntime.AllModes;
+                var allModes = TashaRuntime.AllModes;
                 bool found = false;
                 foreach (var mode in allModes)
                 {
-                    if (mode.ModeName == this.AlternativeTravelModeName)
+                    if (mode.ModeName == AlternativeTravelModeName)
                     {
-                        this.AlternativeTravelMode = mode;
+                        AlternativeTravelMode = mode;
                         found = true;
                         break;
                     }
                 }
                 if (!found)
                 {
-                    throw new XTMFRuntimeException("Unable to find the Alternative Travel Mode called " + this.AlternativeTravelModeName);
+                    throw new XTMFRuntimeException("Unable to find the Alternative Travel Mode called " + AlternativeTravelModeName);
                 }
             }
-            Scheduler.LocalScheduler = this;
-            Scheduler.Tasha = this.TashaRuntime;
-            Scheduler.MinimumWorkingAge = this.MinWorkingAgeLocal;
-            Scheduler.EpisodeSchedulingAttempts = this.EpisodeSchedulingAttemptsLocal;
-            Scheduler.ActivityLevels = this.GetFullPath(this.ActivityLevelsLocal);
-            Scheduler.SchoolMorningStart = this.SchoolMorningStartDateTime;
-            Scheduler.SchoolMorningEnd = this.SchoolMorningEndDateTime;
-            Scheduler.SchoolAfternoonStart = this.SchoolAfternoonStartDateTime;
-            Scheduler.SchoolAfternoonEnd = this.SchoolAfternoonEndDateTime;
-            Scheduler.SecondaryWorkThreshold = this.SecondaryWorkThresholdDateTime;
-            Scheduler.StartTimeQuanta = this.StartTimeQuantaLocal;
-            Scheduler.StartTimeQuantaInterval = (short)((24 * 60) / Scheduler.StartTimeQuanta);
-            Time.OneQuantum = this.MinimumDurationDateTime;
+            LocalScheduler = this;
+            Tasha = TashaRuntime;
+            MinimumWorkingAge = MinWorkingAgeLocal;
+            EpisodeSchedulingAttempts = EpisodeSchedulingAttemptsLocal;
+            ActivityLevels = GetFullPath(ActivityLevelsLocal);
+            SchoolMorningStart = SchoolMorningStartDateTime;
+            SchoolMorningEnd = SchoolMorningEndDateTime;
+            SchoolAfternoonStart = SchoolAfternoonStartDateTime;
+            SchoolAfternoonEnd = SchoolAfternoonEndDateTime;
+            SecondaryWorkThreshold = SecondaryWorkThresholdDateTime;
+            StartTimeQuanta = StartTimeQuantaLocal;
+            StartTimeQuantaInterval = (short)((24 * 60) / StartTimeQuanta);
+            Time.OneQuantum = MinimumDurationDateTime;
             Time.StartOfDay = new Time() { Hours = 4 };
             Time.EndOfDay = new Time() { Hours = 28 };
-            Scheduler.PercentOverlapAllowed = this.PercentOverlapAllowedLocal;
-            Scheduler.SecondaryWorkMinStartTime = this.SecondaryWorkMinStartTimeDateTime;
-            Scheduler.MinPrimaryWorkDurationForReturnHomeFromWork = this.MinPrimaryWorkDurationForReturnHomeFromWorkDateTime;
-            Scheduler.MaxPrimeWorkStartTimeForReturnHomeFromWork = this.MaxPrimeWorkStartTimeForReturnHomeFromWorkDateTime;
-            Scheduler.ReturnHomeFromWorkMaxEndTime = this.ReturnHomeFromWorkMaxEndTimeDateTime;
-            Scheduler.FullTimeActivity = this.FullTimeActivityDateTime;
-            Scheduler.LocationChoiceModel = this.LocationChoiceModelLocal;
-            Scheduler.LocationChoiceModel.LoadLocationChoiceCache();
+            PercentOverlapAllowed = PercentOverlapAllowedLocal;
+            SecondaryWorkMinStartTime = SecondaryWorkMinStartTimeDateTime;
+            MinPrimaryWorkDurationForReturnHomeFromWork = MinPrimaryWorkDurationForReturnHomeFromWorkDateTime;
+            MaxPrimeWorkStartTimeForReturnHomeFromWork = MaxPrimeWorkStartTimeForReturnHomeFromWorkDateTime;
+            ReturnHomeFromWorkMaxEndTime = ReturnHomeFromWorkMaxEndTimeDateTime;
+            FullTimeActivity = FullTimeActivityDateTime;
+            LocationChoiceModel = LocationChoiceModelLocal;
+            LocationChoiceModel.LoadLocationChoiceCache();
             //Distributions
-            Scheduler.AdultDistributionsFile = this.GetFullPath(this.AdultDistributionsFileLocal);
-            Scheduler.FrequencyDistributionsFile = this.GetFullPath(this.FrequencyDistributionsFileLocal);
-            Scheduler.NumberOfDistributions = this.NumberOfDistributionsLocal;
-            Scheduler.NumberOfAdultFrequencies = this.NumberOfAdultFrequenciesLocal;
-            Scheduler.NumberOfAdultDistributions = this.NumberOfAdultDistributionsLocal;
+            AdultDistributionsFile = GetFullPath(AdultDistributionsFileLocal);
+            FrequencyDistributionsFile = GetFullPath(FrequencyDistributionsFileLocal);
+            NumberOfDistributions = NumberOfDistributionsLocal;
+            NumberOfAdultFrequencies = NumberOfAdultFrequenciesLocal;
+            NumberOfAdultDistributions = NumberOfAdultDistributionsLocal;
 
-            Scheduler.MaxFrequency = this.MaxFrequencyLocal;
-            Distribution.TashaRuntime = this.TashaRuntime;
+            MaxFrequency = MaxFrequencyLocal;
             Distribution.InitializeDistributions();
 
-            HouseholdExtender.TashaRuntime = this.TashaRuntime;
+            HouseholdExtender.TashaRuntime = TashaRuntime;
             // references in scheduler
-            SchedulerHousehold.TashaRuntime = this.TashaRuntime;
+            SchedulerHousehold.TashaRuntime = TashaRuntime;
             Schedule.Scheduler = this;
-        }
-
-        /// <summary>
-        /// Load the data we need to get every iteration
-        /// </summary>
-        public void LoadPerIterationData()
-        {
-            // The distributions will ignore multiple calls if it is already setup on the thread            if (this.AlternativeTravelModeName != null)
-            LoadLocationChoiceModel();
-            LoadDistributions();
-            TimePeriod.LoadTimePeriodData();
         }
 
         [RunParameter("Random Seed", 1234123, "A random seed to base the randomness of the scheduler.")]
@@ -312,7 +300,7 @@ namespace Tasha.Scheduler
         /// <param name="h">The household to schedule</param>
         public void Run(ITashaHousehold h)
         {
-            Random r = new Random(h.HouseholdId * this.Seed);
+            Random r = new Random(h.HouseholdId * Seed);
             // Setup the data, no random is needed here
             AddProjects(h);
             // Generate the schedules for each type of project
@@ -342,25 +330,23 @@ namespace Tasha.Scheduler
         /// <summary>
         /// Get how long it takes to go somewhere
         /// </summary>
+        /// <param name="person"></param>
         /// <param name="origin"></param>
         /// <param name="destination"></param>
         /// <param name="tashaTime"></param>
         /// <returns></returns>
         public Time TravelTime(ITashaPerson person, IZone origin, IZone destination, Time tashaTime)
         {
-            if (this.AlternativeTravelMode == null || this.TashaRuntime.AutoType.CanUse(person))
+            if (AlternativeTravelMode == null || TashaRuntime.AutoType.CanUse(person))
             {
-                return this.TashaRuntime.AutoMode.TravelTime(origin, destination, tashaTime);
+                return TashaRuntime.AutoMode.TravelTime(origin, destination, tashaTime);
             }
-            else
-            {
-                return this.AlternativeTravelMode.TravelTime(origin, destination, tashaTime);
-            }
+            return AlternativeTravelMode.TravelTime(origin, destination, tashaTime);
         }
 
         internal static void JoinTripChains(ITashaHousehold house)
         {
-            int JointTourNumber = 1;
+            int jointTourNumber = 1;
             // we don't need to look at the last person
             for (int person = 0; person < house.Persons.Length - 1; person++)
             {
@@ -380,12 +366,12 @@ namespace Tasha.Scheduler
                             }
                             if (AreTogether(chain, otherChain))
                             {
-                                int tourNum = JointTourNumber;
+                                int tourNum = jointTourNumber;
                                 if (!chain.JointTrip)
                                 {
                                     ((SchedulerTripChain)chain).JointTripID = ((SchedulerTripChain)otherChain).JointTripID = tourNum;
                                     ((SchedulerTripChain)chain).JointTripRep = true;
-                                    JointTourNumber++;
+                                    jointTourNumber++;
                                 }
                                 ((SchedulerTripChain)otherChain).JointTripID = chain.JointTripID;
                                 ((SchedulerTripChain)otherChain).GetRepTripChain = chain;
@@ -435,24 +421,9 @@ namespace Tasha.Scheduler
         {
             if (!System.IO.Path.IsPathRooted(localPath))
             {
-                return System.IO.Path.Combine(this.TashaRuntime.InputBaseDirectory, localPath);
+                return System.IO.Path.Combine(TashaRuntime.InputBaseDirectory, localPath);
             }
             return localPath;
-        }
-
-        /// <summary>
-        /// Loads all of the scheduler distributions
-        /// </summary>
-        private void LoadDistributions()
-        {
-            ActivityDistribution.LoadDistributions(this.ActivityLevelsLocal, this.TashaRuntime.ZoneSystem.ZoneArray);
-            Distribution.InitializeDistributions();
-        }
-
-        private void LoadLocationChoiceModel()
-        {
-            // will ignore multiple calls if it is already setup on the thread
-            LocationChoiceModel.LoadLocationChoiceCache();
         }
     }
 }

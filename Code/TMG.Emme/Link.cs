@@ -23,15 +23,21 @@ namespace TMG.Emme
     public struct Link
     {
         public float Capacity;
-        public int I;
-        public int J;
+        public readonly int I;
+        public readonly int J;
         public float Lanes;
         public float Length;
         public int LinkType;
         public char[] Modes;
         public bool Modified;
         public float Speed;
-        public float VDF;
+        public float Vdf;
+
+        public Link(int i, int j) : this()
+        {
+            I = i;
+            J = j;
+        }
 
         public override bool Equals(object obj)
         {
@@ -39,18 +45,16 @@ namespace TMG.Emme
             {
                 return this == (Link)obj;
             }
-            else
-            {
-                return base.Equals( obj );
-            }
+            return false;
         }
 
         public static bool operator ==(Link first, Link o)
         {
+            // ReSharper disable CompareOfFloatsByEqualityOperator
             if ( first.Length != o.Length ) return false;
             if ( first.LinkType != o.LinkType ) return false;
             if ( first.Lanes != o.Lanes ) return false;
-            if ( first.VDF != o.VDF ) return false;
+            if ( first.Vdf != o.Vdf ) return false;
             if ( first.Modes.Length != o.Modes.Length ) return false;
             if ( first.Speed != o.Speed ) return false;
             if ( first.Capacity != o.Capacity ) return false;
@@ -68,13 +72,13 @@ namespace TMG.Emme
 
         public static bool operator !=(Link first, Link o)
         {
-            return first != o;
+            return !(first == o);
         }
 
         public override int GetHashCode()
         {
             // return the XOR of the 2 links
-            return this.I ^ this.J;
+            return I ^ J;
         }
     }
 }

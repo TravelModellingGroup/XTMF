@@ -20,7 +20,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows.Forms.DataVisualization.Charting;
 using Tasha.Common;
 using XTMF;
 
@@ -84,30 +83,14 @@ namespace Tasha.Validation.ValidateModeChoice
                     {
                         var trip = household.Persons[i].TripChains[j].Trips[k];
 
-                        if ( trip.Mode == this.Root.AllModes[PassengerIndex] )
+                        if ( trip.Mode == Root.AllModes[PassengerIndex] )
                         {
-                            using ( StreamWriter Writer = new StreamWriter( this.OutputFile, true ) )
+                            using ( StreamWriter writer = new StreamWriter( OutputFile, true ) )
                             {
-                                var originalTrip = trip["Driver"] as ITrip;
-
-                                var originalDistance = this.Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
-                                var passengerDistance = this.Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
-
-                                float firstLeg;
-                                float secondLeg;
-
-                                if ( originalTrip.OriginalZone == trip.OriginalZone )
-                                {
-                                    firstLeg = 0;
-                                }
-                                if ( originalTrip.DestinationZone == trip.DestinationZone )
-                                {
-                                    secondLeg = 0;
-                                }
-
-                                firstLeg = this.Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, trip.OriginalZone.ZoneNumber];
-                                secondLeg = this.Root.ZoneSystem.Distances[trip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
-
+                                var originalTrip = (ITrip) trip["Driver"];
+                                var passengerDistance = Root.ZoneSystem.Distances[trip.OriginalZone.ZoneNumber, trip.DestinationZone.ZoneNumber];
+                                var firstLeg = originalTrip.OriginalZone == trip.OriginalZone ? 0 : Root.ZoneSystem.Distances[originalTrip.OriginalZone.ZoneNumber, trip.OriginalZone.ZoneNumber];
+                                var secondLeg = originalTrip.DestinationZone == trip.DestinationZone ? 0 : Root.ZoneSystem.Distances[trip.DestinationZone.ZoneNumber, originalTrip.DestinationZone.ZoneNumber];
                                 var newDistance = ( passengerDistance + firstLeg + secondLeg );
 
                                 if ( Data.Keys.Contains( passengerDistance ) )
@@ -120,7 +103,7 @@ namespace Tasha.Validation.ValidateModeChoice
                                     Data[passengerDistance].Add( newDistance );
                                 }
 
-                                //Writer.WriteLine( "{0}, {1}, {2}, {3}, {4}", household.HouseholdId, household.Persons[i].Id, originalTrip.TripChain.Person.Id, passengerDistance, newDistance );
+                                writer.WriteLine( "{0}, {1}, {2}, {3}, {4}", household.HouseholdId, household.Persons[i].Id, originalTrip.TripChain.Person.Id, passengerDistance, newDistance );
                             }
                         }
                     }
@@ -134,68 +117,24 @@ namespace Tasha.Validation.ValidateModeChoice
 
         public bool RuntimeValidation(ref string error)
         {
-            this.PassengerIndex = -1;
-            if ( !String.IsNullOrWhiteSpace( this.PassengerModeName ) )
+            PassengerIndex = -1;
+            if ( !String.IsNullOrWhiteSpace( PassengerModeName ) )
             {
-                for ( int i = 0; i < this.Root.AllModes.Count; i++ )
+                for ( int i = 0; i < Root.AllModes.Count; i++ )
                 {
-                    if ( this.Root.AllModes[i].ModeName == this.PassengerModeName )
+                    if ( Root.AllModes[i].ModeName == PassengerModeName )
                     {
-                        this.PassengerIndex = i;
+                        PassengerIndex = i;
                         break;
                     }
                 }
-                if ( this.PassengerIndex <= 0 )
+                if ( PassengerIndex <= 0 )
                 {
-                    error = "In '" + this.Name + "' we were unable to find any passenger mode with the name '" + this.PassengerModeName + "'.";
+                    error = "In '" + Name + "' we were unable to find any passenger mode with the name '" + PassengerModeName + "'.";
                     return false;
                 }
             }
             return true;
-        }
-
-        private static void AddData(ConcurrentDictionary<float, List<float>> Data, Chart chart, Series secondSeries)
-        {
-            foreach ( var key in Data.Keys )
-            {
-                foreach ( var value in Data[key] )
-                {
-                    secondSeries.Points.Add( new DataPoint( key, value ) );
-                }
-            }
-            chart.Series.Add( secondSeries );
-        }
-
-        private void GenerateChart(string fileName, ConcurrentDictionary<float, List<float>> values)
-        {
-            using ( Chart chart = new Chart() )
-            {
-                chart.Width = this.CharWidth;
-                chart.Height = this.CharHeight;
-
-                using ( ChartArea area = new ChartArea( "Passenger Distance vs New Driver Distance" ) )
-                {
-                    using ( Series firstSeries = new Series() )
-                    {
-                        AddData( values, chart, firstSeries );
-                        firstSeries.ChartType = SeriesChartType.Point;
-                        area.AxisX.Title = "Driver Distance Traveled (km)";// "Start Time";
-                        area.AxisY.Title = "Passenger Distance Traveled (km)";// "#Episodes";
-                        area.AxisX.Interval = 2;
-                        area.Visible = true;
-                        chart.ChartAreas.Add( area );
-                        firstSeries.Name = "New Driver Distance";
-                        firstSeries.Color = System.Drawing.Color.RoyalBlue;
-                        firstSeries.BorderColor = System.Drawing.Color.Black;
-                        firstSeries.BorderWidth = 1;
-                        using ( Legend legend = new Legend() )
-                        {
-                            chart.Legends.Add( legend );
-                            chart.SaveImage( fileName, ChartImageFormat.Png );
-                        }
-                    }
-                }
-            }
         }
 
         public void IterationStarting(int iteration, int totalIterations)

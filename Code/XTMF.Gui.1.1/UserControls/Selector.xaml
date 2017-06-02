@@ -23,7 +23,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:my="clr-namespace:XTMF.Gui"
              mc:Ignorable="d">
-    <Border BorderThickness="1" BorderBrush="White" CornerRadius="2">
+    <Border BorderThickness="0" BorderBrush="White" CornerRadius="2">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="AUTO" />
@@ -32,7 +32,7 @@
             </Grid.RowDefinitions>
             <my:SearchBox Grid.Row="0" x:Name="SearchBox" Width="260" HorizontalAlignment="Left" Padding="5" TextChanged="TextChanged" />
             <TextBlock Margin="5" Grid.Row="1" x:Name="NothingFound" FontSize="16" Foreground="White" Text="No Model System Found!" />
-            <ScrollViewer Grid.Row="2" Style="{StaticResource XTMFScrollViewer}" x:Name="Containment" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="2"  x:Name="Containment" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
                 <WrapPanel  Name="ModelSystemPanel" Orientation="Vertical" Margin="0,5,0,0" ScrollViewer.CanContentScroll="true">
                 </WrapPanel>
             </ScrollViewer>

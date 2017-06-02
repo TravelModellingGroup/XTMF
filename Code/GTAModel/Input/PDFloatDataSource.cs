@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using Datastructure;
@@ -29,7 +30,7 @@ namespace TMG.GTAModel.Input
         [SubModelInformation( Required = true, Description = "The module that reads in the data that we will aggregate." )]
         public IReadODData<float> Reader;
 
-        [RunParameterAttribute("Apply Default", false, "Should we apply the default value before loading in the data?")]
+        [RunParameter("Apply Default", false, "Should we apply the default value before loading in the data?")]
         public bool ApplyDefault;
 
         [RunParameter("Default Value", 0.0f, "The default value to use.")]
@@ -58,12 +59,12 @@ namespace TMG.GTAModel.Input
 
         public SparseTwinIndex<float> GiveData()
         {
-            return this.Data;
+            return Data;
         }
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
@@ -73,19 +74,19 @@ namespace TMG.GTAModel.Input
             {
                 ApplyDefaultToData( temp );
             }
-            foreach ( var point in this.Reader.Read() )
+            foreach ( var point in Reader.Read() )
             {
                 if ( temp.ContainsIndex( point.O, point.D ) )
                 {
                     temp[point.O, point.D] = point.Data;
                 }
             }
-            this.Data = temp;
+            Data = temp;
         }
 
         private void ApplyDefaultToData(SparseTwinIndex<float> temp)
         {
-            var value = this.DefaultValue;
+            var value = DefaultValue;
             var data = temp.GetFlatData();
             if ( data.Length == 0 ) return;
             var row = data[0];
@@ -107,12 +108,12 @@ namespace TMG.GTAModel.Input
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         private SparseArray<int> CreatePDArray()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             List<int> pdNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {

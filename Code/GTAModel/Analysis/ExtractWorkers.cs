@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,14 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
-using TMG.Input;
-using Datastructure;
 using System.IO;
+using Datastructure;
+using TMG.Input;
+using XTMF;
+
 namespace TMG.GTAModel.Analysis
 {
     public class ExtractWorkers : ISelfContainedModule
@@ -39,11 +38,11 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray;
-            var workerData = this.WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
+            var zones = Root.ZoneSystem.ZoneArray;
+            var workerData = WorkerResource.AcquireResource<SparseArray<SparseTriIndex<float>>>();
             var flatZones = zones.GetFlatData();
             var flatWorkerData = workerData.GetFlatData();
-            using ( StreamWriter writer = new StreamWriter( this.OututFile.GetFilePath() ) )
+            using ( StreamWriter writer = new StreamWriter( OututFile.GetFilePath() ) )
             {
                 writer.WriteLine("Zone,PD,Region,EmpStat,Mobility,AgeCat,Persons");
                 for ( int i = 0; i < flatWorkerData.Length; i++ )
@@ -76,21 +75,15 @@ namespace TMG.GTAModel.Analysis
 
         public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.WorkerResource.CheckResourceType<SparseArray<SparseTriIndex<float>>>() )
+            if ( !WorkerResource.CheckResourceType<SparseArray<SparseTriIndex<float>>>() )
             {
-                error = "In '" + this.Name + "' the Worker resource was not of type SparseArray<SparseTriIndex<float>>!";
+                error = "In '" + Name + "' the Worker resource was not of type SparseArray<SparseTriIndex<float>>!";
             }
             return true;
         }

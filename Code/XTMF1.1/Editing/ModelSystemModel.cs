@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -37,6 +37,14 @@ namespace XTMF
         /// </summary>
         public LinkedParametersModel LinkedParameters { get; private set; }
 
+        public List<ModelSystemStructureModel> DisabledModules
+        {
+            get
+            {
+                return new List<ModelSystemStructureModel>();
+            }
+        }
+
         public event EventHandler ModelSystemStructureChanged;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -49,15 +57,43 @@ namespace XTMF
 
         private int ModelSystemIndex;
 
+        private List<IModelSystemStructure> _disabledModules;
+
         public ModelSystemModel(ModelSystemEditingSession session, ModelSystem modelSystem)
         {
             ModelSystem = modelSystem;
+
+          _disabledModules = new List<IModelSystemStructure>();
             Name = modelSystem.Name;
             _Description = modelSystem.Description;
             List<ILinkedParameter> editingLinkedParameters;
             Root = new ModelSystemStructureModel(session, modelSystem.CreateEditingClone(out editingLinkedParameters) as ModelSystemStructure);
             LinkedParameters = new LinkedParametersModel(session, this, editingLinkedParameters);
+
+            if (modelSystem.ModelSystemStructure != null)
+            {
+                EnumerateDisabledModules(modelSystem.ModelSystemStructure);
+            }
         }
+
+        private void EnumerateDisabledModules(IModelSystemStructure element)
+        {
+            if (((ModelSystemStructure)element).IsDisabled)
+            {
+                _disabledModules.Add(element);
+            }
+            if (element.Children != null)
+            {
+                foreach (var module in element.Children)
+                {
+
+                    EnumerateDisabledModules(module);
+                }
+            }
+        }
+        
+       
+
 
         internal ParameterModel GetParameterModel(IModuleParameter moduleParameter)
         {
@@ -314,6 +350,25 @@ namespace XTMF
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Create a clone of this model system model as a model system.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public ModelSystem CloneAsModelSystem(IConfiguration config)
+        {
+            if (ModelSystem != null)
+            {
+                return ModelSystem.Clone();
+            }
+            var ms = new ModelSystem(config, _Name)
+            {
+                LinkedParameters = LinkedParameters.GetRealLinkedParameters(),
+                ModelSystemStructure = Root.RealModelSystemStructure
+            };
+            return ms.Clone();
         }
     }
 }

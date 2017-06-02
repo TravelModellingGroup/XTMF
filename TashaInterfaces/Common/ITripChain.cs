@@ -58,14 +58,14 @@ namespace Tasha.Common
         /// </summary>
         bool JointTripRep { get; }
 
-        List<ITashaPerson> passengers { get; }
+        List<ITashaPerson> Passengers { get; }
 
         /// <summary>
         /// The person this chain belongs to
         /// </summary>
         ITashaPerson Person { get; set; }
 
-        List<IVehicleType> requiresVehicle { get; }
+        List<IVehicleType> RequiresVehicle { get; }
 
         /// <summary>
         /// When does this trip chain start?

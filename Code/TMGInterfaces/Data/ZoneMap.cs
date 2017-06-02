@@ -19,8 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TMG.Data
 {
@@ -80,6 +78,7 @@ namespace TMG.Data
             KeyToZoneIndex = initialMap.Keys.ToDictionary(key => key, key => (IReadOnlyList<int>)initialMap[key]);
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private static void ThrowIfNull<T>(T parameter, string name) where T : class
         {
             if (parameter == null)

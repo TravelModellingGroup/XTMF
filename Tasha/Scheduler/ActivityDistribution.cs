@@ -62,7 +62,7 @@ namespace Tasha.Scheduler
                 {
                     GenerateActivityLevels( fileName, zoneArray );
                 }
-                ActivityData = new ZoneCache<ActivityInformation>( fileName, convert );
+                ActivityData = new ZoneCache<ActivityInformation>( fileName, Convert );
 
                 //(TashaConfiguration.GetInputFile(TashaConfiguration.GetDirectory("Scheduler"),"ActivityLevels"),
 
@@ -70,29 +70,13 @@ namespace Tasha.Scheduler
             }
         }
 
-        private static ActivityInformation convert(int zone, float[] data)
+        private static ActivityInformation Convert(int zone, float[] data)
         {
             ActivityInformation info;
             info.RetailActivityLevel = data[0];
             info.OtherActivityLevel = data[1];
             info.WorkActivityLevel = data[2];
             return info;
-        }
-
-        private static void CreateActivityData(string FileName)
-        {
-            if ( ActivityData == null )
-            {
-                ActivityData = new ZoneCache<ActivityInformation>( FileName,
-                delegate(int zone, float[] data)
-                {
-                    ActivityInformation info;
-                    info.RetailActivityLevel = data[0];
-                    info.OtherActivityLevel = data[1];
-                    info.WorkActivityLevel = data[2];
-                    return info;
-                } );
-            }
         }
 
         private static void GenerateActivityLevels(string fileName, SparseArray<IZone> zoneArray)
@@ -114,7 +98,7 @@ namespace Tasha.Scheduler
                 }
             }
             SparseZoneCreator creator = new SparseZoneCreator( zones.Last().ZoneNumber + 1, 3 );
-            creator.LoadCSV( csvFileName, true );
+            creator.LoadCsv( csvFileName, true );
             creator.Save( fileName );
             File.Delete( csvFileName );
         }

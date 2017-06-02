@@ -17,26 +17,24 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedTypeParameter
 
 namespace XTMF.Testing.Modules.Editing
 {
 
-    public interface GenericInterface<A,B,C,D> : XTMF.IModule
+    public interface IGenericInterface<A,B,C,D> : IModule
     {
 
     }
 
-    public abstract class NonGenericBase<E,F,G> : GenericInterface<float, E, F, G>
+    public abstract class NonGenericBase<E,F,G> : IGenericInterface<float, E, F, G>
     { 
         public string Name { get; set; }
 
-        public float Progress { get; set; }
+        public float Progress { get; } = 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         public bool RuntimeValidation(ref string error)
         {
@@ -49,6 +47,7 @@ namespace XTMF.Testing.Modules.Editing
         /// <summary>
         /// Actually have a data field in order to ensure the T matters
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public I Data;
     }
 }

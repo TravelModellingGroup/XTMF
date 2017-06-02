@@ -18,18 +18,12 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using TMG.Input;
 using Datastructure;
-using TMG;
 using Tasha.Common;
 using XTMF;
-using Tasha.XTMFModeChoice;
-using TMG.Functions;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
@@ -45,7 +39,7 @@ namespace Tasha.Validation.PerformanceMeasures
         public VKTPerTimePeriod[] TimePeriods;
 
 
-        public sealed class VKTPerTimePeriod : XTMF.IModule
+        public sealed class VKTPerTimePeriod : IModule
         {
             [RunParameter("Time Period", "AM", "Which time period do you want to analyze?")]
             public string Label;
@@ -54,6 +48,7 @@ namespace Tasha.Validation.PerformanceMeasures
             public FileLocation ODTripsData;
 
             [SubModelInformation(Required = true, Description = "Results file in .CSV format for this Time period")]
+            // ReSharper disable once InconsistentNaming
             public FileLocation VKTbyHomeZone;
 
             [SubModelInformation(Required = true, Description = "Resource that will subtract the two Cost Matrices and return a Flat Cost.")]
@@ -89,8 +84,6 @@ namespace Tasha.Validation.PerformanceMeasures
 
         public void Start()
         {
-            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
-            char[] separators = { ',' };
             var invCostPerKM = 1.0f / CostPerKm;
             foreach(var timePeriod in TimePeriods)
             {
@@ -104,7 +97,7 @@ namespace Tasha.Validation.PerformanceMeasures
                     {
                         if(columns >= 4)
                         {
-                            float vkt = 0.0f;
+                            float vkt;
                             int homeZone, origin, destination;
                             float numberOfTrips;
                             reader.Get(out homeZone, 0);

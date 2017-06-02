@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,7 +35,7 @@ namespace TMG.GTAModel.Analysis
         [RootModule]
         public ITravelDemandModel Root;
 
-        [SubModelInformation( Description = "The modules to count the demand." )]
+        [SubModelInformation( Description = "The modules to _Count the demand." )]
         public List<IModeAggregationTally> Tallies;
 
         public string Name
@@ -67,16 +68,16 @@ namespace TMG.GTAModel.Analysis
             {
                 return;
             }
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             var matrix = zones.CreateSquareTwinArray<float>().GetFlatData();
-            foreach ( var tally in this.Tallies )
+            foreach ( var tally in Tallies )
             {
                 tally.IncludeTally( matrix );
             }
-            SaveMatrix( zones.GetFlatData(), matrix, this.Root.ZoneSystem.Distances.GetFlatData() );
+            SaveMatrix( zones.GetFlatData(), matrix, Root.ZoneSystem.Distances.GetFlatData() );
         }
 
-        private static void ComputeData(IZone[] zones, float[][] demandMatrix, float[][] distanceMatrix, List<int> regionNumbers, float[] RegionProductionDistances, float[] RegionAttractionDistances, float[] RegionAttractionSum, float[] RegionProductionSum, float[] ProductionZoneDistances, float[] AttractionZoneDistances, float[] ZoneProductionSum, float[] ZoneAttractionSum)
+        private static void ComputeData(IZone[] zones, float[][] demandMatrix, float[][] distanceMatrix, List<int> regionNumbers, float[] regionProductionDistances, float[] regionAttractionDistances, float[] regionAttractionSum, float[] regionProductionSum, float[] productionZoneDistances, float[] attractionZoneDistances, float[] zoneProductionSum, float[] zoneAttractionSum)
         {
             for ( int i = 0; i < zones.Length; i++ )
             {
@@ -88,10 +89,10 @@ namespace TMG.GTAModel.Analysis
                     for ( int j = 0; j < zones.Length; j++ )
                     {
                         var travel = demandRow[j] * distanceRow[j];
-                        ZoneProductionSum[i] += demandRow[j];
-                        ZoneAttractionSum[j] += demandRow[j];
-                        ProductionZoneDistances[i] += travel;
-                        AttractionZoneDistances[j] += travel;
+                        zoneProductionSum[i] += demandRow[j];
+                        zoneAttractionSum[j] += demandRow[j];
+                        productionZoneDistances[i] += travel;
+                        attractionZoneDistances[j] += travel;
                     }
                 }
                 else
@@ -99,32 +100,32 @@ namespace TMG.GTAModel.Analysis
                     for ( int j = 0; j < zones.Length; j++ )
                     {
                         var travel = demandRow[j] * distanceRow[j];
-                        RegionProductionSum[regionIndex] += demandRow[j];
-                        ZoneProductionSum[i] += demandRow[j];
-                        ZoneAttractionSum[j] += demandRow[j];
+                        regionProductionSum[regionIndex] += demandRow[j];
+                        zoneProductionSum[i] += demandRow[j];
+                        zoneAttractionSum[j] += demandRow[j];
 
-                        RegionProductionDistances[regionIndex] += travel;
-                        ProductionZoneDistances[i] += travel;
-                        AttractionZoneDistances[j] += travel;
+                        regionProductionDistances[regionIndex] += travel;
+                        productionZoneDistances[i] += travel;
+                        attractionZoneDistances[j] += travel;
 
                         var regionIndexJ = regionNumbers.IndexOf( zones[j].RegionNumber );
                         if ( regionIndexJ >= 0 )
                         {
-                            RegionAttractionSum[regionIndexJ] += demandRow[j];
-                            RegionAttractionDistances[regionIndexJ] += travel;
+                            regionAttractionSum[regionIndexJ] += demandRow[j];
+                            regionAttractionDistances[regionIndexJ] += travel;
                         }
                     }
                 }
             }
             for ( int i = 0; i < zones.Length; i++ )
             {
-                ProductionZoneDistances[i] /= ZoneProductionSum[i];
-                AttractionZoneDistances[i] /= ZoneAttractionSum[i];
+                productionZoneDistances[i] /= zoneProductionSum[i];
+                attractionZoneDistances[i] /= zoneAttractionSum[i];
             }
-            for ( int i = 0; i < RegionProductionSum.Length; i++ )
+            for ( int i = 0; i < regionProductionSum.Length; i++ )
             {
-                RegionProductionDistances[i] /= RegionProductionSum[i];
-                RegionAttractionDistances[i] /= RegionAttractionSum[i];
+                regionProductionDistances[i] /= regionProductionSum[i];
+                regionAttractionDistances[i] /= regionAttractionSum[i];
             }
         }
 
@@ -143,41 +144,40 @@ namespace TMG.GTAModel.Analysis
         private void SaveMatrix(IZone[] zones, float[][] demandMatrix, float[][] distanceMatrix)
         {
             // Make sure the output directory exists
-            var dir = Path.GetDirectoryName( this.DistanceTravelledFileName );
+            var dir = Path.GetDirectoryName( DistanceTravelledFileName );
             if ( !String.IsNullOrWhiteSpace( dir ) && !Directory.Exists( dir ) )
             {
                 Directory.CreateDirectory( dir );
             }
             List<int> regionNumbers = new List<int>();
             GatherRegionData( regionNumbers, zones );
-            float[] RegionProductionDistances = new float[regionNumbers.Count];
-            float[] RegionAttractionDistances = new float[regionNumbers.Count];
+            float[] regionProductionDistances = new float[regionNumbers.Count];
+            float[] regionAttractionDistances = new float[regionNumbers.Count];
 
-            float[] RegionAttractionSum = new float[regionNumbers.Count];
-            float[] RegionProductionSum = new float[regionNumbers.Count];
+            float[] regionAttractionSum = new float[regionNumbers.Count];
+            float[] regionProductionSum = new float[regionNumbers.Count];
 
-            float[] ProductionZoneDistances = new float[zones.Length];
-            float[] AttractionZoneDistances = new float[zones.Length];
+            float[] productionZoneDistances = new float[zones.Length];
+            float[] attractionZoneDistances = new float[zones.Length];
 
-            float[] ZoneProductionSum = new float[zones.Length];
-            float[] ZoneAttractionSum = new float[zones.Length];
+            float[] zoneProductionSum = new float[zones.Length];
+            float[] zoneAttractionSum = new float[zones.Length];
 
-            int[] numberOfZonesInRegion = new int[regionNumbers.Count];
             // fill in all of the data
-            ComputeData( zones, demandMatrix, distanceMatrix, regionNumbers, RegionProductionDistances,
-                RegionAttractionDistances, RegionAttractionSum, RegionProductionSum, ProductionZoneDistances,
-                AttractionZoneDistances, ZoneProductionSum, ZoneAttractionSum );
-            using ( StreamWriter writer = new StreamWriter( this.DistanceTravelledFileName ) )
+            ComputeData( zones, demandMatrix, distanceMatrix, regionNumbers, regionProductionDistances,
+                regionAttractionDistances, regionAttractionSum, regionProductionSum, productionZoneDistances,
+                attractionZoneDistances, zoneProductionSum, zoneAttractionSum );
+            using ( StreamWriter writer = new StreamWriter( DistanceTravelledFileName ) )
             {
                 writer.WriteLine( "Region Data" );
                 writer.WriteLine( "Region Number,Production Distance Average,Attraction Distance Average" );
-                for ( int i = 0; i < RegionProductionDistances.Length; i++ )
+                for ( int i = 0; i < regionProductionDistances.Length; i++ )
                 {
                     writer.Write( regionNumbers[i] );
                     writer.Write( ',' );
-                    writer.Write( RegionProductionDistances[i] );
+                    writer.Write( regionProductionDistances[i] );
                     writer.Write( ',' );
-                    writer.Write( RegionAttractionDistances[i] );
+                    writer.Write( regionAttractionDistances[i] );
                     writer.WriteLine();
                 }
                 writer.WriteLine();
@@ -190,9 +190,9 @@ namespace TMG.GTAModel.Analysis
                 {
                     writer.Write( zones[i].ZoneNumber );
                     writer.Write( ',' );
-                    writer.Write( ProductionZoneDistances[i] );
+                    writer.Write( productionZoneDistances[i] );
                     writer.Write( ',' );
-                    writer.Write( AttractionZoneDistances[i] );
+                    writer.Write( attractionZoneDistances[i] );
                     writer.WriteLine();
                 }
             }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -36,9 +36,9 @@ namespace TMG
 
         bool GetAllData(int start, int end, Time time, out float ivtt, out float cost);
 
-        bool ValidOD(IZone start, IZone end, Time time);
+        bool ValidOd(IZone start, IZone end, Time time);
 
-        bool ValidOD(int flatOrigin, int flatDestination, Time time);
+        bool ValidOd(int flatOrigin, int flatDestination, Time time);
     }
 
     public interface INetworkCompleteData : INetworkData

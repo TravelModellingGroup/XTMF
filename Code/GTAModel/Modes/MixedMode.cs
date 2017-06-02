@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using XTMF;
 
@@ -85,25 +86,25 @@ combining Auto times with transit times through an interchange zone." )]
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
             CheckInterChangeZone();
-            return this.First.CalculateV( origin, InterchangeZone, time ) + this.Second.CalculateV( InterchangeZone, destination, time );
+            return First.CalculateV( origin, InterchangeZone, time ) + Second.CalculateV( InterchangeZone, destination, time );
         }
 
         public float Cost(IZone origin, IZone destination, Time time)
         {
             CheckInterChangeZone();
-            return this.First.Cost( origin, InterchangeZone, time ) + this.Second.Cost( origin, InterchangeZone, time );
+            return First.Cost( origin, InterchangeZone, time ) + Second.Cost( origin, InterchangeZone, time );
         }
 
         public bool Feasible(IZone origin, IZone destination, Time time)
         {
             CheckInterChangeZone();
-            return this.First.Feasible( origin, InterchangeZone, time ) && this.Second.Feasible( InterchangeZone, destination, time );
+            return First.Feasible( origin, InterchangeZone, time ) && Second.Feasible( InterchangeZone, destination, time );
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !AttachMode( this.FirstModeName, ref this.First, ref error )
-                || !AttachMode( this.SecondModeName, ref this.Second, ref error ) )
+            if ( !AttachMode( FirstModeName, ref First, ref error )
+                || !AttachMode( SecondModeName, ref Second, ref error ) )
             {
                 return false;
             }
@@ -114,28 +115,29 @@ combining Auto times with transit times through an interchange zone." )]
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
             CheckInterChangeZone();
-            return this.First.TravelTime( origin, InterchangeZone, time ) + this.Second.TravelTime( InterchangeZone, destination, time );
+            return First.TravelTime( origin, InterchangeZone, time ) + Second.TravelTime( InterchangeZone, destination, time );
         }
 
         private bool AttachMode(string modeName, ref IMode mode, ref string error)
         {
-            foreach ( var m in this.Root.Modes )
+            foreach ( var m in Root.Modes )
             {
                 if ( AttachMode( modeName, ref mode, m ) )
                 {
                     return true;
                 }
             }
-            error = "We were unable to find a mode with the name " + modeName + " for the mixed mode '" + this.ModeName + "!";
+            error = "We were unable to find a mode with the name " + modeName + " for the mixed mode '" + ModeName + "!";
             return false;
         }
 
         private bool AttachMode(string modeName, ref IMode mode, IModeChoiceNode current)
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
             var cat = mode as IModeCategory;
             if ( cat != null )
             {
-                foreach ( var m in this.Root.Modes )
+                foreach ( var m in Root.Modes )
                 {
                     if ( AttachMode( modeName, ref mode, m ) )
                     {
@@ -156,14 +158,14 @@ combining Auto times with transit times through an interchange zone." )]
 
         private void CheckInterChangeZone()
         {
-            if ( this.InterchangeZone == null )
+            if ( InterchangeZone == null )
             {
-                var zone = this.Root.ZoneSystem.ZoneArray[InterchangeZoneNumber];
+                var zone = Root.ZoneSystem.ZoneArray[InterchangeZoneNumber];
                 if ( zone == null )
                 {
-                    throw new XTMFRuntimeException( "The zone " + InterchangeZoneNumber + " does not exist!  Please check the mode '" + this.ModeName + "!" );
+                    throw new XTMFRuntimeException( "The zone " + InterchangeZoneNumber + " does not exist!  Please check the mode '" + ModeName + "!" );
                 }
-                this.InterchangeZone = zone;
+                InterchangeZone = zone;
             }
         }
     }

@@ -17,10 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
 
@@ -74,6 +72,10 @@ namespace TMG.Emme.Tools
         public bool Execute(Controller controller)
         {
             var modeller = controller as ModellerController;
+            if (modeller == null)
+            {
+                throw new XTMFRuntimeException($"In ${Name}, the controller was not a modeller controller!");
+            }
             return modeller.Run(ToolNamespace, GetParameters());
         }
 

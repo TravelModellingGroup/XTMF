@@ -71,20 +71,20 @@ namespace Tasha.ModeChoice
         {
             //initiates the mode set
             ModeSet.InitModeSets( chain );
-            ModeData[] Data = new ModeData[chain.Trips.Count];
+            ModeData[] data = new ModeData[chain.Trips.Count];
             // Generate the random terms
             var trips = chain.Trips;
-            for ( int i = 0; i < Data.Length; i++ )
+            for ( int i = 0; i < data.Length; i++ )
             {
-                Data[i] = ModeData.Get( trips[i] );
-                if ( Data[i] != null )
+                data[i] = ModeData.Get( trips[i] );
+                if ( data[i] != null )
                 {
-                    Data[i].GenerateError();
+                    data[i].GenerateError();
                 }
             }
             ModeSet set = ModeSet.Make( chain );
             // launch the recursive version to explore all sets
-            GenerateModeSets( chain, Data, set );
+            GenerateModeSets( chain, data, set );
 
             //clear temp var 'mode' that was used in generate mode set algo
             foreach ( var trip in chain.Trips )
@@ -131,22 +131,19 @@ namespace Tasha.ModeChoice
         /// Generates all feasible sets of modes for the trip chain
         /// </summary>
         /// <param name="chain">The chain to operate on</param>
-        /// <param name="Data">The ModeData for each trip</param>
+        /// <param name="data">The ModeData for each trip</param>
         /// <param name="set">The mode set we are building</param>
-        /// <param name="level">How deep in the recursion we are</param>
-        /// <param name=Fo"U">What is the total Utility value calculated</param>
-        private static void GenerateModeSets(ITripChain chain, ModeData[] Data, ModeSet set)
+        private static void GenerateModeSets(ITripChain chain, ModeData[] data, ModeSet set)
         {
             var modes = TashaRuntime.AllModes;
             var numberOfModes = modes.Count - TashaRuntime.SharedModes.Count;
-            var topLevel = Data.Length - 1;
+            var topLevel = data.Length - 1;
             int level = 0;
-            double U = 0;
+            double utility = 0;
             int mode = 0;
             List<ModeSet> possibleTripChains = ModeSet.GetModeSets( chain ) as List<ModeSet>;
             Stack<int> previousMode = new Stack<int>( 10 );
             Stack<double> previousU = new Stack<double>( 10 );
-            int chainLength = chain.Trips.Count;
             var trips = chain.Trips;
             ITrip currentTrip = trips[0];
             while ( level != -1 )
@@ -154,11 +151,11 @@ namespace Tasha.ModeChoice
                 for ( ; mode < numberOfModes; mode++ )
                 {
                     // For each feasible mode
-                    var currentData = Data[level];
+                    var currentData = data[level];
                     if ( currentData.Feasible[mode] )
                     {
                         // find the total utility
-                        double newU = U + currentData.V[mode] + currentData.Error[mode];
+                        double newU = utility + currentData.V[mode] + currentData.Error[mode];
                         // store the mode into our set and chain
                         set.ChosenMode[level] = currentTrip.Mode = modes[mode];
                         // if we are at the end, store the set
@@ -177,26 +174,25 @@ namespace Tasha.ModeChoice
                             }
                             if ( feasible )
                             {
-                                possibleTripChains.Add( ModeSet.Make( set, newU ) );
+                                possibleTripChains?.Add( ModeSet.Make( set, newU ) );
                             }
                         }
                         else
                         {
                             // otherwise go to the next trip
                             level++;
-                            previousU.Push( U );
-                            U = newU;
+                            previousU.Push( utility );
+                            utility = newU;
                             currentTrip = trips[level];
                             previousMode.Push( mode );
                             mode = -1;
-                            continue;
                         }
                     }
                 }
                 if ( previousMode.Count > 0 )
                 {
                     mode = previousMode.Pop() + 1;
-                    U = previousU.Pop();
+                    utility = previousU.Pop();
                     currentTrip = trips[level - 1];
                 }
                 level--;

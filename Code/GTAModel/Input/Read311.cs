@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,10 +57,10 @@ namespace TMG.GTAModel.Input
             ODData<float> data = new ODData<float>();
             // do this because highest zone isn't high enough for array indexes
             using ( StreamReader reader = new StreamReader( new
-                FileStream( this.EmmeFile.GetFileName( this.Root.InputBaseDirectory ), FileMode.Open, FileAccess.Read, FileShare.Read,
+                FileStream( EmmeFile.GetFileName( Root.InputBaseDirectory ), FileMode.Open, FileAccess.Read, FileShare.Read,
                 0x1000, FileOptions.SequentialScan ) ) )
             {
-                line = BurnHeader( reader );
+                BurnHeader( reader );
                 while ( ( line = reader.ReadLine() ) != null )
                 {
                     pos = 0;
@@ -137,21 +138,20 @@ namespace TMG.GTAModel.Input
             return false;
         }
 
-        private static string BurnHeader(StreamReader reader)
+        private static void BurnHeader(StreamReader reader)
         {
             string line;
             while ( ( line = reader.ReadLine() ) != null )
             {
                 if ( line.Length > 0 && line[0] == 'a' ) break;
             }
-            return line;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.EmmeFile.ContainsFileName() )
+            if ( !EmmeFile.ContainsFileName() )
             {
-                error = "In '" + this.Name + "' there was no file name provided to load!";
+                error = "In '" + Name + "' there was no file name provided to load!";
                 return false;
             }
             return true;

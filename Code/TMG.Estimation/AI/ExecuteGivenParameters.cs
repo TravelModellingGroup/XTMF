@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMG.Input;
 using XTMF;
 using Datastructure;
@@ -43,9 +42,9 @@ parameter set.  This is best combined by using ExecuteGivenParameters in order t
         public List<Job> CreateJobsForIteration()
         {
             var ret = new List<Job>();
-            var parameters = this.Root.Parameters.ToArray();
+            var parameters = Root.Parameters.ToArray();
             int totalParameters = parameters.Sum(p => p.Names.Length);
-            using ( CsvReader reader = new CsvReader( this.ResultFile.GetFilePath() ) )
+            using ( CsvReader reader = new CsvReader( ResultFile.GetFilePath() ) )
             {
                 reader.LoadLine();
                 int columns;

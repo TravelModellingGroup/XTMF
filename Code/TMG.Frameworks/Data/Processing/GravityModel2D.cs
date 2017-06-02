@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 using Datastructure;
 using TMG.Functions;
@@ -86,7 +82,7 @@ namespace TMG.Frameworks.Data.Processing
             var attraction = GetData(Attraction, UnloadAttraction);
             var friction = GetData(Friction, UnloadFriction);
             ApplyBalance(ref production, ref attraction);
-            var model = new TMG.Functions.GravityModel(friction, (p) => Progress = p, MaximumError, MaxIterations);
+            var model = new GravityModel(friction, (p) => Progress = p, MaximumError, MaxIterations);
             Data = model.ProcessFlow(production, attraction, production.ValidIndexArray());
         }
 

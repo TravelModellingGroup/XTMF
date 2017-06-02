@@ -20,13 +20,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Datastructure;
 using Tasha.Common;
 using TMG;
 using TMG.Functions;
 using TMG.Input;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace Tasha.PopulationSynthesis
 {
@@ -140,7 +140,6 @@ namespace Tasha.PopulationSynthesis
                                         }
                                         // if we are here then we can copy the probabilities from j
                                         Array.Copy(category[j], category[zoneIndex], Zones.Length);
-                                        any = true;
                                         break;
                                     }
                                 }
@@ -168,7 +167,7 @@ namespace Tasha.PopulationSynthesis
                             saveData[i][j] = total;
                         }
                     }
-                    TMG.Functions.SaveData.SaveMatrix(zones, saveData, SaveProbabilities);
+                    SaveData.SaveMatrix(zones, saveData, SaveProbabilities);
                 }
 
                 public void Unload()

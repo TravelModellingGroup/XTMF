@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -57,7 +57,54 @@ namespace XTMF
             get { return RealModelSystemStructure.ParentFieldName; }
         }
 
-        public bool IsMetaModule { get { return RealModelSystemStructure.IsMetaModule; } }
+        public bool IsDisabled => RealModelSystemStructure.IsDisabled;
+
+        public bool CanDisable => !RealModelSystemStructure.Required;
+
+        public bool SetDisabled(bool disabled, ref string error)
+        {
+            var oldValue = RealModelSystemStructure.IsDisabled;
+            if (oldValue != disabled)
+            {
+                return Session.RunCommand(XTMFCommand.CreateCommand(
+                    disabled ? "Disable Module" : "Enable Module",
+                    (ref string e) =>
+                    {
+                        if (RealModelSystemStructure.Required && disabled)
+                        {
+                            e = "You can not disable a module that is required!";
+                            return false;
+                        }
+                        RealModelSystemStructure.IsDisabled = disabled;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
+                        return true;
+                    }, (ref string e) =>
+                    {
+                        if (RealModelSystemStructure.Required && oldValue)
+                        {
+                            e = "You can not disable a module that is required!";
+                            return false;
+                        }
+                        RealModelSystemStructure.IsDisabled = oldValue;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
+                        return true;
+                    }, (ref string e) =>
+                    {
+                        if (RealModelSystemStructure.Required && disabled)
+                        {
+                            e = "You can not disable a module that is required!";
+                            return false;
+                        }
+                        RealModelSystemStructure.IsDisabled = disabled;
+                        ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
+                        return true;
+                    }
+                    ), ref error);
+            }
+            return true;
+        }
+
+        public bool IsMetaModule => RealModelSystemStructure.IsMetaModule;
 
         public Type Type
         {
@@ -157,7 +204,7 @@ namespace XTMF
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
             if (!IsCollection)
             {
@@ -311,6 +358,7 @@ namespace XTMF
                             indexOffset = RealModelSystemStructure.Children != null ? RealModelSystemStructure.Children.Count : 0;
                             foreach (var child in copiedStructure.Children)
                             {
+                                child.Required = false;
                                 RealModelSystemStructure.Add(child);
                             }
                             UpdateChildren();
@@ -318,6 +366,7 @@ namespace XTMF
                         }
                         else
                         {
+                            copiedStructure.Required = false;
                             RealModelSystemStructure.Add(copiedStructure);
                             UpdateChildren();
                             beingAdded = Children[Children.Count - 1];
@@ -595,6 +644,7 @@ namespace XTMF
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Name));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(Description));
             ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsMetaModule));
+            ModelHelper.PropertyChanged(PropertyChanged, this, nameof(IsDisabled));
         }
 
         private bool IsAssignable(ModelSystemStructure rootStructure, ModelSystemStructure parentStructure, ModelSystemStructure copyBuffer)
@@ -1155,7 +1205,7 @@ namespace XTMF
                 isMetaModule ? "Compose Meta-Module" : "Decompose Meta-Module",
                 (ref string e) =>
             {
-                if(isMetaModule && RealModelSystemStructure.IsCollection)
+                if (isMetaModule && RealModelSystemStructure.IsCollection)
                 {
                     e = "You can not create a meta-module from a collection!";
                     return false;

@@ -18,8 +18,6 @@
 */
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
-
 using TMG;
 using TMG.Data;
 
@@ -34,7 +32,7 @@ namespace XTMF.Testing.TMG.Data
         {
             // 3,2,1 three times
             var zones = new IZone[] { null, null, null, null, null, null, null, null, null };
-            var mapping = new int[] { 3, 2, 1, 3, 2, 1, 3, 2, 1 };
+            var mapping = new[] { 3, 2, 1, 3, 2, 1, 3, 2, 1 };
             var map = ZoneMap.CreateZoneMap(zones, mapping);
             Assert.IsNotNull(map);
             for (int i = 0; i < mapping.Length; i++)
@@ -56,7 +54,7 @@ namespace XTMF.Testing.TMG.Data
         public void TestBadArguments()
         {
             var zones = new IZone[] { null, null, null, null, null, null, null, null, null };
-            var mapping = new int[] { 3, 2, 1, 3, 2, 1, 3, 2, 1 };
+            var mapping = new[] { 3, 2, 1, 3, 2, 1, 3, 2, 1 };
             ExpectNullArgumentException(() => { ZoneMap.CreateZoneMap(null, null); });
             ExpectNullArgumentException(() => { ZoneMap.CreateZoneMap(zones, null); });
             ExpectNullArgumentException(() => { ZoneMap.CreateZoneMap(null, mapping); });

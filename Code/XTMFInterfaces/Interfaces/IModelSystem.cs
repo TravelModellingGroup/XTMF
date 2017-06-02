@@ -52,6 +52,7 @@ namespace XTMF
         /// Saves the model system to this disk with the given file name
         /// </summary>
         /// <param name="fileName">The file name to save it at</param>
+        /// <param name="error"></param>
         bool Save(string fileName, ref string error);
 
         /// <summary>

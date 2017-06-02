@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -59,10 +60,6 @@ namespace TMG.GTAModel
         public string ZoneFile;
 
         private SparseArray<IZone> ZoneData;
-
-        public HOTZoneLoader()
-        {
-        }
 
         public SparseTwinIndex<float> Distances { get; private set; }
 
@@ -153,12 +150,12 @@ namespace TMG.GTAModel
                 error = string.Format( "The zone file '{0}' was not found.  Please check your input file and try again.", GetFullPath( ZoneFile ) );
                 return false;
             }
-            else if ( !string.IsNullOrWhiteSpace( PlanningDistrictFile ) && !File.Exists( GetFullPath( PlanningDistrictFile ) ) )
+            if ( !string.IsNullOrWhiteSpace( PlanningDistrictFile ) && !File.Exists( GetFullPath( PlanningDistrictFile ) ) )
             {
                 error = string.Format( "The aggregation file '{0}' was not found.  Please check your input file and try again.", GetFullPath( PlanningDistrictFile ) );
                 return false;
             }
-            else if ( !string.IsNullOrWhiteSpace( PopulationFile ) && !File.Exists( GetFullPath( PopulationFile ) ) )
+            if ( !string.IsNullOrWhiteSpace( PopulationFile ) && !File.Exists( GetFullPath( PopulationFile ) ) )
             {
                 error = string.Format( "The population file '{0}' was not found.  Please check your input file and try again.", GetFullPath( PopulationFile ) );
                 return false;
@@ -222,7 +219,7 @@ namespace TMG.GTAModel
             var zones = zoneSparseArray.GetFlatData();
             var length = zones.Length;
             // build all of the distances in parallel
-            Parallel.For( 0, length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+            Parallel.For( 0, length, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
             {
                 for ( int j = 0; j < length; j++ )
                 {

@@ -21,12 +21,11 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
-using System.Threading;
 using XTMF;
 
 namespace TMG.Emme
 {
-    public sealed class ModellerController : Controller, IDisposable
+    public sealed class ModellerController : Controller
     {
         /// <summary>
         /// Tell the bridge to clean out the modeller's logbook
@@ -109,13 +108,10 @@ namespace TMG.Emme
                 {
                     try
                     {
-                        // clear out all of the old input before starting
-                        this.FromEmme.BaseStream.Flush();
-                        BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
-                        writer.Write(value ? ModellerController.SignalEnableLogbook : ModellerController.SignalDisableLogbook);
+                        EnsureWriteAvailable();
+                        BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
+                        writer.Write(value ? SignalEnableLogbook : SignalDisableLogbook);
                         writer.Flush();
-                        // now that we have setup the macro, we can force the writer out of scope
-                        writer = null;
                     }
                     catch (IOException e)
                     {
@@ -125,20 +121,18 @@ namespace TMG.Emme
             }
         }
 
-        private NamedPipeServerStream PipeFromEmme;
-        private string PipeName;
-
+        private NamedPipeServerStream PipeFromEMME;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="projectFile"></param>
-        /// <param name="PerformanceAnalysis"></param>
-        public ModellerController(string projectFile, bool PerformanceAnalysis = false, string userInitials = "XTMF")
+        /// <param name="performanceAnalysis"></param>
+        /// <param name="userInitials"></param>
+        public ModellerController(string projectFile, bool performanceAnalysis = false, string userInitials = "XTMF")
         {
             if (!projectFile.EndsWith(".emp") | !File.Exists(projectFile))
             {
-                throw new XTMFRuntimeException(this.AddQuotes(projectFile) + " is not an existing Emme project file (*.emp)");
+                throw new XTMFRuntimeException(AddQuotes(projectFile) + " is not an existing Emme project file (*.emp)");
             }
 
             //Python invocation command:
@@ -150,15 +144,15 @@ namespace TMG.Emme
             {
                 throw new XTMFRuntimeException("Please make sure that EMMEPATH is on the system environment variables!");
             }
-            string pythonDirectory = Path.Combine(emmePath, this.FindPython(emmePath));
-            string pythonPath = this.AddQuotes(Path.Combine(pythonDirectory, @"python.exe"));
+            string pythonDirectory = Path.Combine(emmePath, FindPython(emmePath));
+            string pythonPath = AddQuotes(Path.Combine(pythonDirectory, @"python.exe"));
             string pythonLib = Path.Combine(pythonDirectory, "Lib");
 
             // Get the path of ModellerBridge
             // Learn where the modules are stored so we can find the python script
             // The Entry assembly will be the XTMF.GUI or XTMF.RemoteClient
             var codeBase = Assembly.GetEntryAssembly().CodeBase;
-            string programPath = null;
+            string programPath;
             // make sure that the path is not relative
             try
             {
@@ -173,23 +167,23 @@ namespace TMG.Emme
             var modulesDirectory = Path.Combine(Path.GetDirectoryName(programPath), "Modules");
             // When EMME is installed it will link the .py to their python interpreter properly
             string argumentString = AddQuotes(Path.Combine(modulesDirectory, "ModellerBridge.py"));
-            PipeName = Guid.NewGuid().ToString();
-            PipeFromEmme = new NamedPipeServerStream(PipeName, PipeDirection.In);
+            var pipeName = Guid.NewGuid().ToString();
+            PipeFromEMME = new NamedPipeServerStream(pipeName, PipeDirection.In);
             //The first argument that gets passed into the Bridge is the name of the Emme project file
-            argumentString += " " + this.AddQuotes(projectFile) + " " + userInitials + " " + (PerformanceAnalysis ? 1 : 0) + " \"" + PipeName + "\"";
+            argumentString += " " + AddQuotes(projectFile) + " " + userInitials + " " + (performanceAnalysis ? 1 : 0) + " \"" + pipeName + "\"";
 
             //Setup up the new process
             // When creating this process, we can not start in our own window because we are re-directing the I/O
             // and windows won't allow us to have a window and take its standard I/O streams at the same time
-            this.Emme = new Process();
+            Emme = new Process();
             var startInfo = new ProcessStartInfo(pythonPath, "-u " + argumentString);
             startInfo.EnvironmentVariables["PATH"] += ";" + pythonLib + ";" + Path.Combine(emmePath,"programs");
-            this.Emme.StartInfo = startInfo;
-            this.Emme.StartInfo.CreateNoWindow = true;
-            this.Emme.StartInfo.UseShellExecute = false;
-            this.Emme.StartInfo.RedirectStandardInput = true;
-            this.Emme.StartInfo.RedirectStandardOutput = true;
-            this.Emme.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            Emme.StartInfo = startInfo;
+            Emme.StartInfo.CreateNoWindow = true;
+            Emme.StartInfo.UseShellExecute = false;
+            Emme.StartInfo.RedirectStandardInput = true;
+            Emme.StartInfo.RedirectStandardOutput = true;
+            Emme.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
             //Start the new process
             try
@@ -198,18 +192,18 @@ namespace TMG.Emme
             }
             catch
             {
-                throw new XTMFRuntimeException("Unable to create a bridge to EMME to '" + this.AddQuotes(projectFile) + "'!");
+                throw new XTMFRuntimeException("Unable to create a bridge to EMME to '" + AddQuotes(projectFile) + "'!");
             }
             // Give some short names for the streams that we will be using
-            this.ToEmme = this.Emme.StandardInput;
+            ToEmme = Emme.StandardInput;
             // no more standard out
-            this.PipeFromEmme.WaitForConnection();
+            PipeFromEMME.WaitForConnection();
             //this.FromEmme = this.Emme.StandardOutput;
         }
 
         ~ModellerController()
         {
-            this.Dispose(true);
+            Dispose(true);
         }
 
         /// <summary>
@@ -222,13 +216,12 @@ namespace TMG.Emme
             {
                 try
                 {
-                    BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
-                    writer.Write(ModellerController.SignalCleanLogbook);
+                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
+                    writer.Write(SignalCleanLogbook);
                     writer.Flush();
                     // now that we have setup the macro, we can force the writer out of scope
-                    writer = null;
-                    string _unused = null;
-                    return WaitForEmmeResponce(ref _unused, null);
+                    string unused = null;
+                    return WaitForEmmeResponce(ref unused, null);
                 }
                 catch (EndOfStreamException)
                 {
@@ -249,46 +242,46 @@ namespace TMG.Emme
                 string toPrint;
                 while (true)
                 {
-                    BinaryReader reader = new BinaryReader(PipeFromEmme);
+                    BinaryReader reader = new BinaryReader(PipeFromEMME);
                     int result = reader.ReadInt32();
                     switch (result)
                     {
-                        case ModellerController.SignalStart:
+                        case SignalStart:
                             {
                                 continue;
                             }
-                        case ModellerController.SignalRunComplete:
+                        case SignalRunComplete:
                             {
                                 return true;
                             }
-                        case ModellerController.SignalRunCompleteWithParameter:
+                        case SignalRunCompleteWithParameter:
                             {
                                 returnValue = reader.ReadString();
                                 return true;
                             }
-                        case ModellerController.SignalTermination:
+                        case SignalTermination:
                             {
                                 throw new XTMFRuntimeException("The EMME ModellerBridge panicked and unexpectedly shutdown.");
                             }
-                        case ModellerController.SignalParameterError:
+                        case SignalParameterError:
                             {
                                 throw new EmmeToolParameterException("EMME Parameter Error: " + reader.ReadString());
                             }
-                        case ModellerController.SignalRuntimeError:
+                        case SignalRuntimeError:
                             {
                                 throw new EmmeToolRuntimeException("EMME Runtime " + reader.ReadString());
                             }
-                        case ModellerController.SignalToolDoesNotExistError:
+                        case SignalToolDoesNotExistError:
                             {
                                 throw new EmmeToolCouldNotBeFoundException(reader.ReadString());
                             }
-                        case ModellerController.SignalSentPrintMessage:
+                        case SignalSentPrintMessage:
                             {
                                 toPrint = reader.ReadString();
                                 Console.Write(toPrint);
                                 break;
                             }
-                        case ModellerController.SignalProgressReport:
+                        case SignalProgressReport:
                             {
                                 var progress = reader.ReadSingle();
                                 if (updateProgress != null)
@@ -322,31 +315,29 @@ namespace TMG.Emme
                 {
                     EnsureWriteAvailable();
                     BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
-                    writer.Write(ModellerController.SignalCheckToolExists);
+                    writer.Write(SignalCheckToolExists);
                     writer.Write(toolNamespace);
                     writer.Flush();
-                    // now that we have setup the macro, we can force the writer out of scope
-                    writer = null;
                 }
                 catch (IOException e)
                 {
                     throw new XTMFRuntimeException("I/O Connection with EMME while sending data, with:\r\n" + e.Message);
                 }
                 // now we need to wait
-                string _unused = null;
-                return WaitForEmmeResponce(ref _unused, null);
+                string unused = null;
+                return WaitForEmmeResponce(ref unused, null);
             }
         }
 
         public override bool Run(string macroName, string arguments)
         {
             string unused = null;
-            return this.Run(macroName, arguments, null, ref unused);
+            return Run(macroName, arguments, null, ref unused);
         }
     
         public bool Run(string macroName, string arguments, ref string returnValue)
         {
-            return this.Run(macroName, arguments, null, ref returnValue);
+            return Run(macroName, arguments, null, ref returnValue);
         }
 
         public bool Run(string macroName, string arguments, Action<float> progressUpdate, ref string returnValue)
@@ -357,13 +348,11 @@ namespace TMG.Emme
                 {
                     EnsureWriteAvailable();
                     // clear out all of the old input before starting
-                    BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
-                    writer.Write(ModellerController.SignalStartModule);
+                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
+                    writer.Write(SignalStartModule);
                     writer.Write(macroName);
                     writer.Write(arguments);
                     writer.Flush();
-                    // now that we have setup the macro, we can force the writer out of scope
-                    writer = null;
                 }
                 catch (IOException e)
                 {
@@ -387,12 +376,12 @@ namespace TMG.Emme
         public bool Run(string macroName, ModellerControllerParameter[] arguments)
         {
             string unused = null;
-            return this.Run(macroName, arguments, null, ref unused);
+            return Run(macroName, arguments, null, ref unused);
         }
 
         public bool Run(string macroName, ModellerControllerParameter[] arguments, ref string returnValue)
         {
-            return this.Run(macroName, arguments, null, ref returnValue);
+            return Run(macroName, arguments, null, ref returnValue);
         }
 
         public bool Run(string macroName, ModellerControllerParameter[] arguments, Action<float> progressUpdate, ref string returnValue)
@@ -403,8 +392,8 @@ namespace TMG.Emme
                 {
                     EnsureWriteAvailable();
                     // clear out all of the old input before starting
-                    BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
-                    writer.Write(ModellerController.SignalStartModuleBinaryParameters);
+                    BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
+                    writer.Write(SignalStartModuleBinaryParameters);
                     writer.Write(macroName);
                     if (arguments != null)
                     {
@@ -423,8 +412,6 @@ namespace TMG.Emme
                         writer.Write("0");
                     }
                     writer.Flush();
-                    // now that we have setup the macro, we can force the writer out of scope
-                    writer = null;
                 }
                 catch (IOException e)
                 {
@@ -443,33 +430,32 @@ namespace TMG.Emme
         {
             lock (this)
             {
-                if (this.FromEmme != null)
+                if (FromEmme != null)
                 {
-                    this.FromEmme.Close();
-                    this.FromEmme = null;
+                    FromEmme.Close();
+                    FromEmme = null;
                 }
 
-                if (PipeFromEmme != null)
+                if (PipeFromEMME != null)
                 {
-                    PipeFromEmme.Dispose();
-                    PipeFromEmme = null;
+                    PipeFromEMME.Dispose();
+                    PipeFromEMME = null;
                 }
 
-                if (this.ToEmme != null)
+                if (ToEmme != null)
                 {
                     // Send our termination message first
                     try
                     {
-                        BinaryWriter writer = new BinaryWriter(this.ToEmme.BaseStream);
-                        writer.Write(ModellerController.SignalTermination);
+                        BinaryWriter writer = new BinaryWriter(ToEmme.BaseStream);
+                        writer.Write(SignalTermination);
                         writer.Flush();
-                        writer = null;
-                        this.ToEmme.Flush();
+                        ToEmme.Flush();
                         // after our message has been sent then we can go and kill the stream
-                        this.ToEmme.Close();
-                        this.ToEmme = null;
+                        ToEmme.Close();
+                        ToEmme = null;
                     }
-                    catch
+                    catch(IOException)
                     {
                     }
                 }
@@ -485,7 +471,7 @@ namespace TMG.Emme
             foreach (var dir in Directory.GetDirectories(emmePath))
             {
                 var localName = Path.GetFileName(dir);
-                if (localName.StartsWith("Python"))
+                if (localName != null && localName.StartsWith("Python"))
                 {
                     var remainder = localName.Substring("Python".Length);
                     if (remainder.Length > 0 && char.IsDigit(remainder[0]))

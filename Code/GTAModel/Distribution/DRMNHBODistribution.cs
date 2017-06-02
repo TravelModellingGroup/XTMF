@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ using XTMF;
 
 namespace TMG.GTAModel.Distribution
 {
+    // ReSharper disable once InconsistentNaming
     public class DRMNHBODistribution : IDemographicDistribution
     {
         [RunParameter( "Auto Network Name", "Auto", "The name of the auto network." )]
@@ -72,31 +74,28 @@ namespace TMG.GTAModel.Distribution
 
         public IEnumerable<SparseTwinIndex<float>> Distribute(IEnumerable<SparseArray<float>> productions, IEnumerable<SparseArray<float>> attractions, IEnumerable<IDemographicCategory> category)
         {
-            var ep = productions.GetEnumerator();
-            var ec = category.GetEnumerator();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            float[] friction = null;
-            while ( ep.MoveNext() && ec.MoveNext() )
+            using (var ep = productions.GetEnumerator())
+            using (var ec = category.GetEnumerator())
             {
-                friction = this.ComputeFriction( zones, ec.Current, friction );
-                yield return SinglyConstrainedGravityModel.Process( ep.Current, friction );
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                float[] friction = null;
+                while (ep.MoveNext() && ec.MoveNext())
+                {
+                    friction = ComputeFriction(zones, ec.Current, friction);
+                    yield return SinglyConstrainedGravityModel.Process(ep.Current, friction);
+                }
             }
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            this.LoadNetwork();
-            if ( this.NetworkData == null )
+            LoadNetwork();
+            if ( NetworkData == null )
             {
-                error = "We were unable to find a network called '" + this.AutoNetworkName + "' to use in module '" + this.Name + "'";
+                error = "We were unable to find a network called '" + AutoNetworkName + "' to use in module '" + Name + "'";
                 return false;
             }
             return true;
-        }
-
-        private bool CompareParameterCount(FloatList data)
-        {
-            return this.RegionNumbers.Count == data.Count;
         }
 
         private float[] ComputeFriction(IZone[] zones, IDemographicCategory cat, float[] friction)
@@ -107,7 +106,7 @@ namespace TMG.GTAModel.Distribution
             cat.InitializeDemographicCategory();
             try
             {
-                Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
+                Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int j)
                 {
                     var destination = zones[j];
                     int regionIndex;
@@ -132,10 +131,10 @@ namespace TMG.GTAModel.Distribution
                         }
                         else
                         {
-                            var autoTime = this.RegionEmploymentGeneralParameter[regionIndex] *
-                                this.NetworkData.TravelTime( origin, destination, this.SimulationTime ).ToMinutes();
-                            var destinationUtility = this.RegionEmploymentParameter[regionIndex] * employmentLog
-                            + this.RegionPopulationParameter[regionIndex] * populationLog;
+                            var autoTime = RegionEmploymentGeneralParameter[regionIndex] *
+                                NetworkData.TravelTime( origin, destination, SimulationTime ).ToMinutes();
+                            var destinationUtility = RegionEmploymentParameter[regionIndex] * employmentLog
+                            + RegionPopulationParameter[regionIndex] * populationLog;
                             // this isn't friction, it is V where friction will be e^V
                             ret[i * numberOfZones + j] = destinationUtility + autoTime;
                         }
@@ -148,10 +147,7 @@ namespace TMG.GTAModel.Distribution
                 {
                     throw new XTMFRuntimeException( e.InnerException.Message );
                 }
-                else
-                {
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                }
+                throw new XTMFRuntimeException( e.InnerException?.Message + "\r\n" + e.InnerException?.StackTrace );
             }
             // Use the Log-Sum from the V's as the impedence function
             return ret;
@@ -159,20 +155,19 @@ namespace TMG.GTAModel.Distribution
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = this.RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
         }
 
-        private bool LoadNetwork()
+        private void LoadNetwork()
         {
-            foreach ( var data in this.Root.NetworkData )
+            foreach ( var data in Root.NetworkData )
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if ( data.NetworkType == AutoNetworkName )
                 {
-                    this.NetworkData = data;
-                    return true;
+                    NetworkData = data;
+                    return;
                 }
             }
-            return false;
         }
     }
 }

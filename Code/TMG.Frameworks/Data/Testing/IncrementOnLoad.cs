@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Frameworks.Data.Testing
@@ -36,7 +32,7 @@ namespace TMG.Frameworks.Data.Testing
 
         public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
-        private float Data = 0f;
+        private float Data;
 
         public float GiveData()
         {

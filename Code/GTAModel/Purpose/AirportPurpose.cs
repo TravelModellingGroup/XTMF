@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,7 @@ using Datastructure;
 using TMG.Functions;
 using TMG.GTAModel.DataUtility;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Purpose
 {
@@ -98,14 +100,14 @@ namespace TMG.GTAModel.Purpose
         public void Run()
         {
             var numberOfRegions = RegionNumbers.Count;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             // Sum the employment and the Professional workers in each zone
             // that is not the airport per region aggregate at a regional level
             float[] employmentTotal = new float[numberOfRegions];
             float[] professionalTotal = new float[numberOfRegions];
             float[] tripsToRegion = new float[numberOfRegions];
-            this.Flows = MirrorModeTree.CreateMirroredTree<float[][]>( this.Root.Modes );
+            Flows = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
             float[][] data = CreateData( numberOfZones );
 
             // Gather the information for each region
@@ -113,11 +115,11 @@ namespace TMG.GTAModel.Purpose
             // Now that we have the regional information we can use it to compute the primary airport
             ComputePrimaryAirport( zones, numberOfZones, employmentTotal, professionalTotal, tripsToRegion, data );
             // After computing the primary airport we can continue with the secondary airports
-            ComputeSecondaryAirports( zones, numberOfZones, employmentTotal, professionalTotal, tripsToRegion, data, totalTrips );
+            ComputeSecondaryAirports( zones, numberOfZones, data, totalTrips );
             // now that we are done attach the data to our tree so that it can be read in for tallies
             AttachDataToTree( data );
 
-            if ( this.SaveMatrix )
+            if ( SaveMatrix )
             {
                 SaveData( data );
             }
@@ -125,14 +127,14 @@ namespace TMG.GTAModel.Purpose
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.AutoModeName ) )
+            if ( String.IsNullOrWhiteSpace( AutoModeName ) )
             {
-                error = "In '" + this.Name + "' the name of the mode to attach to is empty!";
+                error = "In '" + Name + "' the name of the mode to attach to is empty!";
                 return false;
             }
-            if ( !FoundModeWithName( this.AutoModeName ) )
+            if ( !FoundModeWithName( AutoModeName ) )
             {
-                error = "In '" + this.Name + "' the mode named '" + this.AutoModeName + "' was unable to be found!";
+                error = "In '" + Name + "' the mode named '" + AutoModeName + "' was unable to be found!";
                 return false;
             }
             return true;
@@ -140,31 +142,31 @@ namespace TMG.GTAModel.Purpose
 
         private void AttachDataToTree(float[][] data)
         {
-            TreeData<float[][]> spot = GetAutoModeData( this.Flows );
+            TreeData<float[][]> spot = GetAutoModeData( Flows );
             if ( spot == null )
             {
-                throw new XTMFRuntimeException( "The mode '" + this.AutoModeName + "' was not found to attach the results to it from '" + this.Name + "'!;" );
+                throw new XTMFRuntimeException( "The mode '" + AutoModeName + "' was not found to attach the results to it from '" + Name + "'!;" );
             }
             spot.Result = data;
         }
 
         private void ComputePrimaryAirport(IZone[] zones, int numberOfZones, float[] employmentTotal, float[] professionalTotal, float[] tripsToRegion, float[][] data)
         {
-            var primaryZone = this.Root.ZoneSystem.ZoneArray.GetFlatIndex( this.PrimaryAirport.ZoneNumber );
+            var primaryZone = Root.ZoneSystem.ZoneArray.GetFlatIndex( PrimaryAirport.ZoneNumber );
             for ( int i = 0; i < numberOfZones; i++ )
             {
                 if ( i != primaryZone )
                 {
                     int regionIndex;
-                    if ( this.InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                    if ( InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                     {
                         data[i][primaryZone] = tripsToRegion[regionIndex]
-                            * ( ( zones[i].ProfessionalEmployment * this.RegionEmploymentFactor
-                            + zones[i].WorkProfessional * this.RegionResidenceFactor )
+                            * ( ( zones[i].ProfessionalEmployment * RegionEmploymentFactor
+                            + zones[i].WorkProfessional * RegionResidenceFactor )
                             /
-                            ( employmentTotal[regionIndex] * this.RegionEmploymentFactor
-                            + professionalTotal[regionIndex] * this.RegionResidenceFactor ) );
-                        data[primaryZone][i] = data[i][primaryZone] * this.ReturnFactor;
+                            ( employmentTotal[regionIndex] * RegionEmploymentFactor
+                            + professionalTotal[regionIndex] * RegionResidenceFactor ) );
+                        data[primaryZone][i] = data[i][primaryZone] * ReturnFactor;
                     }
                 }
             }
@@ -189,19 +191,19 @@ namespace TMG.GTAModel.Purpose
             for ( int i = 0; i < numberOfRegions; i++ )
             {
                 // Don't process things not included in our regions nor if it is a zone that contains an airport
-                var value = this.RegionConstants[i]
-                    + employmentTotal[i] * this.RegionEmploymentFactor
-                    + professionalTotal[i] * this.RegionResidenceFactor;
+                var value = RegionConstants[i]
+                    + employmentTotal[i] * RegionEmploymentFactor
+                    + professionalTotal[i] * RegionResidenceFactor;
                 // don't allow negative values
                 value = ( value < 0 ? 0 : value );
                 tripsToRegion[i] = value;
                 denominator += value;
             }
             // normalize the regions and then apply the prediction
-            var timePeriodTrips = this.PrimaryAirport.BaseTimePeriod * ( this.PrimaryAirport.FuturePrediction / this.PrimaryAirport.Base );
+            var timePeriodTrips = PrimaryAirport.BaseTimePeriod * ( PrimaryAirport.FuturePrediction / PrimaryAirport.Base );
             if ( float.IsNaN( timePeriodTrips ) || float.IsInfinity( timePeriodTrips ) )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name
+                throw new XTMFRuntimeException( "In '" + Name
                     + "' we encountered a non real value for the number of trips for the primary airport!\r\n"
                     + "Please make sure that the primary airport base is set properly!" );
             }
@@ -212,25 +214,25 @@ namespace TMG.GTAModel.Purpose
             return timePeriodTrips;
         }
 
-        private void ComputeSecondaryAirports(IZone[] zones, int numberOfZones, float[] employmentTotal, float[] professionalTotal, float[] tripsToRegion, float[][] data, float totalTrips)
+        private void ComputeSecondaryAirports(IZone[] zones, int numberOfZones, float[][] data, float totalTrips)
         {
-            var numberOfSecondaryAirports = this.SecondaryAirports.Count;
+            var numberOfSecondaryAirports = SecondaryAirports.Count;
             if ( numberOfSecondaryAirports <= 0 )
             {
                 return;
             }
-            var distances = this.Root.ZoneSystem.Distances;
-            var sparseZones = this.Root.ZoneSystem.ZoneArray;
+            var distances = Root.ZoneSystem.Distances;
+            var sparseZones = Root.ZoneSystem.ZoneArray;
             // compute the secondary airport values
             for ( int i = 0; i < numberOfSecondaryAirports; i++ )
             {
                 // get the total amount for this airport
-                var tripsToThisSecondary = totalTrips * ( this.SecondaryAirports[i].FuturePrediction / this.PrimaryAirport.FuturePrediction );
+                var tripsToThisSecondary = totalTrips * ( SecondaryAirports[i].FuturePrediction / PrimaryAirport.FuturePrediction );
                 // if there are no trips don't bother processing it all
                 if ( tripsToThisSecondary == 0 ) continue;
                 // compute the denominator
                 float denominator = 0f;
-                var airportIndex = sparseZones.GetFlatIndex( this.SecondaryAirports[i].ZoneNumber );
+                var airportIndex = sparseZones.GetFlatIndex( SecondaryAirports[i].ZoneNumber );
                 // make sure the airport is in a valid zone
                 if ( airportIndex < 0 || airportIndex >= numberOfZones ) continue;
                 var airportZone = zones[airportIndex];
@@ -243,7 +245,7 @@ namespace TMG.GTAModel.Purpose
                 for ( int j = 0; j < numberOfZones; j++ )
                 {
                     data[j][airportIndex] = tripsToThisSecondary * data[j][airportIndex] / denominator;
-                    data[airportIndex][j] = data[j][airportIndex] * this.ReturnFactor;
+                    data[airportIndex][j] = data[j][airportIndex] * ReturnFactor;
                 }
             }
         }
@@ -251,11 +253,11 @@ namespace TMG.GTAModel.Purpose
         private float ComputeSecondaryFriction(IZone from, IZone to, SparseTwinIndex<float> distances)
         {
             var distance = distances[from.ZoneNumber, to.ZoneNumber];
-            if ( distance < this.MaxSecondaryDistance || this.MaxSecondaryDistance <= 0 )
+            if ( distance < MaxSecondaryDistance || MaxSecondaryDistance <= 0 )
             {
-                return ( from.ProfessionalEmployment * this.RegionEmploymentFactor
-                + from.WorkProfessional * this.RegionResidenceFactor )
-                * (float)Math.Exp( this.Beta * distance );
+                return ( from.ProfessionalEmployment * RegionEmploymentFactor
+                + from.WorkProfessional * RegionResidenceFactor )
+                * (float)Math.Exp( Beta * distance );
             }
             return 0f;
         }
@@ -272,7 +274,7 @@ namespace TMG.GTAModel.Purpose
 
         private bool FoundModeWithName(string name)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var length = modes.Count;
             for ( int i = 0; i < length; i++ )
             {
@@ -304,7 +306,7 @@ namespace TMG.GTAModel.Purpose
         private TreeData<float[][]> GetAutoModeData(List<TreeData<float[][]>> list)
         {
             var length = list.Count;
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             for ( int i = 0; i < length; i++ )
             {
                 var temp = GetAutoModeData( list[i], modes[i] );
@@ -318,31 +320,28 @@ namespace TMG.GTAModel.Purpose
 
         private TreeData<float[][]> GetAutoModeData(TreeData<float[][]> tree, IModeChoiceNode mode)
         {
-            if ( mode.ModeName == this.AutoModeName )
+            if ( mode.ModeName == AutoModeName )
             {
                 return tree;
             }
-            else
+            var cat = mode as IModeCategory;
+            if ( cat == null )
             {
-                var cat = mode as IModeCategory;
-                if ( cat == null )
+                return null;
+            }
+            var treeChildren = tree.Children;
+            var modeChildren = cat.Children;
+            // make sure that it actually contains children first
+            if ( treeChildren == null | modeChildren == null )
+            {
+                return null;
+            }
+            for ( int i = 0; i < treeChildren.Length; i++ )
+            {
+                var temp = GetAutoModeData( treeChildren[i], modeChildren[i] );
+                if ( temp != null )
                 {
-                    return null;
-                }
-                var treeChildren = tree.Children;
-                var modeChildren = cat.Children;
-                // make sure that it actually contains children first
-                if ( treeChildren == null | modeChildren == null )
-                {
-                    return null;
-                }
-                for ( int i = 0; i < treeChildren.Length; i++ )
-                {
-                    var temp = GetAutoModeData( treeChildren[i], modeChildren[i] );
-                    if ( temp != null )
-                    {
-                        return temp;
-                    }
+                    return temp;
                 }
             }
             return null;
@@ -350,10 +349,10 @@ namespace TMG.GTAModel.Purpose
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            var length = this.RegionNumbers.Count;
+            var length = RegionNumbers.Count;
             for ( int i = 0; i < length; i++ )
             {
-                if ( this.RegionNumbers[i] == regionNumber )
+                if ( RegionNumbers[i] == regionNumber )
                 {
                     regionIndex = i;
                     return true;
@@ -365,13 +364,13 @@ namespace TMG.GTAModel.Purpose
 
         private bool IsPrimaryAirportZone(int zoneNumber)
         {
-            return this.PrimaryAirport.ZoneNumber == zoneNumber;
+            return PrimaryAirport.ZoneNumber == zoneNumber;
         }
 
         private void SaveData(float[][] data)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            TMG.Functions.SaveData.SaveMatrix( zones, data, Path.Combine( this.PurposeName, "AirportData.csv" ) );
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            Functions.SaveData.SaveMatrix( zones, data, Path.Combine( PurposeName, "AirportData.csv" ) );
         }
     }
 }

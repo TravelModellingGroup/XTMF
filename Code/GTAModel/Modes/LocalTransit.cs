@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using TMG.Modes;
 using XTMF;
@@ -25,7 +26,7 @@ namespace TMG.GTAModel.Modes
     [ModuleInformation(
         Description = "This mode extends BasicMode to include the ability to calculate if you are near a subway station and then apply that value into the systematic utility calculation."
     )]
-    public sealed class LocalTransit : BasicMode, TMG.Modes.IUtilityComponentMode
+    public sealed class LocalTransit : BasicMode, IUtilityComponentMode
     {
         public List<IUtilityComponent> UtilityComponents
         {
@@ -36,9 +37,9 @@ namespace TMG.GTAModel.Modes
         public override float CalculateV(IZone origin, IZone destination, Time time)
         {
             var v = base.CalculateV( origin, destination, time );
-            for ( int i = 0; i < this.UtilityComponents.Count; i++ )
+            for ( int i = 0; i < UtilityComponents.Count; i++ )
             {
-                v += this.UtilityComponents[i].CalculateV( origin, destination, time );
+                v += UtilityComponents[i].CalculateV( origin, destination, time );
             }
             return v;
         }

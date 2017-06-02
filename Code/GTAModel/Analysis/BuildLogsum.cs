@@ -16,12 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using TMG.Functions;
-using XTMF;
-using Datastructure;
-using TMG.Input;
 using System.Threading.Tasks;
+using Datastructure;
+using TMG.Functions;
+using TMG.Input;
+using XTMF;
 
 namespace TMG.GTAModel.Analysis
 {
@@ -43,16 +44,16 @@ namespace TMG.GTAModel.Analysis
 
             public string Name { get; set; }
 
-            public float Progress { get; private set;}
+            public float Progress => 0f;
 
-            public Tuple<byte, byte, byte> ProgressColour { get; private set; }
+            public Tuple<byte, byte, byte> ProgressColour => null;
 
             public void Add(SparseTwinIndex<float> data)
             {
                 var flatData = data.GetFlatData();
-                if ( this.RaiseToE )
+                if ( RaiseToE )
                 {
-                    foreach ( var entry in this.DataSource.Read() )
+                    foreach ( var entry in DataSource.Read() )
                     {
                         var o = data.GetFlatIndex( entry.O );
                         var d = data.GetFlatIndex( entry.D );
@@ -64,13 +65,13 @@ namespace TMG.GTAModel.Analysis
                 }
                 else
                 {
-                    foreach ( var entry in this.DataSource.Read() )
+                    foreach ( var entry in DataSource.Read() )
                     {
                         var o = data.GetFlatIndex( entry.O );
                         var d = data.GetFlatIndex( entry.D );
                         if ( o >= 0 & d >= 0 )
                         {
-                            flatData[o][d] += (float)entry.Data;
+                            flatData[o][d] += entry.Data;
                         }
                     }
                 }
@@ -90,14 +91,14 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var data = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
-            var sources = this.Entries;
+            var data = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<float>();
+            var sources = Entries;
             for ( int i = 0; i < sources.Length; i++ )
             {
                 sources[i].Add( data );
             }
             LogTheMatrix( data );
-            SaveData.SaveMatrix( data, this.OutputFile );
+            SaveData.SaveMatrix( data, OutputFile );
         }
 
         /// <summary>
@@ -107,7 +108,7 @@ namespace TMG.GTAModel.Analysis
         private static void LogTheMatrix(SparseTwinIndex<float> data)
         {
             var flatData = data.GetFlatData();
-            Parallel.For( 0, flatData.Length, (int i) =>
+            Parallel.For( 0, flatData.Length, i =>
             {
                 var row = flatData[i];
                 if ( row == null ) return;
@@ -124,15 +125,9 @@ namespace TMG.GTAModel.Analysis
             set;
         }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {

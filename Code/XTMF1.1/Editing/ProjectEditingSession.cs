@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -17,6 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -35,7 +36,7 @@ namespace XTMF
         }
 
         public Project Project;
-        private XTMFRuntime Runtime;
+        private readonly XTMFRuntime Runtime;
         public ProjectEditingSession(Project project, XTMFRuntime runtime)
         {
             Project = project;
@@ -105,9 +106,9 @@ namespace XTMF
             {
                 var ret = Runtime.ProjectController.RenameProject(Project, newName, ref error);
                 var e = NameChanged;
-                if (ret && e != null)
+                if (ret)
                 {
-                    e(this, new PropertyChangedEventArgs(Name));
+                    e?.Invoke(this, new PropertyChangedEventArgs(Name));
                 }
                 return ret;
             }
@@ -132,7 +133,7 @@ namespace XTMF
         /// </summary>
         private void CloseAllModelSystemEditingSessions()
         {
-            lock (this.EditingSessions)
+            lock (EditingSessions)
             {
                 for (int i = 0; i < EditingSessions.Length; i++)
                 {
@@ -154,7 +155,7 @@ namespace XTMF
         {
             if (modelSystem == null)
             {
-                throw new ArgumentNullException("modelSystem");
+                throw new ArgumentNullException(nameof(modelSystem));
             }
             lock (EditingSessionsLock)
             {
@@ -177,7 +178,7 @@ namespace XTMF
         /// <returns>True if successful, false otherwise with error message.</returns>
         public bool AddModelSystem(string modelSystemName, ref string error)
         {
-            lock(EditingSessionsLock)
+            lock (EditingSessionsLock)
             {
                 if (!Project.AddModelSystem(modelSystemName, ref error))
                 {
@@ -201,11 +202,11 @@ namespace XTMF
         {
             if (modelSystem == null)
             {
-                throw new ArgumentNullException("modelSystem");
+                throw new ArgumentNullException(nameof(modelSystem));
             }
             lock (EditingSessionsLock)
             {
-                if (!this.Project.AddModelSystem(modelSystem, newName, ref error))
+                if (!Project.AddModelSystem(modelSystem, newName, ref error))
                 {
                     return false;
                 }
@@ -213,6 +214,65 @@ namespace XTMF
                 Array.Copy(EditingSessions, temp, EditingSessions.Length);
                 EditingSessions = temp;
                 return true;
+            }
+        }
+
+        /// <summary>
+        /// Import a model system into the project from a string.
+        /// </summary>
+        /// <param name="modelSystemAsText">The text to convert into a model system</param>
+        /// <param name="name">The name of the model system</param>
+        /// <param name="error">A description of the error if one occurs</param>
+        /// <returns>True if the model system was imported, false with a description otherwise.</returns>
+        public bool ImportModelSystemFromString(string modelSystemAsText, string name, ref string error)
+        {
+            ModelSystem modelSystem;
+            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromString(modelSystemAsText, out modelSystem, ref error))
+            {
+                return false;
+            }
+            modelSystem.Name = name;
+            return AddModelSystem(modelSystem, ref error);
+        }
+
+        /// <summary>
+        /// Import a model system into the project from file.
+        /// </summary>
+        /// <param name="fileName">The path of the file to load.</param>
+        /// <param name="modelSystemName">The name to assign to this new model system.</param>
+        /// <param name="error">A description of the error if one occurs</param>
+        /// <returns>True if the model system was imported, false with a description otherwise.</returns>
+        public bool ImportModelSystemFromFile(string fileName, string modelSystemName, ref string error)
+        {
+            ModelSystem modelSystem;
+            if (!Runtime.ModelSystemController.LoadDetachedModelSystemFromFile(fileName, out modelSystem, ref error))
+            {
+                return false;
+            }
+            modelSystem.Name = modelSystemName;
+            return AddModelSystem(modelSystem, ref error);
+        }
+
+        /// <summary>
+        /// Export the model system as a string.
+        /// </summary>
+        /// <param name="ms">The model system to export</param>
+        /// <param name="modelSystemAsString">The string to export the model system to.</param>
+        /// <param name="error">A description of the error if one occurs</param>
+        /// <returns>True if successful, false with a description of the error.</returns>
+        public bool ExportModelSystemAsString(ModelSystemModel ms, out string modelSystemAsString, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                return Runtime.ProjectController.ExportModelSystemAsString(ms, out modelSystemAsString, ref error);
+            }
+        }
+
+        public bool ExportModelSystemAsString(int modelSystemIndex, out string modelSystemAsString, ref string error)
+        {
+            lock (EditingSessionsLock)
+            {
+                return Runtime.ProjectController.ExportModelSystemAsString(Project, modelSystemIndex, out modelSystemAsString, ref error);
             }
         }
 
@@ -226,7 +286,7 @@ namespace XTMF
         {
             if (modelSystem == null)
             {
-                throw new ArgumentNullException("modelSystem");
+                throw new ArgumentNullException(nameof(modelSystem));
             }
             return AddModelSystem(modelSystem.ModelSystem, ref error);
         }
@@ -242,7 +302,7 @@ namespace XTMF
         {
             if (modelSystem == null)
             {
-                throw new ArgumentNullException("modelSystem");
+                throw new ArgumentNullException(nameof(modelSystem));
             }
             return AddModelSystem(modelSystem.ModelSystem, newName, ref error);
         }
@@ -280,11 +340,7 @@ namespace XTMF
 
         private void InvokeModelSystemNameChanged()
         {
-            var e = ModelSystemNameChanged;
-            if (e != null)
-            {
-                e(this, new EventArgs());
-            }
+            ModelSystemNameChanged?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -310,16 +366,13 @@ namespace XTMF
                 {
                     return editingSession.Session.SaveAsModelSystem(name, ref error);
                 }
-                else
-                {
-                    List<ILinkedParameter> lp;
-                    var ms = Runtime.ModelSystemController.LoadOrCreate(name);
-                    ms.Name = name;
-                    ms.Description = Project.ModelSystemDescriptions[index];
-                    ms.ModelSystemStructure = Project.CloneModelSystemStructure(out lp, index);
-                    ms.LinkedParameters = lp;
-                    return ms.Save(ref error);
-                }
+                List<ILinkedParameter> lp;
+                var ms = Runtime.ModelSystemController.LoadOrCreate(name);
+                ms.Name = name;
+                ms.Description = Project.ModelSystemDescriptions[index];
+                ms.ModelSystemStructure = Project.CloneModelSystemStructure(out lp, index);
+                ms.LinkedParameters = lp;
+                return ms.Save(ref error);
             }
         }
 
@@ -330,9 +383,9 @@ namespace XTMF
         /// <param name="name"></param>
         /// <param name="error"></param>
         /// <returns></returns>
-        public static bool CloneModelSystemAs(XTMFRuntime Runtime, IModelSystemStructure root, List<ILinkedParameter> linkedParameters, string description, string name, ref string error)
+        public static bool CloneModelSystemAs(XTMFRuntime runtime, IModelSystemStructure root, List<ILinkedParameter> linkedParameters, string description, string name, ref string error)
         {
-            var ms = Runtime.ModelSystemController.LoadOrCreate(name);
+            var ms = runtime.ModelSystemController.LoadOrCreate(name);
             ms.Name = name;
             ms.Description = description;
             ms.ModelSystemStructure = root;
@@ -348,11 +401,11 @@ namespace XTMF
         /// </summary>
         /// <param name="modelSystemIndex">The index of the model system to export</param>
         /// <param name="fileName">The name of the file to save it to.</param>
-        /// <param name="error">A description of the error that ocured if one did.</param>
+        /// <param name="error">A description of the error that occurred if one did.</param>
         /// <returns>False if there was an error, true otherwise.</returns>
         public bool ExportModelSystem(int modelSystemIndex, string fileName, ref string error)
         {
-            lock(EditingSessions)
+            lock (EditingSessions)
             {
                 // If it is currently being edited, save that version
                 var root = Project.ModelSystemStructure[modelSystemIndex];
@@ -362,11 +415,35 @@ namespace XTMF
                     error = "You can't export a model system while editing it.";
                     return false;
                 }
-                else
-                {
-                    return Runtime.ProjectController.ExportModelSystem(fileName, Project, modelSystemIndex, ref error);
-                }
+                return Runtime.ProjectController.ExportModelSystem(fileName, Project, modelSystemIndex, ref error);
             }
+        }
+
+
+        public bool AddExternalModelSystem(IModelSystem system, string name, ref string error)
+        {
+        
+
+            system.ModelSystemStructure.Name = name;
+            system.Name = name;
+            
+            if (Project.AddExternalModelSystem(system, ref error))
+            {
+                var temp = new SessionData[EditingSessions.Length + 1];
+                Array.Copy(EditingSessions, temp, EditingSessions.Length);
+                EditingSessions = temp;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public ModelSystem CloneModelSystem(IModelSystemStructure root, ref string error)
+        {
+
+            return Project.CloneModelSystem(root);
         }
 
         public bool CloneModelSystemToProjectAs(IModelSystemStructure root, string name, ref string error)
@@ -378,6 +455,7 @@ namespace XTMF
                 {
                     error = "The model system was not found within the project!";
                     return false;
+                    
                 }
                 if (Project.AddModelSystem(index, name, ref error))
                 {
@@ -405,8 +483,6 @@ namespace XTMF
             return Directory.Exists(Path.Combine(GetConfiguration().ProjectDirectory, Project.Name, runName));
         }
 
-
-
         /// <summary>
         /// Removes a model system from the project
         /// </summary>
@@ -417,7 +493,7 @@ namespace XTMF
         {
             lock (EditingSessionsLock)
             {
-                if (index < 0 | index >= this.Project.ModelSystemStructure.Count)
+                if (index < 0 | index >= Project.ModelSystemStructure.Count)
                 {
                     error = "The index is invalid.";
                     return false;
@@ -427,7 +503,7 @@ namespace XTMF
                     error = "Unable to remove the model system. It is currently being edited.";
                     return false;
                 }
-                if (!this.Project.RemoveModelSystem(index, ref error))
+                if (!Project.RemoveModelSystem(index, ref error))
                 {
                     return false;
                 }
@@ -437,10 +513,7 @@ namespace XTMF
                 for (int i = index; i < EditingSessions.Length; i++)
                 {
                     var session = EditingSessions[i].Session;
-                    if (session != null)
-                    {
-                        session.SetModelSystemIndex(i);
-                    }
+                    session?.SetModelSystemIndex(i);
                 }
                 EditingSessions = temp;
             }
@@ -453,7 +526,7 @@ namespace XTMF
         /// <returns>A list of paths to directories containing</returns>
         public List<string> GetPreviousRuns()
         {
-            var projectDir = Path.Combine(this.GetConfiguration().ProjectDirectory, Project.Name);
+            var projectDir = Path.Combine(GetConfiguration().ProjectDirectory, Project.Name);
             return (from dir in Directory.EnumerateDirectories(projectDir)
                     where File.Exists(Path.Combine(projectDir, dir, "RunParameters.xml"))
                     select Path.Combine(projectDir, dir)).ToList();
@@ -485,7 +558,7 @@ namespace XTMF
                 session = new ModelSystemEditingSession(Runtime, this, runFileName);
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 error = e.Message;
                 return false;
@@ -501,8 +574,6 @@ namespace XTMF
         {
             return project.CreateCloneProject();
         }
-
-
 
         /// <summary>
         /// Move the model systems inside of a project.
@@ -527,7 +598,7 @@ namespace XTMF
                 }
                 // if they are the same then success (we don't want to shortcut though if invalid data is given though)
                 if (currentIndex == newIndex) return true;
-                if (!this.Project.MoveModelSystems(currentIndex, newIndex, ref error))
+                if (!Project.MoveModelSystems(currentIndex, newIndex, ref error))
                 {
                     return false;
                 }
@@ -565,33 +636,29 @@ namespace XTMF
         /// <param name="modelSystemIndex">The index of the model system inside of the project</param>
         public ModelSystemEditingSession EditModelSystem(int modelSystemIndex)
         {
-            lock (this.EditingSessionsLock)
+            lock (EditingSessionsLock)
             {
                 // Make sure that we have a valid index. This needs to be inside of EditingSessionLock
-                if (this.Project.ModelSystemStructure.Count < modelSystemIndex | modelSystemIndex < 0)
+                if (Project.ModelSystemStructure.Count < modelSystemIndex | modelSystemIndex < 0)
                 {
-                    throw new ArgumentOutOfRangeException("modelSystemIndex");
+                    throw new ArgumentOutOfRangeException(nameof(modelSystemIndex));
                 }
                 // if the session doesn't exist create it
-                if (this.EditingSessions[modelSystemIndex].Session == null)
+                if (EditingSessions[modelSystemIndex].Session == null)
                 {
-                    this.EditingSessions[modelSystemIndex].Session = new ModelSystemEditingSession(Runtime, this, modelSystemIndex);
-                    this.EditingSessions[modelSystemIndex].Session.NameChanged += Session_NameChanged;
-                    this.EditingSessions[modelSystemIndex].Session.Saved += Session_Saved; ;
+                    EditingSessions[modelSystemIndex].Session = new ModelSystemEditingSession(Runtime, this, modelSystemIndex);
+                    EditingSessions[modelSystemIndex].Session.NameChanged += Session_NameChanged;
+                    EditingSessions[modelSystemIndex].Session.Saved += Session_Saved; ;
                 }
                 // in either case add a reference to it.
-                this.EditingSessions[modelSystemIndex].References++;
-                return this.EditingSessions[modelSystemIndex].Session;
+                EditingSessions[modelSystemIndex].References++;
+                return EditingSessions[modelSystemIndex].Session;
             }
         }
 
         private void Session_Saved(object sender, EventArgs e)
         {
-            var msSaved = ModelSystemSaved;
-            if (msSaved != null)
-            {
-                msSaved(this, e);
-            }
+            ModelSystemSaved?.Invoke(this, e);
         }
 
         private void Session_NameChanged(object sender, PropertyChangedEventArgs e)
@@ -606,11 +673,11 @@ namespace XTMF
             {
                 lock (EditingSessionsLock)
                 {
-                    this.EditingSessions[modelSystemIndex].References--;
-                    if (this.EditingSessions[modelSystemIndex].References <= 0)
+                    EditingSessions[modelSystemIndex].References--;
+                    if (EditingSessions[modelSystemIndex].References <= 0)
                     {
-                        this.EditingSessions[modelSystemIndex].References = 0;
-                        this.EditingSessions[modelSystemIndex].Session = null;
+                        EditingSessions[modelSystemIndex].References = 0;
+                        EditingSessions[modelSystemIndex].Session = null;
                     }
                 }
             }
@@ -623,7 +690,7 @@ namespace XTMF
             {
                 lock (EditingSessionsLock)
                 {
-                    if (this.EditingSessions[modelSystemIndex].References <= 1)
+                    if (EditingSessions[modelSystemIndex].References <= 1)
                     {
                         return true;
                     }
@@ -649,11 +716,7 @@ namespace XTMF
         internal void SessionTerminated()
         {
             CloseAllModelSystemEditingSessions();
-            var temp = SessionClosed;
-            if (temp != null)
-            {
-                temp(this, new EventArgs());
-            }
+            SessionClosed?.Invoke(this, new EventArgs());
         }
 
         public bool DeleteProject(ref string error)

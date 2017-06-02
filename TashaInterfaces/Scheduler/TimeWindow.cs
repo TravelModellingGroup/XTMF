@@ -33,8 +33,8 @@ namespace Tasha.Scheduler
         public TimeWindow(Time start, Time end)
             : this()
         {
-            this.StartTime = start;
-            this.EndTime = end;
+            StartTime = start;
+            EndTime = end;
         }
 
         public Time Duration

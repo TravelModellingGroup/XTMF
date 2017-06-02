@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using Tasha.Common;
 using TMG;
@@ -102,7 +100,7 @@ blended average between iteration to help converge.")]
                 // a fast way of tallying the station counts
                 Parallel.For(0, zones.Length,
                     () => { return new float[zoneIndexForStation.Length]; },
-                    (int i, ParallelLoopState state, float[] threadLocalStationAccessCounts) =>
+                    (i, state, threadLocalStationAccessCounts) =>
                     {
                         var iOffset = i * zones.Length;
                         for (int j = 0; j < zoneIndexForStation.Length; j++)
@@ -111,7 +109,7 @@ blended average between iteration to help converge.")]
                         }
                         return threadLocalStationAccessCounts;
                     },
-                    (float[] threadLocalAccessStationCounts) =>
+                    threadLocalAccessStationCounts =>
                     {
                         lock (accessStationCounts)
                         {

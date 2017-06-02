@@ -16,14 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
-using TMG;
-using TMG.Input;
 using System.IO;
+using TMG.Input;
+using XTMF;
+
 namespace TMG.GTAModel.Analysis
 {
     public class ValidateAges : ISelfContainedModule
@@ -36,11 +34,11 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            this.Progress = 0f;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            var ageRates = this.Root.Demographics.AgeRates.GetFlatData();
-            var ageCategories = this.Root.Demographics.AgeCategories.GetFlatData();
-            using ( var writer = new StreamWriter( this.SaveTo.GetFilePath() ) )
+            Progress = 0f;
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            var ageRates = Root.Demographics.AgeRates.GetFlatData();
+            var ageCategories = Root.Demographics.AgeCategories.GetFlatData();
+            using ( var writer = new StreamWriter( SaveTo.GetFilePath() ) )
             {
                 writer.WriteLine( "Zone,AgeCategory,Persons" );
                 for ( int i = 0; i < ageRates.Length; i++ )
@@ -57,17 +55,17 @@ namespace TMG.GTAModel.Analysis
                         writer.WriteLine( pop * rates[age] );
                     }
                     // Update our progress
-                    this.Progress = (float)i / zones.Length;
+                    Progress = (float)i / zones.Length;
                 }
             }
-            this.Progress = 1f;
+            Progress = 1f;
         }
 
         public string Name { get; set; }
 
         public float Progress { get; set; }
 
-        public Tuple<byte, byte, byte> ProgressColour { get { return null; } }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {

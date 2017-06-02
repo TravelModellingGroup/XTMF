@@ -18,13 +18,10 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 using System.IO;
 using TMG.Input;
 using TMG.Emme;
-using Tasha.Common;
 using XTMF;
 
 
@@ -32,7 +29,7 @@ namespace Tasha.Validation.PerformanceMeasures
 {
     public class DistanceMatrixCalculation : IEmmeTool
     {
-        private const string _ToolName = "tmg.input_output.export_distance_matrix";
+        private const string ToolName = "tmg.input_output.export_distance_matrix";
 
         [SubModelInformation(Required = true, Description = "Where to save the distance matrices.")]
         public FileLocation ResultsFile;
@@ -43,7 +40,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = true, Description = "The different boarding penalties to apply.")]
         public DistancesPerTimePeriod[] TimePeriodToConsider;
 
-        public sealed class DistancesPerTimePeriod : XTMF.IModule
+        public sealed class DistancesPerTimePeriod : IModule
         {
             public string Name
             {
@@ -65,7 +62,7 @@ namespace Tasha.Validation.PerformanceMeasures
 
             internal string ReturnFilter(ModellerController controller)
             {
-                return TimePeriodLabel.Replace('"', '\'') + ":" + ScenarioNumber.ToString();                                
+                return TimePeriodLabel.Replace('"', '\'') + ":" + ScenarioNumber;                                
             }
 
             public Tuple<byte, byte, byte> ProgressColour
@@ -104,7 +101,12 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 throw new XTMFRuntimeException("In '" + Name + "' we were not given a modeler controller!");
             }
-            var fullPathToDirectory = Path.GetFullPath(Path.GetDirectoryName(ResultsFile));
+            var dirPath = Path.GetDirectoryName(ResultsFile);
+            if (dirPath == null)
+            {
+                throw new XTMFRuntimeException($"In {Name} we were unable to get the directory from the path '{ResultsFile}'!");
+            }
+            var fullPathToDirectory = Path.GetFullPath(dirPath);
 
             string timePeriods = "";
 
@@ -112,10 +114,7 @@ namespace Tasha.Validation.PerformanceMeasures
             {
                 timePeriods += timePeriod.ReturnFilter(mc) + ",";
             }
-
-            var args = string.Join(" ", timePeriods, "\"" + fullPathToDirectory + "\"" , CostPerKm.ToString());
-
-            return mc.Run(_ToolName, null);
+            return mc.Run(ToolName, string.Join(" ", timePeriods, "\"" + fullPathToDirectory + "\"", CostPerKm.ToString(CultureInfo.InvariantCulture)));
 
         }
 

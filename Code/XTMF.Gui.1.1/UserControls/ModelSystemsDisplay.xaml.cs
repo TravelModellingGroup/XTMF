@@ -16,20 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using XTMF.Gui.Collections;
 
 namespace XTMF.Gui.UserControls
 {
@@ -42,7 +38,7 @@ namespace XTMF.Gui.UserControls
             InitializeComponent();
             Runtime = runtime;
             var modelSystemRepository = ((ModelSystemRepository)Runtime.Configuration.ModelSystemRepository);
-            Display.ItemsSource = new XTMF.Gui.Collections.ProxyList<IModelSystem>(modelSystemRepository.ModelSystems);
+            Display.ItemsSource = new ProxyList<IModelSystem>(modelSystemRepository.ModelSystems);
             modelSystemRepository.ModelSystemAdded += ModelSystemRepository_ModelSystemAdded;
             modelSystemRepository.ModelSystemRemoved += ModelSystemRepository_ModelSystemRemoved;
             FilterBox.Display = Display;
@@ -98,7 +94,7 @@ namespace XTMF.Gui.UserControls
             if (modelSystem != null)
             {
                 ModelSystemEditingSession session = null;
-                OperationProgressing progressing = new OperationProgressing()
+                OperationProgressing progressing = new OperationProgressing
                 {
                     Owner = GetWindow()
                 };
@@ -216,7 +212,7 @@ namespace XTMF.Gui.UserControls
                         break;
                 }
             }
-            base.OnKeyUp(e);
+            OnKeyUp(e);
         }
 
         private void RefreshModelSystems()
@@ -232,7 +228,7 @@ namespace XTMF.Gui.UserControls
             return Display.ItemContainerGenerator.ContainerFromItem(Display.SelectedItem) as UIElement;
         }
 
-        bool Renaming = false;
+        bool Renaming;
 
         private void RenameCurrentModelSystem()
         {
@@ -242,7 +238,7 @@ namespace XTMF.Gui.UserControls
                 var selectedModuleControl = GetCurrentlySelectedControl();
                 var layer = AdornerLayer.GetAdornerLayer(selectedModuleControl);
                 Renaming = true;
-                var adorn = new TextboxAdorner("Rename", (result) =>
+                var adorn = new TextboxAdorner("Rename", result =>
                 {
                     string error = null;
                     if (!Runtime.ModelSystemController.Rename(modelSystem, result, ref error))
@@ -277,7 +273,7 @@ namespace XTMF.Gui.UserControls
             if (modelSystem != null)
             {
                 string error = null;
-                StringRequest sr = new StringRequest("Clone Model System As?", (newName) =>
+                StringRequest sr = new StringRequest("Clone Model System As?", newName =>
                 {
                     string e = null;
                     return Runtime.ModelSystemController.ValidateModelSystemName(newName, ref e);
@@ -319,7 +315,7 @@ namespace XTMF.Gui.UserControls
             var modelSystem = Display.SelectedItem as ModelSystem;
             if (modelSystem != null)
             {
-                string fileName = MainWindow.OpenFile(modelSystem.Name, new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
+                string fileName = MainWindow.OpenFile(modelSystem.Name, new[] { new KeyValuePair<string, string>("Model System File", "xml") }, false);
                 if (!String.IsNullOrWhiteSpace(fileName))
                 {
                     string error = null;
@@ -348,6 +344,16 @@ namespace XTMF.Gui.UserControls
                 selected = GetFirstItem();
             }
             LoadModelSystem(selected);
+        }
+
+        private void ImportModelSystemButton_OnClicked(object obj)
+        {
+            MainWindow.Us.ImportModelSystem();
+        }
+
+        private void ListViewControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            LoadCurrentModelSystem();
         }
     }
 }

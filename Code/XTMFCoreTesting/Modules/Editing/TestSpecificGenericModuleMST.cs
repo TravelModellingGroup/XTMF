@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace XTMF.Testing.Modules.Editing
 {
@@ -32,21 +28,15 @@ namespace XTMF.Testing.Modules.Editing
         [RunParameter("SecondaryString", "", "Another string parameter")]
         public string SecondaryString;
 
-        public GenericInterface<float,float, float, float> MyChild;
+        public IGenericInterface<float,float, float, float> MyChild;
 
         public string Name { get; set; }
 
         public string OutputBaseDirectory { get; set; }
 
-        public float Progress { get; set; }
+        public float Progress { get; } = 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get
-            {
-                return new Tuple<byte, byte, byte>(50, 150, 50);
-            }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
         public bool ExitRequest()
         {

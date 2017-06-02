@@ -16,10 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMG.Emme;
 using XTMF;
 
@@ -141,12 +140,12 @@ namespace TMG.GTAModel.NetworkAssignment
         [Parameter("Add Congestion to IVTT", false, "Set to TRUE to extract the congestion matrix and add its weighted value to the in vehicle time (IVTT) matrix.")]
         public bool ExtractCongestedInVehicleTimeFlag;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "tmg.assignment.transit.V4_FBTA";
+        private const string ToolName = "tmg.assignment.transit.V4_FBTA";
 
 
-        public sealed class TTFDefinitions : XTMF.IModule
+        public sealed class TTFDefinitions : IModule
         {
             [RunParameter("TTF", 0, "The TTF number to assign to. 1 would mean TTF1.")]
             public int TTFNumber;
@@ -181,25 +180,25 @@ namespace TMG.GTAModel.NetworkAssignment
 
             var args = string.Join(" ", ScenarioNumber,
                                         DemandMatrixNumber,
-                                        mc.ToEmmeFloat(WaitTimePerception),
-                                        mc.ToEmmeFloat(WalkSpeed),
-                                        mc.ToEmmeFloat(WalkPerceptionToronto),
-                                        mc.ToEmmeFloat(WalkPerceptionNonToronto),
-                                        mc.ToEmmeFloat(WalkPerceptionTorontoConnectors),
-                                        mc.ToEmmeFloat(WalkPerceptionNonTorontoConnectors),
-                                        mc.ToEmmeFloat(WalkPerceptionPD1),
+                                        Controller.ToEmmeFloat(WaitTimePerception),
+                                        Controller.ToEmmeFloat(WalkSpeed),
+                                        Controller.ToEmmeFloat(WalkPerceptionToronto),
+                                        Controller.ToEmmeFloat(WalkPerceptionNonToronto),
+                                        Controller.ToEmmeFloat(WalkPerceptionTorontoConnectors),
+                                        Controller.ToEmmeFloat(WalkPerceptionNonTorontoConnectors),
+                                        Controller.ToEmmeFloat(WalkPerceptionPD1),
                                         WalkPerceptionAttribute,
                                         HeadwayFractionAttribute,
                                         LinkFareAttribute,
                                         SegmentFareAttribute,
                                         EffectiveHeadwayAttributeId,
-                                        mc.ToEmmeFloat(EffectiveHeadwaySlope),
-                                        mc.ToEmmeFloat(BoardingPerception),
-                                        mc.ToEmmeFloat(FarePerception),
-                                        mc.ToEmmeFloat(RepresentativeHourFactor),
+                                        Controller.ToEmmeFloat(EffectiveHeadwaySlope),
+                                        Controller.ToEmmeFloat(BoardingPerception),
+                                        Controller.ToEmmeFloat(FarePerception),
+                                        Controller.ToEmmeFloat(RepresentativeHourFactor),
                                         MaxIterations,
-                                        mc.ToEmmeFloat(NormalizedGap),
-                                        mc.ToEmmeFloat(RelativeGap),
+                                        Controller.ToEmmeFloat(NormalizedGap),
+                                        Controller.ToEmmeFloat(RelativeGap),
                                         InVehicleMatrixNumber,
                                         WaitMatrixNumber,
                                         WalkMatrixNumber,
@@ -207,17 +206,17 @@ namespace TMG.GTAModel.NetworkAssignment
                                         CongestionMatrixNumber,
                                         BoardingMatrixNumber,
                                         DistanceMatrixNumber,
-                                        mc.ToEmmeFloat(ConnectorLogitScale),
+                                        Controller.ToEmmeFloat(ConnectorLogitScale),
                                         ExtractCongestedInVehicleTimeFlag,
                                         string.Join(",", from ttf in TTF
-                                                         select ttf.TTFNumber.ToString() + ":"
-                                                         + mc.ToEmmeFloat(ttf.CongestionPerception).ToString() + ":"
-                                                         + mc.ToEmmeFloat(ttf.CongestionExponent)),
+                                                         select ttf.TTFNumber + ":"
+                                                         + Controller.ToEmmeFloat(ttf.CongestionPerception) + ":"
+                                                         + Controller.ToEmmeFloat(ttf.CongestionExponent)),
                                         ImpedanceMatrix,
                                         UseBoardingLevels);
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name
@@ -234,7 +233,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool RuntimeValidation(ref string error)

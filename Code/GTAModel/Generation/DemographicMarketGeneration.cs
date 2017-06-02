@@ -16,7 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.Threading;
+using System.Threading.Tasks;
+using Datastructure;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
@@ -29,7 +34,7 @@ This module requires the root module of the model system to be an ‘IDemographi
         [RunParameter( "Probability", 0.25f, "The probability of a person in this category making this kind of trip." )]
         public float Probability;
 
-        override public void Generate(Datastructure.SparseArray<float> production, Datastructure.SparseArray<float> attractions)
+        override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             var flatProduction = production.GetFlatData();
             var flatAttraction = attractions.GetFlatData();
@@ -37,10 +42,10 @@ This module requires the root module of the model system to be an ‘IDemographi
             var numberOfIndexes = flatAttraction.Length;
 
             // Compute the Production and Attractions
-            float totalProduction = 0;
-            float totalAttraction = 0;
+            float totalProduction;
+            float totalAttraction;
             totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            totalAttraction = ComputeAttraction( flatAttraction, this.Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
+            totalAttraction = ComputeAttraction( flatAttraction, numberOfIndexes );
 
             // Normalize the attractions
             float productionAttractionRatio;
@@ -58,10 +63,10 @@ This module requires the root module of the model system to be an ‘IDemographi
             }
         }
 
-        private float ComputeAttraction(float[] flatAttraction, IZone[] zones, int numberOfZones)
+        private float ComputeAttraction(float[] flatAttraction, int numberOfZones)
         {
             float totalAttractions = 0;
-            var zoneArray = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zoneArray = Root.ZoneSystem.ZoneArray.GetFlatData();
             for ( int i = 0; i < numberOfZones; i++ )
             {
                 var temp = zoneArray[i].RetailEmployment;
@@ -73,8 +78,8 @@ This module requires the root module of the model system to be an ‘IDemographi
         private float ComputeProduction(float[] flatProduction, int numberOfZones)
         {
             int totalProduction = 0;
-            var flatPopulation = this.Root.Population.Population.GetFlatData();
-            System.Threading.Tasks.Parallel.For( 0, numberOfZones, delegate(int i)
+            var flatPopulation = Root.Population.Population.GetFlatData();
+            Parallel.For( 0, numberOfZones, delegate(int i)
             {
                 var zonePop = flatPopulation[i];
                 if ( zonePop == null ) return;
@@ -83,15 +88,15 @@ This module requires the root module of the model system to be an ‘IDemographi
                 for ( int person = 0; person < popLength; person++ )
                 {
                     var p = zonePop[person];
-                    if ( this.IsContained( p ) )
+                    if ( IsContained( p ) )
                     {
                         count++;
                     }
                 }
-                flatProduction[i] = count * this.Probability;
-                System.Threading.Interlocked.Add( ref totalProduction, count );
+                flatProduction[i] = count * Probability;
+                Interlocked.Add( ref totalProduction, count );
             } );
-            return totalProduction * this.Probability;
+            return totalProduction * Probability;
         }
     }
 }

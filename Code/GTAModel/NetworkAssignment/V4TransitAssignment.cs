@@ -16,10 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Emme;
 using XTMF;
 
@@ -86,9 +84,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("Relative Gap", 0.001f, "Convergence criterion")]
         public float RelativeGap;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "tmg.assignment.transit.V4_FBTA";
+        private const string ToolName = "tmg.assignment.transit.V4_FBTA";
 
         public bool Execute(Controller controller)
         {
@@ -96,20 +94,20 @@ namespace TMG.GTAModel.NetworkAssignment
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", this.ScenarioNumber, 
-                                        this.DemandMatrixNumber,
-                                        mc.ToEmmeFloat(this.GoTrainHeadwayFraction),
-                                        mc.ToEmmeFloat(this.WaitTimePerception),
-                                        mc.ToEmmeFloat(this.WalkPerceptionToronto),
-                                        mc.ToEmmeFloat(this.WalkPerceptionNonToronto),
-                                        this.WalkPerceptionAttribute,
-                                        this.HeadwayFractionAttribute,
-                                        mc.ToEmmeFloat(this.BoardingPerception), 
-                                        mc.ToEmmeFloat(this.CongestionPerception),
-                                        this.RepresentativeHourFactor, 
-                                        this.MaxIterations, 
-                                        this.NormalizedGap,
-                                        this.RelativeGap);
+            var args = string.Join(" ", ScenarioNumber, 
+                                        DemandMatrixNumber,
+                                        Controller.ToEmmeFloat(GoTrainHeadwayFraction),
+                                        Controller.ToEmmeFloat(WaitTimePerception),
+                                        Controller.ToEmmeFloat(WalkPerceptionToronto),
+                                        Controller.ToEmmeFloat(WalkPerceptionNonToronto),
+                                        WalkPerceptionAttribute,
+                                        HeadwayFractionAttribute,
+                                        Controller.ToEmmeFloat(BoardingPerception), 
+                                        Controller.ToEmmeFloat(CongestionPerception),
+                                        RepresentativeHourFactor, 
+                                        MaxIterations, 
+                                        NormalizedGap,
+                                        RelativeGap);
 
             /*
             
@@ -120,7 +118,7 @@ namespace TMG.GTAModel.NetworkAssignment
             */
 
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name
@@ -137,7 +135,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool RuntimeValidation(ref string error)

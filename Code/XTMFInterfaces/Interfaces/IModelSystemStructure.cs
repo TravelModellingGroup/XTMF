@@ -135,6 +135,7 @@ namespace XTMF
         /// Validate the project structure
         /// </summary>
         /// <param name="error">A message returned if there is an error found providing additional information</param>
+        /// <param name="parent"></param>
         /// <returns>If the ProjectStructure is valid (able to be created into an executable model system)</returns>
         bool Validate(ref string error, IModelSystemStructure parent = null);
     }

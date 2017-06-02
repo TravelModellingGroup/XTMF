@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,20 +54,17 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            IZone[] zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            IZone[] zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             Stream s = null;
-            var f = this.UseInputDirectory ? this.GetFileLocation( this.FileName ) : this.FileName;
+            var f = UseInputDirectory ? GetFileLocation( FileName ) : FileName;
             try
             {
                 s = File.OpenRead( f );
             }
-            catch ( IOException e )
+            catch ( IOException)
             {
-                if (s != null)
-                {
-                    s.Close();
-                }
+                s?.Close();
                 throw;
             }
 
@@ -101,7 +99,7 @@ namespace TMG.GTAModel.Input
             var fullPath = fileName;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }

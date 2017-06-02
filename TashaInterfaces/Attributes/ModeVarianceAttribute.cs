@@ -20,7 +20,7 @@ using System;
 
 namespace Tasha.Common
 {
-    [System.AttributeUsage( System.AttributeTargets.Class )]
+    [AttributeUsage( AttributeTargets.Class )]
     public class ModeVarianceAttribute : Attribute
     {
         public ModeVarianceAttribute(string name, double defaultVal)

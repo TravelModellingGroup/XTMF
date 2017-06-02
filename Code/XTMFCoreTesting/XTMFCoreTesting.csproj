@@ -74,11 +74,14 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Editing\TestDisable.cs" />
     <Compile Include="Editing\TestEditingStack.cs" />
     <Compile Include="Editing\TestGenericModule.cs" />
     <Compile Include="Editing\TestModelSystemEditingSession.cs" />
@@ -87,9 +90,11 @@
     <Compile Include="Editing\TestEditingParameter.cs" />
     <Compile Include="Editing\TestLinkedParameter.cs" />
     <Compile Include="Editing\TestProjectEditingSession.cs" />
+    <Compile Include="Editing\TestImportingExportingModelSystem.cs" />
     <Compile Include="Modules\Editing\TestGenericModule.cs" />
     <Compile Include="Modules\Editing\TestModelSystemTemplate.cs" />
     <Compile Include="Modules\Editing\TestModule.cs" />
+    <Compile Include="Modules\Editing\TestRequiredSubmodule.cs" />
     <Compile Include="Modules\Editing\TestSpecificGenericModuleMST.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestXTMFCore.cs" />

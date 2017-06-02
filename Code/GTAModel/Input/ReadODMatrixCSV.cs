@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,8 +55,8 @@ namespace TMG.GTAModel.Input
 
         public IEnumerable<ODData<float>> Read()
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            using ( CsvReader reader = new CsvReader( this.FileName.GetFileName( UseInputDirectory ? this.Root.InputBaseDirectory : "." ) ) )
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            using ( CsvReader reader = new CsvReader( FileName.GetFileName( UseInputDirectory ? Root.InputBaseDirectory : "." ) ) )
             {
                 ODData<float> point;
                 int length;
@@ -89,7 +90,7 @@ namespace TMG.GTAModel.Input
                 }
                 if(!anyLinesRead)
                 {
-                    throw new XTMFRuntimeException($"In {Name} when reading the file '{this.FileName.GetFileName(UseInputDirectory ? this.Root.InputBaseDirectory : ".")}' we did not load any information!");
+                    throw new XTMFRuntimeException($"In {Name} when reading the file '{FileName.GetFileName(UseInputDirectory ? Root.InputBaseDirectory : ".")}' we did not load any information!");
                 }
             }
         }

@@ -328,7 +328,6 @@
     <Compile Include="Scheduler\SchedulerPerson.cs" />
     <Compile Include="Scheduler\SchedulerTrip.cs" />
     <Compile Include="Scheduler\SchedulerTripChain.cs" />
-    <Compile Include="Scheduler\TimePeriod.cs" />
     <Compile Include="Scheduler\TimeTable.cs" />
     <Compile Include="Scheduler\WorkSchoolProjectStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using XTMF;
@@ -58,7 +59,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
         public void Load()
         {
             double minDistance = double.PositiveInfinity;
-            var zones = this.Root.ZoneSystem.ZoneArray;
+            var zones = Root.ZoneSystem.ZoneArray;
             bool any = false;
             for ( int i = 0; i < TestAgainstZones.Count; i++ )
             {
@@ -78,14 +79,14 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
             }
             if ( !any )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to find any zone number in the range '" + this.TestAgainstZones.ToString() + "' in order to compute the minimum distance!" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to find any zone number in the range '" + TestAgainstZones + "' in order to compute the minimum distance!" );
             }
-            this.MinimumDistance = minDistance;
+            MinimumDistance = minDistance;
         }
 
         public bool ProduceResult(Pair<IZone, IZone> data)
         {
-            if ( this.MinimumDistance < 0 )
+            if ( MinimumDistance < 0 )
             {
                 Load();
             }
@@ -94,9 +95,9 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.TestAgainstZones.Count <= 0 )
+            if ( TestAgainstZones.Count <= 0 )
             {
-                error = "In '" + this.Name + "' you need to select at least one zone to be used to compute the minimum distance for the origin, and the containment for the destination!.";
+                error = "In '" + Name + "' you need to select at least one zone to be used to compute the minimum distance for the origin, and the containment for the destination!.";
                 return false;
             }
             return true;
@@ -104,27 +105,27 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
 
         public void Unload()
         {
-            this.MinimumDistance = -1.0;
+            MinimumDistance = -1.0;
         }
 
         private double CalcDistance(IZone zone)
         {
             var x = zone.X;
             var y = zone.Y;
-            return Math.Sqrt( ( x - this.PointX ) * ( x - this.PointX )
-                            + ( y - this.PointY ) * ( y - this.PointY ) );
+            return Math.Sqrt( ( x - PointX ) * ( x - PointX )
+                            + ( y - PointY ) * ( y - PointY ) );
         }
 
         private bool TestDestination(IZone destination)
         {
             // the origin needs to be outside of the radius
-            return CalcDistance( destination ) <= this.MinimumDistance;
+            return CalcDistance( destination ) <= MinimumDistance;
         }
 
         private bool TestOrigin(IZone origin)
         {
             // the origin needs to be outside of the radius
-            return CalcDistance( origin ) >= this.MinimumDistance;
+            return CalcDistance( origin ) >= MinimumDistance;
         }
     }
 }

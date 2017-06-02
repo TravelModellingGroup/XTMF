@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace XTMF.Run
 {
@@ -53,7 +50,7 @@ namespace XTMF.Run
                         Console.WriteLine("There was no model system in the project " + project.Name + " called " + modelSystemName + "!");
                         return;
                     case 1:
-                        Program.Run(modelSystems[0].Index, projectSession, runName);
+                        Run(modelSystems[0].Index, projectSession, runName);
                         break;
                     default:
                         Console.WriteLine("There were multiple model systems in the project " + project.Name + " called " + modelSystemName + "!");

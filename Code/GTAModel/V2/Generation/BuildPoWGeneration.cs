@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using Datastructure;
 using XTMF;
@@ -34,7 +35,7 @@ namespace TMG.GTAModel.V2.Generation
         public override void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             // never gets called
-            throw new XTMFRuntimeException( "For '" + this.Name + "' this generate method should never be called!" );
+            throw new XTMFRuntimeException( "For '" + Name + "' this generate method should never be called!" );
         }
 
         public override bool RuntimeValidation(ref string error)
@@ -46,14 +47,14 @@ namespace TMG.GTAModel.V2.Generation
         private void AddNewGeneration(List<IDemographicCategoryGeneration> list, int occ, Range age, int employmentStatus, int mobility)
         {
             PowGeneration gen = new PowGeneration();
-            gen.Root = this.Root;
+            gen.Root = Root;
             gen.OccupationCategory = CreateRangeSet( occ );
             gen.AgeCategoryRange = CreateRangeSet( age );
             gen.EmploymentStatusCategory = CreateRangeSet( employmentStatus );
             gen.Mobility = CreateRangeSet( mobility );
-            gen.ModeChoiceParameterSetIndex = this.ModeChoiceParameterSetIndex;
+            gen.ModeChoiceParameterSetIndex = ModeChoiceParameterSetIndex;
             gen.DemographicParameterSetIndex = GetDemographicIndex( age.Start, employmentStatus, mobility );
-            gen.AllAges = this.AgeCategoryRange;
+            gen.AllAges = AgeCategoryRange;
             list.Add( gen );
         }
 
@@ -68,45 +69,33 @@ namespace TMG.GTAModel.V2.Generation
                 case 3:
                     return 1;
 
-                case 2:
-                case 4:
                 default:
                     return 2;
             }
         }
 
-        private RangeSet CreateRangeSet(int occ)
-        {
-            var set = new List<Range>();
-            set.Add( new Range() { Start = occ, Stop = occ } );
-            return new RangeSet( set );
-        }
+        private RangeSet CreateRangeSet(int occ) => new RangeSet(new List<Range> { new Range(occ, occ) });
 
-        private RangeSet CreateRangeSet(Range range)
-        {
-            var set = new List<Range>();
-            set.Add( range );
-            return new RangeSet( set );
-        }
+        private RangeSet CreateRangeSet(Range range) => new RangeSet(new List<Range> { range });
 
         private void GenerateChildren()
         {
             // we need to generate our children here
-            var list = this.Parent.Categories;
+            var list = Parent.Categories;
             list.Remove( this );
-            foreach ( var occSet in this.OccupationCategory )
+            foreach ( var occSet in OccupationCategory )
             {
-                for ( int occ = occSet.Start; occ <= occSet.Stop; occ++ )
+                for ( var occ = occSet.Start; occ <= occSet.Stop; occ++ )
                 {
-                    foreach ( var empSet in this.EmploymentStatusCategory )
+                    foreach ( var empSet in EmploymentStatusCategory )
                     {
                         for ( int employmentStatus = empSet.Start; employmentStatus <= empSet.Stop; employmentStatus++ )
                         {
-                            foreach ( var mobilitySet in this.Mobility )
+                            foreach ( var mobilitySet in Mobility )
                             {
                                 for ( int mobility = mobilitySet.Start; mobility <= mobilitySet.Stop; mobility++ )
                                 {
-                                    foreach ( var ageSet in this.AgeCategoryRange )
+                                    foreach ( var ageSet in AgeCategoryRange )
                                     {
                                         AddNewGeneration( list, occ, ageSet, employmentStatus, mobility );
                                     }
@@ -137,19 +126,12 @@ namespace TMG.GTAModel.V2.Generation
                                 empOffset = 0;
                                 break;
 
-                            case 1:
                             default:
                                 empOffset = 3;
                                 break;
                         }
                         return ChildAgeIndex( mobility ) + 3 + empOffset;
                     }
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
                 default:
                     int ageOffset = ( ( age < 6 ? age : 6 ) - 3 ) * 12;
                     int employmentOffset = ( employmentStatus == 1 ? 3 : 0 );

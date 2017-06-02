@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -44,13 +45,13 @@ namespace XTMF.Gui.UserControls
         {
             get
             {
-                return this._Header;
+                return _Header;
             }
 
             set
             {
-                this._Header = value;
-                this.NotifyChanged( "HeaderText" );
+                _Header = value;
+                NotifyChanged( "HeaderText" );
             }
         }
 
@@ -58,12 +59,12 @@ namespace XTMF.Gui.UserControls
         {
             get
             {
-                return this.InputTextBox.HintText;
+                return InputTextBox.HintText;
             }
 
             set
             {
-                this.InputTextBox.HintText = value;
+                InputTextBox.HintText = value;
             }
         }
 
@@ -71,12 +72,12 @@ namespace XTMF.Gui.UserControls
         {
             get
             {
-                return this.InputTextBox.Text;
+                return InputTextBox.Text;
             }
 
             set
             {
-                this.InputTextBox.Text = value;
+                InputTextBox.Text = value;
             }
         }
 
@@ -85,25 +86,25 @@ namespace XTMF.Gui.UserControls
             if ( e.Handled == false )
             {
                 e.Handled = true;
-                Keyboard.Focus( this.InputTextBox );
+                Keyboard.Focus( InputTextBox );
             }
             base.OnGotFocus( e );
         }
 
         private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.NotifyChanged( "Text" );
-            if ( this.TextChanged != null )
+            NotifyChanged( "Text" );
+            if ( TextChanged != null )
             {
-                this.TextChanged( this );
+                TextChanged( this );
             }
         }
 
         private void NotifyChanged(string propertyName)
         {
-            if ( this.PropertyChanged != null )
+            if ( PropertyChanged != null )
             {
-                this.PropertyChanged( this, new PropertyChangedEventArgs( propertyName ) );
+                PropertyChanged( this, new PropertyChangedEventArgs( propertyName ) );
             }
         }
     }

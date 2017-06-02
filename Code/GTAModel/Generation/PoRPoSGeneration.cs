@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,7 @@ using XTMF;
 
 namespace TMG.GTAModel
 {
+    // ReSharper disable once InconsistentNaming
     public class PoRPoSGeneration : DemographicCategoryGeneration
     {
         [RunParameter("Generation FileName", "", "The name of the file to save to, this will append the file. Leave blank to not save.")]
@@ -50,13 +52,13 @@ namespace TMG.GTAModel
             {
                 if ( DailyRates == null )
                 {
-                    this.LoadDailyRates.LoadData();
-                    this.DailyRates = this.LoadDailyRates.GiveData();
+                    LoadDailyRates.LoadData();
+                    DailyRates = LoadDailyRates.GiveData();
                 }
                 if ( TimeOfDayRates == null )
                 {
-                    this.LoadTimeOfDayRates.LoadData();
-                    this.TimeOfDayRates = this.LoadTimeOfDayRates.GiveData();
+                    LoadTimeOfDayRates.LoadData();
+                    TimeOfDayRates = LoadTimeOfDayRates.GiveData();
                 }
             }
             var flatProduction = production.GetFlatData();
@@ -69,14 +71,9 @@ namespace TMG.GTAModel
             //The PoRPoS Model does NOT include having an attraction component.  The distribution will handle this case.
             if ( LoadData )
             {
-                this.DailyRates = null;
-                this.TimeOfDayRates = null;
+                DailyRates = null;
+                TimeOfDayRates = null;
             }
-        }
-
-        public override bool RuntimeValidation(ref string error)
-        {
-            return base.RuntimeValidation( ref error );
         }
 
         private static float EmployedMobilityProbability(int mobility, int emp, int occ, SparseTriIndex<float> ncars, int age, SparseTwinIndex<float> dlicRate)
@@ -96,7 +93,7 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, emp] * ncars[1, occ, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility.ToString() + "'!" );
+                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
             }
         }
 
@@ -117,7 +114,7 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, 0] * ncars[1, age, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility.ToString() + "'!" );
+                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
             }
         }
 
@@ -130,19 +127,13 @@ namespace TMG.GTAModel
             {
                 return UnemployedMobilityProbability( mobility, ncars, age, dlicRate );
             }
-            else
-            {
-                return EmployedMobilityProbability( mobility, emp, occ, ncars, age, dlicRate );
-            }
+            return EmployedMobilityProbability( mobility, emp, occ, ncars, age, dlicRate );
         }
 
-        private float ComputeProduction(float[] flatProduction, int numberOfZones)
+        private void ComputeProduction(float[] flatProduction, int numberOfZones)
         {
-            float totalProduction = 0;
-            object totalProductionLock = new object();
-            var flatPopulation = this.Root.Population.Population.GetFlatData();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate (int i)
             {
                 if ( zones[i].Population <= 0 | zones[i].RegionNumber == 0 )
@@ -150,21 +141,21 @@ namespace TMG.GTAModel
                     return;
                 }
                 float temp = 0f;
-                var ppDataSpacialIndex = this.UsesPlanningDistricts ? zones[i].PlanningDistrict : zones[i].ZoneNumber;
-                var ageRates = this.Root.Demographics.AgeRates;
-                var empRates = this.Root.Demographics.EmploymentStatusRates.GetFlatData()[i];
-                var occRates = this.Root.Demographics.OccupationRates.GetFlatData()[i];
-                var dlicRate = this.Root.Demographics.DriversLicenseRates.GetFlatData()[i];
-                var ncars = this.Root.Demographics.WorkerVehicleRates.GetFlatData()[i];
-                var unempCars = this.Root.Demographics.NonWorkerVehicleRates.GetFlatData()[i];
-                var studentRates = this.Root.Demographics.SchoolRates.GetFlatData()[i];
-                foreach ( var aSet in this.AgeCategoryRange )
+                var ppDataSpacialIndex = UsesPlanningDistricts ? zones[i].PlanningDistrict : zones[i].ZoneNumber;
+                var ageRates = Root.Demographics.AgeRates;
+                var empRates = Root.Demographics.EmploymentStatusRates.GetFlatData()[i];
+                var occRates = Root.Demographics.OccupationRates.GetFlatData()[i];
+                var dlicRate = Root.Demographics.DriversLicenseRates.GetFlatData()[i];
+                var ncars = Root.Demographics.WorkerVehicleRates.GetFlatData()[i];
+                var unempCars = Root.Demographics.NonWorkerVehicleRates.GetFlatData()[i];
+                var studentRates = Root.Demographics.SchoolRates.GetFlatData()[i];
+                foreach ( var aSet in AgeCategoryRange )
                 {
                     for ( int age = aSet.Start; age <= aSet.Stop; age++ )
                     {
                         // The data is actually 2D, we just dereference to 0 for easier module access
-                        var ppGenerationRate = this.DailyRates[ppDataSpacialIndex, age, 0] * this.TimeOfDayRates[ppDataSpacialIndex, age, 0];
-                        foreach ( var empSet in this.EmploymentStatusCategory )
+                        var ppGenerationRate = DailyRates[ppDataSpacialIndex, age, 0] * TimeOfDayRates[ppDataSpacialIndex, age, 0];
+                        foreach ( var empSet in EmploymentStatusCategory )
                         {
                             for ( int emp = empSet.Start; emp <= empSet.Stop; emp++ )
                             {
@@ -183,7 +174,6 @@ namespace TMG.GTAModel
                 }
                 flatProduction[i] = temp;
             } );
-            return totalProduction;
         }
 
         private float GenerateForNonWorkingStudent(IZone[] zones, int zoneIndex, SparseTwinIndex<float> ageRates, SparseTwinIndex<float> empRates, SparseTwinIndex<float> dlicRate, SparseTriIndex<float> unempCars, int age, float ppGenerationRate, int emp, float studentFactor)
@@ -192,7 +182,7 @@ namespace TMG.GTAModel
             var nonMobilityCategoryRate = ageRates[zones[zoneIndex].ZoneNumber, age]
                         * empRates[age, emp]
                         * studentFactor;
-            foreach ( var mobilitySet in this.Mobility )
+            foreach ( var mobilitySet in Mobility )
             {
                 for ( int mob = mobilitySet.Start; mob <= mobilitySet.Stop; mob++ )
                 {
@@ -211,12 +201,12 @@ namespace TMG.GTAModel
             float temp = 0;
             var ageEmpRate = ageRates[zones[zoneIndex].ZoneNumber, age]
                                 * empRates[age, emp] * studentFactor;
-            foreach ( var occSet in this.OccupationCategory )
+            foreach ( var occSet in OccupationCategory )
             {
                 for ( int occ = occSet.Start; occ <= occSet.Stop; occ++ )
                 {
                     var nonMobilityRate = ageEmpRate * occRates[age, emp, occ];
-                    foreach ( var mobilitySet in this.Mobility )
+                    foreach ( var mobilitySet in Mobility )
                     {
                         for ( int mob = mobilitySet.Start; mob <= mobilitySet.Stop; mob++ )
                         {
@@ -234,23 +224,23 @@ namespace TMG.GTAModel
 
         private void WriteGenerationCSV(float totalProduction)
         {
-            if ( !String.IsNullOrEmpty( this.GenerationOutputFileName ) )
+            if ( !String.IsNullOrEmpty( GenerationOutputFileName ) )
             {
-                bool first = !File.Exists( this.GenerationOutputFileName );
+                bool first = !File.Exists( GenerationOutputFileName );
                 // if the file name exists try to write to it, appending
-                using (StreamWriter writer = new StreamWriter( this.GenerationOutputFileName, true ))
+                using (StreamWriter writer = new StreamWriter( GenerationOutputFileName, true ))
                 {
                     if ( first )
                     {
                         writer.WriteLine( "Age,Employment,Occupation,Mobility,Total" );
                     }
-                    writer.Write( this.AgeCategoryRange.ToString() );
+                    writer.Write( AgeCategoryRange.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.EmploymentStatusCategory.ToString() );
+                    writer.Write( EmploymentStatusCategory.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.OccupationCategory.ToString() );
+                    writer.Write( OccupationCategory.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.Mobility.ToString() );
+                    writer.Write( Mobility.ToString() );
                     writer.Write( ',' );
                     writer.WriteLine( totalProduction );
                 }

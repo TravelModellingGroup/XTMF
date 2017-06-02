@@ -17,7 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using XTMF.Networking;
 
 namespace XTMF
@@ -76,9 +75,9 @@ namespace XTMF
         ///
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="ReportProgress"></param>
-        /// <param name="Color"></param>
-        void CreateProgressReport(string name, Func<float> ReportProgress, Tuple<byte, byte, byte> Color = null);
+        /// <param name="reportProgress"></param>
+        /// <param name="color"></param>
+        void CreateProgressReport(string name, Func<float> reportProgress, Tuple<byte, byte, byte> color = null);
 
         /// <summary>
         ///
@@ -130,7 +129,7 @@ namespace XTMF
         ///
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="Color"></param>
-        void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> Color);
+        /// <param name="color"></param>
+        void UpdateProgressReportColour(string name, Tuple<byte, byte, byte> color);
     }
 }

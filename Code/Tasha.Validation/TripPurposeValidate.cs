@@ -168,11 +168,11 @@ namespace Tasha.Validation
                         dirInfo.Create();
                     }
                 }
-                using (StreamWriter Writer = new StreamWriter(FileName))
+                using (StreamWriter writer = new StreamWriter(FileName))
                 {
                     if(SaveOD)
                     {
-                        Writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");
+                        writer.WriteLine("OriginZone,DestinationZone,TripPurpose,NumberOfOccurrences");
                         foreach(var origin in ODPurposeDictionary.ValidIndexes())
                         {
                             var originStr = origin.ToString();
@@ -184,7 +184,7 @@ namespace Tasha.Validation
                                 {
                                     foreach(var pair in dictionary)
                                     {
-                                        Writer.WriteLine("{0},{1},{2},{3}", originStr, destStr, pair.Key, pair.Value);
+                                        writer.WriteLine("{0},{1},{2},{3}", originStr, destStr, pair.Key, pair.Value);
                                    } 
                                 }
                             }
@@ -192,10 +192,10 @@ namespace Tasha.Validation
                     }
                     else
                     {
-                        Writer.WriteLine("Trip Purpose, Number of Occurrences");
+                        writer.WriteLine("Trip Purpose, Number of Occurrences");
                         foreach(var pair in PurposeDictionary)
                         {
-                            Writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
+                            writer.WriteLine("{0}, {1}", pair.Key, pair.Value);
                         }
                     }
                 }

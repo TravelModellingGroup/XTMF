@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -31,6 +31,7 @@ namespace TMG
         /// This will load the parameter data into the modes
         /// </summary>
         /// <param name="parameterSetIndex">The index to load</param>
+        /// <param name="demographicIndex"></param>
         void ApplyParameterSet(int parameterSetIndex, int demographicIndex);
 
         void CompleteBlend();

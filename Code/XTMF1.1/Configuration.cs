@@ -39,6 +39,7 @@ namespace XTMF
 
         // The configuration file name will be saved when initializing the object
         private string ConfigurationFileName;
+        private string _theme;
         private IClient CurrentClient = null;
         private IHost CurrentHost = null;
         private string ModuleDirectory = "Modules";
@@ -50,17 +51,34 @@ namespace XTMF
 
         }
 
-        public Configuration(string configurationFileName, Assembly baseAssembly = null)
+        public string Theme
+        {
+            get
+            {
+                return _theme;
+            }
+
+            set { _theme = value; }
+        }
+
+   
+        
+
+        public Configuration(string configurationFileName, Assembly baseAssembly = null, bool loadModules = true)
         {
             HostPort = 1447;
             BaseAssembly = baseAssembly;
             ProgressReports = new BindingListWithRemoving<IProgressReport>();
             LoadUserConfiguration(configurationFileName);
-            Directory.SetCurrentDirectory(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
             ModelRepository = new ModuleRepository();
             ModelSystemTemplateRepository = new ModelSystemTemplateRepository();
             LoadVersion();
-            LoadModules();
+
+            if (loadModules)
+            {
+                LoadModules();
+            }
             try
             {
                 ModelSystemRepository = new ModelSystemRepository(this);
@@ -88,23 +106,32 @@ namespace XTMF
         private void LoadVersion()
         {
             Version version;
+            version = new Version(0, 0, 0);
             string buildDate = "Unknown Build Date";
             try
             {
                 var assemblyLocation = Assembly.GetEntryAssembly().Location;
                 var versionFile = Path.Combine(Path.GetDirectoryName(assemblyLocation), "version.txt");
-                using (StreamReader reader = new StreamReader(versionFile))
+
+                if (File.Exists(versionFile))
                 {
-                    version = new Version(reader.ReadLine());
-                    if(!reader.EndOfStream)
+                    using (StreamReader reader = new StreamReader(versionFile))
                     {
-                        buildDate = reader.ReadLine();
+                        version = new Version(reader.ReadLine());
+                        if (!reader.EndOfStream)
+                        {
+                            buildDate = reader.ReadLine();
+                        }
                     }
+                }
+                else
+                {
+                    
                 }
             }
             catch
             {
-                version = new Version(0, 0, 0);
+                
             }
             XTMFVersion = version;
             BuildDate = buildDate;
@@ -449,7 +476,7 @@ namespace XTMF
             return true;
         }
 
-        public bool StartupNetworkingClient(out Networking.IClient networkingClient, ref string error)
+        public bool StartupNetworkingClient(out IClient networkingClient, ref string error)
         {
             networkingClient = null;
             lock (this)
@@ -477,7 +504,7 @@ namespace XTMF
             }
         }
 
-        public bool StartupNetworkingHost(out Networking.IHost networkingHost, ref string error)
+        public bool StartupNetworkingHost(out IHost networkingHost, ref string error)
         {
             networkingHost = null;
             lock (this)
@@ -560,34 +587,53 @@ namespace XTMF
         {
             Type module = typeof(IModule);
             Type modelSystem = typeof(IModelSystemTemplate);
-            var types = assembly.GetTypes();
-            for (int i = 0; i < types.Length; i++)
+            try
             {
-                var type = types[i];
-                // Make sure that they are valid types
-                FreeVariableType.Add(type);
-                if (type.IsAbstract | type.IsNotPublic | !(type.IsClass | type.IsValueType)) continue;
-                if (module.IsAssignableFrom(type))
+                var types = assembly.GetTypes();
+                for (int i = 0; i < types.Length; i++)
                 {
-                    string error = null;
-                    if (CheckTypeForErrors(type, ref error))
+                    var type = types[i];
+                    if (type.IsNotPublic || InvalidClassName(type)) continue;
+                    // Make sure that they are valid types
+                    FreeVariableType.Add(type);
+                    if (type.IsAbstract || !(type.IsClass || type.IsValueType)) continue;
+                    if (module.IsAssignableFrom(type))
                     {
-                        LoadError = error;
-                    }
-                    // we know then that this is an IModel
-                    lock (ModelRepository)
-                    {
-                        ModelRepository.AddModule(type);
-                    }
-                    if (modelSystem.IsAssignableFrom(type))
-                    {
-                        lock (ModelSystemTemplateRepository)
+                        string error = null;
+                        if (CheckTypeForErrors(type, ref error))
                         {
-                            ModelSystemTemplateRepository.Add(type);
+                            LoadError = error;
+                        }
+                        // we know then that this is an IModel
+                        lock (ModelRepository)
+                        {
+                            ModelRepository.AddModule(type);
+                        }
+                        if (modelSystem.IsAssignableFrom(type))
+                        {
+                            lock (ModelSystemTemplateRepository)
+                            {
+                                ModelSystemTemplateRepository.Add(type);
+                            }
                         }
                     }
                 }
             }
+            catch(TypeLoadException e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        /// <summary>
+        /// Check to see if the given type should not be loaded given its name
+        /// </summary>
+        /// <param name="type">The type to check for</param>
+        /// <returns>If it should not be loaded</returns>
+        private static bool InvalidClassName(Type type)
+        {
+            var c = type.Name[0];
+            return c == '_' || c == '<';
         }
 
         /// <summary>
@@ -686,7 +732,7 @@ namespace XTMF
                 doc.Load(configFileName);
                
             }
-            catch(XmlException exception)
+            catch(XmlException)
             {
                 SaveConfiguration(configFileName);
                 return;
@@ -776,6 +822,16 @@ namespace XTMF
                             }
                         }
                         break;
+                    case "Theme":
+                    {
+                        var attribute = child.Attributes["Value"];
+                        if (attribute != null)
+                        {
+                            _theme = attribute.InnerText;
+                        }
+                     
+                    }
+                        break;
                     default:
                         {
                             var attribute = child.Attributes["Value"];
@@ -816,6 +872,13 @@ namespace XTMF
                 });
             }
             return validTypes.ToList();
+        }
+
+        public void LoadModules(Action loadModulesCompleteAction)
+        {
+            LoadModules();
+
+            loadModulesCompleteAction.Invoke();
         }
 
         private void LoadModules()
@@ -887,8 +950,12 @@ namespace XTMF
 
         private void SaveConfiguration(string configFileName)
         {
-            using (XmlWriter writer = XmlTextWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode }))
+            
+            using (XmlWriter writer = XmlWriter.Create(configFileName, new XmlWriterSettings() { Encoding = Encoding.Unicode, Indent = true, NewLineOnAttributes = true }))
             {
+
+    
+                
                 // Start the document and create the default root node
                 writer.WriteStartDocument(true);
                 writer.WriteStartElement("Root");
@@ -942,6 +1009,12 @@ namespace XTMF
 
 
                 writer.WriteEndElement();
+
+
+                writer.WriteStartElement("Theme");
+                writer.WriteAttributeString("Value",_theme);
+                writer.WriteEndElement();
+
                 //Finished writing all of the settings so we can finish the document now
                 writer.WriteEndElement();
                 writer.WriteEndDocument();

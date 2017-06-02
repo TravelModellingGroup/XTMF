@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Datastructure;
 using TMG.Input;
 using XTMF;
@@ -61,8 +60,8 @@ namespace TMG.Estimation.AI
         public List<Job> CreateJobsForIteration()
         {
             var ret = new List<Job>();
-            var parameters = this.Root.Parameters.ToArray();
-            using(var reader = new CsvReader(this.ResultFile.GetFilePath()))
+            var parameters = Root.Parameters.ToArray();
+            using(var reader = new CsvReader(ResultFile.GetFilePath()))
             {
                 int[] columnToParameterMap = CreateParameterMap(reader);
                 var baseParameters = LoadBaseParameters(parameters, reader, columnToParameterMap);
@@ -129,15 +128,6 @@ namespace TMG.Estimation.AI
             int columns;
             if(reader.LoadLine(out columns))
             {
-                var job = new Job()
-                {
-                    ProcessedBy = null,
-                    Processing = false,
-                    Processed = false,
-                    Value = float.NaN,
-                    Parameters = baseParameters
-                };
-
                 for(int i = 0; i < parameters.Length; i++)
                 {
                     baseParameters[i] = new ParameterSetting()
@@ -158,7 +148,7 @@ namespace TMG.Estimation.AI
 
         private int[] CreateParameterMap(CsvReader reader)
         {
-            var parameters = this.Root.Parameters.ToArray();
+            var parameters = Root.Parameters.ToArray();
             int columns;
             reader.LoadLine( out columns );
             var ret = new int[columns - 2];
@@ -171,7 +161,7 @@ namespace TMG.Estimation.AI
                                           select p ).FirstOrDefault();
                 if ( selectedParameter == null )
                 {
-                    throw new XTMFRuntimeException( "In '" + this.Name + " the parameter '" + name + "' could not be resolved." );
+                    throw new XTMFRuntimeException( "In '" + Name + " the parameter '" + name + "' could not be resolved." );
                 }
                 ret[i - 2] = IndexOf( parameters, selectedParameter );
             }
@@ -189,8 +179,8 @@ namespace TMG.Estimation.AI
 
         public void IterationComplete()
         {
-            var jobs = this.Root.CurrentJobs;
-            var parameters = this.Root.Parameters;
+            var jobs = Root.CurrentJobs;
+            var parameters = Root.Parameters;
             // job 0 is no parameters included
             // job 1 is all parameters included
             var zeroValue = jobs[0].Value;

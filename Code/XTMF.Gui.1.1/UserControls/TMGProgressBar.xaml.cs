@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Globalization;
 using System.Windows;
@@ -29,13 +30,13 @@ namespace XTMF.Gui
     /// </summary>
     public partial class TMGProgressBar : Control
     {
-        private bool _IsIndeterminate = false;
+        private bool _IsIndeterminate;
         private int _Maximum;
         private int _Minimum;
-        private float _Value = 0;
+        private float _Value;
         private LinearGradientBrush BottomBrush = new LinearGradientBrush();
         private SolidColorBrush ForgroundBrush;
-        private Pen OutlinePen = new Pen() { Brush = Brushes.Gray };
+        private Pen OutlinePen = new Pen { Brush = Brushes.Gray };
         private LinearGradientBrush OverlayBrush;
         private DateTime StartTime = DateTime.Now;
 
@@ -64,6 +65,8 @@ namespace XTMF.Gui
 
             BottomBrush.GradientStops.Add( new GradientStop( Colors.Transparent, 0 ) );
             BottomBrush.GradientStops.Add( new GradientStop( transparent, 1 ) );
+
+            Value = 25;
         }
 
         public bool Finished

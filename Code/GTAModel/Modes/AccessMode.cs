@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,78 +16,81 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Datastructure;
 using TMG.Input;
 using TMG.Modes;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel.Modes
 {
     public class AccessMode : IStationCollectionMode, IUtilityComponentMode, IIterationSensitive
     {
-        [RunParameter( "Access Cost", 0f, "The cost of travelling from the origin to the access station." )]
+        [RunParameter("Access Cost", 0f, "The cost of travelling from the origin to the access station.")]
         public float AccessCost;
 
-        [RunParameter( "Access IVTT", 0f, "The factor to apply to the general time of travel." )]
+        [RunParameter("Access IVTT", 0f, "The factor to apply to the general time of travel.")]
         public float AccessInVehicleTravelTime;
 
-        [RunParameter( "Access Network Name", "Auto", "The name of the network to use to get to the interchange." )]
+        [RunParameter("Access Network Name", "Auto", "The name of the network to use to get to the interchange.")]
         public string AccessModeName;
 
-        [RunParameter( "AgeConstant1", 0.0f, "An additive constant for persons for different ages." )]
+        [RunParameter("AgeConstant1", 0.0f, "An additive constant for persons for different ages.")]
         public float AgeConstant1;
 
-        [RunParameter( "AgeConstant2", 0.0f, "An additive constant for persons for different ages." )]
+        [RunParameter("AgeConstant2", 0.0f, "An additive constant for persons for different ages.")]
         public float AgeConstant2;
 
-        [RunParameter( "AgeConstant3", 0.0f, "An additive constant for persons for different ages." )]
+        [RunParameter("AgeConstant3", 0.0f, "An additive constant for persons for different ages.")]
         public float AgeConstant3;
 
-        [RunParameter( "AgeConstant4", 0.0f, "An additive constant for persons for different ages." )]
+        [RunParameter("AgeConstant4", 0.0f, "An additive constant for persons for different ages.")]
         public float AgeConstant4;
 
-        [RunParameter( "Alternative Access Network Name", "", "The name of the network to use to get to the interchange if the first one fails." )]
+        [RunParameter("Alternative Access Network Name", "", "The name of the network to use to get to the interchange if the first one fails.")]
         public string AlternativePrimaryModeName;
 
-        [RunParameter( "Bording Time", 0f, "The factor applied to the boarding time." )]
+        [RunParameter("Bording Time", 0f, "The factor applied to the boarding time.")]
         public float BoardingTime;
 
-        [RunParameter( "Closest", 1.4437f, "The constant to be added if we are the closest station to the origin." )]
+        [RunParameter("Closest", 1.4437f, "The constant to be added if we are the closest station to the origin.")]
         public float Closest;
 
-        [RunParameter( "Closest Distance", 0f, "The factor to apply to the distance if this is the closest station between the origin and this station." )]
+        [RunParameter("Closest Distance", 0f, "The factor to apply to the distance if this is the closest station between the origin and this station.")]
         public float ClosestDistance;
 
-        [RunParameter( "Compute Egress Station", true, "Compute the station to egress to?" )]
+        [RunParameter("Compute Egress Station", true, "Compute the station to egress to?")]
         public bool ComputeEgressStation;
 
-        [RunParameter( "Constant", 0.0f, "A base constant for the utility." )]
+        [RunParameter("Constant", 0.0f, "A base constant for the utility.")]
         public float Constant;
 
-        [RunParameter( "Cost", 0f, "The factor applied to the cost after access." )]
+        [RunParameter("Cost", 0f, "The factor applied to the cost after access.")]
         public float CostFactor;
 
-        [RunParameter( "Destination Employment Density", 0.0f, "The weight to use for the employment density of the destination zone." )]
+        [RunParameter("Destination Employment Density", 0.0f, "The weight to use for the employment density of the destination zone.")]
         public float DestinationEmploymentDensity;
 
-        [RunParameter( "Destination Population Density", 0.0f, "The weight to use for the population density of the destination zone." )]
+        [RunParameter("Destination Population Density", 0.0f, "The weight to use for the population density of the destination zone.")]
         public float DestinationPopulationDensity;
 
-        [RunParameter( "Egress Walk Factor", 2.0f, "The factor to walking time into minutes when computing the egress station." )]
+        [RunParameter("Egress Walk Factor", 2.0f, "The factor to walking time into minutes when computing the egress station.")]
         public float EgressWalkFactor;
 
-        [RunParameter( "Egress Wait Factor", 2.0f, "The factor to waiting time into minutes when computing the egress station." )]
+        [RunParameter("Egress Wait Factor", 2.0f, "The factor to waiting time into minutes when computing the egress station.")]
         public float EgressWaitFactor;
 
-        [RunParameter( "Egress Network Name", "Transit", "The name of the network to use after going to the egress zone." )]
+        [RunParameter("Egress Network Name", "Transit", "The name of the network to use after going to the egress zone.")]
         public string EgressNetworkName;
 
-        [RunParameter( "Exclude Line Hull", false, "Don't include the line hull into the utility function." )]
+        [RunParameter("Exclude Line Hull", false, "Don't include the line hull into the utility function.")]
         public bool ExcludeLineHull;
 
-        [SubModelInformation( Description = "An optional test for mode feasibility.", Required = false )]
+        [SubModelInformation(Description = "An optional test for mode feasibility.", Required = false)]
         public ICalculation<Pair<IZone, IZone>, bool> FeasibilityTest;
 
         [DoNotAutomate]
@@ -96,37 +99,37 @@ namespace TMG.GTAModel.Modes
         [DoNotAutomate]
         public INetworkData FirstAlternative;
 
-        [RunParameter( "General Time", -0.103420f, "The factor to apply to the general time of travel." )]
+        [RunParameter("General Time", -0.103420f, "The factor to apply to the general time of travel.")]
         public float GeneralTime;
 
-        [RunParameter( "Log Trains Factor", 0.013336f, "The factor to apply to the number of trains the occur during the peak period." )]
+        [RunParameter("Log Trains Factor", 0.013336f, "The factor to apply to the number of trains the occur during the peak period.")]
         public float LogTrainsFactor;
 
-        [RunParameter( "Max Access Stations", 5, "The maximum access stations to consider when computing utility." )]
+        [RunParameter("Max Access Stations", 5, "The maximum access stations to consider when computing utility.")]
         public int MaxAccessStations;
 
-        [RunParameter( "Max Access To Destination Time", 150f, "The maximum time in minutes that going from an access station to the destination." )]
+        [RunParameter("Max Access To Destination Time", 150f, "The maximum time in minutes that going from an access station to the destination.")]
         public float MaxAccessToDestinationTime;
 
-        [RunParameter( "Min Access Station LogsumValue", -10f, "The minimum utility that the logsum of access stations can produce and still have a feasible trip." )]
+        [RunParameter("Min Access Station LogsumValue", -10f, "The minimum utility that the logsum of access stations can produce and still have a feasible trip.")]
         public float MinAccessStationLogsumValue;
 
-        [RunParameter( "Origin Employment Density", 0.0f, "The weight to use for the employment density of the origin zone." )]
+        [RunParameter("Origin Employment Density", 0.0f, "The weight to use for the employment density of the origin zone.")]
         public float OriginEmploymentDensity;
 
-        [RunParameter( "Origin Population Density", 0.0f, "The weight to use for the population density of the origin zone." )]
+        [RunParameter("Origin Population Density", 0.0f, "The weight to use for the population density of the origin zone.")]
         public float OriginPopulationDensity;
 
-        [RunParameter( "Parking Cost", 0f, "The factor applied to the cost of parking at the access station." )]
+        [RunParameter("Parking Cost", 0f, "The factor applied to the cost of parking at the access station.")]
         public float ParkingCost;
 
-        [RunParameter( "Parking Factor", 0.388380f, "The factor applied to the log of the number of parking spots." )]
+        [RunParameter("Parking Factor", 0.388380f, "The factor applied to the log of the number of parking spots.")]
         public float ParkingFactor;
 
-        [RunParameter( "Primary Network Name", "Transit", "The name of the network to use after the interchange." )]
+        [RunParameter("Primary Network Name", "Transit", "The name of the network to use after the interchange.")]
         public string PrimaryModeName;
 
-        [RunParameter( "Require Parking", true, "Skip stations that do not have a parking spot." )]
+        [RunParameter("Require Parking", true, "Skip stations that do not have a parking spot.")]
         public bool RequireParking;
 
         [RootModule]
@@ -135,19 +138,19 @@ namespace TMG.GTAModel.Modes
         [DoNotAutomate]
         public ITripComponentData Second;
 
-        [SubModelInformation( Description = "(Origin = Station Number, Destination = Parking Spots, Data = Number Of Trains)", Required = true )]
+        [SubModelInformation(Description = "(Origin = Station Number, Destination = Parking Spots, Data = Number Of Trains)", Required = true)]
         public IReadODData<float> StationInformationReader;
 
         [DoNotAutomate]
         public ITripComponentData Third;
 
-        [RunParameter( "Trains Factor", 0.013336f, "The factor to apply to the number of trains the occur during the peak period." )]
+        [RunParameter("Trains Factor", 0.013336f, "The factor to apply to the number of trains the occur during the peak period.")]
         public float TrainsFactor;
 
-        [RunParameter( "Wait Time", -0.086483f, "The factor to apply to the wait time." )]
+        [RunParameter("Wait Time", -0.086483f, "The factor to apply to the wait time.")]
         public float WaitTime;
 
-        [RunParameter( "Walk Time", -0.295330f, "The factor to apply to the general time of travel." )]
+        [RunParameter("Walk Time", -0.295330f, "The factor to apply to the general time of travel.")]
         public float WalkTime;
 
         private bool _Access;
@@ -156,20 +159,20 @@ namespace TMG.GTAModel.Modes
 
         private SparseTwinIndex<CacheData> Cache;
 
-        private Time CacheTime = new Time() { Hours = -1 };
+        private Time CacheTime = new Time { Hours = -1 };
 
-        private int lastIteration = -1;
+        private int LastIteration = -1;
 
-        [RunParameter( "Access", true, "Is this mode in access mode or egress mode?" )]
+        [RunParameter("Access", true, "Is this mode in access mode or egress mode?")]
         public bool Access
         {
             get { return _Access; }
 
             set
             {
-                this._Access = value;
-                if ( this.Children == null ) return;
-                foreach ( var c in this.Children )
+                _Access = value;
+                if (Children == null) return;
+                foreach (var c in Children)
                 {
                     c.Access = value;
                 }
@@ -179,10 +182,10 @@ namespace TMG.GTAModel.Modes
         [DoNotAutomate]
         public List<AccessStation> Children { get; set; }
 
-        [RunParameter( "Correlation", 1f, "The correlation between the alternatives.  1 means no correlation, 0 means perfect correlation." )]
+        [RunParameter("Correlation", 1f, "The correlation between the alternatives.  1 means no correlation, 0 means perfect correlation.")]
         public float Correlation { get; set; }
 
-        [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
+        [Parameter("Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?")]
         public float CurrentlyFeasible
         {
             get
@@ -192,18 +195,18 @@ namespace TMG.GTAModel.Modes
 
             set
             {
-                this._CurrentlyFeasible = value;
-                if ( this.Children != null )
+                _CurrentlyFeasible = value;
+                if (Children != null)
                 {
-                    foreach ( var child in this.Children )
+                    foreach (var child in Children)
                     {
-                        ( child as AccessStation ).CurrentlyFeasible = value;
+                        child.CurrentlyFeasible = value;
                     }
                 }
             }
         }
 
-        [RunParameter( "Mode Name", "DAS", "The name of this mixed mode option" )]
+        [RunParameter("Mode Name", "DAS", "The name of this mixed mode option")]
         public string ModeName
         {
             get;
@@ -216,84 +219,72 @@ namespace TMG.GTAModel.Modes
             set;
         }
 
-        public string NetworkType
-        {
-            get { return null; }
-        }
+        public string NetworkType => null;
 
-        public bool NonPersonalVehicle
-        {
-            get { return false; }
-        }
+        public bool NonPersonalVehicle => false;
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
-        [SubModelInformation( Description = "Additional Utility Components, part of the combined value.", Required = false )]
+        [SubModelInformation(Description = "Additional Utility Components, part of the combined value.", Required = false)]
         public List<IUtilityComponent> UtilityComponents { get; set; }
 
         public float CalculateCombinedV(IZone origin, IZone destination, Time time)
         {
             // convert the area to KM^2
-            var v = this.Constant + this.AgeConstant1 + this.AgeConstant2 + this.AgeConstant3 + this.AgeConstant4;
-            var uc = this.UtilityComponents;
-            for ( int i = 0; i < uc.Count; i++ )
+            var v = Constant + AgeConstant1 + AgeConstant2 + AgeConstant3 + AgeConstant4;
+            var uc = UtilityComponents;
+            for (int i = 0; i < uc.Count; i++)
             {
-                v += uc[i].CalculateV( origin, destination, time );
+                v += uc[i].CalculateV(origin, destination, time);
             }
             return v + (float)(
-                  Math.Log( ( origin.Population / ( origin.InternalArea / 1000f ) ) + 1 ) * this.OriginPopulationDensity
-                + Math.Log( ( destination.Employment / ( destination.InternalArea / 1000f ) ) + 1 ) * this.DestinationEmploymentDensity
+                  Math.Log((origin.Population / (origin.InternalArea / 1000f)) + 1) * OriginPopulationDensity
+                + Math.Log((destination.Employment / (destination.InternalArea / 1000f)) + 1) * DestinationEmploymentDensity
                 );
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( ( lastIteration != this.Root.CurrentIteration ) | ( time != CacheTime ) )
+            if ((LastIteration != Root.CurrentIteration) | (time != CacheTime))
             {
-                RebuildCache( time );
+                RebuildCache(time);
             }
-            var data = this.Cache[origin.ZoneNumber, destination.ZoneNumber];
-            if ( data == null )
+            var data = Cache[origin.ZoneNumber, destination.ZoneNumber];
+            if (data == null)
             {
                 int alternatives = 0;
                 // make sure we clip the number of possible stations
-                float[] childrenV = new float[this.MaxAccessStations];
-                float[] childrenDistance = new float[this.MaxAccessStations];
-                for ( int i = 0; i < this.MaxAccessStations; i++ )
+                float[] childrenV = new float[MaxAccessStations];
+                float[] childrenDistance = new float[MaxAccessStations];
+                for (int i = 0; i < MaxAccessStations; i++)
                 {
                     childrenV[i] = float.MinValue;
                     childrenDistance[i] = float.MaxValue;
                 }
                 var children = Children;
-                for ( int childIndex = 0; childIndex < children.Count; childIndex++ )
+                for (int childIndex = 0; childIndex < children.Count; childIndex++)
                 {
                     var child = children[childIndex];
-                    if ( child.Feasible( origin, destination, time ) )
+                    if (child.Feasible(origin, destination, time))
                     {
-                        var localV = child.CalculateV( origin, destination, time );
-                        if ( !float.IsNaN( localV ) )
+                        var localV = child.CalculateV(origin, destination, time);
+                        if (!float.IsNaN(localV))
                         {
                             //get the distance for this access station
 
                             int minChild = 0;
                             // find the option with the lowest value
-                            for ( int i = 1; i < childrenV.Length; i++ )
+                            for (int i = 1; i < childrenV.Length; i++)
                             {
-                                if ( childrenV[i] < childrenV[minChild] )
+                                if (childrenV[i] < childrenV[minChild])
                                 {
                                     minChild = i;
                                 }
                             }
                             // replace the least utility with this new station
-                            if ( childrenV[minChild] < localV )
+                            if (childrenV[minChild] < localV)
                             {
                                 childrenV[minChild] = localV;
                             }
@@ -301,46 +292,43 @@ namespace TMG.GTAModel.Modes
                         }
                     }
                 }
-                if ( alternatives > 0 )
+                if (alternatives > 0)
                 {
                     double logsum = 0f;
-                    for ( int i = 0; ( i < alternatives ) & ( i < childrenV.Length ); i++ )
+                    for (int i = 0; (i < alternatives) & (i < childrenV.Length); i++)
                     {
-                        logsum += Math.Exp( childrenV[i] );
+                        logsum += Math.Exp(childrenV[i]);
                     }
-                    logsum = Math.Log( logsum );
-                    if ( logsum >= MinAccessStationLogsumValue )
+                    logsum = Math.Log(logsum);
+                    if (logsum >= MinAccessStationLogsumValue)
                     {
-                        data = new CacheData()
+                        data = new CacheData
                         {
-                            Feasible = true,
                             Logsum = (float)logsum
                         };
                     }
                     else
                     {
-                        data = new CacheData()
+                        data = new CacheData
                         {
-                            Feasible = false,
                             Logsum = float.NaN
                         };
                     }
                 }
                 else
                 {
-                    data = new CacheData()
+                    data = new CacheData
                     {
-                        Feasible = false,
                         Logsum = float.NaN
                     };
                 }
-                this.Cache[origin.ZoneNumber, destination.ZoneNumber] = data;
+                Cache[origin.ZoneNumber, destination.ZoneNumber] = data;
             }
-            if ( float.IsNaN( data.Logsum ) )
+            if (float.IsNaN(data.Logsum))
             {
                 return data.Logsum;
             }
-            return ( this.Correlation * data.Logsum ) + this.CalculateCombinedV( origin, destination, time );
+            return (Correlation * data.Logsum) + CalculateCombinedV(origin, destination, time);
         }
 
         public float Cost(IZone origin, IZone destination, Time time)
@@ -350,109 +338,106 @@ namespace TMG.GTAModel.Modes
 
         public bool Feasible(IZone origin, IZone destination, Time time)
         {
-            if ( this.FeasibilityTest != null )
+            if (FeasibilityTest != null)
             {
-                return this.CurrentlyFeasible > 0 && FeasibilityTest.ProduceResult( new Pair<IZone, IZone>( origin, destination ) );
+                return CurrentlyFeasible > 0 && FeasibilityTest.ProduceResult(new Pair<IZone, IZone>(origin, destination));
             }
-            return this.CurrentlyFeasible > 0;
+            return CurrentlyFeasible > 0;
         }
 
         public Tuple<IZone[], IZone[], float[]> GetSubchoiceSplit(IZone origin, IZone destination, Time time)
         {
-            var data = this.Cache[origin.ZoneNumber, destination.ZoneNumber];
-            if ( data == null )
+            var data = Cache[origin.ZoneNumber, destination.ZoneNumber];
+            if (data == null)
             {
                 return null;
             }
-            else
+            List<IZone> possibleZones = new List<IZone>();
+            List<float> splits = new List<float>();
+            var zoneSystem = Root.ZoneSystem.ZoneArray;
+            var v = 0.0;
+            foreach (var child in Children)
             {
-                List<IZone> possibleZones = new List<IZone>();
-                List<float> splits = new List<float>();
-                var zoneSystem = this.Root.ZoneSystem.ZoneArray;
-                var v = 0.0;
-                foreach ( var child in this.Children )
+                if (child.Feasible(origin, destination, time))
                 {
-                    if ( child.Feasible( origin, destination, time ) )
+                    var localV = child.CalculateV(origin, destination, time);
+                    if (!float.IsNaN(localV))
                     {
-                        var localV = child.CalculateV( origin, destination, time );
-                        if ( !float.IsNaN( localV ) )
-                        {
-                            var ev = Math.Exp( localV );
-                            v += ev;
-                            splits.Add( (float)ev );
-                            possibleZones.Add( zoneSystem[child.StationZone] );
-                        }
+                        var ev = Math.Exp(localV);
+                        v += ev;
+                        splits.Add((float)ev);
+                        possibleZones.Add(zoneSystem[child.StationZone]);
                     }
                 }
-                // make sure at least one choice has been made
-                if ( splits.Count <= 0 )
-                {
-                    return null;
-                }
-                v = 1.0 / v;
-                // apply the total to generate the split rates
-                for ( int i = 0; i < splits.Count; i++ )
-                {
-                    splits[i] *= (float)v;
-                }
-                return new Tuple<IZone[], IZone[], float[]>( possibleZones.ToArray(), null, splits.ToArray() );
             }
+            // make sure at least one choice has been made
+            if (splits.Count <= 0)
+            {
+                return null;
+            }
+            v = 1.0 / v;
+            // apply the total to generate the split rates
+            for (int i = 0; i < splits.Count; i++)
+            {
+                splits[i] *= (float)v;
+            }
+            return new Tuple<IZone[], IZone[], float[]>(possibleZones.ToArray(), null, splits.ToArray());
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.ModeName ) )
+            if (String.IsNullOrWhiteSpace(ModeName))
             {
-                error = "In module '" + this.Name + "', please add in a 'Mode Name' for your nested choice!";
+                error = "In module '" + Name + "', please add in a 'Mode Name' for your nested choice!";
                 return false;
             }
-            if ( this.Correlation > 1 || this.Correlation < 0 )
+            if (Correlation > 1 || Correlation < 0)
             {
-                error = "Correlation must be between 0 and 1 for " + this.ModeName + "!";
+                error = "Correlation must be between 0 and 1 for " + ModeName + "!";
                 return false;
             }
-            if ( MaxAccessStations <= 0 )
+            if (MaxAccessStations <= 0)
             {
                 error = "The number of feasible access stations must be greater than 0!";
                 return false;
             }
-            foreach ( var network in this.Root.NetworkData )
+            foreach (var network in Root.NetworkData)
             {
-                if ( network.NetworkType == this.AccessModeName )
+                if (network.NetworkType == AccessModeName)
                 {
-                    this.First = network;
+                    First = network;
                 }
 
-                if ( network.NetworkType == this.PrimaryModeName )
+                if (network.NetworkType == PrimaryModeName)
                 {
                     var temp = network as ITripComponentData;
-                    this.Second = temp == null ? this.Second : temp;
+                    Second = temp == null ? Second : temp;
                 }
 
-                if ( network.NetworkType == this.EgressNetworkName )
+                if (network.NetworkType == EgressNetworkName)
                 {
                     var temp = network as ITripComponentData;
-                    this.Third = temp == null ? this.Third : temp;
+                    Third = temp == null ? Third : temp;
                 }
 
-                if ( network.NetworkType == this.AlternativePrimaryModeName )
+                if (network.NetworkType == AlternativePrimaryModeName)
                 {
-                    this.FirstAlternative = network;
+                    FirstAlternative = network;
                 }
             }
-            if ( this.First == null )
+            if (First == null)
             {
-                error = "In '" + this.Name + "' the name of the access network data type was not found!";
+                error = "In '" + Name + "' the name of the access network data type was not found!";
                 return false;
             }
-            else if ( this.Second == null )
+            if (Second == null)
             {
-                error = "In '" + this.Name + "' the name of the primary network data type was not found or does not contain trip component data!";
+                error = "In '" + Name + "' the name of the primary network data type was not found or does not contain trip component data!";
                 return false;
             }
-            else if ( this.Third == null && this.ComputeEgressStation )
+            if (Third == null && ComputeEgressStation)
             {
-                error = "In '" + this.Name + "' the name of the egress network data type was not found or does not contain trip component data!";
+                error = "In '" + Name + "' the name of the egress network data type was not found or does not contain trip component data!";
                 return false;
             }
             return true;
@@ -466,97 +451,100 @@ namespace TMG.GTAModel.Modes
         internal bool GetEgressUtility(int flatEgressZone, int flatDestinationZone, Time time, out float egressUtility)
         {
             // Make sure that we can get from the egress station to the destination zone at that current point in the day
-            if ( !this.Third.ValidOD( flatEgressZone, flatDestinationZone, time ) )
+            if (!Third.ValidOd(flatEgressZone, flatDestinationZone, time))
             {
                 egressUtility = float.MinValue;
                 return false;
             }
             Time ivtt, walk, wait, boarding;
             float cost;
-            Third.GetAllData( flatEgressZone, flatDestinationZone, time, out ivtt, out walk, out wait, out boarding, out cost );
-            egressUtility = ivtt.ToMinutes() + this.EgressWaitFactor * wait.ToMinutes() + this.EgressWalkFactor * walk.ToMinutes();
+            Third.GetAllData(flatEgressZone, flatDestinationZone, time, out ivtt, out walk, out wait, out boarding, out cost);
+            egressUtility = ivtt.ToMinutes() + EgressWaitFactor * wait.ToMinutes() + EgressWalkFactor * walk.ToMinutes();
             return egressUtility != float.MaxValue;
         }
 
         private void CreateChild(int stationZone, int parkingSpots, float numberOfTrains)
         {
-            AccessStation station = new AccessStation();
+            AccessStation station = new AccessStation
+            {
+                Root = Root,
+                Parent = this,
+                Closest = Closest,
+                ClosestDistance = ClosestDistance,
+                MaxAccessToDestinationTime = MaxAccessToDestinationTime,
+                Access = Access,
+                ExcludeLineHull = ExcludeLineHull,
+                AccessInVehicleTravelTime = AccessInVehicleTravelTime,
+                AccessCost = AccessCost,
+                EgressWalkFactor = EgressWalkFactor,
+                EgressWaitFactor = EgressWaitFactor,
+                InVehicleTravelTime = GeneralTime,
+                ParkingCost = ParkingCost,
+                LogParkingFactor = ParkingFactor,
+                TrainsFactor = TrainsFactor,
+                LogTrainsFactor = LogTrainsFactor,
+                WaitTime = WaitTime,
+                WalkTime = WalkTime,
+                BoardingTime = BoardingTime,
+                ComputeEgressStation = ComputeEgressStation,
+                First = First,
+                Second = Second,
+                Third = Third,
+                FirstAlternative = FirstAlternative,
+                ModeName = $"{ModeName}:{stationZone}",
+                StationZone = stationZone,
+                Parking = parkingSpots,
+                NumberOfTrains = numberOfTrains
+            };
             //Setup the parameters
-            station.Root = this.Root;
-            station.Parent = this;
-            station.Closest = this.Closest;
-            station.ClosestDistance = this.ClosestDistance;
-            station.MaxAccessToDestinationTime = this.MaxAccessToDestinationTime;
-            station.Access = this.Access;
-            station.ExcludeLineHull = this.ExcludeLineHull;
             // The constant for this option is not the same as for the station choice
             //station.Constant = this.Constant;
-            station.AccessInVehicleTravelTime = this.AccessInVehicleTravelTime;
-            station.AccessCost = this.AccessCost;
-            station.EgressWalkFactor = this.EgressWalkFactor;
-            station.EgressWaitFactor = this.EgressWaitFactor;
-            station.InVehicleTravelTime = this.GeneralTime;
-            station.ParkingCost = this.ParkingCost;
-            station.LogParkingFactor = this.ParkingFactor;
-            station.TrainsFactor = this.TrainsFactor;
-            station.LogTrainsFactor = this.LogTrainsFactor;
-            station.WaitTime = this.WaitTime;
-            station.WalkTime = this.WalkTime;
-            station.BoardingTime = this.BoardingTime;
 
             // Setup the modes
-            station.ComputeEgressStation = this.ComputeEgressStation;
-            station.First = this.First;
-            station.Second = this.Second;
-            station.Third = this.Third;
-            station.FirstAlternative = this.FirstAlternative;
 
             // Create all of the individual parameters
-            station.ModeName = String.Format( "{0}:{1}", this.ModeName, stationZone );
-            station.StationZone = stationZone;
-            station.Parking = parkingSpots;
-            station.NumberOfTrains = numberOfTrains;
             // Add it to the list of children
-            this.Children.Add( station );
+            Children.Add(station);
         }
 
-        private bool GenerateChildren(ref string error)
+        private bool GenerateChildren()
         {
-            this.Children = new List<AccessStation>();
-            List<Range> rangeList = new List<Range>();
-            Range currentRange = new Range();
-            int current = 0;
+            Children = new List<AccessStation>();
+            var rangeList = new List<Range>();
+            var start = 0;
+            int stop;
+            var current = 0;
             bool first = true;
-            var zoneArray = this.Root.ZoneSystem.ZoneArray;
-            foreach ( var record in StationInformationReader.Read() )
+            var zoneArray = Root.ZoneSystem.ZoneArray;
+            foreach (var record in StationInformationReader.Read())
             {
                 // make sure the station is actually inside of the zone system
-                if ( zoneArray.ContainsIndex( record.O ) )
+                if (zoneArray.ContainsIndex(record.O))
                 {
                     var parkingSpots = record.D;
-                    if ( first )
+                    if (first)
                     {
-                        current = currentRange.Start = record.O;
+                        start = record.O;
                         first = false;
                     }
-                    else if ( current + 1 != record.O )
+                    else if (current + 1 != record.O)
                     {
-                        currentRange.Stop = current;
-                        rangeList.Add( currentRange );
-                        currentRange.Start = record.O;
+                        stop = current;
+                        rangeList.Add(new Range(start, stop));
+                        start = record.O;
                     }
                     current = record.O;
-                    CreateChild( record.O, parkingSpots, record.Data );
+                    CreateChild(record.O, parkingSpots, record.Data);
                 }
             }
-            if ( !first )
+            if (!first)
             {
-                currentRange.Stop = current;
-                rangeList.Add( currentRange );
-                var set = new RangeSet( rangeList );
-                foreach ( var child in this.Children )
+                stop = current;
+                rangeList.Add(new Range(start, stop));
+                var set = new RangeSet(rangeList);
+                foreach (var child in Children)
                 {
-                    ( child as AccessStation ).StationRanges = set;
+                    child.StationRanges = set;
                 }
             }
             return true;
@@ -564,24 +552,23 @@ namespace TMG.GTAModel.Modes
 
         private void RebuildCache(Time time)
         {
-            lock ( this )
+            lock (this)
             {
-                System.Threading.Thread.MemoryBarrier();
-                if ( lastIteration == this.Root.CurrentIteration ) return;
-                this.Cache = this.Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<CacheData>();
-                foreach ( var child in this.Children )
+                Thread.MemoryBarrier();
+                if (LastIteration == Root.CurrentIteration) return;
+                Cache = Root.ZoneSystem.ZoneArray.CreateSquareTwinArray<CacheData>();
+                foreach (var child in Children)
                 {
                     child.DumpCaches();
                 }
-                lastIteration = this.Root.CurrentIteration;
+                LastIteration = Root.CurrentIteration;
                 CacheTime = time;
-                System.Threading.Thread.MemoryBarrier();
+                Thread.MemoryBarrier();
             }
         }
 
         private class CacheData
         {
-            internal bool Feasible;
             internal float Logsum;
         }
 
@@ -592,13 +579,12 @@ namespace TMG.GTAModel.Modes
 
         public void IterationStarting(int iterationNumber, int maxIterations)
         {
-            if ( iterationNumber == 0 )
+            if (iterationNumber == 0)
             {
-                string error = null;
                 // If everything is fine we can now Generate our children
-                if ( !GenerateChildren( ref error ) )
+                if (!GenerateChildren())
                 {
-                    throw new XTMFRuntimeException( error );
+                    throw new XTMFRuntimeException($"In {Name} we experienced an error when generating the access stations.");
                 }
             }
         }

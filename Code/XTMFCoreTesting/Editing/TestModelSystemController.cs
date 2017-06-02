@@ -16,12 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF.Testing.Modules;
-using XTMF.Testing.Modules.Editing;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace XTMF.Testing.Editing
@@ -41,7 +36,7 @@ namespace XTMF.Testing.Editing
             string error = null;
             Assert.IsTrue( controller.Delete( ms, ref error ), "We were unable to delete a model system that should have existed!" );
             ms = controller.LoadOrCreate( msName );
-            using (var session = controller.EditModelSystem( ms ))
+            using (controller.EditModelSystem( ms ))
             {
                 Assert.IsFalse( controller.Delete( ms, ref error ), "Even though the model system had an editing session it was deleted!" );
             }

@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Emme;
 using XTMF;
 using Tasha.Common;
@@ -177,7 +174,7 @@ namespace Tasha.EMME
             [RunParameter("Mode Name", "DAT", "The name of the mode")]
             public string ModeName;
 
-            [RunParameter("Count Access", true, "True to count for access, false to count for egress.")]
+            [RunParameter("Count Access", true, "True to _Count for access, false to _Count for egress.")]
             public bool CountAccess;
 
             [RunParameter("Access Tag Name", "AccessStation", "The tag used for storing the zone used for access.")]
@@ -199,12 +196,9 @@ namespace Tasha.EMME
                     destination = chain[AccessZoneTagName] as IZone;
                     return destination != null;
                 }
-                else
-                {
-                    origin = chain[AccessZoneTagName] as IZone;
-                    destination = trip.DestinationZone;
-                    return origin != null;
-                }
+                origin = chain[AccessZoneTagName] as IZone;
+                destination = trip.DestinationZone;
+                return origin != null;
             }
 
             public bool RuntimeValidation(ref string error)
@@ -231,7 +225,6 @@ namespace Tasha.EMME
         /// <summary>
         /// check to see if the mode being used for this trip is one that we are interested in.
         /// </summary>
-        /// <param name="trip"></param>
         /// <returns></returns>
         private bool UsesMode(ITashaMode mode)
         {
@@ -306,7 +299,7 @@ namespace Tasha.EMME
                     SpecialGenerators[i].IncludeTally(specialGenerationResults);
                 }
                 // Now scale the by household iterations and integrate it back into the result matrix
-                Parallel.For(0, specialGenerationResults.Length, (int i) =>
+                Parallel.For(0, specialGenerationResults.Length, i =>
                 {
                     VectorHelper.Multiply(specialGenerationResults[i], 0, specialGenerationResults[i], 0, HouseholdIterations, specialGenerationResults[i].Length);
                     VectorHelper.Add(Matrix[i], 0, Matrix[i], 0, specialGenerationResults[i], 0, specialGenerationResults.Length);

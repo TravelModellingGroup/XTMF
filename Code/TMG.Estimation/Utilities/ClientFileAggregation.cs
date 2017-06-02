@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using XTMF;
 using XTMF.Networking;
 namespace TMG.Estimation.Utilities
@@ -32,23 +29,22 @@ namespace TMG.Estimation.Utilities
         [RunParameter( "DataChannel", 11, "The networking channel to use, must be unique and the same as the host!" )]
         public int DataChannel;
 
-        private bool Loaded = false;
+        private bool Loaded;
 
         protected void SendToHost(string toSend)
         {
             if ( !Loaded )
             {
-                this.Client.RegisterCustomSender( this.DataChannel, (data, stream) =>
+                Client.RegisterCustomSender( DataChannel, (data, stream) =>
                     {
                         BinaryWriter writer = new BinaryWriter( stream );
                         var str = ( (string)data ).ToCharArray();
                         writer.Write( str, 0, str.Length );
                         writer.Flush();
-                        writer = null;
                     } );
                 Loaded = true;
             }
-            this.Client.SendCustomMessage( toSend, this.DataChannel );
+            Client.SendCustomMessage( toSend, DataChannel );
         }
 
         public string Name { get; set; }

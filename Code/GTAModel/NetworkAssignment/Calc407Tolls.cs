@@ -16,12 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
 using TMG.Emme;
+using XTMF;
 
 namespace TMG.GTAModel.NetworkAssignment
 {
@@ -54,10 +52,10 @@ namespace TMG.GTAModel.NetworkAssignment
                 throw new XTMFRuntimeException("Controller is not a ModellerController");
             }
 
-            string args = this.ScenarioNumber + " " + this.ResultAttributeId + " " + this.TollZoneAttributeId + " " + this.LightZoneToll + " " + this.RegularZoneToll;
+            string args = ScenarioNumber + " " + ResultAttributeId + " " + TollZoneAttributeId + " " + LightZoneToll + " " + RegularZoneToll;
             string result = "";
 
-            return mc.Run(ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name
@@ -72,11 +70,11 @@ namespace TMG.GTAModel.NetworkAssignment
             set;
         }
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool RuntimeValidation(ref string error)

@@ -16,10 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using TMG.Emme;
 using XTMF;
@@ -75,7 +74,7 @@ namespace TMG.GTAModel.NetworkAssignment
         public float HSRBoardingPenalty;
 
 
-        private const string _ToolName = "tmg.assignment.preprocessing.assign_v4_boarding_penalty";
+        private const string ToolName = "tmg.assignment.preprocessing.assign_v4_boarding_penalty";
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public bool Execute(Controller controller)
@@ -105,7 +104,7 @@ namespace TMG.GTAModel.NetworkAssignment
             */
 
             List<int> scenarioList = new List<int>();
-            foreach (var range in this.ScenarioNumbers)
+            foreach (var range in ScenarioNumbers)
             {
                 for (int i = range.Start; i <= range.Stop; i++)
                 {
@@ -115,22 +114,22 @@ namespace TMG.GTAModel.NetworkAssignment
             string scenarios = "\"" + string.Join(",", scenarioList) + "\"";
 
             var args = string.Join(" ", scenarios,
-                                     mc.ToEmmeFloat(SubwayBoardingPenalty),
-                                     mc.ToEmmeFloat(GoTrainBoardingPenalty),
-                                     mc.ToEmmeFloat(GoBusBoardingPenalty),
-                                     mc.ToEmmeFloat(StreetcarXROWBoardingPenalty),
-                                     mc.ToEmmeFloat(StreetcarBoardingPenalty),
-                                     mc.ToEmmeFloat(TTCBusBoardingPenalty),
-                                     mc.ToEmmeFloat(YRTBoardingPenalty),
-                                     mc.ToEmmeFloat(VIVABoardingPenalty),
-                                     mc.ToEmmeFloat(BramptonBoardingPenalty),
-                                     mc.ToEmmeFloat(ZUMBoardingPenalty),
-                                     mc.ToEmmeFloat(MiWayBoardingPenalty),
-                                     mc.ToEmmeFloat(DurhamBoardingPenalty),
-                                     mc.ToEmmeFloat(HaltonBoardingPenalty),
-                                     mc.ToEmmeFloat(HSRBoardingPenalty));
+                                     Controller.ToEmmeFloat(SubwayBoardingPenalty),
+                                     Controller.ToEmmeFloat(GoTrainBoardingPenalty),
+                                     Controller.ToEmmeFloat(GoBusBoardingPenalty),
+                                     Controller.ToEmmeFloat(StreetcarXROWBoardingPenalty),
+                                     Controller.ToEmmeFloat(StreetcarBoardingPenalty),
+                                     Controller.ToEmmeFloat(TTCBusBoardingPenalty),
+                                     Controller.ToEmmeFloat(YRTBoardingPenalty),
+                                     Controller.ToEmmeFloat(VIVABoardingPenalty),
+                                     Controller.ToEmmeFloat(BramptonBoardingPenalty),
+                                     Controller.ToEmmeFloat(ZUMBoardingPenalty),
+                                     Controller.ToEmmeFloat(MiWayBoardingPenalty),
+                                     Controller.ToEmmeFloat(DurhamBoardingPenalty),
+                                     Controller.ToEmmeFloat(HaltonBoardingPenalty),
+                                     Controller.ToEmmeFloat(HSRBoardingPenalty));
             string result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
 
         }
 
@@ -151,6 +150,7 @@ namespace TMG.GTAModel.NetworkAssignment
             get { return _ProgressColour; }
         }
 
+        // ReSharper disable once RedundantAssignment
         public bool RuntimeValidation(ref string error)
         {
             error = Name + " is currently using the now obsolete module TMG.GTAModel.NetworkAssignmentAssignV4BoardingPenalty. " +

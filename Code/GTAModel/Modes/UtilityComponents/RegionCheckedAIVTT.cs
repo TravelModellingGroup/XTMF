@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using XTMF;
 
 namespace TMG.GTAModel.Modes.UtilityComponents
@@ -30,11 +31,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
         public string NetworkType { get; set; }
 
-        override public float CalculateV(IZone origin, IZone destination, XTMF.Time time)
+        override public float CalculateV(IZone origin, IZone destination, Time time)
         {
             if ( IsContained( origin, destination ) )
             {
-                return this.Aivtt * this.NetworkData.TravelTime( origin, destination, time ).ToMinutes();
+                return Aivtt * NetworkData.TravelTime( origin, destination, time ).ToMinutes();
             }
             return 0;
         }
@@ -43,9 +44,9 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             // Load in the network data
             LoadNetworkData();
-            if ( this.NetworkData == null )
+            if ( NetworkData == null )
             {
-                error = "In '" + this.Name + "' we were unable to find any network data called '" + this.NetworkType + "'!";
+                error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
                 return false;
             }
             return true;
@@ -56,11 +57,11 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         /// </summary>
         private void LoadNetworkData()
         {
-            foreach ( var dataSource in this.Root.NetworkData )
+            foreach ( var dataSource in Root.NetworkData )
             {
-                if ( dataSource.NetworkType == this.NetworkType )
+                if ( dataSource.NetworkType == NetworkType )
                 {
-                    this.NetworkData = dataSource;
+                    NetworkData = dataSource;
                     return;
                 }
             }

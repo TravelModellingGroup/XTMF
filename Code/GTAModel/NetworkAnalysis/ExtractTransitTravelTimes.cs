@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Text;
 using TMG.Emme;
@@ -84,7 +85,7 @@ namespace TMG.GTAModel.NetworkAnalysis
             }
 
             string result = null;
-            return mc.Run(toolName, args.ToString(), (p => this.Progress = p), ref result);
+            return mc.Run(toolName, args.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

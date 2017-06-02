@@ -21,6 +21,7 @@ using XTMF;
 
 namespace TMG.Input
 {
+    // ReSharper disable once InconsistentNaming
     public interface ISaveODDataSeries<T> : IModule
     {
         void Reset();

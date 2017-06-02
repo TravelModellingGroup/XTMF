@@ -16,11 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
-using TMG;
-using TMG.Data;
 using TMG.Frameworks.Data.DataTypes;
 using TMG.Frameworks.Data.Loading;
 using TMG.Frameworks.Data.Processing;
@@ -72,7 +70,7 @@ namespace XTMF.Testing.TMG.Data
                 for (int i = 0; i < 26; i++)
                 {
                     Assert.IsTrue(data.ContainsKey(((char)('a' + i)).ToString()));
-                    Assert.AreEqual((float)i, data[((char)('a' + i)).ToString()]);
+                    Assert.AreEqual(i, data[((char)('a' + i)).ToString()]);
                 }
             }
             finally

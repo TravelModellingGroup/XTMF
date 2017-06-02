@@ -16,20 +16,18 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Datastructure;
 using TMG.Emme;
-using TMG.Estimation;
 using TMG.Input;
 using XTMF;
-using Datastructure;
 
 namespace TMG.NetworkEstimation
 {
     [ModuleInformation(Description="Calculates Weighted Mean Percent Error (WMPE) for transit line boardings.")]
-    public class CalcWMPE : IEmmeTool
+    public class CalcWmpe : IEmmeTool
     {
         /*
         [RootModule]
@@ -45,7 +43,7 @@ namespace TMG.NetworkEstimation
         [SubModelInformation(Description = "Line Aggregation File", Required = true)]
         public FileLocation LineAggregationFile;
 
-        private const string _ToolName = "TMG2.XTMF.returnBoardings";
+        private const string ToolName = "TMG2.XTMF.returnBoardings";
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
         public bool Execute(Controller controller)
@@ -56,14 +54,14 @@ namespace TMG.NetworkEstimation
                 throw new XTMFRuntimeException("Controller is not a ModellerController");
             }
 
-            var args = string.Join(" ", this.ScenarioNumber, this.LineAggregationFile.GetFilePath());
+            var args = string.Join(" ", ScenarioNumber, LineAggregationFile.GetFilePath());
             string result = "";
-            mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
+            mc.Run(ToolName, args, (p => Progress = p), ref result);
 
-            var modelResults = this.ParseResults(result);
-            var observations = this.LoadObservedBoardingsFile();
+            var modelResults = ParseResults(result);
+            var observations = LoadObservedBoardingsFile();
 
-            this.CalcFitness(observations, modelResults);
+            CalcFitness(observations, modelResults);
 
             return true;
         }
@@ -88,18 +86,18 @@ namespace TMG.NetworkEstimation
         {
             var result = new Dictionary<string, Tuple<float, float>>();
 
-            using (CsvReader reader = new CsvReader(this.ObservedBoardingsFile.GetFilePath()))
+            using (CsvReader reader = new CsvReader(ObservedBoardingsFile.GetFilePath()))
             {
                 reader.LoadLine(); //Skip the first line                
-                int numCol = 3;
+                int numCol;
                 while (reader.LoadLine(out numCol))
                 {
                     if (numCol < 3)
-                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol.ToString() + ")");
+                        throw new IndexOutOfRangeException("Observed boardings file is expecting two columns (found " + numCol + ")");
 
-                    string lineId = "";
-                    float weight = 0.0f;
-                    float amBoardings = 0.0f;
+                    string lineId;
+                    float weight;
+                    float amBoardings;
                     reader.Get(out lineId, 0);
                     reader.Get(out weight, 1);
                     reader.Get(out amBoardings, 2);
@@ -116,37 +114,18 @@ namespace TMG.NetworkEstimation
 
         private void CalcFitness(Dictionary<string, Tuple<float, float>> observedBoardings, Dictionary<string, float> modelledBoardings)
         {
-            float percentErrorSum = 0.0f;
-            float totalWeight = 0.0f;
-
             var badMappings = new List<string>();
-
             foreach (var key in modelledBoardings.Keys)
             {
                 if (!observedBoardings.ContainsKey(key))
                 {
                     badMappings.Add(key);
-                    continue;
                 }
-
-                var tup = observedBoardings[key];
-                float lineObservedBoardings = tup.Item2;
-                float lineWeight = tup.Item1;
-                float lineModelledBoardings = modelledBoardings[key];
-
-                float absError = Math.Abs(lineModelledBoardings - lineObservedBoardings);
-                float percentError = absError / lineObservedBoardings * 100.0f;
-
-                percentErrorSum += percentError * lineWeight;
-                totalWeight += lineWeight;
             }
-
             if (badMappings.Count > 0)
             {
                 Console.WriteLine("Found " + badMappings.Count + " lines in the network that are missing in the observation file");
             }
-
-            //this.Root.RetrieveValue = (() => percentErrorSum / totalWeight);
         }
 
         public string Name

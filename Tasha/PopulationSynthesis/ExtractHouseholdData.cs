@@ -54,18 +54,18 @@ namespace Tasha.PopulationSynthesis
             var persons = household.Persons;
             for ( int i = 0; i < persons.Length; i++ )
             {
-                var index = this.AgeSets.IndexOf( persons[i].Age );
+                var index = AgeSets.IndexOf( persons[i].Age );
                 if ( index >= 0 )
                 {
                     agesTemp[index]++;
                 }
             }
-            this.Data.Add( agesTemp, household.HomeZone.PlanningDistrict, household.Vehicles.Length, household.ExpansionFactor );
+            Data.Add( agesTemp, household.HomeZone.PlanningDistrict, household.Vehicles.Length, household.ExpansionFactor );
         }
 
         public void IterationFinished(int iteration)
         {
-            this.Data.Save( this );
+            Data.Save( this );
         }
 
         public void Load(int maxIterations)
@@ -84,7 +84,7 @@ namespace Tasha.PopulationSynthesis
 
         private void InitializeData()
         {
-            this.Data = new HouseholdData();
+            Data = new HouseholdData();
         }
 
         private class HouseholdData
@@ -95,17 +95,17 @@ namespace Tasha.PopulationSynthesis
 
             public HouseholdData()
             {
-                this.EntryList = new List<HouesholdAgeEntry>( 25 );
-                this.EntryLock = new GatewayLock();
+                EntryList = new List<HouesholdAgeEntry>( 25 );
+                EntryLock = new GatewayLock();
             }
 
             internal void Add(int[] ageCategoryCount, int planningDistrict, int numberOfCars, float expansionFactor)
             {
-                int lastIndex = -1;
+                int lastIndex;
                 bool success = false;
-                this.EntryLock.PassThrough( () =>
+                EntryLock.PassThrough( () =>
                     {
-                        lastIndex = this.EntryList.Count;
+                        lastIndex = EntryList.Count;
                         for ( int i = 0; i < lastIndex; i++ )
                         {
                             if ( EntryList[i].Equals( ageCategoryCount, planningDistrict, numberOfCars ) )
@@ -121,9 +121,9 @@ namespace Tasha.PopulationSynthesis
                     } );
                 if ( !success )
                 {
-                    this.EntryLock.Lock( () =>
+                    EntryLock.Lock( () =>
                         {
-                            for ( int i = 0; i < this.EntryList.Count; i++ )
+                            for ( int i = 0; i < EntryList.Count; i++ )
                             {
                                 if ( EntryList[i].Equals( ageCategoryCount, planningDistrict, numberOfCars ) )
                                 {
@@ -134,7 +134,7 @@ namespace Tasha.PopulationSynthesis
                             }
                             // if we get here it doesn't exist yet
                             // we don't need to lock here since the writer is always unique
-                            this.EntryList.Add( new HouesholdAgeEntry()
+                            EntryList.Add( new HouesholdAgeEntry()
                             {
                                 AgeCategoryCount = ageCategoryCount,
                                 PlanningDistrict = planningDistrict,
@@ -150,9 +150,9 @@ namespace Tasha.PopulationSynthesis
                 using ( StreamWriter writer = new StreamWriter( root.SaveFile.GetFileName() ) )
                 {
                     WriteHeader( root, writer );
-                    for ( int i = 0; i < this.EntryList.Count; i++ )
+                    for ( int i = 0; i < EntryList.Count; i++ )
                     {
-                        var entry = this.EntryList[i];
+                        var entry = EntryList[i];
                         writer.Write( entry.PlanningDistrict );
                         writer.Write( ',' );
                         for ( int j = 0; j < entry.AgeCategoryCount.Length; j++ )
@@ -187,9 +187,9 @@ namespace Tasha.PopulationSynthesis
 
                 internal bool Equals(int[] ageCategoryCount, int planningDistrict, int numberOfCars)
                 {
-                    if ( this.PlanningDistrict != planningDistrict ) return false;
-                    if ( this.NumberOfCars != numberOfCars ) return false;
-                    for ( int i = 0; i < this.AgeCategoryCount.Length; i++ )
+                    if ( PlanningDistrict != planningDistrict ) return false;
+                    if ( NumberOfCars != numberOfCars ) return false;
+                    for ( int i = 0; i < AgeCategoryCount.Length; i++ )
                     {
                         if ( AgeCategoryCount[i] != ageCategoryCount[i] )
                         {

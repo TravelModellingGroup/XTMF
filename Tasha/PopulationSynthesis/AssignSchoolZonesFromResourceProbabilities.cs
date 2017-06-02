@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
 using Tasha.Common;
@@ -220,6 +218,7 @@ namespace Tasha.PopulationSynthesis
         /// <param name="householdZone">The sparse space zone number of the household</param>
         /// <param name="probabilities">The probabilities to select from</param>
         /// <param name="random">The random number generator to use.</param>
+        /// <param name="personExpansionFactor"></param>
         /// <exception cref="XTMF.XTMFRuntimeException">If the household zone does not have data defined for it.</exception>
         /// <returns>A zone to use for school, null if no options exist</returns>
         private IZone PickSchoolZone(int householdZone, SparseTwinIndex<float> probabilities, Random random, float personExpansionFactor)
@@ -229,7 +228,7 @@ namespace Tasha.PopulationSynthesis
             {
                 throw new XTMFRuntimeException("In '" + Name + "' we were unable to find school choice data for household zone number " + householdZone + " !");
             }
-            double total = 0.0;
+            double total;
             total = VectorHelper.Sum(data, 0, data.Length);
             if (total <= 0)
             {
@@ -248,7 +247,7 @@ namespace Tasha.PopulationSynthesis
                         data[i] -= personExpansionFactor;
                         return Zones.GetFlatData()[i];
                     }
-                    else if (countIndex == -1)
+                    if (countIndex == -1)
                     {
                         countIndex = i;
                     }
@@ -349,7 +348,7 @@ namespace Tasha.PopulationSynthesis
         {
             if (file != null)
             {
-                TMG.Functions.SaveData.SaveMatrix(matrix, file);
+                SaveData.SaveMatrix(matrix, file);
             }
         }
 

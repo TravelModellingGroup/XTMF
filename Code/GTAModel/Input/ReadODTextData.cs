@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,8 +72,8 @@ it will skip the first line so that standard csv data will also work.</p>"
 
         public IEnumerable<ODData<float>> Read()
         {
-            BinaryReader reader = null;
-            var fileName = FromInputDirectory ? this.GetInputFileName(FileName) : FileName;
+            BinaryReader reader;
+            var fileName = FromInputDirectory ? GetInputFileName(FileName) : FileName;
             try
             {
                 reader = new BinaryReader(new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
@@ -86,7 +87,7 @@ it will skip the first line so that standard csv data will also work.</p>"
             {
                 char c = reader.ReadChar();
                 // check to see if this file has a header
-                if (c == '/' | c == '-' | this.Header)
+                if (c == '/' | c == '-' | Header)
                 {
                     // Check to see if it is a CSV header or the --- header type
                     if (c == '-')
@@ -114,22 +115,19 @@ it will skip the first line so that standard csv data will also work.</p>"
                                 reader.BaseStream.Position--;
                                 break;
                             }
-                            else
-                            {
-                                BurnLine(reader);
-                                c = reader.ReadChar();
-                            }
+                            BurnLine(reader);
+                            c = reader.ReadChar();
                         } while (reader.BaseStream.Position < reader.BaseStream.Length &&
                             c == '/');
                     }
                     // the csv header only needs to burn the one line
-                    if (this.Header)
+                    if (Header)
                     {
                         BurnLine(reader);
                     }
                     // if we are at the end of file break
-                    if (this.EndOfFile(reader)) yield break;
-                    c = reader.ReadChar();
+                    if (EndOfFile(reader)) yield break;
+                    reader.ReadChar();
                 }
                 reader.BaseStream.Position--;
                 // start to process the data
@@ -166,12 +164,16 @@ it will skip the first line so that standard csv data will also work.</p>"
         protected void BurnLine(BinaryReader reader)
         {
             // read until we are at the end of file or when we hit a new line
-            while (!EndOfFile(reader) && reader.ReadChar() != '\n') ;
+            while (!EndOfFile(reader) && reader.ReadChar() != '\n')
+            {
+            }
         }
 
         protected void BurnWhiteSpace(BinaryReader reader, ref char c)
         {
-            while (!EndOfFile(reader) && WhiteSpace(c = reader.ReadChar())) ;
+            while (!EndOfFile(reader) && WhiteSpace(c = reader.ReadChar()))
+            {
+            }
         }
 
         protected bool EndOfFile(BinaryReader reader)
@@ -179,7 +181,7 @@ it will skip the first line so that standard csv data will also work.</p>"
             var bs = reader.BaseStream;
             var length = bs.Length;
             var position = bs.Position;
-            this.Progress = (float)position / length;
+            Progress = (float)position / length;
             return length == position;
         }
 
@@ -188,7 +190,7 @@ it will skip the first line so that standard csv data will also work.</p>"
             var fullPath = localPath;
             if (!Path.IsPathRooted(fullPath))
             {
-                fullPath = Path.Combine(this.Root.InputBaseDirectory, fullPath);
+                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
             }
             return fullPath;
         }
@@ -235,7 +237,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                     }
                     else if ((c < '0' | c > '9'))
                     {
-                        throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
+                        throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                     }
                     else
                     {
@@ -260,7 +262,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                         }
                         else if ((c < '0' | c > '9'))
                         {
-                            throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
+                            throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the zone data in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                         }
                         else
                         {
@@ -301,7 +303,7 @@ it will skip the first line so that standard csv data will also work.</p>"
                 }
                 if (c < '0' | c > '9')
                 {
-                    throw new XTMFRuntimeException("In " + this.Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? this.GetInputFileName(FileName) : FileName) + "'!");
+                    throw new XTMFRuntimeException("In " + Name + ", We found a " + c + " while trying to read in the origin zone in the file '" + (FromInputDirectory ? GetInputFileName(FileName) : FileName) + "'!");
                 }
                 p = p * 10 + (c - '0');
             } while (!EndOfFile(reader) && (c = reader.ReadChar()) != '\t' & c != ' ' & c != ',');

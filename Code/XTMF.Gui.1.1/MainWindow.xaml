@@ -19,199 +19,380 @@
 <Window x:Class="XTMF.Gui.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:my="clr-namespace:XTMF.Gui"
+        xmlns:my="clr-namespace:XTMF.Gui" 
         xmlns:uc="clr-namespace:XTMF.Gui.UserControls"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
-        
         xmlns:s="clr-namespace:System;assembly=mscorlib"
-        Title="XTMF Version 1.2" Height="768" Width="1024"
-        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" Background="{StaticResource ControlBackgroundBrush}"
-        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" 
+         MaxWidth="{Binding Source={x:Static SystemParameters.MaximizedPrimaryScreenWidth}}"
+        MaxHeight="{DynamicResource {x:Static SystemParameters.MaximizedPrimaryScreenHeightKey}}"
+        Title="XTMF Version 1.3" Height="768" Width="1024" IsHitTestVisible="True"
+        Icon="/XTMF.Gui;component/Images/XTMF_icon_2.ico" MinHeight="700" MinWidth="1000"
+        ResizeMode="CanResizeWithGrip"
+  Name="XtmfWindow"
+        Background="Transparent"
+        MouseDown="Window_MouseDown" MouseDoubleClick="MainWindow_OnMouseDoubleClick"
+        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=EditingDisplayModel}" WindowStyle="None"
+        AllowsTransparency="True" StateChanged="Window_StateChanged"  
         >
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="AUTO" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="AUTO" />
-        </Grid.RowDefinitions>
-        <!-- The main menu -->
-        <Menu Grid.Row="0">
-            <MenuItem Header="_File">
-                <MenuItem Header="_New">
-                    <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
-                    <MenuItem x:Name="NewModelSystemButton" Header="_Model System" Click="NewModelSystemButton_Click" />
-                </MenuItem>
-                <MenuItem x:Name="OpenMenuItem" Header="_Open">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Images/FolderOpen_16x16_72.png" Width="20" Height="20"/>
-                    </MenuItem.Icon>
-                    <MenuItem Header="_Project" Click="OpenProject_Click" />
-                    <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
-                </MenuItem>
-                <MenuItem x:Name="RecentProjectsMenuItem" Header="_RecentProjects"/>
-                <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click" IsEnabled="{Binding CanClose, Mode=OneWay}" />
-                <Separator Background="{StaticResource ControlBackgroundBrush}" />
-                <MenuItem x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click" IsEnabled="{Binding CanSave, Mode=OneWay}">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/saveHS.png" Width="20" Height="20"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"  IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
-                <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/Plus.png" Width="20" Height="20"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator Background="{StaticResource ControlBackgroundBrush}" />
-                <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/XTMF_refresh.png" Width="20" Height="20" />
-                    </MenuItem.Icon>
-                </MenuItem>
-                <Separator Background="{StaticResource ControlBackgroundBrush}" />
-                <MenuItem Header="E_xit" Click="Exit_Click" />
-            </MenuItem>
-            <MenuItem Header="_Edit">
-                <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click" IsEnabled="{Binding CanUndo, Mode=OneWay}" />
-                <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click" IsEnabled="{Binding CanRedo, Mode=OneWay}"/>
-            </MenuItem>
-            <MenuItem Header="_Run">
-                <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click" IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
-                    <MenuItem.Icon>
-                        <Image Source="/XTMF.Gui;component/Resources/Run.png" Width="20" Height="20"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-            </MenuItem>
-            <MenuItem Header="_View">
-                <MenuItem Header="_Start Window" Click="ShowStart_Click" />
-                <MenuItem Header="_Interface Settings">
-                    <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True" Click="MetaModuleHiddenParametersToggle_Click"/>
-                </MenuItem>
-                <MenuItem Header="_Linked Parameters"></MenuItem>
-                <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
-                    <MenuItem.Icon>
-                        <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/Help.png" Width="20" Height="20" />
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="_Settings" Click="Settings_Click">
-                    <MenuItem.Icon>
-                        <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/base_cog_32.png" Width="20" Height="20" />
-                    </MenuItem.Icon>
-                </MenuItem>
-            </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem Header="Search _Help"  Click="LaunchHelpWindow_Click">
-                    <MenuItem.Icon>
-                        <Image Source="pack://application:,,,/XTMF.Gui;component/Resources/help.png" Width="20" Height="20" />
-                    </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
-                <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
-            </MenuItem>
-        </Menu>
-        <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
-        <xcad:DockingManager x:Name="DockManager" Grid.Row="1" AllowMixedOrientation="True">
-            <xcad:DockingManager.DocumentTitleTemplate>
-                <DataTemplate>
-                    <Grid HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="12" Margin="1" Foreground="Black" />
-                    </Grid>
-                </DataTemplate>
-            </xcad:DockingManager.DocumentTitleTemplate>
-            <xcad:DockingManager.DocumentHeaderTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding IconSource}" Margin="0,0,4,0"/>
-                        <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" Foreground="Black">
-                            <TextBlock.Style>
-                                <Style TargetType="{x:Type TextBlock}">
+    <Border
+           Name="WindowGrid"  Margin="0,0,0,0" Background="Transparent"  BorderBrush="{DynamicResource WindowBackgroundBrush3}"
+ BorderThickness="1">
+        <Grid Name="ExternalGrid"  Margin="0,0,0,0" Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Margin="0,0,0,0" Grid.Row="0" Background="{DynamicResource WindowBackgroundBrush1}"
+                MouseDown="Window_MouseDown">
+                <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" Margin="0,0,5,0">
+                    <Border DockPanel.Dock="Left">
+                        <StackPanel FlowDirection="LeftToRight" Orientation="Horizontal">
+                            <Rectangle Fill="#FF0764A4" Width="12" />
+                            <Label
+                            Content="{Binding Title,RelativeSource={RelativeSource FindAncestor,AncestorType=Window}}"
+
+                            Margin="4,0,0,0" DockPanel.Dock="Left" VerticalContentAlignment="Center" Grid.Row="0"
+                            Foreground="{DynamicResource ThemeTextColorBrush}" HorizontalContentAlignment="Left" FontSize="15"
+                            Background="{x:Null}" />
+                        </StackPanel>
+                    </Border>
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Trigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </Trigger.EnterActions>
-                                            <Trigger.ExitActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="Black"  Duration="0:0:0.1" />
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </Trigger.ExitActions>
+                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+
+                                            </Setter>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                            </Border.Style>
+                            <Button Style="{StaticResource TransparentStyle}" Width="20" Click="Minimize_Click">
+                                <Border >
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border Margin="5,5,5,-2" BorderBrush="{DynamicResource ThemeTextColorBrush}" BorderThickness="2" Height="2" />
+                                </Border>
+                            </Button>
+                        </Border>
+
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Button Style="{StaticResource TransparentStyle}" Width="20" Click="MaxNorm_OnClick">
+                                <Border>
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border Margin="5,10,5,10" BorderBrush="{DynamicResource ThemeTextColorBrush}" BorderThickness="2" />
+                                </Border>
+                            </Button>
+                        </Border>
+                        <Border HorizontalAlignment="Right" Width="20" Margin="0,0,0,0">
+
+
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Button Click="Close_Click" Style="{StaticResource TransparentStyle}" Background="{x:Null}"
+                                BorderBrush="{x:Null}">
+                                <Border x:Name="Check" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Width="20"
+                                    Height="20"
+                                    Visibility="Visible"
+                                    Margin="0,0,0,0"
+                                    BorderThickness="0">
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource HighlightBrush1}">
+
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0,0"
+                                                         EndPoint="0,1">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStopCollection>
+                                                    <GradientStop Color="#333333"
+                                                              Offset="0.0" />
+                                                    <GradientStop Color="#444444"
+                                                              Offset="1.0" />
+                                                </GradientStopCollection>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+
+                                    </Border.BorderBrush>
+
+                                    <Path x:Name="CheckMark"
+
+                                      Visibility="Visible"
+                                      SnapsToDevicePixels="False"
+                                      Margin="5,5,5,5"
+                                      StrokeThickness="2" Stretch="Fill"
+
+                                      Data="M 0 0 L 7 7 M 0 7 L 7 0">
+                                        <Path.Stroke>
+                                            <SolidColorBrush Color="{DynamicResource ThemeTextColor}" />
+                                        </Path.Stroke>
+                                    </Path>
+                                </Border>
+                            </Button>
+
+                        </Border>
                     </StackPanel>
-                </DataTemplate>
-            </xcad:DockingManager.DocumentHeaderTemplate>
-            <xcad:DockingManager.Background>
-                <SolidColorBrush Color="{StaticResource WindowBackgroundColour}" />
-            </xcad:DockingManager.Background>
-            <xcad:DockingManager.Theme>
-                <xcad:AeroTheme />
-            </xcad:DockingManager.Theme>
-            <xcad:LayoutRoot x:Name="_layoutRoot">
-                <xcad:LayoutPanel Orientation="Horizontal">
-                    <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
-                        <xcad:LayoutDocumentPane x:Name="DocumentPane" />
-                    </xcad:LayoutDocumentPaneGroup>
-                </xcad:LayoutPanel>
-            </xcad:LayoutRoot>
-        </xcad:DockingManager>
-        <StatusBar Background="{StaticResource WindowBackgroundBrush}" HorizontalAlignment="Stretch" Grid.Row="2">
-            <StatusBarItem HorizontalAlignment="Left">
-                <TextBlock x:Name="StatusDisplay" Foreground="White" />
-            </StatusBarItem>
-            <StatusBarItem HorizontalAlignment="Right">
-                <StackPanel Orientation="Horizontal">
-                    <Label x:Name="RunLabel" Content="Run Model (F5)" ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0" FontSize="14"  MouseUp="RunModel_MouseUp">
-                        <Label.Style>
-                            <Style TargetType="{x:Type Label}">
-                                <Setter Property="Cursor" Value="Hand" />
-                                <Setter Property="Foreground" Value="{StaticResource FocusBrush}" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Trigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="White" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </Trigger.EnterActions>
-                                        <Trigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetProperty="Foreground.Color" To="{StaticResource FocusColour}" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </Trigger.ExitActions>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Label.Style>
-                    </Label>
-                    <ProgressBar Width="100" Height="10" Minimum="0" Maximum="10000" />
-                </StackPanel>
-            </StatusBarItem>
-        </StatusBar>
-        <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100"/>
-    </Grid>
+                </DockPanel>
+            </Border>
+            <Grid Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush1}">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="837*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="AUTO" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="AUTO" />
+                </Grid.RowDefinitions>
+                <!-- The main menu -->
+                <Menu Grid.Row="0" MouseDown="Window_MouseDown" Background="{DynamicResource WindowBackgroundBrush}"
+                  Margin="0,0,0,0" Grid.ColumnSpan="1">
+                    <MenuItem Header="_File">
+                        <MenuItem.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
+                        </MenuItem.Background>
+                        <MenuItem Header="_New">
+                            <MenuItem x:Name="NewProjectButton" Header="_Project" Click="NewProjectButton_Click" />
+                            <MenuItem x:Name="NewModelSystemButton" Header="_Model System"
+                                  Click="NewModelSystemButton_Click" />
+                        </MenuItem>
+                        <MenuItem x:Name="OpenMenuItem" Header="_Open">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource OpenIcon}" />
+                            </MenuItem.Icon>
+                            <MenuItem Header="_Project" Click="OpenProject_Click" />
+                            <MenuItem Header="_Model System" Click="OpenModelSystem_Click" />
+                        </MenuItem>
+                        <MenuItem x:Name="RecentProjectsMenuItem" Header="_RecentProjects" />
+                        <MenuItem x:Name="CloseMenu" Header="_Close" Click="CloseMenu_Click"
+                              IsEnabled="{Binding CanClose, Mode=OneWay}" />
+                        <Separator Background="{StaticResource ControlBackgroundBrush}" />
+                        <MenuItem x:Name="SaveMenu" Header="{Binding Path=SaveName}" Click="SaveMenu_Click"
+                              IsEnabled="{Binding CanSave, Mode=OneWay}">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource SaveIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem x:Name="SaveAsMenu" Header="{Binding Path=SaveAsName}" Click="SaveAsMenu_Click"
+                              IsEnabled="{Binding CanSaveAs, Mode=OneWay}" />
+                        <!--
+                    <MenuItem Header="_Import Model System" Click="ImportModelSystem_Click">
+                        <MenuItem.Icon>
+                            <ContentControl Template="{DynamicResource ImportIcon}" />
+                        </MenuItem.Icon>
+                    </MenuItem> -->
+                        <Separator Background="{StaticResource ControlBackgroundBrush}" />
+                        <MenuItem Header="_Update XTMF" Click="UpdateXTMF_Click">
+                            <MenuItem.Icon>
+                                <Image Source="/XTMF.Gui;component/Resources/XTMF_refresh.png" Width="20" Height="20" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator Background="{StaticResource ControlBackgroundBrush}" />
+                        <MenuItem Header="E_xit" Click="Exit_Click" />
+                    </MenuItem>
+                    <MenuItem Header="_Edit">
+                        <MenuItem.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
+                        </MenuItem.Background>
+                        <MenuItem x:Name="UndoButton" Header="{Binding UndoName, Mode=OneWay}" Click="Undo_Click"
+                              IsEnabled="{Binding CanUndo, Mode=OneWay}" />
+                        <MenuItem x:Name="RedoButton" Header="{Binding RedoName, Mode=OneWay}" Click="Redo_Click"
+                              IsEnabled="{Binding CanRedo, Mode=OneWay}" />
+                    </MenuItem>
+                    <MenuItem Header="_Run">
+                        <MenuItem.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
+                        </MenuItem.Background>
+                        <MenuItem x:Name="RunMenu" Header="_Run Model System (F5)" Click="RunMenu_Click"
+                              IsEnabled="{Binding CanExecuteRun, Mode=OneWay}">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource RunIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem x:Name="RunRemoteMenu" Header="Run R_emote Client" Click="RunRemoteMenu_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource RunIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_View">
+                        <MenuItem.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
+                        </MenuItem.Background>
+                        <MenuItem Header="_Start Window" Click="ShowStart_Click" />
+                        <MenuItem Header="_Interface Settings">
+                            <MenuItem Header="_Show meta-module hidden parameters" IsCheckable="True"
+                                  Click="MetaModuleHiddenParametersToggle_Click" />
+                        </MenuItem>
+                    
+                        <MenuItem Header="_Documentation" Click="ShowDocumentation_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource HelpIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_Settings" Click="Settings_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource SettingsIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+
+                        <MenuItem Header="_Model Run Pane" Click="ShowModelRunPane_OnClick">
+
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_Help">
+                        <MenuItem.Background>
+                            <SolidColorBrush Color="{DynamicResource WindowBackgroundColour}" />
+                        </MenuItem.Background>
+                        <MenuItem Header="Search _Help" Click="LaunchHelpWindow_Click">
+                            <MenuItem.Icon>
+                                <ContentControl Template="{DynamicResource HelpIcon}" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="_About XTMF" Click="AboutXTMF_Click" />
+                        <MenuItem Header="_Release Memory" Click="ReleaseMemory_Click" />
+                    </MenuItem>
+                </Menu>
+                <!--<Grid x:Name="MainDisplay" Background="Gray"  Grid.Row="1" />-->
+                <xcad:DockingManager BorderThickness="0"  IsHitTestVisible="True" x:Name="DockManager"
+                                 Grid.Row="1" ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.PanningMode="HorizontalOnly" DataContext="self"
+                                     
+                                 ScrollViewer.HorizontalScrollBarVisibility="Visible" AllowMixedOrientation="True"
+                                 Margin="0,7,0,0" Grid.ColumnSpan="2" Grid.Column="0"
+                                  Background="{DynamicResource WindowBackgroundBrush1}" ActiveContentChanged="DockManager_ActiveContentChanged">
+
+
+                    <xcad:DockingManager.DocumentTitleTemplate>
+                        <DataTemplate>
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.Column="1" Source="{Binding IconSource}" Margin="0,0,4,0" />
+                                <TextBlock Grid.Column="2" Text="{Binding Title}"  Margin="1"
+                                        />
+                            </Grid>
+                        </DataTemplate>
+                    </xcad:DockingManager.DocumentTitleTemplate>
+                    <xcad:DockingManager.DocumentHeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding IconSource}" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding Title}" FontSize="12" Margin="1" >
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </xcad:DockingManager.DocumentHeaderTemplate>
+                    <xcad:DockingManager.Theme>
+                        <xcad:Vs2013LightTheme />
+                    </xcad:DockingManager.Theme>
+
+
+
+                    <xcad:LayoutRoot x:Name="LayoutRoot">
+                        <xcad:LayoutPanel Orientation="Vertical">
+                            <xcad:LayoutDocumentPaneGroup x:Name="OpenDocuments">
+                                <xcad:LayoutDocumentPane x:Name="DocumentPane"
+                                                     />
+                            </xcad:LayoutDocumentPaneGroup>
+
+                            <xcad:LayoutAnchorablePane DockHeight="250" FloatingHeight="250">
+
+                                <xcad:LayoutAnchorable  IsVisible="False" IsMaximized="False" x:Name="ModelRunPane"  Title="Model System Run" CanClose="False" CanAutoHide="False" CanFloat="True" CanHide="True" AutoHideMinWidth="200" AutoHideWidth="200" AutoHideHeight="200">
+                                    <uc:RunWindow   HorizontalAlignment="Stretch"></uc:RunWindow>
+                                </xcad:LayoutAnchorable>
+                            </xcad:LayoutAnchorablePane>
+                        </xcad:LayoutPanel>
+
+
+                    </xcad:LayoutRoot>
+                </xcad:DockingManager>
+                <StatusBar Background="{DynamicResource WindowBackgroundBrush1}" HorizontalAlignment="Stretch"
+                       Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
+                    <StatusBarItem HorizontalAlignment="Left">
+                        <TextBlock x:Name="StatusDisplay" Foreground="{DynamicResource ThemeTextColorBrush}" />
+                    </StatusBarItem>
+                    <StatusBarItem HorizontalAlignment="Left" Margin="-5,0,0,0" >
+                        <Label FontSize="12" Visibility="Hidden" Name="StatusLinkLabel" Style="{DynamicResource HoverLabel}" Content="Click here"  ></Label>
+                    </StatusBarItem>
+                    <StatusBarItem HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal">
+                            <Label  x:Name="RunLabel" Content="Run Model (F5)" Style="{DynamicResource HoverLabel}"
+                               ToolTip="Press F5 to run the currently viewed model system." Margin="0.25cm,0,0,0"
+                               FontSize="14" MouseUp="RunModel_MouseUp">
+
+                            </Label>
+
+                        </StackPanel>
+                    </StatusBarItem>
+                </StatusBar>
+                <ToolBarPanel HorizontalAlignment="Left" Height="100" Margin="176,138,0,0" Grid.Row="1"
+                          VerticalAlignment="Top" Width="100" Grid.ColumnSpan="2" Grid.Column="0" />
+            </Grid>
+        </Grid>
+    </Border>
 </Window>
+
+
+

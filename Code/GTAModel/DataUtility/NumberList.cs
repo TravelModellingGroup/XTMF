@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -28,7 +30,7 @@ namespace TMG.GTAModel.DataUtility
 
         public int Count
         {
-            get { return this.Values.Length; }
+            get { return Values.Length; }
         }
 
         public bool IsReadOnly
@@ -40,12 +42,12 @@ namespace TMG.GTAModel.DataUtility
         {
             get
             {
-                return this.Values[index];
+                return Values[index];
             }
 
             set
             {
-                this.Values[index] = value;
+                Values[index] = value;
             }
         }
 
@@ -58,14 +60,14 @@ namespace TMG.GTAModel.DataUtility
         public static bool TryParse(ref string error, string input, out NumberList data)
         {
             data = null;
-            List<int> values = new List<int>();
-            int i = 0;
+            var values = new List<int>();
+            var i = 0;
             BurnWhiteSpace( ref i, input );
             var length = input.Length;
             while ( i < length )
             {
-                int number = 0;
-                char c = input[i];
+                var number = 0;
+                var c = input[i];
                 do
                 {
                     if ( c == '\n' | c == '\r' )
@@ -100,24 +102,24 @@ namespace TMG.GTAModel.DataUtility
 
         public bool Contains(int item)
         {
-            return this.IndexOf( item ) != -1;
+            return IndexOf( item ) != -1;
         }
 
         public void CopyTo(int[] array, int arrayIndex)
         {
-            Array.Copy( this.Values, 0, array, arrayIndex, this.Values.Length );
+            Array.Copy( Values, 0, array, arrayIndex, Values.Length );
         }
 
         public IEnumerator<int> GetEnumerator()
         {
-            return ( (ICollection<int>)this.Values ).GetEnumerator();
+            return ( (ICollection<int>)Values ).GetEnumerator();
         }
 
         public int IndexOf(int item)
         {
-            for ( int i = 0; i < this.Values.Length; i++ )
+            for ( var i = 0; i < Values.Length; i++ )
             {
-                if ( item == this.Values[i] )
+                if ( item == Values[i] )
                 {
                     return i;
                 }
@@ -140,17 +142,17 @@ namespace TMG.GTAModel.DataUtility
             throw new NotSupportedException();
         }
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.Values.GetEnumerator();
+            return Values.GetEnumerator();
         }
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            for ( int i = 0; i < this.Values.Length; i++ )
+            var builder = new StringBuilder();
+            for ( var i = 0; i < Values.Length; i++ )
             {
-                builder.Append( this.Values[i] );
+                builder.Append( Values[i] );
                 builder.Append( ',' );
             }
             return builder.ToString( 0, builder.Length - 1 );
@@ -161,7 +163,7 @@ namespace TMG.GTAModel.DataUtility
             while ( i < input.Length && WhiteSpace( input[i] ) )
             {
                 i++;
-            };
+            }
         }
 
         private static bool WhiteSpace(char p)

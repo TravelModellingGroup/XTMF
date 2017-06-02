@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using TMG.GTAModel.DataUtility;
@@ -23,6 +24,7 @@ using XTMF;
 
 namespace TMG.GTAModel.Generation
 {
+    // ReSharper disable once InconsistentNaming
     public class DRMNHBOPMGeneration : IDemographicCategoryGeneration
     {
         [RunParameter( "Demographic Parameter Set Index", 0, "The 0 indexed index of parameters to use when calculating utility" )]
@@ -64,27 +66,27 @@ namespace TMG.GTAModel.Generation
 
         public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfzones = zones.Length;
             var flatProduction = production.GetFlatData();
             for ( int i = 0; i < numberOfzones; i++ )
             {
                 int regionIndex;
-                if ( !this.InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                 {
                     // if this region is not included just continue
                     flatProduction[i] = 0;
                     continue;
                 }
-                flatProduction[i] = zones[i].Population * this.RegionPopulationParameter[regionIndex]
-                    + zones[i].Employment * this.RegionEmploymentParameter[regionIndex]
-                    + this.RegionConstantsParameter[regionIndex];
+                flatProduction[i] = zones[i].Population * RegionPopulationParameter[regionIndex]
+                    + zones[i].Employment * RegionEmploymentParameter[regionIndex]
+                    + RegionConstantsParameter[regionIndex];
             }
         }
 
         public void InitializeDemographicCategory()
         {
-            this.Root.ModeParameterDatabase.ApplyParameterSet( this.ModeChoiceParameterSetIndex, this.DemographicParameterSetIndex );
+            Root.ModeParameterDatabase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
         }
 
         public bool IsContained(IPerson person)
@@ -99,7 +101,7 @@ namespace TMG.GTAModel.Generation
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = this.RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
         }
     }
 }

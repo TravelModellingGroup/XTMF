@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -64,9 +65,9 @@ namespace TMG.GTAModel.Input
         {
             if ( !InputFile.ContainsFileName() ) yield break;
             int maxColumn = ColumnNumbers.Max();
-            var numberOfColumnNumbers = this.ColumnNumbers.Count;
+            var numberOfColumnNumbers = ColumnNumbers.Count;
             float[] data = new float[numberOfColumnNumbers];
-            CsvReader reader = null;
+            CsvReader reader;
             var fileName = InputFile.GetFileName( Root.InputBaseDirectory );
             try
             {
@@ -74,12 +75,12 @@ namespace TMG.GTAModel.Input
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "In module '" + this.Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
+                throw new XTMFRuntimeException( "In module '" + Name + "' we were unable to load the file '" + fileName + "', an error was reported\r\n'" + e.Message + "'" );
             }
             using ( reader )
             {
                 // burn through the headers
-                for ( int i = 0; i < this.NumberOfHeaderLines && !reader.EndOfFile; i++ )
+                for ( int i = 0; i < NumberOfHeaderLines && !reader.EndOfFile; i++ )
                 {
                     reader.LoadLine();
                 }
@@ -94,7 +95,7 @@ namespace TMG.GTAModel.Input
                             reader.Get( out data[i], ColumnNumbers[i] );
                         }
                         yield return data;
-                        if ( !this.DataIsCopied )
+                        if ( !DataIsCopied )
                         {
                             data = new float[numberOfColumnNumbers];
                         }

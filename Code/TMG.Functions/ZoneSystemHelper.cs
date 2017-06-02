@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,25 +16,23 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Datastructure;
 namespace TMG.Functions
 {
     public static class ZoneSystemHelper
     {
-        public static SparseArray<T> CreatePDArray<T>(SparseArray<IZone> zoneArray)
+        public static SparseArray<T> CreatePdArray<T>(SparseArray<IZone> zoneArray)
         {
             var zones = zoneArray.GetFlatData();
             List<int> pdNumbersFound = new List<int>( 10 );
             for ( int i = 0; i < zones.Length; i++ )
             {
-                var pdID = zones[i].PlanningDistrict;
-                if ( !pdNumbersFound.Contains( pdID ) )
+                var pdId = zones[i].PlanningDistrict;
+                if ( !pdNumbersFound.Contains( pdId ) )
                 {
-                    pdNumbersFound.Add( pdID );
+                    pdNumbersFound.Add( pdId );
                 }
             }
             var pdArray = pdNumbersFound.ToArray();
@@ -47,19 +45,19 @@ namespace TMG.Functions
             List<int> regionNumbersFound = new List<int>(10);
             for(int i = 0; i < zones.Length; i++)
             {
-                var regionID = zones[i].RegionNumber;
-                if(!regionNumbersFound.Contains(regionID))
+                var regionId = zones[i].RegionNumber;
+                if(!regionNumbersFound.Contains(regionId))
                 {
-                    regionNumbersFound.Add(regionID);
+                    regionNumbersFound.Add(regionId);
                 }
             }
             var regionArray = regionNumbersFound.ToArray();
             return SparseArray<T>.CreateSparseArray(regionArray, new T[regionArray.Length]);
         }
 
-        public static SparseTwinIndex<T> CreatePDTwinArray<T>(SparseArray<IZone> zoneArray)
+        public static SparseTwinIndex<T> CreatePdTwinArray<T>(SparseArray<IZone> zoneArray)
         {
-            return CreatePDArray<T>( zoneArray ).CreateSquareTwinArray<T>();
+            return CreatePdArray<T>( zoneArray ).CreateSquareTwinArray<T>();
         }
     }
 }

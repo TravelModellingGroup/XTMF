@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using XTMF;
 
 namespace TMG.GTAModel.Modes.UtilityComponents
@@ -29,9 +30,9 @@ namespace TMG.GTAModel.Modes.UtilityComponents
 
         public override float CalculateV(IZone origin, IZone destination, Time time)
         {
-            if ( this.IsContained( origin, destination ) )
+            if ( IsContained( origin, destination ) )
             {
-                return this.Constant;
+                return Constant;
             }
             return 0f;
         }

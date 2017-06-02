@@ -1,0 +1,140 @@
+﻿<!-- 
+    Copyright 2015-2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+
+    This file is part of XTMF.
+
+    XTMF is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XTMF is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:XTMF.Gui.UserControls">
+
+    <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Border x:Name="Border" Grid.ColumnSpan="2" CornerRadius="2"
+  Background="Transparent"
+  BorderThickness="1" />
+            <Border 
+  Grid.Column="0"
+  CornerRadius="0,0,0,0" 
+  Margin="1" 
+  Background="{DynamicResource WindowBackgroundBrush2}" 
+  BorderThickness="0,0,1,0" />
+            <Path Fill="{DynamicResource ThemeTextColorBrush}"
+  x:Name="Arrow"
+  Grid.Column="1"     
+  HorizontalAlignment="Center"
+  VerticalAlignment="Center"
+  Data="M 0 0 L 4 4 L 8 0 Z"/>
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Arrow" Property="Opacity" Value="1.0"></Setter>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter TargetName="Arrow" Property="Opacity" Value="0.8"></Setter>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="ComboBoxTextBox" TargetType="TextBox" >
+        <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+    </ControlTemplate>
+
+
+    <Style x:Key="{x:Type ComboBox}" TargetType="ComboBox">
+
+
+
+        <Setter Property="Foreground" Value="{DynamicResource ThemeTextColorBrush}">
+
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton 
+         Name="ToggleButton" 
+         Template="{StaticResource ComboBoxToggleButton}" 
+         Grid.Column="2" 
+         Focusable="false"
+         IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+         ClickMode="Press">
+                        </ToggleButton>
+                        <ContentPresenter
+        Name="ContentSite"
+        IsHitTestVisible="False" 
+        Margin="3,3,23,3"
+                            
+        VerticalAlignment="Center"
+        HorizontalAlignment="Left" />
+                        <TextBox x:Name="PART_EditableTextBox"
+                                 
+         Style="{x:Null}" 
+         Template="{StaticResource ComboBoxTextBox}" 
+         HorizontalAlignment="Left" 
+         VerticalAlignment="Center" 
+         Margin="3,3,23,3" 
+                                 IsHitTestVisible="{TemplateBinding IsEditable}"
+                                 
+                                 Height="20"
+           
+                    Text="{TemplateBinding Text}"
+         Focusable="{TemplateBinding Focusable}" 
+         Background="Transparent"
+         Foreground="{DynamicResource ThemeTextColorBrush}"
+         Visibility="Visible"
+         IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                        <Popup 
+        Name="Popup"
+        Placement="Bottom"
+        IsOpen="{TemplateBinding IsDropDownOpen}"
+        AllowsTransparency="True" 
+        Focusable="False"
+                            
+        PopupAnimation="Slide">
+                            <Grid 
+          Name="DropDown"
+          SnapsToDevicePixels="True"                
+                                Background="{DynamicResource WindowBackgroundBrush3}"
+          MinWidth="{TemplateBinding ActualWidth}"
+          MaxHeight="{TemplateBinding MaxDropDownHeight}">
+
+
+                                <Border 
+            x:Name="DropDownBorder"
+            Background="{StaticResource WindowBackgroundBrush2}"
+            BorderThickness="1"/>
+                                <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+
+        </Setter>
+        <Style.Triggers>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

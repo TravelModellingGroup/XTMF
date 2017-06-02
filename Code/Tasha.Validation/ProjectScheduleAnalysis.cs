@@ -208,22 +208,6 @@ namespace Tasha.Validation
             }
         }
 
-        private void GatherDuration(Schedule sched, float[] data, bool original, float expFactor)
-        {
-            var episodes = sched.Episodes;
-            for(int i = 0; i < sched.EpisodeCount; i++)
-            {
-                if(episodes[i] != null)
-                {
-                    int index = GetBucketIndex(original ? episodes[i].OriginalDuration : episodes[i].Duration);
-                    if(index >= 0 && index < WorkStartTime.Length)
-                    {
-                        data[index] += expFactor;
-                    }
-                }
-            }
-        }
-
         private void GenerateChart(string fileName, float[] values, string xAxisName, string yAxisName)
         {
             using (Chart chart = new Chart())

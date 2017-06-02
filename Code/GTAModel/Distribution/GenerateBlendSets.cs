@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using Datastructure;
 using XTMF;
@@ -29,14 +30,14 @@ namespace TMG.GTAModel.Distribution
 
         public override bool RuntimeValidation(ref string error)
         {
-            Parent.Subsets.Remove( this );
-            foreach ( var set in this.Set )
+            Parent.Subsets.Remove(this);
+            foreach (var set in Set)
             {
-                for ( int i = set.Start; i <= set.Stop; i++ )
+                for (var i = set.Start; i <= set.Stop; i++)
                 {
-                    var item = new List<Range>( 1 );
-                    item.Add( new Range() { Start = i, Stop = i } );
-                    Parent.Subsets.Add( new BlendSet() { Set = new Datastructure.RangeSet( item ) } );
+                    var item = new List<Range>(1);
+                    item.Add(new Range(i, i));
+                    Parent.Subsets.Add(new BlendSet { Set = new RangeSet(item) });
                 }
             }
             return true;

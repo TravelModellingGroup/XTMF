@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 
@@ -49,7 +45,7 @@ namespace TMG.Emme.Tools.Analysis.Traffic
         public FileLocation TransferMatrixFile;
 
         [RunParameter("Aggregation Partition for the Walk all way matrix (None if not required)", "None", "The aggregation partition for the walk all way matrix")]
-        public string xtmf_AggregationParition;
+        public string XTMFAggregationParition;
 
         [SubModelInformation(Required = false, Description = "The location to save the walk all way matrix to")]
         public FileLocation WalkAllWayMatrixFile;
@@ -71,31 +67,21 @@ namespace TMG.Emme.Tools.Analysis.Traffic
 
         private ModellerControllerParameter[] GetParameters()
         {
-            return new ModellerControllerParameter[]
+            return new[]
             {
                 new ModellerControllerParameter("xtmf_ScenarioNumber", ScenarioNumber.ToString()),
                 new ModellerControllerParameter("ExportTransferMatrixFlag", ExportTransferMatrixFlag.ToString()),
                 new ModellerControllerParameter("ExportWalkAllWayMatrixFlag",ExportWalkAllWayMatrixFlag.ToString()),
                 new ModellerControllerParameter("TransferMatrixFile",TransferMatrixFile.GetFilePath()),
-                new ModellerControllerParameter("xtmf_AggregationPartition",xtmf_AggregationParition),
+                new ModellerControllerParameter("xtmf_AggregationPartition",XTMFAggregationParition),
                 new ModellerControllerParameter("WalkAllWayExportFile",ExportWalkAllWayMatrixFlag ? WalkAllWayMatrixFile.GetFilePath() : "none" ),
-                new ModellerControllerParameter("LineGroupOptionOrAttributeId",LineGroupOptionOrAttributeId.ToString())
+                new ModellerControllerParameter("LineGroupOptionOrAttributeId",LineGroupOptionOrAttributeId)
             };
         }
 
         public bool RuntimeValidation(ref string error)
         {            
             return true;
-        }
-
-        private bool ErrorIfBlank(string flag, string nameOfAttribute, ref string error)
-        {
-            if (String.IsNullOrWhiteSpace(flag))
-            {
-                error = "In '" + Name + "' the attribute '" + nameOfAttribute + "' is not assigned to!";
-                return true;
-            }
-            return false;
         }
     }
 

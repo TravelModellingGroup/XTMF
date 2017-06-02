@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.IO;
 using TMG.GTAModel.DataUtility;
 using TMG.Input;
@@ -59,7 +60,7 @@ Non-Work/School trips to be able to filter out by occupation type."
 
         private bool ContainsType(int type)
         {
-            return ( this.AllowedIndexes.Contains( type ) );
+            return ( AllowedIndexes.Contains( type ) );
         }
     }
 }

@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using XTMF;
 
@@ -49,7 +46,7 @@ namespace TMG.Estimation.Utilities
             return false;
         }
 
-        bool Attached = false;
+        bool Attached;
 
         [RootModule]
         public LocalEstimatinHost Root;
@@ -118,7 +115,7 @@ namespace TMG.Estimation.Utilities
         [SubModelInformation(Required = true, Description = "Used to respond to the host.")]
         public RespondToHost Response;
 
-        public class RespondToHost : XTMF.IModule
+        public class RespondToHost : IModule
         {
             [RootModule]
             public IEstimationClientModelSystem Root;

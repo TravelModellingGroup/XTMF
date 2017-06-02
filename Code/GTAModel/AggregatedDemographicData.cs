@@ -16,8 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Datastructure;
 using XTMF;
@@ -103,7 +105,7 @@ type ITravelDemandModel.")]
         [RunParameter("#Vehicles Workers Header", true, "If the csv file contains a header.")]
         public bool WorkerVehicleRateFileHeader;
 
-        private Dictionary<int, List<int>> PDZoneMap;
+        private Dictionary<int, List<int>> PdZoneMap;
 
         public SparseArray<Range> AgeCategories
         {
@@ -186,7 +188,7 @@ type ITravelDemandModel.")]
         public void LoadData()
         {
             Loaded = true;
-            LoadPDZoneMap();
+            LoadPdZoneMap();
             LoadCategoryInformation();
             LoadAgeDist();
             LoadEmploymentDist();
@@ -213,7 +215,6 @@ type ITravelDemandModel.")]
                     var empData = EmploymentStatusRates[zone];
                     if(occRates != null && empData != null)
                     {
-                        var pop = z.Population;
                         foreach(var age in AgeCategories.ValidIndexies())
                         {
                             var agePop = z.Population * AgeRates[zone, age];
@@ -307,9 +308,9 @@ type ITravelDemandModel.")]
         private string GetFullPath(string localPath)
         {
             var fullPath = localPath;
-            if(!System.IO.Path.IsPathRooted(fullPath))
+            if(!Path.IsPathRooted(fullPath))
             {
-                fullPath = System.IO.Path.Combine(Root.InputBaseDirectory, fullPath);
+                fullPath = Path.Combine(Root.InputBaseDirectory, fullPath);
             }
             return fullPath;
         }
@@ -346,21 +347,20 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out ageD[i - 1], i);
                     }
-                    ageDistributions.Add(new AgeDist() { Zone = zone, Percentages = ageD });
+                    ageDistributions.Add(new AgeDist { Zone = zone, Percentages = ageD });
                 }
             }
             int numberOfSetZones = 0;
             foreach(var ageDist in ageDistributions)
             {
                 List<int> temp;
-                if(PDZoneMap.TryGetValue(ageDist.Zone, out temp))
+                if(PdZoneMap.TryGetValue(ageDist.Zone, out temp))
                 {
                     numberOfSetZones += temp.Count;
                 }
             }
 
             var elements = ageDistributions.Count;
-            var records = elements * ageCategories;
             var first = new int[numberOfSetZones * ageCategories];
             var second = new int[numberOfSetZones * ageCategories];
             var d = new float[numberOfSetZones * ageCategories];
@@ -369,7 +369,7 @@ type ITravelDemandModel.")]
             for(int i = 0; i < elements; i++)
             {
                 List<int> zones;
-                if(PDZoneMap.TryGetValue(ageDistributions[i].Zone, out zones))
+                if(PdZoneMap.TryGetValue(ageDistributions[i].Zone, out zones))
                 {
                     foreach(var zone in zones)
                     {
@@ -395,7 +395,6 @@ type ITravelDemandModel.")]
         private void LoadDriversLicenseDistribution()
         {
             DriversLicenseRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            var employmentIndexes = EmploymentStatus.ValidIndexies().ToArray();
             using(CsvReader reader = new CsvReader(GetFullPath(DriversLicenseRateFile)))
             {
                 int pd;
@@ -416,15 +415,15 @@ type ITravelDemandModel.")]
                         reader.Get(out empStat, 2);
                         reader.Get(out chance, 3);
                         List<int> zones;
-                        if(PDZoneMap.TryGetValue(pd, out zones))
+                        if(PdZoneMap.TryGetValue(pd, out zones))
                         {
                             foreach(var zone in zones)
                             {
-                                var zoneData = this.DriversLicenseRates[zone];
+                                var zoneData = DriversLicenseRates[zone];
                                 if(zoneData == null)
                                 {
                                     zoneData = SparseTwinIndex<float>.CreateSimilarArray(AgeCategories, EmploymentStatus);
-                                    this.DriversLicenseRates[zone] = zoneData;
+                                    DriversLicenseRates[zone] = zoneData;
                                 }
                                 zoneData[ageCat, empStat] = chance;
                             }
@@ -454,31 +453,31 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out data[i], i);
                     }
-                    employment.Add(new EmploymentDist() { AgeCat = (int)data[1], Zone = (int)data[0], NonWork = data[2], FullTime = data[3], PartTime = data[4] });
+                    employment.Add(new EmploymentDist { AgeCat = (int)data[1], Zone = (int)data[0], NonWork = data[2], FullTime = data[3], PartTime = data[4] });
                 }
             }
-            employment.Sort(new Comparison<EmploymentDist>(
-                delegate(EmploymentDist first, EmploymentDist second)
+            employment.Sort(delegate(EmploymentDist first, EmploymentDist second)
+            {
+                if(first.Zone > second.Zone)
                 {
-                    if(first.Zone > second.Zone)
+                    return 1;
+                }
+                if(first.Zone == second.Zone)
+                {
+                    if(first.AgeCat > second.AgeCat)
                     {
                         return 1;
                     }
-                    else if(first.Zone == second.Zone)
+                    if(first.AgeCat == second.AgeCat)
                     {
-                        if(first.AgeCat > second.AgeCat)
-                        {
-                            return 1;
-                        }
-                        else if(first.AgeCat == second.AgeCat)
-                        {
-                            return 0;
-                        }
+                        return 0;
                     }
-                    return -1;
-                }));
+                }
+                return -1;
+            });
             EmploymentStatusRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            Range currentRange = new Range();
+            var start = 0;
+            var stop = 0;
             var employmentLength = employment.Count;
             int[] firstIndex;
             int[] secondIndex;
@@ -488,37 +487,37 @@ type ITravelDemandModel.")]
             {
                 if(employment[i].Zone == employment[i - 1].Zone)
                 {
-                    currentRange.Stop = i;
+                    stop = i;
                 }
                 else
                 {
-                    numberOfElements = currentRange.Stop - currentRange.Start + 1;
+                    numberOfElements = stop - start + 1;
                     firstIndex = new int[numberOfElements * 3];
                     secondIndex = new int[numberOfElements * 3];
                     d = new float[numberOfElements * 3];
                     for(int j = 0; j < numberOfElements; j++)
                     {
-                        var ageCat = employment[currentRange.Start + j].AgeCat;
+                        var ageCat = employment[start + j].AgeCat;
                         for(int k = 0; k < 3; k++)
                         {
                             firstIndex[j * 3 + k] = ageCat;
                             secondIndex[j * 3 + k] = k;
                         }
-                        d[j * 3] = employment[currentRange.Start + j].NonWork;
-                        d[j * 3 + 1] = employment[currentRange.Start + j].FullTime;
-                        d[j * 3 + 2] = employment[currentRange.Start + j].PartTime;
+                        d[j * 3] = employment[start + j].NonWork;
+                        d[j * 3 + 1] = employment[start + j].FullTime;
+                        d[j * 3 + 2] = employment[start + j].PartTime;
                     }
-                    if(PDZoneMap.TryGetValue(employment[i - 1].Zone, out zones))
+                    if(PdZoneMap.TryGetValue(employment[i - 1].Zone, out zones))
                     {
                         foreach(var z in zones)
                         {
-                            this.EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
+                            EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
                         }
                     }
-                    currentRange.Start = i;
+                    start = i;
                 }
             }
-            numberOfElements = currentRange.Stop - currentRange.Start + 1;
+            numberOfElements = stop - start + 1;
             firstIndex = new int[numberOfElements * 3];
             secondIndex = new int[numberOfElements * 3];
             d = new float[numberOfElements * 3];
@@ -526,18 +525,18 @@ type ITravelDemandModel.")]
             {
                 for(int k = 0; k < 3; k++)
                 {
-                    firstIndex[j * 3 + k] = employment[currentRange.Start + j].AgeCat;
+                    firstIndex[j * 3 + k] = employment[start + j].AgeCat;
                     secondIndex[j * 3 + k] = k;
                 }
-                d[j * 3] = employment[currentRange.Start + j].NonWork;
-                d[j * 3 + 1] = employment[currentRange.Start + j].FullTime;
-                d[j * 3 + 2] = employment[currentRange.Start + j].PartTime;
+                d[j * 3] = employment[start + j].NonWork;
+                d[j * 3 + 1] = employment[start + j].FullTime;
+                d[j * 3 + 2] = employment[start + j].PartTime;
             }
-            if(PDZoneMap.TryGetValue(employment[employmentLength - 1].Zone, out zones))
+            if(PdZoneMap.TryGetValue(employment[employmentLength - 1].Zone, out zones))
             {
                 foreach(var z in zones)
                 {
-                    this.EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
+                    EmploymentStatusRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
                 }
             }
         }
@@ -545,7 +544,6 @@ type ITravelDemandModel.")]
         private void LoadJobOccupationDistribution()
         {
             JobOccupationRates = SparseTriIndex<float>.CreateSimilarArray(Root.ZoneSystem.ZoneArray, EmploymentStatus, OccupationCategories);
-            var employmentIndexes = EmploymentStatus.ValidIndexies().ToArray();
             var occupationIndexes = OccupationCategories.ValidIndexies().ToArray();
             using(CsvReader reader = new CsvReader(GetFullPath(JobOccupationRateFile)))
             {
@@ -571,15 +569,15 @@ type ITravelDemandModel.")]
                         reader.Get(out sales, 4);
                         reader.Get(out manufacturing, 5);
                         List<int> zones;
-                        if(PDZoneMap.TryGetValue(pd, out zones))
+                        if(PdZoneMap.TryGetValue(pd, out zones))
                         {
                             foreach(var zone in zones)
                             {
-                                this.JobOccupationRates[zone, employmentStatus, occupationIndexes[0]] = 0;
-                                this.JobOccupationRates[zone, employmentStatus, occupationIndexes[1]] = professional;
-                                this.JobOccupationRates[zone, employmentStatus, occupationIndexes[2]] = general;
-                                this.JobOccupationRates[zone, employmentStatus, occupationIndexes[3]] = sales;
-                                this.JobOccupationRates[zone, employmentStatus, occupationIndexes[4]] = manufacturing;
+                                JobOccupationRates[zone, employmentStatus, occupationIndexes[0]] = 0;
+                                JobOccupationRates[zone, employmentStatus, occupationIndexes[1]] = professional;
+                                JobOccupationRates[zone, employmentStatus, occupationIndexes[2]] = general;
+                                JobOccupationRates[zone, employmentStatus, occupationIndexes[3]] = sales;
+                                JobOccupationRates[zone, employmentStatus, occupationIndexes[4]] = manufacturing;
                             }
                         }
                     }
@@ -609,12 +607,12 @@ type ITravelDemandModel.")]
                         reader.Get(out fulltime, 1);
                         reader.Get(out parttime, 2);
                         List<int> zones;
-                        if(PDZoneMap.TryGetValue(pd, out zones))
+                        if(PdZoneMap.TryGetValue(pd, out zones))
                         {
                             foreach(var zone in zones)
                             {
-                                this.JobTypeRates[zone, employmentIndexes[1]] = fulltime;
-                                this.JobTypeRates[zone, employmentIndexes[2]] = parttime;
+                                JobTypeRates[zone, employmentIndexes[1]] = fulltime;
+                                JobTypeRates[zone, employmentIndexes[2]] = parttime;
                             }
                         }
                     }
@@ -625,10 +623,10 @@ type ITravelDemandModel.")]
         private void LoadNonWorkerCarDistribution()
         {
             NonWorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            SparseArray<float> NumberOfVehicles =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 2 } } });
-            SparseArray<float> DriversLicense =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 1 } } });
+            SparseArray<float> numberOfVehicles =
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } });
+            SparseArray<float> driversLicense =
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } });
             using(CsvReader reader = new CsvReader(GetFullPath(NonWorkerVehicleRateFile)))
             {
                 int pd;
@@ -653,15 +651,15 @@ type ITravelDemandModel.")]
                         reader.Get(out chanceOne, 4);
                         reader.Get(out chanceTwo, 5);
                         List<int> zones;
-                        if(PDZoneMap.TryGetValue(pd, out zones))
+                        if(PdZoneMap.TryGetValue(pd, out zones))
                         {
                             foreach(var zone in zones)
                             {
-                                var zoneData = this.NonWorkerVehicleRates[zone];
+                                var zoneData = NonWorkerVehicleRates[zone];
                                 if(zoneData == null)
                                 {
-                                    zoneData = SparseTriIndex<float>.CreateSimilarArray(DriversLicense, AgeCategories, NumberOfVehicles);
-                                    this.NonWorkerVehicleRates[zone] = zoneData;
+                                    zoneData = SparseTriIndex<float>.CreateSimilarArray(driversLicense, AgeCategories, numberOfVehicles);
+                                    NonWorkerVehicleRates[zone] = zoneData;
                                 }
                                 zoneData[driversLic, ageCat, 0] = chanceZero;
                                 zoneData[driversLic, ageCat, 1] = chanceOne;
@@ -709,7 +707,7 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out data[i], i);
                     }
-                    occupation.Add(new OccupationDist()
+                    occupation.Add(new OccupationDist
                     {
                         AgeCat = (int)data[1],
                         Zone = (int)data[0],
@@ -721,34 +719,35 @@ type ITravelDemandModel.")]
                     } );
                 }
             }
-            occupation.Sort(new Comparison<OccupationDist>(delegate (OccupationDist first, OccupationDist second)
+            occupation.Sort(delegate (OccupationDist first, OccupationDist second)
             {
                 if(first.Zone > second.Zone)
                 {
                     return 1;
                 }
-                else if(first.Zone == second.Zone)
+                if(first.Zone == second.Zone)
                 {
                     if(first.AgeCat > second.AgeCat)
                     {
                         return 1;
                     }
-                    else if(first.AgeCat == second.AgeCat)
+                    if(first.AgeCat == second.AgeCat)
                     {
                         if(first.EmploymentStatus > second.EmploymentStatus)
                         {
                             return 1;
                         }
-                        else if(first.EmploymentStatus == second.EmploymentStatus)
+                        if(first.EmploymentStatus == second.EmploymentStatus)
                         {
                             return 0;
                         }
                     }
                 }
                 return -1;
-            } ) );
+            } );
             OccupationRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            Range currentRange = new Range();
+            var start = 0;
+            var stop = 0;
             var employmentLength = occupation.Count;
             int[] firstIndex;
             int[] secondIndex;
@@ -759,11 +758,11 @@ type ITravelDemandModel.")]
             {
                 if(occupation[i].Zone == occupation[i - 1].Zone)
                 {
-                    currentRange.Stop = i;
+                    stop = i;
                 }
                 else
                 {
-                    numberOfElements = currentRange.Stop - currentRange.Start + 1;
+                    numberOfElements = stop - start + 1;
                     firstIndex = new int[numberOfElements * 5];
                     secondIndex = new int[numberOfElements * 5];
                     thirdIndex = new int[numberOfElements * 5];
@@ -772,26 +771,26 @@ type ITravelDemandModel.")]
                     {
                         for ( int k = 0; k < 5; k++)
                         {
-                            firstIndex[j * 5 + k] = occupation[currentRange.Start + j].AgeCat;
-                            secondIndex[j * 5 + k] = occupation[currentRange.Start + j].EmploymentStatus;
+                            firstIndex[j * 5 + k] = occupation[start + j].AgeCat;
+                            secondIndex[j * 5 + k] = occupation[start + j].EmploymentStatus;
                             thirdIndex[j * 5 + k] = k;
                         }
-                        d[j * 5 + 1] = occupation[currentRange.Start + j].Professional;
-                        d[j * 5 + 2] = occupation[currentRange.Start + j].General;
-                        d[j * 5 + 3] = occupation[currentRange.Start + j].Sales;
-                        d[j * 5 + 4] = occupation[currentRange.Start + j].Manufacturing;
+                        d[j * 5 + 1] = occupation[start + j].Professional;
+                        d[j * 5 + 2] = occupation[start + j].General;
+                        d[j * 5 + 3] = occupation[start + j].Sales;
+                        d[j * 5 + 4] = occupation[start + j].Manufacturing;
                     }
-                    if(PDZoneMap.TryGetValue(occupation[i - 1].Zone, out zones) )
+                    if(PdZoneMap.TryGetValue(occupation[i - 1].Zone, out zones) )
                     {
                         foreach(var z in zones)
                         {
-                            this.OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex(firstIndex, secondIndex, thirdIndex, d);
+                            OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex(firstIndex, secondIndex, thirdIndex, d);
                         }
                     }
-                    currentRange.Start = i;
+                    start = i;
                 }
             }
-            numberOfElements = currentRange.Stop - currentRange.Start + 1;
+            numberOfElements = stop - start + 1;
             firstIndex = new int[numberOfElements * 5];
             secondIndex = new int[numberOfElements * 5];
             thirdIndex = new int[numberOfElements * 5];
@@ -800,41 +799,41 @@ type ITravelDemandModel.")]
             {
                 for ( int k = 0; k < 5; k++)
                 {
-                    firstIndex[j * 5 + k] = occupation[currentRange.Start + j].AgeCat;
-                    secondIndex[j * 5 + k] = occupation[currentRange.Start + j].EmploymentStatus;
+                    firstIndex[j * 5 + k] = occupation[start + j].AgeCat;
+                    secondIndex[j * 5 + k] = occupation[start + j].EmploymentStatus;
                     thirdIndex[j * 5 + k] = k;
                 }
 
-                d[j * 5 + 1] = occupation[currentRange.Start + j].Professional;
-                d[j * 5 + 2] = occupation[currentRange.Start + j].General;
-                d[j * 5 + 3] = occupation[currentRange.Start + j].Sales;
-                d[j * 5 + 4] = occupation[currentRange.Start + j].Manufacturing;
+                d[j * 5 + 1] = occupation[start + j].Professional;
+                d[j * 5 + 2] = occupation[start + j].General;
+                d[j * 5 + 3] = occupation[start + j].Sales;
+                d[j * 5 + 4] = occupation[start + j].Manufacturing;
             }
-            if(PDZoneMap.TryGetValue(occupation[employmentLength - 1].Zone, out zones) )
+            if(PdZoneMap.TryGetValue(occupation[employmentLength - 1].Zone, out zones) )
             {
                 foreach(var z in zones)
                 {
-                    this.OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex(firstIndex, secondIndex, thirdIndex, d);
+                    OccupationRates[z] = SparseTriIndex<float>.CreateSparseTriIndex(firstIndex, secondIndex, thirdIndex, d);
                 }
             }
         }
 
-        private void LoadPDZoneMap()
+        private void LoadPdZoneMap()
         {
-            PDZoneMap = new Dictionary<int, List<int>>();
+            PdZoneMap = new Dictionary<int, List<int>>();
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             for(int i = 0; i < zones.Length; i++)
             {
                 var z = zones[i];
-                if(PDZoneMap.ContainsKey(z.PlanningDistrict))
+                if(PdZoneMap.ContainsKey(z.PlanningDistrict))
                 {
-                    PDZoneMap[z.PlanningDistrict].Add(z.ZoneNumber);
+                    PdZoneMap[z.PlanningDistrict].Add(z.ZoneNumber);
                 }
                 else
                 {
                     List<int> l = new List<int>();
                     l.Add(z.ZoneNumber);
-                    PDZoneMap[z.PlanningDistrict] = l;
+                    PdZoneMap[z.PlanningDistrict] = l;
                 }
             }
         }
@@ -858,7 +857,7 @@ type ITravelDemandModel.")]
                     {
                         reader.Get(out data[i], i);
                     }
-                    studentData.Add(new StudentDist()
+                    studentData.Add(new StudentDist
                     {
                         Zone = (int)data[0],
                         AgeCat = (int)data[1],
@@ -867,35 +866,36 @@ type ITravelDemandModel.")]
                     } );
                 }
             }
-            studentData.Sort(new Comparison<StudentDist>(delegate (StudentDist first, StudentDist second)
+            studentData.Sort(delegate (StudentDist first, StudentDist second)
             {
                 if(first.Zone > second.Zone)
                 {
                     return 1;
                 }
-                else if(first.Zone == second.Zone)
+                if(first.Zone == second.Zone)
                 {
                     if(first.AgeCat > second.AgeCat)
                     {
                         return 1;
                     }
-                    else if(first.AgeCat == second.AgeCat)
+                    if(first.AgeCat == second.AgeCat)
                     {
                         if(first.EmploymentStatus > second.EmploymentStatus)
                         {
                             return 1;
                         }
-                        else if(first.EmploymentStatus == second.EmploymentStatus)
+                        if(first.EmploymentStatus == second.EmploymentStatus)
                         {
                             return 0;
                         }
                     }
                 }
                 return -1;
-            } ) );
+            } );
             // Employment is now sorted Zone,Age,EmploymentStatus
             SchoolRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            Range currentRange = new Range();
+            var start = 0;
+            var stop = 0;
             var studentDataLength = studentData.Count;
             int[] firstIndex;
             int[] secondIndex;
@@ -905,46 +905,46 @@ type ITravelDemandModel.")]
             {
                 if(studentData[i].Zone == studentData[i - 1].Zone)
                 {
-                    currentRange.Stop = i;
+                    stop = i;
                 }
                 else
                 {
-                    numberOfElements = currentRange.Stop - currentRange.Start + 1;
+                    numberOfElements = stop - start + 1;
                     firstIndex = new int[numberOfElements];
                     secondIndex = new int[numberOfElements];
                     d = new float[numberOfElements];
                     for ( int j = 0; j < numberOfElements; j++)
                     {
-                        var data = studentData[currentRange.Start + j];
+                        var data = studentData[start + j];
                         firstIndex[j] = data.AgeCat;
                         secondIndex[j] = data.EmploymentStatus;
                         d[j] = data.Chance;
                     }
-                    if(PDZoneMap.TryGetValue(studentData[i - 1].Zone, out zones) )
+                    if(PdZoneMap.TryGetValue(studentData[i - 1].Zone, out zones) )
                     {
                         foreach(var z in zones)
                         {
-                            this.SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
+                            SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
                         }
                     }
-                    currentRange.Start = i;
+                    start = i;
                 }
             }
-            numberOfElements = currentRange.Stop - currentRange.Start + 1;
+            numberOfElements = stop - start + 1;
             firstIndex = new int[numberOfElements];
             secondIndex = new int[numberOfElements];
             d = new float[numberOfElements];
             for ( int j = 0; j < numberOfElements; j++)
             {
-                firstIndex[j] = studentData[currentRange.Start + j].AgeCat;
-                secondIndex[j] = studentData[currentRange.Start + j].EmploymentStatus;
-                d[j] = studentData[currentRange.Start + j].Chance;
+                firstIndex[j] = studentData[start + j].AgeCat;
+                secondIndex[j] = studentData[start + j].EmploymentStatus;
+                d[j] = studentData[start + j].Chance;
             }
-            if(PDZoneMap.TryGetValue(studentData[studentDataLength - 1].Zone, out zones) )
+            if(PdZoneMap.TryGetValue(studentData[studentDataLength - 1].Zone, out zones) )
             {
                 foreach(var z in zones)
                 {
-                    this.SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
+                    SchoolRates[z] = SparseTwinIndex<float>.CreateTwinIndex(firstIndex, secondIndex, d);
                 }
             }
         }
@@ -952,10 +952,10 @@ type ITravelDemandModel.")]
         private void LoadWorkerCarDistribution()
         {
             WorkerVehicleRates = Root.ZoneSystem.ZoneArray.CreateSimilarArray<SparseTriIndex<float>>();
-            SparseArray<float> NumberOfVehicles =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 2 } } } );
-            SparseArray<float> DriversLicense =
-                new SparseArray<float>(new SparseIndexing() { Indexes = new SparseSet[] { new SparseSet() { Start = 0, Stop = 1 } } } );
+            SparseArray<float> numberOfVehicles =
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 2 } } } );
+            SparseArray<float> driversLicense =
+                new SparseArray<float>(new SparseIndexing { Indexes = new[] { new SparseSet { Start = 0, Stop = 1 } } } );
             using (CsvReader reader = new CsvReader(GetFullPath(WorkerVehicleRateFile)))
             {
                 int pd;
@@ -980,15 +980,15 @@ type ITravelDemandModel.")]
                         reader.Get(out chanceZero, 3 );
                         reader.Get(out chanceOne, 4 );
                         reader.Get(out chanceTwo, 5 );
-                        if(PDZoneMap.TryGetValue(pd, out zones) )
+                        if(PdZoneMap.TryGetValue(pd, out zones) )
                         {
                             foreach(var zone in zones)
                             {
-                                var zoneData = this.WorkerVehicleRates[zone];
+                                var zoneData = WorkerVehicleRates[zone];
                                 if(zoneData == null )
                                 {
-                                    zoneData = SparseTriIndex<float>.CreateSimilarArray(DriversLicense, OccupationCategories, NumberOfVehicles);
-                                    this.WorkerVehicleRates[zone] = zoneData;
+                                    zoneData = SparseTriIndex<float>.CreateSimilarArray(driversLicense, OccupationCategories, numberOfVehicles);
+                                    WorkerVehicleRates[zone] = zoneData;
                                 }
                                 zoneData[driversLic, occ, 0] = chanceZero;
                                 zoneData[driversLic, occ, 1] = chanceOne;

@@ -16,10 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+using System.Threading;
+using System.Threading.Tasks;
+using Datastructure;
 using XTMF;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace TMG.GTAModel
 {
+    // ReSharper disable once InconsistentNaming
     public sealed class GTAModelGeneration : DemographicCategoryGeneration
     {
         [RunParameter( "Probability", 1.0f, "The probability for a person to make this trip." )]
@@ -28,18 +34,18 @@ namespace TMG.GTAModel
         public float ComputeAttraction(float[] flatAttraction, IZone[] zones, int numberOfZones)
         {
             float totalAttractions = 0;
-            var demographics = this.Root.Demographics;
+            var demographics = Root.Demographics;
             var flatEmploymentRates = demographics.JobOccupationRates.GetFlatData();
             var flatJobTypes = demographics.JobTypeRates.GetFlatData();
 
             for ( int i = 0; i < numberOfZones; i++ )
             {
                 var total = 0f;
-                foreach ( var empRange in this.EmploymentStatusCategory )
+                foreach ( var empRange in EmploymentStatusCategory )
                 {
                     for ( int emp = empRange.Start; emp <= empRange.Stop; emp++ )
                     {
-                        foreach ( var occRange in this.EmploymentStatusCategory )
+                        foreach ( var occRange in EmploymentStatusCategory )
                         {
                             for ( int occ = occRange.Start; occ <= occRange.Stop; occ++ )
                             {
@@ -59,8 +65,8 @@ namespace TMG.GTAModel
         public float ComputeProduction(float[] flatProduction, int numberOfZones)
         {
             int totalProduction = 0;
-            var flatPopulation = this.Root.Population.Population.GetFlatData();
-            System.Threading.Tasks.Parallel.For( 0, numberOfZones, delegate(int i)
+            var flatPopulation = Root.Population.Population.GetFlatData();
+            Parallel.For( 0, numberOfZones, delegate(int i)
             {
                 var zonePop = flatPopulation[i];
                 if ( zonePop == null ) return;
@@ -69,18 +75,18 @@ namespace TMG.GTAModel
                 for ( int person = 0; person < popLength; person++ )
                 {
                     var p = zonePop[person];
-                    if ( this.IsContained( p ) )
+                    if ( IsContained( p ) )
                     {
                         count++;
                     }
                 }
                 flatProduction[i] = count * Probability;
-                System.Threading.Interlocked.Add( ref totalProduction, count );
+                Interlocked.Add( ref totalProduction, count );
             } );
             return totalProduction * Probability;
         }
 
-        override public void Generate(Datastructure.SparseArray<float> production, Datastructure.SparseArray<float> attractions)
+        override public void Generate(SparseArray<float> production, SparseArray<float> attractions)
         {
             var flatProduction = production.GetFlatData();
             var flatAttraction = attractions.GetFlatData();
@@ -88,10 +94,8 @@ namespace TMG.GTAModel
             var numberOfIndexes = flatAttraction.Length;
 
             // Compute the Production and Attractions
-            float totalProduction = 0;
-            float totalAttraction = 0;
-            totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            totalAttraction = ComputeAttraction( flatAttraction, this.Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
+            var totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
+            var totalAttraction = ComputeAttraction( flatAttraction, Root.ZoneSystem.ZoneArray.GetFlatData(), numberOfIndexes );
 
             // Normalize the attractions
             float productionAttractionRatio;

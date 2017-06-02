@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,41 +29,41 @@ using XTMF;
 
 namespace TMG.GTAModel
 {
-    [ModuleInformation(Description=
+    [ModuleInformation(Description =
         @"This model system template is designed to validate the generation of a synthetic population 
 against the percentage based data from the provided IDemographicsData module."
         )]
     public class PopulationValidation : ITravelDemandModel
     {
-        [RunParameter( "Age Zone Report", "AgeZoneReport.csv", "The location that the age report will be saved to." )]
+        [RunParameter("Age Zone Report", "AgeZoneReport.csv", "The location that the age report will be saved to.")]
         public string AgeReportFile;
 
-        [SubModelInformation( Description = "The demographic information to compare to the synthetic population", Required = true )]
+        [SubModelInformation(Description = "The demographic information to compare to the synthetic population", Required = true)]
         public IDemographicsData Demographics;
 
-        [RunParameter( " Drivers License Report", "DriversLicenseReport.csv", typeof( FileFromOutputDirectory ), "The location that the driver's license report will be saved to." )]
+        [RunParameter(" Drivers License Report", "DriversLicenseReport.csv", typeof(FileFromOutputDirectory), "The location that the driver's license report will be saved to.")]
         public FileFromOutputDirectory DriversLicenseReportFile;
 
-        [RunParameter( "Employment Status Zone Report", "EmploymentStatusZoneReport.csv", "The location that the employment report will be saved to." )]
+        [RunParameter("Employment Status Zone Report", "EmploymentStatusZoneReport.csv", "The location that the employment report will be saved to.")]
         public string EmploymentStatusReportFile;
 
-        [RunParameter( "Occupation Zone Report", "OccupationZoneReport.csv", "The location that the occupation report will be saved to." )]
+        [RunParameter("Occupation Zone Report", "OccupationZoneReport.csv", "The location that the occupation report will be saved to.")]
         public string OccupationReportFile;
 
-        [SubModelInformation( Description = "The population type to use for reading in the synthetic population", Required = true )]
+        [SubModelInformation(Description = "The population type to use for reading in the synthetic population", Required = true)]
         public IPopulation Population;
 
-        [RunParameter( "Synthetic Population File", "SyntheticPopulation.csv", "The location and name of the file that contains the synthetic population" )]
+        [RunParameter("Synthetic Population File", "SyntheticPopulation.csv", "The location and name of the file that contains the synthetic population")]
         public string SyntheticPopulationFile;
 
-        [RunParameter( "Unemployment Status", 0, "The number that co-responds with a person not being employed" )]
+        [RunParameter("Unemployment Status", 0, "The number that co-responds with a person not being employed")]
         public int UnemployedEmploymentStatus;
 
-        private static Tuple<byte, byte, byte> LoadingColour = new Tuple<byte, byte, byte>( 100, 200, 100 );
+        private static Tuple<byte, byte, byte> LoadingColour = new Tuple<byte, byte, byte>(100, 200, 100);
 
-        private static Tuple<byte, byte, byte> ProcessingColour = new Tuple<byte, byte, byte>( 50, 150, 250 );
+        private static Tuple<byte, byte, byte> ProcessingColour = new Tuple<byte, byte, byte>(50, 150, 250);
 
-        [RunParameter( "Input Directory", "../../Input", "The directory that our input is located in." )]
+        [RunParameter("Input Directory", "../../Input", "The directory that our input is located in.")]
         public string InputBaseDirectory
         {
             get;
@@ -86,15 +87,15 @@ against the percentage based data from the provided IDemographicsData module."
 
         public float Progress
         {
-            get { return this.Population.Progress; }
+            get { return Population.Progress; }
         }
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return this.Population.Progress < 1 ? LoadingColour : ProcessingColour; }
+            get { return Population.Progress < 1 ? LoadingColour : ProcessingColour; }
         }
 
-        [SubModelInformation( Description = "The zone system for the synthetic population", Required = true )]
+        [SubModelInformation(Description = "The zone system for the synthetic population", Required = true)]
         public IZoneSystem ZoneSystem
         {
             get;
@@ -108,9 +109,9 @@ against the percentage based data from the provided IDemographicsData module."
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !File.Exists( SyntheticPopulationFile ) )
+            if (!File.Exists(SyntheticPopulationFile))
             {
-                error = String.Format( "The synthetic population file \"{0}\" doesn't exist!", SyntheticPopulationFile );
+                error = String.Format("The synthetic population file \"{0}\" doesn't exist!", SyntheticPopulationFile);
                 return false;
             }
             return true;
@@ -118,54 +119,54 @@ against the percentage based data from the provided IDemographicsData module."
 
         public void Start()
         {
-            this.ZoneSystem.LoadData();
-            this.Demographics.LoadData();
+            ZoneSystem.LoadData();
+            Demographics.LoadData();
 
-            using ( StreamWriter writer = new StreamWriter( "Performance.txt" ) )
+            using (StreamWriter writer = new StreamWriter("Performance.txt"))
             {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
-                this.Population.Load();
+                Population.Load();
                 watch.Stop();
-                writer.WriteLine( "Population Loading: " + watch.ElapsedMilliseconds + "ms" );
+                writer.WriteLine("Population Loading: " + watch.ElapsedMilliseconds + "ms");
                 watch.Restart();
-                ValidatePopulation( writer );
+                ValidatePopulation();
                 watch.Stop();
-                writer.WriteLine( "Processing Time: " + watch.ElapsedMilliseconds + "ms" );
+                writer.WriteLine("Processing Time: " + watch.ElapsedMilliseconds + "ms");
             }
-            this.Population.Population = null;
-            this.Demographics.UnloadData();
-            this.ZoneSystem.UnloadData();
+            Population.Population = null;
+            Demographics.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         public void ValidateEmploymentStatus()
         {
-            var zoneArray = this.ZoneSystem.ZoneArray;
+            var zoneArray = ZoneSystem.ZoneArray;
             var validZones = zoneArray.ValidIndexies().ToArray();
             var employmentStatusDist = zoneArray.CreateSimilarArray<SparseTwinIndex<float>>();
-            var validEmploymentStatus = this.Demographics.EmploymentStatus.ValidIndexies().ToArray();
+            var validEmploymentStatus = Demographics.EmploymentStatus.ValidIndexies().ToArray();
             var numberEmploymentStatus = validEmploymentStatus.Length;
             var numberOfZones = validZones.Length;
-            var validAges = this.Demographics.AgeCategories.ValidIndexies().ToArray();
+            var validAges = Demographics.AgeCategories.ValidIndexies().ToArray();
             var agesLength = validAges.Length;
             //for(int i = 0; i < numberOfZones; i++)
-            Parallel.For( 0, numberOfZones,
-               delegate(int i)
+            Parallel.For(0, numberOfZones,
+               delegate (int i)
                {
                    var zoneNumber = validZones[i];
-                   var pop = this.Population.Population[zoneNumber];
+                   var pop = Population.Population[zoneNumber];
                    var popLength = pop.Length;
-                   var dist = SparseTwinIndex<float>.CreateSimilarArray( this.Demographics.AgeCategories, this.Demographics.EmploymentStatus );
-                   var ages = this.Demographics.AgeCategories;
+                   var dist = SparseTwinIndex<float>.CreateSimilarArray(Demographics.AgeCategories, Demographics.EmploymentStatus);
+                   var ages = Demographics.AgeCategories;
 
-                   for ( int p = 0; p < popLength; p++ )
+                   for (int p = 0; p < popLength; p++)
                    {
                        var person = pop[p];
                        var personAge = person.Age;
-                       for ( int a = 0; a < agesLength; a++ )
+                       for (int a = 0; a < agesLength; a++)
                        {
                            var range = ages[validAges[a]];
-                           if ( personAge >= range.Start && personAge <= range.Stop )
+                           if (personAge >= range.Start && personAge <= range.Stop)
                            {
                                dist[validAges[a], person.EmploymentStatus] += person.ExpansionFactor;
                                break;
@@ -173,45 +174,45 @@ against the percentage based data from the provided IDemographicsData module."
                        }
                    }
                    employmentStatusDist[zoneNumber] = dist;
-               } );
-            using ( StreamWriter writer = new StreamWriter( this.EmploymentStatusReportFile ) )
+               });
+            using (StreamWriter writer = new StreamWriter(EmploymentStatusReportFile))
             {
-                writer.Write( "Zone,AgeCat" );
-                foreach ( var emp in this.Demographics.EmploymentStatus.ValidIndexies() )
+                writer.Write("Zone,AgeCat");
+                foreach (var emp in Demographics.EmploymentStatus.ValidIndexies())
                 {
-                    writer.Write( ',' );
-                    writer.Write( this.Demographics.EmploymentStatus[emp] );
+                    writer.Write(',');
+                    writer.Write(Demographics.EmploymentStatus[emp]);
                 }
-                writer.WriteLine( "Population" );
-                foreach ( var zone in zoneArray.ValidIndexies() )
+                writer.WriteLine("Population");
+                foreach (var zone in zoneArray.ValidIndexies())
                 {
                     var data = employmentStatusDist[zone];
-                    if ( zoneArray[zone].Population <= 0 ) continue;
-                    for ( int ageCat = 0; ageCat < agesLength; ageCat++ )
+                    if (zoneArray[zone].Population <= 0) continue;
+                    for (int ageCat = 0; ageCat < agesLength; ageCat++)
                     {
-                        writer.Write( zone );
-                        writer.Write( ',' );
-                        writer.Write( validAges[ageCat] );
+                        writer.Write(zone);
+                        writer.Write(',');
+                        writer.Write(validAges[ageCat]);
                         var total = 0f;
-                        var population = zoneArray[zone].Population * this.Demographics.AgeRates[zone, validAges[ageCat]];
-                        for ( int e = 0; e < numberEmploymentStatus; e++ )
+                        var population = zoneArray[zone].Population * Demographics.AgeRates[zone, validAges[ageCat]];
+                        for (int e = 0; e < numberEmploymentStatus; e++)
                         {
                             total += data[validAges[ageCat], validEmploymentStatus[e]];
                         }
 
-                        for ( int e = 0; e < numberEmploymentStatus; e++ )
+                        for (int e = 0; e < numberEmploymentStatus; e++)
                         {
                             var res = data[validAges[ageCat], validEmploymentStatus[e]] / total;
-                            if ( float.IsNaN( res ) )
+                            if (float.IsNaN(res))
                             {
                                 res = 0;
                             }
-                            res -= this.Demographics.EmploymentStatusRates[zone][validAges[ageCat], validEmploymentStatus[e]];
-                            writer.Write( ',' );
-                            writer.Write( res * population );
+                            res -= Demographics.EmploymentStatusRates[zone][validAges[ageCat], validEmploymentStatus[e]];
+                            writer.Write(',');
+                            writer.Write(res * population);
                         }
-                        writer.Write( ',' );
-                        writer.WriteLine( population );
+                        writer.Write(',');
+                        writer.WriteLine(population);
                     }
                 }
             }
@@ -220,7 +221,7 @@ against the percentage based data from the provided IDemographicsData module."
         private static void CalculateExpectedDLic(IZone[] zones, float[] expectedNumberOfLicenses, SparseTwinIndex<float>[] licenseData, float[][] ageData, Range[] ageCat, string[] empStatus, SparseTwinIndex<float>[] empData, int i)
         {
             var zoneLicenseData = licenseData[i];
-            if ( zoneLicenseData == null )
+            if (zoneLicenseData == null)
             {
                 return;
             }
@@ -228,10 +229,10 @@ against the percentage based data from the provided IDemographicsData module."
             var pop = zones[i].Population;
             var zoneLicenseProbability = licenseData[i].GetFlatData();
             var empProb = empData[i].GetFlatData();
-            for ( int a = 0; a < ageCat.Length; a++ )
+            for (int a = 0; a < ageCat.Length; a++)
             {
                 var inAge = ageData[i][a];
-                for ( int e = 0; e < empStatus.Length; e++ )
+                for (int e = 0; e < empStatus.Length; e++)
                 {
                     // add the probability of having the license by the ammount of people in that category
                     expectedTotal += zoneLicenseProbability[a][e] * inAge * empProb[a][e] * pop;
@@ -242,79 +243,55 @@ against the percentage based data from the provided IDemographicsData module."
 
         private void GatherDLicData(IZone[] zones, float[] expectedNumberOfLicenses, float[] numberOfLicenses)
         {
-            var licenseData = this.Demographics.DriversLicenseRates.GetFlatData();
-            var ageData = this.Demographics.AgeRates.GetFlatData();
-            var ageCat = this.Demographics.AgeCategories.GetFlatData();
-            var empStatus = this.Demographics.EmploymentStatus.GetFlatData();
-            var empData = this.Demographics.EmploymentStatusRates.GetFlatData();
-            try
-            {
-                Parallel.For( 0, zones.Length, delegate(int i)
-                {
-                    CalculateExpectedDLic( zones, expectedNumberOfLicenses, licenseData, ageData, ageCat, empStatus, empData, i );
+            var licenseData = Demographics.DriversLicenseRates.GetFlatData();
+            var ageData = Demographics.AgeRates.GetFlatData();
+            var ageCat = Demographics.AgeCategories.GetFlatData();
+            var empStatus = Demographics.EmploymentStatus.GetFlatData();
+            var empData = Demographics.EmploymentStatusRates.GetFlatData();
+            Parallel.For(0, zones.Length, delegate (int i)
+           {
+               CalculateExpectedDLic(zones, expectedNumberOfLicenses, licenseData, ageData, ageCat, empStatus, empData, i);
                     // learn how many we generated
-                    var people = this.Population.Population.GetFlatData()[i];
-                    if ( people == null ) return;
-                    var generatedTotal = 0f;
-                    for ( int p = 0; p < people.Length; p++ )
-                    {
-                        if ( people[p].DriversLicense )
-                        {
-                            generatedTotal += people[p].ExpansionFactor;
-                        }
-                    }
-                    numberOfLicenses[i] = generatedTotal;
-                } );
-            }
-            catch ( AggregateException e )
-            {
-                if ( e.InnerException is XTMFRuntimeException )
-                {
-                    throw new XTMFRuntimeException( e.InnerException.Message );
-                }
-                else
-                {
-                    throw new XTMFRuntimeException( e.InnerException.Message + "\r\n" + e.InnerException.StackTrace );
-                }
-            }
-        }
-
-        private string GetFullPath(string localPath)
-        {
-            var fullPath = localPath;
-            if ( !Path.IsPathRooted( fullPath ) )
-            {
-                fullPath = Path.Combine( this.InputBaseDirectory, fullPath );
-            }
-            return fullPath;
+                    var people = Population.Population.GetFlatData()[i];
+               if (people == null) return;
+               var generatedTotal = 0f;
+               for (int p = 0; p < people.Length; p++)
+               {
+                   if (people[p].DriversLicense)
+                   {
+                       generatedTotal += people[p].ExpansionFactor;
+                   }
+               }
+               numberOfLicenses[i] = generatedTotal;
+           });
         }
 
         private void ValidateAgeRates()
         {
-            var zoneArray = this.ZoneSystem.ZoneArray;
+            var zoneArray = ZoneSystem.ZoneArray;
             var ageDistribution = zoneArray.CreateSimilarArray<SparseArray<float>>();
             var validZones = zoneArray.ValidIndexies().ToArray();
             var numberOfZones = validZones.Length;
-            var validAges = this.Demographics.AgeCategories.ValidIndexies().ToArray();
+            var validAges = Demographics.AgeCategories.ValidIndexies().ToArray();
             var agesLength = validAges.Length;
             //for(int i = 0; i < numberOfZones; i++)
-            Parallel.For( 0, numberOfZones,
-               delegate(int i)
+            Parallel.For(0, numberOfZones,
+               delegate (int i)
                {
                    var zoneNumber = validZones[i];
-                   var pop = this.Population.Population[zoneNumber];
+                   var pop = Population.Population[zoneNumber];
                    var popLength = pop.Length;
-                   var dist = this.Demographics.AgeCategories.CreateSimilarArray<float>();
-                   var ages = this.Demographics.AgeCategories;
+                   var dist = Demographics.AgeCategories.CreateSimilarArray<float>();
+                   var ages = Demographics.AgeCategories;
 
-                   for ( int p = 0; p < popLength; p++ )
+                   for (int p = 0; p < popLength; p++)
                    {
                        var person = pop[p];
                        var personAge = person.Age;
-                       for ( int a = 0; a < agesLength; a++ )
+                       for (int a = 0; a < agesLength; a++)
                        {
                            var range = ages[validAges[a]];
-                           if ( personAge >= range.Start && personAge <= range.Stop )
+                           if (personAge >= range.Start && personAge <= range.Stop)
                            {
                                dist[validAges[a]] += person.ExpansionFactor;
                                break;
@@ -322,61 +299,59 @@ against the percentage based data from the provided IDemographicsData module."
                        }
                    }
                    ageDistribution[zoneNumber] = dist;
-               } );
-            using ( StreamWriter writer = new StreamWriter( this.AgeReportFile ) )
+               });
+            using (StreamWriter writer = new StreamWriter(AgeReportFile))
             {
-                writer.Write( "Zone" );
-                foreach ( var ageCat in this.Demographics.AgeCategories.ValidIndexies() )
+                writer.Write("Zone");
+                foreach (var ageCat in Demographics.AgeCategories.ValidIndexies())
                 {
-                    writer.Write( ',' );
-                    writer.Write( this.Demographics.AgeCategories[ageCat] );
+                    writer.Write(',');
+                    writer.Write(Demographics.AgeCategories[ageCat]);
                 }
-                writer.WriteLine( ",Synthetic Population, Given Population" );
-                var dist = this.Demographics.AgeCategories.CreateSimilarArray<float>();
-                var ages = this.Demographics.AgeCategories;
-                foreach ( var zone in zoneArray.ValidIndexies() )
+                writer.WriteLine(",Synthetic Population, Given Population");
+                foreach (var zone in zoneArray.ValidIndexies())
                 {
                     var total = 0f;
                     var population = zoneArray[zone].Population;
-                    if ( population <= 0 ) continue;
+                    if (population <= 0) continue;
                     var zoneDist = ageDistribution[zone];
-                    for ( int a = 0; a < agesLength; a++ )
+                    for (int a = 0; a < agesLength; a++)
                     {
                         total += zoneDist[validAges[a]];
                     }
-                    writer.Write( zone );
-                    for ( int a = 0; a < agesLength; a++ )
+                    writer.Write(zone);
+                    for (int a = 0; a < agesLength; a++)
                     {
-                        writer.Write( ',' );
-                        writer.Write( ( zoneDist[validAges[a]] ) - this.Demographics.AgeRates[zone, validAges[a]] * population );
+                        writer.Write(',');
+                        writer.Write((zoneDist[validAges[a]]) - Demographics.AgeRates[zone, validAges[a]] * population);
                     }
-                    writer.Write( ',' );
-                    writer.Write( total );
-                    writer.Write( ',' );
-                    writer.WriteLine( zoneArray[zone].Population );
+                    writer.Write(',');
+                    writer.Write(total);
+                    writer.Write(',');
+                    writer.WriteLine(zoneArray[zone].Population);
                 }
             }
         }
 
         private void ValidateDriversLicense()
         {
-            if ( !this.DriversLicenseReportFile.ContainsFileName() ) return;
-            var zones = this.ZoneSystem.ZoneArray.GetFlatData();
+            if (!DriversLicenseReportFile.ContainsFileName()) return;
+            var zones = ZoneSystem.ZoneArray.GetFlatData();
             var numberOfLicenses = new float[zones.Length];
             var expectedNumberOfLicenses = new float[zones.Length];
-            GatherDLicData( zones, expectedNumberOfLicenses, numberOfLicenses );
-            using ( StreamWriter writer = new StreamWriter( this.DriversLicenseReportFile.GetFileName() ) )
+            GatherDLicData(zones, expectedNumberOfLicenses, numberOfLicenses);
+            using (StreamWriter writer = new StreamWriter(DriversLicenseReportFile.GetFileName()))
             {
-                writer.WriteLine( "Zones,ExpectedDLic,GeneratedDLic,Delta" );
-                for ( int i = 0; i < zones.Length; i++ )
+                writer.WriteLine("Zones,ExpectedDLic,GeneratedDLic,Delta");
+                for (int i = 0; i < zones.Length; i++)
                 {
-                    writer.Write( zones[i].ZoneNumber );
-                    writer.Write( ',' );
-                    writer.Write( expectedNumberOfLicenses[i] );
-                    writer.Write( ',' );
-                    writer.Write( numberOfLicenses[i] );
-                    writer.Write( ',' );
-                    writer.Write( expectedNumberOfLicenses[i] - numberOfLicenses[i] );
+                    writer.Write(zones[i].ZoneNumber);
+                    writer.Write(',');
+                    writer.Write(expectedNumberOfLicenses[i]);
+                    writer.Write(',');
+                    writer.Write(numberOfLicenses[i]);
+                    writer.Write(',');
+                    writer.Write(expectedNumberOfLicenses[i] - numberOfLicenses[i]);
                     writer.WriteLine();
                 }
             }
@@ -384,34 +359,34 @@ against the percentage based data from the provided IDemographicsData module."
 
         private void ValidateOccupations()
         {
-            var zoneArray = this.ZoneSystem.ZoneArray;
-            var occZoneDist = this.Demographics.OccupationRates.CreateSimilarArray<SparseTriIndex<float>>();
-            var validOccupations = this.Demographics.OccupationCategories.ValidIndexies().ToArray();
+            var zoneArray = ZoneSystem.ZoneArray;
+            var occZoneDist = Demographics.OccupationRates.CreateSimilarArray<SparseTriIndex<float>>();
+            var validOccupations = Demographics.OccupationCategories.ValidIndexies().ToArray();
             var occupationsLength = validOccupations.Length;
             var validZones = zoneArray.ValidIndexies().ToArray();
             var numberOfZones = validZones.Length;
-            var validAges = this.Demographics.AgeCategories.ValidIndexies().ToArray();
+            var validAges = Demographics.AgeCategories.ValidIndexies().ToArray();
             var agesLength = validAges.Length;
-            Parallel.For( 0, numberOfZones,
-               delegate(int i)
+            Parallel.For(0, numberOfZones,
+               delegate (int i)
                {
                    var zoneNumber = validZones[i];
-                   var pop = this.Population.Population[zoneNumber];
+                   var pop = Population.Population[zoneNumber];
                    var popLength = pop.Length;
-                   var dist = SparseTriIndex<float>.CreateSimilarArray( this.Demographics.AgeCategories, this.Demographics.EmploymentStatus,
-                       this.Demographics.OccupationCategories );
-                   var ages = this.Demographics.AgeCategories;
+                   var dist = SparseTriIndex<float>.CreateSimilarArray(Demographics.AgeCategories, Demographics.EmploymentStatus,
+                       Demographics.OccupationCategories);
+                   var ages = Demographics.AgeCategories;
 
-                   for ( int p = 0; p < popLength; p++ )
+                   for (int p = 0; p < popLength; p++)
                    {
                        var person = pop[p];
-                       if ( person.EmploymentStatus != this.UnemployedEmploymentStatus )
+                       if (person.EmploymentStatus != UnemployedEmploymentStatus)
                        {
                            var personAge = person.Age;
-                           for ( int a = 0; a < agesLength; a++ )
+                           for (int a = 0; a < agesLength; a++)
                            {
                                var range = ages[validAges[a]];
-                               if ( personAge >= range.Start && personAge <= range.Stop )
+                               if (personAge >= range.Start && personAge <= range.Stop)
                                {
                                    dist[validAges[a], person.EmploymentStatus, person.Occupation] += person.ExpansionFactor;
                                    break;
@@ -420,69 +395,67 @@ against the percentage based data from the provided IDemographicsData module."
                        }
                    }
                    occZoneDist[zoneNumber] = dist;
-               } );
-            using ( StreamWriter writer = new StreamWriter( this.OccupationReportFile ) )
+               });
+            using (StreamWriter writer = new StreamWriter(OccupationReportFile))
             {
-                writer.Write( "Zone,Age Category,Employment Status," );
-                foreach ( var ageCat in this.Demographics.OccupationCategories.ValidIndexies() )
+                writer.Write("Zone,Age Category,Employment Status,");
+                foreach (var ageCat in Demographics.OccupationCategories.ValidIndexies())
                 {
-                    writer.Write( this.Demographics.OccupationCategories[ageCat] );
-                    writer.Write( ',' );
+                    writer.Write(Demographics.OccupationCategories[ageCat]);
+                    writer.Write(',');
                 }
-                writer.WriteLine( "Population" );
-                var dist = this.Demographics.AgeCategories.CreateSimilarArray<float>();
-                var ages = this.Demographics.AgeCategories;
-                foreach ( var employmentStatus in this.Demographics.EmploymentStatus.ValidIndexies() )
+                writer.WriteLine("Population");
+                foreach (var employmentStatus in Demographics.EmploymentStatus.ValidIndexies())
                 {
-                    if ( employmentStatus == this.UnemployedEmploymentStatus ) continue;
-                    foreach ( var zone in zoneArray.ValidIndexies() )
+                    if (employmentStatus == UnemployedEmploymentStatus) continue;
+                    foreach (var zone in zoneArray.ValidIndexies())
                     {
-                        var baseData = this.Demographics.OccupationRates[zone];
-                        if ( zoneArray[zone].Population <= 0 ) continue;
+                        var baseData = Demographics.OccupationRates[zone];
+                        if (zoneArray[zone].Population <= 0) continue;
                         var zoneDist = occZoneDist[zone];
-                        for ( int a = 0; a < agesLength; a++ )
+                        for (int a = 0; a < agesLength; a++)
                         {
-                            var population = zoneArray[zone].Population * this.Demographics.AgeRates[zone, a] *
-                                this.Demographics.EmploymentStatusRates[zone][a, employmentStatus];
+                            var population = zoneArray[zone].Population * Demographics.AgeRates[zone, a] *
+                                Demographics.EmploymentStatusRates[zone][a, employmentStatus];
                             var total = 0f;
-                            for ( int i = 0; i < occupationsLength; i++ )
+                            for (int i = 0; i < occupationsLength; i++)
                             {
                                 total += zoneDist[validAges[a], employmentStatus, validOccupations[i]];
                             }
 
-                            for ( int o = 0; o < occupationsLength; o++ )
+                            for (int o = 0; o < occupationsLength; o++)
                             {
-                                float result = ( zoneDist[validAges[a], employmentStatus, validOccupations[o]] / total );
-                                if ( float.IsNaN( result ) )
+                                float result = (zoneDist[validAges[a], employmentStatus, validOccupations[o]] / total);
+                                if (float.IsNaN(result))
                                 {
                                     result = 0;
                                 }
                                 result -= baseData[validAges[a], employmentStatus, validOccupations[o]];
-                                if ( o == 0 )
+                                if (o == 0)
                                 {
-                                    writer.Write( zone );
-                                    writer.Write( ',' );
-                                    writer.Write( validAges[a] );
-                                    writer.Write( ',' );
-                                    writer.Write( employmentStatus );
-                                    writer.Write( ',' );
-                                    writer.Write( result * population );
+                                    writer.Write(zone);
+                                    writer.Write(',');
+                                    writer.Write(validAges[a]);
+                                    writer.Write(',');
+                                    writer.Write(employmentStatus);
+                                    writer.Write(',');
+                                    writer.Write(result * population);
                                 }
                                 else
                                 {
-                                    writer.Write( ',' );
-                                    writer.Write( result * population );
+                                    writer.Write(',');
+                                    writer.Write(result * population);
                                 }
                             }
-                            writer.Write( ',' );
-                            writer.WriteLine( population );
+                            writer.Write(',');
+                            writer.WriteLine(population);
                         }
                     }
                 }
             }
         }
 
-        private void ValidatePopulation(StreamWriter writer)
+        private void ValidatePopulation()
         {
             ValidateAgeRates();
             ValidateEmploymentStatus();

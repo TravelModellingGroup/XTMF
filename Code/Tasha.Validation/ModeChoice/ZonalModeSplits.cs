@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using Datastructure;
 using Tasha.Common;
@@ -61,7 +58,7 @@ namespace Tasha.Validation.ModeChoice
         [RunParameter("End time", "9:00AM", typeof(Time), "The end time (exclusive) to capture.")]
         public Time EndTime;
 
-        [RunParameter("Minimum Age", 11, "The minimum age allowed for the person's trip to count.")]
+        [RunParameter("Minimum Age", 11, "The minimum age allowed for the person's trip to _Count.")]
         public int MinimumAge;
 
         public void HouseholdIterationComplete(ITashaHousehold household, int hhldIteration, int totalHouseholdIterations)
@@ -108,7 +105,7 @@ namespace Tasha.Validation.ModeChoice
                     return i;
                 }
             }
-            throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '" + mode == null ? "a null mode" : mode.ModeName + "'");
+            throw new XTMFRuntimeException("In '" + Name + "' we were unable to find a mode called '" + mode.ModeName + "'");
         }
 
         public void HouseholdStart(ITashaHousehold household, int householdIterations)

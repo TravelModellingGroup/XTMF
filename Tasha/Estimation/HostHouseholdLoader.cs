@@ -25,6 +25,7 @@ using System.Security.Cryptography;
 using Tasha.Common;
 using XTMF;
 using XTMF.Networking;
+// ReSharper disable InconsistentNaming
 
 namespace Tasha.Estimation
 {
@@ -73,7 +74,7 @@ namespace Tasha.Estimation
 
         public Tuple<byte, byte, byte> ProgressColour { get; set; }
 
-        public object SyncRoot { get; set; }
+        public object SyncRoot { get; } = new object();
 
         public void CopyTo(ITashaHousehold[] array, int index)
         {
@@ -86,12 +87,12 @@ namespace Tasha.Estimation
 
         public IEnumerator<ITashaHousehold> GetEnumerator()
         {
-            return this.BaseLoader.GetEnumerator();
+            return BaseLoader.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.BaseLoader.GetEnumerator();
+            return BaseLoader.GetEnumerator();
         }
 
         public void LoadData()
@@ -111,7 +112,7 @@ namespace Tasha.Estimation
 
         public void Reset()
         {
-            this.BaseLoader.Reset();
+            BaseLoader.Reset();
         }
 
         public bool RuntimeValidation(ref string error)
@@ -121,7 +122,7 @@ namespace Tasha.Estimation
 
         public ITashaHousehold[] ToArray()
         {
-            return this.Households;
+            return Households;
         }
 
         public bool TryAdd(ITashaHousehold item)
@@ -148,76 +149,75 @@ namespace Tasha.Estimation
 
         private void BuildHouesholdData()
         {
-            this.BaseLoader.LoadData();
-            var households = this.BaseLoader.ToArray();
-            this.Households = households;
+            BaseLoader.LoadData();
+            var households = BaseLoader.ToArray();
+            Households = households;
             using ( MemoryStream mem = new MemoryStream() )
             {
                 BinaryWriter writer = new BinaryWriter( mem );
-                writer.Write( (Int32)households.Length );
-                var numberOfVehicleTypes = this.Root.VehicleTypes.Count;
-                writer.Write( (Int32)numberOfVehicleTypes );
+                writer.Write( households.Length );
+                var numberOfVehicleTypes = Root.VehicleTypes.Count;
+                writer.Write( numberOfVehicleTypes );
                 for ( int i = 0; i < numberOfVehicleTypes; i++ )
                 {
-                    writer.Write( this.Root.VehicleTypes[i].VehicleName );
+                    writer.Write( Root.VehicleTypes[i].VehicleName );
                 }
-                var vehicleCount = new int[numberOfVehicleTypes];
                 foreach ( var household in households )
                 {
                     // write out all of the household attributes
-                    writer.Write( (Int32)household.HouseholdId );
-                    writer.Write( (Int32)household.Persons.Length );
+                    writer.Write( household.HouseholdId );
+                    writer.Write( household.Persons.Length );
                     for ( int i = 0; i < numberOfVehicleTypes; i++ )
                     {
-                        writer.Write( (Int32)household.Vehicles.Count( (v) => v.VehicleType.VehicleName == this.Root.VehicleTypes[i].VehicleName ) );
+                        writer.Write( household.Vehicles.Count( (v) => v.VehicleType.VehicleName == Root.VehicleTypes[i].VehicleName ) );
                     }
-                    writer.Write( (Int32)household.HomeZone.ZoneNumber );
+                    writer.Write( household.HomeZone.ZoneNumber );
                     SendAttached( writer, household );
                     foreach ( var person in household.Persons )
                     {
                         // Send the person's information
-                        writer.Write( (Int32)person.Age );
-                        writer.Write( (Boolean)person.Female );
+                        writer.Write( person.Age );
+                        writer.Write( person.Female );
                         writer.Write( (Int32)person.EmploymentStatus );
                         writer.Write( (Int32)person.Occupation );
                         if ( person.EmploymentZone == null )
                         {
-                            writer.Write( (Int32)( -1 ) );
+                            writer.Write( -1 );
                         }
                         else
                         {
-                            writer.Write( (Int32)person.EmploymentZone.ZoneNumber );
+                            writer.Write( person.EmploymentZone.ZoneNumber );
                         }
                         writer.Write( (Int32)person.StudentStatus );
                         if ( person.SchoolZone == null )
                         {
-                            writer.Write( (Int32)( -1 ) );
+                            writer.Write( -1 );
                         }
                         else
                         {
-                            writer.Write( (Int32)person.SchoolZone.ZoneNumber );
+                            writer.Write( person.SchoolZone.ZoneNumber );
                         }
-                        writer.Write( (bool)person.Licence );
+                        writer.Write( person.Licence );
 
-                        writer.Write( (bool)person.FreeParking );
+                        writer.Write( person.FreeParking );
                         SendAttached( writer, person );
                         // Start sending the trip chains
-                        writer.Write( (Int32)person.TripChains.Count );
+                        writer.Write( person.TripChains.Count );
                         foreach ( var tripChain in person.TripChains )
                         {
-                            writer.Write( (Int32)tripChain.JointTripID );
-                            writer.Write( (bool)tripChain.JointTripRep );
+                            writer.Write( tripChain.JointTripID );
+                            writer.Write( tripChain.JointTripRep );
                             SendAttached( writer, tripChain );
-                            writer.Write( (Int32)tripChain.Trips.Count );
+                            writer.Write( tripChain.Trips.Count );
                             foreach ( var trip in tripChain.Trips )
                             {
-                                writer.Write( (Int32)trip.OriginalZone.ZoneNumber );
-                                writer.Write( (Int32)trip.DestinationZone.ZoneNumber );
+                                writer.Write( trip.OriginalZone.ZoneNumber );
+                                writer.Write( trip.DestinationZone.ZoneNumber );
                                 writer.Write( (Int32)trip.Purpose );
-                                writer.Write( (Int32)trip.ActivityStartTime.Hours );
-                                writer.Write( (Int32)trip.ActivityStartTime.Minutes );
-                                writer.Write( (Int32)trip.ActivityStartTime.Seconds );
-                                var mode = ( (ITashaMode)trip[this.ObservedMode] );
+                                writer.Write( trip.ActivityStartTime.Hours );
+                                writer.Write( trip.ActivityStartTime.Minutes );
+                                writer.Write( trip.ActivityStartTime.Seconds );
+                                var mode = ( (ITashaMode)trip[ObservedMode] );
                                 if ( mode == null )
                                 {
                                     throw new XTMFRuntimeException( "In household #" + household.HouseholdId
@@ -230,35 +230,32 @@ namespace Tasha.Estimation
                     }
                 }
                 writer.Flush();
-                writer = null;
                 // rewind to the beginning
                 mem.Seek( 0, SeekOrigin.Begin );
                 MemoryStream encryptedMemory = new MemoryStream();
-                using ( var encryption = new CryptoStream( encryptedMemory, new RijndaelManaged().CreateEncryptor( this.GetKey(), this.GetIV() ), CryptoStreamMode.Write ) )
+                using ( var encryption = new CryptoStream( encryptedMemory, new RijndaelManaged().CreateEncryptor( GetKey(), GetIV() ), CryptoStreamMode.Write ) )
                 {
                     mem.WriteTo( encryption );
                     encryption.FlushFinalBlock();
-                    this.HouseholdEncryptedData = encryptedMemory.ToArray();
-                    encryptedMemory = null;
+                    HouseholdEncryptedData = encryptedMemory.ToArray();
                 }
             }
         }
 
         private byte[] GetIV()
         {
-            return ConvertToEncryptionKey( this.IV, 16 );
+            return ConvertToEncryptionKey( IV, 16 );
         }
 
         private byte[] GetKey()
         {
-            return ConvertToEncryptionKey( this.Key, 32 );
+            return ConvertToEncryptionKey( Key, 32 );
         }
 
         private void SendAttached(BinaryWriter writer, IAttachable att)
         {
-            var keys = att.Keys;
-            int keysLength = keys.Count();
-            writer.Write( (Int32)keysLength );
+            var keys = att.Keys.ToList();
+            writer.Write( keys.Count );
             foreach ( var key in keys )
             {
                 writer.Write( key );
@@ -278,14 +275,14 @@ namespace Tasha.Estimation
 
         private void SetupHost()
         {
-            this.ToClients.RegisterCustomReceiver( this.HouseholdDataChannel, (stream, client) =>
+            ToClients.RegisterCustomReceiver( HouseholdDataChannel, (stream, client) =>
                 {
-                    client.SendCustomMessage( this.HouseholdEncryptedData, this.HouseholdDataChannel );
+                    client.SendCustomMessage( HouseholdEncryptedData, HouseholdDataChannel );
                     return null;
                 } );
-            this.ToClients.RegisterCustomSender( this.HouseholdDataChannel, (data, client, stream) =>
+            ToClients.RegisterCustomSender( HouseholdDataChannel, (data, client, stream) =>
                 {
-                    var byteData = data as byte[];
+                    var byteData = (byte[])data;
                     stream.Write( byteData, 0, byteData.Length );
                     stream.Flush();
                 } );

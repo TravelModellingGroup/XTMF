@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System.Collections.Generic;
 using TMG.Modes;
 using XTMF;
@@ -32,17 +33,17 @@ namespace TMG.GTAModel.Modes
             set;
         }
 
-        public override float CalculateV(IZone originZone, IZone destinationZone, XTMF.Time time)
+        public override float CalculateV(IZone originZone, IZone destinationZone, Time time)
         {
             return base.CalculateV( originZone, destinationZone, time ) + CalculateUtilityComponents( originZone, destinationZone, time );
         }
 
-        private float CalculateUtilityComponents(IZone originZone, IZone destinationZone, XTMF.Time time)
+        private float CalculateUtilityComponents(IZone originZone, IZone destinationZone, Time time)
         {
             float total = 0f;
-            if ( this.UtilityComponents != null )
+            if ( UtilityComponents != null )
             {
-                foreach ( var uc in this.UtilityComponents )
+                foreach ( var uc in UtilityComponents )
                 {
                     total += uc.CalculateV( originZone, destinationZone, time );
                 }

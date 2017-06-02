@@ -18,21 +18,18 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using TMG.Input;
 using TMG.Emme;
 using TMG.DataUtility;
-using Tasha.Common;
 using XTMF;
 
 namespace Tasha.Validation.PerformanceMeasures
 {
     public class RidershipCounts : IEmmeTool
     {
-        private const string _ToolName = "tmg.analysis.transit.strategy_analysis.volume_per_operator";
+        private const string ToolName = "tmg.analysis.transit.strategy_analysis.volume_per_operator";
 
         [SubModelInformation(Required = true, Description = "Ridership results .CSV file")]
         public FileLocation RidershipResults;
@@ -43,7 +40,7 @@ namespace Tasha.Validation.PerformanceMeasures
         [SubModelInformation(Required = false, Description = "Operators to Consider")]
         public Operator[] OperatorsToConsider;
    
-        public sealed class Operator : XTMF.IModule
+        public sealed class Operator : IModule
         {
             public string Name { get; set; }
 
@@ -126,7 +123,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 throw new XTMFRuntimeException("In '" + Name + "' we were not given a modeller controller!");
             }
 
-            return modeller.Run(_ToolName, GenerageArgumentString(modeller));
+            return modeller.Run(ToolName, GenerageArgumentString(modeller));
         }
 
         public string Name

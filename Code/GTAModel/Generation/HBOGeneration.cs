@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Linq;
@@ -43,48 +44,41 @@ namespace TMG.GTAModel
         {
             if ( LoadData && Rates == null )
             {
-                this.LoadRates.LoadData();
-                this.Rates = this.LoadRates.GiveData();
+                LoadRates.LoadData();
+                Rates = LoadRates.GiveData();
             }
-            this.InitializeDemographicCategory();
+            InitializeDemographicCategory();
             var flatProduction = production.GetFlatData();
             var numberOfIndexes = flatProduction.Length;
 
             // Compute the Production
-            float totalProduction = 0;
-            totalProduction = ComputeProduction( flatProduction, numberOfIndexes );
-            SaveGenerationData( totalProduction );
+            SaveGenerationData(ComputeProduction(flatProduction, numberOfIndexes));
             //The HBO Model does NOT include having an attraction component.  The distribution will handle this case.
             if ( LoadData )
             {
-                this.Rates = null;
+                Rates = null;
             }
-        }
-
-        public override bool RuntimeValidation(ref string error)
-        {
-            return base.RuntimeValidation( ref error );
         }
 
         private float ComputeProduction(float[] flatProduction, int numberOfZones)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+            Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate (int i)
             {
                 if ( ( zones[i].Population == 0 ) | ( zones[i].RegionNumber == 0 ) ) return;
                 float temp = 0f;
 
                 var zoneNumber = zones[i].ZoneNumber;
-                var demographics = this.Root.Demographics;
-                var spatialIndex = this.UsesPlanningDistricts ? zones[i].PlanningDistrict : zones[i].ZoneNumber;
+                var demographics = Root.Demographics;
+                var spatialIndex = UsesPlanningDistricts ? zones[i].PlanningDistrict : zones[i].ZoneNumber;
                 var ageProbabilies = demographics.AgeRates;
-                var studentProbabilities = this.Root.Demographics.SchoolRates[zoneNumber];
+                var studentProbabilities = Root.Demographics.SchoolRates[zoneNumber];
                 var empStatProbabilities = demographics.EmploymentStatusRates[zoneNumber];
                 var occProbabilities = demographics.OccupationRates[zoneNumber];
                 var population = zones[i].Population;
-                var empStat = this.EmploymentStatusCategory[0].Start;
-                foreach ( var ageRange in this.AgeCategoryRange )
+                var empStat = EmploymentStatusCategory[0].Start;
+                foreach ( var ageRange in AgeCategoryRange )
                 {
                     for ( int ageCat = ageRange.Start; ageCat <= ageRange.Stop; ageCat++ )
                     {
@@ -92,27 +86,27 @@ namespace TMG.GTAModel
                         var empStatProbability = empStatProbabilities[ageCat, empStat];
                         if ( empStat == 0 )
                         {
-                            var mobilityProbability = UnemployedMobilityProbability(this.Mobility[0].Start, demographics.NonWorkerVehicleRates[zoneNumber], ageCat, demographics.DriversLicenseRates[zoneNumber]);
+                            var mobilityProbability = UnemployedMobilityProbability(Mobility[0].Start, demographics.NonWorkerVehicleRates[zoneNumber], ageCat, demographics.DriversLicenseRates[zoneNumber]);
                             var studentProbability = studentProbabilities[ageCat, empStat];
                             // if student
                             int hboType = 3;
-                            temp += population * this.Rates[spatialIndex, ageCat, hboType] * ageProbability * empStatProbability * mobilityProbability * studentProbability;
+                            temp += population * Rates[spatialIndex, ageCat, hboType] * ageProbability * empStatProbability * mobilityProbability * studentProbability;
                             // if not student
                             hboType = 4;
-                            temp += population * this.Rates[spatialIndex, ageCat, hboType] * ageProbability * empStatProbability * mobilityProbability * ( 1 - studentProbability );
+                            temp += population * Rates[spatialIndex, ageCat, hboType] * ageProbability * empStatProbability * mobilityProbability * ( 1 - studentProbability );
                         }
                         else
                         {
                             
-                            foreach ( var occSet in this.OccupationCategory )
+                            foreach ( var occSet in OccupationCategory )
                             {
                                 for ( int occ = occSet.Start; occ <= occSet.Stop; occ++ )
                                 {
                                     var occProbability = occProbabilities[ageCat, empStat, occ];
-                                    var mobilityProbability = EmployedMobilityProbability( this.Mobility[0].Start, empStat, occ ,
+                                    var mobilityProbability = EmployedMobilityProbability( Mobility[0].Start, empStat, occ ,
                                         demographics.WorkerVehicleRates[zoneNumber], ageCat, demographics.DriversLicenseRates[zoneNumber] );
                                     // we only need to add this in once because the probabilities are the same if you are a student or not
-                                    temp += population * this.Rates[spatialIndex, ageCat, empStat] * ageProbability * mobilityProbability * empStatProbability * occProbability;
+                                    temp += population * Rates[spatialIndex, ageCat, empStat] * ageProbability * mobilityProbability * empStatProbability * occProbability;
                                 }
                             }
                         }
@@ -141,7 +135,7 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, emp] * ncars[1, occ, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility.ToString() + "'!" );
+                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
             }
         }
 
@@ -162,29 +156,29 @@ namespace TMG.GTAModel
                 case 5:
                     return dlicRate[age, 0] * ncars[1, age, 2];
                 default:
-                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility.ToString() + "'!" );
+                    throw new XTMFRuntimeException( "Unknown mobility type '" + mobility + "'!" );
             }
         }
 
         private void SaveGenerationData(float totalProduction)
         {
-            if ( !String.IsNullOrEmpty( this.GenerationOutputFileName ) )
+            if ( !String.IsNullOrEmpty( GenerationOutputFileName ) )
             {
-                bool first = !File.Exists( this.GenerationOutputFileName );
+                bool first = !File.Exists( GenerationOutputFileName );
                 // if the file name exists try to write to it, appending
-                using (StreamWriter writer = new StreamWriter( this.GenerationOutputFileName, true ))
+                using (StreamWriter writer = new StreamWriter( GenerationOutputFileName, true ))
                 {
                     if ( first )
                     {
                         writer.WriteLine( "Age,Employment,Occupation,Mobility,Total" );
                     }
-                    writer.Write( this.AgeCategoryRange.ToString() );
+                    writer.Write( AgeCategoryRange.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.EmploymentStatusCategory.ToString() );
+                    writer.Write( EmploymentStatusCategory.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.OccupationCategory.ToString() );
+                    writer.Write( OccupationCategory.ToString() );
                     writer.Write( ',' );
-                    writer.Write( this.Mobility.ToString() );
+                    writer.Write( Mobility.ToString() );
                     writer.Write( ',' );
                     writer.WriteLine( totalProduction );
                 }

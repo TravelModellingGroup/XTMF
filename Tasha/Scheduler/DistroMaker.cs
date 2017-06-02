@@ -21,6 +21,7 @@ using System.IO;
 using System.Text;
 using Datastructure;
 using XTMF;
+using TMG.Input;
 
 namespace DistroCacheMaker
 {
@@ -29,48 +30,48 @@ namespace DistroCacheMaker
     /// </summary>
     public class DistroMaker : IModelSystemTemplate
     {
-        [RunParameter( "#Adult Distributions", 6, "The number of different categories for the number of adults." )]
+        [RunParameter("#Adult Distributions", 6, "The number of different categories for the number of adults.")]
         public int AdultDistributions;
 
-        [RunParameter( "Adult Distribution Output", "AdultDistributions.zfc", "The output file for adult distributions" )]
-        public string AdultDistributionsZFC;
+        [SubModelInformation(Required = true, Description = "The file location of the adult distributions to encode.")]
+        public FileLocation AdultDistributionsZFC;
 
-        [RunParameter( "NAD Distribution", "SchedulerData/nad_dist.txt", "The frequency for start times for each distribution" )]
-        public string adultIn;
+        [SubModelInformation(Required = true, Description = "The frequency for start times for each distribution")]
+        public FileLocation AdultIn;
 
-        [RunParameter( "Duration Frequency Distribution", "SchedulerData/dur_fre_dist.txt", "The frequency for duration for each distribution" )]
-        public string DurationDistribution;
+        [SubModelInformation(Required = true, Description = "The frequency for duration for each distribution")]
+        public FileLocation DurationDistribution;
 
-        [RunParameter( "Frequency Distribution", "SchedulerData/fre_dist.txt", "The frequency for each distribution" )]
-        public string Frequency;
+        [SubModelInformation(Required = true, Description = "The frequency for each distribution.")]
+        public FileLocation Frequency;
 
-        [RunParameter( "Frequency Output", "FrequencyDistributions.zfc", "The output file for the frequency distributions" )]
-        public string FrequencyLevelsZFC;
+        [SubModelInformation(Required = true, Description = "The output file for the frequency distributions")]
+        public FileLocation FrequencyLevelsZFC;
 
-        [RunParameter( "Generate If Exists", false, "Regenerate the data even if it already exists?" )]
+        [RunParameter("Generate If Exists", false, "Regenerate the data even if it already exists?")]
         public bool GenerateIfExists;
 
-        [RunParameter( "MaxFrequency", 10, "The highest frequency number" )]
+        [RunParameter("MaxFrequency", 10, "The highest frequency number")]
         public int HighFrequency;
 
-        [RunParameter( "Adults Fequencies", 9, "The number of adult frequencies" )]
+        [RunParameter("Adults Frequencies", 9, "The number of adult frequencies")]
         public int NumberOfAdultFrequencies;
 
-        [RunParameter( "NumberOfDistributions", 262, "The number of distributions" )]
+        [RunParameter("NumberOfDistributions", 262, "The number of distributions")]
         public int NumberOfDistributions;
 
         [RootModule]
         public IModelSystemTemplate Root;
 
-        [RunParameter( "Start Time Frequency Distribution", "SchedulerData/sta_fre_dist.txt", "The frequency for start time for each distribution" )]
-        public string StartTimeFrequency;
+        [SubModelInformation(Required = true, Description = "The frequency for start time for each distribution")]
+        public FileLocation StartTimeFrequency;
 
-        [RunParameter( "StartTimeQuantums", 96, "The number of different time units in a day" )]
+        [RunParameter("StartTimeQuantums", 96, "The number of different time units in a day")]
         public int StartTimeQuantums;
 
-        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>( 50, 150, 50 );
+        private static Tuple<byte, byte, byte> Colour = new Tuple<byte, byte, byte>(50, 150, 50);
 
-        [RunParameter( "Base Input Directory", "../../Input", "Ignore if not the root of the model system. The base input directory for this model system." )]
+        [RunParameter("Base Input Directory", "../../Input", "Ignore if not the root of the model system. The base input directory for this model system.")]
         public string InputBaseDirectory
         {
             get;
@@ -83,7 +84,7 @@ namespace DistroCacheMaker
             set;
         }
 
-        [RunParameter( "Base Output Directory", "../../Output", "Ignore if not the root of the model system.  The base output directory for this model system." )]
+        [RunParameter("Base Output Directory", "../../Output", "Ignore if not the root of the model system.  The base output directory for this model system.")]
         public string OutputBaseDirectory
         {
             get;
@@ -111,10 +112,9 @@ namespace DistroCacheMaker
             return true;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="args"></param>
+        ///  <summary>
+        /// 
+        ///  </summary>
         public void Start()
         {
             CreateFrequencyDistroCache();
@@ -123,60 +123,59 @@ namespace DistroCacheMaker
 
         private void CreateAdultFrequencyDistroCache()
         {
-            if ( !this.GenerateIfExists && File.Exists( this.GetFullPath( this.AdultDistributionsZFC ) ) ) return;
-            string temp = Path.GetTempFileName();
-            using ( StreamReader reader = new StreamReader( this.GetFullPath( this.adultIn ) ) )
+            if (!GenerateIfExists && File.Exists(AdultDistributionsZFC))
             {
-                using ( StreamWriter writer = new StreamWriter( temp ) )
+                return;
+            }
+            string temp = Path.GetTempFileName();
+            using (StreamReader reader = new StreamReader(AdultIn))
+            {
+                using (StreamWriter writer = new StreamWriter(temp))
                 {
-                    //0...num of distrubtions
-                    for ( int i = 0; i < this.AdultDistributions; i++ )
+                    //0...num of distributions
+                    for (int i = 0; i < AdultDistributions; i++)
                     {
-                        StringBuilder sb = new StringBuilder( 1000000 );
+                        StringBuilder sb = new StringBuilder(1000000);
                         //convert the data to one line
 
-                        sb.Append( i );
-                        for ( int j = 0; j < this.NumberOfAdultFrequencies; j++ )
+                        sb.Append(i);
+                        for (int j = 0; j < NumberOfAdultFrequencies; j++)
                         {
                             string line = reader.ReadLine();
-                            //skip the first 3 values (they are implied) based on index
-                            string[] values = line.Split( ',' );
-                            sb.Append( "," );
-                            sb.Append( values[3] );
+                            if (line != null)
+                            {
+                                //skip the first 3 values (they are implied) based on index
+                                string[] values = line.Split(',');
+                                sb.Append(",");
+                                sb.Append(values[3]);
+                            }
                         }
-                        writer.WriteLine( sb );
+                        writer.WriteLine(sb);
                     }
                 }
             }
             //  ZoneCreator.CsvToZFC(temp, Zone.GetNumberOfZones, 4 * numInternalZones, TashaConfiguration.GetInputFile(directory, "LocationChoiceModelWorkCache"), false);
-            if ( File.Exists( this.GetFullPath( this.AdultDistributionsZFC ) ) )
+            if (File.Exists(AdultDistributionsZFC))
             {
                 try
                 {
-                    File.Delete( this.GetFullPath( this.AdultDistributionsZFC ) );
+                    File.Delete(AdultDistributionsZFC);
                 }
-                catch
+                catch (IOException)
                 { }
             }
-            SparseZoneCreator zc = new SparseZoneCreator( this.AdultDistributions, this.NumberOfAdultFrequencies );
-            zc.LoadCSV( temp, false );
-            zc.Save( this.GetFullPath( AdultDistributionsZFC ) );
-            File.Delete( temp );
+            SparseZoneCreator zc = new SparseZoneCreator(AdultDistributions, NumberOfAdultFrequencies);
+            zc.LoadCsv(temp, false);
+            zc.Save(AdultDistributionsZFC);
+            File.Delete(temp);
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="frequency"></param>
-        /// <param name="startTimeFrequency"></param>
-        /// <param name="startTime"></param>
-        /// <param name="outFrequencyLevels"></param>
-        /// <param name="numberOfDistributions"></param>
-        /// <param name="highestFrequency"></param>
-        /// <param name="startTimeQuantums"></param>
         private void CreateFrequencyDistroCache()
         {
-            if ( !this.GenerateIfExists && File.Exists( this.GetFullPath( this.FrequencyLevelsZFC ) ) )
+            if (!GenerateIfExists && File.Exists(FrequencyLevelsZFC))
             {
                 return;
             }
@@ -185,56 +184,46 @@ namespace DistroCacheMaker
             StreamReader readStartTimeFrequency;
             StreamReader readStartTime;
             StreamWriter writer;
-            using ( writer = new StreamWriter( temp ) )
-            using ( readStartTime = new StreamReader( this.GetFullPath( this.DurationDistribution ) ) )
-            using ( readStartTimeFrequency = new StreamReader( this.GetFullPath( this.StartTimeFrequency ) ) )
-            using ( readFrequency = new StreamReader( this.GetFullPath( this.Frequency ) ) )
+            using (writer = new StreamWriter(temp))
+            using (readStartTime = new StreamReader(DurationDistribution))
+            using (readStartTimeFrequency = new StreamReader(StartTimeFrequency))
+            using (readFrequency = new StreamReader(Frequency))
             {
                 // get rid of the headers
-                RemoveHeaders( readFrequency, readStartTime, readStartTimeFrequency );
+                RemoveHeaders(readFrequency, readStartTime, readStartTimeFrequency);
 
                 StringBuilder line;
-                for ( int dist = 0; dist < this.NumberOfDistributions; dist++ )
+                for (int dist = 0; dist < NumberOfDistributions; dist++)
                 {
-                    line = new StringBuilder( 20000 );
-                    line.Append( dist );
-                    line.Append( ',' );
+                    line = new StringBuilder(20000);
+                    line.Append(dist);
+                    line.Append(',');
 
-                    WriteFrequencies( line, readFrequency );
-                    WriteDurations( line, readStartTime );
-                    WriteStartTimeFrequencies( line, readStartTimeFrequency );
-                    writer.WriteLine( line.ToString( 0, line.Length - 1 ) );
+                    WriteFrequencies(line, readFrequency);
+                    WriteDurations(line, readStartTime);
+                    WriteStartTimeFrequencies(line, readStartTimeFrequency);
+                    writer.WriteLine(line.ToString(0, line.Length - 1));
                 }
             }
 
-            var numberOfFrequencies = this.HighFrequency + 1; // it was inclusive
-            var numberOfSTF = numberOfFrequencies * this.StartTimeQuantums;
+            var numberOfFrequencies = HighFrequency + 1; // it was inclusive
             // there are actually StartTimeQuantums + 1 durations
-            var numberOfDurations = ( this.StartTimeQuantums ) * ( this.StartTimeQuantums + 1 );
+            var numberOfDurations = (StartTimeQuantums) * (StartTimeQuantums + 1);
 
-            int types = numberOfFrequencies + numberOfSTF + numberOfDurations;
-            if ( File.Exists( this.FrequencyLevelsZFC ) )
+            int types = numberOfFrequencies + numberOfFrequencies * StartTimeQuantums + numberOfDurations;
+            if (File.Exists(FrequencyLevelsZFC))
             {
                 try
                 {
-                    File.Delete( this.FrequencyLevelsZFC );
+                    File.Delete(FrequencyLevelsZFC);
                 }
-                catch
+                catch (IOException)
                 { }
             }
-            SparseZoneCreator zc = new SparseZoneCreator( this.NumberOfDistributions, types );
-            zc.LoadCSV( temp, false );
-            zc.Save( this.GetFullPath( this.FrequencyLevelsZFC ) );
-            File.Delete( temp );
-        }
-
-        private string GetFullPath(string localPath)
-        {
-            if ( !Path.IsPathRooted( localPath ) )
-            {
-                return Path.Combine( this.Root.InputBaseDirectory, localPath );
-            }
-            return localPath;
+            SparseZoneCreator zc = new SparseZoneCreator(NumberOfDistributions, types);
+            zc.LoadCsv(temp, false);
+            zc.Save(FrequencyLevelsZFC);
+            File.Delete(temp);
         }
 
         /// <summary>
@@ -257,17 +246,17 @@ namespace DistroCacheMaker
         /// <param name="durationTime"></param>
         private void WriteDurations(StringBuilder line, StreamReader durationTime)
         {
-            for ( int startTime = 0; startTime < StartTimeQuantums; startTime++ )
+            for (int startTime = 0; startTime < StartTimeQuantums; startTime++)
             {
-                for ( int duration = 0; duration <= StartTimeQuantums; duration++ )
+                for (int duration = 0; duration <= StartTimeQuantums; duration++)
                 {
-                    string[] durationSplit = durationTime.ReadLine().Split( ',' );
-                    if ( durationSplit.Length <= 3 )
+                    string[] durationSplit = durationTime.ReadLine()?.Split(',');
+                    if (durationSplit == null || durationSplit.Length <= 3)
                     {
-                        throw new XTMFRuntimeException( "Invalid duration line!" );
+                        throw new XTMFRuntimeException("Invalid duration line!");
                     }
-                    line.Append( durationSplit[3] );
-                    line.Append( ',' );
+                    line.Append(durationSplit[3]);
+                    line.Append(',');
                 }
             }
         }
@@ -275,32 +264,34 @@ namespace DistroCacheMaker
         private void WriteFrequencies(StringBuilder line, StreamReader readFrequency)
         {
             //fre_dist3
-            for ( int i = 0; i <= HighFrequency; i++ )
+            for (int i = 0; i <= HighFrequency; i++)
             {
-                string[] frequencySplit = readFrequency.ReadLine().Split( ',' );
-                line.Append( frequencySplit[2] );
-                line.Append( ',' );
+                string[] frequencySplit = readFrequency.ReadLine()?.Split(',');
+                if (frequencySplit != null)
+                {
+                    line.Append(frequencySplit[2]);
+                    line.Append(',');
+                }
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="readFrequency"></param>
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="line"></param>
         /// <param name="readStartTimeFrequency"></param>
         private void WriteStartTimeFrequencies(StringBuilder line, StreamReader readStartTimeFrequency)
         {
-            for ( int fre = 0; fre <= HighFrequency; fre++ )
+            for (int fre = 0; fre <= HighFrequency; fre++)
             {
-                for ( int time = 0; time < StartTimeQuantums; time++ )
+                for (int time = 0; time < StartTimeQuantums; time++)
                 {
-                    string[] freqStartSplit = readStartTimeFrequency.ReadLine().Split( ',' );
-                    line.Append( freqStartSplit[3] );
-                    line.Append( ',' );
+                    string[] freqStartSplit = readStartTimeFrequency.ReadLine()?.Split(',');
+                    if (freqStartSplit != null)
+                    {
+                        line.Append(freqStartSplit[3]);
+                        line.Append(',');
+                    }
                 }
-                //TODO: verify correctness (Nik is guessing)
-                //readStartTimeFrequency.ReadLine();
             }
         }
     }

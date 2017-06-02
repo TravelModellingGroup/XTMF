@@ -16,11 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using TMG.Estimation;
 using TMG.Input;
 using XTMF;
@@ -49,17 +47,17 @@ namespace TMG.NetworkEstimation
                 if (!exists)
                 {
                     var s1 = "Generation,Index";
-                    foreach (var ps in this.Root.Parameters)
+                    foreach (var ps in Root.Parameters)
                     {
                         s1 += "," + string.Join(" ", ps.Names, 0, ps.Names.Length);
                     }
                     writer.WriteLine(s1);
                 }
 
-                var s2 = string.Join(",", this.Root.CurrentTask.Generation, this.Root.CurrentTask.Index);
-                foreach (var val in this.Root.CurrentTask.ParameterValues)
+                var s2 = string.Join(",", Root.CurrentTask.Generation, Root.CurrentTask.Index);
+                foreach (var val in Root.CurrentTask.ParameterValues)
                 {
-                    s2 += "," + val.ToString();
+                    s2 += "," + val;
                 }
                 writer.WriteLine(s2);
             }

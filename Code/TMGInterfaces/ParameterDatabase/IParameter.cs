@@ -22,7 +22,7 @@ namespace TMG.ParameterDatabase
     {
         public Parameter(string name)
         {
-            this.ParameterName = name;
+            ParameterName = name;
         }
 
         /// <summary>

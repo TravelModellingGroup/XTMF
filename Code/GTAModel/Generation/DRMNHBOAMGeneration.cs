@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ using XTMF;
 
 namespace TMG.GTAModel.Generation
 {
+    // ReSharper disable once InconsistentNaming
     public class DRMNHBOAMGeneration : IDemographicCategoryGeneration
     {
         [RunParameter( "Auto Drive Name", "ADrive", "The name of the auto drive mode." )]
@@ -115,35 +117,33 @@ namespace TMG.GTAModel.Generation
         {
             // no init since we are using raw auto times
             //this.InitializeDemographicCategory();
-            var rootModes = this.Root.Modes;
-            var numberOfModes = rootModes.Count;
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             // Work
-            AddPurposeData( this.WorkPurpose, LookUpPurposeData( this.WorkPurpose ), production,
-                this.RegionHomeWorkDriveParameter, this.RegionHomeWorkOtherParameter );
+            AddPurposeData( WorkPurpose, LookUpPurposeData( WorkPurpose ), production,
+                RegionHomeWorkDriveParameter, RegionHomeWorkOtherParameter );
             // School
-            AddPurposeData( this.SchoolPurpose, LookUpPurposeData( this.SchoolPurpose ), production,
-                this.RegionHomeSchoolDriveParameter, this.RegionHomeSchoolOtherParameter );
+            AddPurposeData( SchoolPurpose, LookUpPurposeData( SchoolPurpose ), production,
+                RegionHomeSchoolDriveParameter, RegionHomeSchoolOtherParameter );
             //HBO
-            AddPurposeData( this.HomeBasedOtherPurpose, LookUpPurposeData( this.HomeBasedOtherPurpose ), production,
-                this.RegionHomeOtherDriveParameter, this.RegionHomeOtherOtherParameter );
+            AddPurposeData( HomeBasedOtherPurpose, LookUpPurposeData( HomeBasedOtherPurpose ), production,
+                RegionHomeOtherDriveParameter, RegionHomeOtherOtherParameter );
             // Now that all of the purposes have been added in we can go and add in the professions
             var flatProduction = production.GetFlatData();
-            Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+            Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
                         var increment = 0f;
                         int regionIndex;
-                        if ( !this.InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                        if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
                         }
-                        increment += this.RegionEmploymentProfessionalParameter[regionIndex] * zones[i].ProfessionalEmployment;
-                        increment += this.RegionEmploymentGeneralParameter[regionIndex] * zones[i].GeneralEmployment;
-                        increment += this.RegionEmploymentSalesParameter[regionIndex] * zones[i].RetailEmployment;
-                        increment += this.RegionEmploymentManufacturingParameter[regionIndex] * zones[i].ManufacturingEmployment;
-                        flatProduction[i] += increment + this.RegionConstantsParameter[regionIndex];
+                        increment += RegionEmploymentProfessionalParameter[regionIndex] * zones[i].ProfessionalEmployment;
+                        increment += RegionEmploymentGeneralParameter[regionIndex] * zones[i].GeneralEmployment;
+                        increment += RegionEmploymentSalesParameter[regionIndex] * zones[i].RetailEmployment;
+                        increment += RegionEmploymentManufacturingParameter[regionIndex] * zones[i].ManufacturingEmployment;
+                        flatProduction[i] += increment + RegionConstantsParameter[regionIndex];
                         // make sure we don't end up with negative trips
                         if ( flatProduction[i] < 0 ) flatProduction[i] = 0;
                     } );
@@ -151,7 +151,7 @@ namespace TMG.GTAModel.Generation
 
         public void InitializeDemographicCategory()
         {
-            this.Root.ModeParameterDatabase.ApplyParameterSet( this.ModeChoiceParameterSetIndex, this.DemographicParameterSetIndex );
+            Root.ModeParameterDatabase.ApplyParameterSet( ModeChoiceParameterSetIndex, DemographicParameterSetIndex );
         }
 
         public bool IsContained(IPerson person)
@@ -162,23 +162,23 @@ namespace TMG.GTAModel.Generation
         public bool RuntimeValidation(ref string error)
         {
             // link the purpose names
-            if ( !LinkPurposeName( this.WorkPurposeName, out this.WorkPurpose ) )
+            if ( !LinkPurposeName( WorkPurposeName, out WorkPurpose ) )
             {
-                error = "We were unable to find a purpose named '" + this.WorkPurposeName + "' for the work purpose of '" + this.Name + "'!";
+                error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
                 return false;
             }
-            if ( !LinkPurposeName( this.SchoolPurposeName, out this.SchoolPurpose ) )
+            if ( !LinkPurposeName( SchoolPurposeName, out SchoolPurpose ) )
             {
-                error = "We were unable to find a purpose named '" + this.WorkPurposeName + "' for the work purpose of '" + this.Name + "'!";
+                error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
                 return false;
             }
-            if ( !LinkPurposeName( this.HomeBasedOtherPurposeName, out this.HomeBasedOtherPurpose ) )
+            if ( !LinkPurposeName( HomeBasedOtherPurposeName, out HomeBasedOtherPurpose ) )
             {
-                error = "We were unable to find a purpose named '" + this.WorkPurposeName + "' for the work purpose of '" + this.Name + "'!";
+                error = "We were unable to find a purpose named '" + WorkPurposeName + "' for the work purpose of '" + Name + "'!";
                 return false;
             }
             // link in the mode path so we can quickly look it up
-            if ( !LinkModeName( this.AutoDriveModeName ) )
+            if ( !LinkModeName( AutoDriveModeName ) )
             {
                 error = "We were unable to find the mode that represents auto drive!";
                 return false;
@@ -211,7 +211,7 @@ namespace TMG.GTAModel.Generation
             else
             {
                 // we only add in end nodes
-                var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
                 var numberOfZones = zones.Length;
                 var data = current.Result;
                 // shortcut invalid modes
@@ -220,33 +220,29 @@ namespace TMG.GTAModel.Generation
                 if ( driveData == data )
                 {
                     // Auto drive case
-                    Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
-                        var increment = 0f;
                         int regionIndex;
-                        if ( !this.InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                        if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
                         }
-                        increment = purposeDrive[regionIndex] * SumWentHere( current, i );
-                        flatProduction[i] += increment;
+                        flatProduction[i] += purposeDrive[regionIndex] * SumWentHere(current, i);
                     } );
                 }
                 else
                 {
                     // not auto drive case
-                    Parallel.For( 0, numberOfZones, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
+                    Parallel.For( 0, numberOfZones, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, delegate(int i)
                     {
-                        var increment = 0f;
                         int regionIndex;
-                        if ( !this.InverseLookup( zones[i].RegionNumber, out regionIndex ) )
+                        if ( !InverseLookup( zones[i].RegionNumber, out regionIndex ) )
                         {
                             // if this zone isn't part of a region we are processing just continue
                             return;
                         }
-                        increment = purposeOther[regionIndex] * SumWentHere( current, i );
-                        flatProduction[i] += increment;
+                        flatProduction[i] += purposeOther[regionIndex] * SumWentHere(current, i);
                     } );
                 }
             }
@@ -254,20 +250,20 @@ namespace TMG.GTAModel.Generation
 
         private bool InverseLookup(int regionNumber, out int regionIndex)
         {
-            return ( regionIndex = this.RegionNumbers.IndexOf( regionNumber ) ) != -1;
+            return ( regionIndex = RegionNumbers.IndexOf( regionNumber ) ) != -1;
         }
 
         private bool LinkModeName(string p)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var length = modes.Count;
-            this.AutoDrivePath = new List<int>();
+            AutoDrivePath = new List<int>();
             for ( int i = 0; i < length; i++ )
             {
                 if ( LinkModeName( p, modes[i] ) )
                 {
                     // insert at the front
-                    this.AutoDrivePath.Insert( 0, i );
+                    AutoDrivePath.Insert( 0, i );
                     return true;
                 }
             }
@@ -290,7 +286,7 @@ namespace TMG.GTAModel.Generation
                     if ( LinkModeName( p, modes[i] ) )
                     {
                         // insert at the front
-                        this.AutoDrivePath.Insert( 0, i );
+                        AutoDrivePath.Insert( 0, i );
                         return true;
                     }
                 }
@@ -300,7 +296,7 @@ namespace TMG.GTAModel.Generation
 
         private bool LinkPurposeName(string purposeName, out IPurpose destinationPurpose)
         {
-            var purposes = this.Root.Purpose;
+            var purposes = Root.Purpose;
             foreach ( var p in purposes )
             {
                 if ( p.PurposeName == purposeName )
@@ -318,11 +314,11 @@ namespace TMG.GTAModel.Generation
         {
             var data = purpose.Flows;
             if ( data == null ) return null;
-            TreeData<float[][]> currentPoint = data[this.AutoDrivePath[0]];
-            var length = this.AutoDrivePath.Count;
+            TreeData<float[][]> currentPoint = data[AutoDrivePath[0]];
+            var length = AutoDrivePath.Count;
             for ( int i = 1; i < length; i++ )
             {
-                currentPoint = currentPoint.Children[this.AutoDrivePath[i]];
+                currentPoint = currentPoint.Children[AutoDrivePath[i]];
             }
             return currentPoint.Result;
         }

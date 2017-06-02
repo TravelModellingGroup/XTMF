@@ -16,10 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -31,8 +28,8 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestConstructor()
         {
-            int[] testMe = new int[] { 5, 3, 4, 7, 2, 1, 9 };
-            int[] sorted = new int[] { 1, 2, 3, 4, 5, 7, 9 };
+            int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
+            int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
             var heap = new MinHeap<int>( testMe );
             for ( int i = 0; i < sorted.Length; i++ )
             {
@@ -47,8 +44,8 @@ namespace XTMF.Testing
         [TestMethod]
         public void TestAdd()
         {
-            int[] testMe = new int[] { 5, 3, 4, 7, 2, 1, 9 };
-            int[] sorted = new int[] { 1, 2, 3, 4, 5, 7, 9 };
+            int[] testMe = new[] { 5, 3, 4, 7, 2, 1, 9 };
+            int[] sorted = new[] { 1, 2, 3, 4, 5, 7, 9 };
             var heap = new MinHeap<int>();
             for ( int i = 0; i < testMe.Length; i++ )
             {

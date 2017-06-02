@@ -27,23 +27,23 @@ namespace XTMF
 
         public ModuleRepository()
         {
-            this.ContainedModules = new List<Type>();
+            ContainedModules = new List<Type>();
         }
 
         public IList<Type> Modules
         {
             get
             {
-                return this.ContainedModules;
+                return ContainedModules;
             }
         }
 
         public bool AddModule(Type module)
         {
-            if ( !this.ContainedModules.Contains( module ) )
+            if ( !ContainedModules.Contains( module ) )
             {
-                this.ContainedModules.Add( module );
-                this.ContainedModules.Sort( delegate(Type first, Type second)
+                ContainedModules.Add( module );
+                ContainedModules.Sort( delegate(Type first, Type second)
                 {
                     return first.Name.CompareTo( second.Name );
                 } );
@@ -59,7 +59,7 @@ namespace XTMF
 
         public Type GetModuleType(string typeName)
         {
-            foreach ( var model in this.Modules )
+            foreach ( var model in Modules )
             {
                 if ( model.FullName == typeName ) return model;
             }
@@ -73,7 +73,7 @@ namespace XTMF
 
         public void Unload(Type type)
         {
-            this.ContainedModules.Remove( type );
+            ContainedModules.Remove( type );
         }
     }
 }

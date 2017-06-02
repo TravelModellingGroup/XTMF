@@ -17,11 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
-using TMG;
 using Tasha.Common;
 using Datastructure;
 using System.Threading.Tasks;
@@ -29,6 +25,7 @@ using System.Threading.Tasks;
 namespace Tasha.PopulationSynthesis
 {
     [ModuleInformation(Description = "This module is designed to initialize the resources containing the place of residence place of work aggregate model.")]
+    // ReSharper disable once InconsistentNaming
     public class StartPoRPoW : IPreIteration
     {
         public string Name { get; set; }
@@ -54,7 +51,7 @@ namespace Tasha.PopulationSynthesis
         public void Execute(int iterationNumber, int totalIterations)
         {
             Console.WriteLine("Initializing PoRPoW Probabilities...");
-            Parallel.For(0, ToWakeup.Length, (int i) =>
+            Parallel.For(0, ToWakeup.Length, i =>
             {
                 ToWakeup[i].AcquireResource<SparseTriIndex<float>>();
             });

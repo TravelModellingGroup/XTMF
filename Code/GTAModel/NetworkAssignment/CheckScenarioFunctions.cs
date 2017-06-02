@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using TMG.Emme;
 using XTMF;
@@ -32,7 +33,7 @@ namespace TMG.GTAModel.NetworkAssignment
         private const string ToolName = "tmg.assignment.preprocessing.check_scenario_functions";
         private const string AlternateToolName = "TMG.Assignment.CheckFunctions";
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
 
         public string Name
         {
@@ -48,7 +49,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool Execute(Controller controller)
@@ -66,7 +67,7 @@ namespace TMG.GTAModel.NetworkAssignment
             }
 
 
-            return mc.Run(toolName, ScenarioNumber.ToString(), (p => this.Progress = p), ref result);
+            return mc.Run(toolName, ScenarioNumber.ToString(), (p => Progress = p), ref result);
         }
 
         public bool RuntimeValidation(ref string error)

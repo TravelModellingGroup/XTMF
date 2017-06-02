@@ -18,10 +18,7 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
-using System.IO;
 using System.Xml;
 using TMG.Input;
 namespace TMG.Estimation
@@ -35,57 +32,81 @@ namespace TMG.Estimation
 
         public List<ParameterSetting> GiveData()
         {
-            return this.Parameters;
+            return Parameters;
         }
 
         public bool Loaded
         {
-            get { return this.Parameters != null; }
+            get { return Parameters != null; }
         }
 
         public void LoadData()
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load( this.ParameterFileLocation.GetFilePath() );
+            doc.Load( ParameterFileLocation.GetFilePath() );
             List<ParameterSetting> parameters = new List<ParameterSetting>();
-            foreach ( XmlNode child in doc["Root"].ChildNodes )
+            var root = doc["Root"];
+            if (root == null)
+            {
+                return;
+            }
+            foreach ( XmlNode child in root.ChildNodes )
             {
                 if ( child.Name == "Parameter" )
                 {
                     ParameterSetting current = new ParameterSetting();
-                    current.Minimum = float.Parse( child.Attributes["Minimum"].InnerText );
-                    current.Maximum = float.Parse( child.Attributes["Maximum"].InnerText );
+                    if (child.HasChildNodes)
+                    {
+                        var nodes = child.ChildNodes;
+                        current.Names = new string[nodes.Count];
+                        for (int i = 0; i < nodes.Count; i++)
+                        {
+                            XmlNode name = nodes[i];
+                            var parameterPath = name.Attributes?["ParameterPath"]?.InnerText;
+                            if (parameterPath == null)
+                            {
+                                throw new XTMFRuntimeException($"In {Name} Parameter Path was not defined in {child.OuterXml}!");
+                            }
+                            current.Names[i] = parameterPath;
+                        }
+                    }
+                    else
+                    {
+                        var parameterAttribute = child.Attributes?["ParameterPath"];
+                        if (parameterAttribute == null)
+                        {
+                            throw new XTMFRuntimeException();
+                        }
+                        var parameterPath = parameterAttribute.InnerText;
+                        current.Names = new[] { parameterPath };
+                    }
+                    var minimumAttribute = child.Attributes?["Minimum"];
+                    var maximumAttribute = child.Attributes?["Maximum"];
+                    if (minimumAttribute == null)
+                    {
+                        throw new XTMFRuntimeException($"In {Name} The Minimum attribute was not defined in {child.OuterXml}!");
+                    }
+                    if (maximumAttribute == null)
+                    {
+                        throw new XTMFRuntimeException($"In {Name} The Maximum attribute was not defined in {child.OuterXml}!");
+                    }
+                    current.Minimum = float.Parse( minimumAttribute.InnerText);
+                    current.Maximum = float.Parse( maximumAttribute.InnerText);
                     current.Current = current.Minimum;
                     XmlAttribute nullHypothesis;
                     if ( ( nullHypothesis = child.Attributes["NullHypothesis"] ) != null )
                     {
                         current.NullHypothesis = float.Parse( nullHypothesis.InnerText );
                     }
-                    if ( child.HasChildNodes )
-                    {
-                        var nodes = child.ChildNodes;
-                        current.Names = new string[nodes.Count];
-                        for ( int i = 0; i < nodes.Count; i++ )
-                        {
-                            XmlNode name = nodes[i];
-                            var parameterPath = name.Attributes["ParameterPath"].InnerText;
-                            current.Names[i] = parameterPath;
-                        }
-                    }
-                    else
-                    {
-                        var parameterPath = child.Attributes["ParameterPath"].InnerText;
-                        current.Names = new string[] { parameterPath };
-                    }
                     parameters.Add( current );
                 }
             }
-            this.Parameters = parameters;
+            Parameters = parameters;
         }
 
         public void UnloadData()
         {
-            this.Parameters = null;
+            Parameters = null;
         }
 
         public string Name { get; set; }

@@ -21,6 +21,7 @@ using TMG.AgentBased.Tours;
 
 namespace TMG.AgentBased.MST
 {
+    // ReSharper disable once InconsistentNaming
     public interface ITourBasedDemographic4StepMST : IDemographic4StepModelSystemTemplate
     {
         List<ITourPurpose> TourPurposes { get; }

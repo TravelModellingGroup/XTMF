@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace XTMF.ConsoleUpdate
 {
@@ -45,7 +41,7 @@ namespace XTMF.ConsoleUpdate
             {
                 Console.WriteLine();
                 Console.WriteLine( "XTMF Update Error:" );
-                Console.WriteLine( error.InnerException.Message );
+                Console.WriteLine( error.InnerException?.Message );
             }
             catch ( Exception error )
             {

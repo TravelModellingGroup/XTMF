@@ -25,7 +25,7 @@ namespace Tasha.Scheduler
         internal PersonalProject(Schedule schedule, ITashaPerson person)
             : base( schedule )
         {
-            this.Person = person;
+            Person = person;
         }
 
         /// <summary>

@@ -33,42 +33,42 @@ namespace Tasha.Common
         /// <summary>
         /// Creates a new zone to represent the roaming zone
         /// </summary>
-        /// <param name="ZoneID"></param>
-        public Zone(int ZoneID)
+        /// <param name="zoneID"></param>
+        public Zone(int zoneID)
         {
-            this.ZoneNumber = ZoneID;
+            ZoneNumber = zoneID;
         }
 
         /// <summary>
         /// Create a new Zone
         /// </summary>
-        /// <param name="ZoneID">The ID for this zone</param>
-        /// <param name="Data">The data from the cache</param>
-        public Zone(int ZoneID, float[] Data)
+        /// <param name="zoneID">The ID for this zone</param>
+        /// <param name="data">The data from the cache</param>
+        public Zone(int zoneID, float[] data)
         {
-            this.ZoneNumber = ZoneID;
-            this.PlanningDistrict = (int)Data[(int)ZoneCacheColumns.PlanningDistrict];
-            this.Population = (int)Data[(int)ZoneCacheColumns.Population];
-            this.WorkGeneral = Data[(int)ZoneCacheColumns.WorkGeneral];
-            this.WorkManufacturing = Data[(int)ZoneCacheColumns.WorkManufacturing];
-            this.WorkProfessional = Data[(int)ZoneCacheColumns.WorkProfessional];
-            this.WorkRetail = Data[(int)ZoneCacheColumns.WorkRetail];
-            this.WorkUnknown = Data[(int)ZoneCacheColumns.WorkUnknown];
-            this.Employment = Data[(int)ZoneCacheColumns.Employment];
-            this.ManufacturingEmployment = Data[(int)ZoneCacheColumns.EmploymentManufacturing];
-            this.ProfessionalEmployment = Data[(int)ZoneCacheColumns.EmploymentProfessional];
-            this.RetailEmployment = Data[(int)ZoneCacheColumns.EmploymentRetail];
-            this.UnknownEmployment = Data[(int)ZoneCacheColumns.EmploymentUnknown];
-            this.GeneralEmployment = Data[(int)ZoneCacheColumns.EmploymentGeneral];
-            this.X = Data[(int)ZoneCacheColumns.X];
-            this.Y = Data[(int)ZoneCacheColumns.Y];
-            this.InternalDistance = Data[(int)ZoneCacheColumns.InternalDistance];
-            this.RetailActivityLevel = Data[(int)ZoneCacheColumns.RetailActivityLevel];
-            this.OtherActivityLevel = Data[(int)ZoneCacheColumns.OtherActivityLevel];
-            this.WorkActivityLevel = Data[(int)ZoneCacheColumns.WorkActivityLevel];
-            this.ParkingCost = Data[(int)ZoneCacheColumns.ParkingCost];
-            this.IntrazonalDensity = Data[(int)ZoneCacheColumns.InternalDensity];
-            this.ArterialRoadRatio = Data[(int)ZoneCacheColumns.ArtirialPercentage];
+            ZoneNumber = zoneID;
+            PlanningDistrict = (int)data[(int)ZoneCacheColumns.PlanningDistrict];
+            Population = (int)data[(int)ZoneCacheColumns.Population];
+            WorkGeneral = data[(int)ZoneCacheColumns.WorkGeneral];
+            WorkManufacturing = data[(int)ZoneCacheColumns.WorkManufacturing];
+            WorkProfessional = data[(int)ZoneCacheColumns.WorkProfessional];
+            WorkRetail = data[(int)ZoneCacheColumns.WorkRetail];
+            WorkUnknown = data[(int)ZoneCacheColumns.WorkUnknown];
+            Employment = data[(int)ZoneCacheColumns.Employment];
+            ManufacturingEmployment = data[(int)ZoneCacheColumns.EmploymentManufacturing];
+            ProfessionalEmployment = data[(int)ZoneCacheColumns.EmploymentProfessional];
+            RetailEmployment = data[(int)ZoneCacheColumns.EmploymentRetail];
+            UnknownEmployment = data[(int)ZoneCacheColumns.EmploymentUnknown];
+            GeneralEmployment = data[(int)ZoneCacheColumns.EmploymentGeneral];
+            X = data[(int)ZoneCacheColumns.X];
+            Y = data[(int)ZoneCacheColumns.Y];
+            InternalDistance = data[(int)ZoneCacheColumns.InternalDistance];
+            RetailActivityLevel = data[(int)ZoneCacheColumns.RetailActivityLevel];
+            OtherActivityLevel = data[(int)ZoneCacheColumns.OtherActivityLevel];
+            WorkActivityLevel = data[(int)ZoneCacheColumns.WorkActivityLevel];
+            ParkingCost = data[(int)ZoneCacheColumns.ParkingCost];
+            IntrazonalDensity = data[(int)ZoneCacheColumns.InternalDensity];
+            ArterialRoadRatio = data[(int)ZoneCacheColumns.ArtirialPercentage];
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Tasha.Common
         {
             get
             {
-                return this.GeneralEmployment + this.ManufacturingEmployment + this.ProfessionalEmployment + this.RetailEmployment;
+                return GeneralEmployment + ManufacturingEmployment + ProfessionalEmployment + RetailEmployment;
             }
 
             set
@@ -248,7 +248,7 @@ namespace Tasha.Common
         /// <summary>
         /// The ID for the zone
         /// </summary>
-        public int ZoneNumber { get; set; }
+        public int ZoneNumber { get; }
 
         /// <summary>
         /// Returns the distance in meters
@@ -257,12 +257,12 @@ namespace Tasha.Common
         /// <returns></returns>
         public float GetDistance(IZone x)
         {
-            return Math.Abs( x.X - this.X ) + Math.Abs( x.Y - this.Y );
+            return Math.Abs( x.X - X ) + Math.Abs( x.Y - Y );
         }
 
         public override int GetHashCode()
         {
-            return this.ZoneNumber;
+            return ZoneNumber;
         }
 
         public IZone GetWorkBasedLocation(Activity activity, ITashaPerson person)
@@ -272,19 +272,7 @@ namespace Tasha.Common
 
         public override string ToString()
         {
-            return this.ZoneNumber.ToString();
-        }
-
-        /// <summary>
-        /// This is passed into ZoneCache to create a zone from data
-        /// </summary>
-        /// <param name="ZoneID">The zone that was asked for</param>
-        /// <param name="data">The raw data from file</param>
-        /// <returns>A new zone with this data</returns>
-        private static Zone ConvertToZone(int ZoneID, float[] data)
-        {
-            // Create this data from the information in the cache file
-            return new Zone( ZoneID, data );
+            return ZoneNumber.ToString();
         }
     }
 }

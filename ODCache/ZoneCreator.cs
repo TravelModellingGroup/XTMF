@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,9 +32,9 @@ namespace Datastructure
         /// <param name="types">The number of types of data per recored</param>
         /// <param name="zfc">The ZFC we are to produce</param>
         /// <param name="header">Does this csv file contain a header?</param>
-        public static void CsvToZFC(string csv, int highestZone, int types, string zfc, bool header)
+        public static void CsvToZfc(string csv, int highestZone, int types, string zfc, bool header)
         {
-            CsvToZFC( csv, highestZone, types, zfc, header, 0 );
+            CsvToZfc(csv, highestZone, types, zfc, header, 0);
         }
 
         /// <summary>
@@ -46,41 +46,41 @@ namespace Datastructure
         /// <param name="zfc">The ZFC we are to produce</param>
         /// <param name="header">Does this csv file contain a header?</param>
         /// <param name="offset">How much other data comes before our new entries?</param>
-        public static void CsvToZFC(string csv, int highestZone, int types, string zfc, bool header, int offset)
+        public static void CsvToZfc(string csv, int highestZone, int types, string zfc, bool header, int offset)
         {
-            StreamReader reader = new StreamReader( new FileStream( csv, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.SequentialScan ) );
-            BinaryWriter writer = new BinaryWriter( new
-                FileStream( zfc, FileMode.OpenOrCreate, FileAccess.Write,
-                FileShare.None, 0x1000, FileOptions.RandomAccess ),
-                Encoding.Default );
+            StreamReader reader = new StreamReader(new FileStream(csv, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.SequentialScan));
+            BinaryWriter writer = new BinaryWriter(new
+                FileStream(zfc, FileMode.OpenOrCreate, FileAccess.Write,
+                FileShare.None, 0x1000, FileOptions.RandomAccess),
+                Encoding.Default);
             string line;
-            writer.Write( highestZone );
-            writer.Write( (Int32)0 );
-            writer.Write( types );
+            writer.Write(highestZone);
+            writer.Write(0);
+            writer.Write(types);
             byte[] data = new byte[types * 4];
-            if ( header ) reader.ReadLine();
-            while ( ( line = reader.ReadLine() ) != null )
+            if (header) reader.ReadLine();
+            while ((line = reader.ReadLine()) != null)
             {
                 int position;
-                int origin = FastParse.ParseInt( line, 0, ( position = line.IndexOf( ',' ) ) );
+                int origin = FastParse.ParseInt(line, 0, (position = line.IndexOf(',')));
                 position++;
 
-                writer.BaseStream.Seek( ( sizeof( int ) * 3 ) +
-                    ( ( origin * types ) + offset ) * sizeof( float ), SeekOrigin.Begin );
+                writer.BaseStream.Seek((sizeof(int) * 3) +
+                    ((origin * types) + offset) * sizeof(float), SeekOrigin.Begin);
 
                 // It is faster to store the length before itterating over it
                 int length = line.Length;
                 int ammount = 0;
-                for ( int i = position; i < length; i++ )
+                for (int i = position; i < length; i++)
                 {
-                    if ( line[i] == ',' )
+                    if (line[i] == ',')
                     {
-                        LoadData( data, FastParse.ParseFloat( line, position, i ), ref ammount );
+                        LoadData(data, FastParse.ParseFloat(line, position, i), ref ammount);
                         position = i + 1;
                     }
                 }
-                LoadData( data, FastParse.ParseFloat( line, position, line.Length ), ref ammount );
-                writer.Write( data, 0, ammount );
+                LoadData(data, FastParse.ParseFloat(line, position, line.Length), ref ammount);
+                writer.Write(data, 0, ammount);
             }
             reader.Close();
             writer.Close();
@@ -88,7 +88,7 @@ namespace Datastructure
 
         private static void LoadData(byte[] data, float p, ref int ammount)
         {
-            var temp = BitConverter.GetBytes( p );
+            var temp = BitConverter.GetBytes(p);
             data[ammount] = temp[0];
             data[ammount + 1] = temp[1];
             data[ammount + 2] = temp[2];

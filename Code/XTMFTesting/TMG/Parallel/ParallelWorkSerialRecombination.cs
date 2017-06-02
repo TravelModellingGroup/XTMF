@@ -19,7 +19,6 @@
 using System;
 using TMG.Frameworks.Parallel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace XTMF.Testing.TMG.Parallel
@@ -41,10 +40,10 @@ namespace XTMF.Testing.TMG.Parallel
                 // now that we have our data compute the sum of the numbers multiplied by two
                 float total = 0.0f;
                 var realSum = Mul2(a);
-                ParallelWorkSerialRecombination<float, float>.ComputeInParallel(a, (float f) =>
+                ParallelWorkSerialRecombination<float, float>.ComputeInParallel(a, f =>
                 {
                     return f * 2.0f;
-                }, (float f) =>
+                }, f =>
                 {
                     total += f;
                 });

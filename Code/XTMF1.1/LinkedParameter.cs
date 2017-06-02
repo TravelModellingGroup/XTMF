@@ -29,9 +29,9 @@ namespace XTMF
         /// <param name="name">The name for this linked parameter</param>
         public LinkedParameter(string name)
         {
-            this.Name = name;
-            this.Parameters = new List<IModuleParameter>();
-            this.Value = String.Empty;
+            Name = name;
+            Parameters = new List<IModuleParameter>();
+            Value = String.Empty;
         }
 
         /// <summary>
@@ -62,18 +62,18 @@ namespace XTMF
                 error = "The parameter does not exist!";
                 return false;
             }
-            if ( this.Parameters.Contains( parameter ) )
+            if ( Parameters.Contains( parameter ) )
             {
-                error = "The parameter '" + parameter.Name + "' already exists within the linked parameter '" + this.Name + "'.";
+                error = "The parameter '" + parameter.Name + "' already exists within the linked parameter '" + Name + "'.";
                 return false;
             }
-            var value = ArbitraryParameterParser.ArbitraryParameterParse( parameter.Type, this.Value, ref error );
+            var value = ArbitraryParameterParser.ArbitraryParameterParse( parameter.Type, Value, ref error );
             if ( value == null )
             {
                 return false;
             }
             parameter.Value = value;
-            this.Parameters.Add( parameter );
+            Parameters.Add( parameter );
             return true;
         }
 
@@ -158,9 +158,9 @@ namespace XTMF
         /// If it is not contained, it will return false!</returns>
         public bool Remove(IModuleParameter parameter, ref string error)
         {
-            if ( !this.Parameters.Remove( parameter ) )
+            if ( !Parameters.Remove( parameter ) )
             {
-                error = "The parameter '" + parameter.Name + "' was not contained within '" + this.Name + "'!";
+                error = "The parameter '" + parameter.Name + "' was not contained within '" + Name + "'!";
                 return false;
             }
             return true;
@@ -173,11 +173,11 @@ namespace XTMF
         /// <returns>If we were able to assign this value to all of the parmeters</returns>
         public bool SetValue(string value, ref string error)
         {
-            if ( !this.AssignValue( value, ref error ) )
+            if ( !AssignValue( value, ref error ) )
             {
                 return false;
             }
-            this.Value = value;
+            Value = value;
             return true;
         }
 
@@ -193,18 +193,18 @@ namespace XTMF
             // this lets us deal with cases where parameters are later removed from the
             // linked parameter set
             // assign the new value to all of the parameters
-            for ( int i = 0; i < this.Parameters.Count; i++ )
+            for ( int i = 0; i < Parameters.Count; i++ )
             {
-                this.Parameters[i].Value =
-                    ArbitraryParameterParser.ArbitraryParameterParse( this.Parameters[i].Type, value, ref error );
+                Parameters[i].Value =
+                    ArbitraryParameterParser.ArbitraryParameterParse( Parameters[i].Type, value, ref error );
                 // if it failed, roll back
-                if ( this.Parameters[i].Value == null )
+                if ( Parameters[i].Value == null )
                 {
-                    error = "Failed to assign to parameter " + this.Parameters[i].Name + "\r\n" + error;
+                    error = "Failed to assign to parameter " + Parameters[i].Name + "\r\n" + error;
                     for ( ; i >= 0; i-- )
                     {
-                        this.Parameters[i].Value =
-                            ArbitraryParameterParser.ArbitraryParameterParse( this.Parameters[i].Type, this.Value, ref error );
+                        Parameters[i].Value =
+                            ArbitraryParameterParser.ArbitraryParameterParse( Parameters[i].Type, Value, ref error );
                     }
                     return false;
                 }

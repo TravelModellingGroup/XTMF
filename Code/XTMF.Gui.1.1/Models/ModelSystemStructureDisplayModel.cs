@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2015 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2015-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -26,31 +26,39 @@ using System.Windows.Media;
 using System.Collections.Specialized;
 using System.Windows.Forms;
 using System.Windows;
+using System.Windows.Input;
+using XTMF.Gui.UserControls;
+using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 
 namespace XTMF.Gui.Models
 {
-    internal sealed class ModelSystemStructureDisplayModel : INotifyPropertyChanged
+    public  class ModelSystemStructureDisplayModel : INotifyPropertyChanged
     {
         internal ModelSystemStructureModel BaseModel;
         private ObservableCollection<ModelSystemStructureModel> BaseChildren;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static Color AddingYellow;
-        private static Color OptionalGreen;
-        private static Color WarningRed;
-        private static Color MetaModule;
+        private ObservableCollection<ModelSystemStructureDisplayModel> DisplayChildren;
+
+
+        public int Index { get; set; }
+
+        public ModelSystemStructureDisplayModel Parent { get; }
+
+
+        public ModelSystemStructureDisplayModel BackingDisplayModel => this;
 
         static ModelSystemStructureDisplayModel()
         {
-            AddingYellow = (Color)App.Current.FindResource("AddingYellow");
-            WarningRed = (Color)App.Current.FindResource("WarningRed");
-            OptionalGreen = Color.FromRgb(50, 140, 50);
-            MetaModule = Color.FromArgb(255, 60, 20, 90);
+           
         }
 
-        public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel)
+        public ModelSystemStructureDisplayModel(ModelSystemStructureModel baseModel, ModelSystemStructureDisplayModel parent, int index)
         {
+            //BaseChildren.
+            this.Parent = parent;
+            this.Index = index;
             BaseModel = baseModel;
             BaseChildren = baseModel.Children;
             UpdateChildren(baseModel);
@@ -61,12 +69,27 @@ namespace XTMF.Gui.Models
             }
         }
 
+   
+
         private void UpdateChildren(ModelSystemStructureModel baseModel)
         {
-            Children = baseModel.IsMetaModule || BaseChildren == null ? new ObservableCollection<ModelSystemStructureDisplayModel>()
-                : new ObservableCollection<ModelSystemStructureDisplayModel>(
-                from child in baseModel.Children
-                select new ModelSystemStructureDisplayModel(child));
+
+
+            if (baseModel.IsMetaModule || BaseChildren == null)
+            {
+                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+            }
+            else
+            {
+                Children = new ObservableCollection<ModelSystemStructureDisplayModel>();
+                int i = 0;
+                foreach (var item in baseModel.Children)
+                {
+                    Children.Add(new ModelSystemStructureDisplayModel(item,this,i));
+                    i++;
+                }
+            }
+
             ModelHelper.PropertyChanged(PropertyChanged, this, "Children");
         }
 
@@ -79,7 +102,7 @@ namespace XTMF.Gui.Models
                         var insertAt = e.NewStartingIndex;
                         foreach (var item in e.NewItems)
                         {
-                            Children.Insert(insertAt, new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel));
+                            Children.Insert(insertAt, new ModelSystemStructureDisplayModel(item as ModelSystemStructureModel,this,insertAt));
                             insertAt++;
                         }
                     }
@@ -99,7 +122,7 @@ namespace XTMF.Gui.Models
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     {
-                        Children[e.OldStartingIndex] = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel);
+                        Children[e.OldStartingIndex] = new ModelSystemStructureDisplayModel(e.NewItems[0] as ModelSystemStructureModel,this,e.OldStartingIndex);
                     }
                     break;
                 case NotifyCollectionChangedAction.Reset:
@@ -120,77 +143,40 @@ namespace XTMF.Gui.Models
             var ev = PropertyChanged;
             if (ev != null)
             {
-                if (e.PropertyName == "Children")
+                switch (e.PropertyName)
                 {
-                    if (BaseChildren != null)
-                    {
-                        BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
-                    }
-                    BaseChildren = BaseModel.Children;
-                    if (BaseChildren != null)
-                    {
-                        BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
-                    }
-                }
-                if (e.PropertyName == "IsMetaModule")
-                {
-                    UpdateChildren(BaseModel);
-                    ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                    ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                }
+                    case "Children":
+                        if (BaseChildren != null)
+                        {
+                            BaseChildren.CollectionChanged -= BaseChildren_CollectionChanged;
+                        }
+                        BaseChildren = BaseModel.Children;
+                        if (BaseChildren != null)
+                        {
+                            BaseChildren.CollectionChanged += BaseChildren_CollectionChanged;
+                        }
+                        break;
+                    case "IsMetaModule":
+                        UpdateChildren(BaseModel);
+                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
+                        break;
+                    case "IsDisabled":
+                    case "Type":
+                        ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
+                        ModelHelper.PropertyChanged(ev, this, "HighlightColour");
+                        break;
+                }            
                 ModelHelper.PropertyChanged(ev, this, e.PropertyName);
-                // If the type changes it is possible that our background colour should change as well
-                if (e.PropertyName == "Type")
-                {
-                    ModelHelper.PropertyChanged(ev, this, "BackgroundColour");
-                    ModelHelper.PropertyChanged(ev, this, "HighlightColour");
-                }
             }
         }
 
-        public string Name { get { return BaseModel.Name; } }
+        public string Name => BaseModel.Name;
 
-        public string Description { get { return BaseModel.Description; } }
+        public string Description => BaseModel.Description;
 
-        public Color BackgroundColour
-        {
-            get
-            {
-                if (BaseModel.IsMetaModule)
-                {
-                    return MetaModule;
-                }
-                if (BaseModel.IsCollection)
-                {
-                    return AddingYellow;
-                }
-                if (BaseModel.Type == null)
-                {
-                    return (BaseModel.IsOptional) ? OptionalGreen : WarningRed;
-                }
-                return Color.FromRgb(0x30, 0x30, 0x30);
-            }
-        }
-
-        public Color HighlightColour
-        {
-            get
-            {
-                if (BaseModel.IsMetaModule)
-                {
-                    return MetaModule;
-                }
-                if (BaseModel.IsCollection)
-                {
-                    return AddingYellow;
-                }
-                if (BaseModel.Type == null)
-                {
-                    return (BaseModel.IsOptional) ? OptionalGreen : WarningRed;
-                }
-                return Color.FromRgb(0x30, 0x30, 0x30);
-            }
-        }
+       
+    
 
         public ObservableCollection<ModelSystemStructureDisplayModel> Children { get; private set; }
         public Type Type
@@ -216,11 +202,11 @@ namespace XTMF.Gui.Models
             }
             set
             {
-                if (_IsExpanded != value)
-                {
-                    _IsExpanded = value;
-                    ModelHelper.PropertyChanged(PropertyChanged, this, "IsExpanded");
-                }
+                _IsExpanded = value;
+
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded"));
+
             }
         }
 
@@ -241,18 +227,28 @@ namespace XTMF.Gui.Models
             }
         }
 
-        public ParametersModel ParametersModel
-        {
-            get
-            {
-                return BaseModel.Parameters;
-            }
-        }
+        public ParametersModel ParametersModel => BaseModel.Parameters;
 
         internal ObservableCollection<ParameterModel> GetParameters()
         {
             return !BaseModel.IsMetaModule ? BaseModel.Parameters.GetParameters() : GetMetaModuleParamters();
         }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                _isSelected = value;
+
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("IsSelected"));
+
+            }
+        }
+
+      
 
         private ObservableCollection<ParameterModel> GetMetaModuleParamters()
         {
@@ -317,6 +313,13 @@ namespace XTMF.Gui.Models
                 }
             }
             return null;
+        }
+
+        public bool IsDisabled => BaseModel.IsDisabled;
+
+        internal bool SetDisabled(bool disabled, ref string error)
+        {
+            return BaseModel.SetDisabled(disabled, ref error);
         }
 
         internal bool SetMetaModule(bool set, ref string error)

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -28,7 +28,7 @@ namespace TMG
         string NetworkType { get; }
 
         /// <summary>
-        /// Gets if this mode does not use a personal vehical
+        /// Gets if this mode does not use a personal vehicle
         /// </summary>
         bool NonPersonalVehicle { get; }
 
@@ -37,6 +37,7 @@ namespace TMG
         /// </summary>
         /// <param name="origin">Where to start from</param>
         /// <param name="destination">Where to go to</param>
+        /// <param name="time">The time to get the cost for</param>
         /// <returns>Cost of going between the zones</returns>
         float Cost(IZone origin, IZone destination, Time time);
 

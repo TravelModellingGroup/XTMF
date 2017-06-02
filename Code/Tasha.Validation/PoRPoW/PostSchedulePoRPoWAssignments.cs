@@ -18,7 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Tasha.Common;
@@ -29,6 +28,7 @@ using System.IO;
 
 namespace Tasha.Validation.PoRPoW
 {
+    // ReSharper disable once InconsistentNaming
     public class PostSchedulePoRPoWAssignments : IPostScheduler
     {
         public string Name { get; set; }

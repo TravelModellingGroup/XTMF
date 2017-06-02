@@ -27,14 +27,14 @@ namespace Tasha.Common
 
         public static bool operator ==(NameComparer a, NameComparer b)
         {
-            return a.Name == b.Name;
+            return a?.Name == b?.Name;
         }
 
         public override bool Equals(object obj)
         {
             if ( obj is INamedType )
             {
-                return ( (INamedType)obj ).Name == this.Name;
+                return ( (INamedType)obj ).Name == Name;
             }
 
             return false;
@@ -42,7 +42,7 @@ namespace Tasha.Common
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return Name.GetHashCode();
         }
 
         #region INamedObject Members

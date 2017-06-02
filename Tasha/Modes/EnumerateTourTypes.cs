@@ -42,7 +42,7 @@ namespace Tasha.Modes
         public bool UseExpansionFactor;
 
         private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>( 100, 100, 150 );
-        private Dictionary<string, double> data;
+        private Dictionary<string, double> Data;
 
         public string Name
         {
@@ -71,43 +71,43 @@ namespace Tasha.Modes
                         continue; //Skip people with no trips
 
                     var sb = new StringBuilder();
-                    if ( string.IsNullOrEmpty( this.HomeAnchorOverrideName ) )
+                    if ( string.IsNullOrEmpty( HomeAnchorOverrideName ) )
                     {
-                        sb.Append( Activity.Home.ToString() );
+                        sb.Append( Activity.Home );
                     }
                     else
                     {
-                        var x = p.TripChains[0].GetVariable( this.HomeAnchorOverrideName );
-                        if ( x != null ) sb.Append( x.ToString() );
-                        else sb.Append( Activity.Home.ToString() );
+                        var x = p.TripChains[0].GetVariable( HomeAnchorOverrideName );
+                        if ( x != null ) sb.Append( x );
+                        else sb.Append( Activity.Home );
                     }
 
                     foreach ( var trip in p.TripChains[0].Trips )
                     {
-                        sb.AppendFormat( ",{0}", trip.Purpose.ToString() );
+                        sb.AppendFormat( ",{0}", trip.Purpose );
                     }
 
                     var key = sb.ToString();
-                    if ( this.data.ContainsKey( key ) )
+                    if ( Data.ContainsKey( key ) )
                     {
-                        if ( this.UseExpansionFactor )
+                        if ( UseExpansionFactor )
                         {
-                            this.data[key] += household.ExpansionFactor;
+                            Data[key] += household.ExpansionFactor;
                         }
                         else
                         {
-                            this.data[key]++;
+                            Data[key]++;
                         }
                     }
                     else
                     {
-                        if ( this.UseExpansionFactor )
+                        if ( UseExpansionFactor )
                         {
-                            this.data.Add( key, household.ExpansionFactor );
+                            Data.Add( key, household.ExpansionFactor );
                         }
                         else
                         {
-                            this.data.Add( key, 1 );
+                            Data.Add( key, 1 );
                         }
                     }
                 }
@@ -116,14 +116,14 @@ namespace Tasha.Modes
 
         public void IterationFinished(int iteration)
         {
-            var path = this.ResultsFile;
+            var path = ResultsFile;
             using ( StreamWriter sw = new StreamWriter( path ) )
             {
                 sw.WriteLine( "TOUR ENUMERATION" );
                 sw.WriteLine();
                 sw.WriteLine( "Frequency,[List of activities]" );
 
-                foreach ( var e in this.data )
+                foreach ( var e in Data )
                 {
                     sw.WriteLine( e.Value + "," + e.Key );
                 }
@@ -134,7 +134,7 @@ namespace Tasha.Modes
 
         public void Load(int maxIterations)
         {
-            this.data = new Dictionary<string, double>();
+            Data = new Dictionary<string, double>();
         }
 
         public bool RuntimeValidation(ref string error)

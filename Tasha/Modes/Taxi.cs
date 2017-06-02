@@ -37,19 +37,19 @@ namespace Tasha.Modes
         public float CTaxi;
 
         [DoNotAutomate]
-        public INetworkData data;
+        public INetworkData Data;
 
         [RunParameter( "dpurp_oth_drive", 0f, "The weight for the cost of doing an other drive (ITashaRuntime only)" )]
-        public float dpurp_oth_drive;
+        public float DpurpOthDrive;
 
         [RunParameter( "dpurp_shop_drive", 0f, "The weight for the cost of doing a shopping drive (ITashaRuntime only)" )]
-        public float dpurp_shop_drive;
+        public float DpurpShopDrive;
 
         [RunParameter( "FareCost", 0.0f, "The weight factor for the cost" )]
         public float FareCost;
 
         [RunParameter( "from_to_transport_terminal", 0f, "The weight for the cost of doing a from/to transport terminal drive (ITashaRuntime only)" )]
-        public float from_to_transport_terminal;
+        public float FromToTransportTerminal;
 
         // constants from taxi directory in config file
         [RunParameter( "InitialFare", 2.75f, "The weight for the initial cost of the taxi" )]
@@ -80,7 +80,7 @@ namespace Tasha.Modes
         public ITravelDemandModel Root;
 
         [RunParameter( "Speed", 833.33F, "Speed in meters per minute." )]
-        public float taxiSpeed;
+        public float TaxiSpeed;
 
         [RunParameter( "Time", 0.0f, "The weight factor for the time" )]
         public float Time;
@@ -96,13 +96,6 @@ namespace Tasha.Modes
 
         [RunParameter( "WaitTime", 5.00f, "The weight for the wait time." )]
         public float WaitTime;
-
-        /// <summary>
-        ///
-        /// </summary>
-        public Taxi()
-        {
-        }
 
         [Parameter( "Demographic Category Feasible", 1f, "(Automated by IModeParameterDatabase)\r\nIs the currently processing demographic category feasible?" )]
         public float CurrentlyFeasible { get; set; }
@@ -159,16 +152,14 @@ namespace Tasha.Modes
             get { return new Tuple<byte, byte, byte>( 100, 200, 100 ); }
         }
 
-        [DoNotAutomate]
+
         /// <summary>
         ///
         /// </summary>
-        public IVehicleType RequiresVehicle
-        {
-            get { return null; }
-        }
+        [DoNotAutomate]
+        public IVehicleType RequiresVehicle => null;
 
-        [RunParameter( "Variance Scale", 1.0f, "The scale for varriance used for variance testing." )]
+        [RunParameter( "Variance Scale", 1.0f, "The scale for variance used for variance testing." )]
         public double VarianceScale
         {
             get;
@@ -189,46 +180,46 @@ namespace Tasha.Modes
             }
             else
             {
-                v += this.CTaxi;
-                v += this.Time * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.TripStartTime ).ToMinutes();
-                v += this.FareCost * CalculateFare( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
+                v += CTaxi;
+                v += Time * TravelTime( trip.OriginalZone, trip.DestinationZone, trip.TripStartTime ).ToMinutes();
+                v += FareCost * CalculateFare( trip.OriginalZone, trip.DestinationZone, trip.ActivityStartTime );
             }
             if ( Common.GetTimePeriod( trip.ActivityStartTime ) == TravelTimePeriod.Offpeak )
             {
-                v += this.OffPeakTrip;
+                v += OffPeakTrip;
             }
             if ( TransportTerminal.Contains( trip.OriginalZone.ZoneNumber ) | TransportTerminal.Contains( trip.DestinationZone.ZoneNumber ) )
             {
-                v += this.from_to_transport_terminal;
+                v += FromToTransportTerminal;
             }
             if ( trip.Purpose == Activity.Market | trip.Purpose == Activity.JointMarket )
             {
-                v += this.dpurp_shop_drive;
+                v += DpurpShopDrive;
             }
             else if ( trip.Purpose == Activity.IndividualOther | trip.Purpose == Activity.JointOther )
             {
-                v += this.dpurp_oth_drive;
+                v += DpurpOthDrive;
             }
             return v;
         }
 
-        public float CalculateV(IZone OriginalZone, IZone DestinationZone, Time time)
+        public float CalculateV(IZone originalZone, IZone destinationZone, Time time)
         {
-            float v = this.CTaxi;
-            v += this.Time * TravelTime( OriginalZone, DestinationZone, time ).ToMinutes();
-            v += this.FareCost * CalculateFare( OriginalZone, DestinationZone, time );
+            float v = CTaxi;
+            v += Time * TravelTime( originalZone, destinationZone, time ).ToMinutes();
+            v += FareCost * CalculateFare( originalZone, destinationZone, time );
             if ( Common.GetTimePeriod( time ) == TravelTimePeriod.Offpeak )
             {
-                v += this.OffPeakTrip;
+                v += OffPeakTrip;
             }
             return v;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="origin"></param>
-        /// <param name="destination"></param>
+        ///  <summary>
+        ///  </summary>
+        ///  <param name="origin"></param>
+        ///  <param name="destination"></param>
+        /// <param name="time"></param>
         /// <returns></returns>
         public float Cost(IZone origin, IZone destination, Time time)
         {
@@ -255,7 +246,7 @@ namespace Tasha.Modes
         {
             var originalZone = trip.OriginalZone.ZoneNumber;
             var destinationZone = trip.DestinationZone.ZoneNumber;
-            return ( ( originalZone >= this.MinZone ) & ( originalZone <= this.MaxZone ) & ( destinationZone >= this.MinZone ) & ( destinationZone <= this.MaxZone ) )
+            return ( ( originalZone >= MinZone ) & ( originalZone <= MaxZone ) & ( destinationZone >= MinZone ) & ( destinationZone <= MaxZone ) )
                 && ( ( originalZone == destinationZone && UseIntrazonalRegression ) || TravelTime( trip.OriginalZone, trip.DestinationZone, trip.TripStartTime ) > XTMF.Time.Zero );
         }
 
@@ -272,7 +263,7 @@ namespace Tasha.Modes
         /// </summary>
         public bool IsObservedMode(char observedMode)
         {
-            return ( observedMode == this.ObservedMode );
+            return ( observedMode == ObservedMode );
         }
 
         /// <summary>
@@ -288,7 +279,7 @@ namespace Tasha.Modes
         /// </summary>
         public void ReloadNetworkData()
         {
-            this.data.LoadData();
+            Data.LoadData();
         }
 
         /// <summary>
@@ -299,29 +290,29 @@ namespace Tasha.Modes
         /// <returns>If the validation was successful or if there was a problem</returns>
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.Root == null )
+            if ( Root == null )
             {
                 error = "The Root Model System for the taxi mode was never loaded!";
                 return false;
             }
-            if ( this.Root.NetworkData == null )
+            if ( Root.NetworkData == null )
             {
                 error = "There was no network data in this model system to load from!";
                 return false;
             }
             bool found = false;
-            foreach ( var data in this.Root.NetworkData )
+            foreach ( var data in Root.NetworkData )
             {
-                if ( data.NetworkType == this.AutoNetworkName )
+                if ( data.NetworkType == AutoNetworkName )
                 {
                     found = true;
-                    this.data = data;
+                    Data = data;
                     break;
                 }
             }
             if ( !found )
             {
-                error = String.Concat( "We could not find any data named ", this.AutoNetworkName, " to load as the auto network data for the Taxi mode!" );
+                error = String.Concat( "We could not find any data named ", AutoNetworkName, " to load as the auto network data for the Taxi mode!" );
                 return false;
             }
             return true;
@@ -336,7 +327,7 @@ namespace Tasha.Modes
         /// <returns>The amount of time it takes to go between the zones</returns>
         public Time TravelTime(IZone origin, IZone destination, Time time)
         {
-            return this.data.TravelTime( origin, destination, time );
+            return Data.TravelTime( origin, destination, time );
         }
 
         /// <summary>
@@ -351,9 +342,9 @@ namespace Tasha.Modes
         {
             float distance = Math.Abs( origin.X - destination.X ) + Math.Abs( origin.Y - destination.Y );
             //gets auto travel time
-            Time traveltime = this.data.TravelTime( origin, destination, time );
+            Time traveltime = Data.TravelTime( origin, destination, time );
             //fare formula
-            return ( InitialFare + ( distance / 1000.0f ) * PerKFare + traveltime.ToMinutes() * PerMinuteFare ) * this.TipWeight;
+            return ( InitialFare + ( distance / 1000.0f ) * PerKFare + traveltime.ToMinutes() * PerMinuteFare ) * TipWeight;
         }
     }
 }

@@ -16,9 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using XTMF;
+// ReSharper disable AccessToModifiedClosure
 
 namespace TMG.GTAModel
 {
@@ -29,6 +33,7 @@ a list of INetworkData, a list of IModeChoiceNode, an INetworkAssignment, a list
 IPopulation, and finally a list of ISelfContainedModule for running at the end of the model system. 
 Optionally it can also take in 2 other ISelfContainedModule, one for assigning work zones and another 
 for assigning school zones." )]
+    // ReSharper disable once InconsistentNaming
     public class GTAModelSystemTemplate : IDemographic4StepModelSystemTemplate, IResourceSource
     {
         [RunParameter( "Parallel Post Processing", true, "Process the post run modules in parallel." )]
@@ -36,8 +41,6 @@ for assigning school zones." )]
 
         [SubModelInformation( Required = false, Description = "Model systems that should be executed before each iteration" )]
         public List<ISelfContainedModule> PreIteration;
-
-        private int CurrentPurpose;
 
         private Func<string> GetCurrentStatus = ( () => "" );
 
@@ -101,7 +104,7 @@ for assigning school zones." )]
         {
             get
             {
-                var progressFunction = this.GetProgress;
+                var progressFunction = GetProgress;
                 if ( progressFunction != null )
                 {
                     return progressFunction();
@@ -114,7 +117,6 @@ for assigning school zones." )]
         {
             get
             {
-                DateTime now = DateTime.Now;
                 float ratio = 1;
                 return new Tuple<byte, byte, byte>( (byte)( 0 * ratio ), (byte)( 117 * ratio ), (byte)( 255 * ratio ) );
             }
@@ -133,18 +135,18 @@ for assigning school zones." )]
         [SubModelInformation( Description = "The module that loads the zone system", Required = true )]
         public IZoneSystem ZoneSystem { get; set; }
 
-        private bool ExitRequested = false;
+        private bool ExitRequested;
 
         public bool ExitRequest()
         {
-            this.ExitRequested = true;
-            this.Status = "Exiting after current operation has completed";
+            ExitRequested = true;
+            Status = "Exiting after current operation has completed";
             return true;
         }
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.Purpose == null || this.Purpose.Count == 0 )
+            if ( Purpose == null || Purpose.Count == 0 )
             {
                 //error = "There were no Purposes defined for this Model System.  Please recreate it with some purposes.";
                 //return false;
@@ -159,154 +161,143 @@ for assigning school zones." )]
 
         public void Start()
         {
-            this.CurrentIteration = 0;
-            this.Status = "Running Model System Setup";
-            this.GetCurrentStatus = ( () => this.NetworkAssignment.ToString() );
-            this.GetProgress = ( () => this.NetworkAssignment.Progress );
-            this.NetworkAssignment.RunModelSystemSetup();
-            if ( this.ExitRequested ) { return; }
+            CurrentIteration = 0;
+            Status = "Running Model System Setup";
+            GetCurrentStatus = ( () => NetworkAssignment.ToString() );
+            GetProgress = ( () => NetworkAssignment.Progress );
+            NetworkAssignment.RunModelSystemSetup();
+            if ( ExitRequested ) { return; }
             LoadZoneData();
-            if ( this.ExitRequested ) { return; }
-            this.Status = "Running Initial Network Assignment";
-            this.GetCurrentStatus = ( () => this.NetworkAssignment.ToString() );
-            this.GetProgress = ( () => this.NetworkAssignment.Progress );
-            this.NetworkAssignment.RunInitialAssignments();
-            this.GetCurrentStatus = ( () => "" );
-            if ( this.ExitRequested ) { return; }
+            if ( ExitRequested ) { return; }
+            Status = "Running Initial Network Assignment";
+            GetCurrentStatus = ( () => NetworkAssignment.ToString() );
+            GetProgress = ( () => NetworkAssignment.Progress );
+            NetworkAssignment.RunInitialAssignments();
+            GetCurrentStatus = ( () => "" );
+            if ( ExitRequested ) { return; }
             LoadNetworkData();
-            if ( this.ExitRequested ) { return; }
+            if ( ExitRequested ) { return; }
             InitializePopulation();
-            if ( this.ExitRequested ) { return; }
-            for ( int iteration = 0; iteration < this.TotalIterations; iteration++ )
+            if ( ExitRequested ) { return; }
+            for ( int iteration = 0; iteration < TotalIterations; iteration++ )
             {
-                if ( this.ExitRequested ) { return; }
+                if ( ExitRequested ) { return; }
                 foreach ( var module in PreIteration )
                 {
-                    this.Status = String.Concat( "Running Iteration ", ( iteration + 1 ), " of ", this.TotalIterations, " : ", module.ToString() );
-                    this.GetProgress = ( () => module.Progress );
+                    Status = String.Concat( "Running Iteration ", ( iteration + 1 ), " of ", TotalIterations, " : ", module.ToString() );
+                    GetProgress = ( () => module.Progress );
                     module.Start();
                 }
                 if ( iteration == 0 )
                 {
                     TellModesWeAreStartingNewIteration();
-                    this.ReProcessWorkSchoolZones();
+                    ReProcessWorkSchoolZones();
                 }
-                var purposeLength = this.Purpose.Count;
+                var purposeLength = Purpose.Count;
                 for ( int i = 0; i < purposeLength; i++ )
                 {
-                    this.Status = String.Concat( "Running Iteration ", ( iteration + 1 ), " of ", this.TotalIterations, " : ", this.Purpose[i].PurposeName );
-                    this.CurrentPurpose = i;
-                    this.GetProgress = ( () => this.Purpose[i].Progress );
-                    this.Purpose[i].Run();
-                    if ( this.ExitRequested ) { return; }
+                    Status = String.Concat( "Running Iteration ", ( iteration + 1 ), " of ", TotalIterations, " : ", Purpose[i].PurposeName );
+                    GetProgress = ( () => Purpose[i].Progress );
+                    Purpose[i].Run();
+                    if ( ExitRequested ) { return; }
                 }
-                this.GetCurrentStatus = ( () => this.NetworkAssignment.ToString() );
-                this.GetProgress = ( () => this.NetworkAssignment.Progress );
-                this.Status = String.Concat( "Running Network Assignment (", ( iteration + 1 ), " of ", this.TotalIterations, ")" );
+                GetCurrentStatus = ( () => NetworkAssignment.ToString() );
+                GetProgress = ( () => NetworkAssignment.Progress );
+                Status = String.Concat( "Running Network Assignment (", ( iteration + 1 ), " of ", TotalIterations, ")" );
                 UnloadNetworkData();
-                this.NetworkAssignment.RunNetworkAssignment();
-                this.GetCurrentStatus = ( () => "" );
+                NetworkAssignment.RunNetworkAssignment();
+                GetCurrentStatus = ( () => "" );
                 TellModesWeAreEndingIteration();
                 // if it isn't the last iteration reprocess the locations that people work and go to school
-                if ( iteration < this.TotalIterations - 1 )
+                if ( iteration < TotalIterations - 1 )
                 {
-                    this.CurrentIteration++;
-                    this.LoadNetworkData();
+                    CurrentIteration++;
+                    LoadNetworkData();
                     TellModesWeAreStartingNewIteration();
-                    this.ReProcessWorkSchoolZones();
+                    ReProcessWorkSchoolZones();
                 }
             }
-            this.CurrentIteration = this.TotalIterations;
-            if ( this.ExitRequested ) { return; }
-            this.GetCurrentStatus = ( () => this.NetworkAssignment.ToString() );
-            this.GetProgress = ( () => this.NetworkAssignment.Progress );
-            this.Status = "Running Final Network Assignment";
-            this.NetworkAssignment.RunPostAssignments();
-            this.GetCurrentStatus = ( () => "" );
-            if ( this.ExitRequested ) { return; }
-            this.Status = "Running Post Run Modules";
+            CurrentIteration = TotalIterations;
+            if ( ExitRequested ) { return; }
+            GetCurrentStatus = ( () => NetworkAssignment.ToString() );
+            GetProgress = ( () => NetworkAssignment.Progress );
+            Status = "Running Final Network Assignment";
+            NetworkAssignment.RunPostAssignments();
+            GetCurrentStatus = ( () => "" );
+            if ( ExitRequested ) { return; }
+            Status = "Running Post Run Modules";
             RunPostRunModules();
-            this.GetProgress = ( () => 1f );
-            this.Status = "Shutting Down";
-            this.Population = null;
-            this.Demographics.UnloadData();
-            this.ZoneSystem.UnloadData();
+            GetProgress = ( () => 1f );
+            Status = "Shutting Down";
+            Population = null;
+            Demographics.UnloadData();
+            ZoneSystem.UnloadData();
         }
 
         public override string ToString()
         {
-            return String.Concat( this.Status, ": ", this.GetCurrentStatus() );
-        }
-
-        private string GetFullPath(string localPath)
-        {
-            var fullPath = localPath;
-            if ( !System.IO.Path.IsPathRooted( fullPath ) )
-            {
-                fullPath = System.IO.Path.Combine( this.InputBaseDirectory, fullPath );
-            }
-            return fullPath;
+            return String.Concat( Status, ": ", GetCurrentStatus() );
         }
 
         private void InitializePopulation()
         {
-            this.Status = "Loading Population";
-            this.GetProgress = ( () => this.Population.Progress );
-            this.Population.Load();
+            Status = "Loading Population";
+            GetProgress = ( () => Population.Progress );
+            Population.Load();
         }
 
         private void LoadNetworkData()
         {
-            foreach ( var dataSource in this.NetworkData )
+            foreach ( var dataSource in NetworkData )
             {
-                this.Status = String.Concat( "Loading ", dataSource.NetworkType, " Network" );
+                Status = String.Concat( "Loading ", dataSource.NetworkType, " Network" );
                 dataSource.LoadData();
             }
         }
 
         private void LoadZoneData()
         {
-            this.Status = "Loading Zone System";
-            this.ZoneSystem.LoadData();
-            this.Status = "Loading Demographics";
-            this.Demographics.LoadData();
+            Status = "Loading Zone System";
+            ZoneSystem.LoadData();
+            Status = "Loading Demographics";
+            Demographics.LoadData();
         }
 
         private void ReProcessWorkSchoolZones()
         {
-            if ( this.AssignWorkZones != null )
+            if ( AssignWorkZones != null )
             {
-                this.Status = "Assigning Work Zones: Iteration " + ( this.CurrentIteration + 1 ) + " of " + this.TotalIterations;
-                this.GetProgress = ( () => this.AssignWorkZones.Progress );
-                this.AssignWorkZones.Start();
+                Status = "Assigning Work Zones: Iteration " + ( CurrentIteration + 1 ) + " of " + TotalIterations;
+                GetProgress = ( () => AssignWorkZones.Progress );
+                AssignWorkZones.Start();
             }
-            if ( this.AssignSchoolZones != null )
+            if ( AssignSchoolZones != null )
             {
-                this.Status = "Assigning School Zones: Iteration " + ( this.CurrentIteration + 1 ) + " of " + this.TotalIterations;
-                this.GetProgress = ( () => this.AssignSchoolZones.Progress );
-                this.AssignSchoolZones.Start();
+                Status = "Assigning School Zones: Iteration " + ( CurrentIteration + 1 ) + " of " + TotalIterations;
+                GetProgress = ( () => AssignSchoolZones.Progress );
+                AssignSchoolZones.Start();
             }
         }
 
         private void RunPostRunModules()
         {
-            if ( this.PostRun != null )
+            if ( PostRun != null )
             {
                 int complete = 0;
-                this.GetProgress = ( () => complete / (float)this.PostRun.Count );
+                GetProgress = ( () => complete / (float)PostRun.Count );
                 // launch all of the post processing in parallel
-                if ( this.ParallelPostProcessing )
+                if ( ParallelPostProcessing )
                 {
-                    System.Threading.Tasks.Parallel.ForEach( this.PostRun,
+                    Parallel.ForEach( PostRun,
                         delegate(ISelfContainedModule module)
                         {
                             module.Start();
-                            System.Threading.Interlocked.Increment( ref complete );
+                            Interlocked.Increment( ref complete );
                         } );
                 }
                 else
                 {
-                    foreach ( var module in this.PostRun )
+                    foreach ( var module in PostRun )
                     {
                         module.Start();
                         complete++;
@@ -317,14 +308,13 @@ for assigning school zones." )]
 
         private void TellModesWeAreEndingIteration()
         {
-            foreach ( var mode in this.Modes )
+            foreach ( var mode in Modes )
             {
                 var c = mode as IIterationSensitive;
                 if ( c != null )
                 {
-                    c.IterationEnding( this.CurrentIteration, this.TotalIterations );
+                    c.IterationEnding( CurrentIteration, TotalIterations );
                 }
-                c = null;
                 TellModesWeAreEndingIteration( mode as IModeCategory );
             }
         }
@@ -338,9 +328,8 @@ for assigning school zones." )]
                     var c = mode as IIterationSensitive;
                     if ( c != null )
                     {
-                        c.IterationEnding( this.CurrentIteration, this.TotalIterations );
+                        c.IterationEnding( CurrentIteration, TotalIterations );
                     }
-                    c = null;
                     TellModesWeAreEndingIteration( mode as IModeCategory );
                 }
             }
@@ -348,14 +337,13 @@ for assigning school zones." )]
 
         private void TellModesWeAreStartingNewIteration()
         {
-            foreach ( var mode in this.Modes )
+            foreach ( var mode in Modes )
             {
                 var c = mode as IIterationSensitive;
                 if ( c != null )
                 {
-                    c.IterationStarting( this.CurrentIteration, this.TotalIterations );
+                    c.IterationStarting( CurrentIteration, TotalIterations );
                 }
-                c = null;
                 TellModesWeAreStartingNewIteration( mode as IModeCategory );
             }
         }
@@ -369,11 +357,10 @@ for assigning school zones." )]
                     var c = mode as IIterationSensitive;
                     if ( c != null )
                     {
-                        this.Status = String.Concat( "Running Iteration ", ( this.CurrentIteration + 1 ), " of ", this.TotalIterations, " : Initializing ", mode.ModeName );
-                        this.GetProgress = () => mode.Progress;
-                        c.IterationStarting( this.CurrentIteration, this.TotalIterations );
+                        Status = String.Concat( "Running Iteration ", ( CurrentIteration + 1 ), " of ", TotalIterations, " : Initializing ", mode.ModeName );
+                        GetProgress = () => mode.Progress;
+                        c.IterationStarting( CurrentIteration, TotalIterations );
                     }
-                    c = null;
                     TellModesWeAreStartingNewIteration( mode as IModeCategory );
                 }
             }
@@ -381,7 +368,7 @@ for assigning school zones." )]
 
         private void UnloadNetworkData()
         {
-            foreach ( var dataSource in this.NetworkData )
+            foreach ( var dataSource in NetworkData )
             {
                 dataSource.UnloadData();
             }

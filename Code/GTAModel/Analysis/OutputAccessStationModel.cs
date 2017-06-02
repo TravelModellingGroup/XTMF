@@ -16,11 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using TMG.Input;
 using XTMF;
@@ -39,7 +37,7 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var data = this.AccessStationData.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
+            var data = AccessStationData.AcquireResource<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>();
             var flatData = data.GetFlatData();
             using ( var writer = new StreamWriter( OutputFile ) )
             {
@@ -83,21 +81,15 @@ namespace TMG.GTAModel.Analysis
 
         public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f; }
-        }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.AccessStationData.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
+            if ( !AccessStationData.CheckResourceType<SparseTwinIndex<Tuple<IZone[], IZone[], float[]>>>() )
             {
-                error = "In '" + this.Name + "' the access station data is not connecting to a resource of type SparseTwinIndex<Tuple<IZone[], float[]>>!";
+                error = "In '" + Name + "' the access station data is not connecting to a resource of type SparseTwinIndex<Tuple<IZone[], float[]>>!";
                 return false;
             }
             return true;

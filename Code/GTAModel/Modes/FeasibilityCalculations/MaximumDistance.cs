@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using XTMF;
@@ -48,7 +49,7 @@ namespace TMG.GTAModel.Modes.FeasibilityCalculations
 
         public bool ProduceResult(Pair<IZone, IZone> data)
         {
-            return this.Root.ZoneSystem.Distances[data.First.ZoneNumber, data.Second.ZoneNumber] <= this.MaxDist;
+            return Root.ZoneSystem.Distances[data.First.ZoneNumber, data.Second.ZoneNumber] <= MaxDist;
         }
 
         public bool RuntimeValidation(ref string error)

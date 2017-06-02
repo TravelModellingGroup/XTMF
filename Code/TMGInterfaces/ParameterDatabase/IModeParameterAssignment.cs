@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -32,13 +32,12 @@ namespace TMG.ParameterDatabase
         /// Build up our parameters to blend with
         /// </summary>
         /// <param name="parameters">The parameters to be loaded</param>
-        /// <param name="weight">The ammount we will be blending for them</param>
+        /// <param name="weight">The amount we will be blending for them</param>
         void AssignBlendedParameters(List<Parameter> parameters, float weight);
 
         /// <summary>
         /// Assign the given value to the parameter
         /// </summary>
-        /// <param name="value">The value to assign to the parameter</param>
         void AssignParameters(List<Parameter> parameters);
 
         /// <summary>

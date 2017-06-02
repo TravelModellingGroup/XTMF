@@ -16,22 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using XTMF;
+using XTMF.Gui.Controllers;
+
 namespace XTMF.Gui.UserControls
 {
     /// <summary>
@@ -40,14 +33,63 @@ namespace XTMF.Gui.UserControls
     public partial class SettingsPage : UserControl
     {
 
-        private IConfiguration Configuration;
+        private readonly IConfiguration _configuration;
 
         public SettingsPage(Configuration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
             DataContext = new SettingsModel(configuration);
             InitializeComponent();
             Loaded += SettingsPage_Loaded;
+
+            if (MainWindow.Us.IsNonDefaultConfig)
+            {
+                NonStandardConfigLabel.Visibility = Visibility.Visible;
+
+                ConfigLocationLabel.Content = MainWindow.Us.ConfigurationFilePath;
+                ConfigLocationLabel.Visibility = Visibility.Visible;
+                CreateLocalConfigButton.Visibility = Visibility.Collapsed;
+
+                if (MainWindow.Us.IsLocalConfig)
+                {
+                    DeleteConfigLabel.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                CreateLocalConfigButton.Visibility = Visibility.Visible;
+
+
+                DeleteConfigLabel.Visibility = Visibility.Collapsed;
+            }
+
+
+            foreach (var theme in MainWindow.Us.ThemeController.Themes)
+            {
+                ComboBoxItem comboBoxItem = new ComboBoxItem
+                {
+                    Content = theme.Name,
+                    Tag = theme
+                };
+
+                ThemeComboBox.Items.Add(comboBoxItem);
+            }
+            
+            if (((Configuration) _configuration).Theme != null)
+            {
+                foreach (ComboBoxItem item in ThemeComboBox.Items)
+                {
+                    if ((string)item.Content == ((Configuration) _configuration).Theme)
+                    {
+                        item.IsSelected = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                ThemeComboBox.SelectedIndex = 0;
+            } 
         }
 
         private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
@@ -64,21 +106,21 @@ namespace XTMF.Gui.UserControls
         {
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private string _ProjectDirectory;
+            private string _projectDirectory;
             public string ProjectDirectory
             {
                 get
                 {
-                    return _ProjectDirectory;
+                    return _projectDirectory;
                 }
                 set
                 {
-                    if (_ProjectDirectory != value)
+                    if (_projectDirectory != value)
                     {
                         string error = null;
                         if (Configuration.SetProjectDirectory(value, ref error))
                         {
-                            _ProjectDirectory = value;
+                            _projectDirectory = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ProjectDirectory");
                             Configuration.Save();
                         }
@@ -90,21 +132,21 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
-            private string _ModelSystemDirectory;
+            private string _modelSystemDirectory;
             public string ModelSystemDirectory
             {
                 get
                 {
-                    return _ModelSystemDirectory;
+                    return _modelSystemDirectory;
                 }
                 set
                 {
-                    if (_ModelSystemDirectory != value)
+                    if (_modelSystemDirectory != value)
                     {
                         string error = null;
                         if (Configuration.SetModelSystemDirectory(value, ref error))
                         {
-                            _ModelSystemDirectory = value;
+                            _modelSystemDirectory = value;
                             Configuration.ModelSystemDirectory = value;
                             ModelHelper.PropertyChanged(PropertyChanged, this, "ModelSystemDirectory");
                             Configuration.Save();
@@ -117,33 +159,33 @@ namespace XTMF.Gui.UserControls
                 }
             }
 
-            private int _HostPort;
+            private int _hostPort;
             public int HostPort
             {
                 get
                 {
-                    return _HostPort;
+                    return _hostPort;
                 }
                 set
                 {
-                    if (_HostPort != value)
+                    if (_hostPort != value)
                     {
-                        _HostPort = value;
-                        Configuration.HostPort = _HostPort;
+                        _hostPort = value;
+                        Configuration.HostPort = _hostPort;
                         ModelHelper.PropertyChanged(PropertyChanged, this, "HostPort");
                         Configuration.Save();
                     }
                 }
             }
 
-            private Configuration Configuration;
+            private readonly Configuration Configuration;
 
             public SettingsModel(Configuration config)
             {
                 Configuration = config;
-                _ProjectDirectory = config.ProjectDirectory;
-                _ModelSystemDirectory = config.ModelSystemDirectory;
-                _HostPort = config.HostPort;
+                _projectDirectory = config.ProjectDirectory;
+                _modelSystemDirectory = config.ModelSystemDirectory;
+                _hostPort = config.HostPort;
                 Configuration.PropertyChanged += Configuration_PropertyChanged;
             }
 
@@ -189,6 +231,22 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ModelSystemDirectory = dir;
+
+                _configuration.Save();
+                MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (MainWindow.Us.IsNonDefaultConfig)
+                    {
+
+                        MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
+                    }
+                    else
+                    {
+                        MainWindow.Us.ReloadWithDefaultConfiguration();
+                    }
+                }
             }
         }
 
@@ -198,6 +256,75 @@ namespace XTMF.Gui.UserControls
             if (dir != null)
             {
                 ((SettingsModel)DataContext).ProjectDirectory = dir;
+
+                _configuration.Save();
+
+                MessageBoxResult result = MessageBox.Show(MainWindow.Us, "Do you wish to reload the XMTF interface with updated settings?", "Updated settings", MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (MainWindow.Us.IsNonDefaultConfig)
+                    {
+
+                        MainWindow.Us.ReloadWithConfiguration(MainWindow.Us.ConfigurationFilePath);
+                    }
+                    else
+                    {
+                        MainWindow.Us.ReloadWithDefaultConfiguration();
+                    }
+                }
+            }
+        }
+
+        private void CreateLocalConfigButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+        
+        }
+
+        private void CreateLocalConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            /* Reload the entire UI overriding the the configuration file to be loaded */
+
+            var result = MessageBox.Show(MainWindow.Us,
+                "XTMF will reload after creating a local configuration. Do you wish to continue?", "Switch to new configuration", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+
+            if (result == MessageBoxResult.OK)
+            {
+                MainWindow.Us.IsLocalConfig = true;
+                MainWindow.Us.ReloadWithConfiguration(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.xml"));
+            }
+
+           
+        }
+
+        private void DeleteConfigLabel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+            var result = MessageBox.Show(MainWindow.Us,
+                "Are you sure you wish to delete the local configuration?", 
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Information);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                File.Delete(MainWindow.Us.ConfigurationFilePath);
+
+                MainWindow.Us.ReloadWithDefaultConfiguration();
+            }
+        }
+
+        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded)
+            {
+                var configuration = _configuration as Configuration;
+                if (configuration != null)
+                {
+                    configuration.Theme = ((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag).Name;
+                    MainWindow.Us.ApplyTheme(((ThemeController.Theme) ((ComboBoxItem) ThemeComboBox.SelectedItem).Tag));
+                    _configuration.Save();
+                }
             }
         }
     }

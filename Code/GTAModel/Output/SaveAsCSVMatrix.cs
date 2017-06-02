@@ -16,11 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
+using TMG.Functions;
 using TMG.Input;
 using XTMF;
 
@@ -45,22 +47,31 @@ namespace TMG.GTAModel.Output
 
         public bool RuntimeValidation(ref string error)
         {
+
+    
+            if (Root.ZoneSystem == null)
+            {
+                error = $"No Zone OD data specified or loaded in root demand model {Root}.";
+                return false;
+            }
             return true;
         }
 
         public void SaveMatrix(SparseTwinIndex<float> matrix, string fileName)
         {
-            TMG.Functions.SaveData.SaveMatrix( matrix, fileName );
+            SaveData.SaveMatrix( matrix, fileName );
         }
 
         public void SaveMatrix(float[][] data, string fileName)
         {
-            TMG.Functions.SaveData.SaveMatrix( this.Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
+            SaveData.SaveMatrix( Root.ZoneSystem.ZoneArray.GetFlatData(), data, fileName );
         }
 
         public void SaveMatrix(float[] data, string fileName)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+
+      
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             StringBuilder header = null;
             StringBuilder[] zoneLines = new StringBuilder[zones.Length];
             Parallel.Invoke(
@@ -87,7 +98,7 @@ namespace TMG.GTAModel.Output
                 },
                 () =>
                 {
-                    Parallel.For( 0, zones.Length, (int i) =>
+                    Parallel.For( 0, zones.Length, i =>
                     {
                         zoneLines[i] = new StringBuilder();
                         zoneLines[i].Append( zones[i].ZoneNumber );

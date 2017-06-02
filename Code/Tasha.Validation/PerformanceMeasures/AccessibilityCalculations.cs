@@ -17,10 +17,8 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using TMG.Input;
 using Datastructure;
@@ -28,8 +26,6 @@ using TMG;
 using TMG.DataUtility;
 using Tasha.Common;
 using XTMF;
-using Tasha.XTMFModeChoice;
-
 
 
 namespace Tasha.Validation.PerformanceMeasures
@@ -74,11 +70,11 @@ namespace Tasha.Validation.PerformanceMeasures
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = zoneSystem.GetFlatData();
-            var NIApop = NIAData.AcquireResource<SparseArray<float>>().GetFlatData();
+            var niApop = NIAData.AcquireResource<SparseArray<float>>().GetFlatData();
             var employmentByZone = EmploymentData.AcquireResource<SparseArray<float>>().GetFlatData();            
-            var AutoTimes = AutoTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var TransitIVTT = TransitIVTTMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
-            var TotalTransitTimes = TotalTransitTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();            
+            var autoTimes = AutoTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var transitIVTT = TransitIVTTMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();
+            var totalTransitTimes = TotalTransitTimeMatrix.AcquireResource<SparseTwinIndex<float>>().GetFlatData();            
 
             float[] zonePopulation = (from z in Root.ZoneSystem.ZoneArray.GetFlatData()                                           
                                            select (float)z.Population).ToArray();
@@ -91,13 +87,13 @@ namespace Tasha.Validation.PerformanceMeasures
                                    where EmpZoneRange.Contains(z.ZoneNumber)
                                    select employmentByZone[zoneSystem.GetFlatIndex(z.ZoneNumber)]).Sum();
 
-            float NIAsum = NIApop.Sum();
+            float niAsum = niApop.Sum();
             var normalDenominator = 1.0f / (analyzedpopulationSum * employmentSum);
-            var niaDenominator = 1.0f / (NIAsum * employmentSum);            
+            var niaDenominator = 1.0f / (niAsum * employmentSum);            
 
             using(StreamWriter writer = new StreamWriter(ResultsFile))
             {
-                CalculateAccessibility(zones, employmentByZone, AutoTimes, TransitIVTT, TotalTransitTimes, zonePopulation, false);
+                CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, zonePopulation, false);
                 writer.WriteLine("Analyzed Population Accessibility");                
                 WriteToFile(normalDenominator, writer);
                 writer.WriteLine();
@@ -106,7 +102,7 @@ namespace Tasha.Validation.PerformanceMeasures
                 TransitIVTTAccessibilityResults.Clear();
                 TransitAccessibilityResults.Clear();
                 
-                CalculateAccessibility(zones, employmentByZone, AutoTimes, TransitIVTT, TotalTransitTimes, NIApop, true);
+                CalculateAccessibility(zones, employmentByZone, autoTimes, transitIVTT, totalTransitTimes, niApop, true);
                 writer.WriteLine("NIA Zone Accessibility");
                 WriteToFile(niaDenominator, writer);
 
@@ -144,8 +140,8 @@ namespace Tasha.Validation.PerformanceMeasures
             }
         }
 
-        private void CalculateAccessibility(IZone[] zones, float[] employmentByZone, float[][] AutoTimes, float[][] TransitIVTT, 
-            float[][] TotalTransitTimes, float[] zonePopulation, bool NIAcalc)
+        private void CalculateAccessibility(IZone[] zones, float[] employmentByZone, float[][] autoTimes, float[][] transitIVTT, 
+            float[][] totalTransitTimes, float[] zonePopulation, bool niaCalc)
         {
             float accessiblePopulation;
 
@@ -156,23 +152,23 @@ namespace Tasha.Validation.PerformanceMeasures
                 AddToResults(0, accessTime, TransitAccessibilityResults);
                 for (int i = 0; i < zonePopulation.Length; i++)
                 {
-                    if (PopZoneRange.Contains(zones[i].ZoneNumber) || NIAcalc)
+                    if (PopZoneRange.Contains(zones[i].ZoneNumber) || niaCalc)
                     {
                         for (int j = 0; j < employmentByZone.Length; j++)
                         {
                             if (EmpZoneRange.Contains(zones[j].ZoneNumber))
                             {
-                                if (AutoTimes[i][j] < accessTime)
+                                if (autoTimes[i][j] < accessTime)
                                 {
                                     accessiblePopulation = (zonePopulation[i] * employmentByZone[j]);
                                     AddToResults(accessiblePopulation, accessTime, AutoAccessibilityResults);
                                 }
-                                if (TransitIVTT[i][j] < accessTime)
+                                if (transitIVTT[i][j] < accessTime)
                                 {
                                     accessiblePopulation = zonePopulation[i] * employmentByZone[j];
                                     AddToResults(accessiblePopulation, accessTime, TransitIVTTAccessibilityResults);
                                 }
-                                if (TotalTransitTimes[i][j] < accessTime)
+                                if (totalTransitTimes[i][j] < accessTime)
                                 {
                                     accessiblePopulation = zonePopulation[i] * employmentByZone[j];
                                     AddToResults(accessiblePopulation, accessTime, TransitAccessibilityResults);

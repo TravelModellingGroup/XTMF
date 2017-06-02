@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Datastructure;
 using TMG;
 using TMG.Functions;
@@ -33,7 +30,7 @@ namespace Tasha.Estimation
         public ITravelDemandModel Root;
 
 
-        public class KFactor : XTMF.IModule
+        public class KFactor : IModule
         {
             [RunParameter("Origin", 0, "The PD to start from.")]
             public int OriginPD;
@@ -100,7 +97,7 @@ namespace Tasha.Estimation
             bool firstTime = false;
             if ( ret == null )
             {
-                Data = ret = ZoneSystemHelper.CreatePDTwinArray<float>( Root.ZoneSystem.ZoneArray );
+                Data = ret = ZoneSystemHelper.CreatePdTwinArray<float>( Root.ZoneSystem.ZoneArray );
                 firstTime = true;
             }
             var data = ret.GetFlatData();

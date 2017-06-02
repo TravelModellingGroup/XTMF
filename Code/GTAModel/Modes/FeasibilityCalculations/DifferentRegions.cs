@@ -16,15 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XTMF;
-using TMG.Modes;
-using TMG;
 using Datastructure;
 using TMG.GTAModel.DataUtility;
+using XTMF;
 
 namespace TMG.GTAModel.Modes.FeasibilityCalculations
 {
@@ -49,7 +45,7 @@ also return true if the region is inside of the 'Excepted Regions'.  This is lik
                 return true;
             }
             // the only other way for it to work is if they are in the excepted list
-            return this.Exceptions.Contains( first );
+            return Exceptions.Contains( first );
         }
 
         public void Unload()

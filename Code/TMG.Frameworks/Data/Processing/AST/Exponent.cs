@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Functions;
 
 namespace TMG.Frameworks.Data.Processing.AST
@@ -37,7 +33,7 @@ namespace TMG.Frameworks.Data.Processing.AST
             // see if we have two values, in this case we can skip doing the matrix operation
             if (lhs.IsValue && rhs.IsValue)
             {
-                return new ComputationResult(lhs.LiteralValue - rhs.LiteralValue);
+                return new ComputationResult((float)Math.Pow(lhs.LiteralValue, rhs.LiteralValue));
             }
             // float / matrix
             if (lhs.IsValue)
@@ -51,8 +47,8 @@ namespace TMG.Frameworks.Data.Processing.AST
                 }
                 else
                 {
-                    var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.ODData.GetFlatData());
+                    var retMatrix = rhs.Accumulator ? rhs.OdData : rhs.OdData.CreateSimilarArray<float>();
+                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.LiteralValue, rhs.OdData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -68,8 +64,8 @@ namespace TMG.Frameworks.Data.Processing.AST
                 else
                 {
                     // matrix / float
-                    var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
-                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.LiteralValue);
+                    var retMatrix = lhs.Accumulator ? lhs.OdData : lhs.OdData.CreateSimilarArray<float>();
+                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.LiteralValue);
                     return new ComputationResult(retMatrix, true);
                 }
             }
@@ -85,61 +81,61 @@ namespace TMG.Frameworks.Data.Processing.AST
                     }
                     else if (lhs.IsVectorResult)
                     {
-                        var retMatrix = rhs.Accumulator ? rhs.ODData : rhs.ODData.CreateSimilarArray<float>();
+                        var retMatrix = rhs.Accumulator ? rhs.OdData : rhs.OdData.CreateSimilarArray<float>();
                         var flatRet = retMatrix.GetFlatData();
-                        var flatRHS = rhs.ODData.GetFlatData();
-                        var flatLHS = lhs.VectorData.GetFlatData();
+                        var flatRhs = rhs.OdData.GetFlatData();
+                        var flatLhs = lhs.VectorData.GetFlatData();
                         if (lhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Pow(flatRet[i], flatLhs[i], flatRhs[i]);
                             });
                         }
                         else if (lhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Pow(flatRet[i], flatLHS, flatRHS[i]);
+                                VectorHelper.Pow(flatRet[i], flatLhs, flatRhs[i]);
                             });
                         }
                         else
                         {
-                            return new ComputationResult("Unable to subtract vector without directionality starting at position " + LHS.Start + "!");
+                            return new ComputationResult("Unable to subtract vector without directionality starting at position " + Lhs.Start + "!");
                         }
                         return new ComputationResult(retMatrix, true);
                     }
                     else
                     {
-                        var retMatrix = lhs.Accumulator ? lhs.ODData : lhs.ODData.CreateSimilarArray<float>();
+                        var retMatrix = lhs.Accumulator ? lhs.OdData : lhs.OdData.CreateSimilarArray<float>();
                         var flatRet = retMatrix.GetFlatData();
-                        var flatLHS = lhs.ODData.GetFlatData();
-                        var flatRHS = rhs.VectorData.GetFlatData();
+                        var flatLhs = lhs.OdData.GetFlatData();
+                        var flatRhs = rhs.VectorData.GetFlatData();
                         if (rhs.Direction == ComputationResult.VectorDirection.Vertical)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS[i]);
+                                VectorHelper.Pow(flatRet[i], flatLhs[i], flatRhs[i]);
                             });
                         }
                         else if (rhs.Direction == ComputationResult.VectorDirection.Horizontal)
                         {
-                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, (int i) =>
+                            System.Threading.Tasks.Parallel.For(0, flatRet.Length, i =>
                             {
-                                VectorHelper.Pow(flatRet[i], flatLHS[i], flatRHS);
+                                VectorHelper.Pow(flatRet[i], flatLhs[i], flatRhs);
                             });
                         }
                         else
                         {
-                            return new ComputationResult("Unable to subtract vector without directionality starting at position " + LHS.Start + "!");
+                            return new ComputationResult("Unable to subtract vector without directionality starting at position " + Lhs.Start + "!");
                         }
                         return new ComputationResult(retMatrix, true);
                     }
                 }
                 else
                 {
-                    var retMatrix = lhs.Accumulator ? lhs.ODData : (rhs.Accumulator ? rhs.ODData : lhs.ODData.CreateSimilarArray<float>());
-                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.ODData.GetFlatData(), rhs.ODData.GetFlatData());
+                    var retMatrix = lhs.Accumulator ? lhs.OdData : (rhs.Accumulator ? rhs.OdData : lhs.OdData.CreateSimilarArray<float>());
+                    VectorHelper.Pow(retMatrix.GetFlatData(), lhs.OdData.GetFlatData(), rhs.OdData.GetFlatData());
                     return new ComputationResult(retMatrix, true);
                 }
             }

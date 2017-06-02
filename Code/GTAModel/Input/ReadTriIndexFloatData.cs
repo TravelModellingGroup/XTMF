@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -83,12 +84,12 @@ to be the same as in the parameter." )]
 
         public bool Loaded
         {
-            get { return this.Data != null; }
+            get { return Data != null; }
         }
 
         public void LoadData()
         {
-            if ( this.Data == null )
+            if ( Data == null )
             {
                 LoadTriIndexedData();
             }
@@ -96,9 +97,9 @@ to be the same as in the parameter." )]
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( this.DataColumnToSparseSpace.Count < 1 )
+            if ( DataColumnToSparseSpace.Count < 1 )
             {
-                error = "In " + this.Name + " the number of columns must be greater than zero!";
+                error = "In " + Name + " the number of columns must be greater than zero!";
                 return false;
             }
             return true;
@@ -106,7 +107,7 @@ to be the same as in the parameter." )]
 
         public void UnloadData()
         {
-            this.Data = null;
+            Data = null;
         }
 
         /// <summary>
@@ -120,11 +121,11 @@ to be the same as in the parameter." )]
         {
             try
             {
-                using ( CsvReader reader = new CsvReader( this.GetFileLocation( this.FileName ) ) )
+                using ( CsvReader reader = new CsvReader( GetFileLocation( FileName ) ) )
                 {
                     var numberOfDataColumns = DataColumnToSparseSpace.Count;
                     BurnHeader( reader );
-                    var dataSpace = this.DataColumnToSparseSpace.ToArray();
+                    var dataSpace = DataColumnToSparseSpace.ToArray();
                     while ( !reader.EndOfFile )
                     {
                         // skip blank lines
@@ -132,12 +133,12 @@ to be the same as in the parameter." )]
                         int f, s, t;
                         float d;
 
-                        reader.Get( out f, this.FirstDimensionColumn );
-                        reader.Get( out s, this.SecondDimensionColumn );
+                        reader.Get( out f, FirstDimensionColumn );
+                        reader.Get( out s, SecondDimensionColumn );
                         for ( int dataCol = 0; dataCol < numberOfDataColumns; dataCol++ )
                         {
                             t = dataSpace[dataCol];
-                            reader.Get( out d, dataCol + this.FirstDataColumn );
+                            reader.Get( out d, dataCol + FirstDataColumn );
                             first.Add( f );
                             second.Add( s );
                             third.Add( t );
@@ -154,7 +155,7 @@ to be the same as in the parameter." )]
 
         private void BurnHeader(CsvReader reader)
         {
-            for ( int i = 0; i < this.NumberOfHeaderLines; i++ )
+            for ( int i = 0; i < NumberOfHeaderLines; i++ )
             {
                 reader.LoadLine();
             }
@@ -165,7 +166,7 @@ to be the same as in the parameter." )]
             var fullPath = fileName;
             if ( !Path.IsPathRooted( fullPath ) )
             {
-                fullPath = Path.Combine( this.Root.InputBaseDirectory, fullPath );
+                fullPath = Path.Combine( Root.InputBaseDirectory, fullPath );
             }
             return fullPath;
         }
@@ -178,7 +179,7 @@ to be the same as in the parameter." )]
             List<int> third = new List<int>();
             List<float> data = new List<float>();
             StoreData( first, second, third, data );
-            this.Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
+            Data = SparseTriIndex<float>.CreateSparseTriIndex( first.ToArray(), second.ToArray(), third.ToArray(), data.ToArray() );
         }
     }
 }

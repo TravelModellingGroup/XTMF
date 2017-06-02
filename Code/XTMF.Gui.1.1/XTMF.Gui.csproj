@@ -19,6 +19,21 @@
     <SccProvider>SAK</SccProvider>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,9 +64,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
@@ -76,12 +91,16 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
-    <OutputPath>bin\Development Debug\</OutputPath>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -137,12 +156,31 @@
     <Compile Include="Controllers\EditorController.cs" />
     <Compile Include="Controllers\ModelSystemEditingController.cs" />
     <Compile Include="Controllers\SingleAccess.cs" />
+    <Compile Include="Controllers\ThemeController.cs" />
     <Compile Include="Models\ActiveEditingSessionDisplayModel.cs" />
     <Compile Include="Models\CommandDisplayModel.cs" />
     <Compile Include="Models\LinkedParameterDisplayModel.cs" />
     <Compile Include="Models\ModelSystemEditingSessionDisplayModel.cs" />
+    <Compile Include="Models\ModelSystemInfoTemplateSelector.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
+    <Compile Include="Models\ValidationErrorDisplayModel.cs" />
+    <Compile Include="Resources\ForestTheme.cs" />
+    <Compile Include="Resources\WarmTheme.cs" />
+    <Compile Include="UserControls\FlatButton.xaml.cs">
+      <DependentUpon>FlatButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\FlatToolButton.xaml.cs">
+      <DependentUpon>FlatToolButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ValidationErrorListControl.xaml.cs">
+      <DependentUpon>ValidationErrorListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ModelSystemListView.cs" />
+    <Compile Include="UserControls\ModuleTreeViewItem.xaml.cs">
+      <DependentUpon>ModuleTreeViewItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="UserControls\AboutXTMF.xaml.cs">
       <DependentUpon>AboutXTMF.xaml</DependentUpon>
     </Compile>
@@ -181,6 +219,9 @@
     <Compile Include="UserControls\LinkedParameterDisplay.xaml.cs">
       <DependentUpon>LinkedParameterDisplay.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\ListViewControl.xaml.cs">
+      <DependentUpon>ListViewControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ModelSystemDisplay.xaml.cs">
       <DependentUpon>ModelSystemDisplay.xaml</DependentUpon>
     </Compile>
@@ -195,6 +236,12 @@
     </Compile>
     <Compile Include="UserControls\OperationProgressing.xaml.cs">
       <DependentUpon>OperationProgressing.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\PathIcon.xaml.cs">
+      <DependentUpon>PathIcon.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\PathIconButton.xaml.cs">
+      <DependentUpon>PathIconButton.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ProjectDisplay.xaml.cs">
       <DependentUpon>ProjectDisplay.xaml</DependentUpon>
@@ -220,6 +267,9 @@
     <Compile Include="UserControls\StringRequest.xaml.cs">
       <DependentUpon>StringRequest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\StringRequestOverlay.xaml.cs">
+      <DependentUpon>StringRequestOverlay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\TextboxAdorner.xaml.cs">
       <DependentUpon>TextboxAdorner.xaml</DependentUpon>
     </Compile>
@@ -243,6 +293,38 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Resources\ComboBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Resource Include="Resources\WarmTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Resource>
+    <Page Include="Resources\ForestTheme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\FlatButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\FlatToolButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ValidationErrorListControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserControls\ModuleTreeViewItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\LightTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\AboutXTMF.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -263,6 +345,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Resources\ControlStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Resource Include="Resources\DarkTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
     <Page Include="UserControls\DocumentationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -291,6 +381,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\ListViewControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\MenuStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\ModelSystemDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -308,6 +406,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserControls\OperationProgressing.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\PathIcon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\PathIconButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -343,6 +449,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UserControls\StringRequestOverlay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\TextboxAdorner.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -375,30 +485,14 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\CopyFolderHSx64.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\CopyHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\CutHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\delete.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\FolderOpen_16x16_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\PasteHS.png" />
+    <None Include="XTMF.Gui.1.1.licenseheader" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\XTMF_icon.ico" />
@@ -411,18 +505,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\075b_UpFolder_24x24_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\112_ArrowReturnLeft_Blue_24x24_72.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\base_cog_32.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Download.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\FloppyDisk.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\FolderOpen_24x24_72.png" />
@@ -440,9 +522,6 @@
     <Resource Include="Resources\Links.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Lock.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\OpenFile.png" />
   </ItemGroup>
   <ItemGroup>
@@ -453,9 +532,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\saveHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Settings.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\XTMF_corner_splash.png" />
@@ -480,8 +556,49 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\BigLinks.png" />
-    <Resource Include="Resources\Edit.png" />
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_folder_open_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_cloud_download_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_create_new_folder_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_refresh_white_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_developer_board_24px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_cancel_white_18pt_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_arrow_forward_white_36dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_content_copy_white_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_note_add_white_18pt_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_content_paste_white_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ic_create_white_48dp.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

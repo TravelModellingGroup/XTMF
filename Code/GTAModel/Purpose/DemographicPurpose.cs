@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,46 +49,41 @@ This module requires the root module of the model system to be an 'I4StepModel'.
 
         public override float Progress
         {
-            get { return this.Generation ? 0f : this.ModeSplit.Progress; }
+            get { return Generation ? 0f : ModeSplit.Progress; }
         }
 
         public override void Run()
         {
-            var numberOfCategories = this.Categories.Count;
-            SparseArray<float>[] O = new SparseArray<float>[numberOfCategories];
-            SparseArray<float>[] D = new SparseArray<float>[numberOfCategories];
+            var numberOfCategories = Categories.Count;
+            SparseArray<float>[] o = new SparseArray<float>[numberOfCategories];
+            SparseArray<float>[] d = new SparseArray<float>[numberOfCategories];
 
             Generation = true;
             for ( int i = 0; i < numberOfCategories; i++ )
             {
-                O[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                D[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                this.Categories[i].Generate( O[i], D[i] );
+                o[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                d[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                Categories[i].Generate( o[i], d[i] );
             }
             Generation = false;
 
-            var modeSplit = this.ModeSplit.ModeSplit( this.Distribution.Distribute( O, D, this.Categories ), this.Categories.Count );
-            if ( this.Transpose )
+            var modeSplit = ModeSplit.ModeSplit( Distribution.Distribute( o, d, Categories ), Categories.Count );
+            if ( Transpose )
             {
                 TransposeMatrix( modeSplit );
             }
-            if ( this.SaveOutput )
+            if ( SaveOutput )
             {
-                if ( !Directory.Exists( this.PurposeName ) )
+                if ( !Directory.Exists( PurposeName ) )
                 {
-                    Directory.CreateDirectory( this.PurposeName );
+                    Directory.CreateDirectory( PurposeName );
                 }
                 for ( int i = 0; i < modeSplit.Count; i++ )
                 {
-                    this.WriteModeSplit( modeSplit[i], this.Root.Modes[i], this.PurposeName );
+                    WriteModeSplit( modeSplit[i], Root.Modes[i], PurposeName );
                 }
             }
-            this.Flows = modeSplit;
-        }
-
-        public override bool RuntimeValidation(ref string error)
-        {
-            return base.RuntimeValidation( ref error );
+            Flows = modeSplit;
         }
 
         private static void TransposeMatrix(TreeData<float[][]> treeData)
@@ -138,7 +134,7 @@ This module requires the root module of the model system to be an 'I4StepModel'.
             {
                 GatherModes( flatModes, modeSplit[i] );
             }
-            Parallel.For( 0, flatModes.Count, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
+            Parallel.For( 0, flatModes.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
                 delegate(int i)
                 {
                     TransposeMatrix( flatModes[i] );

@@ -16,10 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 
 namespace TMG.NetworkEstimation
@@ -31,14 +29,14 @@ namespace TMG.NetworkEstimation
         [SubModelInformation( Required = true, Description = "The thing to only run once." )]
         public ISelfContainedModule ToRun;
 
-        private bool Ran = false;
+        private bool Ran;
 
         public void Start()
         {
-            if ( !this.Ran )
+            if ( !Ran )
             {
-                this.ToRun.Start();
-                this.Ran = true;
+                ToRun.Start();
+                Ran = true;
             }
         }
 
@@ -48,18 +46,16 @@ namespace TMG.NetworkEstimation
             set;
         }
 
-        public float Progress
-        {
-            get { return this.ToRun.Progress; }
-        }
+        public float Progress => ToRun.Progress;
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return this.ToRun.ProgressColour; }
+            get { return ToRun.ProgressColour; }
         }
 
         public bool RuntimeValidation(ref string error)
         {
+            Ran = false;
             return true;
         }
     }

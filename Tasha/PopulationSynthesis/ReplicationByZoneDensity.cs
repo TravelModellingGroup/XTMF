@@ -76,7 +76,7 @@ namespace Tasha.PopulationSynthesis
         }
 
 
-        public sealed class PopulationPool : XTMF.IModule
+        public sealed class PopulationPool : IModule
         {
 
             [RunParameter("Regions", "1-6", typeof(RangeSet), "The regions that are included in this pool.")]
@@ -146,7 +146,7 @@ namespace Tasha.PopulationSynthesis
                 var hhldGlobalIndex = PoolToGlobalIndex[densityCat];
                 if(households.Count <= 0)
                 {
-                    throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in Pool'" + Name + "' for category " + DensityBins[densityCat].ToString() + "!"
+                    throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone + "' in Pool'" + Name + "' for category " + DensityBins[densityCat] + "!"
                     + "\r\nThere were " + households.Count + " household records in that pool.");
                 }
                 int selectedIndex = 0;
@@ -199,7 +199,7 @@ namespace Tasha.PopulationSynthesis
                     remaining = 0;
                     return new KeyValuePair<int, int>(zone, hhldGlobalIndex[selectedIndex]);
                 }
-                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone.ToString() + "' in Pool'" + Name + "' for category " + DensityBins[densityCat].ToString() + "!"
+                throw new XTMFRuntimeException("We managed to be unable to assign any households to flat zone '" + zone + "' in Pool'" + Name + "' for category " + DensityBins[densityCat] + "!"
                     + "\r\nThere were " + households.Count + " household records in that pool.");
             }
 
@@ -277,7 +277,7 @@ namespace Tasha.PopulationSynthesis
             var random = new Random(RandomSeed);
             var randomSeed = PopulationPools.Select(_ => random.Next()).ToArray();
             List<KeyValuePair<int, int>>[] results = new List<KeyValuePair<int, int>>[PopulationPools.Length];
-            Parallel.For(0, PopulationPools.Length, (int i) =>
+            Parallel.For(0, PopulationPools.Length, i =>
             {
                 // make sure we don't generate persons for the external zones
                 results[i] = PopulationPools[i].Process(randomSeed[i], zones, HouseholdExpansionFactor);
@@ -289,8 +289,8 @@ namespace Tasha.PopulationSynthesis
         {
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData().Select(z => z.ZoneNumber).ToArray();
             int totalPerson = 0;
-            var householdID = SaveHouseholds(results, zones);
-            householdID = SavePersons(results, ref totalPerson);
+            SaveHouseholds(results, zones);
+            var householdID = SavePersons(results, ref totalPerson);
             SaveSummeryFile(totalPerson, householdID);
         }
 
@@ -634,7 +634,7 @@ namespace Tasha.PopulationSynthesis
             return employmentZone != null && ExternalZones.Contains(employmentZone.ZoneNumber);
         }
 
-        private int SaveHouseholds(List<KeyValuePair<int, int>>[] results, int[] zones)
+        private void SaveHouseholds(List<KeyValuePair<int, int>>[] results, int[] zones)
         {
             int householdID = 1;
             using (var writer = new StreamWriter(HouseholdFile))
@@ -661,8 +661,6 @@ namespace Tasha.PopulationSynthesis
                     }
                 }
             }
-
-            return householdID;
         }
 
         public void IterationStarting(int iteration)
@@ -671,7 +669,7 @@ namespace Tasha.PopulationSynthesis
             ZoneSystem = Root.ZoneSystem.ZoneArray;
             var zones = ZoneSystem.GetFlatData();
             BaseYearPopulation.LoadData();
-            var baseDensity = BaseYearPopulation.GiveData().GetFlatData().Clone() as float[];
+            var baseDensity = (float[])BaseYearPopulation.GiveData().GetFlatData().Clone();
             BaseYearPopulation.UnloadData();
             var area = zones.Select(z =>
             {

@@ -45,19 +45,19 @@ namespace TMG.Emme
         public Network(string fileName211)
             : this()
         {
-            this.LoadNetwork( fileName211 );
+            LoadNetwork(fileName211);
         }
 
         public void Dispose()
         {
-            this.Dispose( true );
-            GC.SuppressFinalize( this );
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool all)
         {
-            this.Links = null;
-            this.Nodes = null;
+            Links = null;
+            Nodes = null;
         }
 
         public bool GetData(out SparseArray<Node> nodes, out SparseTwinIndex<Link> links)
@@ -69,12 +69,12 @@ namespace TMG.Emme
 
         public SparseTwinIndex<Link> GetLinks()
         {
-            return this.Links;
+            return Links;
         }
 
         public SparseArray<Node> GetNodes()
         {
-            return this.Nodes;
+            return Nodes;
         }
 
         /// <summary>
@@ -85,94 +85,86 @@ namespace TMG.Emme
         {
             Dictionary<int, Node> nodes = new Dictionary<int, Node>();
             Dictionary<Pair<int, int>, Link> links = new Dictionary<Pair<int, int>, Link>();
-            using ( StreamReader reader = new StreamReader( fileName211 ) )
+            using (StreamReader reader = new StreamReader(fileName211))
             {
-                string line = null;
+                string line;
 
                 // run until we get to the link information
-                while ( ( line = reader.ReadLine() ) != null )
+                while ((line = reader.ReadLine()) != null)
                 {
-                    string[] parts = line.Split( SplitCharacters, StringSplitOptions.RemoveEmptyEntries );
-                    try
+                    string[] parts = line.Split(SplitCharacters, StringSplitOptions.RemoveEmptyEntries);
+                    var numberOfParts = parts.Length;
+                    if (numberOfParts >= 3 && parts[0].Length > 0)
                     {
-                        var numberOfParts = parts.Length;
-                        if ( numberOfParts >= 3 && parts[0].Length > 0 )
+                        int offset = -1;
+                        if (parts[0][0] == 'a')
                         {
-                            int offset = -1;
-                            if ( parts[0][0] == 'a' )
+                            offset = 0;
+                        }
+                        else if (parts[0][0] == 'c')
+                        {
+                            continue;
+                        }
+                        Node node = new Node();
+                        if (offset == -1)
+                        {
+                            node.IsCentroid = false;
+                        }
+                        else
+                        {
+                            node.IsCentroid = (parts[0].Length >= 2 && parts[0] == "a*");
+                        }
+                        node.Number = int.Parse(parts[1 + offset]);
+                        node.X = float.Parse(parts[2 + offset]);
+                        node.Y = float.Parse(parts[3 + offset]);
+                        if (numberOfParts > 4 + offset)
+                        {
+                            node.User1 = int.Parse(parts[4 + offset]);
+                            if (numberOfParts > 5 + offset)
                             {
-                                offset = 0;
-                            }
-                            else if ( parts[0][0] == 'c' )
-                            {
-                                continue;
-                            }
-                            Node node = new Node();
-                            if ( offset == -1 )
-                            {
-                                node.IsCentroid = false;
-                            }
-                            else
-                            {
-                                node.IsCentroid = ( parts[0].Length >= 2 && parts[0] == "a*" );
-                            }
-                            node.Number = int.Parse( parts[1 + offset] );
-                            node.X = float.Parse( parts[2 + offset] );
-                            node.Y = float.Parse( parts[3 + offset] );
-                            if ( numberOfParts > 4 + offset )
-                            {
-                                node.USER1 = int.Parse( parts[4 + offset] );
-                                if ( numberOfParts > 5 + offset )
+                                node.User2 = int.Parse(parts[5 + offset]);
+                                if (numberOfParts > 6 + offset)
                                 {
-                                    node.USER2 = int.Parse( parts[5 + offset] );
-                                    if ( numberOfParts > 6 + offset )
+                                    node.NodeType = int.Parse(parts[6 + offset]);
+                                    node.Modified = false;
+                                    if (parts.Length > 7 + offset)
                                     {
-                                        node.NodeType = int.Parse( parts[6 + offset] );
-                                        node.Modified = false;
-                                        if ( parts.Length > 7 + offset )
-                                        {
-                                            node.NodeLabel = parts[7 + offset];
-                                        }
-                                        else
-                                        {
-                                            node.NodeLabel = node.Number.ToString();
-                                        }
+                                        node.NodeLabel = parts[7 + offset];
+                                    }
+                                    else
+                                    {
+                                        node.NodeLabel = node.Number.ToString();
                                     }
                                 }
                             }
-                            nodes.Add( node.Number, node );
                         }
+                        nodes.Add(node.Number, node);
                     }
-                    catch { }
-                    if ( line != null && line.StartsWith( "t links" ) )
+                    if (line.StartsWith("t links"))
                     {
                         break;
                     }
                 }
 
-                while ( ( line = reader.ReadLine() ) != null )
+                while ((line = reader.ReadLine()) != null)
                 {
-                    try
+                    string[] parts = line.Split(SplitCharacters, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 7)
                     {
-                        string[] parts = line.Split( SplitCharacters, StringSplitOptions.RemoveEmptyEntries );
-                        if ( parts.Length > 7 )
+                        var link = new Link(int.Parse(parts[1]), int.Parse(parts[2]))
                         {
-                            Link link;
-                            link.I = int.Parse( parts[1] );
-                            link.J = int.Parse( parts[2] );
-                            link.Length = float.Parse( parts[3] );
-                            link.Modes = parts[4].ToLower().ToCharArray();
-                            link.LinkType = int.Parse( parts[5] );
-                            link.Lanes = float.Parse( parts[6] );
-                            link.VDF = float.Parse( parts[7] );
-                            // We don't load [8]
-                            link.Speed = float.Parse( parts[9] );
-                            link.Capacity = float.Parse( parts[10] );
-                            link.Modified = false;
-                            links.Add( new Pair<int, int>( link.I, link.J ), link );
-                        }
+                            Length = float.Parse(parts[3]),
+                            Modes = parts[4].ToLower().ToCharArray(),
+                            LinkType = int.Parse(parts[5]),
+                            Lanes = float.Parse(parts[6]),
+                            Vdf = float.Parse(parts[7]),
+                            Speed = float.Parse(parts[9]),
+                            Capacity = float.Parse(parts[10]),
+                            Modified = false
+                        };
+                        // We don't load [8]
+                        links.Add(new Pair<int, int>(link.I, link.J), link);
                     }
-                    catch { }
                 }
             }
 
@@ -182,89 +174,90 @@ namespace TMG.Emme
             var second = new int[numberOfLinks];
             var data = new Link[numberOfLinks];
             int i = 0;
-            foreach ( var l in links.Values )
+            foreach (var l in links.Values)
             {
                 first[i] = l.I;
                 second[i] = l.J;
                 data[i] = l;
                 i++;
             }
-            if ( nodes.Values.Count == 0 )
+            if (nodes.Values.Count == 0)
             {
-                this.Nodes = null;
+                Nodes = null;
             }
             else
             {
-                this.Nodes = SparseArray<Node>.CreateSparseArray( ( n => n.Number ), nodes.Values.ToArray() );
+                Nodes = SparseArray<Node>.CreateSparseArray((n => n.Number), nodes.Values.ToArray());
             }
-            if ( numberOfLinks == 0 )
+            if (numberOfLinks == 0)
             {
-                this.Links = null;
+                Links = null;
             }
             else
             {
-                this.Links = SparseTwinIndex<Link>.CreateTwinIndex( first, second, data );
+                Links = SparseTwinIndex<Link>.CreateTwinIndex(first, second, data);
             }
         }
 
         public void SaveModFile(string fileName)
         {
-            using ( StreamWriter writer = new StreamWriter( fileName ) )
+            using (StreamWriter writer = new StreamWriter(fileName))
             {
-                writer.WriteLine( "t nodes" );
-                foreach ( var nodeI in this.Nodes.ValidIndexies() )
+                writer.WriteLine("t nodes");
+                foreach (var nodeI in Nodes.ValidIndexies())
                 {
-                    var node = this.Nodes[nodeI];
-                    if ( node.Modified )
+                    var node = Nodes[nodeI];
+                    if (node.Modified)
                     {
-                        this.WriteNode( writer, node );
+                        WriteNode(writer, node);
                     }
                 }
-                writer.WriteLine( "t links" );
-                foreach ( var linkI in this.Links.ValidIndexes() )
+                writer.WriteLine("t links");
+                foreach (var linkI in Links.ValidIndexes())
                 {
-                    foreach ( var linkJ in this.Links.ValidIndexes( linkI ) )
+                    foreach (var linkJ in Links.ValidIndexes(linkI))
                     {
-                        var link = this.Links[linkI, linkJ];
-                        if ( link.Modified )
+                        var link = Links[linkI, linkJ];
+                        if (link.Modified)
                         {
-                            this.WriteLink( writer, link );
+                            WriteLink(writer, link);
                         }
                     }
                 }
             }
         }
 
-        public void UpdateLinks(Func<Link, bool> Condition, Func<Link, Link> UpdateFunction)
+        public void UpdateLinks(Func<Link, bool> condition, Func<Link, Link> updateFunction)
         {
-            var validFirstIndex = this.Links.ValidIndexes().ToArray();
+            var validFirstIndex = Links.ValidIndexes().ToArray();
             var length = validFirstIndex.Length;
-            Parallel.For( 0, length,
-                delegate(int i)
+            Parallel.For(0, length,
+                delegate (int i)
                 //for(int i = 0; i < length; i++)
                 {
                     var vi = validFirstIndex[i];
-                    var validSecondIndex = this.Links.ValidIndexes( vi ).ToArray();
+                    var validSecondIndex = Links.ValidIndexes(vi).ToArray();
                     var lengthJ = validSecondIndex.Length;
-                    for ( int j = 0; j < lengthJ; j++ )
+                    for (int j = 0; j < lengthJ; j++)
                     {
                         var vj = validSecondIndex[j];
-                        if ( Condition( this.Links[vi, vj] ) )
+                        if (condition(Links[vi, vj]))
                         {
-                            var updatedLink = UpdateFunction( this.Links[vi, vj] );
+                            var updatedLink = updateFunction(Links[vi, vj]);
                             updatedLink.Modified = true;
-                            this.Links[vi, vj] = updatedLink;
+                            Links[vi, vj] = updatedLink;
                         }
                     }
-                } );
+                });
         }
 
         private void WriteLink(StreamWriter writer, Link link)
         {
-            writer.WriteLine( "m {0} {1} {2} {3} {4} {5} {6} 0 {7} {8}",
-                link.I, link.J, link.Length, new string( link.Modes ), link.LinkType, link.Lanes, link.VDF, link.Speed, link.Capacity );
+            writer.WriteLine("m {0} {1} {2} {3} {4} {5} {6} 0 {7} {8}",
+                link.I, link.J, link.Length, new string(link.Modes), link.LinkType, link.Lanes, link.Vdf, link.Speed, link.Capacity);
         }
 
+        // ReSharper disable UnusedParameter.Local
         private void WriteNode(StreamWriter writer, Node node)
         {
         }

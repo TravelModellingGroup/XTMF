@@ -16,8 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System;
-using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace XTMF.Testing
 {
@@ -26,20 +25,14 @@ namespace XTMF.Testing
     {
         protected IConfiguration Configuration;
 
+        // ReSharper disable once NotAccessedField.Global
         protected XTMFRuntime XTMF;
 
         [TestInitialize]
-        public void InitializeXTMF()
+        public void InitializeXTMF(string configurationFileName = "")
         {
-            var configurationFileName = "";
-            var config = new Configuration(configurationFileName);
-            var xtmf = new XTMFRuntime( config );
+            Configuration = new Configuration(configurationFileName);
+            XTMF = new XTMFRuntime((Configuration)Configuration);
         }
-
-        public string GetXTMFTestConfiguration()
-        {
-            return null;
-        }
-
     }
 }

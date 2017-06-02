@@ -17,9 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using XTMF;
 namespace TMG.Emme.Utilities
 {
@@ -45,7 +42,8 @@ namespace TMG.Emme.Utilities
         {
             for(int i = 0; i < Children.Length; i++)
             {
-                _Progress = () => Children[i].Progress;
+                var localI = i;
+                _Progress = () => Children[localI].Progress;
                 Children[i].Start();
             }
             return true;

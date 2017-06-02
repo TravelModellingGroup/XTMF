@@ -32,14 +32,9 @@ namespace Tasha.Common
         /// <summary>
         ///
         /// </summary>
-        private List<ITrip> trips;
-
-        /// <summary>
-        ///
-        /// </summary>
         public AuxiliaryTripChain()
         {
-            trips = new List<ITrip>( 2 );
+            Trips = new List<ITrip>( 2 );
         }
 
         /// <summary>
@@ -49,25 +44,19 @@ namespace Tasha.Common
         {
             get
             {
-                return this.Trips[this.Trips.Count - 1].ActivityStartTime;
+                return Trips[Trips.Count - 1].ActivityStartTime;
             }
         }
 
         /// <summary>
         ///
         /// </summary>
-        public ITripChain GetRepTripChain
-        {
-            get { return null; }
-        }
+        public ITripChain GetRepTripChain => null;
 
         /// <summary>
         ///
         /// </summary>
-        public bool JointTrip
-        {
-            get { return false; }
-        }
+        public bool JointTrip => false;
 
         /// <summary>
         ///
@@ -109,7 +98,7 @@ namespace Tasha.Common
         {
             get
             {
-                return this.Trips[0].TripStartTime;
+                return Trips[0].TripStartTime;
             }
         }
 
@@ -124,29 +113,18 @@ namespace Tasha.Common
         /// <summary>
         ///
         /// </summary>
-        public List<ITrip> Trips
-        {
-            get
-            {
-                return trips;
-            }
-
-            set
-            {
-                trips = value;
-            }
-        }
+        public List<ITrip> Trips { get; set; }
 
         #endregion ITripChain Members
 
         #region ITripChain Members
 
-        public List<ITashaPerson> passengers
+        public List<ITashaPerson> Passengers
         {
             get
             {
                 List<ITashaPerson> pass = new List<ITashaPerson>();
-                foreach ( var trip in trips )
+                foreach ( var trip in Trips )
                 {
                     pass.AddRange( trip.Passengers );
                 }
@@ -158,17 +136,17 @@ namespace Tasha.Common
 
         public void Recycle()
         {
-            this.Release();
-            foreach ( var t in this.Trips )
+            Release();
+            foreach ( var t in Trips )
             {
                 t.Recycle();
             }
-            this.Trips.Clear();
+            Trips.Clear();
         }
 
         #region ITripChain Members
 
-        public List<IVehicleType> requiresVehicle
+        public List<IVehicleType> RequiresVehicle
         {
             get
             {

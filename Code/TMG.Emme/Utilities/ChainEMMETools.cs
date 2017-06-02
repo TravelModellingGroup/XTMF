@@ -17,10 +17,6 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XTMF;
 
 namespace TMG.Emme.Utilities
@@ -28,6 +24,7 @@ namespace TMG.Emme.Utilities
     [ModuleInformation(
         Description = "This module is used in order to help organize the model system by grouping EMME tools together."
         )]
+    // ReSharper disable once InconsistentNaming
     public class ChainEMMETools : IEmmeTool
     {
 
@@ -45,6 +42,7 @@ namespace TMG.Emme.Utilities
         public bool Execute(Controller controller)
         {
             int i = 0;
+            // ReSharper disable AccessToModifiedClosure
             _Progress = () => ((float)i / Tools.Length) + (Tools[i].Progress / Tools.Length);
             for (; i < Tools.Length; i++)
             {

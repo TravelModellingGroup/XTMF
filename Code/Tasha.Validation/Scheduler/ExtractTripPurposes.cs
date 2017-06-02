@@ -17,10 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Datastructure;
 using Tasha.Common;
 using TMG;
@@ -70,7 +67,7 @@ namespace Tasha.Validation.Scheduler
         public bool UseTripStartTime;
 
 
-        public class ActivityLink : XTMF.IModule
+        public class ActivityLink : IModule
         {
             [RunParameter("Activity", "IndividualOther", typeof(Activity), "The activity to filter for.")]
             public Activity Activity;
@@ -116,7 +113,7 @@ namespace Tasha.Validation.Scheduler
             }
         }
 
-        SpinLock writeLock = new SpinLock(false);
+        SpinLock WriteLock = new SpinLock(false);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddToMatrix(ITrip trip, float expFactor)
@@ -125,15 +122,15 @@ namespace Tasha.Validation.Scheduler
             var o = ZoneSystem.GetFlatIndex(trip.OriginalZone.ZoneNumber);
             var d = ZoneSystem.GetFlatIndex(trip.DestinationZone.ZoneNumber);
             var row = Data[o];
-            writeLock.Enter(ref taken);
+            WriteLock.Enter(ref taken);
             Thread.MemoryBarrier();
             row[d] += expFactor;
-            if(taken) writeLock.Exit(true);
+            if(taken) WriteLock.Exit(true);
         }
 
         public void IterationFinished(int iteration)
         {
-            new TMG.Emme.EmmeMatrix(ZoneSystem, Data).Save(WriteTo, false);
+            new EmmeMatrix(ZoneSystem, Data).Save(WriteTo, false);
         }
 
         public void IterationStarting(int iteration)

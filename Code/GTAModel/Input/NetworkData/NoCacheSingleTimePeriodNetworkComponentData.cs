@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using Datastructure;
 using TMG.Input;
@@ -221,7 +222,7 @@ namespace TMG.GTAModel.Input.NetworkData
         {
         }
 
-        public bool ValidOD(IZone start, IZone end, Time time)
+        public bool ValidOd(IZone start, IZone end, Time time)
         {
             if(!NoWalkTimeInfeasible || WalkTime(start, end, time) > Time.Zero)
             {
@@ -230,7 +231,7 @@ namespace TMG.GTAModel.Input.NetworkData
             return false;
         }
 
-        public bool ValidOD(int flatOrigin, int flatDestination, Time time)
+        public bool ValidOd(int flatOrigin, int flatDestination, Time time)
         {
             return (!NoWalkTimeInfeasible || WalkTime(flatOrigin, flatDestination, time) > Time.Zero);
         }

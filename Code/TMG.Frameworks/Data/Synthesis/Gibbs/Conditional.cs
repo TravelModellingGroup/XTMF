@@ -18,10 +18,7 @@
 */
 using Datastructure;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMG.Input;
 using XTMF;
 namespace TMG.Frameworks.Data.Synthesis.Gibbs
@@ -40,7 +37,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
 
         public DataModule<string>[] ConditionalColumns;
 
-        public float[] CDF;
+        public float[] Cdf;
 
         protected int[] ColumnIndex;
 
@@ -51,7 +48,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
         [SubModelInformation(Required = true, Description = "A CSV file with each conditional attribute's value followed by the destination attribute value and probability [0,1].")]
         public FileLocation ConditionalSource;
 
-        protected bool Loaded = false;
+        protected bool Loaded;
 
         public virtual bool RequiresReloadingPerZone { get { return false; } }
 
@@ -93,7 +90,7 @@ namespace TMG.Frameworks.Data.Synthesis.Gibbs
                         }
                     }
                 }
-                CDF = ConvertToCDF(prob);
+                Cdf = ConvertToCdf(prob);
                 if (!any)
                 {
                     throw new XTMFRuntimeException($@"In {Name} we did not load any conditionals from the file '{ConditionalSource.GetFilePath()}'!  
@@ -103,7 +100,7 @@ This could be because the data does not have the expected number of columns ({ex
             }
         }
 
-        protected float[] ConvertToCDF(float[] prob)
+        protected float[] ConvertToCdf(float[] prob)
         {
             var stride = AttributeLength;
             for (int i = 0; i < prob.Length; i += stride)
@@ -122,7 +119,7 @@ This could be because the data does not have the expected number of columns ({ex
         {
             var columns = ColumnIndex;
             var multipliers = IndexMultiplier;
-            var cdf = CDF;
+            var cdf = Cdf;
             int startIndex = 0;
             var length = AttributeLength;
             for (int i = 0; i < columns.Length - 1; i++)
@@ -162,11 +159,6 @@ This could be because the data does not have the expected number of columns ({ex
                 ret += multipliers[i] * indices[i];
             }
             return ret;
-        }
-
-        private float GetProbability(int[] indices)
-        {
-            return CDF[GetIndex(indices)];
         }
 
         private void CreateIndexMultipliers(int[] valuesPerColumn)

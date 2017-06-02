@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,14 +54,11 @@ namespace TMG.GTAModel.Analysis
             set;
         }
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {
-            if ( !this.ProcessPurposeNames( ref error ) )
+            if ( !ProcessPurposeNames( ref error ) )
             {
                 return false;
             }
@@ -69,15 +67,15 @@ namespace TMG.GTAModel.Analysis
 
         public void Start()
         {
-            var purposes = this.Root.Purpose;
-            int numberOfModes = GetNumberOfModes();
-            double[] totals = new double[numberOfModes];
-            using ( StreamWriter writer = new StreamWriter( FileName ) )
+            var purposes = Root.Purpose;
+            var numberOfModes = GetNumberOfModes();
+            var totals = new double[numberOfModes];
+            using ( var writer = new StreamWriter( FileName ) )
             {
                 WriteHeader( writer );
-                for ( int i = 0; i < PurposeIndexes.Length; i++ )
+                for ( var i = 0; i < PurposeIndexes.Length; i++ )
                 {
-                    AddPurpose( writer, totals, purposes[this.PurposeIndexes[i]] );
+                    AddPurpose( writer, totals, purposes[PurposeIndexes[i]] );
                 }
                 WriteFinalSummary( writer, totals, totals.Sum() );
             }
@@ -86,12 +84,12 @@ namespace TMG.GTAModel.Analysis
         private void AddMode(StreamWriter writer, double[] totals, ref int index, TreeData<float[][]> treeData)
         {
             writer.Write( ',' );
-            double modeTotal = Sum( treeData );
+            var modeTotal = Sum( treeData );
             writer.Write( modeTotal );
             totals[index] += modeTotal;
             index++;
             if ( treeData.Children == null ) return;
-            for ( int i = 0; i < treeData.Children.Length; i++ )
+            for ( var i = 0; i < treeData.Children.Length; i++ )
             {
                 AddMode( writer, totals, ref index, treeData.Children[i] );
             }
@@ -105,7 +103,7 @@ namespace TMG.GTAModel.Analysis
             var flows = purpose.Flows;
             if ( flows == null )
             {
-                for ( int i = 0; i < totals.Length; i++ )
+                for ( var i = 0; i < totals.Length; i++ )
                 {
                     writer.Write( ',' );
                     writer.Write( 0 );
@@ -113,8 +111,8 @@ namespace TMG.GTAModel.Analysis
             }
             else
             {
-                int index = 0;
-                for ( int i = 0; i < flows.Count; i++ )
+                var index = 0;
+                for ( var i = 0; i < flows.Count; i++ )
                 {
                     AddMode( writer, totals, ref index, flows[i] );
                 }
@@ -125,9 +123,9 @@ namespace TMG.GTAModel.Analysis
 
         private int GetNumberOfModes()
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             var total = 0;
-            for ( int i = 0; i < modes.Count; i++ )
+            for ( var i = 0; i < modes.Count; i++ )
             {
                 total += GetNumberOfModes( modes[i] );
             }
@@ -142,7 +140,7 @@ namespace TMG.GTAModel.Analysis
             {
                 var children = cat.Children;
                 var length = children.Count;
-                for ( int i = 0; i < length; i++ )
+                for ( var i = 0; i < length; i++ )
                 {
                     total += GetNumberOfModes( children[i] );
                 }
@@ -152,27 +150,26 @@ namespace TMG.GTAModel.Analysis
 
         private bool ProcessPurposeNames(ref string error)
         {
-            if ( String.IsNullOrWhiteSpace( this.PurposeNames ) )
+            if ( String.IsNullOrWhiteSpace( PurposeNames ) )
             {
-                List<IPurpose> contained;
-                var length = ( contained = this.Root.Purpose ).Count;
-                this.PurposeIndexes = new int[length];
-                for ( int i = 0; i < length; i++ )
+                var length = ( Root.Purpose ).Count;
+                PurposeIndexes = new int[length];
+                for ( var i = 0; i < length; i++ )
                 {
-                    this.PurposeIndexes[i] = i;
+                    PurposeIndexes[i] = i;
                 }
             }
             else
             {
-                string[] parts = this.PurposeNames.Split( ',' );
-                List<int> care = new List<int>();
-                var purposes = this.Root.Purpose;
+                var parts = PurposeNames.Split( ',' );
+                var care = new List<int>();
+                var purposes = Root.Purpose;
                 var numberOfPurposes = purposes.Count;
                 foreach ( var part in parts )
                 {
                     var trimmed = part.Trim();
-                    bool found = false;
-                    for ( int i = 0; i < numberOfPurposes; i++ )
+                    var found = false;
+                    for ( var i = 0; i < numberOfPurposes; i++ )
                     {
                         if ( purposes[i].PurposeName == trimmed )
                         {
@@ -187,7 +184,7 @@ namespace TMG.GTAModel.Analysis
                         return false;
                     }
                 }
-                this.PurposeIndexes = care.ToArray();
+                PurposeIndexes = care.ToArray();
             }
             return true;
         }
@@ -197,7 +194,7 @@ namespace TMG.GTAModel.Analysis
             if ( treeData == null || treeData.Result == null ) return 0;
             var data = treeData.Result;
             var localTotal = 0.0;
-            for ( int i = 0; i < data.Length; i++ )
+            for ( var i = 0; i < data.Length; i++ )
             {
                 if ( data[i] != null )
                 {
@@ -211,7 +208,7 @@ namespace TMG.GTAModel.Analysis
         {
             writer.WriteLine();
             writer.Write( "Totals" );
-            for ( int i = 0; i < totals.Length; i++ )
+            for ( var i = 0; i < totals.Length; i++ )
             {
                 writer.Write( ',' );
                 writer.Write( totals[i] );
@@ -222,7 +219,7 @@ namespace TMG.GTAModel.Analysis
 
         private void WriteHeader(StreamWriter writer)
         {
-            var modes = this.Root.Modes;
+            var modes = Root.Modes;
             writer.WriteLine( "Model Run Summary" );
             writer.Write( "Purpose" );
             foreach ( var mode in modes )

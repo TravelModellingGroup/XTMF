@@ -21,6 +21,7 @@ using XTMF;
 
 namespace TMG.Estimation
 {
+    // ReSharper disable once InconsistentNaming
     public interface IEstimationAI : IModule
     {
         /// <summary>

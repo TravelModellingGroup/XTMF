@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -25,31 +25,31 @@ namespace Datastructure
     /// The Comparison method must be fine grained.
     /// Int32 only will return 1, 0 and -1 and thus will not give the correct results
     /// </summary>
-    /// <typeparam name="K">The Key to use for this datastructure</typeparam>
-    public class ClosestAVL<K> : AVLTree<K> where K : IComparable<K>
+    /// <typeparam name="TK">The Key to use for this datastructure</typeparam>
+    public class ClosestAvl<TK> : AvlTree<TK> where TK : IComparable<TK>
     {
         /// <summary>
         /// Finds the closest item to the given item.
         /// </summary>
         /// <param name="item">The item we wish to find something close to</param>
         /// <returns>The data for that item, or the default value if there is no data in the tree.</returns>
-        public K FindClosest(K item)
+        public TK FindClosest(TK item)
         {
             Node current;
             IncreaseReaders();
-            current = this.Root;
+            current = Root;
             while ( current != null )
             {
-                int diff = current.Data.CompareTo( item );
+                var diff = current.Data.CompareTo( item );
                 if ( diff > 0 )
                 {
-                    Node closestLeft = GetRightmost( current.Left );
+                    var closestLeft = GetRightmost( current.Left );
                     if ( closestLeft == null )
                     {
                         DecreaseReaders();
                         return current.Data;
                     }
-                    int closeDiff = closestLeft.Data.CompareTo( item );
+                    var closeDiff = closestLeft.Data.CompareTo( item );
                     if ( closeDiff <= 0 )
                     {
                         DecreaseReaders();
@@ -63,13 +63,13 @@ namespace Datastructure
                 }
                 else if ( diff < 0 )
                 {
-                    Node closestRight = GetLeftmost( current.Right );
+                    var closestRight = GetLeftmost( current.Right );
                     if ( closestRight == null )
                     {
                         DecreaseReaders();
                         return current.Data;
                     }
-                    int closeDiff = closestRight.Data.CompareTo( item );
+                    var closeDiff = closestRight.Data.CompareTo( item );
                     if ( closeDiff >= 0 )
                     {
                         DecreaseReaders();
@@ -89,7 +89,7 @@ namespace Datastructure
                 }
             }
             DecreaseReaders();
-            return default( K );
+            return default( TK );
         }//end FindClosest
 
         /// <summary>
@@ -97,9 +97,9 @@ namespace Datastructure
         /// </summary>
         /// <param name="node">The node that we start on</param>
         /// <returns>Null if the node doesn't exist, otherwise the leftmost node</returns>
-        private AVLTree<K>.Node GetLeftmost(AVLTree<K>.Node node)
+        private Node GetLeftmost(Node node)
         {
-            Node prev = node;
+            var prev = node;
             while ( node != null )
             {
                 prev = node;
@@ -113,9 +113,9 @@ namespace Datastructure
         /// </summary>
         /// <param name="node">The node that we start on</param>
         /// <returns>Null if the node doesn't exist, otherwise the rightmost node</returns>
-        private AVLTree<K>.Node GetRightmost(AVLTree<K>.Node node)
+        private Node GetRightmost(Node node)
         {
-            Node prev = node;
+            var prev = node;
             while ( node != null )
             {
                 prev = node;

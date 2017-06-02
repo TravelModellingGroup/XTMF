@@ -17,14 +17,10 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tasha.Common;
 using TMG.Input;
 using System.IO;
-using System.Threading;
 using XTMF;
 using Datastructure;
 using Tasha.XTMFModeChoice;
@@ -58,8 +54,6 @@ namespace Tasha.Validation.TripExtraction
         StreamWriter Writer;
         private bool WriteThisIteration;
 
-        private SparseTwinIndex<float> ZoneDistances;
-
         public void HouseholdComplete(ITashaHousehold household, bool success)
         {
             if (WriteThisIteration)
@@ -73,7 +67,7 @@ namespace Tasha.Validation.TripExtraction
                         foreach (var person in household.Persons)
                         {
                             personNumber++;
-                            var preferedNonVehicle = person[AttachmentName] as int[];
+                            var preferedNonVehicle = (int[]) person[AttachmentName];
                             var empZone = person.EmploymentZone;
                             var employmentZone = empZone == null ? 0 : empZone.ZoneNumber;
                             if (SelectedEmploymentZones.Contains(employmentZone))
@@ -99,8 +93,7 @@ namespace Tasha.Validation.TripExtraction
         {
             if (WriteThisIteration)
             {
-                var householdData = household["ModeChoiceData"] as ModeChoiceHouseholdData;
-                var householdNumber = household.HouseholdId;
+                var householdData = (ModeChoiceHouseholdData) household["ModeChoiceData"];
                 var people = household.Persons;
                 for (int personNumber = 0; personNumber < people.Length; personNumber++)
                 {
@@ -118,7 +111,7 @@ namespace Tasha.Validation.TripExtraction
                         }
                         else
                         {
-                            amount = person[AttachmentName] as int[];
+                            amount = (int[]) person[AttachmentName];
                         }
                         for (int i = 0; i < tripChains.Count; i++)
                         {
@@ -202,7 +195,6 @@ namespace Tasha.Validation.TripExtraction
             if (WriteThisIteration)
             {
                 AllModes = Root.AllModes.ToArray();
-                ZoneDistances = Root.ZoneSystem.Distances;
                 Writer = new StreamWriter(SaveTo);
                 WriteHeader();
             }

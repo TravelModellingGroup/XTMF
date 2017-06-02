@@ -38,18 +38,18 @@ namespace Tasha.ModeChoice
         /// <param name="chain">The trip chain this mode is for</param>
         private ModeSet(ITripChain chain)
         {
-            this.Chain = chain;
-            this.Length = chain.Trips.Count;
-            this.ChosenMode = new ITashaMode[this.Length];
+            Chain = chain;
+            Length = chain.Trips.Count;
+            ChosenMode = new ITashaMode[Length];
         }
 
-        private ModeSet(ModeSet CopyMe, double U)
+        private ModeSet(ModeSet copyMe, double u)
         {
-            this.Chain = CopyMe.Chain;
-            this.Length = CopyMe.Length;
-            this.ChosenMode = new ITashaMode[this.Length];
-            Array.Copy(CopyMe.ChosenMode, this.ChosenMode, CopyMe.Length);
-            this.U = U;
+            Chain = copyMe.Chain;
+            Length = copyMe.Length;
+            ChosenMode = new ITashaMode[Length];
+            Array.Copy(copyMe.ChosenMode, ChosenMode, copyMe.Length);
+            U = u;
         }
 
         /// <summary>
@@ -83,18 +83,18 @@ namespace Tasha.ModeChoice
         /// <param name="chain">The chain to init mode sets for</param>
         public static void InitModeSets(ITripChain chain)
         {
-            chain.Attach( "ModeSets", new List<ModeSet>( chain.Trips.Count ) );
+            chain.Attach("ModeSets", new List<ModeSet>(chain.Trips.Count));
         }
 
         /// <summary>
         /// Stores this mode set to the trip chain
         /// </summary>
         /// <param name="chain">The chain to attach this set to</param>
-        /// <param name="U"></param>
-        public void Store(ITripChain chain, double U)
+        /// <param name="u"></param>
+        public void Store(ITripChain chain, double u)
         {
             List<ModeSet> set = (List<ModeSet>)chain["ModeSets"];
-            set.Add( new ModeSet( this, U ) );
+            set.Add(new ModeSet(this, u));
         }
 
         internal static ModeSet Make(ITripChain chain)
@@ -102,20 +102,17 @@ namespace Tasha.ModeChoice
             ModeSet newModeSet;
             var chainLength = chain.Trips.Count;
             ConcurrentBag<ModeSet> ourBag;
-            if ( !ModeSetPool.TryGetValue( chainLength, out ourBag ) )
+            if (!ModeSetPool.TryGetValue(chainLength, out ourBag))
             {
-                ModeSetPool[chainLength] = ( ourBag = new ConcurrentBag<ModeSet>() );
-                return new ModeSet( chain );
+                ModeSetPool[chainLength] = new ConcurrentBag<ModeSet>();
+                return new ModeSet(chain);
             }
-            if ( ourBag.TryTake( out newModeSet ) )
+            if (ourBag.TryTake(out newModeSet))
             {
                 newModeSet.Chain = chain;
                 return newModeSet;
             }
-            else
-            {
-                return new ModeSet( chain );
-            }
+            return new ModeSet(chain);
         }
 
         internal static ModeSet Make(ModeSet set, double newU)
@@ -123,14 +120,14 @@ namespace Tasha.ModeChoice
             ModeSet newModeSet;
             var chainLength = set.Length;
             ConcurrentBag<ModeSet> ourBag;
-            if ( !ModeSetPool.TryGetValue( chainLength, out ourBag ) )
+            if (!ModeSetPool.TryGetValue(chainLength, out ourBag))
             {
-                ModeSetPool[chainLength] = ( ourBag = new ConcurrentBag<ModeSet>() );
-                return new ModeSet( set, newU );
+                ModeSetPool[chainLength] = new ConcurrentBag<ModeSet>();
+                return new ModeSet(set, newU);
             }
-            if ( ourBag.TryTake( out newModeSet ) )
+            if (ourBag.TryTake(out newModeSet))
             {
-                for ( int i = 0; i < chainLength; i++ )
+                for (int i = 0; i < chainLength; i++)
                 {
                     newModeSet.ChosenMode[i] = set.ChosenMode[i];
                 }
@@ -138,22 +135,19 @@ namespace Tasha.ModeChoice
                 newModeSet.Chain = set.Chain;
                 return newModeSet;
             }
-            else
-            {
-                return new ModeSet( set, newU ) { Chain = set.Chain };
-            }
+            return new ModeSet(set, newU) { Chain = set.Chain };
         }
 
         internal static void ReleaseModeSets(ITripChain tripChain)
         {
-            var sets = GetModeSets( tripChain );
-            if ( sets != null )
+            var sets = GetModeSets(tripChain);
+            if (sets != null)
             {
-                foreach ( var set in sets )
+                foreach (var set in sets)
                 {
                     var length = set.Length;
                     set.Chain = null;
-                    ModeSetPool[length].Add( set );
+                    ModeSetPool[length].Add(set);
                 }
             }
         }
@@ -161,26 +155,26 @@ namespace Tasha.ModeChoice
         internal void RecalculateU()
         {
             int tripPlace = 0;
-            double NewU = 0;
+            double newU = 0;
             var numberOfModes = ModeChoice.NonSharedModes.Count;
-            if ( this.Chain == null || this.Chain.Trips == null )
+            if (Chain == null || Chain.Trips == null)
             {
                 return;
             }
-            foreach ( var trip in this.Chain.Trips )
+            foreach (var trip in Chain.Trips)
             {
-                var data = ModeData.Get( trip );
-                for ( int mode = 0; mode < numberOfModes; mode++ )
+                var data = ModeData.Get(trip);
+                for (int mode = 0; mode < numberOfModes; mode++)
                 {
-                    if ( ModeChoice.NonSharedModes[mode] == this.ChosenMode[tripPlace] )
+                    if (ModeChoice.NonSharedModes[mode] == ChosenMode[tripPlace])
                     {
-                        NewU += data.U( mode );
+                        newU += data.U(mode);
                         break;
                     }
                 }
                 tripPlace++;
             }
-            this.U = NewU;
+            U = newU;
         }
     }
 }

@@ -17,18 +17,17 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
 using Tasha.Common;
-using Tasha.Scheduler;
 using TMG;
 using XTMF;
 using TMG.Functions;
 using System.Numerics;
 using System.Collections.Concurrent;
+// ReSharper disable ParameterHidesMember
+// ReSharper disable AccessToModifiedClosure
 
 namespace Tasha.XTMFScheduler.LocationChoice
 {
@@ -278,7 +277,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         EstimationTWAIT = new float[odPairs];
                         EstimationTBOARDING = new float[odPairs];
                         EstimationTFARE = new float[odPairs];
-                        Parallel.For(0, size, (int i) =>
+                        Parallel.For(0, size, i =>
                         {
                             var time = StartTime;
                             int baseIndex = i * size;
@@ -302,7 +301,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 var rowData = (RowTravelTimes == null || RowTravelTimes.Length != size * size) ? new float[size * size] : RowTravelTimes;
                 var columnData = (ColumnTravelTimes == null || ColumnTravelTimes.Length != size * size) ? new float[size * size] : ColumnTravelTimes;
-                Parallel.For(0, size, (int i) =>
+                Parallel.For(0, size, i =>
                 {
                     var time = StartTime;
                     int startingIndex = i * size;
@@ -339,7 +338,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             public Tuple<byte, byte, byte> ProgressColour { get { return new Tuple<byte, byte, byte>(50, 150, 50); } }
 
 
-            public class TimePeriodParameters : XTMF.IModule
+            public class TimePeriodParameters : IModule
             {
                 [SubModelInformation(Description = "The PD constants for this time period.")]
                 public SpatialRegion[] PDConstant;
@@ -349,7 +348,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
                 [RunParameter("Same PD", 0.0f, "The constant applied if the zone of interest is the same as both the previous and next planning districts.")]
                 public float SamePD;
-                internal float expSamePD;
+                internal float ExpSamePD;
 
                 public string Name { get; set; }
 
@@ -364,6 +363,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
             }
 
             [SubModelInformation(Description = "The parameters for this model by time period. There must be the same number of time periods as in the location choice model.")]
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public TimePeriodParameters[] TimePeriod;
 
             /// <summary>
@@ -464,18 +464,18 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     timePeriod.EstimationTempSpace = autoSpace = new float[zones2];
                     timePeriod.EstimationTempSpace2 = transitSpace = new float[zones2];
                 }
-                Parallel.For(0, zones.Length, (int i) =>
+                Parallel.For(0, zones.Length, i =>
                 {
                     var start = i * zones.Length;
                     var end = start + zones.Length;
-                    Vector<float> VCost = new Vector<float>(Cost);
-                    Vector<float> VAutoTime = new Vector<float>(AutoTime);
-                    Vector<float> VTransitConstant = new Vector<float>(TransitConstant);
-                    Vector<float> VTransitTime = new Vector<float>(TransitTime);
-                    Vector<float> VTransitWalk = new Vector<float>(TransitWalk);
-                    Vector<float> VTransitWait = new Vector<float>(TransitWait);
-                    Vector<float> VTransitBoarding = new Vector<float>(TransitBoarding);
-                    Vector<float> VNegativeInfinity = new Vector<float>(float.NegativeInfinity);
+                    Vector<float> vCost = new Vector<float>(Cost);
+                    Vector<float> vAutoTime = new Vector<float>(AutoTime);
+                    Vector<float> vTransitConstant = new Vector<float>(TransitConstant);
+                    Vector<float> vTransitTime = new Vector<float>(TransitTime);
+                    Vector<float> vTransitWalk = new Vector<float>(TransitWalk);
+                    Vector<float> vTransitWait = new Vector<float>(TransitWait);
+                    Vector<float> vTransitBoarding = new Vector<float>(TransitBoarding);
+                    Vector<float> vNegativeInfinity = new Vector<float>(float.NegativeInfinity);
                     int index = start;
                     // copy everything we can do inside of a vector
                     for (; index <= end - Vector<float>.Count; index += Vector<float>.Count)
@@ -484,8 +484,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         var aivtt = new Vector<float>(timePeriod.EstimationAIVTT, index);
                         var acost = new Vector<float>(timePeriod.EstimationACOST, index);
                         (
-                              aivtt * VAutoTime
-                            + acost * VCost
+                              aivtt * vAutoTime
+                            + acost * vCost
                         ).CopyTo(autoSpace, index);
                         // compute transit utility
                         var tivtt = new Vector<float>(timePeriod.EstimationTIVTT, index);
@@ -494,12 +494,12 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         var tboarding = new Vector<float>(timePeriod.EstimationTBOARDING, index);
                         var tFare = new Vector<float>(timePeriod.EstimationTFARE, index);
                         Vector.ConditionalSelect(Vector.GreaterThan(twalk, Vector<float>.Zero), (
-                             VTransitConstant
-                            + tivtt * VTransitTime
-                            + twalk * VTransitWalk
-                            + twait * VTransitWait
-                            + tboarding * VTransitBoarding
-                            + tFare * VCost), VNegativeInfinity).CopyTo(transitSpace, index);
+                             vTransitConstant
+                            + tivtt * vTransitTime
+                            + twalk * vTransitWalk
+                            + twait * vTransitWait
+                            + tboarding * vTransitBoarding
+                            + tFare * vCost), vNegativeInfinity).CopyTo(transitSpace, index);
                     }
                     // copy the remainder
                     for (; index < end; index++)
@@ -523,7 +523,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                         }
                     }
                 });
-                Parallel.For(0, zones2, (int index) =>
+                Parallel.For(0, zones2, index =>
                 {
                     autoSpace[index] = (float)(Math.Exp(autoSpace[index]) + Math.Exp(transitSpace[index]));
                 });
@@ -543,28 +543,28 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 return true;
             }
 
-            private SparseArray<IZone> zoneSystem;
-            private IZone[] zones;
+            private SparseArray<IZone> ZoneSystem;
+            private IZone[] Zones;
             private int[] FlatZoneToPDCubeLookup;
 
 
             internal void Load()
             {
-                zoneSystem = Root.ZoneSystem.ZoneArray;
-                zones = zoneSystem.GetFlatData();
+                ZoneSystem = Root.ZoneSystem.ZoneArray;
+                Zones = ZoneSystem.GetFlatData();
                 if (To == null)
                 {
                     To = new float[TimePeriod.Length][];
                     From = new float[TimePeriod.Length][];
                     for (int i = 0; i < TimePeriod.Length; i++)
                     {
-                        To[i] = new float[zones.Length * zones.Length];
-                        From[i] = new float[zones.Length * zones.Length];
+                        To[i] = new float[Zones.Length * Zones.Length];
+                        From[i] = new float[Zones.Length * Zones.Length];
                     }
                 }
                 foreach (var timePeriod in TimePeriod)
                 {
-                    timePeriod.expSamePD = (float)Math.Exp(timePeriod.SamePD);
+                    timePeriod.ExpSamePD = (float)Math.Exp(timePeriod.SamePD);
                 }
                 // raise the constants to e^constant to save CPU time during the main phase
                 foreach (var timePeriod in TimePeriod)
@@ -576,25 +576,15 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 if (!Parent.EstimationMode || PDCube == null)
                 {
-                    var pds = TMG.Functions.ZoneSystemHelper.CreatePDArray<float>(Root.ZoneSystem.ZoneArray);
+                    var pds = ZoneSystemHelper.CreatePdArray<float>(Root.ZoneSystem.ZoneArray);
                     BuildPDCube(pds);
                     if (FlatZoneToPDCubeLookup == null)
                     {
-                        FlatZoneToPDCubeLookup = zones.Select(zone => pds.GetFlatIndex(zone.PlanningDistrict)).ToArray();
+                        FlatZoneToPDCubeLookup = Zones.Select(zone => pds.GetFlatIndex(zone.PlanningDistrict)).ToArray();
                     }
                 }
                 // now that we are done we can calculate our utilities
                 CalculateUtilities();
-            }
-
-            private static float[][] CreateSquare(int length)
-            {
-                var ret = new float[length][];
-                for (int i = 0; i < ret.Length; i++)
-                {
-                    ret[i] = new float[length];
-                }
-                return ret;
             }
 
             private void BuildPDCube(SparseArray<float> pds)
@@ -639,7 +629,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 for (int i = 0; i < TimePeriod.Length; i++)
                 {
                     jSum[i] = new float[zones.Length];
-                    Parallel.For(0, jSum[i].Length, (int j) =>
+                    Parallel.For(0, jSum[i].Length, j =>
                     {
                         var jPD = zones[j].PlanningDistrict;
 
@@ -684,9 +674,8 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 }
                 var itterRoot = (Root as IIterativeModel);
                 int currentIteration = itterRoot != null ? itterRoot.CurrentIteration : 0;
-                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (int i) =>
+                Parallel.For(0, zones.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
                 {
-                    var numberOfZones = zones.Length;
                     var network = Parent.AutoNetwork;
                     var transitNetwork = Parent.TransitNetwork;
                     var times = Parent.TimePeriods;
@@ -749,7 +738,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             internal float[] GetLocationProbabilities(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace)
             {
-                var total = CalculateLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
+                var total = CalculateLocationProbabilities(previousZone, nextZone, startTime, availableTime, calculationSpace);
                 if (total <= 0.0f)
                 {
                     return calculationSpace;
@@ -759,20 +748,18 @@ namespace Tasha.XTMFScheduler.LocationChoice
             }
 
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="previousZone"></param>
-            /// <param name="ep"></param>
             /// <param name="nextZone"></param>
             /// <param name="startTime"></param>
             /// <param name="availableTime"></param>
             /// <param name="calculationSpace"></param>
             /// <returns>The sum of the calculation space</returns>
-            private float CalculateLocationProbabilities(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace)
+            private float CalculateLocationProbabilities(IZone previousZone, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace)
             {
-                var p = zoneSystem.GetFlatIndex(previousZone.ZoneNumber);
-                var n = zoneSystem.GetFlatIndex(nextZone.ZoneNumber);
-                var size = zones.Length;
+                var p = ZoneSystem.GetFlatIndex(previousZone.ZoneNumber);
+                var n = ZoneSystem.GetFlatIndex(nextZone.ZoneNumber);
+                var size = Zones.Length;
                 int index = GetTimePeriod(startTime);
                 var rowTimes = Parent.TimePeriods[index].RowTravelTimes;
                 var columnTimes = Parent.TimePeriods[index].ColumnTravelTimes;
@@ -789,21 +776,21 @@ namespace Tasha.XTMFScheduler.LocationChoice
                 {
                     Vector<float> availableTimeV = new Vector<float>(available);
                     Vector<float> totalV = Vector<float>.Zero;
-                    int i = 0;
+                    int i;
                     if (nIndex == pIndex)
                     {
                         for (i = 0; i < calculationSpace.Length; i++)
                         {
-                            var odUtility = 1.0f;
+                            float odUtility;
                             var pdindex = data[FlatZoneToPDCubeLookup[i]];
                             if (pdindex >= 0)
                             {
-                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].ODConstants[pdindex].ExpConstant * TimePeriod[index].expSamePD
+                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].ODConstants[pdindex].ExpConstant * TimePeriod[index].ExpSamePD
                                     : TimePeriod[index].ODConstants[pdindex].ExpConstant;
                             }
                             else
                             {
-                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].expSamePD : 1.0f;
+                                odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].ExpSamePD : 1.0f;
                             }
                             calculationSpace[i] = odUtility;
                         }
@@ -860,17 +847,17 @@ namespace Tasha.XTMFScheduler.LocationChoice
                                 {
                                     if (pRowTimes[previousIndexOffset + i] + pColumnTimes[nextIndexOffset + i] <= available)
                                     {
-                                        var odUtility = 1.0f;
+                                        float odUtility;
                                         var pdindex = pData[FlatZoneToPDCubeLookup[i]];
                                         if (pdindex >= 0)
                                         {
                                             odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ?
-                                                TimePeriod[index].ODConstants[pdindex].ExpConstant * TimePeriod[index].expSamePD
+                                                TimePeriod[index].ODConstants[pdindex].ExpConstant * TimePeriod[index].ExpSamePD
                                                 : TimePeriod[index].ODConstants[pdindex].ExpConstant;
                                         }
                                         else
                                         {
-                                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].expSamePD : 1.0f;
+                                            odUtility = (pIndex == FlatZoneToPDCubeLookup[i]) ? TimePeriod[index].ExpSamePD : 1.0f;
                                         }
                                         total += calculationSpace[i] = pTo[previousIndexOffset + i] * pFrom[nextIndexOffset + i] * odUtility;
                                     }
@@ -908,7 +895,7 @@ namespace Tasha.XTMFScheduler.LocationChoice
 
             internal IZone GetLocation(IZone previousZone, IEpisode ep, IZone nextZone, Time startTime, Time availableTime, float[] calculationSpace, Random random)
             {
-                var total = CalculateLocationProbabilities(previousZone, ep, nextZone, startTime, availableTime, calculationSpace);
+                var total = CalculateLocationProbabilities(previousZone, nextZone, startTime, availableTime, calculationSpace);
                 if (total <= 0)
                 {
                     return null;
@@ -920,14 +907,14 @@ namespace Tasha.XTMFScheduler.LocationChoice
                     current += calculationSpace[i];
                     if (pop <= current)
                     {
-                        return zones[i];
+                        return Zones[i];
                     }
                 }
                 for (int i = 0; i < calculationSpace.Length; i++)
                 {
                     if (calculationSpace[i] > 0)
                     {
-                        return zones[i];
+                        return Zones[i];
                     }
                 }
                 return null;

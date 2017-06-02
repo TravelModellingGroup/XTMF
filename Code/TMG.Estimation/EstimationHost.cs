@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -31,12 +31,13 @@ namespace TMG.Estimation
     public sealed class EstimationHost : IEstimationHost, IDisposable
     {
         [SubModelInformation(Required = true, Description = "The AI to explore the parameter space.")]
+        // ReSharper disable once InconsistentNaming
         public IEstimationAI AI;
 
         [SubModelInformation(Required = true, Description = "The client model system to execute.")]
         public IEstimationClientModelSystem ClientModelSystem;
 
-        public bool Exit = false;
+        public bool Exit;
 
         [RunParameter("Hold Onto Result File", true, "Should we maintain the lock on the estimation file?")]
         public bool HoldOnToResultFile;
@@ -64,7 +65,7 @@ namespace TMG.Estimation
         [RunParameter("Send Parameter Definitions", -1, "The channel to use for requesting the definitions for parameters.")]
         public int SendParameterDefinitions;
 
-        private List<IRemoteXTMF> AvailableClients = new List<IRemoteXTMF>();
+        private readonly List<IRemoteXTMF> AvailableClients = new List<IRemoteXTMF>();
         private IModelSystemStructure ClientStructure;
         private bool FirstLineToWrite = true;
 
@@ -77,7 +78,7 @@ namespace TMG.Estimation
 
         public EstimationHost(IConfiguration xtmfConfig)
         {
-            this.XtmfConfig = xtmfConfig;
+            XtmfConfig = xtmfConfig;
         }
 
         public int CurrentIteration { get; set; }
@@ -105,16 +106,16 @@ namespace TMG.Estimation
 
         public bool ExitRequest()
         {
-            this.Exit = true;
+            Exit = true;
             return true;
         }
 
         public int IndexOfNextJob()
         {
             int i = 0;
-            for ( ; i < this.CurrentJobs.Count; i++ )
+            for ( ; i < CurrentJobs.Count; i++ )
             {
-                if ( !this.CurrentJobs[i].Processing )
+                if ( !CurrentJobs[i].Processing )
                 {
                     return i;
                 }
@@ -124,29 +125,29 @@ namespace TMG.Estimation
 
         public bool RuntimeValidation(ref string error)
         {
-            foreach ( var mst in this.XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure )
+            foreach ( var mst in XtmfConfig.ProjectRepository.ActiveProject.ModelSystemStructure )
             {
-                if ( FindUs( mst, ref this.OurStructure ) )
+                if ( FindUs( mst, ref OurStructure ) )
                 {
                     foreach ( var child in OurStructure.Children )
                     {
                         if ( child.ParentFieldName == "ClientModelSystem" )
                         {
-                            this.ClientStructure = child;
+                            ClientStructure = child;
                             break;
                         }
                     }
                     break;
                 }
             }
-            if ( this.OurStructure == null )
+            if ( OurStructure == null )
             {
-                error = "In '" + this.Name + "' we were unable to find ourselves through XTMF inside of project " + this.XtmfConfig.ProjectRepository.ActiveProject.Name;
+                error = "In '" + Name + "' we were unable to find ourselves through XTMF inside of project " + XtmfConfig.ProjectRepository.ActiveProject.Name;
                 return false;
             }
-            if ( this.ClientStructure == null )
+            if ( ClientStructure == null )
             {
-                error = "In '" + this.Name + "' we were unable to find our client model system!";
+                error = "In '" + Name + "' we were unable to find our client model system!";
                 return false;
             }
             return true;
@@ -155,86 +156,88 @@ namespace TMG.Estimation
         public void Start()
         {
             int generation = 0;
-            this.Status = () => "Initializing Parameters";
+            Status = () => "Initializing Parameters";
             LoadParameters();
-            this.Status = () => "Initializing Networking";
+            Status = () => "Initializing Networking";
             SetupNetworking();
-            this.PendingResults = new BlockingCollection<ResultMessage>();
+            // ReSharper disable InconsistentlySynchronizedField
+            PendingResults = new BlockingCollection<ResultMessage>();
             using (var finishedGeneration = new MessageQueue<bool?>())
             {
                 //execute the host model system
-                this.Status = () => "Running Host Model System";
-                if ( this.HostModelSystem != null )
-                {
-                    this.HostModelSystem.Start();
-                }
-                this.Status = () => "Distributing Tasks: Generation " + ( this.CurrentIteration + 1 ) + " / " + this.TotalIterations;
-                Task processResults = Task.Factory.StartNew( () =>
+                Status = () => "Running Host Model System";
+                HostModelSystem?.Start();
+                Status = () => "Distributing Tasks: Generation " + ( CurrentIteration + 1 ) + " / " + TotalIterations;
+                    Task processResults = Task.Factory.StartNew( () =>
                     {
-                        foreach ( var result in this.PendingResults.GetConsumingEnumerable() )
+                        foreach (var result in PendingResults.GetConsumingEnumerable())
                         {
                             // only process things from the current generation
-                            if ( generation != result.Generation ) continue;
-                            Job currentJob = null;
-                            lock (this.CurrentJobs)
+                            // ReSharper disable once AccessToModifiedClosure
+                            if (generation == result.Generation)
                             {
-                                currentJob = this.CurrentJobs[result.ProcessedIndex];
-                                currentJob.Value = result.ProcessedValue;
-                                currentJob.Processed = true;
-                                // store the result before starting the next generation
-                                // so the AI can play with the values after we write
-                                this.StoreResult( currentJob );
+                                lock (CurrentJobs)
+                                {
+                                    var currentJob = CurrentJobs[result.ProcessedIndex];
+                                    currentJob.Value = result.ProcessedValue;
+                                    currentJob.Processed = true;
+                                    // store the result before starting the next generation
+                                    // so the AI can play with the values after we write
+                                    StoreResult(currentJob);
+                                }
+                                Progress += 1.0f / (TotalIterations * CurrentJobs.Count);
+                                //scan the rest of the jobs to see if they have been processed
+                                // ReSharper disable once AccessToDisposedClosure (Task Finishes before closer ends)
+                                finishedGeneration.Add(CheckForAllDone());
                             }
-                            this.Progress += 1.0f / ( this.TotalIterations * this.CurrentJobs.Count );
-                            //scan the rest of the jobs to see if they have been processed
-                            finishedGeneration.Add( CheckForAllDone() );
                         }
                     } );
 
-                for ( ; generation < this.TotalIterations & this.Exit == false; generation++ )
+                for ( ; generation < TotalIterations & Exit == false; generation++ )
                 {
-                    this.CurrentIteration = generation;
-                    this.CurrentJobs = this.AI.CreateJobsForIteration();
-                    this.StartGeneration();
+                    CurrentIteration = generation;
+                    CurrentJobs = AI.CreateJobsForIteration();
+                    System.Threading.Thread.MemoryBarrier();
+                    StartGeneration();
                     bool? done;
-                    while ( this.Exit == false && ( done = finishedGeneration.GetMessageOrTimeout( 100 ) ) != true )
+                    while ( Exit == false && ( done = finishedGeneration.GetMessageOrTimeout( 100 ) ) != true )
                     {
-                        if ( done == null && this.Host.ConnectedClients.Count > 0 )
+                        if ( done == null && Host.ConnectedClients.Count > 0 )
                         {
                         }
                         System.Threading.Thread.MemoryBarrier();
                     }
-                    this.AI.IterationComplete();
+                    AI.IterationComplete();
                     // make sure to clear this to make sure we exit fine
                     System.Threading.Thread.MemoryBarrier();
                 }
-                this.PendingResults.CompleteAdding();
+                PendingResults.CompleteAdding();
                 processResults.Wait();
             }
-            if ( this.ResultFileWriter != null )
+            if ( ResultFileWriter != null )
             {
-                this.ResultFileWriter.Close();
+                ResultFileWriter.Close();
             }
-            lock (this.Host)
+            lock (Host)
             {
-                foreach ( var client in this.Host.ConnectedClients )
+                foreach ( var client in Host.ConnectedClients )
                 {
                     client.SendCancel( "End of model run" );
                 }
             }
-            this.Host.Shutdown();
+            Host.Shutdown();
         }
 
         public override string ToString()
         {
-            return this.Status();
+            return Status();
         }
 
         private bool CheckForAllDone()
         {
-            for ( int i = 0; i < this.CurrentJobs.Count; i++ )
+            for ( int i = 0; i < CurrentJobs.Count; i++ )
             {
-                if ( !this.CurrentJobs[i].Processed )
+                if ( !CurrentJobs[i].Processed )
                 {
                     return false;
                 }
@@ -265,9 +268,9 @@ namespace TMG.Estimation
 
         private void LoadParameters()
         {
-            this.ParameterLoader.LoadData();
-            this.Parameters = this.ParameterLoader.GiveData();
-            this.ParameterLoader.UnloadData();
+            ParameterLoader.LoadData();
+            Parameters = ParameterLoader.GiveData();
+            ParameterLoader.UnloadData();
         }
 
         private void SendNewJob(IRemoteXTMF client)
@@ -276,50 +279,48 @@ namespace TMG.Estimation
             int i = IndexOfNextJob();
             if ( i >= 0 )
             {
-                this.CurrentJobs[i].Processing = true;
-                this.CurrentJobs[i].ProcessedBy = client;
+                CurrentJobs[i].Processing = true;
+                CurrentJobs[i].ProcessedBy = client;
                 System.Threading.Thread.MemoryBarrier();
-                client.SendCustomMessage( i, this.RequestJobChannel );
+                client.SendCustomMessage( i, RequestJobChannel );
             }
         }
 
         private void SetupNetworking()
         {
-            this.Host.RegisterCustomReceiver( this.ResultChannel, (stream, client) =>
+            Host.RegisterCustomReceiver( ResultChannel, (stream, client) =>
                 {
                     lock (this)
                     {
                         BinaryReader reader = new BinaryReader( stream );
-                        this.PendingResults.Add( new ResultMessage()
+                        PendingResults.Add( new ResultMessage()
                         {
                             Generation = reader.ReadInt32(),
                             ProcessedIndex = reader.ReadInt32(),
                             ProcessedValue = reader.ReadSingle()
                         } );
-                        // do not dispose
-                        reader = null;
                     }
                     return null;
                 } );
-            this.Host.RegisterCustomReceiver( this.RequestJobChannel, (stream, client) =>
+            Host.RegisterCustomReceiver( RequestJobChannel, (stream, client) =>
                 {
                     lock (Host)
                     {
-                        lock (this.CurrentJobs)
+                        lock (CurrentJobs)
                         {
-                            this.SendNewJob( client );
+                            SendNewJob( client );
                         }
                     }
                     return null;
                 } );
-            this.Host.RegisterCustomSender( this.RequestJobChannel, (data, client, stream) =>
+            Host.RegisterCustomSender( RequestJobChannel, (data, client, stream) =>
                 {
                     lock (this)
                     {
                         var index = (int)data;
-                        var job = this.CurrentJobs[index];
+                        var job = CurrentJobs[index];
                         BinaryWriter writer = new BinaryWriter( stream );
-                        writer.Write( this.CurrentIteration );
+                        writer.Write( CurrentIteration );
                         writer.Write( index );
                         writer.Write( job.Parameters.Length );
                         for ( int i = 0; i < job.Parameters.Length; i++ )
@@ -327,51 +328,49 @@ namespace TMG.Estimation
                             writer.Write( job.Parameters[i].Current );
                         }
                         writer.Flush();
-                        writer = null;
                     }
                 } );
-            this.Host.RegisterCustomReceiver( this.SendParameterDefinitions, (stream, client) =>
+            Host.RegisterCustomReceiver( SendParameterDefinitions, (stream, client) =>
                 {
-                    lock (this.Host)
+                    lock (Host)
                     {
-                        client.SendCustomMessage( null, this.SendParameterDefinitions );
-                        if ( !this.AvailableClients.Contains( client ) )
+                        client.SendCustomMessage( null, SendParameterDefinitions );
+                        if ( !AvailableClients.Contains( client ) )
                         {
-                            this.AvailableClients.Add( client );
+                            AvailableClients.Add( client );
                         }
                     }
                     return null;
                 } );
-            this.Host.RegisterCustomSender( this.SendParameterDefinitions, (data, client, stream) =>
+            Host.RegisterCustomSender( SendParameterDefinitions, (data, client, stream) =>
                 {
                     BinaryWriter writer = new BinaryWriter( stream );
-                    writer.Write( this.Parameters.Count );
-                    for ( int i = 0; i < this.Parameters.Count; i++ )
+                    writer.Write( Parameters.Count );
+                    for ( int i = 0; i < Parameters.Count; i++ )
                     {
-                        writer.Write( this.Parameters[i].Names.Length );
-                        for ( int j = 0; j < this.Parameters[i].Names.Length; j++ )
+                        writer.Write( Parameters[i].Names.Length );
+                        for ( int j = 0; j < Parameters[i].Names.Length; j++ )
                         {
-                            writer.Write( this.Parameters[i].Names[j] );
+                            writer.Write( Parameters[i].Names[j] );
                         }
                     }
                     writer.Flush();
-                    writer = null;
                 } );
-            this.Host.NewClientConnected += (client) =>
+            Host.NewClientConnected += (client) =>
                 {
-                    lock (this.Host)
+                    lock (Host)
                     {
-                        client.SendModelSystem( this.ClientStructure );
-                        this.XtmfConfig.CreateProgressReport( client.UniqueID + " " + client.MachineName,
+                        client.SendModelSystem( ClientStructure );
+                        XtmfConfig.CreateProgressReport( client.UniqueID + " " + client.MachineName,
                             () => client.Progress, new Tuple<byte, byte, byte>( 50, 50, 150 ) );
                     }
                 };
-            this.Host.ClientDisconnected += (client) =>
+            Host.ClientDisconnected += (client) =>
                 {
-                    lock (this.Host)
+                    lock (Host)
                     {
-                        this.AvailableClients.Remove( client );
-                        foreach ( var job in this.CurrentJobs )
+                        AvailableClients.Remove( client );
+                        foreach ( var job in CurrentJobs )
                         {
                             if ( job.ProcessedBy == client )
                             {
@@ -382,7 +381,7 @@ namespace TMG.Estimation
                                 }
                             }
                         }
-                        this.XtmfConfig.DeleteProgressReport( client.UniqueID + " " + client.MachineName );
+                        XtmfConfig.DeleteProgressReport( client.UniqueID + " " + client.MachineName );
                     }
                 };
         }
@@ -390,13 +389,13 @@ namespace TMG.Estimation
         private void StartGeneration()
         {
             // send each client a job to start with
-            lock (this.Host)
+            lock (Host)
             {
-                lock (this.CurrentJobs)
+                lock (CurrentJobs)
                 {
-                    foreach ( var client in this.AvailableClients )
+                    foreach ( var client in AvailableClients )
                     {
-                        this.SendNewJob( client );
+                        SendNewJob( client );
                     }
                 }
             }
@@ -405,12 +404,12 @@ namespace TMG.Estimation
         private void StoreResult(Job currentJob)
         {
             StringBuilder toWrite = new StringBuilder();
-            toWrite.Append( this.CurrentIteration );
+            toWrite.Append( CurrentIteration );
             toWrite.Append( ',' );
             toWrite.Append( currentJob.Value );
             for ( int i = 0; i < currentJob.Parameters.Length; i++ )
             {
-                for ( int j = 0; j < this.Parameters[i].Names.Length; j++ )
+                for ( int j = 0; j < Parameters[i].Names.Length; j++ )
                 {
                     toWrite.Append( ',' );
                     // this uses the i th value since they are all the same
@@ -421,17 +420,17 @@ namespace TMG.Estimation
             {
                 try
                 {
-                    if ( this.HoldOnToResultFile )
+                    if ( HoldOnToResultFile )
                     {
-                        if ( this.ResultFileWriter == null )
+                        if ( ResultFileWriter == null )
                         {
-                            this.ResultFileWriter = new StreamWriter( this.ResultFile.GetFilePath() );
+                            ResultFileWriter = new StreamWriter( ResultFile.GetFilePath() );
                         }
-                        Write( currentJob, toWrite, this.ResultFileWriter );
+                        Write( currentJob, toWrite, ResultFileWriter );
                     }
                     else
                     {
-                        using (var writer = new StreamWriter( this.ResultFile.GetFilePath(), true ))
+                        using (var writer = new StreamWriter( ResultFile.GetFilePath(), true ))
                         {
                             Write( currentJob, toWrite, writer );
                         }
@@ -448,23 +447,23 @@ namespace TMG.Estimation
 
         private void Write(Job currentJob, StringBuilder toWrite, StreamWriter writer)
         {
-            if ( this.FirstLineToWrite )
+            if ( FirstLineToWrite )
             {
                 // write header here
                 StringBuilder header = new StringBuilder();
                 header.Append( "Generation,Value" );
                 for ( int i = 0; i < currentJob.Parameters.Length; i++ )
                 {
-                    for ( int j = 0; j < this.Parameters[i].Names.Length; j++ )
+                    for ( int j = 0; j < Parameters[i].Names.Length; j++ )
                     {
                         header.Append( ',' );
                         header.Append('"');
-                        header.Append( this.Parameters[i].Names[j] );
+                        header.Append( Parameters[i].Names[j] );
                         header.Append('"');
                     }
                 }
                 writer.WriteLine( header.ToString() );
-                this.FirstLineToWrite = false;
+                FirstLineToWrite = false;
             }
             writer.WriteLine( toWrite.ToString() );
         }
@@ -478,15 +477,15 @@ namespace TMG.Estimation
 
         public void Dispose()
         {
-            if ( this.ResultFileWriter != null )
+            if ( ResultFileWriter != null )
             {
-                this.ResultFileWriter.Dispose();
-                this.ResultFileWriter = null;
+                ResultFileWriter.Dispose();
+                ResultFileWriter = null;
             }
-            if ( this.PendingResults != null )
+            if ( PendingResults != null )
             {
-                this.PendingResults.Dispose();
-                this.PendingResults = null;
+                PendingResults.Dispose();
+                PendingResults = null;
             }
         }
     }

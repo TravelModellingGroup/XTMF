@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Datastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 namespace XTMF.Testing
 {
@@ -33,10 +34,10 @@ namespace XTMF.Testing
         {
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -45,8 +46,8 @@ namespace XTMF.Testing
                 var data = CreateData( zones.Length );
                 Create311File( zones, data, "Test.311" );
                 allData[0] = data;
-                var writer = new ODMatrixWriter<int>( referenceArray, 1, 1 );
-                writer.LoadEMME2( "Test.311", 0 );
+                var writer = new OdMatrixWriter<int>( referenceArray, 1, 1 );
+                writer.LoadEmme2( "Test.311", 0 );
                 writer.Save( "Test.odc", false );
                 var odcFloatData = ConvertData( allData, zones.Length, 1, 1 );
                 ValidateData( zones, odcFloatData, "Test.odc" );
@@ -59,14 +60,15 @@ namespace XTMF.Testing
         }
 
         [TestMethod]
+        // ReSharper disable once InconsistentNaming
         public void TestCSVODC()
         {
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -75,8 +77,8 @@ namespace XTMF.Testing
                 var data = CreateData( zones.Length );
                 CreateCSVFile( zones, data, "Test.csv" );
                 allData[0] = data;
-                var writer = new ODMatrixWriter<int>( referenceArray, 1, 1 );
-                writer.LoadCSVTimes( "Test.csv", false, 0, 0 );
+                var writer = new OdMatrixWriter<int>( referenceArray, 1, 1 );
+                writer.LoadCsvTimes( "Test.csv", false, 0, 0 );
                 writer.Save( "Test.odc", false );
                 var odcFloatData = ConvertData( allData, zones.Length, 1, 1 );
                 ValidateData( zones, odcFloatData, "Test.odc" );
@@ -94,10 +96,10 @@ namespace XTMF.Testing
             float[][][] allData = new float[4][][];
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -109,10 +111,10 @@ namespace XTMF.Testing
                     Create311File( zones, data, "Test" + i + ".311" );
                     allData[i] = data;
                 }
-                var writer = new ODMatrixWriter<int>( referenceArray, allData.Length, 1 );
+                var writer = new OdMatrixWriter<int>( referenceArray, allData.Length, 1 );
                 for ( int i = 0; i < allData.Length; i++ )
                 {
-                    writer.LoadEMME2( "Test" + i + ".311", i, 0 );
+                    writer.LoadEmme2( "Test" + i + ".311", i, 0 );
                 }
                 writer.Save( "Test.odc", false );
                 var odcFloatData = ConvertData( allData, zones.Length, allData.Length, 1 );
@@ -135,10 +137,10 @@ namespace XTMF.Testing
             float[][][] allData = new float[times * types][][];
             try
             {
-                int[] zones = new int[] { 0, 1, 2, 3, 4, 5, 6 };
+                int[] zones = new[] { 0, 1, 2, 3, 4, 5, 6 };
                 SparseArray<int> referenceArray = new SparseArray<int>( new SparseIndexing()
                 {
-                    Indexes = new SparseSet[]
+                    Indexes = new[]
                 {
                     new SparseSet() { Start = 0, Stop = 6 }
                 }
@@ -150,12 +152,12 @@ namespace XTMF.Testing
                     Create311File( zones, data, "Test" + i + ".311" );
                     allData[i] = data;
                 }
-                var writer = new ODMatrixWriter<int>( referenceArray, times, types );
+                var writer = new OdMatrixWriter<int>( referenceArray, times, types );
                 for ( int i = 0; i < types; i++ )
                 {
                     for ( int j = 0; j < times; j++ )
                     {
-                        writer.LoadEMME2( "Test" + ( i * times + j ) + ".311", i, j );
+                        writer.LoadEmme2( "Test" + ( i * times + j ) + ".311", i, j );
                     }
                 }
                 writer.Save( "Test.odc", false );
@@ -270,7 +272,15 @@ namespace XTMF.Testing
 
         private void ValidateData(int[] zones, float[][][] data, string odcFileName)
         {
-            ODCache odc = new ODCache( odcFileName );
+            if (zones == null)
+            {
+                throw new ArgumentNullException(nameof(zones));
+            }
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+            OdCache odc = new OdCache( odcFileName );
             var storedData = odc.StoreAll().GetFlatData();
             odc.Release();
             if ( storedData.Length != data.Length )
@@ -279,6 +289,10 @@ namespace XTMF.Testing
             }
             for ( int i = 0; i < storedData.Length; i++ )
             {
+                if (data[i] == null)
+                {
+                    Assert.Fail("No data provided for data[i]");
+                }
                 if ( ( storedData[i] == null ) != ( data[i] == null ) )
                 {
                     Assert.Fail( "The data differs at zone " + zones[i] );
@@ -290,17 +304,25 @@ namespace XTMF.Testing
                 }
                 for ( int j = 0; j < storedData[i].Length; j++ )
                 {
+                    if (data[i][j] == null)
+                    {
+                        Assert.Fail("No data provided for data[i][j]");
+                    }
                     if ( ( storedData[i][j] == null ) != ( data[i][j] == null ) )
                     {
                         Assert.Fail( "The data differs at zone " + zones[i] + " in zone " + zones[j] );
                     }
-                    for ( int k = 0; k < storedData[i][j].Length; k++ )
+                    if (storedData[i][j] != null)
                     {
-                        if ( storedData[i][j][k] != data[i][j][k] )
+                        for (int k = 0; k < storedData[i][j].Length; k++)
                         {
-                            if ( Math.Round( storedData[i][j][k], 5 ) != Math.Round( data[i][j][k], 5 ) )
+                            if (storedData[i][j][k] != data[i][j][k])
                             {
-                                Assert.Fail( "The data differs at index " + i + ":" + j + ":" + k + " (" + storedData[i][j][k] + " / " + data[i][j][k] + ")" );
+                                if (Math.Round(storedData[i][j][k], 5) != Math.Round(data[i][j][k], 5))
+                                {
+                                    Assert.Fail("The data differs at index " + i + ":" + j + ":" + k + " (" +
+                                                storedData[i][j][k] + " / " + data[i][j][k] + ")");
+                                }
                             }
                         }
                     }

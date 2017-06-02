@@ -215,7 +215,6 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         private void GetPersonVariables(ITashaPerson person, out float constant)
         {
             var empStat = person.EmploymentStatus;
-            var stuStat = person.StudentStatus;
             if (empStat == TTSEmploymentStatus.FullTime)
             {
                 switch (person.Occupation)
@@ -260,7 +259,6 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                 }
             }
             constant = NonWorkerStudentConstant;
-            return;
         }
 
         public float CalculateV(IZone origin, IZone destination, Time time)
@@ -326,7 +324,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             return Time.Zero;
         }
 
-        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> OnSelection)
+        public bool CalculateTourDependentUtility(ITripChain chain, int tripIndex, out float dependentUtility, out Action<ITripChain> onSelection)
         {
             bool first;
             var trips = chain.Trips;
@@ -336,7 +334,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             if (tripCount > 2)
             {
                 dependentUtility = float.NaN;
-                OnSelection = null;
+                onSelection = null;
                 return false;
             }
             if (first)
@@ -347,12 +345,12 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
                     trips[tripIndex].DestinationZone, trips[otherIndex].DestinationZone, chain.Person, trips[tripIndex].ActivityStartTime, trips[otherIndex].ActivityStartTime,
                     out dependentUtility))
                 {
-                    OnSelection = null;
+                    onSelection = null;
                     dependentUtility = float.NegativeInfinity;
                     return false;
                 }
                 int householdIteration = 0;
-                OnSelection = (tripChain) =>
+                onSelection = (tripChain) =>
                 {
                     var person = tripChain.Person;
                     var household = person.Household;
@@ -365,7 +363,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             else
             {
                 dependentUtility = 0.0f;
-                OnSelection = null;
+                onSelection = null;
             }
             return true;
         }
@@ -391,7 +389,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         {
             var zones = accessData.First;
             var utils = accessData.Second;
-            var totalUtil = 0.0f;
+            float totalUtil;
             float ivttBeta, costBeta, constant;
             GetPersonVariables(person, out constant, out ivttBeta, out costBeta);
             totalUtil = VectorHelper.Sum(utils, 0, utils.Length);
@@ -636,8 +634,8 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
             NonWorkerStudentCost = ConvertCostFactor(NonWorkerStudentCostFactor, NonWorkerStudentTimeFactor);
 
 
-            ZonalDensityForActivitiesArray = ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
-            ZonalDensityForHomeArray = ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
+            ZonalDensityForActivitiesArray = (float[]) ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
+            ZonalDensityForHomeArray = (float[]) ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
             for (int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
             {
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
@@ -658,7 +656,7 @@ namespace Tasha.V4Modes.PerceivedTravelTimes
         [RunParameter("Unload Access Station Per Iteration", true, "Should we unload the access station choice model or keep it between iterations?")]
         public bool UnloadAccessStationModelEachIteration;
 
-        public bool AccessStationChoiceLoaded = false;
+        public bool AccessStationChoiceLoaded;
 
         public void IterationEnding(int iterationNumber, int maxIterations)
         {

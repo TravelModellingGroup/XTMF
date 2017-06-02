@@ -17,12 +17,9 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using XTMF;
 using TMG;
-using TMG.Input;
 using Tasha.Common;
 using Datastructure;
 
@@ -206,9 +203,9 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
         private void ComputeModeSplitForZone(int zone, ModeSplitUtilities[] utilities)
         {
             // first we need to get the data from the network
-            float aivtt, acost, tivtt, twalk, twait, _railTime, tfare;
+            float aivtt, acost, tivtt, twalk, twait, railTime, tfare;
             AutoNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out aivtt, out acost);
-            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out tivtt, out twalk, out twait, out _railTime, out tfare);
+            bool transit = TransitNetwork.GetAllData(zone, PearsonFlatZoneNumber, TimeOfDay, out tivtt, out twalk, out twait, out railTime, out tfare);
             // Second compute the utilities for each mode
             utilities[zone].Auto = (float)Math.Exp(BetaAutoTime * aivtt + BetaAutoCost * acost);
             if(transit && (tivtt > 0 | twalk > 0))
@@ -308,10 +305,7 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
             {
                 return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => x).ToArray();
             }
-            else
-            {
-                return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => (float)Math.Log(x + 1)).ToArray();
-            }
+            return Employment.AcquireResource<SparseArray<float>>().GetFlatData().Select(x => (float)Math.Log(x + 1)).ToArray();
         }
 
         public void Load(int totalIterations)
@@ -368,11 +362,11 @@ prediction of current airport travel behaviour than the GTAModel V2.5 airport mo
 
         private bool LoadTransitNetworks(ref string error)
         {
-            if(!GetFromName<INetworkData>(out AutoNetwork, AutoNetworkName))
+            if(!GetFromName(out AutoNetwork, AutoNetworkName))
             {
                 error = "In '" + Name + "' we were unable to find an auto network named '" + AutoNetworkName + "'!";
             }
-            if(!GetFromName<ITripComponentData>(out TransitNetwork, TransitNetworkName))
+            if(!GetFromName(out TransitNetwork, TransitNetworkName))
             {
                 error = "In '" + Name + "' we were unable to find an transit network named '" + TransitNetworkName + "'!";
             }

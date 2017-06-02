@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -58,21 +59,21 @@ namespace TMG.GTAModel.Input
             var zoneNumbers = zoneArray.ValidIndexArray();
             var zones = zoneArray.GetFlatData();
 
-            BinaryReader reader = null;
+            BinaryReader reader;
             try
             {
                 reader = new BinaryReader( File.OpenRead( FileToRead.GetFileName() ) );
             }
             catch ( IOException e )
             {
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we were unable to open up the file named '" + FileToRead.GetFileName() + "' with the exception '" + e.Message + "'" );
             }
             var fileSize = reader.BaseStream.Length;
             // make sure the file is of the right size (a float is 4 bytes)
             if ( fileSize != 4 * zones.Length * zones.Length )
             {
                 reader.Close();
-                throw new XTMFRuntimeException( "In '" + this.Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!" );
+                throw new XTMFRuntimeException( "In '" + Name + "' we found the file named '" + FileToRead.GetFileName() + "' was not a flat binary OD data file for the current zone system!" );
             }
             using ( reader )
             {

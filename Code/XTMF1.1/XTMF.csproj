@@ -50,9 +50,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
-    <OutputPath>bin\Development Debug\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -69,7 +69,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="Editing\ModuleMetaProperty.cs" />
     <Compile Include="Editing\ProjectExternallySavedEventArgs.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="RunProxy\ConfigurationProxy.cs" />
     <Compile Include="Editing\CopyBuffer.cs" />

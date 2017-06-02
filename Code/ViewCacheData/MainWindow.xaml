@@ -35,7 +35,7 @@
                 <MenuItem Name="CloseMenuItem" Header="_Close" Click="CloseMenuItem_Click" />
             </MenuItem>
         </Menu>
-        <Grid Name="ODControlGrid" Grid.Row="1" IsEnabled="False">
+        <Grid Name="OdControlGrid" Grid.Row="1" IsEnabled="False">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />

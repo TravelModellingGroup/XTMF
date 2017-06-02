@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using XTMF;
 
 namespace TMG.Functions
 {
@@ -36,7 +37,7 @@ namespace TMG.Functions
         /// <returns></returns>
         public static bool CompressFile(string fileName, string outputFileName = null)
         {
-            FileStream inputStream = null;
+            FileStream inputStream;
             try
             {
                 inputStream = File.OpenRead( fileName );
@@ -47,7 +48,12 @@ namespace TMG.Functions
             }
             using ( inputStream )
             {
-                return CompressStream( inputStream, outputFileName == null ? Path.Combine( Path.GetDirectoryName( fileName ),
+                var directoryName = Path.GetDirectoryName(fileName);
+                if (directoryName == null)
+                {
+                    throw new XTMFRuntimeException($"Unable to get the directory name for the file path '{fileName}'");
+                }
+                return CompressStream( inputStream, outputFileName == null ? Path.Combine( directoryName,
                     fileName + ".gz" ) : outputFileName );
             }
         }
@@ -89,15 +95,11 @@ namespace TMG.Functions
             }
             catch ( Exception e )
             {
-                throw new XTMF.XTMFRuntimeException( e.Message );
+                throw new XTMFRuntimeException( e.Message );
             }
             finally
             {
-                if ( writer != null )
-                {
-                    writer.Dispose();
-                    writer = null;
-                }
+                writer?.Dispose();
             }
             return true;
         }

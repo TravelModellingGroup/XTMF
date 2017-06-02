@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +41,7 @@ namespace TMG.GTAModel
         {
             get
             {
-                if ( this.CachesFlows )
+                if ( CachesFlows )
                 {
                     var flows = CachedFlows.Target as List<TreeData<float[][]>>;
                     if ( flows == null )
@@ -55,7 +56,7 @@ namespace TMG.GTAModel
 
             set
             {
-                if ( this.CachesFlows )
+                if ( CachesFlows )
                 {
                     CachedFlows = new WeakReference( value );
                     SaveData( value );
@@ -93,7 +94,7 @@ namespace TMG.GTAModel
 
         public virtual bool RuntimeValidation(ref string error)
         {
-            this.CachesFlows = !String.IsNullOrWhiteSpace( this.ResultCacheFile );
+            CachesFlows = !String.IsNullOrWhiteSpace( ResultCacheFile );
             return true;
         }
 
@@ -105,8 +106,8 @@ namespace TMG.GTAModel
             }
             if ( split.Result != null )
             {
-                var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
-                TMG.Functions.SaveData.SaveMatrix( zones, split.Result, Path.Combine( directoryName, modeNode.ModeName + ".csv" ) );
+                var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
+                Functions.SaveData.SaveMatrix( zones, split.Result, Path.Combine( directoryName, modeNode.ModeName + ".csv" ) );
             }
             if ( split.Children != null )
             {
@@ -119,16 +120,17 @@ namespace TMG.GTAModel
 
         private List<TreeData<float[][]>> LoadData()
         {
-            var tree = TMG.Functions.MirrorModeTree.CreateMirroredTree<float[][]>( this.Root.Modes );
+            var tree = MirrorModeTree.CreateMirroredTree<float[][]>( Root.Modes );
             try
             {
-                BinaryHelpers.ExecuteReader( (reader) =>
+                BinaryHelpers.ExecuteReader( reader =>
                     {
+                        // ReSharper disable once UnusedVariable
                         foreach ( var t in tree )
                         {
-                            LoadData( t, reader );
+                            LoadData(reader );
                         }
-                    }, this.ResultCacheFile );
+                    }, ResultCacheFile );
             }
             catch ( IOException e )
             {
@@ -137,10 +139,10 @@ namespace TMG.GTAModel
             return tree;
         }
 
-        private void LoadData(TreeData<float[][]> t, BinaryReader reader)
+        private void LoadData(BinaryReader reader)
         {
             var size = reader.ReadSingle();
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             // if the size is NaN then we skip it
             if ( !float.IsNaN( size ) )
@@ -162,7 +164,7 @@ namespace TMG.GTAModel
                     () =>
                     {
                         // and allocate memory at the same time
-                        ret = new float[numberOfZones][]; ;
+                        ret = new float[numberOfZones][];
                         for ( int i = 0; i < numberOfZones; i++ )
                         {
                             ret[i] = new float[numberOfZones];
@@ -179,18 +181,18 @@ namespace TMG.GTAModel
         {
             try
             {
-                var dir = Path.GetDirectoryName( this.ResultCacheFile );
+                var dir = Path.GetDirectoryName( ResultCacheFile );
                 if ( !String.IsNullOrWhiteSpace( dir ) && !Directory.Exists( dir ) )
                 {
                     Directory.CreateDirectory( dir );
                 }
-                BinaryHelpers.ExecuteWriter( (writer) =>
+                BinaryHelpers.ExecuteWriter( writer =>
                     {
                         foreach ( var tree in value )
                         {
                             SaveData( tree, writer );
                         }
-                    }, this.ResultCacheFile );
+                    }, ResultCacheFile );
             }
             catch ( IOException e )
             {
@@ -200,7 +202,7 @@ namespace TMG.GTAModel
 
         private void SaveData(TreeData<float[][]> tree, BinaryWriter writer)
         {
-            var zones = this.Root.ZoneSystem.ZoneArray.GetFlatData();
+            var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             var numberOfZones = zones.Length;
             var res = tree.Result;
             if ( res == null )
@@ -217,7 +219,7 @@ namespace TMG.GTAModel
                     {
                         for ( int j = 0; j < numberOfZones; j++ )
                         {
-                            writer.Write( (float)0f );
+                            writer.Write( 0f );
                         }
                     }
                     else

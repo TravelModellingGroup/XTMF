@@ -71,7 +71,7 @@ namespace Tasha
 
         private float CompletedIterationPercentage;
 
-        private int CurrentHousehold = 0;
+        private int CurrentHousehold;
 
         private float IterationPercentage;
 
@@ -95,7 +95,7 @@ namespace Tasha
         [RunParameter("Iterations", 3, "The number of complete iterations Tasha should do.")]
         public int TotalIterations { get; set; }
 
-        int ITashaRuntime.TotalIterations {  get { return TotalIterations; } set { } }
+        int ITashaRuntime.TotalIterations { get { return TotalIterations; } set { } }
 
         [SubModelInformation(Description = "The ModeChoice Module", Required = false)]
         public ITashaModeChoice ModeChoice { get; set; }
@@ -172,7 +172,7 @@ namespace Tasha
             throw new NotImplementedException();
         }
 
-        private volatile bool _ExitRequested = false;
+        private volatile bool _ExitRequested;
 
         public bool ExitRequest()
         {
@@ -182,11 +182,11 @@ namespace Tasha
 
         public int GetIndexOfMode(ITashaMode mode)
         {
-            if(AllModes == null) return -1;
+            if (AllModes == null) return -1;
             var length = AllModes.Count;
-            for(int i = 0; i < length; i++)
+            for (int i = 0; i < length; i++)
             {
-                if(AllModes[i] == mode)
+                if (AllModes[i] == mode)
                 {
                     return i;
                 }
@@ -204,15 +204,15 @@ namespace Tasha
         {
             GenerateAllModeList();
             IModelSystemStructure ourStructure = null;
-            foreach(var mst in XTMFConfiguration.ProjectRepository.ActiveProject.ModelSystemStructure)
+            foreach (var mst in XTMFConfiguration.ProjectRepository.ActiveProject.ModelSystemStructure)
             {
-                if(FindUs(mst, ref ourStructure))
+                if (FindUs(mst, ref ourStructure))
                 {
                     ClientStructure = ourStructure;
                     break;
                 }
             }
-            if(ClientStructure == null)
+            if (ClientStructure == null)
             {
                 error = "In '" + Name + "' we were unable to find the Client Model System!";
                 return false;
@@ -231,54 +231,54 @@ namespace Tasha
                 VehicleTypes.Add(AutoType);
             }
             ZoneSystem.LoadData();
-            if(PreRun != null)
+            if (PreRun != null)
             {
-                foreach(var module in PreRun)
+                foreach (var module in PreRun)
                 {
                     module.Start();
                 }
             }
             IterationPercentage = 1f / TotalIterations;
-            if(PostScheduler != null)
+            if (PostScheduler != null)
             {
-                foreach(var module in PostScheduler)
+                foreach (var module in PostScheduler)
                 {
                     module.Load(TotalIterations);
                 }
             }
-            if(PostHousehold != null)
+            if (PostHousehold != null)
             {
-                foreach(var module in PostHousehold)
+                foreach (var module in PostHousehold)
                 {
                     module.Load(TotalIterations);
                 }
             }
 
-            if(OverrideModeParameters)
+            if (OverrideModeParameters)
             {
                 InitializeParameters();
             }
             LoadNetworkData(0);
-            if(Scheduler != null)
+            if (Scheduler != null)
             {
                 Scheduler.LoadOneTimeLocalData();
             }
 
-            if(ModeChoice != null)
+            if (ModeChoice != null)
             {
                 ModeChoice.LoadOneTimeLocalData();
             }
 
-            for(int i = 0; i < TotalIterations; i++)
+            for (int i = 0; i < TotalIterations; i++)
             {
-                if(!_ExitRequested)
+                if (!_ExitRequested)
                 {
                     CurrentHousehold = 0;
                     CurrentIteration = i;
                     CompletedIterationPercentage = i * IterationPercentage;
-                    if(LoadAllHouseholds)
+                    if (LoadAllHouseholds)
                     {
-                        if(!SkipLoadingHouseholds)
+                        if (!SkipLoadingHouseholds)
                         {
                             HouseholdLoader.LoadData();
                         }
@@ -286,9 +286,9 @@ namespace Tasha
                     RunIteration(i);
                 }
             }
-            if(PostRun != null)
+            if (PostRun != null)
             {
-                foreach(var module in PostRun)
+                foreach (var module in PostRun)
                 {
                     module.Start();
                 }
@@ -298,16 +298,16 @@ namespace Tasha
 
         private bool FindUs(IModelSystemStructure mst, ref IModelSystemStructure modelSystemStructure)
         {
-            if(mst.Module == this)
+            if (mst.Module == this)
             {
                 modelSystemStructure = mst;
                 return true;
             }
-            if(mst.Children != null)
+            if (mst.Children != null)
             {
-                foreach(var child in mst.Children)
+                foreach (var child in mst.Children)
                 {
-                    if(FindUs(child, ref modelSystemStructure))
+                    if (FindUs(child, ref modelSystemStructure))
                     {
                         return true;
                     }
@@ -324,19 +324,19 @@ namespace Tasha
                 int numberOfParameters;
                 reader.LoadLine(out numberOfParameters);
                 var headers = new string[numberOfParameters];
-                for(int i = 2; i < numberOfParameters; i++)
+                for (int i = 2; i < numberOfParameters; i++)
                 {
                     reader.Get(out headers[i], i);
                 }
-                for(int i = 0; i < ModeParameterFileRow; i++)
+                for (int i = 0; i < ModeParameterFileRow; i++)
                 {
                     reader.LoadLine();
                 }
                 int lineSize;
-                if(reader.LoadLine(out lineSize))
+                if (reader.LoadLine(out lineSize))
                 {
-                    if(lineSize < numberOfParameters) numberOfParameters = lineSize;
-                    for(int i = 2; i < numberOfParameters; i++)
+                    if (lineSize < numberOfParameters) numberOfParameters = lineSize;
+                    for (int i = 2; i < numberOfParameters; i++)
                     {
                         float temp;
                         reader.Get(out temp, i);
@@ -359,16 +359,16 @@ namespace Tasha
 
         private void AssignValue(string[] parts, int currentIndex, IModelSystemStructure currentStructure, float value)
         {
-            if(currentIndex == parts.Length - 1)
+            if (currentIndex == parts.Length - 1)
             {
                 AssignValue(parts[currentIndex], currentStructure, value, parts);
                 return;
             }
-            if(currentStructure.Children != null)
+            if (currentStructure.Children != null)
             {
-                for(int i = 0; i < currentStructure.Children.Count; i++)
+                for (int i = 0; i < currentStructure.Children.Count; i++)
                 {
-                    if(currentStructure.Children[i].Name == parts[currentIndex])
+                    if (currentStructure.Children[i].Name == parts[currentIndex])
                     {
                         AssignValue(parts, currentIndex + 1, currentStructure.Children[i], value);
                         return;
@@ -381,25 +381,25 @@ namespace Tasha
 
         private void AssignValue(string variableName, IModelSystemStructure currentStructure, float value, string[] allParts)
         {
-            if(currentStructure == null)
+            if (currentStructure == null)
             {
                 throw new XTMFRuntimeException("Unable to assign '" + variableName + "', the module is null!");
             }
             var p = currentStructure.Parameters;
-            if(p == null)
+            if (p == null)
             {
                 throw new XTMFRuntimeException("The structure '" + currentStructure.Name + "' has no parameters!");
             }
             var parameters = p.Parameters;
             bool any = false;
-            if(parameters != null)
+            if (parameters != null)
             {
-                for(int i = 0; i < parameters.Count; i++)
+                for (int i = 0; i < parameters.Count; i++)
                 {
-                    if(parameters[i].Name == variableName)
+                    if (parameters[i].Name == variableName)
                     {
                         var type = currentStructure.Module.GetType();
-                        if(parameters[i].OnField)
+                        if (parameters[i].OnField)
                         {
                             var field = type.GetField(parameters[i].VariableName);
                             field.SetValue(currentStructure.Module, value);
@@ -414,7 +414,7 @@ namespace Tasha
                     }
                 }
             }
-            if(!any)
+            if (!any)
             {
                 throw new XTMFRuntimeException("Unable to find a parameter named '" + variableName
                     + "' for module '" + currentStructure.Name + "' in order to assign it a parameter! \r\n" + allParts.Aggregate((previous, next) => previous + " " + next));
@@ -426,23 +426,23 @@ namespace Tasha
             List<string> parts = new List<string>();
             var stringLength = parameterName.Length;
             StringBuilder builder = new StringBuilder();
-            for(int i = 0; i < stringLength; i++)
+            for (int i = 0; i < stringLength; i++)
             {
-                switch(parameterName[i])
+                switch (parameterName[i])
                 {
                     case '.':
                         parts.Add(builder.ToString());
                         builder.Clear();
                         break;
                     case '\\':
-                        if(i + 1 < stringLength)
+                        if (i + 1 < stringLength)
                         {
-                            if(parameterName[i + 1] == '.')
+                            if (parameterName[i + 1] == '.')
                             {
                                 builder.Append('.');
                                 i += 2;
                             }
-                            else if(parameterName[i + 1] == '\\')
+                            else if (parameterName[i + 1] == '\\')
                             {
                                 builder.Append('\\');
                             }
@@ -468,10 +468,10 @@ namespace Tasha
         private static void RecycleTrips(ITripChain tc)
         {
             var trips = tc.Trips;
-            for(int i = 0; i < trips.Count; i++)
+            for (int i = 0; i < trips.Count; i++)
             {
                 var md = Tasha.ModeChoice.ModeData.Get(trips[i]);
-                if(md != null)
+                if (md != null)
                 {
                     md.Recycle();
                 }
@@ -484,12 +484,12 @@ namespace Tasha
             NonSharedModes = new List<ITashaMode>();
             AllModes.Add(AutoMode);
             NonSharedModes.Add(AutoMode);
-            foreach(var mode in OtherModes)
+            foreach (var mode in OtherModes)
             {
                 AllModes.Add(mode);
                 NonSharedModes.Add(mode);
             }
-            foreach(var mode in SharedModes)
+            foreach (var mode in SharedModes)
             {
                 AllModes.Add(mode);
             }
@@ -498,69 +498,25 @@ namespace Tasha
         private string GetFullPath(string localPath)
         {
             var fullPath = localPath;
-            if(!Path.IsPathRooted(fullPath))
+            if (!Path.IsPathRooted(fullPath))
             {
                 fullPath = Path.Combine(InputBaseDirectory, fullPath);
             }
             return fullPath;
         }
 
-        private string GetVariableName(ITashaMode selectedMode, string parameterName)
-        {
-            // Search for a field or property that has an attribute with this name
-            var modeType = selectedMode.GetType();
-            foreach(var f in modeType.GetProperties())
-            {
-                // search the attributes
-                var attributes = f.GetCustomAttributes(true);
-                foreach(var at in attributes)
-                {
-                    // if we find an attribute from XTMF
-                    ParameterAttribute parameter;
-                    if((parameter = ((at as ParameterAttribute))) != null)
-                    {
-                        // Check to see if this is our parameter
-                        if(parameter.Name == parameterName)
-                        {
-                            return f.Name;
-                        }
-                    }
-                }
-            }
-            foreach(var f in modeType.GetFields())
-            {
-                // search the attributes
-                var attributes = f.GetCustomAttributes(true);
-                foreach(var at in attributes)
-                {
-                    // if we find an attribute from XTMF
-                    ParameterAttribute parameter;
-                    if((parameter = ((at as ParameterAttribute))) != null)
-                    {
-                        // Check to see if this is our parameter
-                        if(parameter.Name == parameterName)
-                        {
-                            return f.Name;
-                        }
-                    }
-                }
-            }
-            // If we get here then we did not find it!
-            throw new XTMFRuntimeException("We were unable to find a parameter with the name \"" + parameterName + "\" in the mode " + selectedMode.ModeName);
-        }
-
         private void ReleaseModeData(ITashaHousehold hhld)
         {
             var persons = hhld.Persons;
-            for(int i = 0; i < persons.Length; i++)
+            for (int i = 0; i < persons.Length; i++)
             {
                 var chains = persons[i].TripChains;
-                for(int j = 0; j < chains.Count; j++)
+                for (int j = 0; j < chains.Count; j++)
                 {
                     RecycleTrips(chains[j]);
                 }
                 chains = persons[i].AuxTripChains;
-                for(int j = 0; j < chains.Count; j++)
+                for (int j = 0; j < chains.Count; j++)
                 {
                     RecycleTrips(chains[j]);
                 }
@@ -569,38 +525,38 @@ namespace Tasha
 
         private void Run(int i, ITashaHousehold hhld)
         {
-            if(!_ExitRequested)
+            if (!_ExitRequested)
             {
-                if(Scheduler != null)
+                if (Scheduler != null)
                 {
                     Scheduler.Run(hhld);
-                    if(PostScheduler != null)
+                    if (PostScheduler != null)
                     {
-                        foreach(var module in PostScheduler)
+                        foreach (var module in PostScheduler)
                         {
                             module.Execute(hhld);
                         }
                     }
                 }
 
-                if(ModeChoice != null)
+                if (ModeChoice != null)
                 {
-                    if(!ModeChoice.Run(hhld))
+                    if (!ModeChoice.Run(hhld))
                     {
                         Interlocked.Increment(ref FailedModeChoice);
                     }
                 }
 
-                if(PostHousehold != null)
+                if (PostHousehold != null)
                 {
-                    foreach(var module in PostHousehold)
+                    foreach (var module in PostHousehold)
                     {
                         module.Execute(hhld, i);
                     }
                 }
-                System.Threading.Interlocked.Increment(ref CurrentHousehold);
+                Interlocked.Increment(ref CurrentHousehold);
 
-                if(RecycleHouseholdData)
+                if (RecycleHouseholdData)
                 {
                     ReleaseModeData(hhld);
                     hhld.Recycle();
@@ -608,23 +564,23 @@ namespace Tasha
             }
         }
 
-        public static int FailedModeChoice = 0;
+        public static int FailedModeChoice;
 
         private void RunIteration(int i)
         {
-            if(i > 0)
+            if (i > 0)
             {
                 LoadNetworkData(i);
             }
-            _Status = () => "Processing pre-iteration logic for iteration " + (i + 1).ToString() + " of " + TotalIterations.ToString();
+            _Status = () => "Processing pre-iteration logic for iteration " + (i + 1) + " of " + TotalIterations;
             RunPreIterationModules(i);
             RunStartIteration(i);
             RunIterationSensitiveStart(i);
             _Progress = () => (Math.Min(((float)CurrentHousehold / NumberOfHouseholds), 1.0f) / TotalIterations + CompletedIterationPercentage);
-            if(!SkipLoadingHouseholds)
+            if (!SkipLoadingHouseholds)
             {
-                _Status = () => "Processing households for iteration " + (i + 1).ToString() + " of " + TotalIterations.ToString();
-                if(Parallel)
+                _Status = () => "Processing households for iteration " + (i + 1) + " of " + TotalIterations;
+                if (Parallel)
                 {
                     RunParallel(i);
                 }
@@ -635,17 +591,17 @@ namespace Tasha
             }
             RunIterationSensitiveEnd(i);
             UnloadNetworkData();
-            _Status = () => "Processing post-iteration logic for iteration " + (i + 1).ToString() + " of " + TotalIterations.ToString();
+            _Status = () => "Processing post-iteration logic for iteration " + (i + 1) + " of " + TotalIterations;
             RunFinishedIteration(i);
             RunPostIteration(i);
         }
 
         private void RunIterationSensitiveStart(int i)
         {
-            foreach(var mode in AllModes)
+            foreach (var mode in AllModes)
             {
                 var sensitive = mode as IIterationSensitive;
-                if(sensitive != null)
+                if (sensitive != null)
                 {
                     sensitive.IterationStarting(i, TotalIterations);
                 }
@@ -654,10 +610,10 @@ namespace Tasha
 
         private void RunIterationSensitiveEnd(int i)
         {
-            foreach(var mode in AllModes)
+            foreach (var mode in AllModes)
             {
                 var sensitive = mode as IIterationSensitive;
-                if(sensitive != null)
+                if (sensitive != null)
                 {
                     sensitive.IterationEnding(i, TotalIterations);
                 }
@@ -666,9 +622,9 @@ namespace Tasha
 
         private void RunPostIteration(int i)
         {
-            if(PostIteration != null)
+            if (PostIteration != null)
             {
-                foreach(var module in PostIteration)
+                foreach (var module in PostIteration)
                 {
                     module.Execute(i, TotalIterations);
                 }
@@ -677,28 +633,28 @@ namespace Tasha
 
         private void RunFinishedIteration(int i)
         {
-            if(ModeChoice != null)
+            if (ModeChoice != null)
             {
-                if(!_ExitRequested)
+                if (!_ExitRequested)
                 {
                     ModeChoice.IterationFinished(i, TotalIterations);
                 }
             }
-            if(PostScheduler != null)
+            if (PostScheduler != null)
             {
-                foreach(var module in PostScheduler)
+                foreach (var module in PostScheduler)
                 {
-                    if(!_ExitRequested)
+                    if (!_ExitRequested)
                     {
                         module.IterationFinished(i);
                     }
                 }
             }
-            if(PostHousehold != null)
+            if (PostHousehold != null)
             {
-                foreach(var module in PostHousehold)
+                foreach (var module in PostHousehold)
                 {
-                    if(!_ExitRequested)
+                    if (!_ExitRequested)
                     {
                         module.IterationFinished(i);
                     }
@@ -708,11 +664,11 @@ namespace Tasha
 
         private void UnloadNetworkData()
         {
-            if(NetworkData != null)
+            if (NetworkData != null)
             {
-                foreach(var network in NetworkData)
+                foreach (var network in NetworkData)
                 {
-                    if(!_ExitRequested)
+                    if (!_ExitRequested)
                     {
                         network.UnloadData();
                     }
@@ -722,28 +678,28 @@ namespace Tasha
 
         private void RunStartIteration(int i)
         {
-            if(ModeChoice != null)
+            if (ModeChoice != null)
             {
-                if(!_ExitRequested)
+                if (!_ExitRequested)
                 {
                     ModeChoice.IterationStarted(i, TotalIterations);
                 }
             }
-            if(PostScheduler != null)
+            if (PostScheduler != null)
             {
-                foreach(var module in PostScheduler)
+                foreach (var module in PostScheduler)
                 {
-                    if(!_ExitRequested)
+                    if (!_ExitRequested)
                     {
                         module.IterationStarting(i);
                     }
                 }
             }
-            if(PostHousehold != null)
+            if (PostHousehold != null)
             {
-                foreach(var module in PostHousehold)
+                foreach (var module in PostHousehold)
                 {
-                    if(!_ExitRequested)
+                    if (!_ExitRequested)
                     {
                         module.IterationStarting(i);
                     }
@@ -753,11 +709,11 @@ namespace Tasha
 
         private void RunPreIterationModules(int i)
         {
-            if(PreIteration != null)
+            if (PreIteration != null)
             {
-                foreach(var module in PreIteration)
+                foreach (var module in PreIteration)
                 {
-                    if(!_ExitRequested)
+                    if (!_ExitRequested)
                     {
                         module.Execute(i, TotalIterations);
                     }
@@ -767,10 +723,10 @@ namespace Tasha
 
         private void LoadNetworkData(int iteration)
         {
-            if(NetworkData != null)
+            if (NetworkData != null)
             {
-                _Status = () => "Loading Network Data for iteration " + (iteration + 1).ToString() + " of " + TotalIterations;
-                System.Threading.Tasks.Parallel.For(0, NetworkData.Count, (int i) =>
+                _Status = () => "Loading Network Data for iteration " + (iteration + 1) + " of " + TotalIterations;
+                System.Threading.Tasks.Parallel.For(0, NetworkData.Count, i =>
                 {
                     if (!_ExitRequested)
                     {
@@ -782,11 +738,15 @@ namespace Tasha
 
         private void RunParallel(int iteration)
         {
-            if(LoadAllHouseholds)
+            if (LoadAllHouseholds)
             {
                 var hhlds = HouseholdLoader.ToArray();
+                if (hhlds == null)
+                {
+                    return;
+                }
                 NumberOfHouseholds = hhlds.Length;
-                if(hhlds == null) return;
+
                 Console.WriteLine(StartingHouseholds);
                 System.Threading.Tasks.Parallel.For(0, hhlds.Length, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount },
                    delegate (int i)
@@ -804,22 +764,20 @@ namespace Tasha
                 {
                     Run(iteration, household);
                 });
-                if(CurrentHousehold != NumberOfHouseholds)
-                {
-                    NumberOfHouseholds = CurrentHousehold;
-                }
+                // ensure that the number of households are properly defined
+                NumberOfHouseholds = CurrentHousehold;
                 Console.WriteLine(FinishedProcessingHouseholds);
             }
         }
 
         private void RunSerial(int iteration)
         {
-            if(LoadAllHouseholds)
+            if (LoadAllHouseholds)
             {
                 var households = HouseholdLoader.ToArray();
                 NumberOfHouseholds = households.Length;
                 Console.WriteLine(StartingHouseholds);
-                for(int i = 0; i < households.Length; i++)
+                for (int i = 0; i < households.Length; i++)
                 {
                     ITashaHousehold hhld = households[i];
                     Run(iteration, hhld);
@@ -827,12 +785,12 @@ namespace Tasha
             }
             else
             {
-                if(iteration >= 1)
+                if (iteration >= 1)
                 {
                     HouseholdLoader.Reset();
                 }
                 Console.WriteLine(StartingHouseholds);
-                foreach(var hhld in HouseholdLoader)
+                foreach (var hhld in HouseholdLoader)
                 {
                     Run(iteration, hhld);
                 }

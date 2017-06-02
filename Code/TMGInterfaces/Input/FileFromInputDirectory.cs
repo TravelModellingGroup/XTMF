@@ -49,13 +49,13 @@ namespace TMG.Input
 
         public bool ContainsFileName()
         {
-            return !String.IsNullOrWhiteSpace( this.FileName );
+            return !String.IsNullOrWhiteSpace( FileName );
         }
 
         public string GetFileName(string inputFileDirectory)
         {
-            return Path.IsPathRooted( FileName ) ? this.FileName :
-                Path.Combine( inputFileDirectory, this.FileName );
+            return Path.IsPathRooted( FileName ) ? FileName :
+                Path.Combine( inputFileDirectory, FileName );
         }
 
         public override string ToString()

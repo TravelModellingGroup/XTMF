@@ -69,6 +69,7 @@ namespace XTMF
         /// Save the project to a given path
         /// </summary>
         /// <param name="path">The path to save to</param>
+        /// <param name="error"></param>
         bool Save(string path, ref string error);
 
         /// <summary>

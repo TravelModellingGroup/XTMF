@@ -18,18 +18,17 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Tasha.Common;
 using XTMF;
-using TMG;
 using TMG.Input;
 using System.IO;
 using Datastructure;
 
 namespace Tasha.Validation.PoRPoW
 {
+    // ReSharper disable once InconsistentNaming
     public class ExtractPoRPoSAssignments : IPostHousehold
     {
         public string Name { get; set; }

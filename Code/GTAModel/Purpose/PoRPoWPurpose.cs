@@ -16,16 +16,18 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using Datastructure;
+using TMG.Functions;
 using TMG.ModeSplit;
 using XTMF;
-using TMG.Functions;
 
 namespace TMG.GTAModel.Purpose
 {
+    // ReSharper disable once InconsistentNaming
     public class PoRPoWPurpose : PurposeBase, IDemographicCategoyPurpose, ISelfContainedModule
     {
         [SubModelInformation( Description = "Distribution", Required = true )]
@@ -40,42 +42,42 @@ namespace TMG.GTAModel.Purpose
         [RunParameter( "Save Result File Name", "", "The start of the name of the file (First Default = FrictionCache1.bin). If this is empty nothing will be saved." )]
         public string SaveResultFileName;
 
-        private int currentNumber;
+        private int CurrentNumber;
 
-        private int lastIteration = -1;
+        private int LastIteration = -1;
 
         [SubModelInformation( Description = "Generation", Required = false )]
         public List<IDemographicCategoryGeneration> Categories { get; set; }
 
         public override float Progress
         {
-            get { return this.Distribution.Progress; }
+            get { return Distribution.Progress; }
         }
 
         public override void Run()
         {
-            if ( !this.Execute ) return;
+            if ( !Execute ) return;
             // we actually don't write our mode choice
-            var numberOfCategories = this.Categories.Count;
-            SparseArray<float>[] O = new SparseArray<float>[numberOfCategories];
-            SparseArray<float>[] D = new SparseArray<float>[numberOfCategories];
-            for ( int i = 0; i < O.Length; i++ )
+            var numberOfCategories = Categories.Count;
+            SparseArray<float>[] o = new SparseArray<float>[numberOfCategories];
+            SparseArray<float>[] d = new SparseArray<float>[numberOfCategories];
+            for ( int i = 0; i < o.Length; i++ )
             {
-                O[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                D[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
-                this.Categories[i].Generate( O[i], D[i] );
+                o[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                d[i] = Root.ZoneSystem.ZoneArray.CreateSimilarArray<float>();
+                Categories[i].Generate( o[i], d[i] );
             }
             // if we only need to run generation we are done
-            if ( this.OnlyDoGeneration ) return;
+            if ( OnlyDoGeneration ) return;
             // we don't do mode choice
-            foreach ( var distributionData in this.Distribution.Distribute( O, D, this.Categories ) )
+            foreach ( var distributionData in Distribution.Distribute( o, d, Categories ) )
             {
-                var interative = this.ModeSplit as IInteractiveModeSplit;
+                var interative = ModeSplit as IInteractiveModeSplit;
                 if ( interative != null )
                 {
                     interative.EndInterativeModeSplit();
                 }
-                if ( !String.IsNullOrWhiteSpace( this.SaveResultFileName ) )
+                if ( !String.IsNullOrWhiteSpace( SaveResultFileName ) )
                 {
                     SaveFriction( distributionData.GetFlatData() );
                 }
@@ -85,30 +87,34 @@ namespace TMG.GTAModel.Purpose
         public void Start()
         {
             // to start, run
-            this.Run();
+            Run();
         }
 
         private string GetFrictionFileName(string baseName)
         {
-            if ( this.Root.CurrentIteration != lastIteration )
+            if ( Root.CurrentIteration != LastIteration )
             {
-                currentNumber = 0;
-                lastIteration = this.Root.CurrentIteration;
+                CurrentNumber = 0;
+                LastIteration = Root.CurrentIteration;
             }
-            return String.Concat( baseName, currentNumber++, ".bin" );
+            return String.Concat( baseName, CurrentNumber++, ".bin" );
         }
 
         private void SaveFriction(float[][] ret)
         {
             try
             {
-                var fileName = GetFrictionFileName( this.SaveResultFileName );
+                var fileName = GetFrictionFileName( SaveResultFileName );
                 var dirName = Path.GetDirectoryName( fileName );
+                if (dirName == null)
+                {
+                    throw new XTMFRuntimeException($"We were unable to extract the directory name from the path '{fileName}'!");
+                }
                 if ( !Directory.Exists( dirName ) )
                 {
                     Directory.CreateDirectory( dirName );
                 }
-                BinaryHelpers.ExecuteWriter( (writer) =>
+                BinaryHelpers.ExecuteWriter( writer =>
                     {
                         for ( int i = 0; i < ret.Length; i++ )
                         {

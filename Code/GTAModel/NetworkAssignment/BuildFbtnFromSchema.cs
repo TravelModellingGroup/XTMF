@@ -16,10 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMG.Emme;
 using TMG.Input;
 using XTMF;
@@ -59,9 +57,9 @@ namespace TMG.GTAModel.NetworkAssignment
         [RunParameter("StationConnectorFlag", true, "Should we automatically integrate stations with centroid connectors?")]
         public bool StationConnectorFlag;
 
-        private static Tuple<byte, byte, byte> _ProgressColour = new Tuple<byte, byte, byte>(100, 100, 150);
+        private static Tuple<byte, byte, byte> _progressColour = new Tuple<byte, byte, byte>(100, 100, 150);
 
-        private const string _ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
+        private const string ToolName = "tmg.network_editing.transit_fare_hypernetworks.generate_hypernetwork_from_schema";
 
         public bool Execute(Controller controller)
         {
@@ -69,21 +67,16 @@ namespace TMG.GTAModel.NetworkAssignment
             if (mc == null)
                 throw new XTMFRuntimeException("Controller is not a ModellerController!");
 
-            var args = string.Join(" ", "\"" + this.SchemaFile.GetFilePath() + "\"",
-                                        this.BaseScenarioNumber,
-                                        this.NewScenarioNumber,
-                                        this.TransferModeId,
-                                        this.SegmentFareAttribute,
-                                        this.LinkFareAttribute,
-                                        this.VirtualNodeDomain,
-                                        this.StationConnectorFlag);
+            var args = string.Join(" ", "\"" + SchemaFile.GetFilePath() + "\"",
+                                        BaseScenarioNumber,
+                                        NewScenarioNumber,
+                                        TransferModeId,
+                                        SegmentFareAttribute,
+                                        LinkFareAttribute,
+                                        VirtualNodeDomain,
+                                        StationConnectorFlag);
             var result = "";
-            return mc.Run(_ToolName, args, (p => this.Progress = p), ref result);
-        }
-
-        private string AddQuotes(string modeList)
-        {
-            return "\"" + modeList + "\"";
+            return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 
         public string Name
@@ -100,7 +93,7 @@ namespace TMG.GTAModel.NetworkAssignment
 
         public Tuple<byte, byte, byte> ProgressColour
         {
-            get { return _ProgressColour; }
+            get { return _progressColour; }
         }
 
         public bool RuntimeValidation(ref string error)

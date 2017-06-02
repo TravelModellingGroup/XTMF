@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using XTMF;
 
 namespace TMG.GTAModel.Modes.UtilityComponents
@@ -42,16 +43,16 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         [RunParameter( "Network Name", "Auto", "The name of the network data to use." )]
         public string NetworkType { get; set; }
 
-        public override float CalculateV(IZone origin, IZone destination, XTMF.Time time)
+        public override float CalculateV(IZone origin, IZone destination, Time time)
         {
             Time ivtt, waitTime, walkTime, boarding;
             float cost;
-            if ( this.IsContained( origin, destination ) )
+            if ( IsContained( origin, destination ) )
             {
-                if ( this.NetworkData.GetAllData( origin, destination, time, out ivtt, out walkTime, out waitTime, out boarding, out cost ) )
+                if ( NetworkData.GetAllData( origin, destination, time, out ivtt, out walkTime, out waitTime, out boarding, out cost ) )
                 {
-                    return this.IVTT * ivtt.ToMinutes() + this.Wait * waitTime.ToMinutes()
-                        + this.Walk * walkTime.ToMinutes() + this.Boarding * boarding.ToMinutes() + this.Cost * cost;
+                    return IVTT * ivtt.ToMinutes() + Wait * waitTime.ToMinutes()
+                        + Walk * walkTime.ToMinutes() + Boarding * boarding.ToMinutes() + Cost * cost;
                 }
             }
             return 0f;
@@ -61,9 +62,9 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         {
             // Load in the network data
             LoadNetworkData();
-            if ( this.NetworkData == null )
+            if ( NetworkData == null )
             {
-                error = "In '" + this.Name + "' we were unable to find any network data called '" + this.NetworkType + "'!";
+                error = "In '" + Name + "' we were unable to find any network data called '" + NetworkType + "'!";
                 return false;
             }
             return true;
@@ -74,12 +75,12 @@ namespace TMG.GTAModel.Modes.UtilityComponents
         /// </summary>
         private void LoadNetworkData()
         {
-            foreach ( var dataSource in this.Root.NetworkData )
+            foreach ( var dataSource in Root.NetworkData )
             {
                 var ds = dataSource as ITripComponentData;
-                if ( ds != null && dataSource.NetworkType == this.NetworkType )
+                if ( ds != null && dataSource.NetworkType == NetworkType )
                 {
-                    this.NetworkData = ds;
+                    NetworkData = ds;
                     return;
                 }
             }

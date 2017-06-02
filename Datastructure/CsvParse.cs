@@ -25,9 +25,9 @@ namespace Datastructure
     {
         internal static float ParseFixedFloat(string line, int offset, int length)
         {
-            int start = offset + length;
-            bool scientificNotation = false;
-            int exponent = 0;
+            var start = offset + length;
+            var scientificNotation = false;
+            var exponent = 0;
             while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
             {
                 if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
@@ -63,9 +63,9 @@ namespace Datastructure
 
         internal static float ParseFixedFloat(StringBuilder line, int offset, int length)
         {
-            int start = offset + length;
-            bool scientificNotation = false;
-            int exponent = 0;
+            var start = offset + length;
+            var scientificNotation = false;
+            var exponent = 0;
             while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
             {
                 if ( start > 2 && ( line[start - 1] == '-' & ( line[start - 2] == 'e' | line[start - 2] == 'E' ) ) )
@@ -101,9 +101,9 @@ namespace Datastructure
 
         internal static float ParseFixedFloat(char[] line, int offset, int length)
         {
-            int start = offset + length;
-            bool scientificNotation = false;
-            int exponent = 0;
+            var start = offset + length;
+            var scientificNotation = false;
+            var exponent = 0;
             while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '.' | line[start - 1] == '-' | line[start - 1] == '+' ) )
             {
                 if ( start > 2 && ( line[start - 2] == 'e' | line[start - 2] == 'E' ) )
@@ -142,7 +142,7 @@ namespace Datastructure
 
         internal static int ParseFixedInt(string line, int offset, int length)
         {
-            int start = offset + length;
+            var start = offset + length;
             while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
             {
                 start--;
@@ -152,7 +152,7 @@ namespace Datastructure
 
         internal static int ParseFixedInt(StringBuilder line, int offset, int length)
         {
-            int start = offset + length;
+            var start = offset + length;
             while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
             {
                 start--;
@@ -162,7 +162,7 @@ namespace Datastructure
 
         internal static int ParseFixedInt(char[] line, int offset, int length)
         {
-            int start = offset + length;
+            var start = offset + length;
             while ( start > 0 && ( ( line[start - 1] >= '0' & line[start - 1] <= '9' ) | line[start - 1] == '-' ) )
             {
                 start--;
@@ -179,12 +179,12 @@ namespace Datastructure
         /// <returns></returns>
         internal static float ParseFloat(string str, int indexFrom, int indexTo)
         {
-            int ival = 0;
+            var ival = 0;
             float fval = 0;
-            float multiplyer = 0.1f;
+            var multiplyer = 0.1f;
             int i;
             char c;
-            bool neg = str[indexFrom] == '-';
+            var neg = str[indexFrom] == '-';
             if ( neg ) indexFrom++;
             for ( i = indexFrom; i < indexTo; i++ )
             {
@@ -198,7 +198,7 @@ namespace Datastructure
             }
             for ( i++; i < indexTo; i++ )
             {
-                int k = ( str[i] - '0' );
+                var k = ( str[i] - '0' );
                 fval += k * multiplyer;
                 multiplyer *= 0.1f;
             }
@@ -215,12 +215,12 @@ namespace Datastructure
         /// <returns></returns>
         internal static float ParseFloat(StringBuilder str, int indexFrom, int indexTo)
         {
-            int ival = 0;
+            var ival = 0;
             float fval = 0;
-            float multiplyer = 0.1f;
+            var multiplyer = 0.1f;
             int i;
             char c;
-            bool neg = str[indexFrom] == '-';
+            var neg = str[indexFrom] == '-';
             if ( neg ) indexFrom++;
             for ( i = indexFrom; i < indexTo; i++ )
             {
@@ -234,7 +234,7 @@ namespace Datastructure
             }
             for ( i++; i < indexTo; i++ )
             {
-                int k = ( str[i] - '0' );
+                var k = ( str[i] - '0' );
                 fval += k * multiplyer;
                 multiplyer *= 0.1f;
             }
@@ -251,12 +251,12 @@ namespace Datastructure
         /// <returns></returns>
         internal static float ParseFloat(char[] str, int indexFrom, int indexTo)
         {
-            int ival = 0;
+            var ival = 0;
             float fval = 0;
-            float multiplyer = 0.1f;
+            var multiplyer = 0.1f;
             int i;
             char c;
-            bool neg = str[indexFrom] == '-';
+            var neg = str[indexFrom] == '-';
             if ( neg ) indexFrom++;
             for ( i = indexFrom; i < indexTo; i++ )
             {
@@ -270,7 +270,7 @@ namespace Datastructure
             }
             for ( i++; i < indexTo; i++ )
             {
-                int k = ( str[i] - '0' );
+                var k = ( str[i] - '0' );
                 fval += k * multiplyer;
                 multiplyer *= 0.1f;
             }
@@ -287,10 +287,10 @@ namespace Datastructure
         /// <returns>The integer value</returns>
         internal static int ParseInt(string str, int indexFrom, int indexTo)
         {
-            int value = 0;
-            bool neg = str[indexFrom] == '-';
+            var value = 0;
+            var neg = str[indexFrom] == '-';
             if ( neg ) indexFrom++;
-            for ( int i = indexFrom; i < indexTo; i++ )
+            for ( var i = indexFrom; i < indexTo; i++ )
             {
                 // Same as multiplying by 10
                 value = ( value << 1 ) + ( value << 3 );
@@ -308,10 +308,10 @@ namespace Datastructure
         /// <returns>The integer value</returns>
         internal static int ParseInt(StringBuilder str, int indexFrom, int indexTo)
         {
-            int value = 0;
-            bool neg = str[indexFrom] == '-';
+            var value = 0;
+            var neg = str[indexFrom] == '-';
             if ( neg ) indexFrom++;
-            for ( int i = indexFrom; i < indexTo; i++ )
+            for ( var i = indexFrom; i < indexTo; i++ )
             {
                 // Same as multiplying by 10
                 value = ( value << 1 ) + ( value << 3 );
@@ -329,10 +329,10 @@ namespace Datastructure
         /// <returns>The integer value</returns>
         internal static int ParseInt(char[] str, int indexFrom, int indexTo)
         {
-            int value = 0;
-            bool neg = str[indexFrom] == '-';
+            var value = 0;
+            var neg = str[indexFrom] == '-';
             if ( neg ) indexFrom++;
-            for ( int i = indexFrom; i < indexTo; i++ )
+            for ( var i = indexFrom; i < indexTo; i++ )
             {
                 // Same as multiplying by 10
                 value = ( value << 1 ) + ( value << 3 );

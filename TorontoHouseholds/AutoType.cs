@@ -33,10 +33,11 @@ namespace TashaModes
             get { return true; }
         }
 
-        [RunParameter( "Vehicle Name", "Auto", "The name of the vehicle type" )]
+
         /// <summary>
         /// The name of the type of vehicle
         /// </summary>
+        [RunParameter("Vehicle Name", "Auto", "The name of the vehicle type")]
         public string VehicleName
         {
             get;

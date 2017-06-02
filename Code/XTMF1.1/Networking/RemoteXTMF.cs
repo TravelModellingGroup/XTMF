@@ -29,12 +29,12 @@ namespace XTMF.Networking
 
         public RemoteXTMF()
         {
-            this.Connected = true;
+            Connected = true;
         }
 
         ~RemoteXTMF()
         {
-            this.Dispose( true );
+            Dispose( true );
         }
 
         public bool Connected { get; set; }
@@ -59,28 +59,28 @@ namespace XTMF.Networking
 
         public void Dispose()
         {
-            this.Dispose( false );
+            Dispose( false );
         }
 
         public void PollProgress()
         {
-            this.Messages.Add( new Message( MessageType.RequestProgress ) );
+            Messages.Add( new Message( MessageType.RequestProgress ) );
         }
 
         public void SendCancel(string reason)
         {
-            this.Messages.Add( new Message( MessageType.PostCancel, reason ) );
+            Messages.Add( new Message( MessageType.PostCancel, reason ) );
         }
 
         public void SendCustomMessage(object data, int customMessageNumber)
         {
-            this.Messages.Add( new Message( MessageType.SendCustomMessage,
+            Messages.Add( new Message( MessageType.SendCustomMessage,
                 new SendCustomMessageMessage() { CustomMessageNumber = customMessageNumber, Data = data } ) );
         }
 
         public void SendModelSystem(IModelSystemStructure structure)
         {
-            this.Messages.Add( new Message( MessageType.SendModelSystem, structure ) );
+            Messages.Add( new Message( MessageType.SendModelSystem, structure ) );
         }
 
         protected void Dispose(bool gcCall)
@@ -89,10 +89,10 @@ namespace XTMF.Networking
             {
                 GC.SuppressFinalize( this );
             }
-            if ( this.Messages != null )
+            if ( Messages != null )
             {
-                this.Messages.Dispose();
-                this.Messages = null;
+                Messages.Dispose();
+                Messages = null;
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2016 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2016-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,18 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
-using Datastructure;
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using TMG.Functions;
 using XTMF;
 
 namespace TMG.Frameworks.Data.Processing.AST
 {
-    public abstract class Expression : ASTNode
+    public abstract class Expression : AstNode
     {
 
         public Expression(int start) : base(start)
@@ -61,7 +57,7 @@ namespace TMG.Frameworks.Data.Processing.AST
         internal static bool Optimize(ref Expression ex, ref string error)
         {
             // if this ever becomes a real problem try to add some optimization to the expression tree
-            return ex.OptimizeAST(ref ex, ref error);
+            return ex.OptimizeAst(ref ex, ref error);
         }
         
 
@@ -138,11 +134,11 @@ namespace TMG.Frameworks.Data.Processing.AST
                         break;
                     case '&':
                         {
-                            BinaryExpression toReturn = (BinaryExpression)new CompareAnd(i);
-                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            BinaryExpression toReturn = new CompareAnd(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                             // test LHS to make sure it is a compare
-                            if(!IsCompareType(toReturn.LHS) && !IsCompareType(toReturn.RHS))
+                            if(!IsCompareType(toReturn.Lhs) && !IsCompareType(toReturn.Rhs))
                             {
                                 error = $"At position {i} we found an '&' character where neither the LHS and the RHS were flag types, at least one is required!";
                                 return false;
@@ -152,17 +148,17 @@ namespace TMG.Frameworks.Data.Processing.AST
                         }
                     case '|':
                         {
-                            BinaryExpression toReturn = (BinaryExpression)new CompareOr(i);
-                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            BinaryExpression toReturn = new CompareOr(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                             // test LHS to make sure it is a compare
-                            if (!IsCompareType(toReturn.LHS))
+                            if (!IsCompareType(toReturn.Lhs))
                             {
                                 error = $"At position {i} we found a '|' character where the LHS was not a flag type!";
                                 return false;
                             }
                             // test RHS to make sure it is a compare
-                            if (!IsCompareType(toReturn.RHS))
+                            if (!IsCompareType(toReturn.Rhs))
                             {
                                 error = $"At position {i} we found a '|' character where the RHS was not a flag type!";
                                 return false;
@@ -191,9 +187,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             if (i + 1 < endPlusOne && buffer[i + 1] == '=')
                             {
-                                BinaryExpression toReturn = (BinaryExpression)new CompareEqual(i);
-                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                BinaryExpression toReturn = new CompareEqual(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.Rhs, ref error)) return false;
                                 ex = toReturn;
                                 return true;
                             }
@@ -207,9 +203,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             if (i + 1 < endPlusOne && buffer[i + 1] == '=')
                             {
-                                BinaryExpression toReturn = (BinaryExpression)new CompareNotEquals(i);
-                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                BinaryExpression toReturn = new CompareNotEquals(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.Rhs, ref error)) return false;
                                 ex = toReturn;
                                 return true;
                             }
@@ -223,17 +219,17 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             if (i + 1 < endPlusOne && buffer[i + 1] == '=')
                             {
-                                BinaryExpression toReturn = (BinaryExpression)new CompareGreaterThanOrEqual(i);
-                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                BinaryExpression toReturn = new CompareGreaterThanOrEqual(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.Rhs, ref error)) return false;
                                 ex = toReturn;
                                 return true;
                             }
                             else
                             {
-                                BinaryExpression toReturn = (BinaryExpression)new CompareGreaterThan(i);
-                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                                if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                                BinaryExpression toReturn = new CompareGreaterThan(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                                if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                                 ex = toReturn;
                                 return true;
                             }
@@ -242,17 +238,17 @@ namespace TMG.Frameworks.Data.Processing.AST
                         {
                             if (i + 1 < endPlusOne && buffer[i + 1] == '=')
                             {
-                                BinaryExpression toReturn = (BinaryExpression)new CompareLessThanOrEqual(i);
-                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.RHS, ref error)) return false;
+                                BinaryExpression toReturn = new CompareLessThanOrEqual(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                                if (!Compile(buffer, i + 2, endPlusOne - i - 2, out toReturn.Rhs, ref error)) return false;
                                 ex = toReturn;
                                 return true;
                             }
                             else
                             {
-                                BinaryExpression toReturn = (BinaryExpression)new CompareLessThan(i);
-                                if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                                if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                                BinaryExpression toReturn = new CompareLessThan(i);
+                                if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                                if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                                 ex = toReturn;
                                 return true;
                             }
@@ -277,9 +273,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                     case '+':
                     case '-':
                         {
-                            BinaryExpression toReturn = buffer[i] == '+' ? (BinaryExpression)new Add(i) : (BinaryExpression)new Subtract(i);
-                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            BinaryExpression toReturn = buffer[i] == '+' ? new Add(i) : (BinaryExpression)new Subtract(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                             ex = toReturn;
                             return true;
                         }
@@ -302,9 +298,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                         break;
                     case '*':
                         {
-                            BinaryExpression toReturn = (BinaryExpression)new Multiply(i);
-                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            BinaryExpression toReturn = new Multiply(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                             ex = toReturn;
                             return true;
                         }
@@ -327,9 +323,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                         break;
                     case '/':
                         {
-                            BinaryExpression toReturn = (BinaryExpression)new Divide(i);
-                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            BinaryExpression toReturn = new Divide(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                             ex = toReturn;
                             return true;
                         }
@@ -352,9 +348,9 @@ namespace TMG.Frameworks.Data.Processing.AST
                         break;
                     case '^':
                         {
-                            BinaryExpression toReturn = (BinaryExpression)new Exponent(i);
-                            if (!Compile(buffer, start, i - start, out toReturn.LHS, ref error)) return false;
-                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.RHS, ref error)) return false;
+                            BinaryExpression toReturn = new Exponent(i);
+                            if (!Compile(buffer, start, i - start, out toReturn.Lhs, ref error)) return false;
+                            if (!Compile(buffer, i + 1, endPlusOne - i - 1, out toReturn.Rhs, ref error)) return false;
                             ex = toReturn;
                             return true;
                         }
@@ -509,16 +505,16 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         }
 
-        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        internal override bool OptimizeAst(ref Expression ex, ref string error)
         {
-            return InnerExpression.OptimizeAST(ref InnerExpression, ref error);
+            return InnerExpression.OptimizeAst(ref InnerExpression, ref error);
         }
     }
 
     public abstract class BinaryExpression : Expression
     {
-        public Expression LHS;
-        public Expression RHS;
+        public Expression Lhs;
+        public Expression Rhs;
 
         public BinaryExpression(int start) : base(start)
         {
@@ -527,8 +523,8 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         public override ComputationResult Evaluate(IDataSource[] dataSources)
         {
-            var lhs = LHS.Evaluate(dataSources);
-            var rhs = RHS.Evaluate(dataSources);
+            var lhs = Lhs.Evaluate(dataSources);
+            var rhs = Rhs.Evaluate(dataSources);
             if (lhs.Error)
             {
                 return lhs;
@@ -542,9 +538,9 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         public abstract ComputationResult Evaluate(ComputationResult lhs, ComputationResult rhs);
 
-        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        internal override bool OptimizeAst(ref Expression ex, ref string error)
         {
-            if(!LHS.OptimizeAST(ref LHS, ref error) || !RHS.OptimizeAST(ref RHS, ref error))
+            if(!Lhs.OptimizeAst(ref Lhs, ref error) || !Rhs.OptimizeAst(ref Rhs, ref error))
             {
                 return false;
             }
@@ -559,7 +555,7 @@ namespace TMG.Frameworks.Data.Processing.AST
 
         }
 
-        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        internal override bool OptimizeAst(ref Expression ex, ref string error)
         {
             return true;
         }
@@ -577,9 +573,9 @@ namespace TMG.Frameworks.Data.Processing.AST
             return InnerExpression.Evaluate(dataSources);
         }
 
-        internal override bool OptimizeAST(ref Expression ex, ref string error)
+        internal override bool OptimizeAst(ref Expression ex, ref string error)
         {
-            if(!InnerExpression.OptimizeAST(ref ex, ref error))
+            if(!InnerExpression.OptimizeAst(ref ex, ref error))
             {
                 return false;
             }

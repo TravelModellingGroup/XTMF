@@ -32,7 +32,6 @@ namespace Tasha.XTMFModeChoice
 
         internal PossibleTripChainSolution(ModeChoiceTripData[] baseTripData, int[] solution, TourData tourData)
         {
-            var numberOftrips = solution.Length;
             BaseData = baseTripData;
             var modes = new int[solution.Length];
             for (int i = 0; i < modes.Length; i++)
@@ -52,13 +51,9 @@ namespace Tasha.XTMFModeChoice
         {
             if ( TourData == null ) return;
             var onSolution = TourData.OnSolution;
-            var picked = PickedModes;
             for ( int i = 0; i < onSolution.Length; i++ )
             {
-                if ( onSolution[i] != null )
-                {
-                    onSolution[i]( chain );
-                }
+                onSolution[i]?.Invoke(chain);
             }
         }
 

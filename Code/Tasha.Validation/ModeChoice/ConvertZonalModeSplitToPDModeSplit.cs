@@ -17,9 +17,7 @@
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using XTMF;
 using Datastructure;
 using TMG;
@@ -59,7 +57,7 @@ namespace Tasha.Validation.ModeChoice
         public void Execute(int iterationNumber, int totalIterations)
         {
             var zoneSystem = Root.ZoneSystem.ZoneArray;
-            var regions = TMG.Functions.ZoneSystemHelper.CreatePDArray<int>(zoneSystem);
+            var regions = TMG.Functions.ZoneSystemHelper.CreatePdArray<int>(zoneSystem);
             float[][][] data = BuildData(Root.AllModes.Select(m => m.ModeName).ToArray(), zoneSystem, regions);
             SaveData(data, regions);
         }
@@ -102,7 +100,6 @@ namespace Tasha.Validation.ModeChoice
 
         private float[][][] BuildData(string[] modeNames, SparseArray<IZone> zoneSystem, SparseArray<int> regions)
         {
-            var zones = zoneSystem.GetFlatData();
             var modes = Root.AllModes.ToArray();
             var data = new float[modes.Length][][];
             var numberOfRegions = regions.GetFlatData().Length;

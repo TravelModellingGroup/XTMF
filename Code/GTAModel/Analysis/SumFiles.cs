@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Travel Modelling Group, Department of Civil Engineering, University of Toronto
+    Copyright 2014-2017 Travel Modelling Group, Department of Civil Engineering, University of Toronto
 
     This file is part of XTMF.
 
@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with XTMF.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,21 +34,11 @@ namespace TMG.GTAModel.Analysis
         [RunParameter( "Ouput File Name", "Data.csv", typeof( FileFromOutputDirectory ), "The name of file to store the data into." )]
         public FileFromOutputDirectory OutputFile;
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
-        public float Progress
-        {
-            get { return 0f;; }
-        }
+        public float Progress => 0f;
 
-        public Tuple<byte, byte, byte> ProgressColour
-        {
-            get { return null; }
-        }
+        public Tuple<byte, byte, byte> ProgressColour => null;
 
         public bool RuntimeValidation(ref string error)
         {
@@ -57,10 +48,10 @@ namespace TMG.GTAModel.Analysis
         public void Start()
         {
             if ( !OutputFile.ContainsFileName() ) return;
-            using ( StreamWriter writer = new StreamWriter( OutputFile.GetFileName() ) )
+            using ( var writer = new StreamWriter( OutputFile.GetFileName() ) )
             {
                 writer.WriteLine( "SourceName,Total" );
-                foreach ( var dataSource in this.ODDataInput )
+                foreach ( var dataSource in ODDataInput )
                 {
                     double total = 0f;
                     foreach ( var dataPoint in dataSource.Read() )

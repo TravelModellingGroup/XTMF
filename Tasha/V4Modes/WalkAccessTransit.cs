@@ -18,8 +18,6 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Tasha.Common;
 using XTMF;
 using TMG;
@@ -244,7 +242,7 @@ namespace Tasha.V4Modes
                     break;
             }
             v += GetPlanningDistrictConstant(trip.TripStartTime, originalZone.PlanningDistrict, destinationZone.PlanningDistrict);
-            return (double)v;
+            return v;
         }
 
         private void GetPersonVariables(ITashaPerson person, out float constant, out float time, out float walk, out float wait, out float boarding, out float cost)
@@ -450,8 +448,8 @@ namespace Tasha.V4Modes
             {
                 TimePeriodConstants[i].BuildMatrix();
             }
-            ZonalDensityForActivitiesArray = ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
-            ZonalDensityForHomeArray = ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone() as float[];
+            ZonalDensityForActivitiesArray = (float[]) ZonalDensityForActivities.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
+            ZonalDensityForHomeArray = (float[]) ZonalDensityForHome.AcquireResource<SparseArray<float>>().GetFlatData().Clone();
             for(int i = 0; i < ZonalDensityForActivitiesArray.Length; i++)
             {
                 ZonalDensityForActivitiesArray[i] *= ToActivityDensityFactor;
