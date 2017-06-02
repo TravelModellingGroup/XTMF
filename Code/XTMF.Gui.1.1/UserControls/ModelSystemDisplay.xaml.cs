@@ -2374,9 +2374,19 @@ namespace XTMF.Gui.UserControls
                 item.Children[0].IsSelected = true;
 
             }
+            
             else {
                 var toSelect = FindNextAncestor(item);
-                toSelect.IsSelected = true;
+
+                if (item.Parent == toSelect.Parent && item.Index < item.Parent.Children.Count - 1 )
+                {
+                    toSelect.IsSelected = true;
+                }
+                else if(item.Parent != toSelect.Parent)
+                {
+                    toSelect.IsSelected = true;
+                }
+                
             }
 
 
@@ -2412,7 +2422,9 @@ namespace XTMF.Gui.UserControls
                 {
                     //find the most expanded "deepest" subchild of sibling element
                     var toSelect = FindMostExpandedItem(item.Parent.Children[item.Index - 1]);
-                    toSelect.IsSelected = true;
+                   
+                        toSelect.IsSelected = true;
+                    
 
                 }
 
