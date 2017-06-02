@@ -2327,6 +2327,98 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        private ModelSystemStructureDisplayModel FindNextAncestor(ModelSystemStructureDisplayModel item)
+        {
+            if(item.Parent == null)
+            {
+
+                if (item.Children != null && item.Children.Count > 0)
+                {
+                    return item.Children[0];
+                }
+                else
+                {
+                    return item;
+                }
+            }
+            else if(item.Index < item.Parent.Children.Count -1)
+            {
+                return item.Parent.Children[item.Index + 1];
+            }
+            else
+            {
+                return FindNextAncestor(item.Parent);
+            }
+        }
+
+
+        private ModelSystemStructureDisplayModel FindMostExpandedItem(ModelSystemStructureDisplayModel item)
+        {
+            if(!item.IsExpanded || item.Children == null || item.Children.Count == 0)
+            {
+                return item;
+            }
+
+            else
+            {
+                return FindMostExpandedItem(item.Children[item.Children.Count - 1]);
+            }
+        }
+
+        private void ModuleDisplayNavigateDown(ModelSystemStructureDisplayModel item)
+        {
+
+            if(item.IsExpanded && item.Children != null && item.Children.Count > 0)
+            {
+                item.Children[0].IsSelected = true;
+
+            }
+            else {
+                var toSelect = FindNextAncestor(item);
+                toSelect.IsSelected = true;
+            }
+
+
+
+        }
+
+        private void ModuleDisplayNavigateUp(ModelSystemStructureDisplayModel item)
+        {
+            // parent is null 
+            if(item.Parent == null)
+            {
+                //cannot navigate further up
+
+                return;
+
+            }
+            else if(item.Parent != null)
+            {
+                //if parent item has a single child
+                if(item.Parent.Children.Count == 1)
+                {
+                    item.Parent.IsSelected = true;
+                    return;
+                }
+                else if(item.Index == 0)
+                {
+                    item.Parent.IsSelected = true;
+                    return;
+                }
+
+                //if parent item has multiple children
+                else if(item.Parent.Children.Count > 1)
+                {
+                    //find the most expanded "deepest" subchild of sibling element
+                    var toSelect = FindMostExpandedItem(item.Parent.Children[item.Index - 1]);
+                    toSelect.IsSelected = true;
+
+                }
+
+            }
+        }
+
         private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
@@ -2339,6 +2431,19 @@ namespace XTMF.Gui.UserControls
                 return;
             }
 
+            if (e.Key == Key.Up)
+            {
+                ModuleDisplayNavigateUp(item);
+                e.Handled = true;
+            }
+
+            if(e.Key == Key.Down)
+            { 
+                 ModuleDisplayNavigateDown(item);
+                e.Handled = true;
+            }
+
+            /*
             if (e.Key == Key.Down)
             {
                 try
@@ -2350,7 +2455,7 @@ namespace XTMF.Gui.UserControls
 
                     else if (item.Parent != null && item.Index == item.Parent.Children.Count - 1)
                     {
-                        /* Loop until parent with expanded item */
+
 
                         var searchItem = item.Parent;
 
@@ -2438,6 +2543,8 @@ namespace XTMF.Gui.UserControls
             catch
             {
             }
+
+    */
         }
 
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
