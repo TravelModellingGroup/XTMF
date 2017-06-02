@@ -88,6 +88,7 @@ DependencyProperty.Register("BackingModel",
             InitializeComponent();
 
 
+            
 
 
             this.Loaded += ModuleTreeViewItem_Loaded;
@@ -319,7 +320,10 @@ DependencyProperty.Register("BackingModel",
             set
             {
 
-
+                if (value == true)
+                {
+                    this.BringIntoView();
+                }
                 this.SetValue(IsSelectedDependencyProperty, value);
 
 

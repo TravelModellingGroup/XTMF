@@ -80,7 +80,7 @@ namespace TMG.Emme.NetworkAssignment
             [RunParameter("Toll Matrix", 0, "The matrix to save the toll costs into.")]
             public int TollMatrix;
 
-            [RunParameter("VolumeAttribute", "@classVolume", "The name of the attribute to save the volumes into")]
+            [RunParameter("VolumeAttribute", "@classVolume", "The name of the attribute to save the volumes into (or none for no saving).")]
             public string VolumeAttribute;
 
             [RunParameter("TollAttributeID", "@toll", "The attribute containing the road tolls for this class of vehicle.")]
@@ -100,7 +100,7 @@ namespace TMG.Emme.NetworkAssignment
 
             public bool RuntimeValidation(ref string error)
             {
-                if(Mode >= 'a' && Mode <= 'z' || Mode >= 'A' && Mode <= 'Z')
+                if (Mode >= 'a' && Mode <= 'z' || Mode >= 'A' && Mode <= 'Z')
                 {
                     return true;
                 }
@@ -116,7 +116,7 @@ namespace TMG.Emme.NetworkAssignment
 
                 public float Progress => 0f;
 
-                public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50,150,50);
+                public Tuple<byte, byte, byte> ProgressColour => new Tuple<byte, byte, byte>(50, 150, 50);
 
                 [RunParameter("Attribute ID", "", "The attribute to aggregate.")]
                 public string AttributeId;
@@ -126,12 +126,12 @@ namespace TMG.Emme.NetworkAssignment
 
                 public bool RuntimeValidation(ref string error)
                 {
-                    if(String.IsNullOrWhiteSpace(AttributeId))
+                    if (String.IsNullOrWhiteSpace(AttributeId))
                     {
                         error = $"In {Name} the attriubute ID was not valid!";
                         return false;
                     }
-                    if(AggregationMatrix <= 0)
+                    if (AggregationMatrix <= 0)
                     {
                         error = $"In {Name} the aggregation matrix number was invalid!";
                         return false;
@@ -145,7 +145,7 @@ namespace TMG.Emme.NetworkAssignment
         public bool Execute(Controller controller)
         {
             var mc = controller as ModellerController;
-            if(mc == null)
+            if (mc == null)
             {
                 throw new XTMFRuntimeException("TMG.Emme.NetworkAssignment.MultiClassRoadAssignment requires the use of EMME Modeller and will not work through command prompt!");
             }
@@ -156,7 +156,7 @@ namespace TMG.Emme.NetworkAssignment
                  RunTitle, LinkTollAttributeId, xtmf_NameString, ResultAttributes, xtmf_AggAttributes, xtmf_aggAttributesMatrixId
             */
             string ret = null;
-            if(!mc.CheckToolExists(ToolName))
+            if (!mc.CheckToolExists(ToolName))
             {
                 throw new XTMFRuntimeException("There was no tool with the name '" + ToolName + "' available in the EMME databank!");
             }
@@ -231,6 +231,18 @@ namespace TMG.Emme.NetworkAssignment
 
         public bool RuntimeValidation(ref string error)
         {
+            foreach (var c in Classes)
+            {
+                foreach (var at in c.AdditionalAttributesToAggregate)
+                {
+
+                    if (!at.RuntimeValidation(ref error))
+                    {
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
     }

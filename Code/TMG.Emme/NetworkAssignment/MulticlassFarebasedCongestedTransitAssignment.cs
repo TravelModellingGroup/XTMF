@@ -174,6 +174,8 @@ namespace TMG.Emme.NetworkAssignment
                                        );
 
             var result = "";
+
+         
             return mc.Run(ToolName, args, (p => Progress = p), ref result);
         }
 

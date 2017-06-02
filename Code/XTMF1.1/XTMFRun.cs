@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using XTMF.RunProxy;
+using System.Collections.Generic;
 
 namespace XTMF
 {
@@ -279,6 +280,109 @@ namespace XTMF
         }
 
         private Thread RunThread;
+
+        
+        public virtual List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectRuntimeValidationErrors()
+        {
+            List<Tuple<IModelSystemStructure, Queue<int>, string>> runtimeValidationErrorList = new List<Tuple<IModelSystemStructure, Queue<int>, string>>();
+
+            IModelSystemStructure mstStructure;
+            string error = "";
+            try
+            {
+                if (ModelSystemStructureModelRoot == null)
+                {
+                    MST = Project.CreateModelSystem(ref error, ModelSystemIndex);
+                    mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
+                }
+                else
+                {
+                    MST = ((Project)Project).CreateModelSystem(ref error, Configuration, ModelSystemStructureModelRoot.RealModelSystemStructure);
+                    mstStructure = ModelSystemStructureModelRoot.RealModelSystemStructure;
+                }
+            }
+            catch (Exception e)
+            {
+                return runtimeValidationErrorList;
+            }
+            if (MST == null)
+            {
+                return runtimeValidationErrorList;
+            }
+    
+            Queue<int> path = new Queue<int>();
+            path.Enqueue(0);
+            CollectRuntimeValidationErrors(mstStructure, path, runtimeValidationErrorList);
+
+            return runtimeValidationErrorList;
+        }
+
+        private void CollectRuntimeValidationErrors(IModelSystemStructure structure, Queue<int> path,  List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        {
+            string error = "";
+
+            if (structure.Module != null)
+            {
+                if (!structure.Module.RuntimeValidation(ref error))
+                {
+                    errorList.Add(Tuple.Create<IModelSystemStructure, Queue<int>, string>(structure, path, error));
+                }
+            }
+            if(structure.Children != null)
+            {
+                for(int i = 0; i < structure.Children.Count; i++)
+                {
+                    Queue<int> newPath = new Queue<int>(path);
+                    newPath.Enqueue(i);
+                    CollectRuntimeValidationErrors(structure.Children[i], newPath,  errorList);
+                }
+        
+            
+            }
+        }
+
+
+        public virtual List<Tuple<IModelSystemStructure, Queue<int>, string>> CollectValidationErrors()
+        {
+            List<Tuple<IModelSystemStructure, Queue<int>, string>> validationErrorList = new List<Tuple<IModelSystemStructure, Queue<int>, string>>();
+
+            IModelSystemStructure mstStructure = Project.ModelSystemStructure[ModelSystemIndex];
+
+
+            Queue<int> path = new Queue<int>();
+            path.Enqueue(0);
+            CollectValidationErrors( (ModelSystemStructure)mstStructure, path, ref validationErrorList);
+            return validationErrorList;
+
+            
+        }
+
+        protected void CollectValidationErrors( ModelSystemStructure currentPoint, Queue<int> path, ref List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        {
+            if (currentPoint != null)
+            {
+                string error = "";
+                if (!currentPoint.ValidateSelf(ref error))
+                {
+                    errorList.Add(Tuple.Create< IModelSystemStructure, Queue<int>, string>( currentPoint, path, error));
+                   // error = $"Runtime Validation Error in {path + currentPoint.Name}\r\n{error}";
+                 
+                }
+            }
+            // check to see if there are descendants that need to be checked
+            if (currentPoint.Children != null)
+            {
+
+                for(int i = 0; i < currentPoint.Children.Count; i ++)
+                {
+                    Queue<int> newPath = new Queue<int>(path);
+                    newPath.Enqueue(i);
+                    CollectValidationErrors((ModelSystemStructure)currentPoint.Children[i], newPath, ref errorList);
+                }
+               
+            }
+
+        }
 
         public virtual void Start()
         {

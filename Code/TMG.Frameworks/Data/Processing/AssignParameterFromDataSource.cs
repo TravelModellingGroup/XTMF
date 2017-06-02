@@ -66,11 +66,11 @@ namespace TMG.Frameworks.Data.Processing
             }
             if (RuntimeOnly)
             {
-                Functions.ModelSystemReflection.AssignValueRunOnly(Parameter, AssignFrom.GiveData());
+                Functions.ModelSystemReflection.AssignValueRunOnly(Config, Parameter, AssignFrom.GiveData());
             }
             else
             {
-                Functions.ModelSystemReflection.AssignValue(Parameter, AssignFrom.GiveData());
+                Functions.ModelSystemReflection.AssignValue(Config, Parameter, AssignFrom.GiveData());
             }
         }
     }

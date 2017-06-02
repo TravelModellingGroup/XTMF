@@ -47,6 +47,13 @@ namespace TMG.GTAModel.Output
 
         public bool RuntimeValidation(ref string error)
         {
+
+    
+            if (Root.ZoneSystem == null)
+            {
+                error = $"No Zone OD data specified or loaded in root demand model {Root}.";
+                return false;
+            }
             return true;
         }
 
@@ -62,6 +69,8 @@ namespace TMG.GTAModel.Output
 
         public void SaveMatrix(float[] data, string fileName)
         {
+
+      
             var zones = Root.ZoneSystem.ZoneArray.GetFlatData();
             StringBuilder header = null;
             StringBuilder[] zoneLines = new StringBuilder[zones.Length];

@@ -40,11 +40,11 @@ namespace TMG.Frameworks.Extensibility
         {
             if (!ExecuteInParallel)
             {
-                return $"Iteration {_currentIteration} of {ExecutionIterations}, Module: {_currentlyExecutingModule}";
+                return $"Iteration {_currentIteration+1} of {ExecutionIterations}, Module: {_currentlyExecutingModule}";
             }
             else
             {
-                return $"Iteration {_currentIteration} of {ExecutionIterations}";
+                return $"Iteration {_currentIteration+1} of {ExecutionIterations}";
             }
         }
 

@@ -1022,13 +1022,13 @@ namespace XTMF.Gui
         {
             var document = CurrentDocument;
             var modelSystem = document.Content as ModelSystemDisplay;
-
-        
             if (modelSystem != null)
             {
                 modelSystem.ExecuteRun();
+
+                
+                
             }
-            
         }
 
         internal void CloseWindow(UIElement window)

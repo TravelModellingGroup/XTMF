@@ -39,8 +39,6 @@ namespace XTMF.Gui.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-
-
         private ObservableCollection<ModelSystemStructureDisplayModel> DisplayChildren;
 
 

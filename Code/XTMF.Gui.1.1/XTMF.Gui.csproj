@@ -92,7 +92,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Development Debug|AnyCPU'">
     <OutputPath>..\..\..\XTMF-Dev\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -164,6 +164,7 @@
     <Compile Include="Models\ModelSystemInfoTemplateSelector.cs" />
     <Compile Include="Models\ModelSystemStructureDisplayModel.cs" />
     <Compile Include="Models\ParameterDisplayModel.cs" />
+    <Compile Include="Models\ValidationErrorDisplayModel.cs" />
     <Compile Include="Resources\ForestTheme.cs" />
     <Compile Include="Resources\WarmTheme.cs" />
     <Compile Include="UserControls\FlatButton.xaml.cs">
@@ -171,6 +172,9 @@
     </Compile>
     <Compile Include="UserControls\FlatToolButton.xaml.cs">
       <DependentUpon>FlatToolButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ValidationErrorListControl.xaml.cs">
+      <DependentUpon>ValidationErrorListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ModelSystemListView.cs" />
     <Compile Include="UserControls\ModuleTreeViewItem.xaml.cs">
@@ -308,6 +312,10 @@
     <Page Include="UserControls\FlatToolButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ValidationErrorListControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\ModuleTreeViewItem.xaml">
       <SubType>Designer</SubType>

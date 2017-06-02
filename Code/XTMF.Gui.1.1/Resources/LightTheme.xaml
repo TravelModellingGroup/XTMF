@@ -52,6 +52,8 @@
 
 
 
+
+
     <s:String x:Key="AvalonDockTheme">Xceed.Wpf.AvalonDock.Themes.Vs2013LightTheme,Xceed.Wpf.AvalonDock.Themes.VS2013</s:String>
 
 

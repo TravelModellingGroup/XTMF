@@ -694,9 +694,10 @@
         </Setter>
     </Style>
 
-   
 
-    <Style TargetType="{x:Type Label}" x:Key="HoverLabel">
+
+
+    <Style TargetType="{x:Type Control}" x:Key="HoverLabel">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FontSize" Value="14"></Setter>
         <Setter Property="Foreground" Value="{DynamicResource ControlColourBrush}" />

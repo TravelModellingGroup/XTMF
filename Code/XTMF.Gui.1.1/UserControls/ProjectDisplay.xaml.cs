@@ -55,7 +55,7 @@ namespace XTMF.Gui.UserControls
         public event Action<ModelSystemEditingSession> InitiateModelSystemEditingSession;
 
 
-      
+
 
 
 
@@ -76,8 +76,10 @@ namespace XTMF.Gui.UserControls
 
                 public string Name { get { return Root.Name; } }
 
-                public string StatusText {
-                    get {
+                public string StatusText
+                {
+                    get
+                    {
 
                         if (!_IsMissingModules)
                         {
@@ -98,7 +100,7 @@ namespace XTMF.Gui.UserControls
                     {
                         return _IsMissingModules;
                     }
-                    
+
                 }
 
                 public int RealIndex { get; private set; }
@@ -140,22 +142,22 @@ namespace XTMF.Gui.UserControls
                     {
                         try
                         {
-                            
-                            
-                            if(ms.Type == null && ms.Required && !ms.IsCollection)
+
+
+                            if (ms.Type == null && ms.Required && !ms.IsCollection)
                             {
                                 _IsMissingModules = true;
                             }
                             else
                             {
-                               
+
                             }
 
 
                         }
                         catch (Exception error)
                         {
-                            
+
                         }
                     });
 
@@ -186,7 +188,7 @@ namespace XTMF.Gui.UserControls
                     return session.CloneModelSystemToProjectAs(Root, name, ref error);
                 }
 
-              
+
 
                 internal bool ExportModelSystem(ProjectEditingSession session, string fileName, ref string error)
                 {
@@ -288,7 +290,7 @@ namespace XTMF.Gui.UserControls
                 {
                     var modelSystems = (from ms in Project.ModelSystemStructure
                                         orderby ms.Name ascending
-                                        select new ContainedModelSystemModel(Session,ms, Project));
+                                        select new ContainedModelSystemModel(Session, ms, Project));
                     lock (ContainedModelSystems)
                     {
                         ContainedModelSystems.AddRange(modelSystems);
@@ -342,7 +344,7 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-       
+
 
         public ProjectDisplay()
         {
@@ -506,7 +508,7 @@ namespace XTMF.Gui.UserControls
                     case Key.V:
                         if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
                         {
-                            PasteModelSystem_OnClick(null,null);
+                            PasteModelSystem_OnClick(null, null);
                             e.Handled = true;
                         }
                         break;
@@ -531,13 +533,13 @@ namespace XTMF.Gui.UserControls
             }
         }
 
-       
+
 
         private void ModelSystemDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
             var s = ModelSystemDisplay.SelectedItem;
-            
+
         }
 
         private void LoadModelSystem()
@@ -625,7 +627,7 @@ namespace XTMF.Gui.UserControls
             {
                 var loading = openMS.LoadTask;
 
-         
+
                 if (loading != null)
                 {
                     loading.Wait();
@@ -685,19 +687,19 @@ namespace XTMF.Gui.UserControls
         private void DeletePreviousRun_Click(object sender, RoutedEventArgs e)
         {
             var previousRun = PastRunDisplay.SelectedItem as ProjectModel.PreviousRun;
-            if(previousRun != null)
+            if (previousRun != null)
             {
                 try
                 {
                     var directoryName = Path.Combine(Session.GetConfiguration().ProjectDirectory, Project.Name, previousRun.Name);
                     DirectoryInfo dir = new DirectoryInfo(directoryName);
-                    if(dir.Exists)
+                    if (dir.Exists)
                     {
                         dir.Delete(true);
                     }
                     Model.RefreshPastRuns(Session);
                 }
-                catch(IOException error)
+                catch (IOException error)
                 {
                     MessageBox.Show(error.Message, "Unable to Delete Previous Run", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
@@ -780,9 +782,9 @@ namespace XTMF.Gui.UserControls
 
         private void CopyModelSystem_Click(object sender, RoutedEventArgs e)
         {
-           // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
+            // SetValue(ModelSystemListView.IsCanPasteModelSystemDependencyProperty,true);
             ModelSystemDisplay.IsCanPasteModelSystem = true;
-            
+
             CloneCurrentModelSystem();
         }
 
@@ -791,13 +793,13 @@ namespace XTMF.Gui.UserControls
             var selected = ModelSystemDisplay.SelectedItem as ProjectModel.ContainedModelSystemModel;
 
 
-          
+
             if (selected != null)
             {
                 var error = string.Empty;
                 MainWindow.Us.ClipboardModel = selected;
 
-            
+
             }
         }
 
@@ -941,7 +943,7 @@ namespace XTMF.Gui.UserControls
 
         private void PasteModelSystem_OnClick(object sender, RoutedEventArgs e)
         {
-         
+
             string error = null;
             if (MainWindow.Us.ClipboardModel != null)
             {
@@ -954,7 +956,7 @@ namespace XTMF.Gui.UserControls
                 sr.Owner = GetWindow();
                 if (sr.ShowDialog() == true)
                 {
-                    
+
 
                     if (
                         !Session.AddExternalModelSystem(cloned, sr.Answer,
@@ -967,7 +969,7 @@ namespace XTMF.Gui.UserControls
                     {
                         Model.RefreshModelSystems();
                     }
-                 
+
                 }
             }
 

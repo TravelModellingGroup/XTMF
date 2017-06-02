@@ -61,7 +61,7 @@ namespace XTMF.Gui.UserControls
 
         public bool CanRunModelSystem
         {
-            get => (bool) GetValue(CanRunModelSystemDependencyProperty);
+            get => (bool)GetValue(CanRunModelSystemDependencyProperty);
 
             set => SetValue(CanRunModelSystemDependencyProperty, value);
         }
@@ -76,7 +76,7 @@ namespace XTMF.Gui.UserControls
 
         public double ParameterWidth
         {
-            get => (double) GetValue(ParameterWidthDependencyProperty);
+            get => (double)GetValue(ParameterWidthDependencyProperty);
 
             set => SetValue(ParameterWidthDependencyProperty, value);
         }
@@ -124,19 +124,21 @@ namespace XTMF.Gui.UserControls
         /// </summary>
         public ModelSystemModel ModelSystem
         {
-            get => (ModelSystemModel) GetValue(ModelSystemProperty);
+            get => (ModelSystemModel)GetValue(ModelSystemProperty);
             set => SetValue(ModelSystemProperty, value);
         }
 
         public string ModelSystemName
         {
-            get => (string) GetValue(ModelSystemNameProperty);
+            get => (string)GetValue(ModelSystemNameProperty);
             private set => SetValue(ModelSystemNameProperty, value);
         }
 
         private bool CheckFilterRec(ModelSystemStructureDisplayModel module, string filterText,
             bool parentExpanded = true, bool parentVisible = false, bool parentPassed = false)
         {
+
+
             var children = module.Children;
             var thisParentPassed = module.Name.IndexOf(filterText, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
                                    module.Type != null &&
@@ -178,6 +180,46 @@ namespace XTMF.Gui.UserControls
         {
             return GetCurrentlySelectedControl(DisplayRoot,
                 ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel);
+        }
+
+
+        private void Run_RuntimeValidationError(List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        {
+            Dispatcher.Invoke(() =>
+            {
+
+
+
+                ModuleValidationErrorListView.Items.Clear();
+                foreach (var error in errorList)
+                {
+
+                    ModuleRuntimeValidationErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Item3, error.Item2));
+                }
+
+                ParameterTabControl.SelectedIndex = 2;
+                ModuleRuntimeValidationErrorListView.UpdateLayout();
+
+
+            });
+        }
+
+        private void Run_ValidationError(List<Tuple<IModelSystemStructure, Queue<int>, string>> errorList)
+        {
+            Dispatcher.Invoke(() =>
+            {
+
+
+                ModuleValidationErrorListView.Items.Clear();
+                foreach (var error in errorList)
+                {
+
+                    ModuleValidationErrorListView.Items.Add(new ValidationErrorDisplayModel(DisplayRoot, error.Item3, error.Item2));
+                }
+
+                ParameterTabControl.SelectedIndex = 2;
+                ModuleValidationErrorListView.UpdateLayout();
+            });
         }
 
         private UIElement GetCurrentlySelectedControl(ModelSystemStructureDisplayModel current,
@@ -334,7 +376,7 @@ namespace XTMF.Gui.UserControls
 
         private void OnTreeExpanded(object sender, RoutedEventArgs e)
         {
-            var tvi = (TreeViewItem) sender;
+            var tvi = (TreeViewItem)sender;
             e.Handled = true;
             FilterBox.RefreshFilter();
         }
@@ -799,6 +841,8 @@ namespace XTMF.Gui.UserControls
                         MainWindow.Us.UpdateStatusDisplay("Running Model System ");
                         MainWindow.Us.ModelRunPane.Show();
 
+                        MainWindow.Us.RunWindow.ValidationError = Run_ValidationError;
+                        MainWindow.Us.RunWindow.RuntimeValidationError = Run_RuntimeValidationError;
                         MainWindow.Us.RunWindow.StartRun(Session, run, runName);
 
                         MainWindow.Us.SetStatusLink(Session.ProjectEditingSession.Name + " - " + Session.Name,
@@ -806,6 +850,8 @@ namespace XTMF.Gui.UserControls
                     }
                     else
                     {
+
+
                         MessageBox.Show(
                             "Unable to start run.\r\n" + error,
                             "Unable to start run", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
@@ -1092,17 +1138,17 @@ namespace XTMF.Gui.UserControls
                         }
                         break;
                     case Key.T:
-                    {
-                        if (ctrlDown)
                         {
-                            ToggleQuickParameter();
-                            e.Handled = true;
+                            if (ctrlDown)
+                            {
+                                ToggleQuickParameter();
+                                e.Handled = true;
+                            }
+                            else
+                            {
+                                e.Handled = false;
+                            }
                         }
-                        else
-                        {
-                            e.Handled = false;
-                        }
-                    }
                         break;
                     default:
                         e.Handled = false;
@@ -1179,7 +1225,7 @@ namespace XTMF.Gui.UserControls
                                 });
                             }
                             watch.Stop();
-                            var displayTimeRemaining = 1000 - (int) watch.ElapsedMilliseconds;
+                            var displayTimeRemaining = 1000 - (int)watch.ElapsedMilliseconds;
                             if (displayTimeRemaining > 0)
                             {
                                 MainWindow.SetStatusText("Saved");
@@ -1505,7 +1551,7 @@ namespace XTMF.Gui.UserControls
                 }
                 var mul = deltaPosition < 0 ? 1 : -1;
                 var moveOrder = CurrentlySelected
-                    .Select((c, i) => new {Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel)})
+                    .Select((c, i) => new { Index = i, ParentIndex = parent.Children.IndexOf(c.BaseModel) })
                     .OrderBy(i => mul * i.ParentIndex);
                 var first = moveOrder.First();
                 Session.ExecuteCombinedCommands(
@@ -1599,7 +1645,7 @@ namespace XTMF.Gui.UserControls
                             /* Re order the children from parent node */
 
                             /* Remove the module from selected items */
-                            CurrentlySelected.Remove(selected);
+                            //CurrentlySelected.Remove(selected);
 
                             UpdateParameters();
                             Keyboard.Focus(ModuleDisplay);
@@ -1641,6 +1687,8 @@ namespace XTMF.Gui.UserControls
                         }
                     }
                 });
+
+
         }
 
         private void CleanUpParameters()
@@ -1722,7 +1770,7 @@ namespace XTMF.Gui.UserControls
             if (currentParameter != null)
             {
                 var selectedContainer =
-                    (UIElement) ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
+                    (UIElement)ParameterDisplay.ItemContainerGenerator.ContainerFromItem(currentParameter);
                 if (selectedContainer != null)
                 {
                     var layer = AdornerLayer.GetAdornerLayer(selectedContainer);
@@ -1862,7 +1910,7 @@ namespace XTMF.Gui.UserControls
                 if (inputDirectory != null)
                 {
                     var fileName = MainWindow.OpenFile("Select File",
-                        new[] {new KeyValuePair<string, string>("All Files", "*")}, true);
+                        new[] { new KeyValuePair<string, string>("All Files", "*") }, true);
                     if (fileName == null)
                     {
                         return;
@@ -1891,7 +1939,7 @@ namespace XTMF.Gui.UserControls
             var attributes = inputDir.GetCustomAttributes(typeof(ParameterAttribute), true);
             if (attributes != null && attributes.Length > 0)
             {
-                var parameterName = ((ParameterAttribute) attributes[0]).Name;
+                var parameterName = ((ParameterAttribute)attributes[0]).Name;
                 var parameters = root.Parameters.GetParameters();
                 for (var i = 0; i < parameters.Count; i++)
                 {
@@ -2279,6 +2327,110 @@ namespace XTMF.Gui.UserControls
             }
         }
 
+
+        private ModelSystemStructureDisplayModel FindNextAncestor(ModelSystemStructureDisplayModel item)
+        {
+            if(item.Parent == null)
+            {
+
+                if (item.Children != null && item.Children.Count > 0)
+                {
+                    return item.Children[0];
+                }
+                else
+                {
+                    return item;
+                }
+            }
+            else if(item.Index < item.Parent.Children.Count -1)
+            {
+                return item.Parent.Children[item.Index + 1];
+            }
+            else
+            {
+                return FindNextAncestor(item.Parent);
+            }
+        }
+
+
+        private ModelSystemStructureDisplayModel FindMostExpandedItem(ModelSystemStructureDisplayModel item)
+        {
+            if(!item.IsExpanded || item.Children == null || item.Children.Count == 0)
+            {
+                return item;
+            }
+
+            else
+            {
+                return FindMostExpandedItem(item.Children[item.Children.Count - 1]);
+            }
+        }
+
+        private void ModuleDisplayNavigateDown(ModelSystemStructureDisplayModel item)
+        {
+
+            if(item.IsExpanded && item.Children != null && item.Children.Count > 0)
+            {
+                item.Children[0].IsSelected = true;
+
+            }
+            
+            else {
+                var toSelect = FindNextAncestor(item);
+
+                if (item.Parent == toSelect.Parent && item.Index < item.Parent.Children.Count - 1 )
+                {
+                    toSelect.IsSelected = true;
+                }
+                else if(item.Parent != toSelect.Parent)
+                {
+                    toSelect.IsSelected = true;
+                }
+                
+            }
+
+
+
+        }
+
+        private void ModuleDisplayNavigateUp(ModelSystemStructureDisplayModel item)
+        {
+            // parent is null 
+            if(item.Parent == null)
+            {
+                //cannot navigate further up
+
+                return;
+
+            }
+            else if(item.Parent != null)
+            {
+                //if parent item has a single child
+                if(item.Parent.Children.Count == 1)
+                {
+                    item.Parent.IsSelected = true;
+                    return;
+                }
+                else if(item.Index == 0)
+                {
+                    item.Parent.IsSelected = true;
+                    return;
+                }
+
+                //if parent item has multiple children
+                else if(item.Parent.Children.Count > 1)
+                {
+                    //find the most expanded "deepest" subchild of sibling element
+                    var toSelect = FindMostExpandedItem(item.Parent.Children[item.Index - 1]);
+                   
+                        toSelect.IsSelected = true;
+                    
+
+                }
+
+            }
+        }
+
         private void ModuleDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var item = ModuleDisplay.SelectedItem as ModelSystemStructureDisplayModel;
@@ -2291,6 +2443,19 @@ namespace XTMF.Gui.UserControls
                 return;
             }
 
+            if (e.Key == Key.Up)
+            {
+                ModuleDisplayNavigateUp(item);
+                e.Handled = true;
+            }
+
+            if(e.Key == Key.Down)
+            { 
+                 ModuleDisplayNavigateDown(item);
+                e.Handled = true;
+            }
+
+            /*
             if (e.Key == Key.Down)
             {
                 try
@@ -2302,7 +2467,7 @@ namespace XTMF.Gui.UserControls
 
                     else if (item.Parent != null && item.Index == item.Parent.Children.Count - 1)
                     {
-                        /* Loop until parent with expanded item */
+
 
                         var searchItem = item.Parent;
 
@@ -2390,6 +2555,8 @@ namespace XTMF.Gui.UserControls
             catch
             {
             }
+
+    */
         }
 
         private void ParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -2400,6 +2567,11 @@ namespace XTMF.Gui.UserControls
         private void QuickParameterDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ParameterWidth = QuickParameterDisplay.ActualWidth - 24;
+        }
+
+        private void ValidationErrorDisplay_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            ParameterWidth = ModuleValidationErrorListView.ActualWidth - 24;
         }
 
         private void GridCanvas_MouseDown(object sender, MouseButtonEventArgs e)
@@ -2421,7 +2593,7 @@ namespace XTMF.Gui.UserControls
 
         private void ParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var s = ((ListView) sender).SelectedItem as ParameterDisplayModel;
+            var s = ((ListView)sender).SelectedItem as ParameterDisplayModel;
 
             if (s != null)
             {
@@ -2431,7 +2603,7 @@ namespace XTMF.Gui.UserControls
 
         private void QuickParameterDisplay_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var s = ((ListView) sender).SelectedItem as ParameterDisplayModel;
+            var s = ((ListView)sender).SelectedItem as ParameterDisplayModel;
 
             if (s != null)
             {
@@ -2472,26 +2644,43 @@ namespace XTMF.Gui.UserControls
             base.OnPreviewKeyDown(e);
         }
 
-        private void ExpandModule(ModelSystemStructureDisplayModel module)
+
+
+        private void ExpandModule(ModelSystemStructureDisplayModel module, bool collapse=true)
         {
-            module.IsExpanded = true;
+            module.IsExpanded = collapse;
             foreach (var child in module.Children)
             {
                 ExpandModule(child);
+
             }
         }
 
         private void ExpandAllMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (ModuleDisplay.Items.Count > 0)
+            if (ModuleDisplay.SelectedItem != null)
             {
-                ExpandModule((ModelSystemStructureDisplayModel) ModuleDisplay.Items.GetItemAt(0));
+                if (ModuleDisplay.Items.Count > 0)
+                {
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem);
+                }
+            }
+        }
+
+        private void CollapseAllMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (ModuleDisplay.SelectedItem != null)
+            {
+                if (ModuleDisplay.Items.Count > 0)
+                {
+                    ExpandModule((ModelSystemStructureDisplayModel)ModuleDisplay.SelectedItem, false);
+                }
             }
         }
 
         private void ModelSystemInformation_EnableModuleMouseDown(object sender, MouseButtonEventArgs e)
         {
-            var module = ((Label) sender).Tag as ModelSystemStructureDisplayModel;
+            var module = ((Label)sender).Tag as ModelSystemStructureDisplayModel;
             if (module != null)
             {
                 var error = string.Empty;
@@ -2505,11 +2694,66 @@ namespace XTMF.Gui.UserControls
 
         private void Path_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            var module = ((Border) sender).Tag as ModelSystemStructureDisplayModel;
+            var module = ((Border)sender).Tag as ModelSystemStructureDisplayModel;
             if (module != null)
             {
                 DisabledModules.Remove(module);
             }
+        }
+
+        private void ValidationListModuleNameMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var label = sender as ValidationErrorListControl;
+
+            var model = label.Tag as ModelSystemStructureDisplayModel;
+
+            if (model != null)
+            {
+               
+                ExpandToRoot(model);
+
+     
+
+                model.IsSelected = true;
+
+            }
+        }
+
+        private void ExpandToRoot(ModelSystemStructureDisplayModel module)
+        {
+            if (module == null)
+            {
+                return;
+            }
+
+
+            module.IsExpanded = true;
+
+            if (module.Parent != null)
+                ExpandToRoot(module.Parent);
+
+
+        }
+
+        private void ParameterTabControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+
+        }
+
+        private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem item = sender as TreeViewItem;
+            item.BringIntoView();
+        }
+
+        private void ModuleRuntimeValidationErrorListView_LostFocus(object sender, RoutedEventArgs e)
+        {
+            (sender as ListView).SelectedItem = null;
+        }
+
+        private void ModuleValidationErrorListView_LostFocus(object sender, RoutedEventArgs e)
+        {
+            (sender as ListView).SelectedItem = null;
         }
     }
 }

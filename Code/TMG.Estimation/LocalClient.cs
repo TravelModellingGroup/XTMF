@@ -80,7 +80,7 @@ namespace TMG.Estimation
                 {
                     
                     if (
-                        !Functions.ModelSystemReflection.AssignValue(ClientStructure, Parameters[i].Names[j],
+                        !Functions.ModelSystemReflection.AssignValue(XtmfConfig, ClientStructure, Parameters[i].Names[j],
                             task.ParameterValues[i].ToString(CultureInfo.InvariantCulture), ref error))
                     {
                         throw new XTMFRuntimeException($"In '{Name}' we encountered an error when trying to assign parameters.\r\n{error}");
