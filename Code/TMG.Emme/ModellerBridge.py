@@ -72,7 +72,7 @@ def RedirectLogbookWrite(name, attributes=None, value=None):
     pass
 
 @contextmanager
-def RedirectLogbookTrace(name, attributes=None, value=None):
+def RedirectLogbookTrace(name, attributes=None, value=None, save_arguments=None):
     try:
         yield None
     finally:
@@ -124,6 +124,7 @@ class XTMFBridge:
     def __init__(self):
         self.CachedLogbookWrite = _m.logbook_write
         self.CachedLogbookTrace = _m.logbook_trace
+        self.previous_level = None
         
         # Redirect sys.stdout
         sys.stdin.close()
@@ -591,12 +592,11 @@ class XTMFBridge:
         return
     
     def DisableLogbook(self):
-        _m.logbook_write = RedirectLogbookWrite
-        _m.logbook_trace = RedirectLogbookTrace
+        self.previous_level = inro.modeller.logbook_level()
+        _m.logbook_level(inro.modeller.LogbookLevel.NONE)
     
     def EnableLogbook(self):
-        _m.logbook_write = self.CachedLogbookWrite
-        _m.logbook_trace = self.CachedLogbookTrace
+	    _m.logbook_level(self.previous_level)
     
 #end XTMFBridge
 
