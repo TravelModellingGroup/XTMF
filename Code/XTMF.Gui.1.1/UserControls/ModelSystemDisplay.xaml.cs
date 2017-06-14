@@ -1663,7 +1663,7 @@ namespace XTMF.Gui.UserControls
                             {
                                 selected.Children.Clear();
                             }
-                            else if (!selected.Parent.IsCollection)
+                            else if (selected.Parent != null && !selected.Parent.IsCollection)
                             {
                             }
                             else if (selected.Parent != null)
