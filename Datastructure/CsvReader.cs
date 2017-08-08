@@ -169,6 +169,7 @@ namespace Datastructure
             var i = 0;
             var prevC = '\0';
             var quote = false;
+            var previousWasQuote = false;
             if (SpacesAsSeperator)
             {
                 while (true)
@@ -206,17 +207,32 @@ namespace Datastructure
                     }
                     if ((c == '"'))
                     {
-                        if (prevEnd == i - 1)
+                        if (previousWasQuote)
                         {
+                            // if the previous was a quote, reactive quote mode and
+                            // add it to the line buffer
+                            previousWasQuote = false;
                             quote = true;
-                            continue;
                         }
-                        if (quote)
+                        else
                         {
-                            quote = false;
-                            continue;
+                            previousWasQuote = true;
+                            if (prevEnd == i - 1)
+                            {
+                                quote = true;
+                                continue;
+                            }
+                            if (quote)
+                            {
+                                quote = false;
+                                continue;
+                            }
                         }
                         // if it is just in the middle continue on
+                    }
+                    else
+                    {
+                        previousWasQuote = false;
                     }
                     if (LinePosition >= LineBuffer.Length)
                     {
@@ -280,17 +296,32 @@ namespace Datastructure
                     }
                     if ((c == '"'))
                     {
-                        if (prevEnd == i - 1)
+                        if (previousWasQuote)
                         {
+                            // if the previous was a quote, reactive quote mode and
+                            // add it to the line buffer
+                            previousWasQuote = false;
                             quote = true;
-                            continue;
                         }
-                        if (quote)
+                        else
                         {
-                            quote = false;
-                            continue;
+                            previousWasQuote = true;
+                            if (prevEnd == i - 1)
+                            {
+                                quote = true;
+                                continue;
+                            }
+                            if (quote)
+                            {
+                                quote = false;
+                                continue;
+                            }
                         }
                         // if it is just in the middle continue on
+                    }
+                    else
+                    {
+                        previousWasQuote = false;
                     }
                     if (LinePosition >= LineBuffer.Length)
                     {
